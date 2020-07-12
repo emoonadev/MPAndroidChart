@@ -16,6 +16,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore.Images;
+
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -63,7 +65,7 @@ import java.util.ArrayList;
  */
 public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Entry>>> extends
         ViewGroup
-        implements ChartInterface {
+        implements ChartInterface, View.OnClickListener {
 
     public static final String LOG_TAG = "MPAndroidChart";
 
@@ -251,6 +253,7 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
 
         // enable being detected by ScreenReader
         setFocusable(true);
+        this.setOnClickListener(this);
     }
 
     // public void initWithDummyData() {
@@ -1852,6 +1855,8 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
     @Override
     public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
 
+        // This should be called...
+
         boolean completed = super.dispatchPopulateAccessibilityEvent(event);
         Log.d(TAG, "Dispatch called for Chart <View> and completed as " + completed);
 
@@ -1863,6 +1868,11 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
         }
 
         return true;
+    }
+
+    @Override
+    public void onClick(View v) {
+        sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED);
     }
 
     // endregion
