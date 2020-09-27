@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>PropertiesComputer xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math4/geometry/spherical/twod/PropertiesComputer.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="PropertiesComputer.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="PropertiesComputer.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="PropertiesComputer.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="PropertiesComputer.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="PropertiesComputer.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="PropertiesComputer.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="PropertiesComputer.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="PropertiesComputer.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="PropertiesComputer.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="PropertiesComputer.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="PropertiesComputer.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="PropertiesComputer.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="PropertiesComputer.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="PropertiesComputer.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="PropertiesComputer.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="PropertiesComputer.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="PropertiesComputer.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.geometry.spherical.twod;
+<a class="jxr_linenumber" name="L18" href="PropertiesComputer.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="PropertiesComputer.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L20" href="PropertiesComputer.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L21" href="PropertiesComputer.html#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="PropertiesComputer.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathInternalError;
+<a class="jxr_linenumber" name="L23" href="PropertiesComputer.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.euclidean.threed.Vector3D;
+<a class="jxr_linenumber" name="L24" href="PropertiesComputer.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.partitioning.BSPTree;
+<a class="jxr_linenumber" name="L25" href="PropertiesComputer.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.partitioning.BSPTreeVisitor;
+<a class="jxr_linenumber" name="L26" href="PropertiesComputer.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L27" href="PropertiesComputer.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathUtils;
+<a class="jxr_linenumber" name="L28" href="PropertiesComputer.html#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="PropertiesComputer.html#L29">29</a>  <em class="jxr_javadoccomment">/** Visitor computing geometrical properties.</em>
+<a class="jxr_linenumber" name="L30" href="PropertiesComputer.html#L30">30</a>  <em class="jxr_javadoccomment"> * @since 3.3</em>
+<a class="jxr_linenumber" name="L31" href="PropertiesComputer.html#L31">31</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L32" href="PropertiesComputer.html#L32">32</a>  <strong class="jxr_keyword">class</strong> <a href="PropertiesComputer.html">PropertiesComputer</a> <strong class="jxr_keyword">implements</strong> BSPTreeVisitor&lt;Sphere2D&gt; {
+<a class="jxr_linenumber" name="L33" href="PropertiesComputer.html#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="PropertiesComputer.html#L34">34</a>      <em class="jxr_javadoccomment">/** Tolerance below which points are consider to be identical. */</em>
+<a class="jxr_linenumber" name="L35" href="PropertiesComputer.html#L35">35</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tolerance;
+<a class="jxr_linenumber" name="L36" href="PropertiesComputer.html#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="PropertiesComputer.html#L37">37</a>      <em class="jxr_javadoccomment">/** Summed area. */</em>
+<a class="jxr_linenumber" name="L38" href="PropertiesComputer.html#L38">38</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> summedArea;
+<a class="jxr_linenumber" name="L39" href="PropertiesComputer.html#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="PropertiesComputer.html#L40">40</a>      <em class="jxr_javadoccomment">/** Summed barycenter. */</em>
+<a class="jxr_linenumber" name="L41" href="PropertiesComputer.html#L41">41</a>      <strong class="jxr_keyword">private</strong> <a href="../../euclidean/threed/Vector3D.html">Vector3D</a> summedBarycenter;
+<a class="jxr_linenumber" name="L42" href="PropertiesComputer.html#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="PropertiesComputer.html#L43">43</a>      <em class="jxr_javadoccomment">/** List of points strictly inside convex cells. */</em>
+<a class="jxr_linenumber" name="L44" href="PropertiesComputer.html#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> List&lt;Vector3D&gt; convexCellsInsidePoints;
+<a class="jxr_linenumber" name="L45" href="PropertiesComputer.html#L45">45</a>  
+<a class="jxr_linenumber" name="L46" href="PropertiesComputer.html#L46">46</a>      <em class="jxr_javadoccomment">/** Simple constructor.</em>
+<a class="jxr_linenumber" name="L47" href="PropertiesComputer.html#L47">47</a>  <em class="jxr_javadoccomment">     * @param tolerance below which points are consider to be identical</em>
+<a class="jxr_linenumber" name="L48" href="PropertiesComputer.html#L48">48</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L49" href="PropertiesComputer.html#L49">49</a>      <a href="PropertiesComputer.html">PropertiesComputer</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tolerance) {
+<a class="jxr_linenumber" name="L50" href="PropertiesComputer.html#L50">50</a>          <strong class="jxr_keyword">this</strong>.tolerance              = tolerance;
+<a class="jxr_linenumber" name="L51" href="PropertiesComputer.html#L51">51</a>          <strong class="jxr_keyword">this</strong>.summedArea             = 0;
+<a class="jxr_linenumber" name="L52" href="PropertiesComputer.html#L52">52</a>          <strong class="jxr_keyword">this</strong>.summedBarycenter       = Vector3D.ZERO;
+<a class="jxr_linenumber" name="L53" href="PropertiesComputer.html#L53">53</a>          <strong class="jxr_keyword">this</strong>.convexCellsInsidePoints = <strong class="jxr_keyword">new</strong> ArrayList&lt;Vector3D&gt;();
+<a class="jxr_linenumber" name="L54" href="PropertiesComputer.html#L54">54</a>      }
+<a class="jxr_linenumber" name="L55" href="PropertiesComputer.html#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="PropertiesComputer.html#L56">56</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L57" href="PropertiesComputer.html#L57">57</a>      @Override
+<a class="jxr_linenumber" name="L58" href="PropertiesComputer.html#L58">58</a>      <strong class="jxr_keyword">public</strong> <a href="../../partitioning/BSPTreeVisitor.html">Order</a> visitOrder(<strong class="jxr_keyword">final</strong> BSPTree&lt;Sphere2D&gt; node) {
+<a class="jxr_linenumber" name="L59" href="PropertiesComputer.html#L59">59</a>          <strong class="jxr_keyword">return</strong> Order.MINUS_SUB_PLUS;
+<a class="jxr_linenumber" name="L60" href="PropertiesComputer.html#L60">60</a>      }
+<a class="jxr_linenumber" name="L61" href="PropertiesComputer.html#L61">61</a>  
+<a class="jxr_linenumber" name="L62" href="PropertiesComputer.html#L62">62</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L63" href="PropertiesComputer.html#L63">63</a>      @Override
+<a class="jxr_linenumber" name="L64" href="PropertiesComputer.html#L64">64</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> visitInternalNode(<strong class="jxr_keyword">final</strong> BSPTree&lt;Sphere2D&gt; node) {
+<a class="jxr_linenumber" name="L65" href="PropertiesComputer.html#L65">65</a>          <em class="jxr_comment">// nothing to do here</em>
+<a class="jxr_linenumber" name="L66" href="PropertiesComputer.html#L66">66</a>      }
+<a class="jxr_linenumber" name="L67" href="PropertiesComputer.html#L67">67</a>  
+<a class="jxr_linenumber" name="L68" href="PropertiesComputer.html#L68">68</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L69" href="PropertiesComputer.html#L69">69</a>      @Override
+<a class="jxr_linenumber" name="L70" href="PropertiesComputer.html#L70">70</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> visitLeafNode(<strong class="jxr_keyword">final</strong> BSPTree&lt;Sphere2D&gt; node) {
+<a class="jxr_linenumber" name="L71" href="PropertiesComputer.html#L71">71</a>          <strong class="jxr_keyword">if</strong> ((Boolean) node.getAttribute()) {
+<a class="jxr_linenumber" name="L72" href="PropertiesComputer.html#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="PropertiesComputer.html#L73">73</a>              <em class="jxr_comment">// transform this inside leaf cell into a simple convex polygon</em>
+<a class="jxr_linenumber" name="L74" href="PropertiesComputer.html#L74">74</a>              <strong class="jxr_keyword">final</strong> <a href="SphericalPolygonsSet.html">SphericalPolygonsSet</a> convex =
+<a class="jxr_linenumber" name="L75" href="PropertiesComputer.html#L75">75</a>                      <strong class="jxr_keyword">new</strong> <a href="SphericalPolygonsSet.html">SphericalPolygonsSet</a>(node.pruneAroundConvexCell(Boolean.TRUE,
+<a class="jxr_linenumber" name="L76" href="PropertiesComputer.html#L76">76</a>                                                                          Boolean.FALSE,
+<a class="jxr_linenumber" name="L77" href="PropertiesComputer.html#L77">77</a>                                                                          <strong class="jxr_keyword">null</strong>),
+<a class="jxr_linenumber" name="L78" href="PropertiesComputer.html#L78">78</a>                                               tolerance);
+<a class="jxr_linenumber" name="L79" href="PropertiesComputer.html#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="PropertiesComputer.html#L80">80</a>              <em class="jxr_comment">// extract the start of the single loop boundary of the convex cell</em>
+<a class="jxr_linenumber" name="L81" href="PropertiesComputer.html#L81">81</a>              <strong class="jxr_keyword">final</strong> List&lt;Vertex&gt; boundary = convex.getBoundaryLoops();
+<a class="jxr_linenumber" name="L82" href="PropertiesComputer.html#L82">82</a>              <strong class="jxr_keyword">if</strong> (boundary.size() != 1) {
+<a class="jxr_linenumber" name="L83" href="PropertiesComputer.html#L83">83</a>                  <em class="jxr_comment">// this should never happen</em>
+<a class="jxr_linenumber" name="L84" href="PropertiesComputer.html#L84">84</a>                  <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../exception/MathInternalError.html">MathInternalError</a>();
+<a class="jxr_linenumber" name="L85" href="PropertiesComputer.html#L85">85</a>              }
+<a class="jxr_linenumber" name="L86" href="PropertiesComputer.html#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="PropertiesComputer.html#L87">87</a>              <em class="jxr_comment">// compute the geometrical properties of the convex cell</em>
+<a class="jxr_linenumber" name="L88" href="PropertiesComputer.html#L88">88</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> area  = convexCellArea(boundary.get(0));
+<a class="jxr_linenumber" name="L89" href="PropertiesComputer.html#L89">89</a>              <strong class="jxr_keyword">final</strong> <a href="../../euclidean/threed/Vector3D.html">Vector3D</a> barycenter = convexCellBarycenter(boundary.get(0));
+<a class="jxr_linenumber" name="L90" href="PropertiesComputer.html#L90">90</a>              convexCellsInsidePoints.add(barycenter);
+<a class="jxr_linenumber" name="L91" href="PropertiesComputer.html#L91">91</a>  
+<a class="jxr_linenumber" name="L92" href="PropertiesComputer.html#L92">92</a>              <em class="jxr_comment">// add the cell contribution to the global properties</em>
+<a class="jxr_linenumber" name="L93" href="PropertiesComputer.html#L93">93</a>              summedArea      += area;
+<a class="jxr_linenumber" name="L94" href="PropertiesComputer.html#L94">94</a>              summedBarycenter = <strong class="jxr_keyword">new</strong> <a href="../../euclidean/threed/Vector3D.html">Vector3D</a>(1, summedBarycenter, area, barycenter);
+<a class="jxr_linenumber" name="L95" href="PropertiesComputer.html#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="PropertiesComputer.html#L96">96</a>          }
+<a class="jxr_linenumber" name="L97" href="PropertiesComputer.html#L97">97</a>      }
+<a class="jxr_linenumber" name="L98" href="PropertiesComputer.html#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="PropertiesComputer.html#L99">99</a>      <em class="jxr_javadoccomment">/** Compute convex cell area.</em>
+<a class="jxr_linenumber" name="L100" href="PropertiesComputer.html#L100">100</a> <em class="jxr_javadoccomment">     * @param start start vertex of the convex cell boundary</em>
+<a class="jxr_linenumber" name="L101" href="PropertiesComputer.html#L101">101</a> <em class="jxr_javadoccomment">     * @return area</em>
+<a class="jxr_linenumber" name="L102" href="PropertiesComputer.html#L102">102</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L103" href="PropertiesComputer.html#L103">103</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> convexCellArea(<strong class="jxr_keyword">final</strong> <a href="Vertex.html">Vertex</a> start) {
+<a class="jxr_linenumber" name="L104" href="PropertiesComputer.html#L104">104</a> 
+<a class="jxr_linenumber" name="L105" href="PropertiesComputer.html#L105">105</a>         <strong class="jxr_keyword">int</strong> n = 0;
+<a class="jxr_linenumber" name="L106" href="PropertiesComputer.html#L106">106</a>         <strong class="jxr_keyword">double</strong> sum = 0;
+<a class="jxr_linenumber" name="L107" href="PropertiesComputer.html#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="PropertiesComputer.html#L108">108</a>         <em class="jxr_comment">// loop around the cell</em>
+<a class="jxr_linenumber" name="L109" href="PropertiesComputer.html#L109">109</a>         <strong class="jxr_keyword">for</strong> (Edge e = start.getOutgoing(); n == 0 || e.getStart() != start; e = e.getEnd().getOutgoing()) {
+<a class="jxr_linenumber" name="L110" href="PropertiesComputer.html#L110">110</a> 
+<a class="jxr_linenumber" name="L111" href="PropertiesComputer.html#L111">111</a>             <em class="jxr_comment">// find path interior angle at vertex</em>
+<a class="jxr_linenumber" name="L112" href="PropertiesComputer.html#L112">112</a>             <strong class="jxr_keyword">final</strong> <a href="../../euclidean/threed/Vector3D.html">Vector3D</a> previousPole = e.getCircle().getPole();
+<a class="jxr_linenumber" name="L113" href="PropertiesComputer.html#L113">113</a>             <strong class="jxr_keyword">final</strong> <a href="../../euclidean/threed/Vector3D.html">Vector3D</a> nextPole     = e.getEnd().getOutgoing().getCircle().getPole();
+<a class="jxr_linenumber" name="L114" href="PropertiesComputer.html#L114">114</a>             <strong class="jxr_keyword">final</strong> <a href="../../euclidean/threed/Vector3D.html">Vector3D</a> point        = e.getEnd().getLocation().getVector();
+<a class="jxr_linenumber" name="L115" href="PropertiesComputer.html#L115">115</a>             <strong class="jxr_keyword">double</strong> alpha = FastMath.atan2(Vector3D.dotProduct(nextPole, Vector3D.crossProduct(point, previousPole)),
+<a class="jxr_linenumber" name="L116" href="PropertiesComputer.html#L116">116</a>                                           -Vector3D.dotProduct(nextPole, previousPole));
+<a class="jxr_linenumber" name="L117" href="PropertiesComputer.html#L117">117</a>             <strong class="jxr_keyword">if</strong> (alpha &lt; 0) {
+<a class="jxr_linenumber" name="L118" href="PropertiesComputer.html#L118">118</a>                 alpha += MathUtils.TWO_PI;
+<a class="jxr_linenumber" name="L119" href="PropertiesComputer.html#L119">119</a>             }
+<a class="jxr_linenumber" name="L120" href="PropertiesComputer.html#L120">120</a>             sum += alpha;
+<a class="jxr_linenumber" name="L121" href="PropertiesComputer.html#L121">121</a>             n++;
+<a class="jxr_linenumber" name="L122" href="PropertiesComputer.html#L122">122</a>         }
+<a class="jxr_linenumber" name="L123" href="PropertiesComputer.html#L123">123</a> 
+<a class="jxr_linenumber" name="L124" href="PropertiesComputer.html#L124">124</a>         <em class="jxr_comment">// compute area using extended Girard theorem</em>
+<a class="jxr_linenumber" name="L125" href="PropertiesComputer.html#L125">125</a>         <em class="jxr_comment">// see Spherical Trigonometry: For the Use of Colleges and Schools by I. Todhunter</em>
+<a class="jxr_linenumber" name="L126" href="PropertiesComputer.html#L126">126</a>         <em class="jxr_comment">// article 99 in chapter VIII Area Of a Spherical Triangle. Spherical Excess.</em>
+<a class="jxr_linenumber" name="L127" href="PropertiesComputer.html#L127">127</a>         <em class="jxr_comment">// book available from project Gutenberg at http://www.gutenberg.org/ebooks/19770</em>
+<a class="jxr_linenumber" name="L128" href="PropertiesComputer.html#L128">128</a>         <strong class="jxr_keyword">return</strong> sum - (n - 2) * FastMath.PI;
+<a class="jxr_linenumber" name="L129" href="PropertiesComputer.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="PropertiesComputer.html#L130">130</a>     }
+<a class="jxr_linenumber" name="L131" href="PropertiesComputer.html#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="PropertiesComputer.html#L132">132</a>     <em class="jxr_javadoccomment">/** Compute convex cell barycenter.</em>
+<a class="jxr_linenumber" name="L133" href="PropertiesComputer.html#L133">133</a> <em class="jxr_javadoccomment">     * @param start start vertex of the convex cell boundary</em>
+<a class="jxr_linenumber" name="L134" href="PropertiesComputer.html#L134">134</a> <em class="jxr_javadoccomment">     * @return barycenter</em>
+<a class="jxr_linenumber" name="L135" href="PropertiesComputer.html#L135">135</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L136" href="PropertiesComputer.html#L136">136</a>     <strong class="jxr_keyword">private</strong> <a href="../../euclidean/threed/Vector3D.html">Vector3D</a> convexCellBarycenter(<strong class="jxr_keyword">final</strong> <a href="Vertex.html">Vertex</a> start) {
+<a class="jxr_linenumber" name="L137" href="PropertiesComputer.html#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="PropertiesComputer.html#L138">138</a>         <strong class="jxr_keyword">int</strong> n = 0;
+<a class="jxr_linenumber" name="L139" href="PropertiesComputer.html#L139">139</a>         <a href="../../euclidean/threed/Vector3D.html">Vector3D</a> sumB = Vector3D.ZERO;
+<a class="jxr_linenumber" name="L140" href="PropertiesComputer.html#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="PropertiesComputer.html#L141">141</a>         <em class="jxr_comment">// loop around the cell</em>
+<a class="jxr_linenumber" name="L142" href="PropertiesComputer.html#L142">142</a>         <strong class="jxr_keyword">for</strong> (Edge e = start.getOutgoing(); n == 0 || e.getStart() != start; e = e.getEnd().getOutgoing()) {
+<a class="jxr_linenumber" name="L143" href="PropertiesComputer.html#L143">143</a>             sumB = <strong class="jxr_keyword">new</strong> <a href="../../euclidean/threed/Vector3D.html">Vector3D</a>(1, sumB, e.getLength(), e.getCircle().getPole());
+<a class="jxr_linenumber" name="L144" href="PropertiesComputer.html#L144">144</a>             n++;
+<a class="jxr_linenumber" name="L145" href="PropertiesComputer.html#L145">145</a>         }
+<a class="jxr_linenumber" name="L146" href="PropertiesComputer.html#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="PropertiesComputer.html#L147">147</a>         <strong class="jxr_keyword">return</strong> sumB.normalize();
+<a class="jxr_linenumber" name="L148" href="PropertiesComputer.html#L148">148</a> 
+<a class="jxr_linenumber" name="L149" href="PropertiesComputer.html#L149">149</a>     }
+<a class="jxr_linenumber" name="L150" href="PropertiesComputer.html#L150">150</a> 
+<a class="jxr_linenumber" name="L151" href="PropertiesComputer.html#L151">151</a>     <em class="jxr_javadoccomment">/** Get the area.</em>
+<a class="jxr_linenumber" name="L152" href="PropertiesComputer.html#L152">152</a> <em class="jxr_javadoccomment">     * @return area</em>
+<a class="jxr_linenumber" name="L153" href="PropertiesComputer.html#L153">153</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L154" href="PropertiesComputer.html#L154">154</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getArea() {
+<a class="jxr_linenumber" name="L155" href="PropertiesComputer.html#L155">155</a>         <strong class="jxr_keyword">return</strong> summedArea;
+<a class="jxr_linenumber" name="L156" href="PropertiesComputer.html#L156">156</a>     }
+<a class="jxr_linenumber" name="L157" href="PropertiesComputer.html#L157">157</a> 
+<a class="jxr_linenumber" name="L158" href="PropertiesComputer.html#L158">158</a>     <em class="jxr_javadoccomment">/** Get the barycenter.</em>
+<a class="jxr_linenumber" name="L159" href="PropertiesComputer.html#L159">159</a> <em class="jxr_javadoccomment">     * @return barycenter</em>
+<a class="jxr_linenumber" name="L160" href="PropertiesComputer.html#L160">160</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L161" href="PropertiesComputer.html#L161">161</a>     <strong class="jxr_keyword">public</strong> <a href="S2Point.html">S2Point</a> getBarycenter() {
+<a class="jxr_linenumber" name="L162" href="PropertiesComputer.html#L162">162</a>         <strong class="jxr_keyword">if</strong> (summedBarycenter.getNormSq() == 0) {
+<a class="jxr_linenumber" name="L163" href="PropertiesComputer.html#L163">163</a>             <strong class="jxr_keyword">return</strong> S2Point.NaN;
+<a class="jxr_linenumber" name="L164" href="PropertiesComputer.html#L164">164</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L165" href="PropertiesComputer.html#L165">165</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="S2Point.html">S2Point</a>(summedBarycenter);
+<a class="jxr_linenumber" name="L166" href="PropertiesComputer.html#L166">166</a>         }
+<a class="jxr_linenumber" name="L167" href="PropertiesComputer.html#L167">167</a>     }
+<a class="jxr_linenumber" name="L168" href="PropertiesComputer.html#L168">168</a> 
+<a class="jxr_linenumber" name="L169" href="PropertiesComputer.html#L169">169</a>     <em class="jxr_javadoccomment">/** Get the points strictly inside convex cells.</em>
+<a class="jxr_linenumber" name="L170" href="PropertiesComputer.html#L170">170</a> <em class="jxr_javadoccomment">     * @return points strictly inside convex cells</em>
+<a class="jxr_linenumber" name="L171" href="PropertiesComputer.html#L171">171</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L172" href="PropertiesComputer.html#L172">172</a>     <strong class="jxr_keyword">public</strong> List&lt;Vector3D&gt; getConvexCellsInsidePoints() {
+<a class="jxr_linenumber" name="L173" href="PropertiesComputer.html#L173">173</a>         <strong class="jxr_keyword">return</strong> convexCellsInsidePoints;
+<a class="jxr_linenumber" name="L174" href="PropertiesComputer.html#L174">174</a>     }
+<a class="jxr_linenumber" name="L175" href="PropertiesComputer.html#L175">175</a> 
+<a class="jxr_linenumber" name="L176" href="PropertiesComputer.html#L176">176</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

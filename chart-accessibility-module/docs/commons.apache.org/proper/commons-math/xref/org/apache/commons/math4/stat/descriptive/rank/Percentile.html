@@ -1,0 +1,1044 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Percentile xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../../apidocs/org/apache/commons/math4/stat/descriptive/rank/Percentile.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="Percentile.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="Percentile.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="Percentile.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="Percentile.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="Percentile.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="Percentile.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="Percentile.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="Percentile.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="Percentile.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="Percentile.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="Percentile.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="Percentile.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="Percentile.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="Percentile.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="Percentile.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="Percentile.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="Percentile.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.stat.descriptive.rank;
+<a class="jxr_linenumber" name="L18" href="Percentile.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="Percentile.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.io.Serializable;
+<a class="jxr_linenumber" name="L20" href="Percentile.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L21" href="Percentile.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.BitSet;
+<a class="jxr_linenumber" name="L22" href="Percentile.html#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="Percentile.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L24" href="Percentile.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NullArgumentException;
+<a class="jxr_linenumber" name="L25" href="Percentile.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L26" href="Percentile.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L27" href="Percentile.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.descriptive.AbstractUnivariateStatistic;
+<a class="jxr_linenumber" name="L28" href="Percentile.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.ranking.NaNStrategy;
+<a class="jxr_linenumber" name="L29" href="Percentile.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L30" href="Percentile.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.KthSelector;
+<a class="jxr_linenumber" name="L31" href="Percentile.html#L31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L32" href="Percentile.html#L32">32</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathUtils;
+<a class="jxr_linenumber" name="L33" href="Percentile.html#L33">33</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MedianOf3PivotingStrategy;
+<a class="jxr_linenumber" name="L34" href="Percentile.html#L34">34</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.PivotingStrategyInterface;
+<a class="jxr_linenumber" name="L35" href="Percentile.html#L35">35</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Precision;
+<a class="jxr_linenumber" name="L36" href="Percentile.html#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="Percentile.html#L37">37</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L38" href="Percentile.html#L38">38</a>  <em class="jxr_javadoccomment"> * Provides percentile computation.</em>
+<a class="jxr_linenumber" name="L39" href="Percentile.html#L39">39</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L40" href="Percentile.html#L40">40</a>  <em class="jxr_javadoccomment"> * There are several commonly used methods for estimating percentiles (a.k.a.</em>
+<a class="jxr_linenumber" name="L41" href="Percentile.html#L41">41</a>  <em class="jxr_javadoccomment"> * quantiles) based on sample data.  For large samples, the different methods</em>
+<a class="jxr_linenumber" name="L42" href="Percentile.html#L42">42</a>  <em class="jxr_javadoccomment"> * agree closely, but when sample sizes are small, different methods will give</em>
+<a class="jxr_linenumber" name="L43" href="Percentile.html#L43">43</a>  <em class="jxr_javadoccomment"> * significantly different results.  The algorithm implemented here works as follows:</em>
+<a class="jxr_linenumber" name="L44" href="Percentile.html#L44">44</a>  <em class="jxr_javadoccomment"> * &lt;ol&gt;</em>
+<a class="jxr_linenumber" name="L45" href="Percentile.html#L45">45</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;Let &lt;code&gt;n&lt;/code&gt; be the length of the (sorted) array and</em>
+<a class="jxr_linenumber" name="L46" href="Percentile.html#L46">46</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;0 &lt; p &lt;= 100&lt;/code&gt; be the desired percentile.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L47" href="Percentile.html#L47">47</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;If &lt;code&gt; n = 1 &lt;/code&gt; return the unique array element (regardless of</em>
+<a class="jxr_linenumber" name="L48" href="Percentile.html#L48">48</a>  <em class="jxr_javadoccomment"> * the value of &lt;code&gt;p&lt;/code&gt;); otherwise &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L49" href="Percentile.html#L49">49</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;Compute the estimated percentile position</em>
+<a class="jxr_linenumber" name="L50" href="Percentile.html#L50">50</a>  <em class="jxr_javadoccomment"> * &lt;code&gt; pos = p * (n + 1) / 100&lt;/code&gt; and the difference, &lt;code&gt;d&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L51" href="Percentile.html#L51">51</a>  <em class="jxr_javadoccomment"> * between &lt;code&gt;pos&lt;/code&gt; and &lt;code&gt;floor(pos)&lt;/code&gt; (i.e. the fractional</em>
+<a class="jxr_linenumber" name="L52" href="Percentile.html#L52">52</a>  <em class="jxr_javadoccomment"> * part of &lt;code&gt;pos&lt;/code&gt;).&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L53" href="Percentile.html#L53">53</a>  <em class="jxr_javadoccomment"> * &lt;li&gt; If &lt;code&gt;pos &lt; 1&lt;/code&gt; return the smallest element in the array.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L54" href="Percentile.html#L54">54</a>  <em class="jxr_javadoccomment"> * &lt;li&gt; Else if &lt;code&gt;pos &gt;= n&lt;/code&gt; return the largest element in the array.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L55" href="Percentile.html#L55">55</a>  <em class="jxr_javadoccomment"> * &lt;li&gt; Else let &lt;code&gt;lower&lt;/code&gt; be the element in position</em>
+<a class="jxr_linenumber" name="L56" href="Percentile.html#L56">56</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;floor(pos)&lt;/code&gt; in the array and let &lt;code&gt;upper&lt;/code&gt; be the</em>
+<a class="jxr_linenumber" name="L57" href="Percentile.html#L57">57</a>  <em class="jxr_javadoccomment"> * next element in the array.  Return &lt;code&gt;lower + d * (upper - lower)&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L58" href="Percentile.html#L58">58</a>  <em class="jxr_javadoccomment"> * &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L59" href="Percentile.html#L59">59</a>  <em class="jxr_javadoccomment"> * &lt;/ol&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L60" href="Percentile.html#L60">60</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L61" href="Percentile.html#L61">61</a>  <em class="jxr_javadoccomment"> * To compute percentiles, the data must be at least partially ordered.  Input</em>
+<a class="jxr_linenumber" name="L62" href="Percentile.html#L62">62</a>  <em class="jxr_javadoccomment"> * arrays are copied and recursively partitioned using an ordering definition.</em>
+<a class="jxr_linenumber" name="L63" href="Percentile.html#L63">63</a>  <em class="jxr_javadoccomment"> * The ordering used by &lt;code&gt;Arrays.sort(double[])&lt;/code&gt; is the one determined</em>
+<a class="jxr_linenumber" name="L64" href="Percentile.html#L64">64</a>  <em class="jxr_javadoccomment"> * by {@link java.lang.Double#compareTo(Double)}.  This ordering makes</em>
+<a class="jxr_linenumber" name="L65" href="Percentile.html#L65">65</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;Double.NaN&lt;/code&gt; larger than any other value (including</em>
+<a class="jxr_linenumber" name="L66" href="Percentile.html#L66">66</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;Double.POSITIVE_INFINITY&lt;/code&gt;).  Therefore, for example, the median</em>
+<a class="jxr_linenumber" name="L67" href="Percentile.html#L67">67</a>  <em class="jxr_javadoccomment"> * (50th percentile) of</em>
+<a class="jxr_linenumber" name="L68" href="Percentile.html#L68">68</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;{0, 1, 2, 3, 4, Double.NaN}&lt;/code&gt; evaluates to &lt;code&gt;2.5.&lt;/code&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L69" href="Percentile.html#L69">69</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L70" href="Percentile.html#L70">70</a>  <em class="jxr_javadoccomment"> * Since percentile estimation usually involves interpolation between array</em>
+<a class="jxr_linenumber" name="L71" href="Percentile.html#L71">71</a>  <em class="jxr_javadoccomment"> * elements, arrays containing  &lt;code&gt;NaN&lt;/code&gt; or infinite values will often</em>
+<a class="jxr_linenumber" name="L72" href="Percentile.html#L72">72</a>  <em class="jxr_javadoccomment"> * result in &lt;code&gt;NaN&lt;/code&gt; or infinite values returned.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L73" href="Percentile.html#L73">73</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L74" href="Percentile.html#L74">74</a>  <em class="jxr_javadoccomment"> * Further, to include different estimation types such as R1, R2 as mentioned in</em>
+<a class="jxr_linenumber" name="L75" href="Percentile.html#L75">75</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://en.wikipedia.org/wiki/Quantile" target="alexandria_uri">http://en.wikipedia.org/wiki/Quantile</a>"&gt;Quantile page(wikipedia)&lt;/a&gt;,</em>
+<a class="jxr_linenumber" name="L76" href="Percentile.html#L76">76</a>  <em class="jxr_javadoccomment"> * a type specific NaN handling strategy is used to closely match with the</em>
+<a class="jxr_linenumber" name="L77" href="Percentile.html#L77">77</a>  <em class="jxr_javadoccomment"> * typically observed results from popular tools like R(R1-R9), Excel(R7).&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L78" href="Percentile.html#L78">78</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L79" href="Percentile.html#L79">79</a>  <em class="jxr_javadoccomment"> * Since 2.2, Percentile uses only selection instead of complete sorting</em>
+<a class="jxr_linenumber" name="L80" href="Percentile.html#L80">80</a>  <em class="jxr_javadoccomment"> * and caches selection algorithm state between calls to the various</em>
+<a class="jxr_linenumber" name="L81" href="Percentile.html#L81">81</a>  <em class="jxr_javadoccomment"> * {@code evaluate} methods. This greatly improves efficiency, both for a single</em>
+<a class="jxr_linenumber" name="L82" href="Percentile.html#L82">82</a>  <em class="jxr_javadoccomment"> * percentile and multiple percentile computations. To maximize performance when</em>
+<a class="jxr_linenumber" name="L83" href="Percentile.html#L83">83</a>  <em class="jxr_javadoccomment"> * multiple percentiles are computed based on the same data, users should set the</em>
+<a class="jxr_linenumber" name="L84" href="Percentile.html#L84">84</a>  <em class="jxr_javadoccomment"> * data array once using either one of the {@link #evaluate(double[], double)} or</em>
+<a class="jxr_linenumber" name="L85" href="Percentile.html#L85">85</a>  <em class="jxr_javadoccomment"> * {@link #setData(double[])} methods and thereafter {@link #evaluate(double)}</em>
+<a class="jxr_linenumber" name="L86" href="Percentile.html#L86">86</a>  <em class="jxr_javadoccomment"> * with just the percentile provided.</em>
+<a class="jxr_linenumber" name="L87" href="Percentile.html#L87">87</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L88" href="Percentile.html#L88">88</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L89" href="Percentile.html#L89">89</a>  <em class="jxr_javadoccomment"> * &lt;strong&gt;Note that this implementation is not synchronized.&lt;/strong&gt; If</em>
+<a class="jxr_linenumber" name="L90" href="Percentile.html#L90">90</a>  <em class="jxr_javadoccomment"> * multiple threads access an instance of this class concurrently, and at least</em>
+<a class="jxr_linenumber" name="L91" href="Percentile.html#L91">91</a>  <em class="jxr_javadoccomment"> * one of the threads invokes the &lt;code&gt;increment()&lt;/code&gt; or</em>
+<a class="jxr_linenumber" name="L92" href="Percentile.html#L92">92</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;clear()&lt;/code&gt; method, it must be synchronized externally.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L93" href="Percentile.html#L93">93</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L94" href="Percentile.html#L94">94</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="Percentile.html">Percentile</a> <strong class="jxr_keyword">extends</strong> <a href="../AbstractUnivariateStatistic.html">AbstractUnivariateStatistic</a> <strong class="jxr_keyword">implements</strong> Serializable {
+<a class="jxr_linenumber" name="L95" href="Percentile.html#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="Percentile.html#L96">96</a>      <em class="jxr_javadoccomment">/** Serializable version identifier */</em>
+<a class="jxr_linenumber" name="L97" href="Percentile.html#L97">97</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20150412L;
+<a class="jxr_linenumber" name="L98" href="Percentile.html#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="Percentile.html#L99">99</a>      <em class="jxr_javadoccomment">/** Maximum number of partitioning pivots cached (each level double the number of pivots). */</em>
+<a class="jxr_linenumber" name="L100" href="Percentile.html#L100">100</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> MAX_CACHED_LEVELS = 10;
+<a class="jxr_linenumber" name="L101" href="Percentile.html#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="Percentile.html#L102">102</a>     <em class="jxr_javadoccomment">/** Maximum number of cached pivots in the pivots cached array */</em>
+<a class="jxr_linenumber" name="L103" href="Percentile.html#L103">103</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PIVOTS_HEAP_LENGTH = 0x1 &lt;&lt; MAX_CACHED_LEVELS - 1;
+<a class="jxr_linenumber" name="L104" href="Percentile.html#L104">104</a> 
+<a class="jxr_linenumber" name="L105" href="Percentile.html#L105">105</a>     <em class="jxr_javadoccomment">/** Default KthSelector used with default pivoting strategy */</em>
+<a class="jxr_linenumber" name="L106" href="Percentile.html#L106">106</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../util/KthSelector.html">KthSelector</a> kthSelector;
+<a class="jxr_linenumber" name="L107" href="Percentile.html#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="Percentile.html#L108">108</a>     <em class="jxr_javadoccomment">/** Any of the {@link EstimationType}s such as {@link EstimationType#LEGACY CM} can be used. */</em>
+<a class="jxr_linenumber" name="L109" href="Percentile.html#L109">109</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="Percentile.html">EstimationType</a> estimationType;
+<a class="jxr_linenumber" name="L110" href="Percentile.html#L110">110</a> 
+<a class="jxr_linenumber" name="L111" href="Percentile.html#L111">111</a>     <em class="jxr_javadoccomment">/** NaN Handling of the input as defined by {@link NaNStrategy} */</em>
+<a class="jxr_linenumber" name="L112" href="Percentile.html#L112">112</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../ranking/NaNStrategy.html">NaNStrategy</a> nanStrategy;
+<a class="jxr_linenumber" name="L113" href="Percentile.html#L113">113</a> 
+<a class="jxr_linenumber" name="L114" href="Percentile.html#L114">114</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L115" href="Percentile.html#L115">115</a> <em class="jxr_javadoccomment">     * Determines what percentile is computed when evaluate() is activated</em>
+<a class="jxr_linenumber" name="L116" href="Percentile.html#L116">116</a> <em class="jxr_javadoccomment">     * with no quantile argument.</em>
+<a class="jxr_linenumber" name="L117" href="Percentile.html#L117">117</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L118" href="Percentile.html#L118">118</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> quantile;
+<a class="jxr_linenumber" name="L119" href="Percentile.html#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="Percentile.html#L120">120</a>     <em class="jxr_javadoccomment">/** Cached pivots. */</em>
+<a class="jxr_linenumber" name="L121" href="Percentile.html#L121">121</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong>[] cachedPivots;
+<a class="jxr_linenumber" name="L122" href="Percentile.html#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="Percentile.html#L123">123</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L124" href="Percentile.html#L124">124</a> <em class="jxr_javadoccomment">     * Constructs a Percentile with the following defaults.</em>
+<a class="jxr_linenumber" name="L125" href="Percentile.html#L125">125</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L126" href="Percentile.html#L126">126</a> <em class="jxr_javadoccomment">     *   &lt;li&gt;default quantile: 50.0, can be reset with {@link #setQuantile(double)}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L127" href="Percentile.html#L127">127</a> <em class="jxr_javadoccomment">     *   &lt;li&gt;default estimation type: {@link EstimationType#LEGACY},</em>
+<a class="jxr_linenumber" name="L128" href="Percentile.html#L128">128</a> <em class="jxr_javadoccomment">     *   can be reset with {@link #withEstimationType(EstimationType)}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L129" href="Percentile.html#L129">129</a> <em class="jxr_javadoccomment">     *   &lt;li&gt;default NaN strategy: {@link NaNStrategy#REMOVED},</em>
+<a class="jxr_linenumber" name="L130" href="Percentile.html#L130">130</a> <em class="jxr_javadoccomment">     *   can be reset with {@link #withNaNStrategy(NaNStrategy)}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L131" href="Percentile.html#L131">131</a> <em class="jxr_javadoccomment">     *   &lt;li&gt;a KthSelector that makes use of {@link MedianOf3PivotingStrategy},</em>
+<a class="jxr_linenumber" name="L132" href="Percentile.html#L132">132</a> <em class="jxr_javadoccomment">     *   can be reset with {@link #withKthSelector(KthSelector)}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L133" href="Percentile.html#L133">133</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L134" href="Percentile.html#L134">134</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L135" href="Percentile.html#L135">135</a>     <strong class="jxr_keyword">public</strong> <a href="Percentile.html">Percentile</a>() {
+<a class="jxr_linenumber" name="L136" href="Percentile.html#L136">136</a>         <em class="jxr_comment">// No try-catch or advertised exception here - arg is valid</em>
+<a class="jxr_linenumber" name="L137" href="Percentile.html#L137">137</a>         <strong class="jxr_keyword">this</strong>(50.0);
+<a class="jxr_linenumber" name="L138" href="Percentile.html#L138">138</a>     }
+<a class="jxr_linenumber" name="L139" href="Percentile.html#L139">139</a> 
+<a class="jxr_linenumber" name="L140" href="Percentile.html#L140">140</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L141" href="Percentile.html#L141">141</a> <em class="jxr_javadoccomment">     * Constructs a Percentile with the specific quantile value and the following</em>
+<a class="jxr_linenumber" name="L142" href="Percentile.html#L142">142</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L143" href="Percentile.html#L143">143</a> <em class="jxr_javadoccomment">     *   &lt;li&gt;default method type: {@link EstimationType#LEGACY}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L144" href="Percentile.html#L144">144</a> <em class="jxr_javadoccomment">     *   &lt;li&gt;default NaN strategy: {@link NaNStrategy#REMOVED}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L145" href="Percentile.html#L145">145</a> <em class="jxr_javadoccomment">     *   &lt;li&gt;a Kth Selector : {@link KthSelector}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L146" href="Percentile.html#L146">146</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L147" href="Percentile.html#L147">147</a> <em class="jxr_javadoccomment">     * @param quantile the quantile</em>
+<a class="jxr_linenumber" name="L148" href="Percentile.html#L148">148</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException  if p is not greater than 0 and less</em>
+<a class="jxr_linenumber" name="L149" href="Percentile.html#L149">149</a> <em class="jxr_javadoccomment">     * than or equal to 100</em>
+<a class="jxr_linenumber" name="L150" href="Percentile.html#L150">150</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L151" href="Percentile.html#L151">151</a>     <strong class="jxr_keyword">public</strong> <a href="Percentile.html">Percentile</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> quantile) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L152" href="Percentile.html#L152">152</a>         <strong class="jxr_keyword">this</strong>(quantile, EstimationType.LEGACY, NaNStrategy.REMOVED,
+<a class="jxr_linenumber" name="L153" href="Percentile.html#L153">153</a>              <strong class="jxr_keyword">new</strong> <a href="../../../util/KthSelector.html">KthSelector</a>(<strong class="jxr_keyword">new</strong> <a href="../../../util/MedianOf3PivotingStrategy.html">MedianOf3PivotingStrategy</a>()));
+<a class="jxr_linenumber" name="L154" href="Percentile.html#L154">154</a>     }
+<a class="jxr_linenumber" name="L155" href="Percentile.html#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="Percentile.html#L156">156</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L157" href="Percentile.html#L157">157</a> <em class="jxr_javadoccomment">     * Copy constructor, creates a new {@code Percentile} identical</em>
+<a class="jxr_linenumber" name="L158" href="Percentile.html#L158">158</a> <em class="jxr_javadoccomment">     * to the {@code original}</em>
+<a class="jxr_linenumber" name="L159" href="Percentile.html#L159">159</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L160" href="Percentile.html#L160">160</a> <em class="jxr_javadoccomment">     * @param original the {@code Percentile} instance to copy</em>
+<a class="jxr_linenumber" name="L161" href="Percentile.html#L161">161</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if original is null</em>
+<a class="jxr_linenumber" name="L162" href="Percentile.html#L162">162</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L163" href="Percentile.html#L163">163</a>     <strong class="jxr_keyword">public</strong> <a href="Percentile.html">Percentile</a>(<strong class="jxr_keyword">final</strong> <a href="Percentile.html">Percentile</a> original) <strong class="jxr_keyword">throws</strong> NullArgumentException {
+<a class="jxr_linenumber" name="L164" href="Percentile.html#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="Percentile.html#L165">165</a>         MathUtils.checkNotNull(original);
+<a class="jxr_linenumber" name="L166" href="Percentile.html#L166">166</a>         estimationType   = original.getEstimationType();
+<a class="jxr_linenumber" name="L167" href="Percentile.html#L167">167</a>         nanStrategy      = original.getNaNStrategy();
+<a class="jxr_linenumber" name="L168" href="Percentile.html#L168">168</a>         kthSelector      = original.getKthSelector();
+<a class="jxr_linenumber" name="L169" href="Percentile.html#L169">169</a> 
+<a class="jxr_linenumber" name="L170" href="Percentile.html#L170">170</a>         setData(original.getDataRef());
+<a class="jxr_linenumber" name="L171" href="Percentile.html#L171">171</a>         <strong class="jxr_keyword">if</strong> (original.cachedPivots != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L172" href="Percentile.html#L172">172</a>             System.arraycopy(original.cachedPivots, 0, cachedPivots, 0, original.cachedPivots.length);
+<a class="jxr_linenumber" name="L173" href="Percentile.html#L173">173</a>         }
+<a class="jxr_linenumber" name="L174" href="Percentile.html#L174">174</a>         setQuantile(original.quantile);
+<a class="jxr_linenumber" name="L175" href="Percentile.html#L175">175</a> 
+<a class="jxr_linenumber" name="L176" href="Percentile.html#L176">176</a>     }
+<a class="jxr_linenumber" name="L177" href="Percentile.html#L177">177</a> 
+<a class="jxr_linenumber" name="L178" href="Percentile.html#L178">178</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L179" href="Percentile.html#L179">179</a> <em class="jxr_javadoccomment">     * Constructs a Percentile with the specific quantile value,</em>
+<a class="jxr_linenumber" name="L180" href="Percentile.html#L180">180</a> <em class="jxr_javadoccomment">     * {@link EstimationType}, {@link NaNStrategy} and {@link KthSelector}.</em>
+<a class="jxr_linenumber" name="L181" href="Percentile.html#L181">181</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L182" href="Percentile.html#L182">182</a> <em class="jxr_javadoccomment">     * @param quantile the quantile to be computed</em>
+<a class="jxr_linenumber" name="L183" href="Percentile.html#L183">183</a> <em class="jxr_javadoccomment">     * @param estimationType one of the percentile {@link EstimationType  estimation types}</em>
+<a class="jxr_linenumber" name="L184" href="Percentile.html#L184">184</a> <em class="jxr_javadoccomment">     * @param nanStrategy one of {@link NaNStrategy} to handle with NaNs</em>
+<a class="jxr_linenumber" name="L185" href="Percentile.html#L185">185</a> <em class="jxr_javadoccomment">     * @param kthSelector a {@link KthSelector} to use for pivoting during search</em>
+<a class="jxr_linenumber" name="L186" href="Percentile.html#L186">186</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if p is not within (0,100]</em>
+<a class="jxr_linenumber" name="L187" href="Percentile.html#L187">187</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if type or NaNStrategy passed is null</em>
+<a class="jxr_linenumber" name="L188" href="Percentile.html#L188">188</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L189" href="Percentile.html#L189">189</a>     <strong class="jxr_keyword">protected</strong> <a href="Percentile.html">Percentile</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> quantile,
+<a class="jxr_linenumber" name="L190" href="Percentile.html#L190">190</a>                          <strong class="jxr_keyword">final</strong> <a href="Percentile.html">EstimationType</a> estimationType,
+<a class="jxr_linenumber" name="L191" href="Percentile.html#L191">191</a>                          <strong class="jxr_keyword">final</strong> <a href="../../ranking/NaNStrategy.html">NaNStrategy</a> nanStrategy,
+<a class="jxr_linenumber" name="L192" href="Percentile.html#L192">192</a>                          <strong class="jxr_keyword">final</strong> <a href="../../../util/KthSelector.html">KthSelector</a> kthSelector)
+<a class="jxr_linenumber" name="L193" href="Percentile.html#L193">193</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L194" href="Percentile.html#L194">194</a>         setQuantile(quantile);
+<a class="jxr_linenumber" name="L195" href="Percentile.html#L195">195</a>         cachedPivots = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L196" href="Percentile.html#L196">196</a>         MathUtils.checkNotNull(estimationType);
+<a class="jxr_linenumber" name="L197" href="Percentile.html#L197">197</a>         MathUtils.checkNotNull(nanStrategy);
+<a class="jxr_linenumber" name="L198" href="Percentile.html#L198">198</a>         MathUtils.checkNotNull(kthSelector);
+<a class="jxr_linenumber" name="L199" href="Percentile.html#L199">199</a>         <strong class="jxr_keyword">this</strong>.estimationType = estimationType;
+<a class="jxr_linenumber" name="L200" href="Percentile.html#L200">200</a>         <strong class="jxr_keyword">this</strong>.nanStrategy = nanStrategy;
+<a class="jxr_linenumber" name="L201" href="Percentile.html#L201">201</a>         <strong class="jxr_keyword">this</strong>.kthSelector = kthSelector;
+<a class="jxr_linenumber" name="L202" href="Percentile.html#L202">202</a>     }
+<a class="jxr_linenumber" name="L203" href="Percentile.html#L203">203</a> 
+<a class="jxr_linenumber" name="L204" href="Percentile.html#L204">204</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L205" href="Percentile.html#L205">205</a>     @Override
+<a class="jxr_linenumber" name="L206" href="Percentile.html#L206">206</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setData(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values) {
+<a class="jxr_linenumber" name="L207" href="Percentile.html#L207">207</a>         <strong class="jxr_keyword">if</strong> (values == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L208" href="Percentile.html#L208">208</a>             cachedPivots = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L209" href="Percentile.html#L209">209</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L210" href="Percentile.html#L210">210</a>             cachedPivots = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[PIVOTS_HEAP_LENGTH];
+<a class="jxr_linenumber" name="L211" href="Percentile.html#L211">211</a>             Arrays.fill(cachedPivots, -1);
+<a class="jxr_linenumber" name="L212" href="Percentile.html#L212">212</a>         }
+<a class="jxr_linenumber" name="L213" href="Percentile.html#L213">213</a>         <strong class="jxr_keyword">super</strong>.setData(values);
+<a class="jxr_linenumber" name="L214" href="Percentile.html#L214">214</a>     }
+<a class="jxr_linenumber" name="L215" href="Percentile.html#L215">215</a> 
+<a class="jxr_linenumber" name="L216" href="Percentile.html#L216">216</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L217" href="Percentile.html#L217">217</a>     @Override
+<a class="jxr_linenumber" name="L218" href="Percentile.html#L218">218</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setData(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> begin, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length)
+<a class="jxr_linenumber" name="L219" href="Percentile.html#L219">219</a>     <strong class="jxr_keyword">throws</strong> <a href="../../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L220" href="Percentile.html#L220">220</a>         <strong class="jxr_keyword">if</strong> (values == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L221" href="Percentile.html#L221">221</a>             cachedPivots = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L222" href="Percentile.html#L222">222</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L223" href="Percentile.html#L223">223</a>             cachedPivots = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[PIVOTS_HEAP_LENGTH];
+<a class="jxr_linenumber" name="L224" href="Percentile.html#L224">224</a>             Arrays.fill(cachedPivots, -1);
+<a class="jxr_linenumber" name="L225" href="Percentile.html#L225">225</a>         }
+<a class="jxr_linenumber" name="L226" href="Percentile.html#L226">226</a>         <strong class="jxr_keyword">super</strong>.setData(values, begin, length);
+<a class="jxr_linenumber" name="L227" href="Percentile.html#L227">227</a>     }
+<a class="jxr_linenumber" name="L228" href="Percentile.html#L228">228</a> 
+<a class="jxr_linenumber" name="L229" href="Percentile.html#L229">229</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L230" href="Percentile.html#L230">230</a> <em class="jxr_javadoccomment">     * Returns the result of evaluating the statistic over the stored data.</em>
+<a class="jxr_linenumber" name="L231" href="Percentile.html#L231">231</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L232" href="Percentile.html#L232">232</a> <em class="jxr_javadoccomment">     * The stored array is the one which was set by previous calls to</em>
+<a class="jxr_linenumber" name="L233" href="Percentile.html#L233">233</a> <em class="jxr_javadoccomment">     * {@link #setData(double[])}</em>
+<a class="jxr_linenumber" name="L234" href="Percentile.html#L234">234</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L235" href="Percentile.html#L235">235</a> <em class="jxr_javadoccomment">     * @param p the percentile value to compute</em>
+<a class="jxr_linenumber" name="L236" href="Percentile.html#L236">236</a> <em class="jxr_javadoccomment">     * @return the value of the statistic applied to the stored data</em>
+<a class="jxr_linenumber" name="L237" href="Percentile.html#L237">237</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if p is not a valid quantile value</em>
+<a class="jxr_linenumber" name="L238" href="Percentile.html#L238">238</a> <em class="jxr_javadoccomment">     * (p must be greater than 0 and less than or equal to 100)</em>
+<a class="jxr_linenumber" name="L239" href="Percentile.html#L239">239</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L240" href="Percentile.html#L240">240</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L241" href="Percentile.html#L241">241</a>         <strong class="jxr_keyword">return</strong> evaluate(getDataRef(), p);
+<a class="jxr_linenumber" name="L242" href="Percentile.html#L242">242</a>     }
+<a class="jxr_linenumber" name="L243" href="Percentile.html#L243">243</a> 
+<a class="jxr_linenumber" name="L244" href="Percentile.html#L244">244</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L245" href="Percentile.html#L245">245</a> <em class="jxr_javadoccomment">     * Returns an estimate of the &lt;code&gt;p&lt;/code&gt;th percentile of the values</em>
+<a class="jxr_linenumber" name="L246" href="Percentile.html#L246">246</a> <em class="jxr_javadoccomment">     * in the &lt;code&gt;values&lt;/code&gt; array.</em>
+<a class="jxr_linenumber" name="L247" href="Percentile.html#L247">247</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L248" href="Percentile.html#L248">248</a> <em class="jxr_javadoccomment">     * Calls to this method do not modify the internal &lt;code&gt;quantile&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L249" href="Percentile.html#L249">249</a> <em class="jxr_javadoccomment">     * state of this statistic.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L250" href="Percentile.html#L250">250</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L251" href="Percentile.html#L251">251</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L252" href="Percentile.html#L252">252</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Returns &lt;code&gt;Double.NaN&lt;/code&gt; if &lt;code&gt;values&lt;/code&gt; has length</em>
+<a class="jxr_linenumber" name="L253" href="Percentile.html#L253">253</a> <em class="jxr_javadoccomment">     * &lt;code&gt;0&lt;/code&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L254" href="Percentile.html#L254">254</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Returns (for any value of &lt;code&gt;p&lt;/code&gt;) &lt;code&gt;values[0]&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L255" href="Percentile.html#L255">255</a> <em class="jxr_javadoccomment">     *  if &lt;code&gt;values&lt;/code&gt; has length &lt;code&gt;1&lt;/code&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L256" href="Percentile.html#L256">256</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if &lt;code&gt;values&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L257" href="Percentile.html#L257">257</a> <em class="jxr_javadoccomment">     * is null or p is not a valid quantile value (p must be greater than 0</em>
+<a class="jxr_linenumber" name="L258" href="Percentile.html#L258">258</a> <em class="jxr_javadoccomment">     * and less than or equal to 100) &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L259" href="Percentile.html#L259">259</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L260" href="Percentile.html#L260">260</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L261" href="Percentile.html#L261">261</a> <em class="jxr_javadoccomment">     * See {@link Percentile} for a description of the percentile estimation</em>
+<a class="jxr_linenumber" name="L262" href="Percentile.html#L262">262</a> <em class="jxr_javadoccomment">     * algorithm used.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L263" href="Percentile.html#L263">263</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L264" href="Percentile.html#L264">264</a> <em class="jxr_javadoccomment">     * @param values input array of values</em>
+<a class="jxr_linenumber" name="L265" href="Percentile.html#L265">265</a> <em class="jxr_javadoccomment">     * @param p the percentile value to compute</em>
+<a class="jxr_linenumber" name="L266" href="Percentile.html#L266">266</a> <em class="jxr_javadoccomment">     * @return the percentile value or Double.NaN if the array is empty</em>
+<a class="jxr_linenumber" name="L267" href="Percentile.html#L267">267</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if &lt;code&gt;values&lt;/code&gt; is null or p is invalid</em>
+<a class="jxr_linenumber" name="L268" href="Percentile.html#L268">268</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L269" href="Percentile.html#L269">269</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p)
+<a class="jxr_linenumber" name="L270" href="Percentile.html#L270">270</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L271" href="Percentile.html#L271">271</a> 
+<a class="jxr_linenumber" name="L272" href="Percentile.html#L272">272</a>         MathArrays.verifyValues(values, 0, 0);
+<a class="jxr_linenumber" name="L273" href="Percentile.html#L273">273</a>         <strong class="jxr_keyword">return</strong> evaluate(values, 0, values.length, p);
+<a class="jxr_linenumber" name="L274" href="Percentile.html#L274">274</a>     }
+<a class="jxr_linenumber" name="L275" href="Percentile.html#L275">275</a> 
+<a class="jxr_linenumber" name="L276" href="Percentile.html#L276">276</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L277" href="Percentile.html#L277">277</a> <em class="jxr_javadoccomment">     * Returns an estimate of the &lt;code&gt;quantile&lt;/code&gt;th percentile of the</em>
+<a class="jxr_linenumber" name="L278" href="Percentile.html#L278">278</a> <em class="jxr_javadoccomment">     * designated values in the &lt;code&gt;values&lt;/code&gt; array.  The quantile</em>
+<a class="jxr_linenumber" name="L279" href="Percentile.html#L279">279</a> <em class="jxr_javadoccomment">     * estimated is determined by the &lt;code&gt;quantile&lt;/code&gt; property.</em>
+<a class="jxr_linenumber" name="L280" href="Percentile.html#L280">280</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L281" href="Percentile.html#L281">281</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L282" href="Percentile.html#L282">282</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Returns &lt;code&gt;Double.NaN&lt;/code&gt; if &lt;code&gt;length = 0&lt;/code&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L283" href="Percentile.html#L283">283</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Returns (for any value of &lt;code&gt;quantile&lt;/code&gt;)</em>
+<a class="jxr_linenumber" name="L284" href="Percentile.html#L284">284</a> <em class="jxr_javadoccomment">     * &lt;code&gt;values[begin]&lt;/code&gt; if &lt;code&gt;length = 1 &lt;/code&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L285" href="Percentile.html#L285">285</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if &lt;code&gt;values&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L286" href="Percentile.html#L286">286</a> <em class="jxr_javadoccomment">     * is null, or &lt;code&gt;start&lt;/code&gt; or &lt;code&gt;length&lt;/code&gt; is invalid&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L287" href="Percentile.html#L287">287</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L288" href="Percentile.html#L288">288</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L289" href="Percentile.html#L289">289</a> <em class="jxr_javadoccomment">     * See {@link Percentile} for a description of the percentile estimation</em>
+<a class="jxr_linenumber" name="L290" href="Percentile.html#L290">290</a> <em class="jxr_javadoccomment">     * algorithm used.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L291" href="Percentile.html#L291">291</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L292" href="Percentile.html#L292">292</a> <em class="jxr_javadoccomment">     * @param values the input array</em>
+<a class="jxr_linenumber" name="L293" href="Percentile.html#L293">293</a> <em class="jxr_javadoccomment">     * @param start index of the first array element to include</em>
+<a class="jxr_linenumber" name="L294" href="Percentile.html#L294">294</a> <em class="jxr_javadoccomment">     * @param length the number of elements to include</em>
+<a class="jxr_linenumber" name="L295" href="Percentile.html#L295">295</a> <em class="jxr_javadoccomment">     * @return the percentile value</em>
+<a class="jxr_linenumber" name="L296" href="Percentile.html#L296">296</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the parameters are not valid</em>
+<a class="jxr_linenumber" name="L297" href="Percentile.html#L297">297</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L298" href="Percentile.html#L298">298</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L299" href="Percentile.html#L299">299</a>     @Override
+<a class="jxr_linenumber" name="L300" href="Percentile.html#L300">300</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> start, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length)
+<a class="jxr_linenumber" name="L301" href="Percentile.html#L301">301</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L302" href="Percentile.html#L302">302</a>         <strong class="jxr_keyword">return</strong> evaluate(values, start, length, quantile);
+<a class="jxr_linenumber" name="L303" href="Percentile.html#L303">303</a>     }
+<a class="jxr_linenumber" name="L304" href="Percentile.html#L304">304</a> 
+<a class="jxr_linenumber" name="L305" href="Percentile.html#L305">305</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L306" href="Percentile.html#L306">306</a> <em class="jxr_javadoccomment">     * Returns an estimate of the &lt;code&gt;p&lt;/code&gt;th percentile of the values</em>
+<a class="jxr_linenumber" name="L307" href="Percentile.html#L307">307</a> <em class="jxr_javadoccomment">     * in the &lt;code&gt;values&lt;/code&gt; array, starting with the element in (0-based)</em>
+<a class="jxr_linenumber" name="L308" href="Percentile.html#L308">308</a> <em class="jxr_javadoccomment">     * position &lt;code&gt;begin&lt;/code&gt; in the array and including &lt;code&gt;length&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L309" href="Percentile.html#L309">309</a> <em class="jxr_javadoccomment">     * values.</em>
+<a class="jxr_linenumber" name="L310" href="Percentile.html#L310">310</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L311" href="Percentile.html#L311">311</a> <em class="jxr_javadoccomment">     * Calls to this method do not modify the internal &lt;code&gt;quantile&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L312" href="Percentile.html#L312">312</a> <em class="jxr_javadoccomment">     * state of this statistic.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L313" href="Percentile.html#L313">313</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L314" href="Percentile.html#L314">314</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L315" href="Percentile.html#L315">315</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Returns &lt;code&gt;Double.NaN&lt;/code&gt; if &lt;code&gt;length = 0&lt;/code&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L316" href="Percentile.html#L316">316</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Returns (for any value of &lt;code&gt;p&lt;/code&gt;) &lt;code&gt;values[begin]&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L317" href="Percentile.html#L317">317</a> <em class="jxr_javadoccomment">     *  if &lt;code&gt;length = 1 &lt;/code&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L318" href="Percentile.html#L318">318</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if &lt;code&gt;values&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L319" href="Percentile.html#L319">319</a> <em class="jxr_javadoccomment">     *  is null , &lt;code&gt;begin&lt;/code&gt; or &lt;code&gt;length&lt;/code&gt; is invalid, or</em>
+<a class="jxr_linenumber" name="L320" href="Percentile.html#L320">320</a> <em class="jxr_javadoccomment">     * &lt;code&gt;p&lt;/code&gt; is not a valid quantile value (p must be greater than 0</em>
+<a class="jxr_linenumber" name="L321" href="Percentile.html#L321">321</a> <em class="jxr_javadoccomment">     * and less than or equal to 100)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L322" href="Percentile.html#L322">322</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L323" href="Percentile.html#L323">323</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L324" href="Percentile.html#L324">324</a> <em class="jxr_javadoccomment">     * See {@link Percentile} for a description of the percentile estimation</em>
+<a class="jxr_linenumber" name="L325" href="Percentile.html#L325">325</a> <em class="jxr_javadoccomment">     * algorithm used.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L326" href="Percentile.html#L326">326</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L327" href="Percentile.html#L327">327</a> <em class="jxr_javadoccomment">     * @param values array of input values</em>
+<a class="jxr_linenumber" name="L328" href="Percentile.html#L328">328</a> <em class="jxr_javadoccomment">     * @param p  the percentile to compute</em>
+<a class="jxr_linenumber" name="L329" href="Percentile.html#L329">329</a> <em class="jxr_javadoccomment">     * @param begin  the first (0-based) element to include in the computation</em>
+<a class="jxr_linenumber" name="L330" href="Percentile.html#L330">330</a> <em class="jxr_javadoccomment">     * @param length  the number of array elements to include</em>
+<a class="jxr_linenumber" name="L331" href="Percentile.html#L331">331</a> <em class="jxr_javadoccomment">     * @return  the percentile value</em>
+<a class="jxr_linenumber" name="L332" href="Percentile.html#L332">332</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the parameters are not valid or the</em>
+<a class="jxr_linenumber" name="L333" href="Percentile.html#L333">333</a> <em class="jxr_javadoccomment">     * input array is null</em>
+<a class="jxr_linenumber" name="L334" href="Percentile.html#L334">334</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L335" href="Percentile.html#L335">335</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> begin,
+<a class="jxr_linenumber" name="L336" href="Percentile.html#L336">336</a>                            <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p)
+<a class="jxr_linenumber" name="L337" href="Percentile.html#L337">337</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L338" href="Percentile.html#L338">338</a> 
+<a class="jxr_linenumber" name="L339" href="Percentile.html#L339">339</a>         MathArrays.verifyValues(values, begin, length);
+<a class="jxr_linenumber" name="L340" href="Percentile.html#L340">340</a>         <strong class="jxr_keyword">if</strong> (p &gt; 100 || p &lt;= 0) {
+<a class="jxr_linenumber" name="L341" href="Percentile.html#L341">341</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../exception/OutOfRangeException.html">OutOfRangeException</a>(LocalizedFormats.OUT_OF_BOUNDS_QUANTILE_VALUE, p, 0, 100);
+<a class="jxr_linenumber" name="L342" href="Percentile.html#L342">342</a>         }
+<a class="jxr_linenumber" name="L343" href="Percentile.html#L343">343</a>         <strong class="jxr_keyword">if</strong> (length == 0) {
+<a class="jxr_linenumber" name="L344" href="Percentile.html#L344">344</a>             <strong class="jxr_keyword">return</strong> Double.NaN;
+<a class="jxr_linenumber" name="L345" href="Percentile.html#L345">345</a>         }
+<a class="jxr_linenumber" name="L346" href="Percentile.html#L346">346</a>         <strong class="jxr_keyword">if</strong> (length == 1) {
+<a class="jxr_linenumber" name="L347" href="Percentile.html#L347">347</a>             <strong class="jxr_keyword">return</strong> values[begin]; <em class="jxr_comment">// always return single value for n = 1</em>
+<a class="jxr_linenumber" name="L348" href="Percentile.html#L348">348</a>         }
+<a class="jxr_linenumber" name="L349" href="Percentile.html#L349">349</a> 
+<a class="jxr_linenumber" name="L350" href="Percentile.html#L350">350</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] work = getWorkArray(values, begin, length);
+<a class="jxr_linenumber" name="L351" href="Percentile.html#L351">351</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] pivotsHeap = getPivots(values);
+<a class="jxr_linenumber" name="L352" href="Percentile.html#L352">352</a>         <strong class="jxr_keyword">return</strong> work.length == 0 ? Double.NaN :
+<a class="jxr_linenumber" name="L353" href="Percentile.html#L353">353</a>                     estimationType.evaluate(work, pivotsHeap, p, kthSelector);
+<a class="jxr_linenumber" name="L354" href="Percentile.html#L354">354</a>     }
+<a class="jxr_linenumber" name="L355" href="Percentile.html#L355">355</a> 
+<a class="jxr_linenumber" name="L356" href="Percentile.html#L356">356</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L357" href="Percentile.html#L357">357</a> <em class="jxr_javadoccomment">     * Returns the value of the quantile field (determines what percentile is</em>
+<a class="jxr_linenumber" name="L358" href="Percentile.html#L358">358</a> <em class="jxr_javadoccomment">     * computed when evaluate() is called with no quantile argument).</em>
+<a class="jxr_linenumber" name="L359" href="Percentile.html#L359">359</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L360" href="Percentile.html#L360">360</a> <em class="jxr_javadoccomment">     * @return quantile set while construction or {@link #setQuantile(double)}</em>
+<a class="jxr_linenumber" name="L361" href="Percentile.html#L361">361</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L362" href="Percentile.html#L362">362</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getQuantile() {
+<a class="jxr_linenumber" name="L363" href="Percentile.html#L363">363</a>         <strong class="jxr_keyword">return</strong> quantile;
+<a class="jxr_linenumber" name="L364" href="Percentile.html#L364">364</a>     }
+<a class="jxr_linenumber" name="L365" href="Percentile.html#L365">365</a> 
+<a class="jxr_linenumber" name="L366" href="Percentile.html#L366">366</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L367" href="Percentile.html#L367">367</a> <em class="jxr_javadoccomment">     * Sets the value of the quantile field (determines what percentile is</em>
+<a class="jxr_linenumber" name="L368" href="Percentile.html#L368">368</a> <em class="jxr_javadoccomment">     * computed when evaluate() is called with no quantile argument).</em>
+<a class="jxr_linenumber" name="L369" href="Percentile.html#L369">369</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L370" href="Percentile.html#L370">370</a> <em class="jxr_javadoccomment">     * @param p a value between 0 &lt; p &lt;= 100</em>
+<a class="jxr_linenumber" name="L371" href="Percentile.html#L371">371</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException  if p is not greater than 0 and less</em>
+<a class="jxr_linenumber" name="L372" href="Percentile.html#L372">372</a> <em class="jxr_javadoccomment">     * than or equal to 100</em>
+<a class="jxr_linenumber" name="L373" href="Percentile.html#L373">373</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L374" href="Percentile.html#L374">374</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setQuantile(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L375" href="Percentile.html#L375">375</a>         <strong class="jxr_keyword">if</strong> (p &lt;= 0 || p &gt; 100) {
+<a class="jxr_linenumber" name="L376" href="Percentile.html#L376">376</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../exception/OutOfRangeException.html">OutOfRangeException</a>(
+<a class="jxr_linenumber" name="L377" href="Percentile.html#L377">377</a>                     LocalizedFormats.OUT_OF_BOUNDS_QUANTILE_VALUE, p, 0, 100);
+<a class="jxr_linenumber" name="L378" href="Percentile.html#L378">378</a>         }
+<a class="jxr_linenumber" name="L379" href="Percentile.html#L379">379</a>         quantile = p;
+<a class="jxr_linenumber" name="L380" href="Percentile.html#L380">380</a>     }
+<a class="jxr_linenumber" name="L381" href="Percentile.html#L381">381</a> 
+<a class="jxr_linenumber" name="L382" href="Percentile.html#L382">382</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L383" href="Percentile.html#L383">383</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L384" href="Percentile.html#L384">384</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L385" href="Percentile.html#L385">385</a>     @Override
+<a class="jxr_linenumber" name="L386" href="Percentile.html#L386">386</a>     <strong class="jxr_keyword">public</strong> <a href="Percentile.html">Percentile</a> copy() {
+<a class="jxr_linenumber" name="L387" href="Percentile.html#L387">387</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="Percentile.html">Percentile</a>(<strong class="jxr_keyword">this</strong>);
+<a class="jxr_linenumber" name="L388" href="Percentile.html#L388">388</a>     }
+<a class="jxr_linenumber" name="L389" href="Percentile.html#L389">389</a> 
+<a class="jxr_linenumber" name="L390" href="Percentile.html#L390">390</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L391" href="Percentile.html#L391">391</a> <em class="jxr_javadoccomment">     * Get the work array to operate. Makes use of prior {@code storedData} if</em>
+<a class="jxr_linenumber" name="L392" href="Percentile.html#L392">392</a> <em class="jxr_javadoccomment">     * it exists or else do a check on NaNs and copy a subset of the array</em>
+<a class="jxr_linenumber" name="L393" href="Percentile.html#L393">393</a> <em class="jxr_javadoccomment">     * defined by begin and length parameters. The set {@link #nanStrategy} will</em>
+<a class="jxr_linenumber" name="L394" href="Percentile.html#L394">394</a> <em class="jxr_javadoccomment">     * be used to either retain/remove/replace any NaNs present before returning</em>
+<a class="jxr_linenumber" name="L395" href="Percentile.html#L395">395</a> <em class="jxr_javadoccomment">     * the resultant array.</em>
+<a class="jxr_linenumber" name="L396" href="Percentile.html#L396">396</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L397" href="Percentile.html#L397">397</a> <em class="jxr_javadoccomment">     * @param values the array of numbers</em>
+<a class="jxr_linenumber" name="L398" href="Percentile.html#L398">398</a> <em class="jxr_javadoccomment">     * @param begin index to start reading the array</em>
+<a class="jxr_linenumber" name="L399" href="Percentile.html#L399">399</a> <em class="jxr_javadoccomment">     * @param length the length of array to be read from the begin index</em>
+<a class="jxr_linenumber" name="L400" href="Percentile.html#L400">400</a> <em class="jxr_javadoccomment">     * @return work array sliced from values in the range [begin,begin+length)</em>
+<a class="jxr_linenumber" name="L401" href="Percentile.html#L401">401</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if values or indices are invalid</em>
+<a class="jxr_linenumber" name="L402" href="Percentile.html#L402">402</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L403" href="Percentile.html#L403">403</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong>[] getWorkArray(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> begin, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length) {
+<a class="jxr_linenumber" name="L404" href="Percentile.html#L404">404</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] work;
+<a class="jxr_linenumber" name="L405" href="Percentile.html#L405">405</a>         <strong class="jxr_keyword">if</strong> (values == getDataRef()) {
+<a class="jxr_linenumber" name="L406" href="Percentile.html#L406">406</a>             work = getDataRef();
+<a class="jxr_linenumber" name="L407" href="Percentile.html#L407">407</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L408" href="Percentile.html#L408">408</a>             <strong class="jxr_keyword">switch</strong> (nanStrategy) {
+<a class="jxr_linenumber" name="L409" href="Percentile.html#L409">409</a>                 <strong class="jxr_keyword">case</strong> MAXIMAL:<em class="jxr_comment">// Replace NaNs with +INFs</em>
+<a class="jxr_linenumber" name="L410" href="Percentile.html#L410">410</a>                     work = replaceAndSlice(values, begin, length, Double.NaN, Double.POSITIVE_INFINITY);
+<a class="jxr_linenumber" name="L411" href="Percentile.html#L411">411</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L412" href="Percentile.html#L412">412</a>                 <strong class="jxr_keyword">case</strong> MINIMAL:<em class="jxr_comment">// Replace NaNs with -INFs</em>
+<a class="jxr_linenumber" name="L413" href="Percentile.html#L413">413</a>                     work = replaceAndSlice(values, begin, length, Double.NaN, Double.NEGATIVE_INFINITY);
+<a class="jxr_linenumber" name="L414" href="Percentile.html#L414">414</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L415" href="Percentile.html#L415">415</a>                 <strong class="jxr_keyword">case</strong> REMOVED:<em class="jxr_comment">// Drop NaNs from data</em>
+<a class="jxr_linenumber" name="L416" href="Percentile.html#L416">416</a>                     work = removeAndSlice(values, begin, length, Double.NaN);
+<a class="jxr_linenumber" name="L417" href="Percentile.html#L417">417</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L418" href="Percentile.html#L418">418</a>                 <strong class="jxr_keyword">case</strong> FAILED:<em class="jxr_comment">// just throw exception as NaN is un-acceptable</em>
+<a class="jxr_linenumber" name="L419" href="Percentile.html#L419">419</a>                     work = copyOf(values, begin, length);
+<a class="jxr_linenumber" name="L420" href="Percentile.html#L420">420</a>                     MathArrays.checkNotNaN(work);
+<a class="jxr_linenumber" name="L421" href="Percentile.html#L421">421</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L422" href="Percentile.html#L422">422</a>                 <strong class="jxr_keyword">default</strong>: <em class="jxr_comment">//FIXED</em>
+<a class="jxr_linenumber" name="L423" href="Percentile.html#L423">423</a>                     work = copyOf(values,begin,length);
+<a class="jxr_linenumber" name="L424" href="Percentile.html#L424">424</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L425" href="Percentile.html#L425">425</a>             }
+<a class="jxr_linenumber" name="L426" href="Percentile.html#L426">426</a>         }
+<a class="jxr_linenumber" name="L427" href="Percentile.html#L427">427</a>         <strong class="jxr_keyword">return</strong> work;
+<a class="jxr_linenumber" name="L428" href="Percentile.html#L428">428</a>     }
+<a class="jxr_linenumber" name="L429" href="Percentile.html#L429">429</a> 
+<a class="jxr_linenumber" name="L430" href="Percentile.html#L430">430</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L431" href="Percentile.html#L431">431</a> <em class="jxr_javadoccomment">     * Make a copy of the array for the slice defined by array part from</em>
+<a class="jxr_linenumber" name="L432" href="Percentile.html#L432">432</a> <em class="jxr_javadoccomment">     * [begin, begin+length)</em>
+<a class="jxr_linenumber" name="L433" href="Percentile.html#L433">433</a> <em class="jxr_javadoccomment">     * @param values the input array</em>
+<a class="jxr_linenumber" name="L434" href="Percentile.html#L434">434</a> <em class="jxr_javadoccomment">     * @param begin start index of the array to include</em>
+<a class="jxr_linenumber" name="L435" href="Percentile.html#L435">435</a> <em class="jxr_javadoccomment">     * @param length number of elements to include from begin</em>
+<a class="jxr_linenumber" name="L436" href="Percentile.html#L436">436</a> <em class="jxr_javadoccomment">     * @return copy of a slice of the original array</em>
+<a class="jxr_linenumber" name="L437" href="Percentile.html#L437">437</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L438" href="Percentile.html#L438">438</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong>[] copyOf(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> begin, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length) {
+<a class="jxr_linenumber" name="L439" href="Percentile.html#L439">439</a>         MathArrays.verifyValues(values, begin, length);
+<a class="jxr_linenumber" name="L440" href="Percentile.html#L440">440</a>         <strong class="jxr_keyword">return</strong> MathArrays.copyOfRange(values, begin, begin + length);
+<a class="jxr_linenumber" name="L441" href="Percentile.html#L441">441</a>     }
+<a class="jxr_linenumber" name="L442" href="Percentile.html#L442">442</a> 
+<a class="jxr_linenumber" name="L443" href="Percentile.html#L443">443</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L444" href="Percentile.html#L444">444</a> <em class="jxr_javadoccomment">     * Replace every occurrence of a given value with a replacement value in a</em>
+<a class="jxr_linenumber" name="L445" href="Percentile.html#L445">445</a> <em class="jxr_javadoccomment">     * copied slice of array defined by array part from [begin, begin+length).</em>
+<a class="jxr_linenumber" name="L446" href="Percentile.html#L446">446</a> <em class="jxr_javadoccomment">     * @param values the input array</em>
+<a class="jxr_linenumber" name="L447" href="Percentile.html#L447">447</a> <em class="jxr_javadoccomment">     * @param begin start index of the array to include</em>
+<a class="jxr_linenumber" name="L448" href="Percentile.html#L448">448</a> <em class="jxr_javadoccomment">     * @param length number of elements to include from begin</em>
+<a class="jxr_linenumber" name="L449" href="Percentile.html#L449">449</a> <em class="jxr_javadoccomment">     * @param original the value to be replaced with</em>
+<a class="jxr_linenumber" name="L450" href="Percentile.html#L450">450</a> <em class="jxr_javadoccomment">     * @param replacement the value to be used for replacement</em>
+<a class="jxr_linenumber" name="L451" href="Percentile.html#L451">451</a> <em class="jxr_javadoccomment">     * @return the copy of sliced array with replaced values</em>
+<a class="jxr_linenumber" name="L452" href="Percentile.html#L452">452</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L453" href="Percentile.html#L453">453</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong>[] replaceAndSlice(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values,
+<a class="jxr_linenumber" name="L454" href="Percentile.html#L454">454</a>                                             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> begin, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length,
+<a class="jxr_linenumber" name="L455" href="Percentile.html#L455">455</a>                                             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> original,
+<a class="jxr_linenumber" name="L456" href="Percentile.html#L456">456</a>                                             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> replacement) {
+<a class="jxr_linenumber" name="L457" href="Percentile.html#L457">457</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] temp = copyOf(values, begin, length);
+<a class="jxr_linenumber" name="L458" href="Percentile.html#L458">458</a>         <strong class="jxr_keyword">for</strong>(<strong class="jxr_keyword">int</strong> i = 0; i &lt; length; i++) {
+<a class="jxr_linenumber" name="L459" href="Percentile.html#L459">459</a>             temp[i] = Precision.equalsIncludingNaN(original, temp[i]) ?
+<a class="jxr_linenumber" name="L460" href="Percentile.html#L460">460</a>                       replacement : temp[i];
+<a class="jxr_linenumber" name="L461" href="Percentile.html#L461">461</a>         }
+<a class="jxr_linenumber" name="L462" href="Percentile.html#L462">462</a>         <strong class="jxr_keyword">return</strong> temp;
+<a class="jxr_linenumber" name="L463" href="Percentile.html#L463">463</a>     }
+<a class="jxr_linenumber" name="L464" href="Percentile.html#L464">464</a> 
+<a class="jxr_linenumber" name="L465" href="Percentile.html#L465">465</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L466" href="Percentile.html#L466">466</a> <em class="jxr_javadoccomment">     * Remove the occurrence of a given value in a copied slice of array</em>
+<a class="jxr_linenumber" name="L467" href="Percentile.html#L467">467</a> <em class="jxr_javadoccomment">     * defined by the array part from [begin, begin+length).</em>
+<a class="jxr_linenumber" name="L468" href="Percentile.html#L468">468</a> <em class="jxr_javadoccomment">     * @param values the input array</em>
+<a class="jxr_linenumber" name="L469" href="Percentile.html#L469">469</a> <em class="jxr_javadoccomment">     * @param begin start index of the array to include</em>
+<a class="jxr_linenumber" name="L470" href="Percentile.html#L470">470</a> <em class="jxr_javadoccomment">     * @param length number of elements to include from begin</em>
+<a class="jxr_linenumber" name="L471" href="Percentile.html#L471">471</a> <em class="jxr_javadoccomment">     * @param removedValue the value to be removed from the sliced array</em>
+<a class="jxr_linenumber" name="L472" href="Percentile.html#L472">472</a> <em class="jxr_javadoccomment">     * @return the copy of the sliced array after removing the removedValue</em>
+<a class="jxr_linenumber" name="L473" href="Percentile.html#L473">473</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L474" href="Percentile.html#L474">474</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong>[] removeAndSlice(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values,
+<a class="jxr_linenumber" name="L475" href="Percentile.html#L475">475</a>                                            <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> begin, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length,
+<a class="jxr_linenumber" name="L476" href="Percentile.html#L476">476</a>                                            <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> removedValue) {
+<a class="jxr_linenumber" name="L477" href="Percentile.html#L477">477</a>         MathArrays.verifyValues(values, begin, length);
+<a class="jxr_linenumber" name="L478" href="Percentile.html#L478">478</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] temp;
+<a class="jxr_linenumber" name="L479" href="Percentile.html#L479">479</a>         <em class="jxr_comment">//BitSet(length) to indicate where the removedValue is located</em>
+<a class="jxr_linenumber" name="L480" href="Percentile.html#L480">480</a>         <strong class="jxr_keyword">final</strong> BitSet bits = <strong class="jxr_keyword">new</strong> BitSet(length);
+<a class="jxr_linenumber" name="L481" href="Percentile.html#L481">481</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = begin; i &lt; begin+length; i++) {
+<a class="jxr_linenumber" name="L482" href="Percentile.html#L482">482</a>             <strong class="jxr_keyword">if</strong> (Precision.equalsIncludingNaN(removedValue, values[i])) {
+<a class="jxr_linenumber" name="L483" href="Percentile.html#L483">483</a>                 bits.set(i - begin);
+<a class="jxr_linenumber" name="L484" href="Percentile.html#L484">484</a>             }
+<a class="jxr_linenumber" name="L485" href="Percentile.html#L485">485</a>         }
+<a class="jxr_linenumber" name="L486" href="Percentile.html#L486">486</a>         <em class="jxr_comment">//Check if empty then create a new copy</em>
+<a class="jxr_linenumber" name="L487" href="Percentile.html#L487">487</a>         <strong class="jxr_keyword">if</strong> (bits.isEmpty()) {
+<a class="jxr_linenumber" name="L488" href="Percentile.html#L488">488</a>             temp = copyOf(values, begin, length); <em class="jxr_comment">// Nothing removed, just copy</em>
+<a class="jxr_linenumber" name="L489" href="Percentile.html#L489">489</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong>(bits.cardinality() == length) {
+<a class="jxr_linenumber" name="L490" href="Percentile.html#L490">490</a>             temp = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[0];                 <em class="jxr_comment">// All removed, just empty</em>
+<a class="jxr_linenumber" name="L491" href="Percentile.html#L491">491</a>         }<strong class="jxr_keyword">else</strong> {                                   <em class="jxr_comment">// Some removable, so new</em>
+<a class="jxr_linenumber" name="L492" href="Percentile.html#L492">492</a>             temp = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[length - bits.cardinality()];
+<a class="jxr_linenumber" name="L493" href="Percentile.html#L493">493</a>             <strong class="jxr_keyword">int</strong> start = begin;  <em class="jxr_comment">//start index from source array (i.e values)</em>
+<a class="jxr_linenumber" name="L494" href="Percentile.html#L494">494</a>             <strong class="jxr_keyword">int</strong> dest = 0;       <em class="jxr_comment">//dest index in destination array(i.e temp)</em>
+<a class="jxr_linenumber" name="L495" href="Percentile.html#L495">495</a>             <strong class="jxr_keyword">int</strong> nextOne = -1;   <em class="jxr_comment">//nextOne is the index of bit set of next one</em>
+<a class="jxr_linenumber" name="L496" href="Percentile.html#L496">496</a>             <strong class="jxr_keyword">int</strong> bitSetPtr = 0;  <em class="jxr_comment">//bitSetPtr is start index pointer of bitset</em>
+<a class="jxr_linenumber" name="L497" href="Percentile.html#L497">497</a>             <strong class="jxr_keyword">while</strong> ((nextOne = bits.nextSetBit(bitSetPtr)) != -1) {
+<a class="jxr_linenumber" name="L498" href="Percentile.html#L498">498</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> lengthToCopy = nextOne - bitSetPtr;
+<a class="jxr_linenumber" name="L499" href="Percentile.html#L499">499</a>                 System.arraycopy(values, start, temp, dest, lengthToCopy);
+<a class="jxr_linenumber" name="L500" href="Percentile.html#L500">500</a>                 dest += lengthToCopy;
+<a class="jxr_linenumber" name="L501" href="Percentile.html#L501">501</a>                 start = begin + (bitSetPtr = bits.nextClearBit(nextOne));
+<a class="jxr_linenumber" name="L502" href="Percentile.html#L502">502</a>             }
+<a class="jxr_linenumber" name="L503" href="Percentile.html#L503">503</a>             <em class="jxr_comment">//Copy any residue past start index till begin+length</em>
+<a class="jxr_linenumber" name="L504" href="Percentile.html#L504">504</a>             <strong class="jxr_keyword">if</strong> (start &lt; begin + length) {
+<a class="jxr_linenumber" name="L505" href="Percentile.html#L505">505</a>                 System.arraycopy(values,start,temp,dest,begin + length - start);
+<a class="jxr_linenumber" name="L506" href="Percentile.html#L506">506</a>             }
+<a class="jxr_linenumber" name="L507" href="Percentile.html#L507">507</a>         }
+<a class="jxr_linenumber" name="L508" href="Percentile.html#L508">508</a>         <strong class="jxr_keyword">return</strong> temp;
+<a class="jxr_linenumber" name="L509" href="Percentile.html#L509">509</a>     }
+<a class="jxr_linenumber" name="L510" href="Percentile.html#L510">510</a> 
+<a class="jxr_linenumber" name="L511" href="Percentile.html#L511">511</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L512" href="Percentile.html#L512">512</a> <em class="jxr_javadoccomment">     * Get pivots which is either cached or a newly created one</em>
+<a class="jxr_linenumber" name="L513" href="Percentile.html#L513">513</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L514" href="Percentile.html#L514">514</a> <em class="jxr_javadoccomment">     * @param values array containing the input numbers</em>
+<a class="jxr_linenumber" name="L515" href="Percentile.html#L515">515</a> <em class="jxr_javadoccomment">     * @return cached pivots or a newly created one</em>
+<a class="jxr_linenumber" name="L516" href="Percentile.html#L516">516</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L517" href="Percentile.html#L517">517</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong>[] getPivots(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values) {
+<a class="jxr_linenumber" name="L518" href="Percentile.html#L518">518</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] pivotsHeap;
+<a class="jxr_linenumber" name="L519" href="Percentile.html#L519">519</a>         <strong class="jxr_keyword">if</strong> (values == getDataRef()) {
+<a class="jxr_linenumber" name="L520" href="Percentile.html#L520">520</a>             pivotsHeap = cachedPivots;
+<a class="jxr_linenumber" name="L521" href="Percentile.html#L521">521</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L522" href="Percentile.html#L522">522</a>             pivotsHeap = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[PIVOTS_HEAP_LENGTH];
+<a class="jxr_linenumber" name="L523" href="Percentile.html#L523">523</a>             Arrays.fill(pivotsHeap, -1);
+<a class="jxr_linenumber" name="L524" href="Percentile.html#L524">524</a>         }
+<a class="jxr_linenumber" name="L525" href="Percentile.html#L525">525</a>         <strong class="jxr_keyword">return</strong> pivotsHeap;
+<a class="jxr_linenumber" name="L526" href="Percentile.html#L526">526</a>     }
+<a class="jxr_linenumber" name="L527" href="Percentile.html#L527">527</a> 
+<a class="jxr_linenumber" name="L528" href="Percentile.html#L528">528</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L529" href="Percentile.html#L529">529</a> <em class="jxr_javadoccomment">     * Get the estimation {@link EstimationType type} used for computation.</em>
+<a class="jxr_linenumber" name="L530" href="Percentile.html#L530">530</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L531" href="Percentile.html#L531">531</a> <em class="jxr_javadoccomment">     * @return the {@code estimationType} set</em>
+<a class="jxr_linenumber" name="L532" href="Percentile.html#L532">532</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L533" href="Percentile.html#L533">533</a>     <strong class="jxr_keyword">public</strong> <a href="Percentile.html">EstimationType</a> getEstimationType() {
+<a class="jxr_linenumber" name="L534" href="Percentile.html#L534">534</a>         <strong class="jxr_keyword">return</strong> estimationType;
+<a class="jxr_linenumber" name="L535" href="Percentile.html#L535">535</a>     }
+<a class="jxr_linenumber" name="L536" href="Percentile.html#L536">536</a> 
+<a class="jxr_linenumber" name="L537" href="Percentile.html#L537">537</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L538" href="Percentile.html#L538">538</a> <em class="jxr_javadoccomment">     * Build a new instance similar to the current one except for the</em>
+<a class="jxr_linenumber" name="L539" href="Percentile.html#L539">539</a> <em class="jxr_javadoccomment">     * {@link EstimationType estimation type}.</em>
+<a class="jxr_linenumber" name="L540" href="Percentile.html#L540">540</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L541" href="Percentile.html#L541">541</a> <em class="jxr_javadoccomment">     * This method is intended to be used as part of a fluent-type builder</em>
+<a class="jxr_linenumber" name="L542" href="Percentile.html#L542">542</a> <em class="jxr_javadoccomment">     * pattern. Building finely tune instances should be done as follows:</em>
+<a class="jxr_linenumber" name="L543" href="Percentile.html#L543">543</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L544" href="Percentile.html#L544">544</a> <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L545" href="Percentile.html#L545">545</a> <em class="jxr_javadoccomment">     *   Percentile customized = new Percentile(quantile).</em>
+<a class="jxr_linenumber" name="L546" href="Percentile.html#L546">546</a> <em class="jxr_javadoccomment">     *                           withEstimationType(estimationType).</em>
+<a class="jxr_linenumber" name="L547" href="Percentile.html#L547">547</a> <em class="jxr_javadoccomment">     *                           withNaNStrategy(nanStrategy).</em>
+<a class="jxr_linenumber" name="L548" href="Percentile.html#L548">548</a> <em class="jxr_javadoccomment">     *                           withKthSelector(kthSelector);</em>
+<a class="jxr_linenumber" name="L549" href="Percentile.html#L549">549</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L550" href="Percentile.html#L550">550</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L551" href="Percentile.html#L551">551</a> <em class="jxr_javadoccomment">     * If any of the {@code withXxx} method is omitted, the default value for</em>
+<a class="jxr_linenumber" name="L552" href="Percentile.html#L552">552</a> <em class="jxr_javadoccomment">     * the corresponding customization parameter will be used.</em>
+<a class="jxr_linenumber" name="L553" href="Percentile.html#L553">553</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L554" href="Percentile.html#L554">554</a> <em class="jxr_javadoccomment">     * @param newEstimationType estimation type for the new instance</em>
+<a class="jxr_linenumber" name="L555" href="Percentile.html#L555">555</a> <em class="jxr_javadoccomment">     * @return a new instance, with changed estimation type</em>
+<a class="jxr_linenumber" name="L556" href="Percentile.html#L556">556</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException when newEstimationType is null</em>
+<a class="jxr_linenumber" name="L557" href="Percentile.html#L557">557</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L558" href="Percentile.html#L558">558</a>     <strong class="jxr_keyword">public</strong> <a href="Percentile.html">Percentile</a> withEstimationType(<strong class="jxr_keyword">final</strong> <a href="Percentile.html">EstimationType</a> newEstimationType) {
+<a class="jxr_linenumber" name="L559" href="Percentile.html#L559">559</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="Percentile.html">Percentile</a>(quantile, newEstimationType, nanStrategy, kthSelector);
+<a class="jxr_linenumber" name="L560" href="Percentile.html#L560">560</a>     }
+<a class="jxr_linenumber" name="L561" href="Percentile.html#L561">561</a> 
+<a class="jxr_linenumber" name="L562" href="Percentile.html#L562">562</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L563" href="Percentile.html#L563">563</a> <em class="jxr_javadoccomment">     * Get the {@link NaNStrategy NaN Handling} strategy used for computation.</em>
+<a class="jxr_linenumber" name="L564" href="Percentile.html#L564">564</a> <em class="jxr_javadoccomment">     * @return {@code NaN Handling} strategy set during construction</em>
+<a class="jxr_linenumber" name="L565" href="Percentile.html#L565">565</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L566" href="Percentile.html#L566">566</a>     <strong class="jxr_keyword">public</strong> <a href="../../ranking/NaNStrategy.html">NaNStrategy</a> getNaNStrategy() {
+<a class="jxr_linenumber" name="L567" href="Percentile.html#L567">567</a>         <strong class="jxr_keyword">return</strong> nanStrategy;
+<a class="jxr_linenumber" name="L568" href="Percentile.html#L568">568</a>     }
+<a class="jxr_linenumber" name="L569" href="Percentile.html#L569">569</a> 
+<a class="jxr_linenumber" name="L570" href="Percentile.html#L570">570</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L571" href="Percentile.html#L571">571</a> <em class="jxr_javadoccomment">     * Build a new instance similar to the current one except for the</em>
+<a class="jxr_linenumber" name="L572" href="Percentile.html#L572">572</a> <em class="jxr_javadoccomment">     * {@link NaNStrategy NaN handling} strategy.</em>
+<a class="jxr_linenumber" name="L573" href="Percentile.html#L573">573</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L574" href="Percentile.html#L574">574</a> <em class="jxr_javadoccomment">     * This method is intended to be used as part of a fluent-type builder</em>
+<a class="jxr_linenumber" name="L575" href="Percentile.html#L575">575</a> <em class="jxr_javadoccomment">     * pattern. Building finely tune instances should be done as follows:</em>
+<a class="jxr_linenumber" name="L576" href="Percentile.html#L576">576</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L577" href="Percentile.html#L577">577</a> <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L578" href="Percentile.html#L578">578</a> <em class="jxr_javadoccomment">     *   Percentile customized = new Percentile(quantile).</em>
+<a class="jxr_linenumber" name="L579" href="Percentile.html#L579">579</a> <em class="jxr_javadoccomment">     *                           withEstimationType(estimationType).</em>
+<a class="jxr_linenumber" name="L580" href="Percentile.html#L580">580</a> <em class="jxr_javadoccomment">     *                           withNaNStrategy(nanStrategy).</em>
+<a class="jxr_linenumber" name="L581" href="Percentile.html#L581">581</a> <em class="jxr_javadoccomment">     *                           withKthSelector(kthSelector);</em>
+<a class="jxr_linenumber" name="L582" href="Percentile.html#L582">582</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L583" href="Percentile.html#L583">583</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L584" href="Percentile.html#L584">584</a> <em class="jxr_javadoccomment">     * If any of the {@code withXxx} method is omitted, the default value for</em>
+<a class="jxr_linenumber" name="L585" href="Percentile.html#L585">585</a> <em class="jxr_javadoccomment">     * the corresponding customization parameter will be used.</em>
+<a class="jxr_linenumber" name="L586" href="Percentile.html#L586">586</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L587" href="Percentile.html#L587">587</a> <em class="jxr_javadoccomment">     * @param newNaNStrategy NaN strategy for the new instance</em>
+<a class="jxr_linenumber" name="L588" href="Percentile.html#L588">588</a> <em class="jxr_javadoccomment">     * @return a new instance, with changed NaN handling strategy</em>
+<a class="jxr_linenumber" name="L589" href="Percentile.html#L589">589</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException when newNaNStrategy is null</em>
+<a class="jxr_linenumber" name="L590" href="Percentile.html#L590">590</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L591" href="Percentile.html#L591">591</a>     <strong class="jxr_keyword">public</strong> <a href="Percentile.html">Percentile</a> withNaNStrategy(<strong class="jxr_keyword">final</strong> <a href="../../ranking/NaNStrategy.html">NaNStrategy</a> newNaNStrategy) {
+<a class="jxr_linenumber" name="L592" href="Percentile.html#L592">592</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="Percentile.html">Percentile</a>(quantile, estimationType, newNaNStrategy, kthSelector);
+<a class="jxr_linenumber" name="L593" href="Percentile.html#L593">593</a>     }
+<a class="jxr_linenumber" name="L594" href="Percentile.html#L594">594</a> 
+<a class="jxr_linenumber" name="L595" href="Percentile.html#L595">595</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L596" href="Percentile.html#L596">596</a> <em class="jxr_javadoccomment">     * Get the {@link KthSelector kthSelector} used for computation.</em>
+<a class="jxr_linenumber" name="L597" href="Percentile.html#L597">597</a> <em class="jxr_javadoccomment">     * @return the {@code kthSelector} set</em>
+<a class="jxr_linenumber" name="L598" href="Percentile.html#L598">598</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L599" href="Percentile.html#L599">599</a>     <strong class="jxr_keyword">public</strong> <a href="../../../util/KthSelector.html">KthSelector</a> getKthSelector() {
+<a class="jxr_linenumber" name="L600" href="Percentile.html#L600">600</a>         <strong class="jxr_keyword">return</strong> kthSelector;
+<a class="jxr_linenumber" name="L601" href="Percentile.html#L601">601</a>     }
+<a class="jxr_linenumber" name="L602" href="Percentile.html#L602">602</a> 
+<a class="jxr_linenumber" name="L603" href="Percentile.html#L603">603</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L604" href="Percentile.html#L604">604</a> <em class="jxr_javadoccomment">     * Get the {@link PivotingStrategyInterface} used in KthSelector for computation.</em>
+<a class="jxr_linenumber" name="L605" href="Percentile.html#L605">605</a> <em class="jxr_javadoccomment">     * @return the pivoting strategy set</em>
+<a class="jxr_linenumber" name="L606" href="Percentile.html#L606">606</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L607" href="Percentile.html#L607">607</a>     <strong class="jxr_keyword">public</strong> <a href="../../../util/PivotingStrategyInterface.html">PivotingStrategyInterface</a> getPivotingStrategy() {
+<a class="jxr_linenumber" name="L608" href="Percentile.html#L608">608</a>         <strong class="jxr_keyword">return</strong> kthSelector.getPivotingStrategy();
+<a class="jxr_linenumber" name="L609" href="Percentile.html#L609">609</a>     }
+<a class="jxr_linenumber" name="L610" href="Percentile.html#L610">610</a> 
+<a class="jxr_linenumber" name="L611" href="Percentile.html#L611">611</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L612" href="Percentile.html#L612">612</a> <em class="jxr_javadoccomment">     * Build a new instance similar to the current one except for the</em>
+<a class="jxr_linenumber" name="L613" href="Percentile.html#L613">613</a> <em class="jxr_javadoccomment">     * {@link KthSelector kthSelector} instance specifically set.</em>
+<a class="jxr_linenumber" name="L614" href="Percentile.html#L614">614</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L615" href="Percentile.html#L615">615</a> <em class="jxr_javadoccomment">     * This method is intended to be used as part of a fluent-type builder</em>
+<a class="jxr_linenumber" name="L616" href="Percentile.html#L616">616</a> <em class="jxr_javadoccomment">     * pattern. Building finely tune instances should be done as follows:</em>
+<a class="jxr_linenumber" name="L617" href="Percentile.html#L617">617</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L618" href="Percentile.html#L618">618</a> <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L619" href="Percentile.html#L619">619</a> <em class="jxr_javadoccomment">     *   Percentile customized = new Percentile(quantile).</em>
+<a class="jxr_linenumber" name="L620" href="Percentile.html#L620">620</a> <em class="jxr_javadoccomment">     *                           withEstimationType(estimationType).</em>
+<a class="jxr_linenumber" name="L621" href="Percentile.html#L621">621</a> <em class="jxr_javadoccomment">     *                           withNaNStrategy(nanStrategy).</em>
+<a class="jxr_linenumber" name="L622" href="Percentile.html#L622">622</a> <em class="jxr_javadoccomment">     *                           withKthSelector(newKthSelector);</em>
+<a class="jxr_linenumber" name="L623" href="Percentile.html#L623">623</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L624" href="Percentile.html#L624">624</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L625" href="Percentile.html#L625">625</a> <em class="jxr_javadoccomment">     * If any of the {@code withXxx} method is omitted, the default value for</em>
+<a class="jxr_linenumber" name="L626" href="Percentile.html#L626">626</a> <em class="jxr_javadoccomment">     * the corresponding customization parameter will be used.</em>
+<a class="jxr_linenumber" name="L627" href="Percentile.html#L627">627</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L628" href="Percentile.html#L628">628</a> <em class="jxr_javadoccomment">     * @param newKthSelector KthSelector for the new instance</em>
+<a class="jxr_linenumber" name="L629" href="Percentile.html#L629">629</a> <em class="jxr_javadoccomment">     * @return a new instance, with changed KthSelector</em>
+<a class="jxr_linenumber" name="L630" href="Percentile.html#L630">630</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException when newKthSelector is null</em>
+<a class="jxr_linenumber" name="L631" href="Percentile.html#L631">631</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L632" href="Percentile.html#L632">632</a>     <strong class="jxr_keyword">public</strong> <a href="Percentile.html">Percentile</a> withKthSelector(<strong class="jxr_keyword">final</strong> <a href="../../../util/KthSelector.html">KthSelector</a> newKthSelector) {
+<a class="jxr_linenumber" name="L633" href="Percentile.html#L633">633</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="Percentile.html">Percentile</a>(quantile, estimationType, nanStrategy, newKthSelector);
+<a class="jxr_linenumber" name="L634" href="Percentile.html#L634">634</a>     }
+<a class="jxr_linenumber" name="L635" href="Percentile.html#L635">635</a> 
+<a class="jxr_linenumber" name="L636" href="Percentile.html#L636">636</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L637" href="Percentile.html#L637">637</a> <em class="jxr_javadoccomment">     * An enum for various estimation strategies of a percentile referred in</em>
+<a class="jxr_linenumber" name="L638" href="Percentile.html#L638">638</a> <em class="jxr_javadoccomment">     * &lt;a href="<a href="http://en.wikipedia.org/wiki/Quantile" target="alexandria_uri">http://en.wikipedia.org/wiki/Quantile</a>"&gt;wikipedia on quantile&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L639" href="Percentile.html#L639">639</a> <em class="jxr_javadoccomment">     * with the names of enum matching those of types mentioned in</em>
+<a class="jxr_linenumber" name="L640" href="Percentile.html#L640">640</a> <em class="jxr_javadoccomment">     * wikipedia.</em>
+<a class="jxr_linenumber" name="L641" href="Percentile.html#L641">641</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L642" href="Percentile.html#L642">642</a> <em class="jxr_javadoccomment">     * Each enum corresponding to the specific type of estimation in wikipedia</em>
+<a class="jxr_linenumber" name="L643" href="Percentile.html#L643">643</a> <em class="jxr_javadoccomment">     * implements  the respective formulae that specializes in the below aspects</em>
+<a class="jxr_linenumber" name="L644" href="Percentile.html#L644">644</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L645" href="Percentile.html#L645">645</a> <em class="jxr_javadoccomment">     * &lt;li&gt;An &lt;b&gt;index method&lt;/b&gt; to calculate approximate index of the</em>
+<a class="jxr_linenumber" name="L646" href="Percentile.html#L646">646</a> <em class="jxr_javadoccomment">     * estimate&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L647" href="Percentile.html#L647">647</a> <em class="jxr_javadoccomment">     * &lt;li&gt;An &lt;b&gt;estimate method&lt;/b&gt; to estimate a value found at the earlier</em>
+<a class="jxr_linenumber" name="L648" href="Percentile.html#L648">648</a> <em class="jxr_javadoccomment">     * computed index&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L649" href="Percentile.html#L649">649</a> <em class="jxr_javadoccomment">     * &lt;li&gt;A &lt;b&gt; minLimit&lt;/b&gt; on the quantile for which first element of sorted</em>
+<a class="jxr_linenumber" name="L650" href="Percentile.html#L650">650</a> <em class="jxr_javadoccomment">     * input is returned as an estimate &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L651" href="Percentile.html#L651">651</a> <em class="jxr_javadoccomment">     * &lt;li&gt;A &lt;b&gt; maxLimit&lt;/b&gt; on the quantile for which last element of sorted</em>
+<a class="jxr_linenumber" name="L652" href="Percentile.html#L652">652</a> <em class="jxr_javadoccomment">     * input is returned as an estimate &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L653" href="Percentile.html#L653">653</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L654" href="Percentile.html#L654">654</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L655" href="Percentile.html#L655">655</a> <em class="jxr_javadoccomment">     * Users can now create {@link Percentile} by explicitly passing this enum;</em>
+<a class="jxr_linenumber" name="L656" href="Percentile.html#L656">656</a> <em class="jxr_javadoccomment">     * such as by invoking {@link Percentile#withEstimationType(EstimationType)}</em>
+<a class="jxr_linenumber" name="L657" href="Percentile.html#L657">657</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L658" href="Percentile.html#L658">658</a> <em class="jxr_javadoccomment">     * References:</em>
+<a class="jxr_linenumber" name="L659" href="Percentile.html#L659">659</a> <em class="jxr_javadoccomment">     * &lt;ol&gt;</em>
+<a class="jxr_linenumber" name="L660" href="Percentile.html#L660">660</a> <em class="jxr_javadoccomment">     * &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L661" href="Percentile.html#L661">661</a> <em class="jxr_javadoccomment">     * &lt;a href="<a href="http://en.wikipedia.org/wiki/Quantile" target="alexandria_uri">http://en.wikipedia.org/wiki/Quantile</a>"&gt;Wikipedia on quantile&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L662" href="Percentile.html#L662">662</a> <em class="jxr_javadoccomment">     * &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L663" href="Percentile.html#L663">663</a> <em class="jxr_javadoccomment">     * &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L664" href="Percentile.html#L664">664</a> <em class="jxr_javadoccomment">     * &lt;a href="https://www.amherst.edu/media/view/129116/.../Sample+Quantiles.pdf"&gt;</em>
+<a class="jxr_linenumber" name="L665" href="Percentile.html#L665">665</a> <em class="jxr_javadoccomment">     * Hyndman, R. J. and Fan, Y. (1996) Sample quantiles in statistical</em>
+<a class="jxr_linenumber" name="L666" href="Percentile.html#L666">666</a> <em class="jxr_javadoccomment">     * packages, American Statistician 50, 361–365&lt;/a&gt; &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L667" href="Percentile.html#L667">667</a> <em class="jxr_javadoccomment">     * &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L668" href="Percentile.html#L668">668</a> <em class="jxr_javadoccomment">     * &lt;a href="<a href="http://stat.ethz.ch/R-manual/R-devel/library/stats/html/quantile.html" target="alexandria_uri">http://stat.ethz.ch/R-manual/R-devel/library/stats/html/quantile.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L669" href="Percentile.html#L669">669</a> <em class="jxr_javadoccomment">     * R-Manual &lt;/a&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L670" href="Percentile.html#L670">670</a> <em class="jxr_javadoccomment">     * &lt;/ol&gt;</em>
+<a class="jxr_linenumber" name="L671" href="Percentile.html#L671">671</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L672" href="Percentile.html#L672">672</a>     <strong class="jxr_keyword">public</strong> enum <a href="Percentile.html">EstimationType</a> {
+<a class="jxr_linenumber" name="L673" href="Percentile.html#L673">673</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L674" href="Percentile.html#L674">674</a> <em class="jxr_javadoccomment">         * This is the default type used in the {@link Percentile}.This method</em>
+<a class="jxr_linenumber" name="L675" href="Percentile.html#L675">675</a> <em class="jxr_javadoccomment">         * has the following formulae for index and estimates&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L676" href="Percentile.html#L676">676</a> <em class="jxr_javadoccomment">         * \( \begin{align}</em>
+<a class="jxr_linenumber" name="L677" href="Percentile.html#L677">677</a> <em class="jxr_javadoccomment">         * &amp;amp;index    = (N+1)p\ &#92;&#92;</em>
+<a class="jxr_linenumber" name="L678" href="Percentile.html#L678">678</a> <em class="jxr_javadoccomment">         * &amp;amp;estimate = x_{\lceil h\,-\,1/2 \rceil} &#92;&#92;</em>
+<a class="jxr_linenumber" name="L679" href="Percentile.html#L679">679</a> <em class="jxr_javadoccomment">         * &amp;amp;minLimit = 0 &#92;&#92;</em>
+<a class="jxr_linenumber" name="L680" href="Percentile.html#L680">680</a> <em class="jxr_javadoccomment">         * &amp;amp;maxLimit = 1 &#92;&#92;</em>
+<a class="jxr_linenumber" name="L681" href="Percentile.html#L681">681</a> <em class="jxr_javadoccomment">         * \end{align}\)</em>
+<a class="jxr_linenumber" name="L682" href="Percentile.html#L682">682</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L683" href="Percentile.html#L683">683</a>         LEGACY(<span class="jxr_string">"Legacy Apache Commons Math"</span>) {
+<a class="jxr_linenumber" name="L684" href="Percentile.html#L684">684</a>             <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L685" href="Percentile.html#L685">685</a> <em class="jxr_javadoccomment">             * {@inheritDoc}.This method in particular makes use of existing</em>
+<a class="jxr_linenumber" name="L686" href="Percentile.html#L686">686</a> <em class="jxr_javadoccomment">             * Apache Commons Math style of picking up the index.</em>
+<a class="jxr_linenumber" name="L687" href="Percentile.html#L687">687</a> <em class="jxr_javadoccomment">             */</em>
+<a class="jxr_linenumber" name="L688" href="Percentile.html#L688">688</a>             @Override
+<a class="jxr_linenumber" name="L689" href="Percentile.html#L689">689</a>             <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> index(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length) {
+<a class="jxr_linenumber" name="L690" href="Percentile.html#L690">690</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> minLimit = 0d;
+<a class="jxr_linenumber" name="L691" href="Percentile.html#L691">691</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxLimit = 1d;
+<a class="jxr_linenumber" name="L692" href="Percentile.html#L692">692</a>                 <strong class="jxr_keyword">return</strong> Double.compare(p, minLimit) == 0 ? 0 :
+<a class="jxr_linenumber" name="L693" href="Percentile.html#L693">693</a>                        Double.compare(p, maxLimit) == 0 ?
+<a class="jxr_linenumber" name="L694" href="Percentile.html#L694">694</a>                                length : p * (length + 1);
+<a class="jxr_linenumber" name="L695" href="Percentile.html#L695">695</a>             }
+<a class="jxr_linenumber" name="L696" href="Percentile.html#L696">696</a>         },
+<a class="jxr_linenumber" name="L697" href="Percentile.html#L697">697</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L698" href="Percentile.html#L698">698</a> <em class="jxr_javadoccomment">         * The method R_1 has the following formulae for index and estimates&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L699" href="Percentile.html#L699">699</a> <em class="jxr_javadoccomment">         * \( \begin{align}</em>
+<a class="jxr_linenumber" name="L700" href="Percentile.html#L700">700</a> <em class="jxr_javadoccomment">         * &amp;amp;index= Np + 1/2\,  &#92;&#92;</em>
+<a class="jxr_linenumber" name="L701" href="Percentile.html#L701">701</a> <em class="jxr_javadoccomment">         * &amp;amp;estimate= x_{\lceil h\,-\,1/2 \rceil} &#92;&#92;</em>
+<a class="jxr_linenumber" name="L702" href="Percentile.html#L702">702</a> <em class="jxr_javadoccomment">         * &amp;amp;minLimit = 0 &#92;&#92;</em>
+<a class="jxr_linenumber" name="L703" href="Percentile.html#L703">703</a> <em class="jxr_javadoccomment">         * \end{align}\)</em>
+<a class="jxr_linenumber" name="L704" href="Percentile.html#L704">704</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L705" href="Percentile.html#L705">705</a>         R_1(<span class="jxr_string">"R-1"</span>) {
+<a class="jxr_linenumber" name="L706" href="Percentile.html#L706">706</a> 
+<a class="jxr_linenumber" name="L707" href="Percentile.html#L707">707</a>             @Override
+<a class="jxr_linenumber" name="L708" href="Percentile.html#L708">708</a>             <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> index(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length) {
+<a class="jxr_linenumber" name="L709" href="Percentile.html#L709">709</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> minLimit = 0d;
+<a class="jxr_linenumber" name="L710" href="Percentile.html#L710">710</a>                 <strong class="jxr_keyword">return</strong> Double.compare(p, minLimit) == 0 ? 0 : length * p + 0.5;
+<a class="jxr_linenumber" name="L711" href="Percentile.html#L711">711</a>             }
+<a class="jxr_linenumber" name="L712" href="Percentile.html#L712">712</a> 
+<a class="jxr_linenumber" name="L713" href="Percentile.html#L713">713</a>             <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L714" href="Percentile.html#L714">714</a> <em class="jxr_javadoccomment">             * {@inheritDoc}This method in particular for R_1 uses ceil(pos-0.5)</em>
+<a class="jxr_linenumber" name="L715" href="Percentile.html#L715">715</a> <em class="jxr_javadoccomment">             */</em>
+<a class="jxr_linenumber" name="L716" href="Percentile.html#L716">716</a>             @Override
+<a class="jxr_linenumber" name="L717" href="Percentile.html#L717">717</a>             <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> estimate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values,
+<a class="jxr_linenumber" name="L718" href="Percentile.html#L718">718</a>                                       <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] pivotsHeap, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> pos,
+<a class="jxr_linenumber" name="L719" href="Percentile.html#L719">719</a>                                       <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length, <strong class="jxr_keyword">final</strong> <a href="../../../util/KthSelector.html">KthSelector</a> selector) {
+<a class="jxr_linenumber" name="L720" href="Percentile.html#L720">720</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.estimate(values, pivotsHeap, FastMath.ceil(pos - 0.5), length, selector);
+<a class="jxr_linenumber" name="L721" href="Percentile.html#L721">721</a>             }
+<a class="jxr_linenumber" name="L722" href="Percentile.html#L722">722</a> 
+<a class="jxr_linenumber" name="L723" href="Percentile.html#L723">723</a>         },
+<a class="jxr_linenumber" name="L724" href="Percentile.html#L724">724</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L725" href="Percentile.html#L725">725</a> <em class="jxr_javadoccomment">         * The method R_2 has the following formulae for index and estimates&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L726" href="Percentile.html#L726">726</a> <em class="jxr_javadoccomment">         * \( \begin{align}</em>
+<a class="jxr_linenumber" name="L727" href="Percentile.html#L727">727</a> <em class="jxr_javadoccomment">         * &amp;amp;index= Np + 1/2\, &#92;&#92;</em>
+<a class="jxr_linenumber" name="L728" href="Percentile.html#L728">728</a> <em class="jxr_javadoccomment">         * &amp;amp;estimate=\frac{x_{\lceil h\,-\,1/2 \rceil} +</em>
+<a class="jxr_linenumber" name="L729" href="Percentile.html#L729">729</a> <em class="jxr_javadoccomment">         * x_{\lfloor h\,+\,1/2 \rfloor}}{2} &#92;&#92;</em>
+<a class="jxr_linenumber" name="L730" href="Percentile.html#L730">730</a> <em class="jxr_javadoccomment">         * &amp;amp;minLimit = 0 &#92;&#92;</em>
+<a class="jxr_linenumber" name="L731" href="Percentile.html#L731">731</a> <em class="jxr_javadoccomment">         * &amp;amp;maxLimit = 1 &#92;&#92;</em>
+<a class="jxr_linenumber" name="L732" href="Percentile.html#L732">732</a> <em class="jxr_javadoccomment">         * \end{align}\)</em>
+<a class="jxr_linenumber" name="L733" href="Percentile.html#L733">733</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L734" href="Percentile.html#L734">734</a>         R_2(<span class="jxr_string">"R-2"</span>) {
+<a class="jxr_linenumber" name="L735" href="Percentile.html#L735">735</a> 
+<a class="jxr_linenumber" name="L736" href="Percentile.html#L736">736</a>             @Override
+<a class="jxr_linenumber" name="L737" href="Percentile.html#L737">737</a>             <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> index(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length) {
+<a class="jxr_linenumber" name="L738" href="Percentile.html#L738">738</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> minLimit = 0d;
+<a class="jxr_linenumber" name="L739" href="Percentile.html#L739">739</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxLimit = 1d;
+<a class="jxr_linenumber" name="L740" href="Percentile.html#L740">740</a>                 <strong class="jxr_keyword">return</strong> Double.compare(p, maxLimit) == 0 ? length :
+<a class="jxr_linenumber" name="L741" href="Percentile.html#L741">741</a>                        Double.compare(p, minLimit) == 0 ? 0 : length * p + 0.5;
+<a class="jxr_linenumber" name="L742" href="Percentile.html#L742">742</a>             }
+<a class="jxr_linenumber" name="L743" href="Percentile.html#L743">743</a> 
+<a class="jxr_linenumber" name="L744" href="Percentile.html#L744">744</a>             <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L745" href="Percentile.html#L745">745</a> <em class="jxr_javadoccomment">             * {@inheritDoc}This method in particular for R_2 averages the</em>
+<a class="jxr_linenumber" name="L746" href="Percentile.html#L746">746</a> <em class="jxr_javadoccomment">             * values at ceil(p+0.5) and floor(p-0.5).</em>
+<a class="jxr_linenumber" name="L747" href="Percentile.html#L747">747</a> <em class="jxr_javadoccomment">             */</em>
+<a class="jxr_linenumber" name="L748" href="Percentile.html#L748">748</a>             @Override
+<a class="jxr_linenumber" name="L749" href="Percentile.html#L749">749</a>             <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> estimate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values,
+<a class="jxr_linenumber" name="L750" href="Percentile.html#L750">750</a>                                       <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] pivotsHeap, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> pos,
+<a class="jxr_linenumber" name="L751" href="Percentile.html#L751">751</a>                                       <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length, <strong class="jxr_keyword">final</strong> <a href="../../../util/KthSelector.html">KthSelector</a> selector) {
+<a class="jxr_linenumber" name="L752" href="Percentile.html#L752">752</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> low =
+<a class="jxr_linenumber" name="L753" href="Percentile.html#L753">753</a>                         <strong class="jxr_keyword">super</strong>.estimate(values, pivotsHeap, FastMath.ceil(pos - 0.5), length, selector);
+<a class="jxr_linenumber" name="L754" href="Percentile.html#L754">754</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> high =
+<a class="jxr_linenumber" name="L755" href="Percentile.html#L755">755</a>                         <strong class="jxr_keyword">super</strong>.estimate(values, pivotsHeap,FastMath.floor(pos + 0.5), length, selector);
+<a class="jxr_linenumber" name="L756" href="Percentile.html#L756">756</a>                 <strong class="jxr_keyword">return</strong> (low + high) / 2;
+<a class="jxr_linenumber" name="L757" href="Percentile.html#L757">757</a>             }
+<a class="jxr_linenumber" name="L758" href="Percentile.html#L758">758</a> 
+<a class="jxr_linenumber" name="L759" href="Percentile.html#L759">759</a>         },
+<a class="jxr_linenumber" name="L760" href="Percentile.html#L760">760</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L761" href="Percentile.html#L761">761</a> <em class="jxr_javadoccomment">         * The method R_3 has the following formulae for index and estimates&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L762" href="Percentile.html#L762">762</a> <em class="jxr_javadoccomment">         * \( \begin{align}</em>
+<a class="jxr_linenumber" name="L763" href="Percentile.html#L763">763</a> <em class="jxr_javadoccomment">         * &amp;amp;index= Np &#92;&#92;</em>
+<a class="jxr_linenumber" name="L764" href="Percentile.html#L764">764</a> <em class="jxr_javadoccomment">         * &amp;amp;estimate= x_{\lfloor h \rceil}\, &#92;&#92;</em>
+<a class="jxr_linenumber" name="L765" href="Percentile.html#L765">765</a> <em class="jxr_javadoccomment">         * &amp;amp;minLimit = 0.5/N &#92;&#92;</em>
+<a class="jxr_linenumber" name="L766" href="Percentile.html#L766">766</a> <em class="jxr_javadoccomment">         * \end{align}\)</em>
+<a class="jxr_linenumber" name="L767" href="Percentile.html#L767">767</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L768" href="Percentile.html#L768">768</a>         R_3(<span class="jxr_string">"R-3"</span>) {
+<a class="jxr_linenumber" name="L769" href="Percentile.html#L769">769</a>             @Override
+<a class="jxr_linenumber" name="L770" href="Percentile.html#L770">770</a>             <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> index(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length) {
+<a class="jxr_linenumber" name="L771" href="Percentile.html#L771">771</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> minLimit = 1d/2 / length;
+<a class="jxr_linenumber" name="L772" href="Percentile.html#L772">772</a>                 <strong class="jxr_keyword">return</strong> Double.compare(p, minLimit) &lt;= 0 ?
+<a class="jxr_linenumber" name="L773" href="Percentile.html#L773">773</a>                         0 : FastMath.rint(length * p);
+<a class="jxr_linenumber" name="L774" href="Percentile.html#L774">774</a>             }
+<a class="jxr_linenumber" name="L775" href="Percentile.html#L775">775</a> 
+<a class="jxr_linenumber" name="L776" href="Percentile.html#L776">776</a>         },
+<a class="jxr_linenumber" name="L777" href="Percentile.html#L777">777</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L778" href="Percentile.html#L778">778</a> <em class="jxr_javadoccomment">         * The method R_4 has the following formulae for index and estimates&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L779" href="Percentile.html#L779">779</a> <em class="jxr_javadoccomment">         * \( \begin{align}</em>
+<a class="jxr_linenumber" name="L780" href="Percentile.html#L780">780</a> <em class="jxr_javadoccomment">         * &amp;amp;index= Np\, &#92;&#92;</em>
+<a class="jxr_linenumber" name="L781" href="Percentile.html#L781">781</a> <em class="jxr_javadoccomment">         * &amp;amp;estimate= x_{\lfloor h \rfloor} + (h -</em>
+<a class="jxr_linenumber" name="L782" href="Percentile.html#L782">782</a> <em class="jxr_javadoccomment">         * \lfloor h \rfloor) (x_{\lfloor h \rfloor + 1} - x_{\lfloor h</em>
+<a class="jxr_linenumber" name="L783" href="Percentile.html#L783">783</a> <em class="jxr_javadoccomment">         * \rfloor}) &#92;&#92;</em>
+<a class="jxr_linenumber" name="L784" href="Percentile.html#L784">784</a> <em class="jxr_javadoccomment">         * &amp;amp;minLimit = 1/N &#92;&#92;</em>
+<a class="jxr_linenumber" name="L785" href="Percentile.html#L785">785</a> <em class="jxr_javadoccomment">         * &amp;amp;maxLimit = 1 &#92;&#92;</em>
+<a class="jxr_linenumber" name="L786" href="Percentile.html#L786">786</a> <em class="jxr_javadoccomment">         * \end{align}\)</em>
+<a class="jxr_linenumber" name="L787" href="Percentile.html#L787">787</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L788" href="Percentile.html#L788">788</a>         R_4(<span class="jxr_string">"R-4"</span>) {
+<a class="jxr_linenumber" name="L789" href="Percentile.html#L789">789</a>             @Override
+<a class="jxr_linenumber" name="L790" href="Percentile.html#L790">790</a>             <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> index(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length) {
+<a class="jxr_linenumber" name="L791" href="Percentile.html#L791">791</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> minLimit = 1d / length;
+<a class="jxr_linenumber" name="L792" href="Percentile.html#L792">792</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxLimit = 1d;
+<a class="jxr_linenumber" name="L793" href="Percentile.html#L793">793</a>                 <strong class="jxr_keyword">return</strong> Double.compare(p, minLimit) &lt; 0 ? 0 :
+<a class="jxr_linenumber" name="L794" href="Percentile.html#L794">794</a>                        Double.compare(p, maxLimit) == 0 ? length : length * p;
+<a class="jxr_linenumber" name="L795" href="Percentile.html#L795">795</a>             }
+<a class="jxr_linenumber" name="L796" href="Percentile.html#L796">796</a> 
+<a class="jxr_linenumber" name="L797" href="Percentile.html#L797">797</a>         },
+<a class="jxr_linenumber" name="L798" href="Percentile.html#L798">798</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L799" href="Percentile.html#L799">799</a> <em class="jxr_javadoccomment">         * The method R_5 has the following formulae for index and estimates&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L800" href="Percentile.html#L800">800</a> <em class="jxr_javadoccomment">         * \( \begin{align}</em>
+<a class="jxr_linenumber" name="L801" href="Percentile.html#L801">801</a> <em class="jxr_javadoccomment">         * &amp;amp;index= Np + 1/2&#92;&#92;</em>
+<a class="jxr_linenumber" name="L802" href="Percentile.html#L802">802</a> <em class="jxr_javadoccomment">         * &amp;amp;estimate= x_{\lfloor h \rfloor} + (h -</em>
+<a class="jxr_linenumber" name="L803" href="Percentile.html#L803">803</a> <em class="jxr_javadoccomment">         * \lfloor h \rfloor) (x_{\lfloor h \rfloor + 1} - x_{\lfloor h</em>
+<a class="jxr_linenumber" name="L804" href="Percentile.html#L804">804</a> <em class="jxr_javadoccomment">         * \rfloor}) &#92;&#92;</em>
+<a class="jxr_linenumber" name="L805" href="Percentile.html#L805">805</a> <em class="jxr_javadoccomment">         * &amp;amp;minLimit = 0.5/N &#92;&#92;</em>
+<a class="jxr_linenumber" name="L806" href="Percentile.html#L806">806</a> <em class="jxr_javadoccomment">         * &amp;amp;maxLimit = (N-0.5)/N</em>
+<a class="jxr_linenumber" name="L807" href="Percentile.html#L807">807</a> <em class="jxr_javadoccomment">         * \end{align}\)</em>
+<a class="jxr_linenumber" name="L808" href="Percentile.html#L808">808</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L809" href="Percentile.html#L809">809</a>         R_5(<span class="jxr_string">"R-5"</span>) {
+<a class="jxr_linenumber" name="L810" href="Percentile.html#L810">810</a> 
+<a class="jxr_linenumber" name="L811" href="Percentile.html#L811">811</a>             @Override
+<a class="jxr_linenumber" name="L812" href="Percentile.html#L812">812</a>             <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> index(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length) {
+<a class="jxr_linenumber" name="L813" href="Percentile.html#L813">813</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> minLimit = 1d/2 / length;
+<a class="jxr_linenumber" name="L814" href="Percentile.html#L814">814</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxLimit = (length - 0.5) / length;
+<a class="jxr_linenumber" name="L815" href="Percentile.html#L815">815</a>                 <strong class="jxr_keyword">return</strong> Double.compare(p, minLimit) &lt; 0 ? 0 :
+<a class="jxr_linenumber" name="L816" href="Percentile.html#L816">816</a>                        Double.compare(p, maxLimit) &gt;= 0 ?
+<a class="jxr_linenumber" name="L817" href="Percentile.html#L817">817</a>                                length : length * p + 0.5;
+<a class="jxr_linenumber" name="L818" href="Percentile.html#L818">818</a>             }
+<a class="jxr_linenumber" name="L819" href="Percentile.html#L819">819</a>         },
+<a class="jxr_linenumber" name="L820" href="Percentile.html#L820">820</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L821" href="Percentile.html#L821">821</a> <em class="jxr_javadoccomment">         * The method R_6 has the following formulae for index and estimates&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L822" href="Percentile.html#L822">822</a> <em class="jxr_javadoccomment">         * \( \begin{align}</em>
+<a class="jxr_linenumber" name="L823" href="Percentile.html#L823">823</a> <em class="jxr_javadoccomment">         * &amp;amp;index= (N + 1)p &#92;&#92;</em>
+<a class="jxr_linenumber" name="L824" href="Percentile.html#L824">824</a> <em class="jxr_javadoccomment">         * &amp;amp;estimate= x_{\lfloor h \rfloor} + (h -</em>
+<a class="jxr_linenumber" name="L825" href="Percentile.html#L825">825</a> <em class="jxr_javadoccomment">         * \lfloor h \rfloor) (x_{\lfloor h \rfloor + 1} - x_{\lfloor h</em>
+<a class="jxr_linenumber" name="L826" href="Percentile.html#L826">826</a> <em class="jxr_javadoccomment">         * \rfloor}) &#92;&#92;</em>
+<a class="jxr_linenumber" name="L827" href="Percentile.html#L827">827</a> <em class="jxr_javadoccomment">         * &amp;amp;minLimit = 1/(N+1) &#92;&#92;</em>
+<a class="jxr_linenumber" name="L828" href="Percentile.html#L828">828</a> <em class="jxr_javadoccomment">         * &amp;amp;maxLimit = N/(N+1) &#92;&#92;</em>
+<a class="jxr_linenumber" name="L829" href="Percentile.html#L829">829</a> <em class="jxr_javadoccomment">         * \end{align}\)</em>
+<a class="jxr_linenumber" name="L830" href="Percentile.html#L830">830</a> <em class="jxr_javadoccomment">         * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L831" href="Percentile.html#L831">831</a> <em class="jxr_javadoccomment">         * &lt;b&gt;Note:&lt;/b&gt; This method computes the index in a manner very close to</em>
+<a class="jxr_linenumber" name="L832" href="Percentile.html#L832">832</a> <em class="jxr_javadoccomment">         * the default Commons Math Percentile existing implementation. However</em>
+<a class="jxr_linenumber" name="L833" href="Percentile.html#L833">833</a> <em class="jxr_javadoccomment">         * the difference to be noted is in picking up the limits with which</em>
+<a class="jxr_linenumber" name="L834" href="Percentile.html#L834">834</a> <em class="jxr_javadoccomment">         * first element (p&amp;lt;1(N+1)) and last elements (p&amp;gt;N/(N+1))are done.</em>
+<a class="jxr_linenumber" name="L835" href="Percentile.html#L835">835</a> <em class="jxr_javadoccomment">         * While in default case; these are done with p=0 and p=1 respectively.</em>
+<a class="jxr_linenumber" name="L836" href="Percentile.html#L836">836</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L837" href="Percentile.html#L837">837</a>         R_6(<span class="jxr_string">"R-6"</span>) {
+<a class="jxr_linenumber" name="L838" href="Percentile.html#L838">838</a> 
+<a class="jxr_linenumber" name="L839" href="Percentile.html#L839">839</a>             @Override
+<a class="jxr_linenumber" name="L840" href="Percentile.html#L840">840</a>             <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> index(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length) {
+<a class="jxr_linenumber" name="L841" href="Percentile.html#L841">841</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> minLimit = 1d / (length + 1);
+<a class="jxr_linenumber" name="L842" href="Percentile.html#L842">842</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxLimit = 1d * length / (length + 1);
+<a class="jxr_linenumber" name="L843" href="Percentile.html#L843">843</a>                 <strong class="jxr_keyword">return</strong> Double.compare(p, minLimit) &lt; 0 ? 0 :
+<a class="jxr_linenumber" name="L844" href="Percentile.html#L844">844</a>                        Double.compare(p, maxLimit) &gt;= 0 ?
+<a class="jxr_linenumber" name="L845" href="Percentile.html#L845">845</a>                                length : (length + 1) * p;
+<a class="jxr_linenumber" name="L846" href="Percentile.html#L846">846</a>             }
+<a class="jxr_linenumber" name="L847" href="Percentile.html#L847">847</a>         },
+<a class="jxr_linenumber" name="L848" href="Percentile.html#L848">848</a> 
+<a class="jxr_linenumber" name="L849" href="Percentile.html#L849">849</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L850" href="Percentile.html#L850">850</a> <em class="jxr_javadoccomment">         * The method R_7 implements Microsoft Excel style computation has the</em>
+<a class="jxr_linenumber" name="L851" href="Percentile.html#L851">851</a> <em class="jxr_javadoccomment">         * following formulae for index and estimates.&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L852" href="Percentile.html#L852">852</a> <em class="jxr_javadoccomment">         * \( \begin{align}</em>
+<a class="jxr_linenumber" name="L853" href="Percentile.html#L853">853</a> <em class="jxr_javadoccomment">         * &amp;amp;index = (N-1)p + 1 &#92;&#92;</em>
+<a class="jxr_linenumber" name="L854" href="Percentile.html#L854">854</a> <em class="jxr_javadoccomment">         * &amp;amp;estimate = x_{\lfloor h \rfloor} + (h -</em>
+<a class="jxr_linenumber" name="L855" href="Percentile.html#L855">855</a> <em class="jxr_javadoccomment">         * \lfloor h \rfloor) (x_{\lfloor h \rfloor + 1} - x_{\lfloor h</em>
+<a class="jxr_linenumber" name="L856" href="Percentile.html#L856">856</a> <em class="jxr_javadoccomment">         * \rfloor}) &#92;&#92;</em>
+<a class="jxr_linenumber" name="L857" href="Percentile.html#L857">857</a> <em class="jxr_javadoccomment">         * &amp;amp;minLimit = 0 &#92;&#92;</em>
+<a class="jxr_linenumber" name="L858" href="Percentile.html#L858">858</a> <em class="jxr_javadoccomment">         * &amp;amp;maxLimit = 1 &#92;&#92;</em>
+<a class="jxr_linenumber" name="L859" href="Percentile.html#L859">859</a> <em class="jxr_javadoccomment">         * \end{align}\)</em>
+<a class="jxr_linenumber" name="L860" href="Percentile.html#L860">860</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L861" href="Percentile.html#L861">861</a>         R_7(<span class="jxr_string">"R-7"</span>) {
+<a class="jxr_linenumber" name="L862" href="Percentile.html#L862">862</a>             @Override
+<a class="jxr_linenumber" name="L863" href="Percentile.html#L863">863</a>             <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> index(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length) {
+<a class="jxr_linenumber" name="L864" href="Percentile.html#L864">864</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> minLimit = 0d;
+<a class="jxr_linenumber" name="L865" href="Percentile.html#L865">865</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxLimit = 1d;
+<a class="jxr_linenumber" name="L866" href="Percentile.html#L866">866</a>                 <strong class="jxr_keyword">return</strong> Double.compare(p, minLimit) == 0 ? 0 :
+<a class="jxr_linenumber" name="L867" href="Percentile.html#L867">867</a>                        Double.compare(p, maxLimit) == 0 ?
+<a class="jxr_linenumber" name="L868" href="Percentile.html#L868">868</a>                                length : 1 + (length - 1) * p;
+<a class="jxr_linenumber" name="L869" href="Percentile.html#L869">869</a>             }
+<a class="jxr_linenumber" name="L870" href="Percentile.html#L870">870</a> 
+<a class="jxr_linenumber" name="L871" href="Percentile.html#L871">871</a>         },
+<a class="jxr_linenumber" name="L872" href="Percentile.html#L872">872</a> 
+<a class="jxr_linenumber" name="L873" href="Percentile.html#L873">873</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L874" href="Percentile.html#L874">874</a> <em class="jxr_javadoccomment">         * The method R_8 has the following formulae for index and estimates&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L875" href="Percentile.html#L875">875</a> <em class="jxr_javadoccomment">         * \( \begin{align}</em>
+<a class="jxr_linenumber" name="L876" href="Percentile.html#L876">876</a> <em class="jxr_javadoccomment">         * &amp;amp;index = (N + 1/3)p + 1/3  &#92;&#92;</em>
+<a class="jxr_linenumber" name="L877" href="Percentile.html#L877">877</a> <em class="jxr_javadoccomment">         * &amp;amp;estimate = x_{\lfloor h \rfloor} + (h -</em>
+<a class="jxr_linenumber" name="L878" href="Percentile.html#L878">878</a> <em class="jxr_javadoccomment">           \lfloor h \rfloor) (x_{\lfloor h \rfloor + 1} - x_{\lfloor h</em>
+<a class="jxr_linenumber" name="L879" href="Percentile.html#L879">879</a> <em class="jxr_javadoccomment">         * \rfloor}) &#92;&#92;</em>
+<a class="jxr_linenumber" name="L880" href="Percentile.html#L880">880</a> <em class="jxr_javadoccomment">         * &amp;amp;minLimit = (2/3)/(N+1/3) &#92;&#92;</em>
+<a class="jxr_linenumber" name="L881" href="Percentile.html#L881">881</a> <em class="jxr_javadoccomment">         * &amp;amp;maxLimit = (N-1/3)/(N+1/3) &#92;&#92;</em>
+<a class="jxr_linenumber" name="L882" href="Percentile.html#L882">882</a> <em class="jxr_javadoccomment">         * \end{align}\)</em>
+<a class="jxr_linenumber" name="L883" href="Percentile.html#L883">883</a> <em class="jxr_javadoccomment">         * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L884" href="Percentile.html#L884">884</a> <em class="jxr_javadoccomment">         * As per Ref [2,3] this approach is most recommended as it provides</em>
+<a class="jxr_linenumber" name="L885" href="Percentile.html#L885">885</a> <em class="jxr_javadoccomment">         * an approximate median-unbiased estimate regardless of distribution.</em>
+<a class="jxr_linenumber" name="L886" href="Percentile.html#L886">886</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L887" href="Percentile.html#L887">887</a>         R_8(<span class="jxr_string">"R-8"</span>) {
+<a class="jxr_linenumber" name="L888" href="Percentile.html#L888">888</a>             @Override
+<a class="jxr_linenumber" name="L889" href="Percentile.html#L889">889</a>             <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> index(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length) {
+<a class="jxr_linenumber" name="L890" href="Percentile.html#L890">890</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> minLimit = 2 * (1d / 3) / (length + 1d / 3);
+<a class="jxr_linenumber" name="L891" href="Percentile.html#L891">891</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxLimit =
+<a class="jxr_linenumber" name="L892" href="Percentile.html#L892">892</a>                         (length - 1d / 3) / (length + 1d / 3);
+<a class="jxr_linenumber" name="L893" href="Percentile.html#L893">893</a>                 <strong class="jxr_keyword">return</strong> Double.compare(p, minLimit) &lt; 0 ? 0 :
+<a class="jxr_linenumber" name="L894" href="Percentile.html#L894">894</a>                        Double.compare(p, maxLimit) &gt;= 0 ? length :
+<a class="jxr_linenumber" name="L895" href="Percentile.html#L895">895</a>                            (length + 1d / 3) * p + 1d / 3;
+<a class="jxr_linenumber" name="L896" href="Percentile.html#L896">896</a>             }
+<a class="jxr_linenumber" name="L897" href="Percentile.html#L897">897</a>         },
+<a class="jxr_linenumber" name="L898" href="Percentile.html#L898">898</a> 
+<a class="jxr_linenumber" name="L899" href="Percentile.html#L899">899</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L900" href="Percentile.html#L900">900</a> <em class="jxr_javadoccomment">         * The method R_9 has the following formulae for index and estimates&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L901" href="Percentile.html#L901">901</a> <em class="jxr_javadoccomment">         * \( \begin{align}</em>
+<a class="jxr_linenumber" name="L902" href="Percentile.html#L902">902</a> <em class="jxr_javadoccomment">         * &amp;amp;index = (N + 1/4)p + 3/8&#92;&#92;</em>
+<a class="jxr_linenumber" name="L903" href="Percentile.html#L903">903</a> <em class="jxr_javadoccomment">         * &amp;amp;estimate = x_{\lfloor h \rfloor} + (h -</em>
+<a class="jxr_linenumber" name="L904" href="Percentile.html#L904">904</a> <em class="jxr_javadoccomment">           \lfloor h \rfloor) (x_{\lfloor h \rfloor + 1} - x_{\lfloor h</em>
+<a class="jxr_linenumber" name="L905" href="Percentile.html#L905">905</a> <em class="jxr_javadoccomment">         * \rfloor}) &#92;&#92;</em>
+<a class="jxr_linenumber" name="L906" href="Percentile.html#L906">906</a> <em class="jxr_javadoccomment">         * &amp;amp;minLimit = (5/8)/(N+1/4) &#92;&#92;</em>
+<a class="jxr_linenumber" name="L907" href="Percentile.html#L907">907</a> <em class="jxr_javadoccomment">         * &amp;amp;maxLimit = (N-3/8)/(N+1/4) &#92;&#92;</em>
+<a class="jxr_linenumber" name="L908" href="Percentile.html#L908">908</a> <em class="jxr_javadoccomment">         * \end{align}\)</em>
+<a class="jxr_linenumber" name="L909" href="Percentile.html#L909">909</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L910" href="Percentile.html#L910">910</a>         R_9(<span class="jxr_string">"R-9"</span>) {
+<a class="jxr_linenumber" name="L911" href="Percentile.html#L911">911</a>             @Override
+<a class="jxr_linenumber" name="L912" href="Percentile.html#L912">912</a>             <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> index(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length) {
+<a class="jxr_linenumber" name="L913" href="Percentile.html#L913">913</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> minLimit = 5d/8 / (length + 0.25);
+<a class="jxr_linenumber" name="L914" href="Percentile.html#L914">914</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxLimit = (length - 3d/8) / (length + 0.25);
+<a class="jxr_linenumber" name="L915" href="Percentile.html#L915">915</a>                 <strong class="jxr_keyword">return</strong> Double.compare(p, minLimit) &lt; 0 ? 0 :
+<a class="jxr_linenumber" name="L916" href="Percentile.html#L916">916</a>                        Double.compare(p, maxLimit) &gt;= 0 ? length :
+<a class="jxr_linenumber" name="L917" href="Percentile.html#L917">917</a>                                (length + 0.25) * p + 3d/8;
+<a class="jxr_linenumber" name="L918" href="Percentile.html#L918">918</a>             }
+<a class="jxr_linenumber" name="L919" href="Percentile.html#L919">919</a> 
+<a class="jxr_linenumber" name="L920" href="Percentile.html#L920">920</a>         },
+<a class="jxr_linenumber" name="L921" href="Percentile.html#L921">921</a>         ;
+<a class="jxr_linenumber" name="L922" href="Percentile.html#L922">922</a> 
+<a class="jxr_linenumber" name="L923" href="Percentile.html#L923">923</a>         <em class="jxr_javadoccomment">/** Simple name such as R-1, R-2 corresponding to those in wikipedia. */</em>
+<a class="jxr_linenumber" name="L924" href="Percentile.html#L924">924</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String name;
+<a class="jxr_linenumber" name="L925" href="Percentile.html#L925">925</a> 
+<a class="jxr_linenumber" name="L926" href="Percentile.html#L926">926</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L927" href="Percentile.html#L927">927</a> <em class="jxr_javadoccomment">         * Constructor</em>
+<a class="jxr_linenumber" name="L928" href="Percentile.html#L928">928</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L929" href="Percentile.html#L929">929</a> <em class="jxr_javadoccomment">         * @param type name of estimation type as per wikipedia</em>
+<a class="jxr_linenumber" name="L930" href="Percentile.html#L930">930</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L931" href="Percentile.html#L931">931</a>         <a href="Percentile.html">EstimationType</a>(<strong class="jxr_keyword">final</strong> String type) {
+<a class="jxr_linenumber" name="L932" href="Percentile.html#L932">932</a>             <strong class="jxr_keyword">this</strong>.name = type;
+<a class="jxr_linenumber" name="L933" href="Percentile.html#L933">933</a>         }
+<a class="jxr_linenumber" name="L934" href="Percentile.html#L934">934</a> 
+<a class="jxr_linenumber" name="L935" href="Percentile.html#L935">935</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L936" href="Percentile.html#L936">936</a> <em class="jxr_javadoccomment">         * Finds the index of array that can be used as starting index to</em>
+<a class="jxr_linenumber" name="L937" href="Percentile.html#L937">937</a> <em class="jxr_javadoccomment">         * {@link #estimate(double[], int[], double, int, KthSelector) estimate}</em>
+<a class="jxr_linenumber" name="L938" href="Percentile.html#L938">938</a> <em class="jxr_javadoccomment">         * percentile. The calculation of index calculation is specific to each</em>
+<a class="jxr_linenumber" name="L939" href="Percentile.html#L939">939</a> <em class="jxr_javadoccomment">         * {@link EstimationType}.</em>
+<a class="jxr_linenumber" name="L940" href="Percentile.html#L940">940</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L941" href="Percentile.html#L941">941</a> <em class="jxr_javadoccomment">         * @param p the p&lt;sup&gt;th&lt;/sup&gt; quantile</em>
+<a class="jxr_linenumber" name="L942" href="Percentile.html#L942">942</a> <em class="jxr_javadoccomment">         * @param length the total number of array elements in the work array</em>
+<a class="jxr_linenumber" name="L943" href="Percentile.html#L943">943</a> <em class="jxr_javadoccomment">         * @return a computed real valued index as explained in the wikipedia</em>
+<a class="jxr_linenumber" name="L944" href="Percentile.html#L944">944</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L945" href="Percentile.html#L945">945</a>         <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">double</strong> index(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length);
+<a class="jxr_linenumber" name="L946" href="Percentile.html#L946">946</a> 
+<a class="jxr_linenumber" name="L947" href="Percentile.html#L947">947</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L948" href="Percentile.html#L948">948</a> <em class="jxr_javadoccomment">         * Estimation based on K&lt;sup&gt;th&lt;/sup&gt; selection. This may be overridden</em>
+<a class="jxr_linenumber" name="L949" href="Percentile.html#L949">949</a> <em class="jxr_javadoccomment">         * in specific enums to compute slightly different estimations.</em>
+<a class="jxr_linenumber" name="L950" href="Percentile.html#L950">950</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L951" href="Percentile.html#L951">951</a> <em class="jxr_javadoccomment">         * @param work array of numbers to be used for finding the percentile</em>
+<a class="jxr_linenumber" name="L952" href="Percentile.html#L952">952</a> <em class="jxr_javadoccomment">         * @param pos indicated positional index prior computed from calling</em>
+<a class="jxr_linenumber" name="L953" href="Percentile.html#L953">953</a> <em class="jxr_javadoccomment">         *            {@link #index(double, int)}</em>
+<a class="jxr_linenumber" name="L954" href="Percentile.html#L954">954</a> <em class="jxr_javadoccomment">         * @param pivotsHeap an earlier populated cache if exists; will be used</em>
+<a class="jxr_linenumber" name="L955" href="Percentile.html#L955">955</a> <em class="jxr_javadoccomment">         * @param length size of array considered</em>
+<a class="jxr_linenumber" name="L956" href="Percentile.html#L956">956</a> <em class="jxr_javadoccomment">         * @param selector a {@link KthSelector} used for pivoting during search</em>
+<a class="jxr_linenumber" name="L957" href="Percentile.html#L957">957</a> <em class="jxr_javadoccomment">         * @return estimated percentile</em>
+<a class="jxr_linenumber" name="L958" href="Percentile.html#L958">958</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L959" href="Percentile.html#L959">959</a>         <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> estimate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] work, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] pivotsHeap,
+<a class="jxr_linenumber" name="L960" href="Percentile.html#L960">960</a>                                   <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> pos, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length,
+<a class="jxr_linenumber" name="L961" href="Percentile.html#L961">961</a>                                   <strong class="jxr_keyword">final</strong> <a href="../../../util/KthSelector.html">KthSelector</a> selector) {
+<a class="jxr_linenumber" name="L962" href="Percentile.html#L962">962</a> 
+<a class="jxr_linenumber" name="L963" href="Percentile.html#L963">963</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> fpos = FastMath.floor(pos);
+<a class="jxr_linenumber" name="L964" href="Percentile.html#L964">964</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> intPos = (<strong class="jxr_keyword">int</strong>) fpos;
+<a class="jxr_linenumber" name="L965" href="Percentile.html#L965">965</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> dif = pos - fpos;
+<a class="jxr_linenumber" name="L966" href="Percentile.html#L966">966</a> 
+<a class="jxr_linenumber" name="L967" href="Percentile.html#L967">967</a>             <strong class="jxr_keyword">if</strong> (pos &lt; 1) {
+<a class="jxr_linenumber" name="L968" href="Percentile.html#L968">968</a>                 <strong class="jxr_keyword">return</strong> selector.select(work, pivotsHeap, 0);
+<a class="jxr_linenumber" name="L969" href="Percentile.html#L969">969</a>             }
+<a class="jxr_linenumber" name="L970" href="Percentile.html#L970">970</a>             <strong class="jxr_keyword">if</strong> (pos &gt;= length) {
+<a class="jxr_linenumber" name="L971" href="Percentile.html#L971">971</a>                 <strong class="jxr_keyword">return</strong> selector.select(work, pivotsHeap, length - 1);
+<a class="jxr_linenumber" name="L972" href="Percentile.html#L972">972</a>             }
+<a class="jxr_linenumber" name="L973" href="Percentile.html#L973">973</a> 
+<a class="jxr_linenumber" name="L974" href="Percentile.html#L974">974</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lower = selector.select(work, pivotsHeap, intPos - 1);
+<a class="jxr_linenumber" name="L975" href="Percentile.html#L975">975</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> upper = selector.select(work, pivotsHeap, intPos);
+<a class="jxr_linenumber" name="L976" href="Percentile.html#L976">976</a>             <strong class="jxr_keyword">return</strong> lower + dif * (upper - lower);
+<a class="jxr_linenumber" name="L977" href="Percentile.html#L977">977</a>         }
+<a class="jxr_linenumber" name="L978" href="Percentile.html#L978">978</a> 
+<a class="jxr_linenumber" name="L979" href="Percentile.html#L979">979</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L980" href="Percentile.html#L980">980</a> <em class="jxr_javadoccomment">         * Evaluate method to compute the percentile for a given bounded array</em>
+<a class="jxr_linenumber" name="L981" href="Percentile.html#L981">981</a> <em class="jxr_javadoccomment">         * using earlier computed pivots heap.&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L982" href="Percentile.html#L982">982</a> <em class="jxr_javadoccomment">         * This basically calls the {@link #index(double, int) index} and then</em>
+<a class="jxr_linenumber" name="L983" href="Percentile.html#L983">983</a> <em class="jxr_javadoccomment">         * {@link #estimate(double[], int[], double, int, KthSelector) estimate}</em>
+<a class="jxr_linenumber" name="L984" href="Percentile.html#L984">984</a> <em class="jxr_javadoccomment">         * functions to return the estimated percentile value.</em>
+<a class="jxr_linenumber" name="L985" href="Percentile.html#L985">985</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L986" href="Percentile.html#L986">986</a> <em class="jxr_javadoccomment">         * @param work array of numbers to be used for finding the percentile</em>
+<a class="jxr_linenumber" name="L987" href="Percentile.html#L987">987</a> <em class="jxr_javadoccomment">         * @param pivotsHeap a prior cached heap which can speed up estimation</em>
+<a class="jxr_linenumber" name="L988" href="Percentile.html#L988">988</a> <em class="jxr_javadoccomment">         * @param p the p&lt;sup&gt;th&lt;/sup&gt; quantile to be computed</em>
+<a class="jxr_linenumber" name="L989" href="Percentile.html#L989">989</a> <em class="jxr_javadoccomment">         * @param selector a {@link KthSelector} used for pivoting during search</em>
+<a class="jxr_linenumber" name="L990" href="Percentile.html#L990">990</a> <em class="jxr_javadoccomment">         * @return estimated percentile</em>
+<a class="jxr_linenumber" name="L991" href="Percentile.html#L991">991</a> <em class="jxr_javadoccomment">         * @throws OutOfRangeException if p is out of range</em>
+<a class="jxr_linenumber" name="L992" href="Percentile.html#L992">992</a> <em class="jxr_javadoccomment">         * @throws NullArgumentException if work array is null</em>
+<a class="jxr_linenumber" name="L993" href="Percentile.html#L993">993</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L994" href="Percentile.html#L994">994</a>         <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] work, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] pivotsHeap, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p,
+<a class="jxr_linenumber" name="L995" href="Percentile.html#L995">995</a>                                   <strong class="jxr_keyword">final</strong> <a href="../../../util/KthSelector.html">KthSelector</a> selector) {
+<a class="jxr_linenumber" name="L996" href="Percentile.html#L996">996</a>             MathUtils.checkNotNull(work);
+<a class="jxr_linenumber" name="L997" href="Percentile.html#L997">997</a>             <strong class="jxr_keyword">if</strong> (p &gt; 100 || p &lt;= 0) {
+<a class="jxr_linenumber" name="L998" href="Percentile.html#L998">998</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../exception/OutOfRangeException.html">OutOfRangeException</a>(LocalizedFormats.OUT_OF_BOUNDS_QUANTILE_VALUE,
+<a class="jxr_linenumber" name="L999" href="Percentile.html#L999">999</a>                                               p, 0, 100);
+<a class="jxr_linenumber" name="L1000" href="Percentile.html#L1000">1000</a>             }
+<a class="jxr_linenumber" name="L1001" href="Percentile.html#L1001">1001</a>             <strong class="jxr_keyword">return</strong> estimate(work, pivotsHeap, index(p/100d, work.length), work.length, selector);
+<a class="jxr_linenumber" name="L1002" href="Percentile.html#L1002">1002</a>         }
+<a class="jxr_linenumber" name="L1003" href="Percentile.html#L1003">1003</a> 
+<a class="jxr_linenumber" name="L1004" href="Percentile.html#L1004">1004</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1005" href="Percentile.html#L1005">1005</a> <em class="jxr_javadoccomment">         * Evaluate method to compute the percentile for a given bounded array.</em>
+<a class="jxr_linenumber" name="L1006" href="Percentile.html#L1006">1006</a> <em class="jxr_javadoccomment">         * This basically calls the {@link #index(double, int) index} and then</em>
+<a class="jxr_linenumber" name="L1007" href="Percentile.html#L1007">1007</a> <em class="jxr_javadoccomment">         * {@link #estimate(double[], int[], double, int, KthSelector) estimate}</em>
+<a class="jxr_linenumber" name="L1008" href="Percentile.html#L1008">1008</a> <em class="jxr_javadoccomment">         * functions to return the estimated percentile value. Please</em>
+<a class="jxr_linenumber" name="L1009" href="Percentile.html#L1009">1009</a> <em class="jxr_javadoccomment">         * note that this method does not make use of cached pivots.</em>
+<a class="jxr_linenumber" name="L1010" href="Percentile.html#L1010">1010</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L1011" href="Percentile.html#L1011">1011</a> <em class="jxr_javadoccomment">         * @param work array of numbers to be used for finding the percentile</em>
+<a class="jxr_linenumber" name="L1012" href="Percentile.html#L1012">1012</a> <em class="jxr_javadoccomment">         * @param p the p&lt;sup&gt;th&lt;/sup&gt; quantile to be computed</em>
+<a class="jxr_linenumber" name="L1013" href="Percentile.html#L1013">1013</a> <em class="jxr_javadoccomment">         * @return estimated percentile</em>
+<a class="jxr_linenumber" name="L1014" href="Percentile.html#L1014">1014</a> <em class="jxr_javadoccomment">         * @param selector a {@link KthSelector} used for pivoting during search</em>
+<a class="jxr_linenumber" name="L1015" href="Percentile.html#L1015">1015</a> <em class="jxr_javadoccomment">         * @throws OutOfRangeException if length or p is out of range</em>
+<a class="jxr_linenumber" name="L1016" href="Percentile.html#L1016">1016</a> <em class="jxr_javadoccomment">         * @throws NullArgumentException if work array is null</em>
+<a class="jxr_linenumber" name="L1017" href="Percentile.html#L1017">1017</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L1018" href="Percentile.html#L1018">1018</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] work, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p, <strong class="jxr_keyword">final</strong> <a href="../../../util/KthSelector.html">KthSelector</a> selector) {
+<a class="jxr_linenumber" name="L1019" href="Percentile.html#L1019">1019</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.evaluate(work, <strong class="jxr_keyword">null</strong>, p, selector);
+<a class="jxr_linenumber" name="L1020" href="Percentile.html#L1020">1020</a>         }
+<a class="jxr_linenumber" name="L1021" href="Percentile.html#L1021">1021</a> 
+<a class="jxr_linenumber" name="L1022" href="Percentile.html#L1022">1022</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1023" href="Percentile.html#L1023">1023</a> <em class="jxr_javadoccomment">         * Gets the name of the enum</em>
+<a class="jxr_linenumber" name="L1024" href="Percentile.html#L1024">1024</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L1025" href="Percentile.html#L1025">1025</a> <em class="jxr_javadoccomment">         * @return the name</em>
+<a class="jxr_linenumber" name="L1026" href="Percentile.html#L1026">1026</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L1027" href="Percentile.html#L1027">1027</a>         String getName() {
+<a class="jxr_linenumber" name="L1028" href="Percentile.html#L1028">1028</a>             <strong class="jxr_keyword">return</strong> name;
+<a class="jxr_linenumber" name="L1029" href="Percentile.html#L1029">1029</a>         }
+<a class="jxr_linenumber" name="L1030" href="Percentile.html#L1030">1030</a>     }
+<a class="jxr_linenumber" name="L1031" href="Percentile.html#L1031">1031</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

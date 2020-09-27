@@ -1,0 +1,515 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Network xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/ml/neuralnet/Network.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="Network.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="Network.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="Network.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="Network.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="Network.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="Network.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="Network.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="Network.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="Network.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="Network.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="Network.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="Network.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="Network.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="Network.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="Network.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="Network.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="Network.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="Network.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.ml.neuralnet;
+<a class="jxr_linenumber" name="L19" href="Network.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="Network.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.io.Serializable;
+<a class="jxr_linenumber" name="L21" href="Network.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.io.ObjectInputStream;
+<a class="jxr_linenumber" name="L22" href="Network.html#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.NoSuchElementException;
+<a class="jxr_linenumber" name="L23" href="Network.html#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L24" href="Network.html#L24">24</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L25" href="Network.html#L25">25</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
+<a class="jxr_linenumber" name="L26" href="Network.html#L26">26</a>  <strong class="jxr_keyword">import</strong> java.util.HashSet;
+<a class="jxr_linenumber" name="L27" href="Network.html#L27">27</a>  <strong class="jxr_keyword">import</strong> java.util.Collection;
+<a class="jxr_linenumber" name="L28" href="Network.html#L28">28</a>  <strong class="jxr_keyword">import</strong> java.util.Iterator;
+<a class="jxr_linenumber" name="L29" href="Network.html#L29">29</a>  <strong class="jxr_keyword">import</strong> java.util.Comparator;
+<a class="jxr_linenumber" name="L30" href="Network.html#L30">30</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L31" href="Network.html#L31">31</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L32" href="Network.html#L32">32</a>  <strong class="jxr_keyword">import</strong> java.util.concurrent.ConcurrentHashMap;
+<a class="jxr_linenumber" name="L33" href="Network.html#L33">33</a>  <strong class="jxr_keyword">import</strong> java.util.concurrent.atomic.AtomicLong;
+<a class="jxr_linenumber" name="L34" href="Network.html#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="Network.html#L35">35</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L36" href="Network.html#L36">36</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalStateException;
+<a class="jxr_linenumber" name="L37" href="Network.html#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="Network.html#L38">38</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L39" href="Network.html#L39">39</a>  <em class="jxr_javadoccomment"> * Neural network, composed of {@link Neuron} instances and the links</em>
+<a class="jxr_linenumber" name="L40" href="Network.html#L40">40</a>  <em class="jxr_javadoccomment"> * between them.</em>
+<a class="jxr_linenumber" name="L41" href="Network.html#L41">41</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L42" href="Network.html#L42">42</a>  <em class="jxr_javadoccomment"> * Although updating a neuron's state is thread-safe, modifying the</em>
+<a class="jxr_linenumber" name="L43" href="Network.html#L43">43</a>  <em class="jxr_javadoccomment"> * network's topology (adding or removing links) is not.</em>
+<a class="jxr_linenumber" name="L44" href="Network.html#L44">44</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L45" href="Network.html#L45">45</a>  <em class="jxr_javadoccomment"> * @since 3.3</em>
+<a class="jxr_linenumber" name="L46" href="Network.html#L46">46</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L47" href="Network.html#L47">47</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="Network.html">Network</a>
+<a class="jxr_linenumber" name="L48" href="Network.html#L48">48</a>      <strong class="jxr_keyword">implements</strong> Iterable&lt;Neuron&gt;,
+<a class="jxr_linenumber" name="L49" href="Network.html#L49">49</a>                 Serializable {
+<a class="jxr_linenumber" name="L50" href="Network.html#L50">50</a>      <em class="jxr_javadoccomment">/** Serializable. */</em>
+<a class="jxr_linenumber" name="L51" href="Network.html#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20130207L;
+<a class="jxr_linenumber" name="L52" href="Network.html#L52">52</a>      <em class="jxr_javadoccomment">/** Neurons. */</em>
+<a class="jxr_linenumber" name="L53" href="Network.html#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> ConcurrentHashMap&lt;Long, Neuron&gt; neuronMap
+<a class="jxr_linenumber" name="L54" href="Network.html#L54">54</a>          = <strong class="jxr_keyword">new</strong> ConcurrentHashMap&lt;Long, Neuron&gt;();
+<a class="jxr_linenumber" name="L55" href="Network.html#L55">55</a>      <em class="jxr_javadoccomment">/** Next available neuron identifier. */</em>
+<a class="jxr_linenumber" name="L56" href="Network.html#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> AtomicLong nextId;
+<a class="jxr_linenumber" name="L57" href="Network.html#L57">57</a>      <em class="jxr_javadoccomment">/** Neuron's features set size. */</em>
+<a class="jxr_linenumber" name="L58" href="Network.html#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> featureSize;
+<a class="jxr_linenumber" name="L59" href="Network.html#L59">59</a>      <em class="jxr_javadoccomment">/** Links. */</em>
+<a class="jxr_linenumber" name="L60" href="Network.html#L60">60</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> ConcurrentHashMap&lt;Long, Set&lt;Long&gt;&gt; linkMap
+<a class="jxr_linenumber" name="L61" href="Network.html#L61">61</a>          = <strong class="jxr_keyword">new</strong> ConcurrentHashMap&lt;Long, Set&lt;Long&gt;&gt;();
+<a class="jxr_linenumber" name="L62" href="Network.html#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="Network.html#L63">63</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L64" href="Network.html#L64">64</a>  <em class="jxr_javadoccomment">     * Comparator that prescribes an order of the neurons according</em>
+<a class="jxr_linenumber" name="L65" href="Network.html#L65">65</a>  <em class="jxr_javadoccomment">     * to the increasing order of their identifier.</em>
+<a class="jxr_linenumber" name="L66" href="Network.html#L66">66</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L67" href="Network.html#L67">67</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="Network.html">NeuronIdentifierComparator</a>
+<a class="jxr_linenumber" name="L68" href="Network.html#L68">68</a>          <strong class="jxr_keyword">implements</strong> Comparator&lt;Neuron&gt;,
+<a class="jxr_linenumber" name="L69" href="Network.html#L69">69</a>                     Serializable {
+<a class="jxr_linenumber" name="L70" href="Network.html#L70">70</a>          <em class="jxr_javadoccomment">/** Version identifier. */</em>
+<a class="jxr_linenumber" name="L71" href="Network.html#L71">71</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20130207L;
+<a class="jxr_linenumber" name="L72" href="Network.html#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="Network.html#L73">73</a>          <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L74" href="Network.html#L74">74</a>          @Override
+<a class="jxr_linenumber" name="L75" href="Network.html#L75">75</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compare(<a href="Neuron.html">Neuron</a> a,
+<a class="jxr_linenumber" name="L76" href="Network.html#L76">76</a>                             <a href="Neuron.html">Neuron</a> b) {
+<a class="jxr_linenumber" name="L77" href="Network.html#L77">77</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> aId = a.getIdentifier();
+<a class="jxr_linenumber" name="L78" href="Network.html#L78">78</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> bId = b.getIdentifier();
+<a class="jxr_linenumber" name="L79" href="Network.html#L79">79</a>              <strong class="jxr_keyword">return</strong> aId &lt; bId ? -1 :
+<a class="jxr_linenumber" name="L80" href="Network.html#L80">80</a>                  aId &gt; bId ? 1 : 0;
+<a class="jxr_linenumber" name="L81" href="Network.html#L81">81</a>          }
+<a class="jxr_linenumber" name="L82" href="Network.html#L82">82</a>      }
+<a class="jxr_linenumber" name="L83" href="Network.html#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="Network.html#L84">84</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L85" href="Network.html#L85">85</a>  <em class="jxr_javadoccomment">     * Constructor with restricted access, solely used for deserialization.</em>
+<a class="jxr_linenumber" name="L86" href="Network.html#L86">86</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L87" href="Network.html#L87">87</a>  <em class="jxr_javadoccomment">     * @param nextId Next available identifier.</em>
+<a class="jxr_linenumber" name="L88" href="Network.html#L88">88</a>  <em class="jxr_javadoccomment">     * @param featureSize Number of features.</em>
+<a class="jxr_linenumber" name="L89" href="Network.html#L89">89</a>  <em class="jxr_javadoccomment">     * @param neuronList Neurons.</em>
+<a class="jxr_linenumber" name="L90" href="Network.html#L90">90</a>  <em class="jxr_javadoccomment">     * @param neighbourIdList Links associated to each of the neurons in</em>
+<a class="jxr_linenumber" name="L91" href="Network.html#L91">91</a>  <em class="jxr_javadoccomment">     * {@code neuronList}.</em>
+<a class="jxr_linenumber" name="L92" href="Network.html#L92">92</a>  <em class="jxr_javadoccomment">     * @throws MathIllegalStateException if an inconsistency is detected</em>
+<a class="jxr_linenumber" name="L93" href="Network.html#L93">93</a>  <em class="jxr_javadoccomment">     * (which probably means that the serialized form has been corrupted).</em>
+<a class="jxr_linenumber" name="L94" href="Network.html#L94">94</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L95" href="Network.html#L95">95</a>      <a href="Network.html">Network</a>(<strong class="jxr_keyword">long</strong> nextId,
+<a class="jxr_linenumber" name="L96" href="Network.html#L96">96</a>              <strong class="jxr_keyword">int</strong> featureSize,
+<a class="jxr_linenumber" name="L97" href="Network.html#L97">97</a>              <a href="Neuron.html">Neuron</a>[] neuronList,
+<a class="jxr_linenumber" name="L98" href="Network.html#L98">98</a>              <strong class="jxr_keyword">long</strong>[][] neighbourIdList) {
+<a class="jxr_linenumber" name="L99" href="Network.html#L99">99</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numNeurons = neuronList.length;
+<a class="jxr_linenumber" name="L100" href="Network.html#L100">100</a>         <strong class="jxr_keyword">if</strong> (numNeurons != neighbourIdList.length) {
+<a class="jxr_linenumber" name="L101" href="Network.html#L101">101</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/MathIllegalStateException.html">MathIllegalStateException</a>();
+<a class="jxr_linenumber" name="L102" href="Network.html#L102">102</a>         }
+<a class="jxr_linenumber" name="L103" href="Network.html#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="Network.html#L104">104</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; numNeurons; i++) {
+<a class="jxr_linenumber" name="L105" href="Network.html#L105">105</a>             <strong class="jxr_keyword">final</strong> <a href="Neuron.html">Neuron</a> n = neuronList[i];
+<a class="jxr_linenumber" name="L106" href="Network.html#L106">106</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> id = n.getIdentifier();
+<a class="jxr_linenumber" name="L107" href="Network.html#L107">107</a>             <strong class="jxr_keyword">if</strong> (id &gt;= nextId) {
+<a class="jxr_linenumber" name="L108" href="Network.html#L108">108</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/MathIllegalStateException.html">MathIllegalStateException</a>();
+<a class="jxr_linenumber" name="L109" href="Network.html#L109">109</a>             }
+<a class="jxr_linenumber" name="L110" href="Network.html#L110">110</a>             neuronMap.put(id, n);
+<a class="jxr_linenumber" name="L111" href="Network.html#L111">111</a>             linkMap.put(id, <strong class="jxr_keyword">new</strong> HashSet&lt;Long&gt;());
+<a class="jxr_linenumber" name="L112" href="Network.html#L112">112</a>         }
+<a class="jxr_linenumber" name="L113" href="Network.html#L113">113</a> 
+<a class="jxr_linenumber" name="L114" href="Network.html#L114">114</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; numNeurons; i++) {
+<a class="jxr_linenumber" name="L115" href="Network.html#L115">115</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> aId = neuronList[i].getIdentifier();
+<a class="jxr_linenumber" name="L116" href="Network.html#L116">116</a>             <strong class="jxr_keyword">final</strong> Set&lt;Long&gt; aLinks = linkMap.get(aId);
+<a class="jxr_linenumber" name="L117" href="Network.html#L117">117</a>             <strong class="jxr_keyword">for</strong> (Long bId : neighbourIdList[i]) {
+<a class="jxr_linenumber" name="L118" href="Network.html#L118">118</a>                 <strong class="jxr_keyword">if</strong> (neuronMap.get(bId) == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L119" href="Network.html#L119">119</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/MathIllegalStateException.html">MathIllegalStateException</a>();
+<a class="jxr_linenumber" name="L120" href="Network.html#L120">120</a>                 }
+<a class="jxr_linenumber" name="L121" href="Network.html#L121">121</a>                 addLinkToLinkSet(aLinks, bId);
+<a class="jxr_linenumber" name="L122" href="Network.html#L122">122</a>             }
+<a class="jxr_linenumber" name="L123" href="Network.html#L123">123</a>         }
+<a class="jxr_linenumber" name="L124" href="Network.html#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="Network.html#L125">125</a>         <strong class="jxr_keyword">this</strong>.nextId = <strong class="jxr_keyword">new</strong> AtomicLong(nextId);
+<a class="jxr_linenumber" name="L126" href="Network.html#L126">126</a>         <strong class="jxr_keyword">this</strong>.featureSize = featureSize;
+<a class="jxr_linenumber" name="L127" href="Network.html#L127">127</a>     }
+<a class="jxr_linenumber" name="L128" href="Network.html#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="Network.html#L129">129</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L130" href="Network.html#L130">130</a> <em class="jxr_javadoccomment">     * @param initialIdentifier Identifier for the first neuron that</em>
+<a class="jxr_linenumber" name="L131" href="Network.html#L131">131</a> <em class="jxr_javadoccomment">     * will be added to this network.</em>
+<a class="jxr_linenumber" name="L132" href="Network.html#L132">132</a> <em class="jxr_javadoccomment">     * @param featureSize Size of the neuron's features.</em>
+<a class="jxr_linenumber" name="L133" href="Network.html#L133">133</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L134" href="Network.html#L134">134</a>     <strong class="jxr_keyword">public</strong> <a href="Network.html">Network</a>(<strong class="jxr_keyword">long</strong> initialIdentifier,
+<a class="jxr_linenumber" name="L135" href="Network.html#L135">135</a>                    <strong class="jxr_keyword">int</strong> featureSize) {
+<a class="jxr_linenumber" name="L136" href="Network.html#L136">136</a>         nextId = <strong class="jxr_keyword">new</strong> AtomicLong(initialIdentifier);
+<a class="jxr_linenumber" name="L137" href="Network.html#L137">137</a>         <strong class="jxr_keyword">this</strong>.featureSize = featureSize;
+<a class="jxr_linenumber" name="L138" href="Network.html#L138">138</a>     }
+<a class="jxr_linenumber" name="L139" href="Network.html#L139">139</a> 
+<a class="jxr_linenumber" name="L140" href="Network.html#L140">140</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L141" href="Network.html#L141">141</a> <em class="jxr_javadoccomment">     * Performs a deep copy of this instance.</em>
+<a class="jxr_linenumber" name="L142" href="Network.html#L142">142</a> <em class="jxr_javadoccomment">     * Upon return, the copied and original instances will be independent:</em>
+<a class="jxr_linenumber" name="L143" href="Network.html#L143">143</a> <em class="jxr_javadoccomment">     * Updating one will not affect the other.</em>
+<a class="jxr_linenumber" name="L144" href="Network.html#L144">144</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L145" href="Network.html#L145">145</a> <em class="jxr_javadoccomment">     * @return a new instance with the same state as this instance.</em>
+<a class="jxr_linenumber" name="L146" href="Network.html#L146">146</a> <em class="jxr_javadoccomment">     * @since 3.6</em>
+<a class="jxr_linenumber" name="L147" href="Network.html#L147">147</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L148" href="Network.html#L148">148</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">synchronized</strong> <a href="Network.html">Network</a> copy() {
+<a class="jxr_linenumber" name="L149" href="Network.html#L149">149</a>         <strong class="jxr_keyword">final</strong> <a href="Network.html">Network</a> copy = <strong class="jxr_keyword">new</strong> <a href="Network.html">Network</a>(nextId.get(),
+<a class="jxr_linenumber" name="L150" href="Network.html#L150">150</a>                                          featureSize);
+<a class="jxr_linenumber" name="L151" href="Network.html#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="Network.html#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="Network.html#L153">153</a>         <strong class="jxr_keyword">for</strong> (Map.Entry&lt;Long, Neuron&gt; e : neuronMap.entrySet()) {
+<a class="jxr_linenumber" name="L154" href="Network.html#L154">154</a>             copy.neuronMap.put(e.getKey(), e.getValue().copy());
+<a class="jxr_linenumber" name="L155" href="Network.html#L155">155</a>         }
+<a class="jxr_linenumber" name="L156" href="Network.html#L156">156</a> 
+<a class="jxr_linenumber" name="L157" href="Network.html#L157">157</a>         <strong class="jxr_keyword">for</strong> (Map.Entry&lt;Long, Set&lt;Long&gt;&gt; e : linkMap.entrySet()) {
+<a class="jxr_linenumber" name="L158" href="Network.html#L158">158</a>             copy.linkMap.put(e.getKey(), <strong class="jxr_keyword">new</strong> HashSet&lt;Long&gt;(e.getValue()));
+<a class="jxr_linenumber" name="L159" href="Network.html#L159">159</a>         }
+<a class="jxr_linenumber" name="L160" href="Network.html#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="Network.html#L161">161</a>         <strong class="jxr_keyword">return</strong> copy;
+<a class="jxr_linenumber" name="L162" href="Network.html#L162">162</a>     }
+<a class="jxr_linenumber" name="L163" href="Network.html#L163">163</a> 
+<a class="jxr_linenumber" name="L164" href="Network.html#L164">164</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L165" href="Network.html#L165">165</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L166" href="Network.html#L166">166</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L167" href="Network.html#L167">167</a>     @Override
+<a class="jxr_linenumber" name="L168" href="Network.html#L168">168</a>     <strong class="jxr_keyword">public</strong> Iterator&lt;Neuron&gt; iterator() {
+<a class="jxr_linenumber" name="L169" href="Network.html#L169">169</a>         <strong class="jxr_keyword">return</strong> neuronMap.values().iterator();
+<a class="jxr_linenumber" name="L170" href="Network.html#L170">170</a>     }
+<a class="jxr_linenumber" name="L171" href="Network.html#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="Network.html#L172">172</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L173" href="Network.html#L173">173</a> <em class="jxr_javadoccomment">     * Creates a list of the neurons, sorted in a custom order.</em>
+<a class="jxr_linenumber" name="L174" href="Network.html#L174">174</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L175" href="Network.html#L175">175</a> <em class="jxr_javadoccomment">     * @param comparator {@link Comparator} used for sorting the neurons.</em>
+<a class="jxr_linenumber" name="L176" href="Network.html#L176">176</a> <em class="jxr_javadoccomment">     * @return a list of neurons, sorted in the order prescribed by the</em>
+<a class="jxr_linenumber" name="L177" href="Network.html#L177">177</a> <em class="jxr_javadoccomment">     * given {@code comparator}.</em>
+<a class="jxr_linenumber" name="L178" href="Network.html#L178">178</a> <em class="jxr_javadoccomment">     * @see NeuronIdentifierComparator</em>
+<a class="jxr_linenumber" name="L179" href="Network.html#L179">179</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L180" href="Network.html#L180">180</a>     <strong class="jxr_keyword">public</strong> Collection&lt;Neuron&gt; getNeurons(Comparator&lt;Neuron&gt; comparator) {
+<a class="jxr_linenumber" name="L181" href="Network.html#L181">181</a>         <strong class="jxr_keyword">final</strong> List&lt;Neuron&gt; neurons = <strong class="jxr_keyword">new</strong> ArrayList&lt;Neuron&gt;();
+<a class="jxr_linenumber" name="L182" href="Network.html#L182">182</a>         neurons.addAll(neuronMap.values());
+<a class="jxr_linenumber" name="L183" href="Network.html#L183">183</a> 
+<a class="jxr_linenumber" name="L184" href="Network.html#L184">184</a>         Collections.sort(neurons, comparator);
+<a class="jxr_linenumber" name="L185" href="Network.html#L185">185</a> 
+<a class="jxr_linenumber" name="L186" href="Network.html#L186">186</a>         <strong class="jxr_keyword">return</strong> neurons;
+<a class="jxr_linenumber" name="L187" href="Network.html#L187">187</a>     }
+<a class="jxr_linenumber" name="L188" href="Network.html#L188">188</a> 
+<a class="jxr_linenumber" name="L189" href="Network.html#L189">189</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L190" href="Network.html#L190">190</a> <em class="jxr_javadoccomment">     * Creates a neuron and assigns it a unique identifier.</em>
+<a class="jxr_linenumber" name="L191" href="Network.html#L191">191</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L192" href="Network.html#L192">192</a> <em class="jxr_javadoccomment">     * @param features Initial values for the neuron's features.</em>
+<a class="jxr_linenumber" name="L193" href="Network.html#L193">193</a> <em class="jxr_javadoccomment">     * @return the neuron's identifier.</em>
+<a class="jxr_linenumber" name="L194" href="Network.html#L194">194</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the length of {@code features}</em>
+<a class="jxr_linenumber" name="L195" href="Network.html#L195">195</a> <em class="jxr_javadoccomment">     * is different from the expected size (as set by the</em>
+<a class="jxr_linenumber" name="L196" href="Network.html#L196">196</a> <em class="jxr_javadoccomment">     * {@link #Network(long,int) constructor}).</em>
+<a class="jxr_linenumber" name="L197" href="Network.html#L197">197</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L198" href="Network.html#L198">198</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> createNeuron(<strong class="jxr_keyword">double</strong>[] features) {
+<a class="jxr_linenumber" name="L199" href="Network.html#L199">199</a>         <strong class="jxr_keyword">if</strong> (features.length != featureSize) {
+<a class="jxr_linenumber" name="L200" href="Network.html#L200">200</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(features.length, featureSize);
+<a class="jxr_linenumber" name="L201" href="Network.html#L201">201</a>         }
+<a class="jxr_linenumber" name="L202" href="Network.html#L202">202</a> 
+<a class="jxr_linenumber" name="L203" href="Network.html#L203">203</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> id = createNextId();
+<a class="jxr_linenumber" name="L204" href="Network.html#L204">204</a>         neuronMap.put(id, <strong class="jxr_keyword">new</strong> <a href="Neuron.html">Neuron</a>(id, features));
+<a class="jxr_linenumber" name="L205" href="Network.html#L205">205</a>         linkMap.put(id, <strong class="jxr_keyword">new</strong> HashSet&lt;Long&gt;());
+<a class="jxr_linenumber" name="L206" href="Network.html#L206">206</a>         <strong class="jxr_keyword">return</strong> id;
+<a class="jxr_linenumber" name="L207" href="Network.html#L207">207</a>     }
+<a class="jxr_linenumber" name="L208" href="Network.html#L208">208</a> 
+<a class="jxr_linenumber" name="L209" href="Network.html#L209">209</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L210" href="Network.html#L210">210</a> <em class="jxr_javadoccomment">     * Deletes a neuron.</em>
+<a class="jxr_linenumber" name="L211" href="Network.html#L211">211</a> <em class="jxr_javadoccomment">     * Links from all neighbours to the removed neuron will also be</em>
+<a class="jxr_linenumber" name="L212" href="Network.html#L212">212</a> <em class="jxr_javadoccomment">     * {@link #deleteLink(Neuron,Neuron) deleted}.</em>
+<a class="jxr_linenumber" name="L213" href="Network.html#L213">213</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L214" href="Network.html#L214">214</a> <em class="jxr_javadoccomment">     * @param neuron Neuron to be removed from this network.</em>
+<a class="jxr_linenumber" name="L215" href="Network.html#L215">215</a> <em class="jxr_javadoccomment">     * @throws NoSuchElementException if {@code n} does not belong to</em>
+<a class="jxr_linenumber" name="L216" href="Network.html#L216">216</a> <em class="jxr_javadoccomment">     * this network.</em>
+<a class="jxr_linenumber" name="L217" href="Network.html#L217">217</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L218" href="Network.html#L218">218</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> deleteNeuron(<a href="Neuron.html">Neuron</a> neuron) {
+<a class="jxr_linenumber" name="L219" href="Network.html#L219">219</a>         <strong class="jxr_keyword">final</strong> Collection&lt;Neuron&gt; neighbours = getNeighbours(neuron);
+<a class="jxr_linenumber" name="L220" href="Network.html#L220">220</a> 
+<a class="jxr_linenumber" name="L221" href="Network.html#L221">221</a>         <em class="jxr_comment">// Delete links to from neighbours.</em>
+<a class="jxr_linenumber" name="L222" href="Network.html#L222">222</a>         <strong class="jxr_keyword">for</strong> (Neuron n : neighbours) {
+<a class="jxr_linenumber" name="L223" href="Network.html#L223">223</a>             deleteLink(n, neuron);
+<a class="jxr_linenumber" name="L224" href="Network.html#L224">224</a>         }
+<a class="jxr_linenumber" name="L225" href="Network.html#L225">225</a> 
+<a class="jxr_linenumber" name="L226" href="Network.html#L226">226</a>         <em class="jxr_comment">// Remove neuron.</em>
+<a class="jxr_linenumber" name="L227" href="Network.html#L227">227</a>         neuronMap.remove(neuron.getIdentifier());
+<a class="jxr_linenumber" name="L228" href="Network.html#L228">228</a>     }
+<a class="jxr_linenumber" name="L229" href="Network.html#L229">229</a> 
+<a class="jxr_linenumber" name="L230" href="Network.html#L230">230</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L231" href="Network.html#L231">231</a> <em class="jxr_javadoccomment">     * Gets the size of the neurons' features set.</em>
+<a class="jxr_linenumber" name="L232" href="Network.html#L232">232</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L233" href="Network.html#L233">233</a> <em class="jxr_javadoccomment">     * @return the size of the features set.</em>
+<a class="jxr_linenumber" name="L234" href="Network.html#L234">234</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L235" href="Network.html#L235">235</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getFeaturesSize() {
+<a class="jxr_linenumber" name="L236" href="Network.html#L236">236</a>         <strong class="jxr_keyword">return</strong> featureSize;
+<a class="jxr_linenumber" name="L237" href="Network.html#L237">237</a>     }
+<a class="jxr_linenumber" name="L238" href="Network.html#L238">238</a> 
+<a class="jxr_linenumber" name="L239" href="Network.html#L239">239</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L240" href="Network.html#L240">240</a> <em class="jxr_javadoccomment">     * Adds a link from neuron {@code a} to neuron {@code b}.</em>
+<a class="jxr_linenumber" name="L241" href="Network.html#L241">241</a> <em class="jxr_javadoccomment">     * Note: the link is not bi-directional; if a bi-directional link is</em>
+<a class="jxr_linenumber" name="L242" href="Network.html#L242">242</a> <em class="jxr_javadoccomment">     * required, an additional call must be made with {@code a} and</em>
+<a class="jxr_linenumber" name="L243" href="Network.html#L243">243</a> <em class="jxr_javadoccomment">     * {@code b} exchanged in the argument list.</em>
+<a class="jxr_linenumber" name="L244" href="Network.html#L244">244</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L245" href="Network.html#L245">245</a> <em class="jxr_javadoccomment">     * @param a Neuron.</em>
+<a class="jxr_linenumber" name="L246" href="Network.html#L246">246</a> <em class="jxr_javadoccomment">     * @param b Neuron.</em>
+<a class="jxr_linenumber" name="L247" href="Network.html#L247">247</a> <em class="jxr_javadoccomment">     * @throws NoSuchElementException if the neurons do not exist in the</em>
+<a class="jxr_linenumber" name="L248" href="Network.html#L248">248</a> <em class="jxr_javadoccomment">     * network.</em>
+<a class="jxr_linenumber" name="L249" href="Network.html#L249">249</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L250" href="Network.html#L250">250</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addLink(<a href="Neuron.html">Neuron</a> a,
+<a class="jxr_linenumber" name="L251" href="Network.html#L251">251</a>                         <a href="Neuron.html">Neuron</a> b) {
+<a class="jxr_linenumber" name="L252" href="Network.html#L252">252</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> aId = a.getIdentifier();
+<a class="jxr_linenumber" name="L253" href="Network.html#L253">253</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> bId = b.getIdentifier();
+<a class="jxr_linenumber" name="L254" href="Network.html#L254">254</a> 
+<a class="jxr_linenumber" name="L255" href="Network.html#L255">255</a>         <em class="jxr_comment">// Check that the neurons belong to this network.</em>
+<a class="jxr_linenumber" name="L256" href="Network.html#L256">256</a>         <strong class="jxr_keyword">if</strong> (a != getNeuron(aId)) {
+<a class="jxr_linenumber" name="L257" href="Network.html#L257">257</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> NoSuchElementException(Long.toString(aId));
+<a class="jxr_linenumber" name="L258" href="Network.html#L258">258</a>         }
+<a class="jxr_linenumber" name="L259" href="Network.html#L259">259</a>         <strong class="jxr_keyword">if</strong> (b != getNeuron(bId)) {
+<a class="jxr_linenumber" name="L260" href="Network.html#L260">260</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> NoSuchElementException(Long.toString(bId));
+<a class="jxr_linenumber" name="L261" href="Network.html#L261">261</a>         }
+<a class="jxr_linenumber" name="L262" href="Network.html#L262">262</a> 
+<a class="jxr_linenumber" name="L263" href="Network.html#L263">263</a>         <em class="jxr_comment">// Add link from "a" to "b".</em>
+<a class="jxr_linenumber" name="L264" href="Network.html#L264">264</a>         addLinkToLinkSet(linkMap.get(aId), bId);
+<a class="jxr_linenumber" name="L265" href="Network.html#L265">265</a>     }
+<a class="jxr_linenumber" name="L266" href="Network.html#L266">266</a> 
+<a class="jxr_linenumber" name="L267" href="Network.html#L267">267</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L268" href="Network.html#L268">268</a> <em class="jxr_javadoccomment">     * Adds a link to neuron {@code id} in given {@code linkSet}.</em>
+<a class="jxr_linenumber" name="L269" href="Network.html#L269">269</a> <em class="jxr_javadoccomment">     * Note: no check verifies that the identifier indeed belongs</em>
+<a class="jxr_linenumber" name="L270" href="Network.html#L270">270</a> <em class="jxr_javadoccomment">     * to this network.</em>
+<a class="jxr_linenumber" name="L271" href="Network.html#L271">271</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L272" href="Network.html#L272">272</a> <em class="jxr_javadoccomment">     * @param linkSet Neuron identifier.</em>
+<a class="jxr_linenumber" name="L273" href="Network.html#L273">273</a> <em class="jxr_javadoccomment">     * @param id Neuron identifier.</em>
+<a class="jxr_linenumber" name="L274" href="Network.html#L274">274</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L275" href="Network.html#L275">275</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> addLinkToLinkSet(Set&lt;Long&gt; linkSet,
+<a class="jxr_linenumber" name="L276" href="Network.html#L276">276</a>                                   <strong class="jxr_keyword">long</strong> id) {
+<a class="jxr_linenumber" name="L277" href="Network.html#L277">277</a>         linkSet.add(id);
+<a class="jxr_linenumber" name="L278" href="Network.html#L278">278</a>     }
+<a class="jxr_linenumber" name="L279" href="Network.html#L279">279</a> 
+<a class="jxr_linenumber" name="L280" href="Network.html#L280">280</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L281" href="Network.html#L281">281</a> <em class="jxr_javadoccomment">     * Deletes the link between neurons {@code a} and {@code b}.</em>
+<a class="jxr_linenumber" name="L282" href="Network.html#L282">282</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L283" href="Network.html#L283">283</a> <em class="jxr_javadoccomment">     * @param a Neuron.</em>
+<a class="jxr_linenumber" name="L284" href="Network.html#L284">284</a> <em class="jxr_javadoccomment">     * @param b Neuron.</em>
+<a class="jxr_linenumber" name="L285" href="Network.html#L285">285</a> <em class="jxr_javadoccomment">     * @throws NoSuchElementException if the neurons do not exist in the</em>
+<a class="jxr_linenumber" name="L286" href="Network.html#L286">286</a> <em class="jxr_javadoccomment">     * network.</em>
+<a class="jxr_linenumber" name="L287" href="Network.html#L287">287</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L288" href="Network.html#L288">288</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> deleteLink(<a href="Neuron.html">Neuron</a> a,
+<a class="jxr_linenumber" name="L289" href="Network.html#L289">289</a>                            <a href="Neuron.html">Neuron</a> b) {
+<a class="jxr_linenumber" name="L290" href="Network.html#L290">290</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> aId = a.getIdentifier();
+<a class="jxr_linenumber" name="L291" href="Network.html#L291">291</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> bId = b.getIdentifier();
+<a class="jxr_linenumber" name="L292" href="Network.html#L292">292</a> 
+<a class="jxr_linenumber" name="L293" href="Network.html#L293">293</a>         <em class="jxr_comment">// Check that the neurons belong to this network.</em>
+<a class="jxr_linenumber" name="L294" href="Network.html#L294">294</a>         <strong class="jxr_keyword">if</strong> (a != getNeuron(aId)) {
+<a class="jxr_linenumber" name="L295" href="Network.html#L295">295</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> NoSuchElementException(Long.toString(aId));
+<a class="jxr_linenumber" name="L296" href="Network.html#L296">296</a>         }
+<a class="jxr_linenumber" name="L297" href="Network.html#L297">297</a>         <strong class="jxr_keyword">if</strong> (b != getNeuron(bId)) {
+<a class="jxr_linenumber" name="L298" href="Network.html#L298">298</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> NoSuchElementException(Long.toString(bId));
+<a class="jxr_linenumber" name="L299" href="Network.html#L299">299</a>         }
+<a class="jxr_linenumber" name="L300" href="Network.html#L300">300</a> 
+<a class="jxr_linenumber" name="L301" href="Network.html#L301">301</a>         <em class="jxr_comment">// Delete link from "a" to "b".</em>
+<a class="jxr_linenumber" name="L302" href="Network.html#L302">302</a>         deleteLinkFromLinkSet(linkMap.get(aId), bId);
+<a class="jxr_linenumber" name="L303" href="Network.html#L303">303</a>     }
+<a class="jxr_linenumber" name="L304" href="Network.html#L304">304</a> 
+<a class="jxr_linenumber" name="L305" href="Network.html#L305">305</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L306" href="Network.html#L306">306</a> <em class="jxr_javadoccomment">     * Deletes a link to neuron {@code id} in given {@code linkSet}.</em>
+<a class="jxr_linenumber" name="L307" href="Network.html#L307">307</a> <em class="jxr_javadoccomment">     * Note: no check verifies that the identifier indeed belongs</em>
+<a class="jxr_linenumber" name="L308" href="Network.html#L308">308</a> <em class="jxr_javadoccomment">     * to this network.</em>
+<a class="jxr_linenumber" name="L309" href="Network.html#L309">309</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L310" href="Network.html#L310">310</a> <em class="jxr_javadoccomment">     * @param linkSet Neuron identifier.</em>
+<a class="jxr_linenumber" name="L311" href="Network.html#L311">311</a> <em class="jxr_javadoccomment">     * @param id Neuron identifier.</em>
+<a class="jxr_linenumber" name="L312" href="Network.html#L312">312</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L313" href="Network.html#L313">313</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> deleteLinkFromLinkSet(Set&lt;Long&gt; linkSet,
+<a class="jxr_linenumber" name="L314" href="Network.html#L314">314</a>                                        <strong class="jxr_keyword">long</strong> id) {
+<a class="jxr_linenumber" name="L315" href="Network.html#L315">315</a>         linkSet.remove(id);
+<a class="jxr_linenumber" name="L316" href="Network.html#L316">316</a>     }
+<a class="jxr_linenumber" name="L317" href="Network.html#L317">317</a> 
+<a class="jxr_linenumber" name="L318" href="Network.html#L318">318</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L319" href="Network.html#L319">319</a> <em class="jxr_javadoccomment">     * Retrieves the neuron with the given (unique) {@code id}.</em>
+<a class="jxr_linenumber" name="L320" href="Network.html#L320">320</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L321" href="Network.html#L321">321</a> <em class="jxr_javadoccomment">     * @param id Identifier.</em>
+<a class="jxr_linenumber" name="L322" href="Network.html#L322">322</a> <em class="jxr_javadoccomment">     * @return the neuron associated with the given {@code id}.</em>
+<a class="jxr_linenumber" name="L323" href="Network.html#L323">323</a> <em class="jxr_javadoccomment">     * @throws NoSuchElementException if the neuron does not exist in the</em>
+<a class="jxr_linenumber" name="L324" href="Network.html#L324">324</a> <em class="jxr_javadoccomment">     * network.</em>
+<a class="jxr_linenumber" name="L325" href="Network.html#L325">325</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L326" href="Network.html#L326">326</a>     <strong class="jxr_keyword">public</strong> <a href="Neuron.html">Neuron</a> getNeuron(<strong class="jxr_keyword">long</strong> id) {
+<a class="jxr_linenumber" name="L327" href="Network.html#L327">327</a>         <strong class="jxr_keyword">final</strong> <a href="Neuron.html">Neuron</a> n = neuronMap.get(id);
+<a class="jxr_linenumber" name="L328" href="Network.html#L328">328</a>         <strong class="jxr_keyword">if</strong> (n == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L329" href="Network.html#L329">329</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> NoSuchElementException(Long.toString(id));
+<a class="jxr_linenumber" name="L330" href="Network.html#L330">330</a>         }
+<a class="jxr_linenumber" name="L331" href="Network.html#L331">331</a>         <strong class="jxr_keyword">return</strong> n;
+<a class="jxr_linenumber" name="L332" href="Network.html#L332">332</a>     }
+<a class="jxr_linenumber" name="L333" href="Network.html#L333">333</a> 
+<a class="jxr_linenumber" name="L334" href="Network.html#L334">334</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L335" href="Network.html#L335">335</a> <em class="jxr_javadoccomment">     * Retrieves the neurons in the neighbourhood of any neuron in the</em>
+<a class="jxr_linenumber" name="L336" href="Network.html#L336">336</a> <em class="jxr_javadoccomment">     * {@code neurons} list.</em>
+<a class="jxr_linenumber" name="L337" href="Network.html#L337">337</a> <em class="jxr_javadoccomment">     * @param neurons Neurons for which to retrieve the neighbours.</em>
+<a class="jxr_linenumber" name="L338" href="Network.html#L338">338</a> <em class="jxr_javadoccomment">     * @return the list of neighbours.</em>
+<a class="jxr_linenumber" name="L339" href="Network.html#L339">339</a> <em class="jxr_javadoccomment">     * @see #getNeighbours(Iterable,Iterable)</em>
+<a class="jxr_linenumber" name="L340" href="Network.html#L340">340</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L341" href="Network.html#L341">341</a>     <strong class="jxr_keyword">public</strong> Collection&lt;Neuron&gt; getNeighbours(Iterable&lt;Neuron&gt; neurons) {
+<a class="jxr_linenumber" name="L342" href="Network.html#L342">342</a>         <strong class="jxr_keyword">return</strong> getNeighbours(neurons, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L343" href="Network.html#L343">343</a>     }
+<a class="jxr_linenumber" name="L344" href="Network.html#L344">344</a> 
+<a class="jxr_linenumber" name="L345" href="Network.html#L345">345</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L346" href="Network.html#L346">346</a> <em class="jxr_javadoccomment">     * Retrieves the neurons in the neighbourhood of any neuron in the</em>
+<a class="jxr_linenumber" name="L347" href="Network.html#L347">347</a> <em class="jxr_javadoccomment">     * {@code neurons} list.</em>
+<a class="jxr_linenumber" name="L348" href="Network.html#L348">348</a> <em class="jxr_javadoccomment">     * The {@code exclude} list allows to retrieve the "concentric"</em>
+<a class="jxr_linenumber" name="L349" href="Network.html#L349">349</a> <em class="jxr_javadoccomment">     * neighbourhoods by removing the neurons that belong to the inner</em>
+<a class="jxr_linenumber" name="L350" href="Network.html#L350">350</a> <em class="jxr_javadoccomment">     * "circles".</em>
+<a class="jxr_linenumber" name="L351" href="Network.html#L351">351</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L352" href="Network.html#L352">352</a> <em class="jxr_javadoccomment">     * @param neurons Neurons for which to retrieve the neighbours.</em>
+<a class="jxr_linenumber" name="L353" href="Network.html#L353">353</a> <em class="jxr_javadoccomment">     * @param exclude Neurons to exclude from the returned list.</em>
+<a class="jxr_linenumber" name="L354" href="Network.html#L354">354</a> <em class="jxr_javadoccomment">     * Can be {@code null}.</em>
+<a class="jxr_linenumber" name="L355" href="Network.html#L355">355</a> <em class="jxr_javadoccomment">     * @return the list of neighbours.</em>
+<a class="jxr_linenumber" name="L356" href="Network.html#L356">356</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L357" href="Network.html#L357">357</a>     <strong class="jxr_keyword">public</strong> Collection&lt;Neuron&gt; getNeighbours(Iterable&lt;Neuron&gt; neurons,
+<a class="jxr_linenumber" name="L358" href="Network.html#L358">358</a>                                             Iterable&lt;Neuron&gt; exclude) {
+<a class="jxr_linenumber" name="L359" href="Network.html#L359">359</a>         <strong class="jxr_keyword">final</strong> Set&lt;Long&gt; idList = <strong class="jxr_keyword">new</strong> HashSet&lt;Long&gt;();
+<a class="jxr_linenumber" name="L360" href="Network.html#L360">360</a> 
+<a class="jxr_linenumber" name="L361" href="Network.html#L361">361</a>         <strong class="jxr_keyword">for</strong> (Neuron n : neurons) {
+<a class="jxr_linenumber" name="L362" href="Network.html#L362">362</a>             idList.addAll(linkMap.get(n.getIdentifier()));
+<a class="jxr_linenumber" name="L363" href="Network.html#L363">363</a>         }
+<a class="jxr_linenumber" name="L364" href="Network.html#L364">364</a>         <strong class="jxr_keyword">if</strong> (exclude != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L365" href="Network.html#L365">365</a>             <strong class="jxr_keyword">for</strong> (Neuron n : exclude) {
+<a class="jxr_linenumber" name="L366" href="Network.html#L366">366</a>                 idList.remove(n.getIdentifier());
+<a class="jxr_linenumber" name="L367" href="Network.html#L367">367</a>             }
+<a class="jxr_linenumber" name="L368" href="Network.html#L368">368</a>         }
+<a class="jxr_linenumber" name="L369" href="Network.html#L369">369</a> 
+<a class="jxr_linenumber" name="L370" href="Network.html#L370">370</a>         <strong class="jxr_keyword">final</strong> List&lt;Neuron&gt; neuronList = <strong class="jxr_keyword">new</strong> ArrayList&lt;Neuron&gt;();
+<a class="jxr_linenumber" name="L371" href="Network.html#L371">371</a>         <strong class="jxr_keyword">for</strong> (Long id : idList) {
+<a class="jxr_linenumber" name="L372" href="Network.html#L372">372</a>             neuronList.add(getNeuron(id));
+<a class="jxr_linenumber" name="L373" href="Network.html#L373">373</a>         }
+<a class="jxr_linenumber" name="L374" href="Network.html#L374">374</a> 
+<a class="jxr_linenumber" name="L375" href="Network.html#L375">375</a>         <strong class="jxr_keyword">return</strong> neuronList;
+<a class="jxr_linenumber" name="L376" href="Network.html#L376">376</a>     }
+<a class="jxr_linenumber" name="L377" href="Network.html#L377">377</a> 
+<a class="jxr_linenumber" name="L378" href="Network.html#L378">378</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L379" href="Network.html#L379">379</a> <em class="jxr_javadoccomment">     * Retrieves the neighbours of the given neuron.</em>
+<a class="jxr_linenumber" name="L380" href="Network.html#L380">380</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L381" href="Network.html#L381">381</a> <em class="jxr_javadoccomment">     * @param neuron Neuron for which to retrieve the neighbours.</em>
+<a class="jxr_linenumber" name="L382" href="Network.html#L382">382</a> <em class="jxr_javadoccomment">     * @return the list of neighbours.</em>
+<a class="jxr_linenumber" name="L383" href="Network.html#L383">383</a> <em class="jxr_javadoccomment">     * @see #getNeighbours(Neuron,Iterable)</em>
+<a class="jxr_linenumber" name="L384" href="Network.html#L384">384</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L385" href="Network.html#L385">385</a>     <strong class="jxr_keyword">public</strong> Collection&lt;Neuron&gt; getNeighbours(<a href="Neuron.html">Neuron</a> neuron) {
+<a class="jxr_linenumber" name="L386" href="Network.html#L386">386</a>         <strong class="jxr_keyword">return</strong> getNeighbours(neuron, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L387" href="Network.html#L387">387</a>     }
+<a class="jxr_linenumber" name="L388" href="Network.html#L388">388</a> 
+<a class="jxr_linenumber" name="L389" href="Network.html#L389">389</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L390" href="Network.html#L390">390</a> <em class="jxr_javadoccomment">     * Retrieves the neighbours of the given neuron.</em>
+<a class="jxr_linenumber" name="L391" href="Network.html#L391">391</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L392" href="Network.html#L392">392</a> <em class="jxr_javadoccomment">     * @param neuron Neuron for which to retrieve the neighbours.</em>
+<a class="jxr_linenumber" name="L393" href="Network.html#L393">393</a> <em class="jxr_javadoccomment">     * @param exclude Neurons to exclude from the returned list.</em>
+<a class="jxr_linenumber" name="L394" href="Network.html#L394">394</a> <em class="jxr_javadoccomment">     * Can be {@code null}.</em>
+<a class="jxr_linenumber" name="L395" href="Network.html#L395">395</a> <em class="jxr_javadoccomment">     * @return the list of neighbours.</em>
+<a class="jxr_linenumber" name="L396" href="Network.html#L396">396</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L397" href="Network.html#L397">397</a>     <strong class="jxr_keyword">public</strong> Collection&lt;Neuron&gt; getNeighbours(<a href="Neuron.html">Neuron</a> neuron,
+<a class="jxr_linenumber" name="L398" href="Network.html#L398">398</a>                                             Iterable&lt;Neuron&gt; exclude) {
+<a class="jxr_linenumber" name="L399" href="Network.html#L399">399</a>         <strong class="jxr_keyword">final</strong> Set&lt;Long&gt; idList = linkMap.get(neuron.getIdentifier());
+<a class="jxr_linenumber" name="L400" href="Network.html#L400">400</a>         <strong class="jxr_keyword">if</strong> (exclude != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L401" href="Network.html#L401">401</a>             <strong class="jxr_keyword">for</strong> (Neuron n : exclude) {
+<a class="jxr_linenumber" name="L402" href="Network.html#L402">402</a>                 idList.remove(n.getIdentifier());
+<a class="jxr_linenumber" name="L403" href="Network.html#L403">403</a>             }
+<a class="jxr_linenumber" name="L404" href="Network.html#L404">404</a>         }
+<a class="jxr_linenumber" name="L405" href="Network.html#L405">405</a> 
+<a class="jxr_linenumber" name="L406" href="Network.html#L406">406</a>         <strong class="jxr_keyword">final</strong> List&lt;Neuron&gt; neuronList = <strong class="jxr_keyword">new</strong> ArrayList&lt;Neuron&gt;();
+<a class="jxr_linenumber" name="L407" href="Network.html#L407">407</a>         <strong class="jxr_keyword">for</strong> (Long id : idList) {
+<a class="jxr_linenumber" name="L408" href="Network.html#L408">408</a>             neuronList.add(getNeuron(id));
+<a class="jxr_linenumber" name="L409" href="Network.html#L409">409</a>         }
+<a class="jxr_linenumber" name="L410" href="Network.html#L410">410</a> 
+<a class="jxr_linenumber" name="L411" href="Network.html#L411">411</a>         <strong class="jxr_keyword">return</strong> neuronList;
+<a class="jxr_linenumber" name="L412" href="Network.html#L412">412</a>     }
+<a class="jxr_linenumber" name="L413" href="Network.html#L413">413</a> 
+<a class="jxr_linenumber" name="L414" href="Network.html#L414">414</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L415" href="Network.html#L415">415</a> <em class="jxr_javadoccomment">     * Creates a neuron identifier.</em>
+<a class="jxr_linenumber" name="L416" href="Network.html#L416">416</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L417" href="Network.html#L417">417</a> <em class="jxr_javadoccomment">     * @return a value that will serve as a unique identifier.</em>
+<a class="jxr_linenumber" name="L418" href="Network.html#L418">418</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L419" href="Network.html#L419">419</a>     <strong class="jxr_keyword">private</strong> Long createNextId() {
+<a class="jxr_linenumber" name="L420" href="Network.html#L420">420</a>         <strong class="jxr_keyword">return</strong> nextId.getAndIncrement();
+<a class="jxr_linenumber" name="L421" href="Network.html#L421">421</a>     }
+<a class="jxr_linenumber" name="L422" href="Network.html#L422">422</a> 
+<a class="jxr_linenumber" name="L423" href="Network.html#L423">423</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L424" href="Network.html#L424">424</a> <em class="jxr_javadoccomment">     * Prevents proxy bypass.</em>
+<a class="jxr_linenumber" name="L425" href="Network.html#L425">425</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L426" href="Network.html#L426">426</a> <em class="jxr_javadoccomment">     * @param in Input stream.</em>
+<a class="jxr_linenumber" name="L427" href="Network.html#L427">427</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L428" href="Network.html#L428">428</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> readObject(ObjectInputStream in) {
+<a class="jxr_linenumber" name="L429" href="Network.html#L429">429</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException();
+<a class="jxr_linenumber" name="L430" href="Network.html#L430">430</a>     }
+<a class="jxr_linenumber" name="L431" href="Network.html#L431">431</a> 
+<a class="jxr_linenumber" name="L432" href="Network.html#L432">432</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L433" href="Network.html#L433">433</a> <em class="jxr_javadoccomment">     * Custom serialization.</em>
+<a class="jxr_linenumber" name="L434" href="Network.html#L434">434</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L435" href="Network.html#L435">435</a> <em class="jxr_javadoccomment">     * @return the proxy instance that will be actually serialized.</em>
+<a class="jxr_linenumber" name="L436" href="Network.html#L436">436</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L437" href="Network.html#L437">437</a>     <strong class="jxr_keyword">private</strong> Object writeReplace() {
+<a class="jxr_linenumber" name="L438" href="Network.html#L438">438</a>         <strong class="jxr_keyword">final</strong> <a href="Neuron.html">Neuron</a>[] neuronList = neuronMap.values().toArray(<strong class="jxr_keyword">new</strong> Neuron[0]);
+<a class="jxr_linenumber" name="L439" href="Network.html#L439">439</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong>[][] neighbourIdList = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[neuronList.length][];
+<a class="jxr_linenumber" name="L440" href="Network.html#L440">440</a> 
+<a class="jxr_linenumber" name="L441" href="Network.html#L441">441</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; neuronList.length; i++) {
+<a class="jxr_linenumber" name="L442" href="Network.html#L442">442</a>             <strong class="jxr_keyword">final</strong> Collection&lt;Neuron&gt; neighbours = getNeighbours(neuronList[i]);
+<a class="jxr_linenumber" name="L443" href="Network.html#L443">443</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong>[] neighboursId = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[neighbours.size()];
+<a class="jxr_linenumber" name="L444" href="Network.html#L444">444</a>             <strong class="jxr_keyword">int</strong> count = 0;
+<a class="jxr_linenumber" name="L445" href="Network.html#L445">445</a>             <strong class="jxr_keyword">for</strong> (Neuron n : neighbours) {
+<a class="jxr_linenumber" name="L446" href="Network.html#L446">446</a>                 neighboursId[count] = n.getIdentifier();
+<a class="jxr_linenumber" name="L447" href="Network.html#L447">447</a>                 ++count;
+<a class="jxr_linenumber" name="L448" href="Network.html#L448">448</a>             }
+<a class="jxr_linenumber" name="L449" href="Network.html#L449">449</a>             neighbourIdList[i] = neighboursId;
+<a class="jxr_linenumber" name="L450" href="Network.html#L450">450</a>         }
+<a class="jxr_linenumber" name="L451" href="Network.html#L451">451</a> 
+<a class="jxr_linenumber" name="L452" href="Network.html#L452">452</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="Network.html">SerializationProxy</a>(nextId.get(),
+<a class="jxr_linenumber" name="L453" href="Network.html#L453">453</a>                                       featureSize,
+<a class="jxr_linenumber" name="L454" href="Network.html#L454">454</a>                                       neuronList,
+<a class="jxr_linenumber" name="L455" href="Network.html#L455">455</a>                                       neighbourIdList);
+<a class="jxr_linenumber" name="L456" href="Network.html#L456">456</a>     }
+<a class="jxr_linenumber" name="L457" href="Network.html#L457">457</a> 
+<a class="jxr_linenumber" name="L458" href="Network.html#L458">458</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L459" href="Network.html#L459">459</a> <em class="jxr_javadoccomment">     * Serialization.</em>
+<a class="jxr_linenumber" name="L460" href="Network.html#L460">460</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L461" href="Network.html#L461">461</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="Network.html">SerializationProxy</a> <strong class="jxr_keyword">implements</strong> Serializable {
+<a class="jxr_linenumber" name="L462" href="Network.html#L462">462</a>         <em class="jxr_javadoccomment">/** Serializable. */</em>
+<a class="jxr_linenumber" name="L463" href="Network.html#L463">463</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20130207L;
+<a class="jxr_linenumber" name="L464" href="Network.html#L464">464</a>         <em class="jxr_javadoccomment">/** Next identifier. */</em>
+<a class="jxr_linenumber" name="L465" href="Network.html#L465">465</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> nextId;
+<a class="jxr_linenumber" name="L466" href="Network.html#L466">466</a>         <em class="jxr_javadoccomment">/** Number of features. */</em>
+<a class="jxr_linenumber" name="L467" href="Network.html#L467">467</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> featureSize;
+<a class="jxr_linenumber" name="L468" href="Network.html#L468">468</a>         <em class="jxr_javadoccomment">/** Neurons. */</em>
+<a class="jxr_linenumber" name="L469" href="Network.html#L469">469</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="Neuron.html">Neuron</a>[] neuronList;
+<a class="jxr_linenumber" name="L470" href="Network.html#L470">470</a>         <em class="jxr_javadoccomment">/** Links. */</em>
+<a class="jxr_linenumber" name="L471" href="Network.html#L471">471</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong>[][] neighbourIdList;
+<a class="jxr_linenumber" name="L472" href="Network.html#L472">472</a> 
+<a class="jxr_linenumber" name="L473" href="Network.html#L473">473</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L474" href="Network.html#L474">474</a> <em class="jxr_javadoccomment">         * @param nextId Next available identifier.</em>
+<a class="jxr_linenumber" name="L475" href="Network.html#L475">475</a> <em class="jxr_javadoccomment">         * @param featureSize Number of features.</em>
+<a class="jxr_linenumber" name="L476" href="Network.html#L476">476</a> <em class="jxr_javadoccomment">         * @param neuronList Neurons.</em>
+<a class="jxr_linenumber" name="L477" href="Network.html#L477">477</a> <em class="jxr_javadoccomment">         * @param neighbourIdList Links associated to each of the neurons in</em>
+<a class="jxr_linenumber" name="L478" href="Network.html#L478">478</a> <em class="jxr_javadoccomment">         * {@code neuronList}.</em>
+<a class="jxr_linenumber" name="L479" href="Network.html#L479">479</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L480" href="Network.html#L480">480</a>         <a href="Network.html">SerializationProxy</a>(<strong class="jxr_keyword">long</strong> nextId,
+<a class="jxr_linenumber" name="L481" href="Network.html#L481">481</a>                            <strong class="jxr_keyword">int</strong> featureSize,
+<a class="jxr_linenumber" name="L482" href="Network.html#L482">482</a>                            <a href="Neuron.html">Neuron</a>[] neuronList,
+<a class="jxr_linenumber" name="L483" href="Network.html#L483">483</a>                            <strong class="jxr_keyword">long</strong>[][] neighbourIdList) {
+<a class="jxr_linenumber" name="L484" href="Network.html#L484">484</a>             <strong class="jxr_keyword">this</strong>.nextId = nextId;
+<a class="jxr_linenumber" name="L485" href="Network.html#L485">485</a>             <strong class="jxr_keyword">this</strong>.featureSize = featureSize;
+<a class="jxr_linenumber" name="L486" href="Network.html#L486">486</a>             <strong class="jxr_keyword">this</strong>.neuronList = neuronList;
+<a class="jxr_linenumber" name="L487" href="Network.html#L487">487</a>             <strong class="jxr_keyword">this</strong>.neighbourIdList = neighbourIdList;
+<a class="jxr_linenumber" name="L488" href="Network.html#L488">488</a>         }
+<a class="jxr_linenumber" name="L489" href="Network.html#L489">489</a> 
+<a class="jxr_linenumber" name="L490" href="Network.html#L490">490</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L491" href="Network.html#L491">491</a> <em class="jxr_javadoccomment">         * Custom serialization.</em>
+<a class="jxr_linenumber" name="L492" href="Network.html#L492">492</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L493" href="Network.html#L493">493</a> <em class="jxr_javadoccomment">         * @return the {@link Network} for which this instance is the proxy.</em>
+<a class="jxr_linenumber" name="L494" href="Network.html#L494">494</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L495" href="Network.html#L495">495</a>         <strong class="jxr_keyword">private</strong> Object readResolve() {
+<a class="jxr_linenumber" name="L496" href="Network.html#L496">496</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="Network.html">Network</a>(nextId,
+<a class="jxr_linenumber" name="L497" href="Network.html#L497">497</a>                                featureSize,
+<a class="jxr_linenumber" name="L498" href="Network.html#L498">498</a>                                neuronList,
+<a class="jxr_linenumber" name="L499" href="Network.html#L499">499</a>                                neighbourIdList);
+<a class="jxr_linenumber" name="L500" href="Network.html#L500">500</a>         }
+<a class="jxr_linenumber" name="L501" href="Network.html#L501">501</a>     }
+<a class="jxr_linenumber" name="L502" href="Network.html#L502">502</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

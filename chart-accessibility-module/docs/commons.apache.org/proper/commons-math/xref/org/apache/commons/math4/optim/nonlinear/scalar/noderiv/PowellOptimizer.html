@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>PowellOptimizer xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../../../apidocs/org/apache/commons/math4/optim/nonlinear/scalar/noderiv/PowellOptimizer.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="PowellOptimizer.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="PowellOptimizer.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="PowellOptimizer.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="PowellOptimizer.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="PowellOptimizer.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="PowellOptimizer.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="PowellOptimizer.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="PowellOptimizer.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="PowellOptimizer.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="PowellOptimizer.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="PowellOptimizer.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="PowellOptimizer.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="PowellOptimizer.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="PowellOptimizer.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="PowellOptimizer.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="PowellOptimizer.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="PowellOptimizer.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.optim.nonlinear.scalar.noderiv;
+<a class="jxr_linenumber" name="L18" href="PowellOptimizer.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="PowellOptimizer.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathUnsupportedOperationException;
+<a class="jxr_linenumber" name="L20" href="PowellOptimizer.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L21" href="PowellOptimizer.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L22" href="PowellOptimizer.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L23" href="PowellOptimizer.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.optim.ConvergenceChecker;
+<a class="jxr_linenumber" name="L24" href="PowellOptimizer.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.optim.PointValuePair;
+<a class="jxr_linenumber" name="L25" href="PowellOptimizer.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.optim.nonlinear.scalar.GoalType;
+<a class="jxr_linenumber" name="L26" href="PowellOptimizer.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.optim.nonlinear.scalar.LineSearch;
+<a class="jxr_linenumber" name="L27" href="PowellOptimizer.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.optim.nonlinear.scalar.MultivariateOptimizer;
+<a class="jxr_linenumber" name="L28" href="PowellOptimizer.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.optim.univariate.UnivariatePointValuePair;
+<a class="jxr_linenumber" name="L29" href="PowellOptimizer.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L30" href="PowellOptimizer.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L31" href="PowellOptimizer.html#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="PowellOptimizer.html#L32">32</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L33" href="PowellOptimizer.html#L33">33</a>  <em class="jxr_javadoccomment"> * Powell's algorithm.</em>
+<a class="jxr_linenumber" name="L34" href="PowellOptimizer.html#L34">34</a>  <em class="jxr_javadoccomment"> * This code is translated and adapted from the Python version of this</em>
+<a class="jxr_linenumber" name="L35" href="PowellOptimizer.html#L35">35</a>  <em class="jxr_javadoccomment"> * algorithm (as implemented in module {@code optimize.py} v0.5 of</em>
+<a class="jxr_linenumber" name="L36" href="PowellOptimizer.html#L36">36</a>  <em class="jxr_javadoccomment"> * &lt;em&gt;SciPy&lt;/em&gt;).</em>
+<a class="jxr_linenumber" name="L37" href="PowellOptimizer.html#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L38" href="PowellOptimizer.html#L38">38</a>  <em class="jxr_javadoccomment"> * The default stopping criterion is based on the differences of the</em>
+<a class="jxr_linenumber" name="L39" href="PowellOptimizer.html#L39">39</a>  <em class="jxr_javadoccomment"> * function value between two successive iterations. It is however possible</em>
+<a class="jxr_linenumber" name="L40" href="PowellOptimizer.html#L40">40</a>  <em class="jxr_javadoccomment"> * to define a custom convergence checker that might terminate the algorithm</em>
+<a class="jxr_linenumber" name="L41" href="PowellOptimizer.html#L41">41</a>  <em class="jxr_javadoccomment"> * earlier.</em>
+<a class="jxr_linenumber" name="L42" href="PowellOptimizer.html#L42">42</a>  <em class="jxr_javadoccomment"> * &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L43" href="PowellOptimizer.html#L43">43</a>  <em class="jxr_javadoccomment"> * Line search is performed by the {@link LineSearch} class.</em>
+<a class="jxr_linenumber" name="L44" href="PowellOptimizer.html#L44">44</a>  <em class="jxr_javadoccomment"> * &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L45" href="PowellOptimizer.html#L45">45</a>  <em class="jxr_javadoccomment"> * Constraints are not supported: the call to</em>
+<a class="jxr_linenumber" name="L46" href="PowellOptimizer.html#L46">46</a>  <em class="jxr_javadoccomment"> * {@link #optimize(OptimizationData[]) optimize} will throw</em>
+<a class="jxr_linenumber" name="L47" href="PowellOptimizer.html#L47">47</a>  <em class="jxr_javadoccomment"> * {@link MathUnsupportedOperationException} if bounds are passed to it.</em>
+<a class="jxr_linenumber" name="L48" href="PowellOptimizer.html#L48">48</a>  <em class="jxr_javadoccomment"> * In order to impose simple constraints, the objective function must be</em>
+<a class="jxr_linenumber" name="L49" href="PowellOptimizer.html#L49">49</a>  <em class="jxr_javadoccomment"> * wrapped in an adapter like</em>
+<a class="jxr_linenumber" name="L50" href="PowellOptimizer.html#L50">50</a>  <em class="jxr_javadoccomment"> * {@link org.apache.commons.math4.optim.nonlinear.scalar.MultivariateFunctionMappingAdapter</em>
+<a class="jxr_linenumber" name="L51" href="PowellOptimizer.html#L51">51</a>  <em class="jxr_javadoccomment"> * MultivariateFunctionMappingAdapter} or</em>
+<a class="jxr_linenumber" name="L52" href="PowellOptimizer.html#L52">52</a>  <em class="jxr_javadoccomment"> * {@link org.apache.commons.math4.optim.nonlinear.scalar.MultivariateFunctionPenaltyAdapter</em>
+<a class="jxr_linenumber" name="L53" href="PowellOptimizer.html#L53">53</a>  <em class="jxr_javadoccomment"> * MultivariateFunctionPenaltyAdapter}.</em>
+<a class="jxr_linenumber" name="L54" href="PowellOptimizer.html#L54">54</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L55" href="PowellOptimizer.html#L55">55</a>  <em class="jxr_javadoccomment"> * @since 2.2</em>
+<a class="jxr_linenumber" name="L56" href="PowellOptimizer.html#L56">56</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L57" href="PowellOptimizer.html#L57">57</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="PowellOptimizer.html">PowellOptimizer</a>
+<a class="jxr_linenumber" name="L58" href="PowellOptimizer.html#L58">58</a>      <strong class="jxr_keyword">extends</strong> <a href="../MultivariateOptimizer.html">MultivariateOptimizer</a> {
+<a class="jxr_linenumber" name="L59" href="PowellOptimizer.html#L59">59</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L60" href="PowellOptimizer.html#L60">60</a>  <em class="jxr_javadoccomment">     * Minimum relative tolerance.</em>
+<a class="jxr_linenumber" name="L61" href="PowellOptimizer.html#L61">61</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L62" href="PowellOptimizer.html#L62">62</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> MIN_RELATIVE_TOLERANCE = 2 * FastMath.ulp(1d);
+<a class="jxr_linenumber" name="L63" href="PowellOptimizer.html#L63">63</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L64" href="PowellOptimizer.html#L64">64</a>  <em class="jxr_javadoccomment">     * Relative threshold.</em>
+<a class="jxr_linenumber" name="L65" href="PowellOptimizer.html#L65">65</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L66" href="PowellOptimizer.html#L66">66</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> relativeThreshold;
+<a class="jxr_linenumber" name="L67" href="PowellOptimizer.html#L67">67</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L68" href="PowellOptimizer.html#L68">68</a>  <em class="jxr_javadoccomment">     * Absolute threshold.</em>
+<a class="jxr_linenumber" name="L69" href="PowellOptimizer.html#L69">69</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L70" href="PowellOptimizer.html#L70">70</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> absoluteThreshold;
+<a class="jxr_linenumber" name="L71" href="PowellOptimizer.html#L71">71</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L72" href="PowellOptimizer.html#L72">72</a>  <em class="jxr_javadoccomment">     * Line search.</em>
+<a class="jxr_linenumber" name="L73" href="PowellOptimizer.html#L73">73</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L74" href="PowellOptimizer.html#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../LineSearch.html">LineSearch</a> line;
+<a class="jxr_linenumber" name="L75" href="PowellOptimizer.html#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="PowellOptimizer.html#L76">76</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L77" href="PowellOptimizer.html#L77">77</a>  <em class="jxr_javadoccomment">     * This constructor allows to specify a user-defined convergence checker,</em>
+<a class="jxr_linenumber" name="L78" href="PowellOptimizer.html#L78">78</a>  <em class="jxr_javadoccomment">     * in addition to the parameters that control the default convergence</em>
+<a class="jxr_linenumber" name="L79" href="PowellOptimizer.html#L79">79</a>  <em class="jxr_javadoccomment">     * checking procedure.</em>
+<a class="jxr_linenumber" name="L80" href="PowellOptimizer.html#L80">80</a>  <em class="jxr_javadoccomment">     * &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L81" href="PowellOptimizer.html#L81">81</a>  <em class="jxr_javadoccomment">     * The internal line search tolerances are set to the square-root of their</em>
+<a class="jxr_linenumber" name="L82" href="PowellOptimizer.html#L82">82</a>  <em class="jxr_javadoccomment">     * corresponding value in the multivariate optimizer.</em>
+<a class="jxr_linenumber" name="L83" href="PowellOptimizer.html#L83">83</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L84" href="PowellOptimizer.html#L84">84</a>  <em class="jxr_javadoccomment">     * @param rel Relative threshold.</em>
+<a class="jxr_linenumber" name="L85" href="PowellOptimizer.html#L85">85</a>  <em class="jxr_javadoccomment">     * @param abs Absolute threshold.</em>
+<a class="jxr_linenumber" name="L86" href="PowellOptimizer.html#L86">86</a>  <em class="jxr_javadoccomment">     * @param checker Convergence checker.</em>
+<a class="jxr_linenumber" name="L87" href="PowellOptimizer.html#L87">87</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code abs &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L88" href="PowellOptimizer.html#L88">88</a>  <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code rel &lt; 2 * Math.ulp(1d)}.</em>
+<a class="jxr_linenumber" name="L89" href="PowellOptimizer.html#L89">89</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L90" href="PowellOptimizer.html#L90">90</a>      <strong class="jxr_keyword">public</strong> <a href="PowellOptimizer.html">PowellOptimizer</a>(<strong class="jxr_keyword">double</strong> rel,
+<a class="jxr_linenumber" name="L91" href="PowellOptimizer.html#L91">91</a>                             <strong class="jxr_keyword">double</strong> abs,
+<a class="jxr_linenumber" name="L92" href="PowellOptimizer.html#L92">92</a>                             ConvergenceChecker&lt;PointValuePair&gt; checker) {
+<a class="jxr_linenumber" name="L93" href="PowellOptimizer.html#L93">93</a>          <strong class="jxr_keyword">this</strong>(rel, abs, FastMath.sqrt(rel), FastMath.sqrt(abs), checker);
+<a class="jxr_linenumber" name="L94" href="PowellOptimizer.html#L94">94</a>      }
+<a class="jxr_linenumber" name="L95" href="PowellOptimizer.html#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="PowellOptimizer.html#L96">96</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L97" href="PowellOptimizer.html#L97">97</a>  <em class="jxr_javadoccomment">     * This constructor allows to specify a user-defined convergence checker,</em>
+<a class="jxr_linenumber" name="L98" href="PowellOptimizer.html#L98">98</a>  <em class="jxr_javadoccomment">     * in addition to the parameters that control the default convergence</em>
+<a class="jxr_linenumber" name="L99" href="PowellOptimizer.html#L99">99</a>  <em class="jxr_javadoccomment">     * checking procedure and the line search tolerances.</em>
+<a class="jxr_linenumber" name="L100" href="PowellOptimizer.html#L100">100</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L101" href="PowellOptimizer.html#L101">101</a> <em class="jxr_javadoccomment">     * @param rel Relative threshold for this optimizer.</em>
+<a class="jxr_linenumber" name="L102" href="PowellOptimizer.html#L102">102</a> <em class="jxr_javadoccomment">     * @param abs Absolute threshold for this optimizer.</em>
+<a class="jxr_linenumber" name="L103" href="PowellOptimizer.html#L103">103</a> <em class="jxr_javadoccomment">     * @param lineRel Relative threshold for the internal line search optimizer.</em>
+<a class="jxr_linenumber" name="L104" href="PowellOptimizer.html#L104">104</a> <em class="jxr_javadoccomment">     * @param lineAbs Absolute threshold for the internal line search optimizer.</em>
+<a class="jxr_linenumber" name="L105" href="PowellOptimizer.html#L105">105</a> <em class="jxr_javadoccomment">     * @param checker Convergence checker.</em>
+<a class="jxr_linenumber" name="L106" href="PowellOptimizer.html#L106">106</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code abs &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L107" href="PowellOptimizer.html#L107">107</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code rel &lt; 2 * Math.ulp(1d)}.</em>
+<a class="jxr_linenumber" name="L108" href="PowellOptimizer.html#L108">108</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L109" href="PowellOptimizer.html#L109">109</a>     <strong class="jxr_keyword">public</strong> <a href="PowellOptimizer.html">PowellOptimizer</a>(<strong class="jxr_keyword">double</strong> rel,
+<a class="jxr_linenumber" name="L110" href="PowellOptimizer.html#L110">110</a>                            <strong class="jxr_keyword">double</strong> abs,
+<a class="jxr_linenumber" name="L111" href="PowellOptimizer.html#L111">111</a>                            <strong class="jxr_keyword">double</strong> lineRel,
+<a class="jxr_linenumber" name="L112" href="PowellOptimizer.html#L112">112</a>                            <strong class="jxr_keyword">double</strong> lineAbs,
+<a class="jxr_linenumber" name="L113" href="PowellOptimizer.html#L113">113</a>                            ConvergenceChecker&lt;PointValuePair&gt; checker) {
+<a class="jxr_linenumber" name="L114" href="PowellOptimizer.html#L114">114</a>         <strong class="jxr_keyword">super</strong>(checker);
+<a class="jxr_linenumber" name="L115" href="PowellOptimizer.html#L115">115</a> 
+<a class="jxr_linenumber" name="L116" href="PowellOptimizer.html#L116">116</a>         <strong class="jxr_keyword">if</strong> (rel &lt; MIN_RELATIVE_TOLERANCE) {
+<a class="jxr_linenumber" name="L117" href="PowellOptimizer.html#L117">117</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(rel, MIN_RELATIVE_TOLERANCE, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L118" href="PowellOptimizer.html#L118">118</a>         }
+<a class="jxr_linenumber" name="L119" href="PowellOptimizer.html#L119">119</a>         <strong class="jxr_keyword">if</strong> (abs &lt;= 0) {
+<a class="jxr_linenumber" name="L120" href="PowellOptimizer.html#L120">120</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(abs);
+<a class="jxr_linenumber" name="L121" href="PowellOptimizer.html#L121">121</a>         }
+<a class="jxr_linenumber" name="L122" href="PowellOptimizer.html#L122">122</a>         relativeThreshold = rel;
+<a class="jxr_linenumber" name="L123" href="PowellOptimizer.html#L123">123</a>         absoluteThreshold = abs;
+<a class="jxr_linenumber" name="L124" href="PowellOptimizer.html#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="PowellOptimizer.html#L125">125</a>         <em class="jxr_comment">// Create the line search optimizer.</em>
+<a class="jxr_linenumber" name="L126" href="PowellOptimizer.html#L126">126</a>         line = <strong class="jxr_keyword">new</strong> <a href="../LineSearch.html">LineSearch</a>(<strong class="jxr_keyword">this</strong>,
+<a class="jxr_linenumber" name="L127" href="PowellOptimizer.html#L127">127</a>                               lineRel,
+<a class="jxr_linenumber" name="L128" href="PowellOptimizer.html#L128">128</a>                               lineAbs,
+<a class="jxr_linenumber" name="L129" href="PowellOptimizer.html#L129">129</a>                               1d);
+<a class="jxr_linenumber" name="L130" href="PowellOptimizer.html#L130">130</a>     }
+<a class="jxr_linenumber" name="L131" href="PowellOptimizer.html#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="PowellOptimizer.html#L132">132</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L133" href="PowellOptimizer.html#L133">133</a> <em class="jxr_javadoccomment">     * The parameters control the default convergence checking procedure.</em>
+<a class="jxr_linenumber" name="L134" href="PowellOptimizer.html#L134">134</a> <em class="jxr_javadoccomment">     * &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L135" href="PowellOptimizer.html#L135">135</a> <em class="jxr_javadoccomment">     * The internal line search tolerances are set to the square-root of their</em>
+<a class="jxr_linenumber" name="L136" href="PowellOptimizer.html#L136">136</a> <em class="jxr_javadoccomment">     * corresponding value in the multivariate optimizer.</em>
+<a class="jxr_linenumber" name="L137" href="PowellOptimizer.html#L137">137</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L138" href="PowellOptimizer.html#L138">138</a> <em class="jxr_javadoccomment">     * @param rel Relative threshold.</em>
+<a class="jxr_linenumber" name="L139" href="PowellOptimizer.html#L139">139</a> <em class="jxr_javadoccomment">     * @param abs Absolute threshold.</em>
+<a class="jxr_linenumber" name="L140" href="PowellOptimizer.html#L140">140</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code abs &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L141" href="PowellOptimizer.html#L141">141</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code rel &lt; 2 * Math.ulp(1d)}.</em>
+<a class="jxr_linenumber" name="L142" href="PowellOptimizer.html#L142">142</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L143" href="PowellOptimizer.html#L143">143</a>     <strong class="jxr_keyword">public</strong> <a href="PowellOptimizer.html">PowellOptimizer</a>(<strong class="jxr_keyword">double</strong> rel,
+<a class="jxr_linenumber" name="L144" href="PowellOptimizer.html#L144">144</a>                            <strong class="jxr_keyword">double</strong> abs) {
+<a class="jxr_linenumber" name="L145" href="PowellOptimizer.html#L145">145</a>         <strong class="jxr_keyword">this</strong>(rel, abs, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L146" href="PowellOptimizer.html#L146">146</a>     }
+<a class="jxr_linenumber" name="L147" href="PowellOptimizer.html#L147">147</a> 
+<a class="jxr_linenumber" name="L148" href="PowellOptimizer.html#L148">148</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L149" href="PowellOptimizer.html#L149">149</a> <em class="jxr_javadoccomment">     * Builds an instance with the default convergence checking procedure.</em>
+<a class="jxr_linenumber" name="L150" href="PowellOptimizer.html#L150">150</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L151" href="PowellOptimizer.html#L151">151</a> <em class="jxr_javadoccomment">     * @param rel Relative threshold.</em>
+<a class="jxr_linenumber" name="L152" href="PowellOptimizer.html#L152">152</a> <em class="jxr_javadoccomment">     * @param abs Absolute threshold.</em>
+<a class="jxr_linenumber" name="L153" href="PowellOptimizer.html#L153">153</a> <em class="jxr_javadoccomment">     * @param lineRel Relative threshold for the internal line search optimizer.</em>
+<a class="jxr_linenumber" name="L154" href="PowellOptimizer.html#L154">154</a> <em class="jxr_javadoccomment">     * @param lineAbs Absolute threshold for the internal line search optimizer.</em>
+<a class="jxr_linenumber" name="L155" href="PowellOptimizer.html#L155">155</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code abs &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L156" href="PowellOptimizer.html#L156">156</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code rel &lt; 2 * Math.ulp(1d)}.</em>
+<a class="jxr_linenumber" name="L157" href="PowellOptimizer.html#L157">157</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L158" href="PowellOptimizer.html#L158">158</a>     <strong class="jxr_keyword">public</strong> <a href="PowellOptimizer.html">PowellOptimizer</a>(<strong class="jxr_keyword">double</strong> rel,
+<a class="jxr_linenumber" name="L159" href="PowellOptimizer.html#L159">159</a>                            <strong class="jxr_keyword">double</strong> abs,
+<a class="jxr_linenumber" name="L160" href="PowellOptimizer.html#L160">160</a>                            <strong class="jxr_keyword">double</strong> lineRel,
+<a class="jxr_linenumber" name="L161" href="PowellOptimizer.html#L161">161</a>                            <strong class="jxr_keyword">double</strong> lineAbs) {
+<a class="jxr_linenumber" name="L162" href="PowellOptimizer.html#L162">162</a>         <strong class="jxr_keyword">this</strong>(rel, abs, lineRel, lineAbs, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L163" href="PowellOptimizer.html#L163">163</a>     }
+<a class="jxr_linenumber" name="L164" href="PowellOptimizer.html#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="PowellOptimizer.html#L165">165</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L166" href="PowellOptimizer.html#L166">166</a>     @Override
+<a class="jxr_linenumber" name="L167" href="PowellOptimizer.html#L167">167</a>     <strong class="jxr_keyword">protected</strong> <a href="../../../PointValuePair.html">PointValuePair</a> doOptimize() {
+<a class="jxr_linenumber" name="L168" href="PowellOptimizer.html#L168">168</a>         checkParameters();
+<a class="jxr_linenumber" name="L169" href="PowellOptimizer.html#L169">169</a> 
+<a class="jxr_linenumber" name="L170" href="PowellOptimizer.html#L170">170</a>         <strong class="jxr_keyword">final</strong> <a href="../GoalType.html">GoalType</a> goal = getGoalType();
+<a class="jxr_linenumber" name="L171" href="PowellOptimizer.html#L171">171</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] guess = getStartPoint();
+<a class="jxr_linenumber" name="L172" href="PowellOptimizer.html#L172">172</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = guess.length;
+<a class="jxr_linenumber" name="L173" href="PowellOptimizer.html#L173">173</a> 
+<a class="jxr_linenumber" name="L174" href="PowellOptimizer.html#L174">174</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] direc = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n][n];
+<a class="jxr_linenumber" name="L175" href="PowellOptimizer.html#L175">175</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L176" href="PowellOptimizer.html#L176">176</a>             direc[i][i] = 1;
+<a class="jxr_linenumber" name="L177" href="PowellOptimizer.html#L177">177</a>         }
+<a class="jxr_linenumber" name="L178" href="PowellOptimizer.html#L178">178</a> 
+<a class="jxr_linenumber" name="L179" href="PowellOptimizer.html#L179">179</a>         <strong class="jxr_keyword">final</strong> ConvergenceChecker&lt;PointValuePair&gt; checker
+<a class="jxr_linenumber" name="L180" href="PowellOptimizer.html#L180">180</a>             = getConvergenceChecker();
+<a class="jxr_linenumber" name="L181" href="PowellOptimizer.html#L181">181</a> 
+<a class="jxr_linenumber" name="L182" href="PowellOptimizer.html#L182">182</a>         <strong class="jxr_keyword">double</strong>[] x = guess;
+<a class="jxr_linenumber" name="L183" href="PowellOptimizer.html#L183">183</a>         <strong class="jxr_keyword">double</strong> fVal = computeObjectiveValue(x);
+<a class="jxr_linenumber" name="L184" href="PowellOptimizer.html#L184">184</a>         <strong class="jxr_keyword">double</strong>[] x1 = x.clone();
+<a class="jxr_linenumber" name="L185" href="PowellOptimizer.html#L185">185</a>         <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
+<a class="jxr_linenumber" name="L186" href="PowellOptimizer.html#L186">186</a>             incrementIterationCount();
+<a class="jxr_linenumber" name="L187" href="PowellOptimizer.html#L187">187</a> 
+<a class="jxr_linenumber" name="L188" href="PowellOptimizer.html#L188">188</a>             <strong class="jxr_keyword">double</strong> fX = fVal;
+<a class="jxr_linenumber" name="L189" href="PowellOptimizer.html#L189">189</a>             <strong class="jxr_keyword">double</strong> fX2 = 0;
+<a class="jxr_linenumber" name="L190" href="PowellOptimizer.html#L190">190</a>             <strong class="jxr_keyword">double</strong> delta = 0;
+<a class="jxr_linenumber" name="L191" href="PowellOptimizer.html#L191">191</a>             <strong class="jxr_keyword">int</strong> bigInd = 0;
+<a class="jxr_linenumber" name="L192" href="PowellOptimizer.html#L192">192</a>             <strong class="jxr_keyword">double</strong> alphaMin = 0;
+<a class="jxr_linenumber" name="L193" href="PowellOptimizer.html#L193">193</a> 
+<a class="jxr_linenumber" name="L194" href="PowellOptimizer.html#L194">194</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L195" href="PowellOptimizer.html#L195">195</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] d = MathArrays.copyOf(direc[i]);
+<a class="jxr_linenumber" name="L196" href="PowellOptimizer.html#L196">196</a> 
+<a class="jxr_linenumber" name="L197" href="PowellOptimizer.html#L197">197</a>                 fX2 = fVal;
+<a class="jxr_linenumber" name="L198" href="PowellOptimizer.html#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="PowellOptimizer.html#L199">199</a>                 <strong class="jxr_keyword">final</strong> <a href="../../../univariate/UnivariatePointValuePair.html">UnivariatePointValuePair</a> optimum = line.search(x, d);
+<a class="jxr_linenumber" name="L200" href="PowellOptimizer.html#L200">200</a>                 fVal = optimum.getValue();
+<a class="jxr_linenumber" name="L201" href="PowellOptimizer.html#L201">201</a>                 alphaMin = optimum.getPoint();
+<a class="jxr_linenumber" name="L202" href="PowellOptimizer.html#L202">202</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] result = newPointAndDirection(x, d, alphaMin);
+<a class="jxr_linenumber" name="L203" href="PowellOptimizer.html#L203">203</a>                 x = result[0];
+<a class="jxr_linenumber" name="L204" href="PowellOptimizer.html#L204">204</a> 
+<a class="jxr_linenumber" name="L205" href="PowellOptimizer.html#L205">205</a>                 <strong class="jxr_keyword">if</strong> ((fX2 - fVal) &gt; delta) {
+<a class="jxr_linenumber" name="L206" href="PowellOptimizer.html#L206">206</a>                     delta = fX2 - fVal;
+<a class="jxr_linenumber" name="L207" href="PowellOptimizer.html#L207">207</a>                     bigInd = i;
+<a class="jxr_linenumber" name="L208" href="PowellOptimizer.html#L208">208</a>                 }
+<a class="jxr_linenumber" name="L209" href="PowellOptimizer.html#L209">209</a>             }
+<a class="jxr_linenumber" name="L210" href="PowellOptimizer.html#L210">210</a> 
+<a class="jxr_linenumber" name="L211" href="PowellOptimizer.html#L211">211</a>             <em class="jxr_comment">// Default convergence check.</em>
+<a class="jxr_linenumber" name="L212" href="PowellOptimizer.html#L212">212</a>             <strong class="jxr_keyword">boolean</strong> stop = 2 * (fX - fVal) &lt;=
+<a class="jxr_linenumber" name="L213" href="PowellOptimizer.html#L213">213</a>                 (relativeThreshold * (FastMath.abs(fX) + FastMath.abs(fVal)) +
+<a class="jxr_linenumber" name="L214" href="PowellOptimizer.html#L214">214</a>                  absoluteThreshold);
+<a class="jxr_linenumber" name="L215" href="PowellOptimizer.html#L215">215</a> 
+<a class="jxr_linenumber" name="L216" href="PowellOptimizer.html#L216">216</a>             <strong class="jxr_keyword">final</strong> <a href="../../../PointValuePair.html">PointValuePair</a> previous = <strong class="jxr_keyword">new</strong> <a href="../../../PointValuePair.html">PointValuePair</a>(x1, fX);
+<a class="jxr_linenumber" name="L217" href="PowellOptimizer.html#L217">217</a>             <strong class="jxr_keyword">final</strong> <a href="../../../PointValuePair.html">PointValuePair</a> current = <strong class="jxr_keyword">new</strong> <a href="../../../PointValuePair.html">PointValuePair</a>(x, fVal);
+<a class="jxr_linenumber" name="L218" href="PowellOptimizer.html#L218">218</a>             <strong class="jxr_keyword">if</strong> (!stop &amp;&amp; checker != <strong class="jxr_keyword">null</strong>) { <em class="jxr_comment">// User-defined stopping criteria.</em>
+<a class="jxr_linenumber" name="L219" href="PowellOptimizer.html#L219">219</a>                 stop = checker.converged(getIterations(), previous, current);
+<a class="jxr_linenumber" name="L220" href="PowellOptimizer.html#L220">220</a>             }
+<a class="jxr_linenumber" name="L221" href="PowellOptimizer.html#L221">221</a>             <strong class="jxr_keyword">if</strong> (stop) {
+<a class="jxr_linenumber" name="L222" href="PowellOptimizer.html#L222">222</a>                 <strong class="jxr_keyword">if</strong> (goal == GoalType.MINIMIZE) {
+<a class="jxr_linenumber" name="L223" href="PowellOptimizer.html#L223">223</a>                     <strong class="jxr_keyword">return</strong> (fVal &lt; fX) ? current : previous;
+<a class="jxr_linenumber" name="L224" href="PowellOptimizer.html#L224">224</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L225" href="PowellOptimizer.html#L225">225</a>                     <strong class="jxr_keyword">return</strong> (fVal &gt; fX) ? current : previous;
+<a class="jxr_linenumber" name="L226" href="PowellOptimizer.html#L226">226</a>                 }
+<a class="jxr_linenumber" name="L227" href="PowellOptimizer.html#L227">227</a>             }
+<a class="jxr_linenumber" name="L228" href="PowellOptimizer.html#L228">228</a> 
+<a class="jxr_linenumber" name="L229" href="PowellOptimizer.html#L229">229</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] d = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n];
+<a class="jxr_linenumber" name="L230" href="PowellOptimizer.html#L230">230</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] x2 = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n];
+<a class="jxr_linenumber" name="L231" href="PowellOptimizer.html#L231">231</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L232" href="PowellOptimizer.html#L232">232</a>                 d[i] = x[i] - x1[i];
+<a class="jxr_linenumber" name="L233" href="PowellOptimizer.html#L233">233</a>                 x2[i] = 2 * x[i] - x1[i];
+<a class="jxr_linenumber" name="L234" href="PowellOptimizer.html#L234">234</a>             }
+<a class="jxr_linenumber" name="L235" href="PowellOptimizer.html#L235">235</a> 
+<a class="jxr_linenumber" name="L236" href="PowellOptimizer.html#L236">236</a>             x1 = x.clone();
+<a class="jxr_linenumber" name="L237" href="PowellOptimizer.html#L237">237</a>             fX2 = computeObjectiveValue(x2);
+<a class="jxr_linenumber" name="L238" href="PowellOptimizer.html#L238">238</a> 
+<a class="jxr_linenumber" name="L239" href="PowellOptimizer.html#L239">239</a>             <strong class="jxr_keyword">if</strong> (fX &gt; fX2) {
+<a class="jxr_linenumber" name="L240" href="PowellOptimizer.html#L240">240</a>                 <strong class="jxr_keyword">double</strong> t = 2 * (fX + fX2 - 2 * fVal);
+<a class="jxr_linenumber" name="L241" href="PowellOptimizer.html#L241">241</a>                 <strong class="jxr_keyword">double</strong> temp = fX - fVal - delta;
+<a class="jxr_linenumber" name="L242" href="PowellOptimizer.html#L242">242</a>                 t *= temp * temp;
+<a class="jxr_linenumber" name="L243" href="PowellOptimizer.html#L243">243</a>                 temp = fX - fX2;
+<a class="jxr_linenumber" name="L244" href="PowellOptimizer.html#L244">244</a>                 t -= delta * temp * temp;
+<a class="jxr_linenumber" name="L245" href="PowellOptimizer.html#L245">245</a> 
+<a class="jxr_linenumber" name="L246" href="PowellOptimizer.html#L246">246</a>                 <strong class="jxr_keyword">if</strong> (t &lt; 0.0) {
+<a class="jxr_linenumber" name="L247" href="PowellOptimizer.html#L247">247</a>                     <strong class="jxr_keyword">final</strong> <a href="../../../univariate/UnivariatePointValuePair.html">UnivariatePointValuePair</a> optimum = line.search(x, d);
+<a class="jxr_linenumber" name="L248" href="PowellOptimizer.html#L248">248</a>                     fVal = optimum.getValue();
+<a class="jxr_linenumber" name="L249" href="PowellOptimizer.html#L249">249</a>                     alphaMin = optimum.getPoint();
+<a class="jxr_linenumber" name="L250" href="PowellOptimizer.html#L250">250</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] result = newPointAndDirection(x, d, alphaMin);
+<a class="jxr_linenumber" name="L251" href="PowellOptimizer.html#L251">251</a>                     x = result[0];
+<a class="jxr_linenumber" name="L252" href="PowellOptimizer.html#L252">252</a> 
+<a class="jxr_linenumber" name="L253" href="PowellOptimizer.html#L253">253</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> lastInd = n - 1;
+<a class="jxr_linenumber" name="L254" href="PowellOptimizer.html#L254">254</a>                     direc[bigInd] = direc[lastInd];
+<a class="jxr_linenumber" name="L255" href="PowellOptimizer.html#L255">255</a>                     direc[lastInd] = result[1];
+<a class="jxr_linenumber" name="L256" href="PowellOptimizer.html#L256">256</a>                 }
+<a class="jxr_linenumber" name="L257" href="PowellOptimizer.html#L257">257</a>             }
+<a class="jxr_linenumber" name="L258" href="PowellOptimizer.html#L258">258</a>         }
+<a class="jxr_linenumber" name="L259" href="PowellOptimizer.html#L259">259</a>     }
+<a class="jxr_linenumber" name="L260" href="PowellOptimizer.html#L260">260</a> 
+<a class="jxr_linenumber" name="L261" href="PowellOptimizer.html#L261">261</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L262" href="PowellOptimizer.html#L262">262</a> <em class="jxr_javadoccomment">     * Compute a new point (in the original space) and a new direction</em>
+<a class="jxr_linenumber" name="L263" href="PowellOptimizer.html#L263">263</a> <em class="jxr_javadoccomment">     * vector, resulting from the line search.</em>
+<a class="jxr_linenumber" name="L264" href="PowellOptimizer.html#L264">264</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L265" href="PowellOptimizer.html#L265">265</a> <em class="jxr_javadoccomment">     * @param p Point used in the line search.</em>
+<a class="jxr_linenumber" name="L266" href="PowellOptimizer.html#L266">266</a> <em class="jxr_javadoccomment">     * @param d Direction used in the line search.</em>
+<a class="jxr_linenumber" name="L267" href="PowellOptimizer.html#L267">267</a> <em class="jxr_javadoccomment">     * @param optimum Optimum found by the line search.</em>
+<a class="jxr_linenumber" name="L268" href="PowellOptimizer.html#L268">268</a> <em class="jxr_javadoccomment">     * @return a 2-element array containing the new point (at index 0) and</em>
+<a class="jxr_linenumber" name="L269" href="PowellOptimizer.html#L269">269</a> <em class="jxr_javadoccomment">     * the new direction (at index 1).</em>
+<a class="jxr_linenumber" name="L270" href="PowellOptimizer.html#L270">270</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L271" href="PowellOptimizer.html#L271">271</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[][] newPointAndDirection(<strong class="jxr_keyword">double</strong>[] p,
+<a class="jxr_linenumber" name="L272" href="PowellOptimizer.html#L272">272</a>                                             <strong class="jxr_keyword">double</strong>[] d,
+<a class="jxr_linenumber" name="L273" href="PowellOptimizer.html#L273">273</a>                                             <strong class="jxr_keyword">double</strong> optimum) {
+<a class="jxr_linenumber" name="L274" href="PowellOptimizer.html#L274">274</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = p.length;
+<a class="jxr_linenumber" name="L275" href="PowellOptimizer.html#L275">275</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] nP = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n];
+<a class="jxr_linenumber" name="L276" href="PowellOptimizer.html#L276">276</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] nD = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n];
+<a class="jxr_linenumber" name="L277" href="PowellOptimizer.html#L277">277</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L278" href="PowellOptimizer.html#L278">278</a>             nD[i] = d[i] * optimum;
+<a class="jxr_linenumber" name="L279" href="PowellOptimizer.html#L279">279</a>             nP[i] = p[i] + nD[i];
+<a class="jxr_linenumber" name="L280" href="PowellOptimizer.html#L280">280</a>         }
+<a class="jxr_linenumber" name="L281" href="PowellOptimizer.html#L281">281</a> 
+<a class="jxr_linenumber" name="L282" href="PowellOptimizer.html#L282">282</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] result = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[2][];
+<a class="jxr_linenumber" name="L283" href="PowellOptimizer.html#L283">283</a>         result[0] = nP;
+<a class="jxr_linenumber" name="L284" href="PowellOptimizer.html#L284">284</a>         result[1] = nD;
+<a class="jxr_linenumber" name="L285" href="PowellOptimizer.html#L285">285</a> 
+<a class="jxr_linenumber" name="L286" href="PowellOptimizer.html#L286">286</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L287" href="PowellOptimizer.html#L287">287</a>     }
+<a class="jxr_linenumber" name="L288" href="PowellOptimizer.html#L288">288</a> 
+<a class="jxr_linenumber" name="L289" href="PowellOptimizer.html#L289">289</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L290" href="PowellOptimizer.html#L290">290</a> <em class="jxr_javadoccomment">     * @throws MathUnsupportedOperationException if bounds were passed to the</em>
+<a class="jxr_linenumber" name="L291" href="PowellOptimizer.html#L291">291</a> <em class="jxr_javadoccomment">     * {@link #optimize(OptimizationData[]) optimize} method.</em>
+<a class="jxr_linenumber" name="L292" href="PowellOptimizer.html#L292">292</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L293" href="PowellOptimizer.html#L293">293</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> checkParameters() {
+<a class="jxr_linenumber" name="L294" href="PowellOptimizer.html#L294">294</a>         <strong class="jxr_keyword">if</strong> (getLowerBound() != <strong class="jxr_keyword">null</strong> ||
+<a class="jxr_linenumber" name="L295" href="PowellOptimizer.html#L295">295</a>             getUpperBound() != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L296" href="PowellOptimizer.html#L296">296</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../exception/MathUnsupportedOperationException.html">MathUnsupportedOperationException</a>(LocalizedFormats.CONSTRAINT);
+<a class="jxr_linenumber" name="L297" href="PowellOptimizer.html#L297">297</a>         }
+<a class="jxr_linenumber" name="L298" href="PowellOptimizer.html#L298">298</a>     }
+<a class="jxr_linenumber" name="L299" href="PowellOptimizer.html#L299">299</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

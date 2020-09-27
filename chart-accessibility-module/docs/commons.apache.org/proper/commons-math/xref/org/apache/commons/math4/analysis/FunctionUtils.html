@@ -1,0 +1,557 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>FunctionUtils xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/analysis/FunctionUtils.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="FunctionUtils.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="FunctionUtils.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="FunctionUtils.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="FunctionUtils.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="FunctionUtils.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="FunctionUtils.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="FunctionUtils.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="FunctionUtils.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="FunctionUtils.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="FunctionUtils.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="FunctionUtils.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="FunctionUtils.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="FunctionUtils.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="FunctionUtils.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="FunctionUtils.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="FunctionUtils.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="FunctionUtils.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="FunctionUtils.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis;
+<a class="jxr_linenumber" name="L19" href="FunctionUtils.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="FunctionUtils.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.differentiation.DerivativeStructure;
+<a class="jxr_linenumber" name="L21" href="FunctionUtils.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.differentiation.MultivariateDifferentiableFunction;
+<a class="jxr_linenumber" name="L22" href="FunctionUtils.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.differentiation.UnivariateDifferentiableFunction;
+<a class="jxr_linenumber" name="L23" href="FunctionUtils.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.function.Identity;
+<a class="jxr_linenumber" name="L24" href="FunctionUtils.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L25" href="FunctionUtils.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L26" href="FunctionUtils.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooLargeException;
+<a class="jxr_linenumber" name="L27" href="FunctionUtils.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L28" href="FunctionUtils.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L29" href="FunctionUtils.html#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="FunctionUtils.html#L30">30</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L31" href="FunctionUtils.html#L31">31</a>  <em class="jxr_javadoccomment"> * Utilities for manipulating function objects.</em>
+<a class="jxr_linenumber" name="L32" href="FunctionUtils.html#L32">32</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L33" href="FunctionUtils.html#L33">33</a>  <em class="jxr_javadoccomment"> * @since 3.0</em>
+<a class="jxr_linenumber" name="L34" href="FunctionUtils.html#L34">34</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L35" href="FunctionUtils.html#L35">35</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="FunctionUtils.html">FunctionUtils</a> {
+<a class="jxr_linenumber" name="L36" href="FunctionUtils.html#L36">36</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L37" href="FunctionUtils.html#L37">37</a>  <em class="jxr_javadoccomment">     * Class only contains static methods.</em>
+<a class="jxr_linenumber" name="L38" href="FunctionUtils.html#L38">38</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L39" href="FunctionUtils.html#L39">39</a>      <strong class="jxr_keyword">private</strong> <a href="FunctionUtils.html">FunctionUtils</a>() {}
+<a class="jxr_linenumber" name="L40" href="FunctionUtils.html#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="FunctionUtils.html#L41">41</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L42" href="FunctionUtils.html#L42">42</a>  <em class="jxr_javadoccomment">     * Composes functions.</em>
+<a class="jxr_linenumber" name="L43" href="FunctionUtils.html#L43">43</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L44" href="FunctionUtils.html#L44">44</a>  <em class="jxr_javadoccomment">     * The functions in the argument list are composed sequentially, in the</em>
+<a class="jxr_linenumber" name="L45" href="FunctionUtils.html#L45">45</a>  <em class="jxr_javadoccomment">     * given order.  For example, compose(f1,f2,f3) acts like f1(f2(f3(x))).&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L46" href="FunctionUtils.html#L46">46</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L47" href="FunctionUtils.html#L47">47</a>  <em class="jxr_javadoccomment">     * @param f List of functions.</em>
+<a class="jxr_linenumber" name="L48" href="FunctionUtils.html#L48">48</a>  <em class="jxr_javadoccomment">     * @return the composite function.</em>
+<a class="jxr_linenumber" name="L49" href="FunctionUtils.html#L49">49</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L50" href="FunctionUtils.html#L50">50</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="UnivariateFunction.html">UnivariateFunction</a> compose(<strong class="jxr_keyword">final</strong> <a href="UnivariateFunction.html">UnivariateFunction</a> ... f) {
+<a class="jxr_linenumber" name="L51" href="FunctionUtils.html#L51">51</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="UnivariateFunction.html">UnivariateFunction</a>() {
+<a class="jxr_linenumber" name="L52" href="FunctionUtils.html#L52">52</a>              <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L53" href="FunctionUtils.html#L53">53</a>              @Override
+<a class="jxr_linenumber" name="L54" href="FunctionUtils.html#L54">54</a>              <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L55" href="FunctionUtils.html#L55">55</a>                  <strong class="jxr_keyword">double</strong> r = x;
+<a class="jxr_linenumber" name="L56" href="FunctionUtils.html#L56">56</a>                  <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = f.length - 1; i &gt;= 0; i--) {
+<a class="jxr_linenumber" name="L57" href="FunctionUtils.html#L57">57</a>                      r = f[i].value(r);
+<a class="jxr_linenumber" name="L58" href="FunctionUtils.html#L58">58</a>                  }
+<a class="jxr_linenumber" name="L59" href="FunctionUtils.html#L59">59</a>                  <strong class="jxr_keyword">return</strong> r;
+<a class="jxr_linenumber" name="L60" href="FunctionUtils.html#L60">60</a>              }
+<a class="jxr_linenumber" name="L61" href="FunctionUtils.html#L61">61</a>          };
+<a class="jxr_linenumber" name="L62" href="FunctionUtils.html#L62">62</a>      }
+<a class="jxr_linenumber" name="L63" href="FunctionUtils.html#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="FunctionUtils.html#L64">64</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L65" href="FunctionUtils.html#L65">65</a>  <em class="jxr_javadoccomment">     * Composes functions.</em>
+<a class="jxr_linenumber" name="L66" href="FunctionUtils.html#L66">66</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L67" href="FunctionUtils.html#L67">67</a>  <em class="jxr_javadoccomment">     * The functions in the argument list are composed sequentially, in the</em>
+<a class="jxr_linenumber" name="L68" href="FunctionUtils.html#L68">68</a>  <em class="jxr_javadoccomment">     * given order.  For example, compose(f1,f2,f3) acts like f1(f2(f3(x))).&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L69" href="FunctionUtils.html#L69">69</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L70" href="FunctionUtils.html#L70">70</a>  <em class="jxr_javadoccomment">     * @param f List of functions.</em>
+<a class="jxr_linenumber" name="L71" href="FunctionUtils.html#L71">71</a>  <em class="jxr_javadoccomment">     * @return the composite function.</em>
+<a class="jxr_linenumber" name="L72" href="FunctionUtils.html#L72">72</a>  <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L73" href="FunctionUtils.html#L73">73</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L74" href="FunctionUtils.html#L74">74</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="differentiation/UnivariateDifferentiableFunction.html">UnivariateDifferentiableFunction</a> compose(<strong class="jxr_keyword">final</strong> <a href="differentiation/UnivariateDifferentiableFunction.html">UnivariateDifferentiableFunction</a> ... f) {
+<a class="jxr_linenumber" name="L75" href="FunctionUtils.html#L75">75</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="differentiation/UnivariateDifferentiableFunction.html">UnivariateDifferentiableFunction</a>() {
+<a class="jxr_linenumber" name="L76" href="FunctionUtils.html#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="FunctionUtils.html#L77">77</a>              <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L78" href="FunctionUtils.html#L78">78</a>              @Override
+<a class="jxr_linenumber" name="L79" href="FunctionUtils.html#L79">79</a>              <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> t) {
+<a class="jxr_linenumber" name="L80" href="FunctionUtils.html#L80">80</a>                  <strong class="jxr_keyword">double</strong> r = t;
+<a class="jxr_linenumber" name="L81" href="FunctionUtils.html#L81">81</a>                  <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = f.length - 1; i &gt;= 0; i--) {
+<a class="jxr_linenumber" name="L82" href="FunctionUtils.html#L82">82</a>                      r = f[i].value(r);
+<a class="jxr_linenumber" name="L83" href="FunctionUtils.html#L83">83</a>                  }
+<a class="jxr_linenumber" name="L84" href="FunctionUtils.html#L84">84</a>                  <strong class="jxr_keyword">return</strong> r;
+<a class="jxr_linenumber" name="L85" href="FunctionUtils.html#L85">85</a>              }
+<a class="jxr_linenumber" name="L86" href="FunctionUtils.html#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="FunctionUtils.html#L87">87</a>              <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L88" href="FunctionUtils.html#L88">88</a>              @Override
+<a class="jxr_linenumber" name="L89" href="FunctionUtils.html#L89">89</a>              <strong class="jxr_keyword">public</strong> <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a> value(<strong class="jxr_keyword">final</strong> <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a> t) {
+<a class="jxr_linenumber" name="L90" href="FunctionUtils.html#L90">90</a>                  <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a> r = t;
+<a class="jxr_linenumber" name="L91" href="FunctionUtils.html#L91">91</a>                  <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = f.length - 1; i &gt;= 0; i--) {
+<a class="jxr_linenumber" name="L92" href="FunctionUtils.html#L92">92</a>                      r = f[i].value(r);
+<a class="jxr_linenumber" name="L93" href="FunctionUtils.html#L93">93</a>                  }
+<a class="jxr_linenumber" name="L94" href="FunctionUtils.html#L94">94</a>                  <strong class="jxr_keyword">return</strong> r;
+<a class="jxr_linenumber" name="L95" href="FunctionUtils.html#L95">95</a>              }
+<a class="jxr_linenumber" name="L96" href="FunctionUtils.html#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="FunctionUtils.html#L97">97</a>          };
+<a class="jxr_linenumber" name="L98" href="FunctionUtils.html#L98">98</a>      }
+<a class="jxr_linenumber" name="L99" href="FunctionUtils.html#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="FunctionUtils.html#L100">100</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L101" href="FunctionUtils.html#L101">101</a> <em class="jxr_javadoccomment">     * Adds functions.</em>
+<a class="jxr_linenumber" name="L102" href="FunctionUtils.html#L102">102</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L103" href="FunctionUtils.html#L103">103</a> <em class="jxr_javadoccomment">     * @param f List of functions.</em>
+<a class="jxr_linenumber" name="L104" href="FunctionUtils.html#L104">104</a> <em class="jxr_javadoccomment">     * @return a function that computes the sum of the functions.</em>
+<a class="jxr_linenumber" name="L105" href="FunctionUtils.html#L105">105</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L106" href="FunctionUtils.html#L106">106</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="UnivariateFunction.html">UnivariateFunction</a> add(<strong class="jxr_keyword">final</strong> <a href="UnivariateFunction.html">UnivariateFunction</a> ... f) {
+<a class="jxr_linenumber" name="L107" href="FunctionUtils.html#L107">107</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="UnivariateFunction.html">UnivariateFunction</a>() {
+<a class="jxr_linenumber" name="L108" href="FunctionUtils.html#L108">108</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L109" href="FunctionUtils.html#L109">109</a>             @Override
+<a class="jxr_linenumber" name="L110" href="FunctionUtils.html#L110">110</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L111" href="FunctionUtils.html#L111">111</a>                 <strong class="jxr_keyword">double</strong> r = f[0].value(x);
+<a class="jxr_linenumber" name="L112" href="FunctionUtils.html#L112">112</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; f.length; i++) {
+<a class="jxr_linenumber" name="L113" href="FunctionUtils.html#L113">113</a>                     r += f[i].value(x);
+<a class="jxr_linenumber" name="L114" href="FunctionUtils.html#L114">114</a>                 }
+<a class="jxr_linenumber" name="L115" href="FunctionUtils.html#L115">115</a>                 <strong class="jxr_keyword">return</strong> r;
+<a class="jxr_linenumber" name="L116" href="FunctionUtils.html#L116">116</a>             }
+<a class="jxr_linenumber" name="L117" href="FunctionUtils.html#L117">117</a>         };
+<a class="jxr_linenumber" name="L118" href="FunctionUtils.html#L118">118</a>     }
+<a class="jxr_linenumber" name="L119" href="FunctionUtils.html#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="FunctionUtils.html#L120">120</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L121" href="FunctionUtils.html#L121">121</a> <em class="jxr_javadoccomment">     * Adds functions.</em>
+<a class="jxr_linenumber" name="L122" href="FunctionUtils.html#L122">122</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L123" href="FunctionUtils.html#L123">123</a> <em class="jxr_javadoccomment">     * @param f List of functions.</em>
+<a class="jxr_linenumber" name="L124" href="FunctionUtils.html#L124">124</a> <em class="jxr_javadoccomment">     * @return a function that computes the sum of the functions.</em>
+<a class="jxr_linenumber" name="L125" href="FunctionUtils.html#L125">125</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L126" href="FunctionUtils.html#L126">126</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L127" href="FunctionUtils.html#L127">127</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="differentiation/UnivariateDifferentiableFunction.html">UnivariateDifferentiableFunction</a> add(<strong class="jxr_keyword">final</strong> <a href="differentiation/UnivariateDifferentiableFunction.html">UnivariateDifferentiableFunction</a> ... f) {
+<a class="jxr_linenumber" name="L128" href="FunctionUtils.html#L128">128</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="differentiation/UnivariateDifferentiableFunction.html">UnivariateDifferentiableFunction</a>() {
+<a class="jxr_linenumber" name="L129" href="FunctionUtils.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="FunctionUtils.html#L130">130</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L131" href="FunctionUtils.html#L131">131</a>             @Override
+<a class="jxr_linenumber" name="L132" href="FunctionUtils.html#L132">132</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> t) {
+<a class="jxr_linenumber" name="L133" href="FunctionUtils.html#L133">133</a>                 <strong class="jxr_keyword">double</strong> r = f[0].value(t);
+<a class="jxr_linenumber" name="L134" href="FunctionUtils.html#L134">134</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; f.length; i++) {
+<a class="jxr_linenumber" name="L135" href="FunctionUtils.html#L135">135</a>                     r += f[i].value(t);
+<a class="jxr_linenumber" name="L136" href="FunctionUtils.html#L136">136</a>                 }
+<a class="jxr_linenumber" name="L137" href="FunctionUtils.html#L137">137</a>                 <strong class="jxr_keyword">return</strong> r;
+<a class="jxr_linenumber" name="L138" href="FunctionUtils.html#L138">138</a>             }
+<a class="jxr_linenumber" name="L139" href="FunctionUtils.html#L139">139</a> 
+<a class="jxr_linenumber" name="L140" href="FunctionUtils.html#L140">140</a>             <em class="jxr_javadoccomment">/** {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L141" href="FunctionUtils.html#L141">141</a> <em class="jxr_javadoccomment">             * @throws DimensionMismatchException if functions are not consistent with each other</em>
+<a class="jxr_linenumber" name="L142" href="FunctionUtils.html#L142">142</a> <em class="jxr_javadoccomment">             */</em>
+<a class="jxr_linenumber" name="L143" href="FunctionUtils.html#L143">143</a>             @Override
+<a class="jxr_linenumber" name="L144" href="FunctionUtils.html#L144">144</a>             <strong class="jxr_keyword">public</strong> <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a> value(<strong class="jxr_keyword">final</strong> <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a> t)
+<a class="jxr_linenumber" name="L145" href="FunctionUtils.html#L145">145</a>                 <strong class="jxr_keyword">throws</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a> {
+<a class="jxr_linenumber" name="L146" href="FunctionUtils.html#L146">146</a>                 <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a> r = f[0].value(t);
+<a class="jxr_linenumber" name="L147" href="FunctionUtils.html#L147">147</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; f.length; i++) {
+<a class="jxr_linenumber" name="L148" href="FunctionUtils.html#L148">148</a>                     r = r.add(f[i].value(t));
+<a class="jxr_linenumber" name="L149" href="FunctionUtils.html#L149">149</a>                 }
+<a class="jxr_linenumber" name="L150" href="FunctionUtils.html#L150">150</a>                 <strong class="jxr_keyword">return</strong> r;
+<a class="jxr_linenumber" name="L151" href="FunctionUtils.html#L151">151</a>             }
+<a class="jxr_linenumber" name="L152" href="FunctionUtils.html#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="FunctionUtils.html#L153">153</a>         };
+<a class="jxr_linenumber" name="L154" href="FunctionUtils.html#L154">154</a>     }
+<a class="jxr_linenumber" name="L155" href="FunctionUtils.html#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="FunctionUtils.html#L156">156</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L157" href="FunctionUtils.html#L157">157</a> <em class="jxr_javadoccomment">     * Multiplies functions.</em>
+<a class="jxr_linenumber" name="L158" href="FunctionUtils.html#L158">158</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L159" href="FunctionUtils.html#L159">159</a> <em class="jxr_javadoccomment">     * @param f List of functions.</em>
+<a class="jxr_linenumber" name="L160" href="FunctionUtils.html#L160">160</a> <em class="jxr_javadoccomment">     * @return a function that computes the product of the functions.</em>
+<a class="jxr_linenumber" name="L161" href="FunctionUtils.html#L161">161</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L162" href="FunctionUtils.html#L162">162</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="UnivariateFunction.html">UnivariateFunction</a> multiply(<strong class="jxr_keyword">final</strong> <a href="UnivariateFunction.html">UnivariateFunction</a> ... f) {
+<a class="jxr_linenumber" name="L163" href="FunctionUtils.html#L163">163</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="UnivariateFunction.html">UnivariateFunction</a>() {
+<a class="jxr_linenumber" name="L164" href="FunctionUtils.html#L164">164</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L165" href="FunctionUtils.html#L165">165</a>             @Override
+<a class="jxr_linenumber" name="L166" href="FunctionUtils.html#L166">166</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L167" href="FunctionUtils.html#L167">167</a>                 <strong class="jxr_keyword">double</strong> r = f[0].value(x);
+<a class="jxr_linenumber" name="L168" href="FunctionUtils.html#L168">168</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; f.length; i++) {
+<a class="jxr_linenumber" name="L169" href="FunctionUtils.html#L169">169</a>                     r *= f[i].value(x);
+<a class="jxr_linenumber" name="L170" href="FunctionUtils.html#L170">170</a>                 }
+<a class="jxr_linenumber" name="L171" href="FunctionUtils.html#L171">171</a>                 <strong class="jxr_keyword">return</strong> r;
+<a class="jxr_linenumber" name="L172" href="FunctionUtils.html#L172">172</a>             }
+<a class="jxr_linenumber" name="L173" href="FunctionUtils.html#L173">173</a>         };
+<a class="jxr_linenumber" name="L174" href="FunctionUtils.html#L174">174</a>     }
+<a class="jxr_linenumber" name="L175" href="FunctionUtils.html#L175">175</a> 
+<a class="jxr_linenumber" name="L176" href="FunctionUtils.html#L176">176</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L177" href="FunctionUtils.html#L177">177</a> <em class="jxr_javadoccomment">     * Multiplies functions.</em>
+<a class="jxr_linenumber" name="L178" href="FunctionUtils.html#L178">178</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L179" href="FunctionUtils.html#L179">179</a> <em class="jxr_javadoccomment">     * @param f List of functions.</em>
+<a class="jxr_linenumber" name="L180" href="FunctionUtils.html#L180">180</a> <em class="jxr_javadoccomment">     * @return a function that computes the product of the functions.</em>
+<a class="jxr_linenumber" name="L181" href="FunctionUtils.html#L181">181</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L182" href="FunctionUtils.html#L182">182</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L183" href="FunctionUtils.html#L183">183</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="differentiation/UnivariateDifferentiableFunction.html">UnivariateDifferentiableFunction</a> multiply(<strong class="jxr_keyword">final</strong> <a href="differentiation/UnivariateDifferentiableFunction.html">UnivariateDifferentiableFunction</a> ... f) {
+<a class="jxr_linenumber" name="L184" href="FunctionUtils.html#L184">184</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="differentiation/UnivariateDifferentiableFunction.html">UnivariateDifferentiableFunction</a>() {
+<a class="jxr_linenumber" name="L185" href="FunctionUtils.html#L185">185</a> 
+<a class="jxr_linenumber" name="L186" href="FunctionUtils.html#L186">186</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L187" href="FunctionUtils.html#L187">187</a>             @Override
+<a class="jxr_linenumber" name="L188" href="FunctionUtils.html#L188">188</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> t) {
+<a class="jxr_linenumber" name="L189" href="FunctionUtils.html#L189">189</a>                 <strong class="jxr_keyword">double</strong> r = f[0].value(t);
+<a class="jxr_linenumber" name="L190" href="FunctionUtils.html#L190">190</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; f.length; i++) {
+<a class="jxr_linenumber" name="L191" href="FunctionUtils.html#L191">191</a>                     r  *= f[i].value(t);
+<a class="jxr_linenumber" name="L192" href="FunctionUtils.html#L192">192</a>                 }
+<a class="jxr_linenumber" name="L193" href="FunctionUtils.html#L193">193</a>                 <strong class="jxr_keyword">return</strong> r;
+<a class="jxr_linenumber" name="L194" href="FunctionUtils.html#L194">194</a>             }
+<a class="jxr_linenumber" name="L195" href="FunctionUtils.html#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="FunctionUtils.html#L196">196</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L197" href="FunctionUtils.html#L197">197</a>             @Override
+<a class="jxr_linenumber" name="L198" href="FunctionUtils.html#L198">198</a>             <strong class="jxr_keyword">public</strong> <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a> value(<strong class="jxr_keyword">final</strong> <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a> t) {
+<a class="jxr_linenumber" name="L199" href="FunctionUtils.html#L199">199</a>                 <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a> r = f[0].value(t);
+<a class="jxr_linenumber" name="L200" href="FunctionUtils.html#L200">200</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; f.length; i++) {
+<a class="jxr_linenumber" name="L201" href="FunctionUtils.html#L201">201</a>                     r = r.multiply(f[i].value(t));
+<a class="jxr_linenumber" name="L202" href="FunctionUtils.html#L202">202</a>                 }
+<a class="jxr_linenumber" name="L203" href="FunctionUtils.html#L203">203</a>                 <strong class="jxr_keyword">return</strong> r;
+<a class="jxr_linenumber" name="L204" href="FunctionUtils.html#L204">204</a>             }
+<a class="jxr_linenumber" name="L205" href="FunctionUtils.html#L205">205</a> 
+<a class="jxr_linenumber" name="L206" href="FunctionUtils.html#L206">206</a>         };
+<a class="jxr_linenumber" name="L207" href="FunctionUtils.html#L207">207</a>     }
+<a class="jxr_linenumber" name="L208" href="FunctionUtils.html#L208">208</a> 
+<a class="jxr_linenumber" name="L209" href="FunctionUtils.html#L209">209</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L210" href="FunctionUtils.html#L210">210</a> <em class="jxr_javadoccomment">     * Returns the univariate function</em>
+<a class="jxr_linenumber" name="L211" href="FunctionUtils.html#L211">211</a> <em class="jxr_javadoccomment">     * {@code h(x) = combiner(f(x), g(x)).}</em>
+<a class="jxr_linenumber" name="L212" href="FunctionUtils.html#L212">212</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L213" href="FunctionUtils.html#L213">213</a> <em class="jxr_javadoccomment">     * @param combiner Combiner function.</em>
+<a class="jxr_linenumber" name="L214" href="FunctionUtils.html#L214">214</a> <em class="jxr_javadoccomment">     * @param f Function.</em>
+<a class="jxr_linenumber" name="L215" href="FunctionUtils.html#L215">215</a> <em class="jxr_javadoccomment">     * @param g Function.</em>
+<a class="jxr_linenumber" name="L216" href="FunctionUtils.html#L216">216</a> <em class="jxr_javadoccomment">     * @return the composite function.</em>
+<a class="jxr_linenumber" name="L217" href="FunctionUtils.html#L217">217</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L218" href="FunctionUtils.html#L218">218</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="UnivariateFunction.html">UnivariateFunction</a> combine(<strong class="jxr_keyword">final</strong> <a href="BivariateFunction.html">BivariateFunction</a> combiner,
+<a class="jxr_linenumber" name="L219" href="FunctionUtils.html#L219">219</a>                                              <strong class="jxr_keyword">final</strong> <a href="UnivariateFunction.html">UnivariateFunction</a> f,
+<a class="jxr_linenumber" name="L220" href="FunctionUtils.html#L220">220</a>                                              <strong class="jxr_keyword">final</strong> <a href="UnivariateFunction.html">UnivariateFunction</a> g) {
+<a class="jxr_linenumber" name="L221" href="FunctionUtils.html#L221">221</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="UnivariateFunction.html">UnivariateFunction</a>() {
+<a class="jxr_linenumber" name="L222" href="FunctionUtils.html#L222">222</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L223" href="FunctionUtils.html#L223">223</a>             @Override
+<a class="jxr_linenumber" name="L224" href="FunctionUtils.html#L224">224</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L225" href="FunctionUtils.html#L225">225</a>                 <strong class="jxr_keyword">return</strong> combiner.value(f.value(x), g.value(x));
+<a class="jxr_linenumber" name="L226" href="FunctionUtils.html#L226">226</a>             }
+<a class="jxr_linenumber" name="L227" href="FunctionUtils.html#L227">227</a>         };
+<a class="jxr_linenumber" name="L228" href="FunctionUtils.html#L228">228</a>     }
+<a class="jxr_linenumber" name="L229" href="FunctionUtils.html#L229">229</a> 
+<a class="jxr_linenumber" name="L230" href="FunctionUtils.html#L230">230</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L231" href="FunctionUtils.html#L231">231</a> <em class="jxr_javadoccomment">     * Returns a MultivariateFunction h(x[]) defined by &lt;pre&gt; &lt;code&gt;</em>
+<a class="jxr_linenumber" name="L232" href="FunctionUtils.html#L232">232</a> <em class="jxr_javadoccomment">     * h(x[]) = combiner(...combiner(combiner(initialValue,f(x[0])),f(x[1]))...),f(x[x.length-1]))</em>
+<a class="jxr_linenumber" name="L233" href="FunctionUtils.html#L233">233</a> <em class="jxr_javadoccomment">     * &lt;/code&gt;&lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L234" href="FunctionUtils.html#L234">234</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L235" href="FunctionUtils.html#L235">235</a> <em class="jxr_javadoccomment">     * @param combiner Combiner function.</em>
+<a class="jxr_linenumber" name="L236" href="FunctionUtils.html#L236">236</a> <em class="jxr_javadoccomment">     * @param f Function.</em>
+<a class="jxr_linenumber" name="L237" href="FunctionUtils.html#L237">237</a> <em class="jxr_javadoccomment">     * @param initialValue Initial value.</em>
+<a class="jxr_linenumber" name="L238" href="FunctionUtils.html#L238">238</a> <em class="jxr_javadoccomment">     * @return a collector function.</em>
+<a class="jxr_linenumber" name="L239" href="FunctionUtils.html#L239">239</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L240" href="FunctionUtils.html#L240">240</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="MultivariateFunction.html">MultivariateFunction</a> collector(<strong class="jxr_keyword">final</strong> <a href="BivariateFunction.html">BivariateFunction</a> combiner,
+<a class="jxr_linenumber" name="L241" href="FunctionUtils.html#L241">241</a>                                                  <strong class="jxr_keyword">final</strong> <a href="UnivariateFunction.html">UnivariateFunction</a> f,
+<a class="jxr_linenumber" name="L242" href="FunctionUtils.html#L242">242</a>                                                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> initialValue) {
+<a class="jxr_linenumber" name="L243" href="FunctionUtils.html#L243">243</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="MultivariateFunction.html">MultivariateFunction</a>() {
+<a class="jxr_linenumber" name="L244" href="FunctionUtils.html#L244">244</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L245" href="FunctionUtils.html#L245">245</a>             @Override
+<a class="jxr_linenumber" name="L246" href="FunctionUtils.html#L246">246</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong>[] point) {
+<a class="jxr_linenumber" name="L247" href="FunctionUtils.html#L247">247</a>                 <strong class="jxr_keyword">double</strong> result = combiner.value(initialValue, f.value(point[0]));
+<a class="jxr_linenumber" name="L248" href="FunctionUtils.html#L248">248</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; point.length; i++) {
+<a class="jxr_linenumber" name="L249" href="FunctionUtils.html#L249">249</a>                     result = combiner.value(result, f.value(point[i]));
+<a class="jxr_linenumber" name="L250" href="FunctionUtils.html#L250">250</a>                 }
+<a class="jxr_linenumber" name="L251" href="FunctionUtils.html#L251">251</a>                 <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L252" href="FunctionUtils.html#L252">252</a>             }
+<a class="jxr_linenumber" name="L253" href="FunctionUtils.html#L253">253</a>         };
+<a class="jxr_linenumber" name="L254" href="FunctionUtils.html#L254">254</a>     }
+<a class="jxr_linenumber" name="L255" href="FunctionUtils.html#L255">255</a> 
+<a class="jxr_linenumber" name="L256" href="FunctionUtils.html#L256">256</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L257" href="FunctionUtils.html#L257">257</a> <em class="jxr_javadoccomment">     * Returns a MultivariateFunction h(x[]) defined by &lt;pre&gt; &lt;code&gt;</em>
+<a class="jxr_linenumber" name="L258" href="FunctionUtils.html#L258">258</a> <em class="jxr_javadoccomment">     * h(x[]) = combiner(...combiner(combiner(initialValue,x[0]),x[1])...),x[x.length-1])</em>
+<a class="jxr_linenumber" name="L259" href="FunctionUtils.html#L259">259</a> <em class="jxr_javadoccomment">     * &lt;/code&gt;&lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L260" href="FunctionUtils.html#L260">260</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L261" href="FunctionUtils.html#L261">261</a> <em class="jxr_javadoccomment">     * @param combiner Combiner function.</em>
+<a class="jxr_linenumber" name="L262" href="FunctionUtils.html#L262">262</a> <em class="jxr_javadoccomment">     * @param initialValue Initial value.</em>
+<a class="jxr_linenumber" name="L263" href="FunctionUtils.html#L263">263</a> <em class="jxr_javadoccomment">     * @return a collector function.</em>
+<a class="jxr_linenumber" name="L264" href="FunctionUtils.html#L264">264</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L265" href="FunctionUtils.html#L265">265</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="MultivariateFunction.html">MultivariateFunction</a> collector(<strong class="jxr_keyword">final</strong> <a href="BivariateFunction.html">BivariateFunction</a> combiner,
+<a class="jxr_linenumber" name="L266" href="FunctionUtils.html#L266">266</a>                                                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> initialValue) {
+<a class="jxr_linenumber" name="L267" href="FunctionUtils.html#L267">267</a>         <strong class="jxr_keyword">return</strong> collector(combiner, <strong class="jxr_keyword">new</strong> <a href="function/Identity.html">Identity</a>(), initialValue);
+<a class="jxr_linenumber" name="L268" href="FunctionUtils.html#L268">268</a>     }
+<a class="jxr_linenumber" name="L269" href="FunctionUtils.html#L269">269</a> 
+<a class="jxr_linenumber" name="L270" href="FunctionUtils.html#L270">270</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L271" href="FunctionUtils.html#L271">271</a> <em class="jxr_javadoccomment">     * Creates a unary function by fixing the first argument of a binary function.</em>
+<a class="jxr_linenumber" name="L272" href="FunctionUtils.html#L272">272</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L273" href="FunctionUtils.html#L273">273</a> <em class="jxr_javadoccomment">     * @param f Binary function.</em>
+<a class="jxr_linenumber" name="L274" href="FunctionUtils.html#L274">274</a> <em class="jxr_javadoccomment">     * @param fixed value to which the first argument of {@code f} is set.</em>
+<a class="jxr_linenumber" name="L275" href="FunctionUtils.html#L275">275</a> <em class="jxr_javadoccomment">     * @return the unary function h(x) = f(fixed, x)</em>
+<a class="jxr_linenumber" name="L276" href="FunctionUtils.html#L276">276</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L277" href="FunctionUtils.html#L277">277</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="UnivariateFunction.html">UnivariateFunction</a> fix1stArgument(<strong class="jxr_keyword">final</strong> <a href="BivariateFunction.html">BivariateFunction</a> f,
+<a class="jxr_linenumber" name="L278" href="FunctionUtils.html#L278">278</a>                                                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> fixed) {
+<a class="jxr_linenumber" name="L279" href="FunctionUtils.html#L279">279</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="UnivariateFunction.html">UnivariateFunction</a>() {
+<a class="jxr_linenumber" name="L280" href="FunctionUtils.html#L280">280</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L281" href="FunctionUtils.html#L281">281</a>             @Override
+<a class="jxr_linenumber" name="L282" href="FunctionUtils.html#L282">282</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L283" href="FunctionUtils.html#L283">283</a>                 <strong class="jxr_keyword">return</strong> f.value(fixed, x);
+<a class="jxr_linenumber" name="L284" href="FunctionUtils.html#L284">284</a>             }
+<a class="jxr_linenumber" name="L285" href="FunctionUtils.html#L285">285</a>         };
+<a class="jxr_linenumber" name="L286" href="FunctionUtils.html#L286">286</a>     }
+<a class="jxr_linenumber" name="L287" href="FunctionUtils.html#L287">287</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L288" href="FunctionUtils.html#L288">288</a> <em class="jxr_javadoccomment">     * Creates a unary function by fixing the second argument of a binary function.</em>
+<a class="jxr_linenumber" name="L289" href="FunctionUtils.html#L289">289</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L290" href="FunctionUtils.html#L290">290</a> <em class="jxr_javadoccomment">     * @param f Binary function.</em>
+<a class="jxr_linenumber" name="L291" href="FunctionUtils.html#L291">291</a> <em class="jxr_javadoccomment">     * @param fixed value to which the second argument of {@code f} is set.</em>
+<a class="jxr_linenumber" name="L292" href="FunctionUtils.html#L292">292</a> <em class="jxr_javadoccomment">     * @return the unary function h(x) = f(x, fixed)</em>
+<a class="jxr_linenumber" name="L293" href="FunctionUtils.html#L293">293</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L294" href="FunctionUtils.html#L294">294</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="UnivariateFunction.html">UnivariateFunction</a> fix2ndArgument(<strong class="jxr_keyword">final</strong> <a href="BivariateFunction.html">BivariateFunction</a> f,
+<a class="jxr_linenumber" name="L295" href="FunctionUtils.html#L295">295</a>                                                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> fixed) {
+<a class="jxr_linenumber" name="L296" href="FunctionUtils.html#L296">296</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="UnivariateFunction.html">UnivariateFunction</a>() {
+<a class="jxr_linenumber" name="L297" href="FunctionUtils.html#L297">297</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L298" href="FunctionUtils.html#L298">298</a>             @Override
+<a class="jxr_linenumber" name="L299" href="FunctionUtils.html#L299">299</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L300" href="FunctionUtils.html#L300">300</a>                 <strong class="jxr_keyword">return</strong> f.value(x, fixed);
+<a class="jxr_linenumber" name="L301" href="FunctionUtils.html#L301">301</a>             }
+<a class="jxr_linenumber" name="L302" href="FunctionUtils.html#L302">302</a>         };
+<a class="jxr_linenumber" name="L303" href="FunctionUtils.html#L303">303</a>     }
+<a class="jxr_linenumber" name="L304" href="FunctionUtils.html#L304">304</a> 
+<a class="jxr_linenumber" name="L305" href="FunctionUtils.html#L305">305</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L306" href="FunctionUtils.html#L306">306</a> <em class="jxr_javadoccomment">     * Samples the specified univariate real function on the specified interval.</em>
+<a class="jxr_linenumber" name="L307" href="FunctionUtils.html#L307">307</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L308" href="FunctionUtils.html#L308">308</a> <em class="jxr_javadoccomment">     * The interval is divided equally into {@code n} sections and sample points</em>
+<a class="jxr_linenumber" name="L309" href="FunctionUtils.html#L309">309</a> <em class="jxr_javadoccomment">     * are taken from {@code min} to {@code max - (max - min) / n}; therefore</em>
+<a class="jxr_linenumber" name="L310" href="FunctionUtils.html#L310">310</a> <em class="jxr_javadoccomment">     * {@code f} is not sampled at the upper bound {@code max}.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L311" href="FunctionUtils.html#L311">311</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L312" href="FunctionUtils.html#L312">312</a> <em class="jxr_javadoccomment">     * @param f Function to be sampled</em>
+<a class="jxr_linenumber" name="L313" href="FunctionUtils.html#L313">313</a> <em class="jxr_javadoccomment">     * @param min Lower bound of the interval (included).</em>
+<a class="jxr_linenumber" name="L314" href="FunctionUtils.html#L314">314</a> <em class="jxr_javadoccomment">     * @param max Upper bound of the interval (excluded).</em>
+<a class="jxr_linenumber" name="L315" href="FunctionUtils.html#L315">315</a> <em class="jxr_javadoccomment">     * @param n Number of sample points.</em>
+<a class="jxr_linenumber" name="L316" href="FunctionUtils.html#L316">316</a> <em class="jxr_javadoccomment">     * @return the array of samples.</em>
+<a class="jxr_linenumber" name="L317" href="FunctionUtils.html#L317">317</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooLargeException if the lower bound {@code min} is</em>
+<a class="jxr_linenumber" name="L318" href="FunctionUtils.html#L318">318</a> <em class="jxr_javadoccomment">     * greater than, or equal to the upper bound {@code max}.</em>
+<a class="jxr_linenumber" name="L319" href="FunctionUtils.html#L319">319</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if the number of sample points</em>
+<a class="jxr_linenumber" name="L320" href="FunctionUtils.html#L320">320</a> <em class="jxr_javadoccomment">     * {@code n} is negative.</em>
+<a class="jxr_linenumber" name="L321" href="FunctionUtils.html#L321">321</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L322" href="FunctionUtils.html#L322">322</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong>[] sample(<a href="UnivariateFunction.html">UnivariateFunction</a> f, <strong class="jxr_keyword">double</strong> min, <strong class="jxr_keyword">double</strong> max, <strong class="jxr_keyword">int</strong> n)
+<a class="jxr_linenumber" name="L323" href="FunctionUtils.html#L323">323</a>        <strong class="jxr_keyword">throws</strong> NumberIsTooLargeException, <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L324" href="FunctionUtils.html#L324">324</a> 
+<a class="jxr_linenumber" name="L325" href="FunctionUtils.html#L325">325</a>         <strong class="jxr_keyword">if</strong> (n &lt;= 0) {
+<a class="jxr_linenumber" name="L326" href="FunctionUtils.html#L326">326</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(
+<a class="jxr_linenumber" name="L327" href="FunctionUtils.html#L327">327</a>                     LocalizedFormats.NOT_POSITIVE_NUMBER_OF_SAMPLES,
+<a class="jxr_linenumber" name="L328" href="FunctionUtils.html#L328">328</a>                     Integer.valueOf(n));
+<a class="jxr_linenumber" name="L329" href="FunctionUtils.html#L329">329</a>         }
+<a class="jxr_linenumber" name="L330" href="FunctionUtils.html#L330">330</a>         <strong class="jxr_keyword">if</strong> (min &gt;= max) {
+<a class="jxr_linenumber" name="L331" href="FunctionUtils.html#L331">331</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a>(min, max, false);
+<a class="jxr_linenumber" name="L332" href="FunctionUtils.html#L332">332</a>         }
+<a class="jxr_linenumber" name="L333" href="FunctionUtils.html#L333">333</a> 
+<a class="jxr_linenumber" name="L334" href="FunctionUtils.html#L334">334</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] s = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n];
+<a class="jxr_linenumber" name="L335" href="FunctionUtils.html#L335">335</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> h = (max - min) / n;
+<a class="jxr_linenumber" name="L336" href="FunctionUtils.html#L336">336</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L337" href="FunctionUtils.html#L337">337</a>             s[i] = f.value(min + i * h);
+<a class="jxr_linenumber" name="L338" href="FunctionUtils.html#L338">338</a>         }
+<a class="jxr_linenumber" name="L339" href="FunctionUtils.html#L339">339</a>         <strong class="jxr_keyword">return</strong> s;
+<a class="jxr_linenumber" name="L340" href="FunctionUtils.html#L340">340</a>     }
+<a class="jxr_linenumber" name="L341" href="FunctionUtils.html#L341">341</a> 
+<a class="jxr_linenumber" name="L342" href="FunctionUtils.html#L342">342</a>     <em class="jxr_javadoccomment">/** Convert regular functions to {@link UnivariateDifferentiableFunction}.</em>
+<a class="jxr_linenumber" name="L343" href="FunctionUtils.html#L343">343</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L344" href="FunctionUtils.html#L344">344</a> <em class="jxr_javadoccomment">     * This method handle the case with one free parameter and several derivatives.</em>
+<a class="jxr_linenumber" name="L345" href="FunctionUtils.html#L345">345</a> <em class="jxr_javadoccomment">     * For the case with several free parameters and only first order derivatives,</em>
+<a class="jxr_linenumber" name="L346" href="FunctionUtils.html#L346">346</a> <em class="jxr_javadoccomment">     * see {@link #toDifferentiable(MultivariateFunction, MultivariateVectorFunction)}.</em>
+<a class="jxr_linenumber" name="L347" href="FunctionUtils.html#L347">347</a> <em class="jxr_javadoccomment">     * There are no direct support for intermediate cases, with several free parameters</em>
+<a class="jxr_linenumber" name="L348" href="FunctionUtils.html#L348">348</a> <em class="jxr_javadoccomment">     * and order 2 or more derivatives, as is would be difficult to specify all the</em>
+<a class="jxr_linenumber" name="L349" href="FunctionUtils.html#L349">349</a> <em class="jxr_javadoccomment">     * cross derivatives.</em>
+<a class="jxr_linenumber" name="L350" href="FunctionUtils.html#L350">350</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L351" href="FunctionUtils.html#L351">351</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L352" href="FunctionUtils.html#L352">352</a> <em class="jxr_javadoccomment">     * Note that the derivatives are expected to be computed only with respect to the</em>
+<a class="jxr_linenumber" name="L353" href="FunctionUtils.html#L353">353</a> <em class="jxr_javadoccomment">     * raw parameter x of the base function, i.e. they are df/dx, df&lt;sup&gt;2&lt;/sup&gt;/dx&lt;sup&gt;2&lt;/sup&gt;, ...</em>
+<a class="jxr_linenumber" name="L354" href="FunctionUtils.html#L354">354</a> <em class="jxr_javadoccomment">     * Even if the built function is later used in a composition like f(sin(t)), the provided</em>
+<a class="jxr_linenumber" name="L355" href="FunctionUtils.html#L355">355</a> <em class="jxr_javadoccomment">     * derivatives should &lt;em&gt;not&lt;/em&gt; apply the composition with sine and its derivatives by</em>
+<a class="jxr_linenumber" name="L356" href="FunctionUtils.html#L356">356</a> <em class="jxr_javadoccomment">     * themselves. The composition will be done automatically here and the result will properly</em>
+<a class="jxr_linenumber" name="L357" href="FunctionUtils.html#L357">357</a> <em class="jxr_javadoccomment">     * contain f(sin(t)), df(sin(t))/dt, df&lt;sup&gt;2&lt;/sup&gt;(sin(t))/dt&lt;sup&gt;2&lt;/sup&gt; despite the</em>
+<a class="jxr_linenumber" name="L358" href="FunctionUtils.html#L358">358</a> <em class="jxr_javadoccomment">     * provided derivatives functions know nothing about the sine function.</em>
+<a class="jxr_linenumber" name="L359" href="FunctionUtils.html#L359">359</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L360" href="FunctionUtils.html#L360">360</a> <em class="jxr_javadoccomment">     * @param f base function f(x)</em>
+<a class="jxr_linenumber" name="L361" href="FunctionUtils.html#L361">361</a> <em class="jxr_javadoccomment">     * @param derivatives derivatives of the base function, in increasing differentiation order</em>
+<a class="jxr_linenumber" name="L362" href="FunctionUtils.html#L362">362</a> <em class="jxr_javadoccomment">     * @return a differentiable function with value and all specified derivatives</em>
+<a class="jxr_linenumber" name="L363" href="FunctionUtils.html#L363">363</a> <em class="jxr_javadoccomment">     * @see #toDifferentiable(MultivariateFunction, MultivariateVectorFunction)</em>
+<a class="jxr_linenumber" name="L364" href="FunctionUtils.html#L364">364</a> <em class="jxr_javadoccomment">     * @see #derivative(UnivariateDifferentiableFunction, int)</em>
+<a class="jxr_linenumber" name="L365" href="FunctionUtils.html#L365">365</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L366" href="FunctionUtils.html#L366">366</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="differentiation/UnivariateDifferentiableFunction.html">UnivariateDifferentiableFunction</a> toDifferentiable(<strong class="jxr_keyword">final</strong> <a href="UnivariateFunction.html">UnivariateFunction</a> f,
+<a class="jxr_linenumber" name="L367" href="FunctionUtils.html#L367">367</a>                                                                        <strong class="jxr_keyword">final</strong> <a href="UnivariateFunction.html">UnivariateFunction</a> ... derivatives) {
+<a class="jxr_linenumber" name="L368" href="FunctionUtils.html#L368">368</a> 
+<a class="jxr_linenumber" name="L369" href="FunctionUtils.html#L369">369</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="differentiation/UnivariateDifferentiableFunction.html">UnivariateDifferentiableFunction</a>() {
+<a class="jxr_linenumber" name="L370" href="FunctionUtils.html#L370">370</a> 
+<a class="jxr_linenumber" name="L371" href="FunctionUtils.html#L371">371</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L372" href="FunctionUtils.html#L372">372</a>             @Override
+<a class="jxr_linenumber" name="L373" href="FunctionUtils.html#L373">373</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L374" href="FunctionUtils.html#L374">374</a>                 <strong class="jxr_keyword">return</strong> f.value(x);
+<a class="jxr_linenumber" name="L375" href="FunctionUtils.html#L375">375</a>             }
+<a class="jxr_linenumber" name="L376" href="FunctionUtils.html#L376">376</a> 
+<a class="jxr_linenumber" name="L377" href="FunctionUtils.html#L377">377</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L378" href="FunctionUtils.html#L378">378</a>             @Override
+<a class="jxr_linenumber" name="L379" href="FunctionUtils.html#L379">379</a>             <strong class="jxr_keyword">public</strong> <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a> value(<strong class="jxr_keyword">final</strong> <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a> x) {
+<a class="jxr_linenumber" name="L380" href="FunctionUtils.html#L380">380</a>                 <strong class="jxr_keyword">if</strong> (x.getOrder() &gt; derivatives.length) {
+<a class="jxr_linenumber" name="L381" href="FunctionUtils.html#L381">381</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a>(x.getOrder(), derivatives.length, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L382" href="FunctionUtils.html#L382">382</a>                 }
+<a class="jxr_linenumber" name="L383" href="FunctionUtils.html#L383">383</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] packed = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[x.getOrder() + 1];
+<a class="jxr_linenumber" name="L384" href="FunctionUtils.html#L384">384</a>                 packed[0] = f.value(x.getValue());
+<a class="jxr_linenumber" name="L385" href="FunctionUtils.html#L385">385</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; x.getOrder(); ++i) {
+<a class="jxr_linenumber" name="L386" href="FunctionUtils.html#L386">386</a>                     packed[i + 1] = derivatives[i].value(x.getValue());
+<a class="jxr_linenumber" name="L387" href="FunctionUtils.html#L387">387</a>                 }
+<a class="jxr_linenumber" name="L388" href="FunctionUtils.html#L388">388</a>                 <strong class="jxr_keyword">return</strong> x.compose(packed);
+<a class="jxr_linenumber" name="L389" href="FunctionUtils.html#L389">389</a>             }
+<a class="jxr_linenumber" name="L390" href="FunctionUtils.html#L390">390</a> 
+<a class="jxr_linenumber" name="L391" href="FunctionUtils.html#L391">391</a>         };
+<a class="jxr_linenumber" name="L392" href="FunctionUtils.html#L392">392</a> 
+<a class="jxr_linenumber" name="L393" href="FunctionUtils.html#L393">393</a>     }
+<a class="jxr_linenumber" name="L394" href="FunctionUtils.html#L394">394</a> 
+<a class="jxr_linenumber" name="L395" href="FunctionUtils.html#L395">395</a>     <em class="jxr_javadoccomment">/** Convert regular functions to {@link MultivariateDifferentiableFunction}.</em>
+<a class="jxr_linenumber" name="L396" href="FunctionUtils.html#L396">396</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L397" href="FunctionUtils.html#L397">397</a> <em class="jxr_javadoccomment">     * This method handle the case with several free parameters and only first order derivatives.</em>
+<a class="jxr_linenumber" name="L398" href="FunctionUtils.html#L398">398</a> <em class="jxr_javadoccomment">     * For the case with one free parameter and several derivatives,</em>
+<a class="jxr_linenumber" name="L399" href="FunctionUtils.html#L399">399</a> <em class="jxr_javadoccomment">     * see {@link #toDifferentiable(UnivariateFunction, UnivariateFunction...)}.</em>
+<a class="jxr_linenumber" name="L400" href="FunctionUtils.html#L400">400</a> <em class="jxr_javadoccomment">     * There are no direct support for intermediate cases, with several free parameters</em>
+<a class="jxr_linenumber" name="L401" href="FunctionUtils.html#L401">401</a> <em class="jxr_javadoccomment">     * and order 2 or more derivatives, as is would be difficult to specify all the</em>
+<a class="jxr_linenumber" name="L402" href="FunctionUtils.html#L402">402</a> <em class="jxr_javadoccomment">     * cross derivatives.</em>
+<a class="jxr_linenumber" name="L403" href="FunctionUtils.html#L403">403</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L404" href="FunctionUtils.html#L404">404</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L405" href="FunctionUtils.html#L405">405</a> <em class="jxr_javadoccomment">     * Note that the gradient is expected to be computed only with respect to the</em>
+<a class="jxr_linenumber" name="L406" href="FunctionUtils.html#L406">406</a> <em class="jxr_javadoccomment">     * raw parameter x of the base function, i.e. it is df/dx&lt;sub&gt;1&lt;/sub&gt;, df/dx&lt;sub&gt;2&lt;/sub&gt;, ...</em>
+<a class="jxr_linenumber" name="L407" href="FunctionUtils.html#L407">407</a> <em class="jxr_javadoccomment">     * Even if the built function is later used in a composition like f(sin(t), cos(t)), the provided</em>
+<a class="jxr_linenumber" name="L408" href="FunctionUtils.html#L408">408</a> <em class="jxr_javadoccomment">     * gradient should &lt;em&gt;not&lt;/em&gt; apply the composition with sine or cosine and their derivative by</em>
+<a class="jxr_linenumber" name="L409" href="FunctionUtils.html#L409">409</a> <em class="jxr_javadoccomment">     * itself. The composition will be done automatically here and the result will properly</em>
+<a class="jxr_linenumber" name="L410" href="FunctionUtils.html#L410">410</a> <em class="jxr_javadoccomment">     * contain f(sin(t), cos(t)), df(sin(t), cos(t))/dt despite the provided derivatives functions</em>
+<a class="jxr_linenumber" name="L411" href="FunctionUtils.html#L411">411</a> <em class="jxr_javadoccomment">     * know nothing about the sine or cosine functions.</em>
+<a class="jxr_linenumber" name="L412" href="FunctionUtils.html#L412">412</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L413" href="FunctionUtils.html#L413">413</a> <em class="jxr_javadoccomment">     * @param f base function f(x)</em>
+<a class="jxr_linenumber" name="L414" href="FunctionUtils.html#L414">414</a> <em class="jxr_javadoccomment">     * @param gradient gradient of the base function</em>
+<a class="jxr_linenumber" name="L415" href="FunctionUtils.html#L415">415</a> <em class="jxr_javadoccomment">     * @return a differentiable function with value and gradient</em>
+<a class="jxr_linenumber" name="L416" href="FunctionUtils.html#L416">416</a> <em class="jxr_javadoccomment">     * @see #toDifferentiable(UnivariateFunction, UnivariateFunction...)</em>
+<a class="jxr_linenumber" name="L417" href="FunctionUtils.html#L417">417</a> <em class="jxr_javadoccomment">     * @see #derivative(MultivariateDifferentiableFunction, int[])</em>
+<a class="jxr_linenumber" name="L418" href="FunctionUtils.html#L418">418</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L419" href="FunctionUtils.html#L419">419</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="differentiation/MultivariateDifferentiableFunction.html">MultivariateDifferentiableFunction</a> toDifferentiable(<strong class="jxr_keyword">final</strong> <a href="MultivariateFunction.html">MultivariateFunction</a> f,
+<a class="jxr_linenumber" name="L420" href="FunctionUtils.html#L420">420</a>                                                                          <strong class="jxr_keyword">final</strong> <a href="MultivariateVectorFunction.html">MultivariateVectorFunction</a> gradient) {
+<a class="jxr_linenumber" name="L421" href="FunctionUtils.html#L421">421</a> 
+<a class="jxr_linenumber" name="L422" href="FunctionUtils.html#L422">422</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="differentiation/MultivariateDifferentiableFunction.html">MultivariateDifferentiableFunction</a>() {
+<a class="jxr_linenumber" name="L423" href="FunctionUtils.html#L423">423</a> 
+<a class="jxr_linenumber" name="L424" href="FunctionUtils.html#L424">424</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L425" href="FunctionUtils.html#L425">425</a>             @Override
+<a class="jxr_linenumber" name="L426" href="FunctionUtils.html#L426">426</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] point) {
+<a class="jxr_linenumber" name="L427" href="FunctionUtils.html#L427">427</a>                 <strong class="jxr_keyword">return</strong> f.value(point);
+<a class="jxr_linenumber" name="L428" href="FunctionUtils.html#L428">428</a>             }
+<a class="jxr_linenumber" name="L429" href="FunctionUtils.html#L429">429</a> 
+<a class="jxr_linenumber" name="L430" href="FunctionUtils.html#L430">430</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L431" href="FunctionUtils.html#L431">431</a>             @Override
+<a class="jxr_linenumber" name="L432" href="FunctionUtils.html#L432">432</a>             <strong class="jxr_keyword">public</strong> <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a> value(<strong class="jxr_keyword">final</strong> <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a>[] point) {
+<a class="jxr_linenumber" name="L433" href="FunctionUtils.html#L433">433</a> 
+<a class="jxr_linenumber" name="L434" href="FunctionUtils.html#L434">434</a>                 <em class="jxr_comment">// set up the input parameters</em>
+<a class="jxr_linenumber" name="L435" href="FunctionUtils.html#L435">435</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] dPoint = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[point.length];
+<a class="jxr_linenumber" name="L436" href="FunctionUtils.html#L436">436</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; point.length; ++i) {
+<a class="jxr_linenumber" name="L437" href="FunctionUtils.html#L437">437</a>                     dPoint[i] = point[i].getValue();
+<a class="jxr_linenumber" name="L438" href="FunctionUtils.html#L438">438</a>                     <strong class="jxr_keyword">if</strong> (point[i].getOrder() &gt; 1) {
+<a class="jxr_linenumber" name="L439" href="FunctionUtils.html#L439">439</a>                         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a>(point[i].getOrder(), 1, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L440" href="FunctionUtils.html#L440">440</a>                     }
+<a class="jxr_linenumber" name="L441" href="FunctionUtils.html#L441">441</a>                 }
+<a class="jxr_linenumber" name="L442" href="FunctionUtils.html#L442">442</a> 
+<a class="jxr_linenumber" name="L443" href="FunctionUtils.html#L443">443</a>                 <em class="jxr_comment">// evaluate regular functions</em>
+<a class="jxr_linenumber" name="L444" href="FunctionUtils.html#L444">444</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>    v = f.value(dPoint);
+<a class="jxr_linenumber" name="L445" href="FunctionUtils.html#L445">445</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] dv = gradient.value(dPoint);
+<a class="jxr_linenumber" name="L446" href="FunctionUtils.html#L446">446</a>                 <strong class="jxr_keyword">if</strong> (dv.length != point.length) {
+<a class="jxr_linenumber" name="L447" href="FunctionUtils.html#L447">447</a>                     <em class="jxr_comment">// the gradient function is inconsistent</em>
+<a class="jxr_linenumber" name="L448" href="FunctionUtils.html#L448">448</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a>(dv.length, point.length);
+<a class="jxr_linenumber" name="L449" href="FunctionUtils.html#L449">449</a>                 }
+<a class="jxr_linenumber" name="L450" href="FunctionUtils.html#L450">450</a> 
+<a class="jxr_linenumber" name="L451" href="FunctionUtils.html#L451">451</a>                 <em class="jxr_comment">// build the combined derivative</em>
+<a class="jxr_linenumber" name="L452" href="FunctionUtils.html#L452">452</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> parameters = point[0].getFreeParameters();
+<a class="jxr_linenumber" name="L453" href="FunctionUtils.html#L453">453</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] partials = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[point.length];
+<a class="jxr_linenumber" name="L454" href="FunctionUtils.html#L454">454</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] packed = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[parameters + 1];
+<a class="jxr_linenumber" name="L455" href="FunctionUtils.html#L455">455</a>                 packed[0] = v;
+<a class="jxr_linenumber" name="L456" href="FunctionUtils.html#L456">456</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> orders[] = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[parameters];
+<a class="jxr_linenumber" name="L457" href="FunctionUtils.html#L457">457</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; parameters; ++i) {
+<a class="jxr_linenumber" name="L458" href="FunctionUtils.html#L458">458</a> 
+<a class="jxr_linenumber" name="L459" href="FunctionUtils.html#L459">459</a>                     <em class="jxr_comment">// we differentiate once with respect to parameter i</em>
+<a class="jxr_linenumber" name="L460" href="FunctionUtils.html#L460">460</a>                     orders[i] = 1;
+<a class="jxr_linenumber" name="L461" href="FunctionUtils.html#L461">461</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; point.length; ++j) {
+<a class="jxr_linenumber" name="L462" href="FunctionUtils.html#L462">462</a>                         partials[j] = point[j].getPartialDerivative(orders);
+<a class="jxr_linenumber" name="L463" href="FunctionUtils.html#L463">463</a>                     }
+<a class="jxr_linenumber" name="L464" href="FunctionUtils.html#L464">464</a>                     orders[i] = 0;
+<a class="jxr_linenumber" name="L465" href="FunctionUtils.html#L465">465</a> 
+<a class="jxr_linenumber" name="L466" href="FunctionUtils.html#L466">466</a>                     <em class="jxr_comment">// compose partial derivatives</em>
+<a class="jxr_linenumber" name="L467" href="FunctionUtils.html#L467">467</a>                     packed[i + 1] = MathArrays.linearCombination(dv, partials);
+<a class="jxr_linenumber" name="L468" href="FunctionUtils.html#L468">468</a> 
+<a class="jxr_linenumber" name="L469" href="FunctionUtils.html#L469">469</a>                 }
+<a class="jxr_linenumber" name="L470" href="FunctionUtils.html#L470">470</a> 
+<a class="jxr_linenumber" name="L471" href="FunctionUtils.html#L471">471</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a>(parameters, 1, packed);
+<a class="jxr_linenumber" name="L472" href="FunctionUtils.html#L472">472</a> 
+<a class="jxr_linenumber" name="L473" href="FunctionUtils.html#L473">473</a>             }
+<a class="jxr_linenumber" name="L474" href="FunctionUtils.html#L474">474</a> 
+<a class="jxr_linenumber" name="L475" href="FunctionUtils.html#L475">475</a>         };
+<a class="jxr_linenumber" name="L476" href="FunctionUtils.html#L476">476</a> 
+<a class="jxr_linenumber" name="L477" href="FunctionUtils.html#L477">477</a>     }
+<a class="jxr_linenumber" name="L478" href="FunctionUtils.html#L478">478</a> 
+<a class="jxr_linenumber" name="L479" href="FunctionUtils.html#L479">479</a>     <em class="jxr_javadoccomment">/** Convert an {@link UnivariateDifferentiableFunction} to an</em>
+<a class="jxr_linenumber" name="L480" href="FunctionUtils.html#L480">480</a> <em class="jxr_javadoccomment">     * {@link UnivariateFunction} computing n&lt;sup&gt;th&lt;/sup&gt; order derivative.</em>
+<a class="jxr_linenumber" name="L481" href="FunctionUtils.html#L481">481</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L482" href="FunctionUtils.html#L482">482</a> <em class="jxr_javadoccomment">     * This converter is only a convenience method. Beware computing only one derivative does</em>
+<a class="jxr_linenumber" name="L483" href="FunctionUtils.html#L483">483</a> <em class="jxr_javadoccomment">     * not save any computation as the original function will really be called under the hood.</em>
+<a class="jxr_linenumber" name="L484" href="FunctionUtils.html#L484">484</a> <em class="jxr_javadoccomment">     * The derivative will be extracted from the full {@link DerivativeStructure} result.</em>
+<a class="jxr_linenumber" name="L485" href="FunctionUtils.html#L485">485</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L486" href="FunctionUtils.html#L486">486</a> <em class="jxr_javadoccomment">     * @param f original function, with value and all its derivatives</em>
+<a class="jxr_linenumber" name="L487" href="FunctionUtils.html#L487">487</a> <em class="jxr_javadoccomment">     * @param order of the derivative to extract</em>
+<a class="jxr_linenumber" name="L488" href="FunctionUtils.html#L488">488</a> <em class="jxr_javadoccomment">     * @return function computing the derivative at required order</em>
+<a class="jxr_linenumber" name="L489" href="FunctionUtils.html#L489">489</a> <em class="jxr_javadoccomment">     * @see #derivative(MultivariateDifferentiableFunction, int[])</em>
+<a class="jxr_linenumber" name="L490" href="FunctionUtils.html#L490">490</a> <em class="jxr_javadoccomment">     * @see #toDifferentiable(UnivariateFunction, UnivariateFunction...)</em>
+<a class="jxr_linenumber" name="L491" href="FunctionUtils.html#L491">491</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L492" href="FunctionUtils.html#L492">492</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="UnivariateFunction.html">UnivariateFunction</a> derivative(<strong class="jxr_keyword">final</strong> <a href="differentiation/UnivariateDifferentiableFunction.html">UnivariateDifferentiableFunction</a> f, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> order) {
+<a class="jxr_linenumber" name="L493" href="FunctionUtils.html#L493">493</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="UnivariateFunction.html">UnivariateFunction</a>() {
+<a class="jxr_linenumber" name="L494" href="FunctionUtils.html#L494">494</a> 
+<a class="jxr_linenumber" name="L495" href="FunctionUtils.html#L495">495</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L496" href="FunctionUtils.html#L496">496</a>             @Override
+<a class="jxr_linenumber" name="L497" href="FunctionUtils.html#L497">497</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L498" href="FunctionUtils.html#L498">498</a>                 <strong class="jxr_keyword">final</strong> <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a> dsX = <strong class="jxr_keyword">new</strong> <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a>(1, order, 0, x);
+<a class="jxr_linenumber" name="L499" href="FunctionUtils.html#L499">499</a>                 <strong class="jxr_keyword">return</strong> f.value(dsX).getPartialDerivative(order);
+<a class="jxr_linenumber" name="L500" href="FunctionUtils.html#L500">500</a>             }
+<a class="jxr_linenumber" name="L501" href="FunctionUtils.html#L501">501</a> 
+<a class="jxr_linenumber" name="L502" href="FunctionUtils.html#L502">502</a>         };
+<a class="jxr_linenumber" name="L503" href="FunctionUtils.html#L503">503</a>     }
+<a class="jxr_linenumber" name="L504" href="FunctionUtils.html#L504">504</a> 
+<a class="jxr_linenumber" name="L505" href="FunctionUtils.html#L505">505</a>     <em class="jxr_javadoccomment">/** Convert an {@link MultivariateDifferentiableFunction} to an</em>
+<a class="jxr_linenumber" name="L506" href="FunctionUtils.html#L506">506</a> <em class="jxr_javadoccomment">     * {@link MultivariateFunction} computing n&lt;sup&gt;th&lt;/sup&gt; order derivative.</em>
+<a class="jxr_linenumber" name="L507" href="FunctionUtils.html#L507">507</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L508" href="FunctionUtils.html#L508">508</a> <em class="jxr_javadoccomment">     * This converter is only a convenience method. Beware computing only one derivative does</em>
+<a class="jxr_linenumber" name="L509" href="FunctionUtils.html#L509">509</a> <em class="jxr_javadoccomment">     * not save any computation as the original function will really be called under the hood.</em>
+<a class="jxr_linenumber" name="L510" href="FunctionUtils.html#L510">510</a> <em class="jxr_javadoccomment">     * The derivative will be extracted from the full {@link DerivativeStructure} result.</em>
+<a class="jxr_linenumber" name="L511" href="FunctionUtils.html#L511">511</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L512" href="FunctionUtils.html#L512">512</a> <em class="jxr_javadoccomment">     * @param f original function, with value and all its derivatives</em>
+<a class="jxr_linenumber" name="L513" href="FunctionUtils.html#L513">513</a> <em class="jxr_javadoccomment">     * @param orders of the derivative to extract, for each free parameters</em>
+<a class="jxr_linenumber" name="L514" href="FunctionUtils.html#L514">514</a> <em class="jxr_javadoccomment">     * @return function computing the derivative at required order</em>
+<a class="jxr_linenumber" name="L515" href="FunctionUtils.html#L515">515</a> <em class="jxr_javadoccomment">     * @see #derivative(UnivariateDifferentiableFunction, int)</em>
+<a class="jxr_linenumber" name="L516" href="FunctionUtils.html#L516">516</a> <em class="jxr_javadoccomment">     * @see #toDifferentiable(MultivariateFunction, MultivariateVectorFunction)</em>
+<a class="jxr_linenumber" name="L517" href="FunctionUtils.html#L517">517</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L518" href="FunctionUtils.html#L518">518</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="MultivariateFunction.html">MultivariateFunction</a> derivative(<strong class="jxr_keyword">final</strong> <a href="differentiation/MultivariateDifferentiableFunction.html">MultivariateDifferentiableFunction</a> f, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] orders) {
+<a class="jxr_linenumber" name="L519" href="FunctionUtils.html#L519">519</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="MultivariateFunction.html">MultivariateFunction</a>() {
+<a class="jxr_linenumber" name="L520" href="FunctionUtils.html#L520">520</a> 
+<a class="jxr_linenumber" name="L521" href="FunctionUtils.html#L521">521</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L522" href="FunctionUtils.html#L522">522</a>             @Override
+<a class="jxr_linenumber" name="L523" href="FunctionUtils.html#L523">523</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] point) {
+<a class="jxr_linenumber" name="L524" href="FunctionUtils.html#L524">524</a> 
+<a class="jxr_linenumber" name="L525" href="FunctionUtils.html#L525">525</a>                 <em class="jxr_comment">// the maximum differentiation order is the sum of all orders</em>
+<a class="jxr_linenumber" name="L526" href="FunctionUtils.html#L526">526</a>                 <strong class="jxr_keyword">int</strong> sumOrders = 0;
+<a class="jxr_linenumber" name="L527" href="FunctionUtils.html#L527">527</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> order : orders) {
+<a class="jxr_linenumber" name="L528" href="FunctionUtils.html#L528">528</a>                     sumOrders += order;
+<a class="jxr_linenumber" name="L529" href="FunctionUtils.html#L529">529</a>                 }
+<a class="jxr_linenumber" name="L530" href="FunctionUtils.html#L530">530</a> 
+<a class="jxr_linenumber" name="L531" href="FunctionUtils.html#L531">531</a>                 <em class="jxr_comment">// set up the input parameters</em>
+<a class="jxr_linenumber" name="L532" href="FunctionUtils.html#L532">532</a>                 <strong class="jxr_keyword">final</strong> <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a>[] dsPoint = <strong class="jxr_keyword">new</strong> <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a>[point.length];
+<a class="jxr_linenumber" name="L533" href="FunctionUtils.html#L533">533</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; point.length; ++i) {
+<a class="jxr_linenumber" name="L534" href="FunctionUtils.html#L534">534</a>                     dsPoint[i] = <strong class="jxr_keyword">new</strong> <a href="differentiation/DerivativeStructure.html">DerivativeStructure</a>(point.length, sumOrders, i, point[i]);
+<a class="jxr_linenumber" name="L535" href="FunctionUtils.html#L535">535</a>                 }
+<a class="jxr_linenumber" name="L536" href="FunctionUtils.html#L536">536</a> 
+<a class="jxr_linenumber" name="L537" href="FunctionUtils.html#L537">537</a>                 <strong class="jxr_keyword">return</strong> f.value(dsPoint).getPartialDerivative(orders);
+<a class="jxr_linenumber" name="L538" href="FunctionUtils.html#L538">538</a> 
+<a class="jxr_linenumber" name="L539" href="FunctionUtils.html#L539">539</a>             }
+<a class="jxr_linenumber" name="L540" href="FunctionUtils.html#L540">540</a> 
+<a class="jxr_linenumber" name="L541" href="FunctionUtils.html#L541">541</a>         };
+<a class="jxr_linenumber" name="L542" href="FunctionUtils.html#L542">542</a>     }
+<a class="jxr_linenumber" name="L543" href="FunctionUtils.html#L543">543</a> 
+<a class="jxr_linenumber" name="L544" href="FunctionUtils.html#L544">544</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

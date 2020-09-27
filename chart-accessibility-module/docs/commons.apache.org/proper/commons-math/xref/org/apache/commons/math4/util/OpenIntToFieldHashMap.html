@@ -1,0 +1,630 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>OpenIntToFieldHashMap xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/util/OpenIntToFieldHashMap.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="OpenIntToFieldHashMap.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="OpenIntToFieldHashMap.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="OpenIntToFieldHashMap.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="OpenIntToFieldHashMap.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="OpenIntToFieldHashMap.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="OpenIntToFieldHashMap.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="OpenIntToFieldHashMap.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="OpenIntToFieldHashMap.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="OpenIntToFieldHashMap.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="OpenIntToFieldHashMap.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="OpenIntToFieldHashMap.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="OpenIntToFieldHashMap.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="OpenIntToFieldHashMap.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="OpenIntToFieldHashMap.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="OpenIntToFieldHashMap.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="OpenIntToFieldHashMap.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="OpenIntToFieldHashMap.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.util;
+<a class="jxr_linenumber" name="L18" href="OpenIntToFieldHashMap.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="OpenIntToFieldHashMap.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L20" href="OpenIntToFieldHashMap.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.io.ObjectInputStream;
+<a class="jxr_linenumber" name="L21" href="OpenIntToFieldHashMap.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.io.Serializable;
+<a class="jxr_linenumber" name="L22" href="OpenIntToFieldHashMap.html#L22">22</a>  <strong class="jxr_keyword">import</strong> java.lang.reflect.Array;
+<a class="jxr_linenumber" name="L23" href="OpenIntToFieldHashMap.html#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.ConcurrentModificationException;
+<a class="jxr_linenumber" name="L24" href="OpenIntToFieldHashMap.html#L24">24</a>  <strong class="jxr_keyword">import</strong> java.util.NoSuchElementException;
+<a class="jxr_linenumber" name="L25" href="OpenIntToFieldHashMap.html#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="OpenIntToFieldHashMap.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.Field;
+<a class="jxr_linenumber" name="L27" href="OpenIntToFieldHashMap.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.FieldElement;
+<a class="jxr_linenumber" name="L28" href="OpenIntToFieldHashMap.html#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="OpenIntToFieldHashMap.html#L29">29</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L30" href="OpenIntToFieldHashMap.html#L30">30</a>  <em class="jxr_javadoccomment"> * Open addressed map from int to FieldElement.</em>
+<a class="jxr_linenumber" name="L31" href="OpenIntToFieldHashMap.html#L31">31</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This class provides a dedicated map from integers to FieldElements with a</em>
+<a class="jxr_linenumber" name="L32" href="OpenIntToFieldHashMap.html#L32">32</a>  <em class="jxr_javadoccomment"> * much smaller memory overhead than standard &lt;code&gt;java.util.Map&lt;/code&gt;.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L33" href="OpenIntToFieldHashMap.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This class is not synchronized. The specialized iterators returned by</em>
+<a class="jxr_linenumber" name="L34" href="OpenIntToFieldHashMap.html#L34">34</a>  <em class="jxr_javadoccomment"> * {@link #iterator()} are fail-fast: they throw a</em>
+<a class="jxr_linenumber" name="L35" href="OpenIntToFieldHashMap.html#L35">35</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;ConcurrentModificationException&lt;/code&gt; when they detect the map has been</em>
+<a class="jxr_linenumber" name="L36" href="OpenIntToFieldHashMap.html#L36">36</a>  <em class="jxr_javadoccomment"> * modified during iteration.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L37" href="OpenIntToFieldHashMap.html#L37">37</a>  <em class="jxr_javadoccomment"> * @param &lt;T&gt; the type of the field elements</em>
+<a class="jxr_linenumber" name="L38" href="OpenIntToFieldHashMap.html#L38">38</a>  <em class="jxr_javadoccomment"> * @since 2.0</em>
+<a class="jxr_linenumber" name="L39" href="OpenIntToFieldHashMap.html#L39">39</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L40" href="OpenIntToFieldHashMap.html#L40">40</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> OpenIntToFieldHashMap&lt;T <strong class="jxr_keyword">extends</strong> FieldElement&lt;T&gt;&gt; <strong class="jxr_keyword">implements</strong> Serializable {
+<a class="jxr_linenumber" name="L41" href="OpenIntToFieldHashMap.html#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="OpenIntToFieldHashMap.html#L42">42</a>      <em class="jxr_javadoccomment">/** Status indicator for free table entries. */</em>
+<a class="jxr_linenumber" name="L43" href="OpenIntToFieldHashMap.html#L43">43</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte FREE    = 0;
+<a class="jxr_linenumber" name="L44" href="OpenIntToFieldHashMap.html#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="OpenIntToFieldHashMap.html#L45">45</a>      <em class="jxr_javadoccomment">/** Status indicator for full table entries. */</em>
+<a class="jxr_linenumber" name="L46" href="OpenIntToFieldHashMap.html#L46">46</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte FULL    = 1;
+<a class="jxr_linenumber" name="L47" href="OpenIntToFieldHashMap.html#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="OpenIntToFieldHashMap.html#L48">48</a>      <em class="jxr_javadoccomment">/** Status indicator for removed table entries. */</em>
+<a class="jxr_linenumber" name="L49" href="OpenIntToFieldHashMap.html#L49">49</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte REMOVED = 2;
+<a class="jxr_linenumber" name="L50" href="OpenIntToFieldHashMap.html#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="OpenIntToFieldHashMap.html#L51">51</a>      <em class="jxr_javadoccomment">/** Serializable version identifier. */</em>
+<a class="jxr_linenumber" name="L52" href="OpenIntToFieldHashMap.html#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = -9179080286849120720L;
+<a class="jxr_linenumber" name="L53" href="OpenIntToFieldHashMap.html#L53">53</a>  
+<a class="jxr_linenumber" name="L54" href="OpenIntToFieldHashMap.html#L54">54</a>      <em class="jxr_javadoccomment">/** Load factor for the map. */</em>
+<a class="jxr_linenumber" name="L55" href="OpenIntToFieldHashMap.html#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">float</strong> LOAD_FACTOR = 0.5f;
+<a class="jxr_linenumber" name="L56" href="OpenIntToFieldHashMap.html#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="OpenIntToFieldHashMap.html#L57">57</a>      <em class="jxr_javadoccomment">/** Default starting size.</em>
+<a class="jxr_linenumber" name="L58" href="OpenIntToFieldHashMap.html#L58">58</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;This must be a power of two for bit mask to work properly. &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L59" href="OpenIntToFieldHashMap.html#L59">59</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L60" href="OpenIntToFieldHashMap.html#L60">60</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> DEFAULT_EXPECTED_SIZE = 16;
+<a class="jxr_linenumber" name="L61" href="OpenIntToFieldHashMap.html#L61">61</a>  
+<a class="jxr_linenumber" name="L62" href="OpenIntToFieldHashMap.html#L62">62</a>      <em class="jxr_javadoccomment">/** Multiplier for size growth when map fills up.</em>
+<a class="jxr_linenumber" name="L63" href="OpenIntToFieldHashMap.html#L63">63</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;This must be a power of two for bit mask to work properly. &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L64" href="OpenIntToFieldHashMap.html#L64">64</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L65" href="OpenIntToFieldHashMap.html#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> RESIZE_MULTIPLIER = 2;
+<a class="jxr_linenumber" name="L66" href="OpenIntToFieldHashMap.html#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="OpenIntToFieldHashMap.html#L67">67</a>      <em class="jxr_javadoccomment">/** Number of bits to perturb the index when probing for collision resolution. */</em>
+<a class="jxr_linenumber" name="L68" href="OpenIntToFieldHashMap.html#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERTURB_SHIFT = 5;
+<a class="jxr_linenumber" name="L69" href="OpenIntToFieldHashMap.html#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="OpenIntToFieldHashMap.html#L70">70</a>      <em class="jxr_javadoccomment">/** Field to which the elements belong. */</em>
+<a class="jxr_linenumber" name="L71" href="OpenIntToFieldHashMap.html#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Field&lt;T&gt; field;
+<a class="jxr_linenumber" name="L72" href="OpenIntToFieldHashMap.html#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="OpenIntToFieldHashMap.html#L73">73</a>      <em class="jxr_javadoccomment">/** Keys table. */</em>
+<a class="jxr_linenumber" name="L74" href="OpenIntToFieldHashMap.html#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong>[] keys;
+<a class="jxr_linenumber" name="L75" href="OpenIntToFieldHashMap.html#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="OpenIntToFieldHashMap.html#L76">76</a>      <em class="jxr_javadoccomment">/** Values table. */</em>
+<a class="jxr_linenumber" name="L77" href="OpenIntToFieldHashMap.html#L77">77</a>      <strong class="jxr_keyword">private</strong> T[] values;
+<a class="jxr_linenumber" name="L78" href="OpenIntToFieldHashMap.html#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="OpenIntToFieldHashMap.html#L79">79</a>      <em class="jxr_javadoccomment">/** States table. */</em>
+<a class="jxr_linenumber" name="L80" href="OpenIntToFieldHashMap.html#L80">80</a>      <strong class="jxr_keyword">private</strong> byte[] states;
+<a class="jxr_linenumber" name="L81" href="OpenIntToFieldHashMap.html#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="OpenIntToFieldHashMap.html#L82">82</a>      <em class="jxr_javadoccomment">/** Return value for missing entries. */</em>
+<a class="jxr_linenumber" name="L83" href="OpenIntToFieldHashMap.html#L83">83</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> T missingEntries;
+<a class="jxr_linenumber" name="L84" href="OpenIntToFieldHashMap.html#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="OpenIntToFieldHashMap.html#L85">85</a>      <em class="jxr_javadoccomment">/** Current size of the map. */</em>
+<a class="jxr_linenumber" name="L86" href="OpenIntToFieldHashMap.html#L86">86</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> size;
+<a class="jxr_linenumber" name="L87" href="OpenIntToFieldHashMap.html#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="OpenIntToFieldHashMap.html#L88">88</a>      <em class="jxr_javadoccomment">/** Bit mask for hash values. */</em>
+<a class="jxr_linenumber" name="L89" href="OpenIntToFieldHashMap.html#L89">89</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> mask;
+<a class="jxr_linenumber" name="L90" href="OpenIntToFieldHashMap.html#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="OpenIntToFieldHashMap.html#L91">91</a>      <em class="jxr_javadoccomment">/** Modifications count. */</em>
+<a class="jxr_linenumber" name="L92" href="OpenIntToFieldHashMap.html#L92">92</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> <strong class="jxr_keyword">int</strong> count;
+<a class="jxr_linenumber" name="L93" href="OpenIntToFieldHashMap.html#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="OpenIntToFieldHashMap.html#L94">94</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L95" href="OpenIntToFieldHashMap.html#L95">95</a>  <em class="jxr_javadoccomment">     * Build an empty map with default size and using zero for missing entries.</em>
+<a class="jxr_linenumber" name="L96" href="OpenIntToFieldHashMap.html#L96">96</a>  <em class="jxr_javadoccomment">     * @param field field to which the elements belong</em>
+<a class="jxr_linenumber" name="L97" href="OpenIntToFieldHashMap.html#L97">97</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L98" href="OpenIntToFieldHashMap.html#L98">98</a>      <strong class="jxr_keyword">public</strong> <a href="OpenIntToFieldHashMap.html">OpenIntToFieldHashMap</a>(<strong class="jxr_keyword">final</strong> Field&lt;T&gt;field) {
+<a class="jxr_linenumber" name="L99" href="OpenIntToFieldHashMap.html#L99">99</a>          <strong class="jxr_keyword">this</strong>(field, DEFAULT_EXPECTED_SIZE, field.getZero());
+<a class="jxr_linenumber" name="L100" href="OpenIntToFieldHashMap.html#L100">100</a>     }
+<a class="jxr_linenumber" name="L101" href="OpenIntToFieldHashMap.html#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="OpenIntToFieldHashMap.html#L102">102</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L103" href="OpenIntToFieldHashMap.html#L103">103</a> <em class="jxr_javadoccomment">     * Build an empty map with default size</em>
+<a class="jxr_linenumber" name="L104" href="OpenIntToFieldHashMap.html#L104">104</a> <em class="jxr_javadoccomment">     * @param field field to which the elements belong</em>
+<a class="jxr_linenumber" name="L105" href="OpenIntToFieldHashMap.html#L105">105</a> <em class="jxr_javadoccomment">     * @param missingEntries value to return when a missing entry is fetched</em>
+<a class="jxr_linenumber" name="L106" href="OpenIntToFieldHashMap.html#L106">106</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L107" href="OpenIntToFieldHashMap.html#L107">107</a>     <strong class="jxr_keyword">public</strong> <a href="OpenIntToFieldHashMap.html">OpenIntToFieldHashMap</a>(<strong class="jxr_keyword">final</strong> Field&lt;T&gt;field, <strong class="jxr_keyword">final</strong> T missingEntries) {
+<a class="jxr_linenumber" name="L108" href="OpenIntToFieldHashMap.html#L108">108</a>         <strong class="jxr_keyword">this</strong>(field,DEFAULT_EXPECTED_SIZE, missingEntries);
+<a class="jxr_linenumber" name="L109" href="OpenIntToFieldHashMap.html#L109">109</a>     }
+<a class="jxr_linenumber" name="L110" href="OpenIntToFieldHashMap.html#L110">110</a> 
+<a class="jxr_linenumber" name="L111" href="OpenIntToFieldHashMap.html#L111">111</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L112" href="OpenIntToFieldHashMap.html#L112">112</a> <em class="jxr_javadoccomment">     * Build an empty map with specified size and using zero for missing entries.</em>
+<a class="jxr_linenumber" name="L113" href="OpenIntToFieldHashMap.html#L113">113</a> <em class="jxr_javadoccomment">     * @param field field to which the elements belong</em>
+<a class="jxr_linenumber" name="L114" href="OpenIntToFieldHashMap.html#L114">114</a> <em class="jxr_javadoccomment">     * @param expectedSize expected number of elements in the map</em>
+<a class="jxr_linenumber" name="L115" href="OpenIntToFieldHashMap.html#L115">115</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L116" href="OpenIntToFieldHashMap.html#L116">116</a>     <strong class="jxr_keyword">public</strong> <a href="OpenIntToFieldHashMap.html">OpenIntToFieldHashMap</a>(<strong class="jxr_keyword">final</strong> Field&lt;T&gt; field,<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> expectedSize) {
+<a class="jxr_linenumber" name="L117" href="OpenIntToFieldHashMap.html#L117">117</a>         <strong class="jxr_keyword">this</strong>(field,expectedSize, field.getZero());
+<a class="jxr_linenumber" name="L118" href="OpenIntToFieldHashMap.html#L118">118</a>     }
+<a class="jxr_linenumber" name="L119" href="OpenIntToFieldHashMap.html#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="OpenIntToFieldHashMap.html#L120">120</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L121" href="OpenIntToFieldHashMap.html#L121">121</a> <em class="jxr_javadoccomment">     * Build an empty map with specified size.</em>
+<a class="jxr_linenumber" name="L122" href="OpenIntToFieldHashMap.html#L122">122</a> <em class="jxr_javadoccomment">     * @param field field to which the elements belong</em>
+<a class="jxr_linenumber" name="L123" href="OpenIntToFieldHashMap.html#L123">123</a> <em class="jxr_javadoccomment">     * @param expectedSize expected number of elements in the map</em>
+<a class="jxr_linenumber" name="L124" href="OpenIntToFieldHashMap.html#L124">124</a> <em class="jxr_javadoccomment">     * @param missingEntries value to return when a missing entry is fetched</em>
+<a class="jxr_linenumber" name="L125" href="OpenIntToFieldHashMap.html#L125">125</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L126" href="OpenIntToFieldHashMap.html#L126">126</a>     <strong class="jxr_keyword">public</strong> <a href="OpenIntToFieldHashMap.html">OpenIntToFieldHashMap</a>(<strong class="jxr_keyword">final</strong> Field&lt;T&gt; field,<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> expectedSize,
+<a class="jxr_linenumber" name="L127" href="OpenIntToFieldHashMap.html#L127">127</a>                                   <strong class="jxr_keyword">final</strong> T missingEntries) {
+<a class="jxr_linenumber" name="L128" href="OpenIntToFieldHashMap.html#L128">128</a>         <strong class="jxr_keyword">this</strong>.field = field;
+<a class="jxr_linenumber" name="L129" href="OpenIntToFieldHashMap.html#L129">129</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> capacity = computeCapacity(expectedSize);
+<a class="jxr_linenumber" name="L130" href="OpenIntToFieldHashMap.html#L130">130</a>         keys   = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[capacity];
+<a class="jxr_linenumber" name="L131" href="OpenIntToFieldHashMap.html#L131">131</a>         values = buildArray(capacity);
+<a class="jxr_linenumber" name="L132" href="OpenIntToFieldHashMap.html#L132">132</a>         states = <strong class="jxr_keyword">new</strong> byte[capacity];
+<a class="jxr_linenumber" name="L133" href="OpenIntToFieldHashMap.html#L133">133</a>         <strong class="jxr_keyword">this</strong>.missingEntries = missingEntries;
+<a class="jxr_linenumber" name="L134" href="OpenIntToFieldHashMap.html#L134">134</a>         mask   = capacity - 1;
+<a class="jxr_linenumber" name="L135" href="OpenIntToFieldHashMap.html#L135">135</a>     }
+<a class="jxr_linenumber" name="L136" href="OpenIntToFieldHashMap.html#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="OpenIntToFieldHashMap.html#L137">137</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L138" href="OpenIntToFieldHashMap.html#L138">138</a> <em class="jxr_javadoccomment">     * Copy constructor.</em>
+<a class="jxr_linenumber" name="L139" href="OpenIntToFieldHashMap.html#L139">139</a> <em class="jxr_javadoccomment">     * @param source map to copy</em>
+<a class="jxr_linenumber" name="L140" href="OpenIntToFieldHashMap.html#L140">140</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L141" href="OpenIntToFieldHashMap.html#L141">141</a>     <strong class="jxr_keyword">public</strong> <a href="OpenIntToFieldHashMap.html">OpenIntToFieldHashMap</a>(<strong class="jxr_keyword">final</strong> OpenIntToFieldHashMap&lt;T&gt; source) {
+<a class="jxr_linenumber" name="L142" href="OpenIntToFieldHashMap.html#L142">142</a>         field = source.field;
+<a class="jxr_linenumber" name="L143" href="OpenIntToFieldHashMap.html#L143">143</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length = source.keys.length;
+<a class="jxr_linenumber" name="L144" href="OpenIntToFieldHashMap.html#L144">144</a>         keys = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[length];
+<a class="jxr_linenumber" name="L145" href="OpenIntToFieldHashMap.html#L145">145</a>         System.arraycopy(source.keys, 0, keys, 0, length);
+<a class="jxr_linenumber" name="L146" href="OpenIntToFieldHashMap.html#L146">146</a>         values = buildArray(length);
+<a class="jxr_linenumber" name="L147" href="OpenIntToFieldHashMap.html#L147">147</a>         System.arraycopy(source.values, 0, values, 0, length);
+<a class="jxr_linenumber" name="L148" href="OpenIntToFieldHashMap.html#L148">148</a>         states = <strong class="jxr_keyword">new</strong> byte[length];
+<a class="jxr_linenumber" name="L149" href="OpenIntToFieldHashMap.html#L149">149</a>         System.arraycopy(source.states, 0, states, 0, length);
+<a class="jxr_linenumber" name="L150" href="OpenIntToFieldHashMap.html#L150">150</a>         missingEntries = source.missingEntries;
+<a class="jxr_linenumber" name="L151" href="OpenIntToFieldHashMap.html#L151">151</a>         size  = source.size;
+<a class="jxr_linenumber" name="L152" href="OpenIntToFieldHashMap.html#L152">152</a>         mask  = source.mask;
+<a class="jxr_linenumber" name="L153" href="OpenIntToFieldHashMap.html#L153">153</a>         count = source.count;
+<a class="jxr_linenumber" name="L154" href="OpenIntToFieldHashMap.html#L154">154</a>     }
+<a class="jxr_linenumber" name="L155" href="OpenIntToFieldHashMap.html#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="OpenIntToFieldHashMap.html#L156">156</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L157" href="OpenIntToFieldHashMap.html#L157">157</a> <em class="jxr_javadoccomment">     * Compute the capacity needed for a given size.</em>
+<a class="jxr_linenumber" name="L158" href="OpenIntToFieldHashMap.html#L158">158</a> <em class="jxr_javadoccomment">     * @param expectedSize expected size of the map</em>
+<a class="jxr_linenumber" name="L159" href="OpenIntToFieldHashMap.html#L159">159</a> <em class="jxr_javadoccomment">     * @return capacity to use for the specified size</em>
+<a class="jxr_linenumber" name="L160" href="OpenIntToFieldHashMap.html#L160">160</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L161" href="OpenIntToFieldHashMap.html#L161">161</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> computeCapacity(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> expectedSize) {
+<a class="jxr_linenumber" name="L162" href="OpenIntToFieldHashMap.html#L162">162</a>         <strong class="jxr_keyword">if</strong> (expectedSize == 0) {
+<a class="jxr_linenumber" name="L163" href="OpenIntToFieldHashMap.html#L163">163</a>             <strong class="jxr_keyword">return</strong> 1;
+<a class="jxr_linenumber" name="L164" href="OpenIntToFieldHashMap.html#L164">164</a>         }
+<a class="jxr_linenumber" name="L165" href="OpenIntToFieldHashMap.html#L165">165</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> capacity   = (<strong class="jxr_keyword">int</strong>) FastMath.ceil(expectedSize / LOAD_FACTOR);
+<a class="jxr_linenumber" name="L166" href="OpenIntToFieldHashMap.html#L166">166</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> powerOfTwo = Integer.highestOneBit(capacity);
+<a class="jxr_linenumber" name="L167" href="OpenIntToFieldHashMap.html#L167">167</a>         <strong class="jxr_keyword">if</strong> (powerOfTwo == capacity) {
+<a class="jxr_linenumber" name="L168" href="OpenIntToFieldHashMap.html#L168">168</a>             <strong class="jxr_keyword">return</strong> capacity;
+<a class="jxr_linenumber" name="L169" href="OpenIntToFieldHashMap.html#L169">169</a>         }
+<a class="jxr_linenumber" name="L170" href="OpenIntToFieldHashMap.html#L170">170</a>         <strong class="jxr_keyword">return</strong> nextPowerOfTwo(capacity);
+<a class="jxr_linenumber" name="L171" href="OpenIntToFieldHashMap.html#L171">171</a>     }
+<a class="jxr_linenumber" name="L172" href="OpenIntToFieldHashMap.html#L172">172</a> 
+<a class="jxr_linenumber" name="L173" href="OpenIntToFieldHashMap.html#L173">173</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L174" href="OpenIntToFieldHashMap.html#L174">174</a> <em class="jxr_javadoccomment">     * Find the smallest power of two greater than the input value</em>
+<a class="jxr_linenumber" name="L175" href="OpenIntToFieldHashMap.html#L175">175</a> <em class="jxr_javadoccomment">     * @param i input value</em>
+<a class="jxr_linenumber" name="L176" href="OpenIntToFieldHashMap.html#L176">176</a> <em class="jxr_javadoccomment">     * @return smallest power of two greater than the input value</em>
+<a class="jxr_linenumber" name="L177" href="OpenIntToFieldHashMap.html#L177">177</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L178" href="OpenIntToFieldHashMap.html#L178">178</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> nextPowerOfTwo(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i) {
+<a class="jxr_linenumber" name="L179" href="OpenIntToFieldHashMap.html#L179">179</a>         <strong class="jxr_keyword">return</strong> Integer.highestOneBit(i) &lt;&lt; 1;
+<a class="jxr_linenumber" name="L180" href="OpenIntToFieldHashMap.html#L180">180</a>     }
+<a class="jxr_linenumber" name="L181" href="OpenIntToFieldHashMap.html#L181">181</a> 
+<a class="jxr_linenumber" name="L182" href="OpenIntToFieldHashMap.html#L182">182</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L183" href="OpenIntToFieldHashMap.html#L183">183</a> <em class="jxr_javadoccomment">     * Get the stored value associated with the given key</em>
+<a class="jxr_linenumber" name="L184" href="OpenIntToFieldHashMap.html#L184">184</a> <em class="jxr_javadoccomment">     * @param key key associated with the data</em>
+<a class="jxr_linenumber" name="L185" href="OpenIntToFieldHashMap.html#L185">185</a> <em class="jxr_javadoccomment">     * @return data associated with the key</em>
+<a class="jxr_linenumber" name="L186" href="OpenIntToFieldHashMap.html#L186">186</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L187" href="OpenIntToFieldHashMap.html#L187">187</a>     <strong class="jxr_keyword">public</strong> T get(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> key) {
+<a class="jxr_linenumber" name="L188" href="OpenIntToFieldHashMap.html#L188">188</a> 
+<a class="jxr_linenumber" name="L189" href="OpenIntToFieldHashMap.html#L189">189</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> hash  = hashOf(key);
+<a class="jxr_linenumber" name="L190" href="OpenIntToFieldHashMap.html#L190">190</a>         <strong class="jxr_keyword">int</strong> index = hash &amp; mask;
+<a class="jxr_linenumber" name="L191" href="OpenIntToFieldHashMap.html#L191">191</a>         <strong class="jxr_keyword">if</strong> (containsKey(key, index)) {
+<a class="jxr_linenumber" name="L192" href="OpenIntToFieldHashMap.html#L192">192</a>             <strong class="jxr_keyword">return</strong> values[index];
+<a class="jxr_linenumber" name="L193" href="OpenIntToFieldHashMap.html#L193">193</a>         }
+<a class="jxr_linenumber" name="L194" href="OpenIntToFieldHashMap.html#L194">194</a> 
+<a class="jxr_linenumber" name="L195" href="OpenIntToFieldHashMap.html#L195">195</a>         <strong class="jxr_keyword">if</strong> (states[index] == FREE) {
+<a class="jxr_linenumber" name="L196" href="OpenIntToFieldHashMap.html#L196">196</a>             <strong class="jxr_keyword">return</strong> missingEntries;
+<a class="jxr_linenumber" name="L197" href="OpenIntToFieldHashMap.html#L197">197</a>         }
+<a class="jxr_linenumber" name="L198" href="OpenIntToFieldHashMap.html#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="OpenIntToFieldHashMap.html#L199">199</a>         <strong class="jxr_keyword">int</strong> j = index;
+<a class="jxr_linenumber" name="L200" href="OpenIntToFieldHashMap.html#L200">200</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> perturb = perturb(hash); states[index] != FREE; perturb &gt;&gt;= PERTURB_SHIFT) {
+<a class="jxr_linenumber" name="L201" href="OpenIntToFieldHashMap.html#L201">201</a>             j = probe(perturb, j);
+<a class="jxr_linenumber" name="L202" href="OpenIntToFieldHashMap.html#L202">202</a>             index = j &amp; mask;
+<a class="jxr_linenumber" name="L203" href="OpenIntToFieldHashMap.html#L203">203</a>             <strong class="jxr_keyword">if</strong> (containsKey(key, index)) {
+<a class="jxr_linenumber" name="L204" href="OpenIntToFieldHashMap.html#L204">204</a>                 <strong class="jxr_keyword">return</strong> values[index];
+<a class="jxr_linenumber" name="L205" href="OpenIntToFieldHashMap.html#L205">205</a>             }
+<a class="jxr_linenumber" name="L206" href="OpenIntToFieldHashMap.html#L206">206</a>         }
+<a class="jxr_linenumber" name="L207" href="OpenIntToFieldHashMap.html#L207">207</a> 
+<a class="jxr_linenumber" name="L208" href="OpenIntToFieldHashMap.html#L208">208</a>         <strong class="jxr_keyword">return</strong> missingEntries;
+<a class="jxr_linenumber" name="L209" href="OpenIntToFieldHashMap.html#L209">209</a> 
+<a class="jxr_linenumber" name="L210" href="OpenIntToFieldHashMap.html#L210">210</a>     }
+<a class="jxr_linenumber" name="L211" href="OpenIntToFieldHashMap.html#L211">211</a> 
+<a class="jxr_linenumber" name="L212" href="OpenIntToFieldHashMap.html#L212">212</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L213" href="OpenIntToFieldHashMap.html#L213">213</a> <em class="jxr_javadoccomment">     * Check if a value is associated with a key.</em>
+<a class="jxr_linenumber" name="L214" href="OpenIntToFieldHashMap.html#L214">214</a> <em class="jxr_javadoccomment">     * @param key key to check</em>
+<a class="jxr_linenumber" name="L215" href="OpenIntToFieldHashMap.html#L215">215</a> <em class="jxr_javadoccomment">     * @return true if a value is associated with key</em>
+<a class="jxr_linenumber" name="L216" href="OpenIntToFieldHashMap.html#L216">216</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L217" href="OpenIntToFieldHashMap.html#L217">217</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> containsKey(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> key) {
+<a class="jxr_linenumber" name="L218" href="OpenIntToFieldHashMap.html#L218">218</a> 
+<a class="jxr_linenumber" name="L219" href="OpenIntToFieldHashMap.html#L219">219</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> hash  = hashOf(key);
+<a class="jxr_linenumber" name="L220" href="OpenIntToFieldHashMap.html#L220">220</a>         <strong class="jxr_keyword">int</strong> index = hash &amp; mask;
+<a class="jxr_linenumber" name="L221" href="OpenIntToFieldHashMap.html#L221">221</a>         <strong class="jxr_keyword">if</strong> (containsKey(key, index)) {
+<a class="jxr_linenumber" name="L222" href="OpenIntToFieldHashMap.html#L222">222</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L223" href="OpenIntToFieldHashMap.html#L223">223</a>         }
+<a class="jxr_linenumber" name="L224" href="OpenIntToFieldHashMap.html#L224">224</a> 
+<a class="jxr_linenumber" name="L225" href="OpenIntToFieldHashMap.html#L225">225</a>         <strong class="jxr_keyword">if</strong> (states[index] == FREE) {
+<a class="jxr_linenumber" name="L226" href="OpenIntToFieldHashMap.html#L226">226</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L227" href="OpenIntToFieldHashMap.html#L227">227</a>         }
+<a class="jxr_linenumber" name="L228" href="OpenIntToFieldHashMap.html#L228">228</a> 
+<a class="jxr_linenumber" name="L229" href="OpenIntToFieldHashMap.html#L229">229</a>         <strong class="jxr_keyword">int</strong> j = index;
+<a class="jxr_linenumber" name="L230" href="OpenIntToFieldHashMap.html#L230">230</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> perturb = perturb(hash); states[index] != FREE; perturb &gt;&gt;= PERTURB_SHIFT) {
+<a class="jxr_linenumber" name="L231" href="OpenIntToFieldHashMap.html#L231">231</a>             j = probe(perturb, j);
+<a class="jxr_linenumber" name="L232" href="OpenIntToFieldHashMap.html#L232">232</a>             index = j &amp; mask;
+<a class="jxr_linenumber" name="L233" href="OpenIntToFieldHashMap.html#L233">233</a>             <strong class="jxr_keyword">if</strong> (containsKey(key, index)) {
+<a class="jxr_linenumber" name="L234" href="OpenIntToFieldHashMap.html#L234">234</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L235" href="OpenIntToFieldHashMap.html#L235">235</a>             }
+<a class="jxr_linenumber" name="L236" href="OpenIntToFieldHashMap.html#L236">236</a>         }
+<a class="jxr_linenumber" name="L237" href="OpenIntToFieldHashMap.html#L237">237</a> 
+<a class="jxr_linenumber" name="L238" href="OpenIntToFieldHashMap.html#L238">238</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L239" href="OpenIntToFieldHashMap.html#L239">239</a> 
+<a class="jxr_linenumber" name="L240" href="OpenIntToFieldHashMap.html#L240">240</a>     }
+<a class="jxr_linenumber" name="L241" href="OpenIntToFieldHashMap.html#L241">241</a> 
+<a class="jxr_linenumber" name="L242" href="OpenIntToFieldHashMap.html#L242">242</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L243" href="OpenIntToFieldHashMap.html#L243">243</a> <em class="jxr_javadoccomment">     * Get an iterator over map elements.</em>
+<a class="jxr_linenumber" name="L244" href="OpenIntToFieldHashMap.html#L244">244</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The specialized iterators returned are fail-fast: they throw a</em>
+<a class="jxr_linenumber" name="L245" href="OpenIntToFieldHashMap.html#L245">245</a> <em class="jxr_javadoccomment">     * &lt;code&gt;ConcurrentModificationException&lt;/code&gt; when they detect the map</em>
+<a class="jxr_linenumber" name="L246" href="OpenIntToFieldHashMap.html#L246">246</a> <em class="jxr_javadoccomment">     * has been modified during iteration.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L247" href="OpenIntToFieldHashMap.html#L247">247</a> <em class="jxr_javadoccomment">     * @return iterator over the map elements</em>
+<a class="jxr_linenumber" name="L248" href="OpenIntToFieldHashMap.html#L248">248</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L249" href="OpenIntToFieldHashMap.html#L249">249</a>     <strong class="jxr_keyword">public</strong> <a href="OpenIntToDoubleHashMap.html">Iterator</a> iterator() {
+<a class="jxr_linenumber" name="L250" href="OpenIntToFieldHashMap.html#L250">250</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="OpenIntToDoubleHashMap.html">Iterator</a>();
+<a class="jxr_linenumber" name="L251" href="OpenIntToFieldHashMap.html#L251">251</a>     }
+<a class="jxr_linenumber" name="L252" href="OpenIntToFieldHashMap.html#L252">252</a> 
+<a class="jxr_linenumber" name="L253" href="OpenIntToFieldHashMap.html#L253">253</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L254" href="OpenIntToFieldHashMap.html#L254">254</a> <em class="jxr_javadoccomment">     * Perturb the hash for starting probing.</em>
+<a class="jxr_linenumber" name="L255" href="OpenIntToFieldHashMap.html#L255">255</a> <em class="jxr_javadoccomment">     * @param hash initial hash</em>
+<a class="jxr_linenumber" name="L256" href="OpenIntToFieldHashMap.html#L256">256</a> <em class="jxr_javadoccomment">     * @return perturbed hash</em>
+<a class="jxr_linenumber" name="L257" href="OpenIntToFieldHashMap.html#L257">257</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L258" href="OpenIntToFieldHashMap.html#L258">258</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perturb(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> hash) {
+<a class="jxr_linenumber" name="L259" href="OpenIntToFieldHashMap.html#L259">259</a>         <strong class="jxr_keyword">return</strong> hash &amp; 0x7fffffff;
+<a class="jxr_linenumber" name="L260" href="OpenIntToFieldHashMap.html#L260">260</a>     }
+<a class="jxr_linenumber" name="L261" href="OpenIntToFieldHashMap.html#L261">261</a> 
+<a class="jxr_linenumber" name="L262" href="OpenIntToFieldHashMap.html#L262">262</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L263" href="OpenIntToFieldHashMap.html#L263">263</a> <em class="jxr_javadoccomment">     * Find the index at which a key should be inserted</em>
+<a class="jxr_linenumber" name="L264" href="OpenIntToFieldHashMap.html#L264">264</a> <em class="jxr_javadoccomment">     * @param key key to lookup</em>
+<a class="jxr_linenumber" name="L265" href="OpenIntToFieldHashMap.html#L265">265</a> <em class="jxr_javadoccomment">     * @return index at which key should be inserted</em>
+<a class="jxr_linenumber" name="L266" href="OpenIntToFieldHashMap.html#L266">266</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L267" href="OpenIntToFieldHashMap.html#L267">267</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> findInsertionIndex(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> key) {
+<a class="jxr_linenumber" name="L268" href="OpenIntToFieldHashMap.html#L268">268</a>         <strong class="jxr_keyword">return</strong> findInsertionIndex(keys, states, key, mask);
+<a class="jxr_linenumber" name="L269" href="OpenIntToFieldHashMap.html#L269">269</a>     }
+<a class="jxr_linenumber" name="L270" href="OpenIntToFieldHashMap.html#L270">270</a> 
+<a class="jxr_linenumber" name="L271" href="OpenIntToFieldHashMap.html#L271">271</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L272" href="OpenIntToFieldHashMap.html#L272">272</a> <em class="jxr_javadoccomment">     * Find the index at which a key should be inserted</em>
+<a class="jxr_linenumber" name="L273" href="OpenIntToFieldHashMap.html#L273">273</a> <em class="jxr_javadoccomment">     * @param keys keys table</em>
+<a class="jxr_linenumber" name="L274" href="OpenIntToFieldHashMap.html#L274">274</a> <em class="jxr_javadoccomment">     * @param states states table</em>
+<a class="jxr_linenumber" name="L275" href="OpenIntToFieldHashMap.html#L275">275</a> <em class="jxr_javadoccomment">     * @param key key to lookup</em>
+<a class="jxr_linenumber" name="L276" href="OpenIntToFieldHashMap.html#L276">276</a> <em class="jxr_javadoccomment">     * @param mask bit mask for hash values</em>
+<a class="jxr_linenumber" name="L277" href="OpenIntToFieldHashMap.html#L277">277</a> <em class="jxr_javadoccomment">     * @return index at which key should be inserted</em>
+<a class="jxr_linenumber" name="L278" href="OpenIntToFieldHashMap.html#L278">278</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L279" href="OpenIntToFieldHashMap.html#L279">279</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> findInsertionIndex(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] keys, <strong class="jxr_keyword">final</strong> byte[] states,
+<a class="jxr_linenumber" name="L280" href="OpenIntToFieldHashMap.html#L280">280</a>                                           <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> key, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> mask) {
+<a class="jxr_linenumber" name="L281" href="OpenIntToFieldHashMap.html#L281">281</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> hash = hashOf(key);
+<a class="jxr_linenumber" name="L282" href="OpenIntToFieldHashMap.html#L282">282</a>         <strong class="jxr_keyword">int</strong> index = hash &amp; mask;
+<a class="jxr_linenumber" name="L283" href="OpenIntToFieldHashMap.html#L283">283</a>         <strong class="jxr_keyword">if</strong> (states[index] == FREE) {
+<a class="jxr_linenumber" name="L284" href="OpenIntToFieldHashMap.html#L284">284</a>             <strong class="jxr_keyword">return</strong> index;
+<a class="jxr_linenumber" name="L285" href="OpenIntToFieldHashMap.html#L285">285</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (states[index] == FULL &amp;&amp; keys[index] == key) {
+<a class="jxr_linenumber" name="L286" href="OpenIntToFieldHashMap.html#L286">286</a>             <strong class="jxr_keyword">return</strong> changeIndexSign(index);
+<a class="jxr_linenumber" name="L287" href="OpenIntToFieldHashMap.html#L287">287</a>         }
+<a class="jxr_linenumber" name="L288" href="OpenIntToFieldHashMap.html#L288">288</a> 
+<a class="jxr_linenumber" name="L289" href="OpenIntToFieldHashMap.html#L289">289</a>         <strong class="jxr_keyword">int</strong> perturb = perturb(hash);
+<a class="jxr_linenumber" name="L290" href="OpenIntToFieldHashMap.html#L290">290</a>         <strong class="jxr_keyword">int</strong> j = index;
+<a class="jxr_linenumber" name="L291" href="OpenIntToFieldHashMap.html#L291">291</a>         <strong class="jxr_keyword">if</strong> (states[index] == FULL) {
+<a class="jxr_linenumber" name="L292" href="OpenIntToFieldHashMap.html#L292">292</a>             <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
+<a class="jxr_linenumber" name="L293" href="OpenIntToFieldHashMap.html#L293">293</a>                 j = probe(perturb, j);
+<a class="jxr_linenumber" name="L294" href="OpenIntToFieldHashMap.html#L294">294</a>                 index = j &amp; mask;
+<a class="jxr_linenumber" name="L295" href="OpenIntToFieldHashMap.html#L295">295</a>                 perturb &gt;&gt;= PERTURB_SHIFT;
+<a class="jxr_linenumber" name="L296" href="OpenIntToFieldHashMap.html#L296">296</a> 
+<a class="jxr_linenumber" name="L297" href="OpenIntToFieldHashMap.html#L297">297</a>                 <strong class="jxr_keyword">if</strong> (states[index] != FULL || keys[index] == key) {
+<a class="jxr_linenumber" name="L298" href="OpenIntToFieldHashMap.html#L298">298</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L299" href="OpenIntToFieldHashMap.html#L299">299</a>                 }
+<a class="jxr_linenumber" name="L300" href="OpenIntToFieldHashMap.html#L300">300</a>             }
+<a class="jxr_linenumber" name="L301" href="OpenIntToFieldHashMap.html#L301">301</a>         }
+<a class="jxr_linenumber" name="L302" href="OpenIntToFieldHashMap.html#L302">302</a> 
+<a class="jxr_linenumber" name="L303" href="OpenIntToFieldHashMap.html#L303">303</a>         <strong class="jxr_keyword">if</strong> (states[index] == FREE) {
+<a class="jxr_linenumber" name="L304" href="OpenIntToFieldHashMap.html#L304">304</a>             <strong class="jxr_keyword">return</strong> index;
+<a class="jxr_linenumber" name="L305" href="OpenIntToFieldHashMap.html#L305">305</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (states[index] == FULL) {
+<a class="jxr_linenumber" name="L306" href="OpenIntToFieldHashMap.html#L306">306</a>             <em class="jxr_comment">// due to the loop exit condition,</em>
+<a class="jxr_linenumber" name="L307" href="OpenIntToFieldHashMap.html#L307">307</a>             <em class="jxr_comment">// if (states[index] == FULL) then keys[index] == key</em>
+<a class="jxr_linenumber" name="L308" href="OpenIntToFieldHashMap.html#L308">308</a>             <strong class="jxr_keyword">return</strong> changeIndexSign(index);
+<a class="jxr_linenumber" name="L309" href="OpenIntToFieldHashMap.html#L309">309</a>         }
+<a class="jxr_linenumber" name="L310" href="OpenIntToFieldHashMap.html#L310">310</a> 
+<a class="jxr_linenumber" name="L311" href="OpenIntToFieldHashMap.html#L311">311</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> firstRemoved = index;
+<a class="jxr_linenumber" name="L312" href="OpenIntToFieldHashMap.html#L312">312</a>         <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
+<a class="jxr_linenumber" name="L313" href="OpenIntToFieldHashMap.html#L313">313</a>             j = probe(perturb, j);
+<a class="jxr_linenumber" name="L314" href="OpenIntToFieldHashMap.html#L314">314</a>             index = j &amp; mask;
+<a class="jxr_linenumber" name="L315" href="OpenIntToFieldHashMap.html#L315">315</a> 
+<a class="jxr_linenumber" name="L316" href="OpenIntToFieldHashMap.html#L316">316</a>             <strong class="jxr_keyword">if</strong> (states[index] == FREE) {
+<a class="jxr_linenumber" name="L317" href="OpenIntToFieldHashMap.html#L317">317</a>                 <strong class="jxr_keyword">return</strong> firstRemoved;
+<a class="jxr_linenumber" name="L318" href="OpenIntToFieldHashMap.html#L318">318</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (states[index] == FULL &amp;&amp; keys[index] == key) {
+<a class="jxr_linenumber" name="L319" href="OpenIntToFieldHashMap.html#L319">319</a>                 <strong class="jxr_keyword">return</strong> changeIndexSign(index);
+<a class="jxr_linenumber" name="L320" href="OpenIntToFieldHashMap.html#L320">320</a>             }
+<a class="jxr_linenumber" name="L321" href="OpenIntToFieldHashMap.html#L321">321</a> 
+<a class="jxr_linenumber" name="L322" href="OpenIntToFieldHashMap.html#L322">322</a>             perturb &gt;&gt;= PERTURB_SHIFT;
+<a class="jxr_linenumber" name="L323" href="OpenIntToFieldHashMap.html#L323">323</a> 
+<a class="jxr_linenumber" name="L324" href="OpenIntToFieldHashMap.html#L324">324</a>         }
+<a class="jxr_linenumber" name="L325" href="OpenIntToFieldHashMap.html#L325">325</a> 
+<a class="jxr_linenumber" name="L326" href="OpenIntToFieldHashMap.html#L326">326</a>     }
+<a class="jxr_linenumber" name="L327" href="OpenIntToFieldHashMap.html#L327">327</a> 
+<a class="jxr_linenumber" name="L328" href="OpenIntToFieldHashMap.html#L328">328</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L329" href="OpenIntToFieldHashMap.html#L329">329</a> <em class="jxr_javadoccomment">     * Compute next probe for collision resolution</em>
+<a class="jxr_linenumber" name="L330" href="OpenIntToFieldHashMap.html#L330">330</a> <em class="jxr_javadoccomment">     * @param perturb perturbed hash</em>
+<a class="jxr_linenumber" name="L331" href="OpenIntToFieldHashMap.html#L331">331</a> <em class="jxr_javadoccomment">     * @param j previous probe</em>
+<a class="jxr_linenumber" name="L332" href="OpenIntToFieldHashMap.html#L332">332</a> <em class="jxr_javadoccomment">     * @return next probe</em>
+<a class="jxr_linenumber" name="L333" href="OpenIntToFieldHashMap.html#L333">333</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L334" href="OpenIntToFieldHashMap.html#L334">334</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> probe(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> perturb, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> j) {
+<a class="jxr_linenumber" name="L335" href="OpenIntToFieldHashMap.html#L335">335</a>         <strong class="jxr_keyword">return</strong> (j &lt;&lt; 2) + j + perturb + 1;
+<a class="jxr_linenumber" name="L336" href="OpenIntToFieldHashMap.html#L336">336</a>     }
+<a class="jxr_linenumber" name="L337" href="OpenIntToFieldHashMap.html#L337">337</a> 
+<a class="jxr_linenumber" name="L338" href="OpenIntToFieldHashMap.html#L338">338</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L339" href="OpenIntToFieldHashMap.html#L339">339</a> <em class="jxr_javadoccomment">     * Change the index sign</em>
+<a class="jxr_linenumber" name="L340" href="OpenIntToFieldHashMap.html#L340">340</a> <em class="jxr_javadoccomment">     * @param index initial index</em>
+<a class="jxr_linenumber" name="L341" href="OpenIntToFieldHashMap.html#L341">341</a> <em class="jxr_javadoccomment">     * @return changed index</em>
+<a class="jxr_linenumber" name="L342" href="OpenIntToFieldHashMap.html#L342">342</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L343" href="OpenIntToFieldHashMap.html#L343">343</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> changeIndexSign(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> index) {
+<a class="jxr_linenumber" name="L344" href="OpenIntToFieldHashMap.html#L344">344</a>         <strong class="jxr_keyword">return</strong> -index - 1;
+<a class="jxr_linenumber" name="L345" href="OpenIntToFieldHashMap.html#L345">345</a>     }
+<a class="jxr_linenumber" name="L346" href="OpenIntToFieldHashMap.html#L346">346</a> 
+<a class="jxr_linenumber" name="L347" href="OpenIntToFieldHashMap.html#L347">347</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L348" href="OpenIntToFieldHashMap.html#L348">348</a> <em class="jxr_javadoccomment">     * Get the number of elements stored in the map.</em>
+<a class="jxr_linenumber" name="L349" href="OpenIntToFieldHashMap.html#L349">349</a> <em class="jxr_javadoccomment">     * @return number of elements stored in the map</em>
+<a class="jxr_linenumber" name="L350" href="OpenIntToFieldHashMap.html#L350">350</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L351" href="OpenIntToFieldHashMap.html#L351">351</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> size() {
+<a class="jxr_linenumber" name="L352" href="OpenIntToFieldHashMap.html#L352">352</a>         <strong class="jxr_keyword">return</strong> size;
+<a class="jxr_linenumber" name="L353" href="OpenIntToFieldHashMap.html#L353">353</a>     }
+<a class="jxr_linenumber" name="L354" href="OpenIntToFieldHashMap.html#L354">354</a> 
+<a class="jxr_linenumber" name="L355" href="OpenIntToFieldHashMap.html#L355">355</a> 
+<a class="jxr_linenumber" name="L356" href="OpenIntToFieldHashMap.html#L356">356</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L357" href="OpenIntToFieldHashMap.html#L357">357</a> <em class="jxr_javadoccomment">     * Remove the value associated with a key.</em>
+<a class="jxr_linenumber" name="L358" href="OpenIntToFieldHashMap.html#L358">358</a> <em class="jxr_javadoccomment">     * @param key key to which the value is associated</em>
+<a class="jxr_linenumber" name="L359" href="OpenIntToFieldHashMap.html#L359">359</a> <em class="jxr_javadoccomment">     * @return removed value</em>
+<a class="jxr_linenumber" name="L360" href="OpenIntToFieldHashMap.html#L360">360</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L361" href="OpenIntToFieldHashMap.html#L361">361</a>     <strong class="jxr_keyword">public</strong> T remove(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> key) {
+<a class="jxr_linenumber" name="L362" href="OpenIntToFieldHashMap.html#L362">362</a> 
+<a class="jxr_linenumber" name="L363" href="OpenIntToFieldHashMap.html#L363">363</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> hash  = hashOf(key);
+<a class="jxr_linenumber" name="L364" href="OpenIntToFieldHashMap.html#L364">364</a>         <strong class="jxr_keyword">int</strong> index = hash &amp; mask;
+<a class="jxr_linenumber" name="L365" href="OpenIntToFieldHashMap.html#L365">365</a>         <strong class="jxr_keyword">if</strong> (containsKey(key, index)) {
+<a class="jxr_linenumber" name="L366" href="OpenIntToFieldHashMap.html#L366">366</a>             <strong class="jxr_keyword">return</strong> doRemove(index);
+<a class="jxr_linenumber" name="L367" href="OpenIntToFieldHashMap.html#L367">367</a>         }
+<a class="jxr_linenumber" name="L368" href="OpenIntToFieldHashMap.html#L368">368</a> 
+<a class="jxr_linenumber" name="L369" href="OpenIntToFieldHashMap.html#L369">369</a>         <strong class="jxr_keyword">if</strong> (states[index] == FREE) {
+<a class="jxr_linenumber" name="L370" href="OpenIntToFieldHashMap.html#L370">370</a>             <strong class="jxr_keyword">return</strong> missingEntries;
+<a class="jxr_linenumber" name="L371" href="OpenIntToFieldHashMap.html#L371">371</a>         }
+<a class="jxr_linenumber" name="L372" href="OpenIntToFieldHashMap.html#L372">372</a> 
+<a class="jxr_linenumber" name="L373" href="OpenIntToFieldHashMap.html#L373">373</a>         <strong class="jxr_keyword">int</strong> j = index;
+<a class="jxr_linenumber" name="L374" href="OpenIntToFieldHashMap.html#L374">374</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> perturb = perturb(hash); states[index] != FREE; perturb &gt;&gt;= PERTURB_SHIFT) {
+<a class="jxr_linenumber" name="L375" href="OpenIntToFieldHashMap.html#L375">375</a>             j = probe(perturb, j);
+<a class="jxr_linenumber" name="L376" href="OpenIntToFieldHashMap.html#L376">376</a>             index = j &amp; mask;
+<a class="jxr_linenumber" name="L377" href="OpenIntToFieldHashMap.html#L377">377</a>             <strong class="jxr_keyword">if</strong> (containsKey(key, index)) {
+<a class="jxr_linenumber" name="L378" href="OpenIntToFieldHashMap.html#L378">378</a>                 <strong class="jxr_keyword">return</strong> doRemove(index);
+<a class="jxr_linenumber" name="L379" href="OpenIntToFieldHashMap.html#L379">379</a>             }
+<a class="jxr_linenumber" name="L380" href="OpenIntToFieldHashMap.html#L380">380</a>         }
+<a class="jxr_linenumber" name="L381" href="OpenIntToFieldHashMap.html#L381">381</a> 
+<a class="jxr_linenumber" name="L382" href="OpenIntToFieldHashMap.html#L382">382</a>         <strong class="jxr_keyword">return</strong> missingEntries;
+<a class="jxr_linenumber" name="L383" href="OpenIntToFieldHashMap.html#L383">383</a> 
+<a class="jxr_linenumber" name="L384" href="OpenIntToFieldHashMap.html#L384">384</a>     }
+<a class="jxr_linenumber" name="L385" href="OpenIntToFieldHashMap.html#L385">385</a> 
+<a class="jxr_linenumber" name="L386" href="OpenIntToFieldHashMap.html#L386">386</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L387" href="OpenIntToFieldHashMap.html#L387">387</a> <em class="jxr_javadoccomment">     * Check if the tables contain an element associated with specified key</em>
+<a class="jxr_linenumber" name="L388" href="OpenIntToFieldHashMap.html#L388">388</a> <em class="jxr_javadoccomment">     * at specified index.</em>
+<a class="jxr_linenumber" name="L389" href="OpenIntToFieldHashMap.html#L389">389</a> <em class="jxr_javadoccomment">     * @param key key to check</em>
+<a class="jxr_linenumber" name="L390" href="OpenIntToFieldHashMap.html#L390">390</a> <em class="jxr_javadoccomment">     * @param index index to check</em>
+<a class="jxr_linenumber" name="L391" href="OpenIntToFieldHashMap.html#L391">391</a> <em class="jxr_javadoccomment">     * @return true if an element is associated with key at index</em>
+<a class="jxr_linenumber" name="L392" href="OpenIntToFieldHashMap.html#L392">392</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L393" href="OpenIntToFieldHashMap.html#L393">393</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> containsKey(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> key, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> index) {
+<a class="jxr_linenumber" name="L394" href="OpenIntToFieldHashMap.html#L394">394</a>         <strong class="jxr_keyword">return</strong> (key != 0 || states[index] == FULL) &amp;&amp; keys[index] == key;
+<a class="jxr_linenumber" name="L395" href="OpenIntToFieldHashMap.html#L395">395</a>     }
+<a class="jxr_linenumber" name="L396" href="OpenIntToFieldHashMap.html#L396">396</a> 
+<a class="jxr_linenumber" name="L397" href="OpenIntToFieldHashMap.html#L397">397</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L398" href="OpenIntToFieldHashMap.html#L398">398</a> <em class="jxr_javadoccomment">     * Remove an element at specified index.</em>
+<a class="jxr_linenumber" name="L399" href="OpenIntToFieldHashMap.html#L399">399</a> <em class="jxr_javadoccomment">     * @param index index of the element to remove</em>
+<a class="jxr_linenumber" name="L400" href="OpenIntToFieldHashMap.html#L400">400</a> <em class="jxr_javadoccomment">     * @return removed value</em>
+<a class="jxr_linenumber" name="L401" href="OpenIntToFieldHashMap.html#L401">401</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L402" href="OpenIntToFieldHashMap.html#L402">402</a>     <strong class="jxr_keyword">private</strong> T doRemove(<strong class="jxr_keyword">int</strong> index) {
+<a class="jxr_linenumber" name="L403" href="OpenIntToFieldHashMap.html#L403">403</a>         keys[index]   = 0;
+<a class="jxr_linenumber" name="L404" href="OpenIntToFieldHashMap.html#L404">404</a>         states[index] = REMOVED;
+<a class="jxr_linenumber" name="L405" href="OpenIntToFieldHashMap.html#L405">405</a>         <strong class="jxr_keyword">final</strong> T previous = values[index];
+<a class="jxr_linenumber" name="L406" href="OpenIntToFieldHashMap.html#L406">406</a>         values[index] = missingEntries;
+<a class="jxr_linenumber" name="L407" href="OpenIntToFieldHashMap.html#L407">407</a>         --size;
+<a class="jxr_linenumber" name="L408" href="OpenIntToFieldHashMap.html#L408">408</a>         ++count;
+<a class="jxr_linenumber" name="L409" href="OpenIntToFieldHashMap.html#L409">409</a>         <strong class="jxr_keyword">return</strong> previous;
+<a class="jxr_linenumber" name="L410" href="OpenIntToFieldHashMap.html#L410">410</a>     }
+<a class="jxr_linenumber" name="L411" href="OpenIntToFieldHashMap.html#L411">411</a> 
+<a class="jxr_linenumber" name="L412" href="OpenIntToFieldHashMap.html#L412">412</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L413" href="OpenIntToFieldHashMap.html#L413">413</a> <em class="jxr_javadoccomment">     * Put a value associated with a key in the map.</em>
+<a class="jxr_linenumber" name="L414" href="OpenIntToFieldHashMap.html#L414">414</a> <em class="jxr_javadoccomment">     * @param key key to which value is associated</em>
+<a class="jxr_linenumber" name="L415" href="OpenIntToFieldHashMap.html#L415">415</a> <em class="jxr_javadoccomment">     * @param value value to put in the map</em>
+<a class="jxr_linenumber" name="L416" href="OpenIntToFieldHashMap.html#L416">416</a> <em class="jxr_javadoccomment">     * @return previous value associated with the key</em>
+<a class="jxr_linenumber" name="L417" href="OpenIntToFieldHashMap.html#L417">417</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L418" href="OpenIntToFieldHashMap.html#L418">418</a>     <strong class="jxr_keyword">public</strong> T put(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> key, <strong class="jxr_keyword">final</strong> T value) {
+<a class="jxr_linenumber" name="L419" href="OpenIntToFieldHashMap.html#L419">419</a>         <strong class="jxr_keyword">int</strong> index = findInsertionIndex(key);
+<a class="jxr_linenumber" name="L420" href="OpenIntToFieldHashMap.html#L420">420</a>         T previous = missingEntries;
+<a class="jxr_linenumber" name="L421" href="OpenIntToFieldHashMap.html#L421">421</a>         <strong class="jxr_keyword">boolean</strong> newMapping = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L422" href="OpenIntToFieldHashMap.html#L422">422</a>         <strong class="jxr_keyword">if</strong> (index &lt; 0) {
+<a class="jxr_linenumber" name="L423" href="OpenIntToFieldHashMap.html#L423">423</a>             index = changeIndexSign(index);
+<a class="jxr_linenumber" name="L424" href="OpenIntToFieldHashMap.html#L424">424</a>             previous = values[index];
+<a class="jxr_linenumber" name="L425" href="OpenIntToFieldHashMap.html#L425">425</a>             newMapping = false;
+<a class="jxr_linenumber" name="L426" href="OpenIntToFieldHashMap.html#L426">426</a>         }
+<a class="jxr_linenumber" name="L427" href="OpenIntToFieldHashMap.html#L427">427</a>         keys[index]   = key;
+<a class="jxr_linenumber" name="L428" href="OpenIntToFieldHashMap.html#L428">428</a>         states[index] = FULL;
+<a class="jxr_linenumber" name="L429" href="OpenIntToFieldHashMap.html#L429">429</a>         values[index] = value;
+<a class="jxr_linenumber" name="L430" href="OpenIntToFieldHashMap.html#L430">430</a>         <strong class="jxr_keyword">if</strong> (newMapping) {
+<a class="jxr_linenumber" name="L431" href="OpenIntToFieldHashMap.html#L431">431</a>             ++size;
+<a class="jxr_linenumber" name="L432" href="OpenIntToFieldHashMap.html#L432">432</a>             <strong class="jxr_keyword">if</strong> (shouldGrowTable()) {
+<a class="jxr_linenumber" name="L433" href="OpenIntToFieldHashMap.html#L433">433</a>                 growTable();
+<a class="jxr_linenumber" name="L434" href="OpenIntToFieldHashMap.html#L434">434</a>             }
+<a class="jxr_linenumber" name="L435" href="OpenIntToFieldHashMap.html#L435">435</a>             ++count;
+<a class="jxr_linenumber" name="L436" href="OpenIntToFieldHashMap.html#L436">436</a>         }
+<a class="jxr_linenumber" name="L437" href="OpenIntToFieldHashMap.html#L437">437</a>         <strong class="jxr_keyword">return</strong> previous;
+<a class="jxr_linenumber" name="L438" href="OpenIntToFieldHashMap.html#L438">438</a> 
+<a class="jxr_linenumber" name="L439" href="OpenIntToFieldHashMap.html#L439">439</a>     }
+<a class="jxr_linenumber" name="L440" href="OpenIntToFieldHashMap.html#L440">440</a> 
+<a class="jxr_linenumber" name="L441" href="OpenIntToFieldHashMap.html#L441">441</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L442" href="OpenIntToFieldHashMap.html#L442">442</a> <em class="jxr_javadoccomment">     * Grow the tables.</em>
+<a class="jxr_linenumber" name="L443" href="OpenIntToFieldHashMap.html#L443">443</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L444" href="OpenIntToFieldHashMap.html#L444">444</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> growTable() {
+<a class="jxr_linenumber" name="L445" href="OpenIntToFieldHashMap.html#L445">445</a> 
+<a class="jxr_linenumber" name="L446" href="OpenIntToFieldHashMap.html#L446">446</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> oldLength      = states.length;
+<a class="jxr_linenumber" name="L447" href="OpenIntToFieldHashMap.html#L447">447</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] oldKeys      = keys;
+<a class="jxr_linenumber" name="L448" href="OpenIntToFieldHashMap.html#L448">448</a>         <strong class="jxr_keyword">final</strong> T[] oldValues = values;
+<a class="jxr_linenumber" name="L449" href="OpenIntToFieldHashMap.html#L449">449</a>         <strong class="jxr_keyword">final</strong> byte[] oldStates   = states;
+<a class="jxr_linenumber" name="L450" href="OpenIntToFieldHashMap.html#L450">450</a> 
+<a class="jxr_linenumber" name="L451" href="OpenIntToFieldHashMap.html#L451">451</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> newLength = RESIZE_MULTIPLIER * oldLength;
+<a class="jxr_linenumber" name="L452" href="OpenIntToFieldHashMap.html#L452">452</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] newKeys = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[newLength];
+<a class="jxr_linenumber" name="L453" href="OpenIntToFieldHashMap.html#L453">453</a>         <strong class="jxr_keyword">final</strong> T[] newValues = buildArray(newLength);
+<a class="jxr_linenumber" name="L454" href="OpenIntToFieldHashMap.html#L454">454</a>         <strong class="jxr_keyword">final</strong> byte[] newStates = <strong class="jxr_keyword">new</strong> byte[newLength];
+<a class="jxr_linenumber" name="L455" href="OpenIntToFieldHashMap.html#L455">455</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> newMask = newLength - 1;
+<a class="jxr_linenumber" name="L456" href="OpenIntToFieldHashMap.html#L456">456</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; oldLength; ++i) {
+<a class="jxr_linenumber" name="L457" href="OpenIntToFieldHashMap.html#L457">457</a>             <strong class="jxr_keyword">if</strong> (oldStates[i] == FULL) {
+<a class="jxr_linenumber" name="L458" href="OpenIntToFieldHashMap.html#L458">458</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> key = oldKeys[i];
+<a class="jxr_linenumber" name="L459" href="OpenIntToFieldHashMap.html#L459">459</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> index = findInsertionIndex(newKeys, newStates, key, newMask);
+<a class="jxr_linenumber" name="L460" href="OpenIntToFieldHashMap.html#L460">460</a>                 newKeys[index]   = key;
+<a class="jxr_linenumber" name="L461" href="OpenIntToFieldHashMap.html#L461">461</a>                 newValues[index] = oldValues[i];
+<a class="jxr_linenumber" name="L462" href="OpenIntToFieldHashMap.html#L462">462</a>                 newStates[index] = FULL;
+<a class="jxr_linenumber" name="L463" href="OpenIntToFieldHashMap.html#L463">463</a>             }
+<a class="jxr_linenumber" name="L464" href="OpenIntToFieldHashMap.html#L464">464</a>         }
+<a class="jxr_linenumber" name="L465" href="OpenIntToFieldHashMap.html#L465">465</a> 
+<a class="jxr_linenumber" name="L466" href="OpenIntToFieldHashMap.html#L466">466</a>         mask   = newMask;
+<a class="jxr_linenumber" name="L467" href="OpenIntToFieldHashMap.html#L467">467</a>         keys   = newKeys;
+<a class="jxr_linenumber" name="L468" href="OpenIntToFieldHashMap.html#L468">468</a>         values = newValues;
+<a class="jxr_linenumber" name="L469" href="OpenIntToFieldHashMap.html#L469">469</a>         states = newStates;
+<a class="jxr_linenumber" name="L470" href="OpenIntToFieldHashMap.html#L470">470</a> 
+<a class="jxr_linenumber" name="L471" href="OpenIntToFieldHashMap.html#L471">471</a>     }
+<a class="jxr_linenumber" name="L472" href="OpenIntToFieldHashMap.html#L472">472</a> 
+<a class="jxr_linenumber" name="L473" href="OpenIntToFieldHashMap.html#L473">473</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L474" href="OpenIntToFieldHashMap.html#L474">474</a> <em class="jxr_javadoccomment">     * Check if tables should grow due to increased size.</em>
+<a class="jxr_linenumber" name="L475" href="OpenIntToFieldHashMap.html#L475">475</a> <em class="jxr_javadoccomment">     * @return true if  tables should grow</em>
+<a class="jxr_linenumber" name="L476" href="OpenIntToFieldHashMap.html#L476">476</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L477" href="OpenIntToFieldHashMap.html#L477">477</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> shouldGrowTable() {
+<a class="jxr_linenumber" name="L478" href="OpenIntToFieldHashMap.html#L478">478</a>         <strong class="jxr_keyword">return</strong> size &gt; (mask + 1) * LOAD_FACTOR;
+<a class="jxr_linenumber" name="L479" href="OpenIntToFieldHashMap.html#L479">479</a>     }
+<a class="jxr_linenumber" name="L480" href="OpenIntToFieldHashMap.html#L480">480</a> 
+<a class="jxr_linenumber" name="L481" href="OpenIntToFieldHashMap.html#L481">481</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L482" href="OpenIntToFieldHashMap.html#L482">482</a> <em class="jxr_javadoccomment">     * Compute the hash value of a key</em>
+<a class="jxr_linenumber" name="L483" href="OpenIntToFieldHashMap.html#L483">483</a> <em class="jxr_javadoccomment">     * @param key key to hash</em>
+<a class="jxr_linenumber" name="L484" href="OpenIntToFieldHashMap.html#L484">484</a> <em class="jxr_javadoccomment">     * @return hash value of the key</em>
+<a class="jxr_linenumber" name="L485" href="OpenIntToFieldHashMap.html#L485">485</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L486" href="OpenIntToFieldHashMap.html#L486">486</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> hashOf(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> key) {
+<a class="jxr_linenumber" name="L487" href="OpenIntToFieldHashMap.html#L487">487</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> h = key ^ ((key &gt;&gt;&gt; 20) ^ (key &gt;&gt;&gt; 12));
+<a class="jxr_linenumber" name="L488" href="OpenIntToFieldHashMap.html#L488">488</a>         <strong class="jxr_keyword">return</strong> h ^ (h &gt;&gt;&gt; 7) ^ (h &gt;&gt;&gt; 4);
+<a class="jxr_linenumber" name="L489" href="OpenIntToFieldHashMap.html#L489">489</a>     }
+<a class="jxr_linenumber" name="L490" href="OpenIntToFieldHashMap.html#L490">490</a> 
+<a class="jxr_linenumber" name="L491" href="OpenIntToFieldHashMap.html#L491">491</a> 
+<a class="jxr_linenumber" name="L492" href="OpenIntToFieldHashMap.html#L492">492</a>     <em class="jxr_javadoccomment">/** Iterator class for the map. */</em>
+<a class="jxr_linenumber" name="L493" href="OpenIntToFieldHashMap.html#L493">493</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="OpenIntToDoubleHashMap.html">Iterator</a> {
+<a class="jxr_linenumber" name="L494" href="OpenIntToFieldHashMap.html#L494">494</a> 
+<a class="jxr_linenumber" name="L495" href="OpenIntToFieldHashMap.html#L495">495</a>         <em class="jxr_javadoccomment">/** Reference modification count. */</em>
+<a class="jxr_linenumber" name="L496" href="OpenIntToFieldHashMap.html#L496">496</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> referenceCount;
+<a class="jxr_linenumber" name="L497" href="OpenIntToFieldHashMap.html#L497">497</a> 
+<a class="jxr_linenumber" name="L498" href="OpenIntToFieldHashMap.html#L498">498</a>         <em class="jxr_javadoccomment">/** Index of current element. */</em>
+<a class="jxr_linenumber" name="L499" href="OpenIntToFieldHashMap.html#L499">499</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> current;
+<a class="jxr_linenumber" name="L500" href="OpenIntToFieldHashMap.html#L500">500</a> 
+<a class="jxr_linenumber" name="L501" href="OpenIntToFieldHashMap.html#L501">501</a>         <em class="jxr_javadoccomment">/** Index of next element. */</em>
+<a class="jxr_linenumber" name="L502" href="OpenIntToFieldHashMap.html#L502">502</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> next;
+<a class="jxr_linenumber" name="L503" href="OpenIntToFieldHashMap.html#L503">503</a> 
+<a class="jxr_linenumber" name="L504" href="OpenIntToFieldHashMap.html#L504">504</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L505" href="OpenIntToFieldHashMap.html#L505">505</a> <em class="jxr_javadoccomment">         * Simple constructor.</em>
+<a class="jxr_linenumber" name="L506" href="OpenIntToFieldHashMap.html#L506">506</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L507" href="OpenIntToFieldHashMap.html#L507">507</a>         <strong class="jxr_keyword">private</strong> <a href="OpenIntToDoubleHashMap.html">Iterator</a>() {
+<a class="jxr_linenumber" name="L508" href="OpenIntToFieldHashMap.html#L508">508</a> 
+<a class="jxr_linenumber" name="L509" href="OpenIntToFieldHashMap.html#L509">509</a>             <em class="jxr_comment">// preserve the modification count of the map to detect concurrent modifications later</em>
+<a class="jxr_linenumber" name="L510" href="OpenIntToFieldHashMap.html#L510">510</a>             referenceCount = count;
+<a class="jxr_linenumber" name="L511" href="OpenIntToFieldHashMap.html#L511">511</a> 
+<a class="jxr_linenumber" name="L512" href="OpenIntToFieldHashMap.html#L512">512</a>             <em class="jxr_comment">// initialize current index</em>
+<a class="jxr_linenumber" name="L513" href="OpenIntToFieldHashMap.html#L513">513</a>             next = -1;
+<a class="jxr_linenumber" name="L514" href="OpenIntToFieldHashMap.html#L514">514</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L515" href="OpenIntToFieldHashMap.html#L515">515</a>                 advance();
+<a class="jxr_linenumber" name="L516" href="OpenIntToFieldHashMap.html#L516">516</a>             } <strong class="jxr_keyword">catch</strong> (NoSuchElementException nsee) { <em class="jxr_comment">// NOPMD</em>
+<a class="jxr_linenumber" name="L517" href="OpenIntToFieldHashMap.html#L517">517</a>                 <em class="jxr_comment">// ignored</em>
+<a class="jxr_linenumber" name="L518" href="OpenIntToFieldHashMap.html#L518">518</a>             }
+<a class="jxr_linenumber" name="L519" href="OpenIntToFieldHashMap.html#L519">519</a> 
+<a class="jxr_linenumber" name="L520" href="OpenIntToFieldHashMap.html#L520">520</a>         }
+<a class="jxr_linenumber" name="L521" href="OpenIntToFieldHashMap.html#L521">521</a> 
+<a class="jxr_linenumber" name="L522" href="OpenIntToFieldHashMap.html#L522">522</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L523" href="OpenIntToFieldHashMap.html#L523">523</a> <em class="jxr_javadoccomment">         * Check if there is a next element in the map.</em>
+<a class="jxr_linenumber" name="L524" href="OpenIntToFieldHashMap.html#L524">524</a> <em class="jxr_javadoccomment">         * @return true if there is a next element</em>
+<a class="jxr_linenumber" name="L525" href="OpenIntToFieldHashMap.html#L525">525</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L526" href="OpenIntToFieldHashMap.html#L526">526</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> hasNext() {
+<a class="jxr_linenumber" name="L527" href="OpenIntToFieldHashMap.html#L527">527</a>             <strong class="jxr_keyword">return</strong> next &gt;= 0;
+<a class="jxr_linenumber" name="L528" href="OpenIntToFieldHashMap.html#L528">528</a>         }
+<a class="jxr_linenumber" name="L529" href="OpenIntToFieldHashMap.html#L529">529</a> 
+<a class="jxr_linenumber" name="L530" href="OpenIntToFieldHashMap.html#L530">530</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L531" href="OpenIntToFieldHashMap.html#L531">531</a> <em class="jxr_javadoccomment">         * Get the key of current entry.</em>
+<a class="jxr_linenumber" name="L532" href="OpenIntToFieldHashMap.html#L532">532</a> <em class="jxr_javadoccomment">         * @return key of current entry</em>
+<a class="jxr_linenumber" name="L533" href="OpenIntToFieldHashMap.html#L533">533</a> <em class="jxr_javadoccomment">         * @exception ConcurrentModificationException if the map is modified during iteration</em>
+<a class="jxr_linenumber" name="L534" href="OpenIntToFieldHashMap.html#L534">534</a> <em class="jxr_javadoccomment">         * @exception NoSuchElementException if there is no element left in the map</em>
+<a class="jxr_linenumber" name="L535" href="OpenIntToFieldHashMap.html#L535">535</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L536" href="OpenIntToFieldHashMap.html#L536">536</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> key()
+<a class="jxr_linenumber" name="L537" href="OpenIntToFieldHashMap.html#L537">537</a>             <strong class="jxr_keyword">throws</strong> ConcurrentModificationException, NoSuchElementException {
+<a class="jxr_linenumber" name="L538" href="OpenIntToFieldHashMap.html#L538">538</a>             <strong class="jxr_keyword">if</strong> (referenceCount != count) {
+<a class="jxr_linenumber" name="L539" href="OpenIntToFieldHashMap.html#L539">539</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> ConcurrentModificationException();
+<a class="jxr_linenumber" name="L540" href="OpenIntToFieldHashMap.html#L540">540</a>             }
+<a class="jxr_linenumber" name="L541" href="OpenIntToFieldHashMap.html#L541">541</a>             <strong class="jxr_keyword">if</strong> (current &lt; 0) {
+<a class="jxr_linenumber" name="L542" href="OpenIntToFieldHashMap.html#L542">542</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> NoSuchElementException();
+<a class="jxr_linenumber" name="L543" href="OpenIntToFieldHashMap.html#L543">543</a>             }
+<a class="jxr_linenumber" name="L544" href="OpenIntToFieldHashMap.html#L544">544</a>             <strong class="jxr_keyword">return</strong> keys[current];
+<a class="jxr_linenumber" name="L545" href="OpenIntToFieldHashMap.html#L545">545</a>         }
+<a class="jxr_linenumber" name="L546" href="OpenIntToFieldHashMap.html#L546">546</a> 
+<a class="jxr_linenumber" name="L547" href="OpenIntToFieldHashMap.html#L547">547</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L548" href="OpenIntToFieldHashMap.html#L548">548</a> <em class="jxr_javadoccomment">         * Get the value of current entry.</em>
+<a class="jxr_linenumber" name="L549" href="OpenIntToFieldHashMap.html#L549">549</a> <em class="jxr_javadoccomment">         * @return value of current entry</em>
+<a class="jxr_linenumber" name="L550" href="OpenIntToFieldHashMap.html#L550">550</a> <em class="jxr_javadoccomment">         * @exception ConcurrentModificationException if the map is modified during iteration</em>
+<a class="jxr_linenumber" name="L551" href="OpenIntToFieldHashMap.html#L551">551</a> <em class="jxr_javadoccomment">         * @exception NoSuchElementException if there is no element left in the map</em>
+<a class="jxr_linenumber" name="L552" href="OpenIntToFieldHashMap.html#L552">552</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L553" href="OpenIntToFieldHashMap.html#L553">553</a>         <strong class="jxr_keyword">public</strong> T value()
+<a class="jxr_linenumber" name="L554" href="OpenIntToFieldHashMap.html#L554">554</a>             <strong class="jxr_keyword">throws</strong> ConcurrentModificationException, NoSuchElementException {
+<a class="jxr_linenumber" name="L555" href="OpenIntToFieldHashMap.html#L555">555</a>             <strong class="jxr_keyword">if</strong> (referenceCount != count) {
+<a class="jxr_linenumber" name="L556" href="OpenIntToFieldHashMap.html#L556">556</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> ConcurrentModificationException();
+<a class="jxr_linenumber" name="L557" href="OpenIntToFieldHashMap.html#L557">557</a>             }
+<a class="jxr_linenumber" name="L558" href="OpenIntToFieldHashMap.html#L558">558</a>             <strong class="jxr_keyword">if</strong> (current &lt; 0) {
+<a class="jxr_linenumber" name="L559" href="OpenIntToFieldHashMap.html#L559">559</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> NoSuchElementException();
+<a class="jxr_linenumber" name="L560" href="OpenIntToFieldHashMap.html#L560">560</a>             }
+<a class="jxr_linenumber" name="L561" href="OpenIntToFieldHashMap.html#L561">561</a>             <strong class="jxr_keyword">return</strong> values[current];
+<a class="jxr_linenumber" name="L562" href="OpenIntToFieldHashMap.html#L562">562</a>         }
+<a class="jxr_linenumber" name="L563" href="OpenIntToFieldHashMap.html#L563">563</a> 
+<a class="jxr_linenumber" name="L564" href="OpenIntToFieldHashMap.html#L564">564</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L565" href="OpenIntToFieldHashMap.html#L565">565</a> <em class="jxr_javadoccomment">         * Advance iterator one step further.</em>
+<a class="jxr_linenumber" name="L566" href="OpenIntToFieldHashMap.html#L566">566</a> <em class="jxr_javadoccomment">         * @exception ConcurrentModificationException if the map is modified during iteration</em>
+<a class="jxr_linenumber" name="L567" href="OpenIntToFieldHashMap.html#L567">567</a> <em class="jxr_javadoccomment">         * @exception NoSuchElementException if there is no element left in the map</em>
+<a class="jxr_linenumber" name="L568" href="OpenIntToFieldHashMap.html#L568">568</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L569" href="OpenIntToFieldHashMap.html#L569">569</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> advance()
+<a class="jxr_linenumber" name="L570" href="OpenIntToFieldHashMap.html#L570">570</a>             <strong class="jxr_keyword">throws</strong> ConcurrentModificationException, NoSuchElementException {
+<a class="jxr_linenumber" name="L571" href="OpenIntToFieldHashMap.html#L571">571</a> 
+<a class="jxr_linenumber" name="L572" href="OpenIntToFieldHashMap.html#L572">572</a>             <strong class="jxr_keyword">if</strong> (referenceCount != count) {
+<a class="jxr_linenumber" name="L573" href="OpenIntToFieldHashMap.html#L573">573</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> ConcurrentModificationException();
+<a class="jxr_linenumber" name="L574" href="OpenIntToFieldHashMap.html#L574">574</a>             }
+<a class="jxr_linenumber" name="L575" href="OpenIntToFieldHashMap.html#L575">575</a> 
+<a class="jxr_linenumber" name="L576" href="OpenIntToFieldHashMap.html#L576">576</a>             <em class="jxr_comment">// advance on step</em>
+<a class="jxr_linenumber" name="L577" href="OpenIntToFieldHashMap.html#L577">577</a>             current = next;
+<a class="jxr_linenumber" name="L578" href="OpenIntToFieldHashMap.html#L578">578</a> 
+<a class="jxr_linenumber" name="L579" href="OpenIntToFieldHashMap.html#L579">579</a>             <em class="jxr_comment">// prepare next step</em>
+<a class="jxr_linenumber" name="L580" href="OpenIntToFieldHashMap.html#L580">580</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L581" href="OpenIntToFieldHashMap.html#L581">581</a>                 <strong class="jxr_keyword">while</strong> (states[++next] != FULL) { <em class="jxr_comment">// NOPMD</em>
+<a class="jxr_linenumber" name="L582" href="OpenIntToFieldHashMap.html#L582">582</a>                     <em class="jxr_comment">// nothing to do</em>
+<a class="jxr_linenumber" name="L583" href="OpenIntToFieldHashMap.html#L583">583</a>                 }
+<a class="jxr_linenumber" name="L584" href="OpenIntToFieldHashMap.html#L584">584</a>             } <strong class="jxr_keyword">catch</strong> (ArrayIndexOutOfBoundsException e) {
+<a class="jxr_linenumber" name="L585" href="OpenIntToFieldHashMap.html#L585">585</a>                 next = -2;
+<a class="jxr_linenumber" name="L586" href="OpenIntToFieldHashMap.html#L586">586</a>                 <strong class="jxr_keyword">if</strong> (current &lt; 0) {
+<a class="jxr_linenumber" name="L587" href="OpenIntToFieldHashMap.html#L587">587</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> NoSuchElementException();
+<a class="jxr_linenumber" name="L588" href="OpenIntToFieldHashMap.html#L588">588</a>                 }
+<a class="jxr_linenumber" name="L589" href="OpenIntToFieldHashMap.html#L589">589</a>             }
+<a class="jxr_linenumber" name="L590" href="OpenIntToFieldHashMap.html#L590">590</a> 
+<a class="jxr_linenumber" name="L591" href="OpenIntToFieldHashMap.html#L591">591</a>         }
+<a class="jxr_linenumber" name="L592" href="OpenIntToFieldHashMap.html#L592">592</a> 
+<a class="jxr_linenumber" name="L593" href="OpenIntToFieldHashMap.html#L593">593</a>     }
+<a class="jxr_linenumber" name="L594" href="OpenIntToFieldHashMap.html#L594">594</a> 
+<a class="jxr_linenumber" name="L595" href="OpenIntToFieldHashMap.html#L595">595</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L596" href="OpenIntToFieldHashMap.html#L596">596</a> <em class="jxr_javadoccomment">     * Read a serialized object.</em>
+<a class="jxr_linenumber" name="L597" href="OpenIntToFieldHashMap.html#L597">597</a> <em class="jxr_javadoccomment">     * @param stream input stream</em>
+<a class="jxr_linenumber" name="L598" href="OpenIntToFieldHashMap.html#L598">598</a> <em class="jxr_javadoccomment">     * @throws IOException if object cannot be read</em>
+<a class="jxr_linenumber" name="L599" href="OpenIntToFieldHashMap.html#L599">599</a> <em class="jxr_javadoccomment">     * @throws ClassNotFoundException if the class corresponding</em>
+<a class="jxr_linenumber" name="L600" href="OpenIntToFieldHashMap.html#L600">600</a> <em class="jxr_javadoccomment">     * to the serialized object cannot be found</em>
+<a class="jxr_linenumber" name="L601" href="OpenIntToFieldHashMap.html#L601">601</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L602" href="OpenIntToFieldHashMap.html#L602">602</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> readObject(<strong class="jxr_keyword">final</strong> ObjectInputStream stream)
+<a class="jxr_linenumber" name="L603" href="OpenIntToFieldHashMap.html#L603">603</a>         <strong class="jxr_keyword">throws</strong> IOException, ClassNotFoundException {
+<a class="jxr_linenumber" name="L604" href="OpenIntToFieldHashMap.html#L604">604</a>         stream.defaultReadObject();
+<a class="jxr_linenumber" name="L605" href="OpenIntToFieldHashMap.html#L605">605</a>         count = 0;
+<a class="jxr_linenumber" name="L606" href="OpenIntToFieldHashMap.html#L606">606</a>     }
+<a class="jxr_linenumber" name="L607" href="OpenIntToFieldHashMap.html#L607">607</a> 
+<a class="jxr_linenumber" name="L608" href="OpenIntToFieldHashMap.html#L608">608</a>     <em class="jxr_javadoccomment">/** Build an array of elements.</em>
+<a class="jxr_linenumber" name="L609" href="OpenIntToFieldHashMap.html#L609">609</a> <em class="jxr_javadoccomment">     * @param length size of the array to build</em>
+<a class="jxr_linenumber" name="L610" href="OpenIntToFieldHashMap.html#L610">610</a> <em class="jxr_javadoccomment">     * @return a new array</em>
+<a class="jxr_linenumber" name="L611" href="OpenIntToFieldHashMap.html#L611">611</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L612" href="OpenIntToFieldHashMap.html#L612">612</a>     @SuppressWarnings(<span class="jxr_string">"unchecked"</span>) <em class="jxr_comment">// field is of type T</em>
+<a class="jxr_linenumber" name="L613" href="OpenIntToFieldHashMap.html#L613">613</a>     <strong class="jxr_keyword">private</strong> T[] buildArray(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length) {
+<a class="jxr_linenumber" name="L614" href="OpenIntToFieldHashMap.html#L614">614</a>         <strong class="jxr_keyword">return</strong> (T[]) Array.newInstance(field.getRuntimeClass(), length);
+<a class="jxr_linenumber" name="L615" href="OpenIntToFieldHashMap.html#L615">615</a>     }
+<a class="jxr_linenumber" name="L616" href="OpenIntToFieldHashMap.html#L616">616</a> 
+<a class="jxr_linenumber" name="L617" href="OpenIntToFieldHashMap.html#L617">617</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

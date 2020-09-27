@@ -1,0 +1,862 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>ResizableDoubleArray xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/util/ResizableDoubleArray.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="ResizableDoubleArray.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="ResizableDoubleArray.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="ResizableDoubleArray.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="ResizableDoubleArray.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="ResizableDoubleArray.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="ResizableDoubleArray.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="ResizableDoubleArray.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="ResizableDoubleArray.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="ResizableDoubleArray.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="ResizableDoubleArray.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="ResizableDoubleArray.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="ResizableDoubleArray.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="ResizableDoubleArray.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="ResizableDoubleArray.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="ResizableDoubleArray.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="ResizableDoubleArray.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="ResizableDoubleArray.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.util;
+<a class="jxr_linenumber" name="L18" href="ResizableDoubleArray.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="ResizableDoubleArray.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.io.Serializable;
+<a class="jxr_linenumber" name="L20" href="ResizableDoubleArray.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L21" href="ResizableDoubleArray.html#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="ResizableDoubleArray.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L23" href="ResizableDoubleArray.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalStateException;
+<a class="jxr_linenumber" name="L24" href="ResizableDoubleArray.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L25" href="ResizableDoubleArray.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NullArgumentException;
+<a class="jxr_linenumber" name="L26" href="ResizableDoubleArray.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L27" href="ResizableDoubleArray.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L28" href="ResizableDoubleArray.html#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="ResizableDoubleArray.html#L29">29</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L30" href="ResizableDoubleArray.html#L30">30</a>  <em class="jxr_javadoccomment"> * A variable length {@link DoubleArray} implementation that automatically</em>
+<a class="jxr_linenumber" name="L31" href="ResizableDoubleArray.html#L31">31</a>  <em class="jxr_javadoccomment"> * handles expanding and contracting its internal storage array as elements</em>
+<a class="jxr_linenumber" name="L32" href="ResizableDoubleArray.html#L32">32</a>  <em class="jxr_javadoccomment"> * are added and removed.</em>
+<a class="jxr_linenumber" name="L33" href="ResizableDoubleArray.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L34" href="ResizableDoubleArray.html#L34">34</a>  <em class="jxr_javadoccomment"> * The internal storage array starts with capacity determined by the</em>
+<a class="jxr_linenumber" name="L35" href="ResizableDoubleArray.html#L35">35</a>  <em class="jxr_javadoccomment"> * {@code initialCapacity} property, which can be set by the constructor.</em>
+<a class="jxr_linenumber" name="L36" href="ResizableDoubleArray.html#L36">36</a>  <em class="jxr_javadoccomment"> * The default initial capacity is 16.  Adding elements using</em>
+<a class="jxr_linenumber" name="L37" href="ResizableDoubleArray.html#L37">37</a>  <em class="jxr_javadoccomment"> * {@link #addElement(double)} appends elements to the end of the array.</em>
+<a class="jxr_linenumber" name="L38" href="ResizableDoubleArray.html#L38">38</a>  <em class="jxr_javadoccomment"> * When there are no open entries at the end of the internal storage array,</em>
+<a class="jxr_linenumber" name="L39" href="ResizableDoubleArray.html#L39">39</a>  <em class="jxr_javadoccomment"> * the array is expanded.  The size of the expanded array depends on the</em>
+<a class="jxr_linenumber" name="L40" href="ResizableDoubleArray.html#L40">40</a>  <em class="jxr_javadoccomment"> * {@code expansionMode} and {@code expansionFactor} properties.</em>
+<a class="jxr_linenumber" name="L41" href="ResizableDoubleArray.html#L41">41</a>  <em class="jxr_javadoccomment"> * The {@code expansionMode} determines whether the size of the array is</em>
+<a class="jxr_linenumber" name="L42" href="ResizableDoubleArray.html#L42">42</a>  <em class="jxr_javadoccomment"> * multiplied by the {@code expansionFactor}</em>
+<a class="jxr_linenumber" name="L43" href="ResizableDoubleArray.html#L43">43</a>  <em class="jxr_javadoccomment"> * ({@link ExpansionMode#MULTIPLICATIVE}) or if the expansion is additive</em>
+<a class="jxr_linenumber" name="L44" href="ResizableDoubleArray.html#L44">44</a>  <em class="jxr_javadoccomment"> * ({@link ExpansionMode#ADDITIVE} -- {@code expansionFactor} storage</em>
+<a class="jxr_linenumber" name="L45" href="ResizableDoubleArray.html#L45">45</a>  <em class="jxr_javadoccomment"> * locations added).</em>
+<a class="jxr_linenumber" name="L46" href="ResizableDoubleArray.html#L46">46</a>  <em class="jxr_javadoccomment"> * The default {@code expansionMode} is {@code MULTIPLICATIVE} and the default</em>
+<a class="jxr_linenumber" name="L47" href="ResizableDoubleArray.html#L47">47</a>  <em class="jxr_javadoccomment"> * {@code expansionFactor} is 2.</em>
+<a class="jxr_linenumber" name="L48" href="ResizableDoubleArray.html#L48">48</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L49" href="ResizableDoubleArray.html#L49">49</a>  <em class="jxr_javadoccomment"> * The {@link #addElementRolling(double)} method adds a new element to the end</em>
+<a class="jxr_linenumber" name="L50" href="ResizableDoubleArray.html#L50">50</a>  <em class="jxr_javadoccomment"> * of the internal storage array and adjusts the "usable window" of the</em>
+<a class="jxr_linenumber" name="L51" href="ResizableDoubleArray.html#L51">51</a>  <em class="jxr_javadoccomment"> * internal array forward by one position (effectively making what was the</em>
+<a class="jxr_linenumber" name="L52" href="ResizableDoubleArray.html#L52">52</a>  <em class="jxr_javadoccomment"> * second element the first, and so on).  Repeated activations of this method</em>
+<a class="jxr_linenumber" name="L53" href="ResizableDoubleArray.html#L53">53</a>  <em class="jxr_javadoccomment"> * (or activation of {@link #discardFrontElements(int)}) will effectively orphan</em>
+<a class="jxr_linenumber" name="L54" href="ResizableDoubleArray.html#L54">54</a>  <em class="jxr_javadoccomment"> * the storage locations at the beginning of the internal storage array.  To</em>
+<a class="jxr_linenumber" name="L55" href="ResizableDoubleArray.html#L55">55</a>  <em class="jxr_javadoccomment"> * reclaim this storage, each time one of these methods is activated, the size</em>
+<a class="jxr_linenumber" name="L56" href="ResizableDoubleArray.html#L56">56</a>  <em class="jxr_javadoccomment"> * of the internal storage array is compared to the number of addressable</em>
+<a class="jxr_linenumber" name="L57" href="ResizableDoubleArray.html#L57">57</a>  <em class="jxr_javadoccomment"> * elements (the {@code numElements} property) and if the difference</em>
+<a class="jxr_linenumber" name="L58" href="ResizableDoubleArray.html#L58">58</a>  <em class="jxr_javadoccomment"> * is too large, the internal array is contracted to size</em>
+<a class="jxr_linenumber" name="L59" href="ResizableDoubleArray.html#L59">59</a>  <em class="jxr_javadoccomment"> * {@code numElements + 1}.  The determination of when the internal</em>
+<a class="jxr_linenumber" name="L60" href="ResizableDoubleArray.html#L60">60</a>  <em class="jxr_javadoccomment"> * storage array is "too large" depends on the {@code expansionMode} and</em>
+<a class="jxr_linenumber" name="L61" href="ResizableDoubleArray.html#L61">61</a>  <em class="jxr_javadoccomment"> * {@code contractionFactor} properties.  If  the {@code expansionMode}</em>
+<a class="jxr_linenumber" name="L62" href="ResizableDoubleArray.html#L62">62</a>  <em class="jxr_javadoccomment"> * is {@code MULTIPLICATIVE}, contraction is triggered when the</em>
+<a class="jxr_linenumber" name="L63" href="ResizableDoubleArray.html#L63">63</a>  <em class="jxr_javadoccomment"> * ratio between storage array length and {@code numElements} exceeds</em>
+<a class="jxr_linenumber" name="L64" href="ResizableDoubleArray.html#L64">64</a>  <em class="jxr_javadoccomment"> * {@code contractionFactor.}  If the {@code expansionMode}</em>
+<a class="jxr_linenumber" name="L65" href="ResizableDoubleArray.html#L65">65</a>  <em class="jxr_javadoccomment"> * is {@code ADDITIVE}, the number of excess storage locations</em>
+<a class="jxr_linenumber" name="L66" href="ResizableDoubleArray.html#L66">66</a>  <em class="jxr_javadoccomment"> * is compared to {@code contractionFactor}.</em>
+<a class="jxr_linenumber" name="L67" href="ResizableDoubleArray.html#L67">67</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L68" href="ResizableDoubleArray.html#L68">68</a>  <em class="jxr_javadoccomment"> * To avoid cycles of expansions and contractions, the</em>
+<a class="jxr_linenumber" name="L69" href="ResizableDoubleArray.html#L69">69</a>  <em class="jxr_javadoccomment"> * {@code expansionFactor} must not exceed the {@code contractionFactor}.</em>
+<a class="jxr_linenumber" name="L70" href="ResizableDoubleArray.html#L70">70</a>  <em class="jxr_javadoccomment"> * Constructors and mutators for both of these properties enforce this</em>
+<a class="jxr_linenumber" name="L71" href="ResizableDoubleArray.html#L71">71</a>  <em class="jxr_javadoccomment"> * requirement, throwing a {@code MathIllegalArgumentException} if it is</em>
+<a class="jxr_linenumber" name="L72" href="ResizableDoubleArray.html#L72">72</a>  <em class="jxr_javadoccomment"> * violated.</em>
+<a class="jxr_linenumber" name="L73" href="ResizableDoubleArray.html#L73">73</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L74" href="ResizableDoubleArray.html#L74">74</a>  <em class="jxr_javadoccomment"> * &lt;b&gt;Note:&lt;/b&gt; this class is &lt;b&gt;NOT&lt;/b&gt; thread-safe.</em>
+<a class="jxr_linenumber" name="L75" href="ResizableDoubleArray.html#L75">75</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L76" href="ResizableDoubleArray.html#L76">76</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="ResizableDoubleArray.html">ResizableDoubleArray</a> <strong class="jxr_keyword">implements</strong> DoubleArray, Serializable {
+<a class="jxr_linenumber" name="L77" href="ResizableDoubleArray.html#L77">77</a>      <em class="jxr_javadoccomment">/** Serializable version identifier. */</em>
+<a class="jxr_linenumber" name="L78" href="ResizableDoubleArray.html#L78">78</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = -3485529955529426875L;
+<a class="jxr_linenumber" name="L79" href="ResizableDoubleArray.html#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="ResizableDoubleArray.html#L80">80</a>      <em class="jxr_javadoccomment">/** Default value for initial capacity. */</em>
+<a class="jxr_linenumber" name="L81" href="ResizableDoubleArray.html#L81">81</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> DEFAULT_INITIAL_CAPACITY = 16;
+<a class="jxr_linenumber" name="L82" href="ResizableDoubleArray.html#L82">82</a>      <em class="jxr_javadoccomment">/** Default value for array size modifier. */</em>
+<a class="jxr_linenumber" name="L83" href="ResizableDoubleArray.html#L83">83</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_EXPANSION_FACTOR = 2.0;
+<a class="jxr_linenumber" name="L84" href="ResizableDoubleArray.html#L84">84</a>      <em class="jxr_javadoccomment">/** Default value for expansion mode. */</em>
+<a class="jxr_linenumber" name="L85" href="ResizableDoubleArray.html#L85">85</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="ResizableDoubleArray.html">ExpansionMode</a> DEFAULT_EXPANSION_MODE = ExpansionMode.MULTIPLICATIVE;
+<a class="jxr_linenumber" name="L86" href="ResizableDoubleArray.html#L86">86</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L87" href="ResizableDoubleArray.html#L87">87</a>  <em class="jxr_javadoccomment">     * Default value for the difference between {@link #contractionCriterion}</em>
+<a class="jxr_linenumber" name="L88" href="ResizableDoubleArray.html#L88">88</a>  <em class="jxr_javadoccomment">     * and {@link #expansionFactor}.</em>
+<a class="jxr_linenumber" name="L89" href="ResizableDoubleArray.html#L89">89</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L90" href="ResizableDoubleArray.html#L90">90</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_CONTRACTION_DELTA = 0.5;
+<a class="jxr_linenumber" name="L91" href="ResizableDoubleArray.html#L91">91</a>  
+<a class="jxr_linenumber" name="L92" href="ResizableDoubleArray.html#L92">92</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L93" href="ResizableDoubleArray.html#L93">93</a>  <em class="jxr_javadoccomment">     * The contraction criteria determines when the internal array will be</em>
+<a class="jxr_linenumber" name="L94" href="ResizableDoubleArray.html#L94">94</a>  <em class="jxr_javadoccomment">     * contracted to fit the number of elements contained in the element</em>
+<a class="jxr_linenumber" name="L95" href="ResizableDoubleArray.html#L95">95</a>  <em class="jxr_javadoccomment">     *  array + 1.</em>
+<a class="jxr_linenumber" name="L96" href="ResizableDoubleArray.html#L96">96</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L97" href="ResizableDoubleArray.html#L97">97</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> contractionCriterion;
+<a class="jxr_linenumber" name="L98" href="ResizableDoubleArray.html#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="ResizableDoubleArray.html#L99">99</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L100" href="ResizableDoubleArray.html#L100">100</a> <em class="jxr_javadoccomment">     * The expansion factor of the array.  When the array needs to be expanded,</em>
+<a class="jxr_linenumber" name="L101" href="ResizableDoubleArray.html#L101">101</a> <em class="jxr_javadoccomment">     * the new array size will be {@code internalArray.length * expansionFactor}</em>
+<a class="jxr_linenumber" name="L102" href="ResizableDoubleArray.html#L102">102</a> <em class="jxr_javadoccomment">     * if {@code expansionMode} is set to MULTIPLICATIVE, or</em>
+<a class="jxr_linenumber" name="L103" href="ResizableDoubleArray.html#L103">103</a> <em class="jxr_javadoccomment">     * {@code internalArray.length + expansionFactor} if</em>
+<a class="jxr_linenumber" name="L104" href="ResizableDoubleArray.html#L104">104</a> <em class="jxr_javadoccomment">     * {@code expansionMode} is set to ADDITIVE.</em>
+<a class="jxr_linenumber" name="L105" href="ResizableDoubleArray.html#L105">105</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L106" href="ResizableDoubleArray.html#L106">106</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> expansionFactor;
+<a class="jxr_linenumber" name="L107" href="ResizableDoubleArray.html#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="ResizableDoubleArray.html#L108">108</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L109" href="ResizableDoubleArray.html#L109">109</a> <em class="jxr_javadoccomment">     * Determines whether array expansion by {@code expansionFactor}</em>
+<a class="jxr_linenumber" name="L110" href="ResizableDoubleArray.html#L110">110</a> <em class="jxr_javadoccomment">     * is additive or multiplicative.</em>
+<a class="jxr_linenumber" name="L111" href="ResizableDoubleArray.html#L111">111</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L112" href="ResizableDoubleArray.html#L112">112</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="ResizableDoubleArray.html">ExpansionMode</a> expansionMode;
+<a class="jxr_linenumber" name="L113" href="ResizableDoubleArray.html#L113">113</a> 
+<a class="jxr_linenumber" name="L114" href="ResizableDoubleArray.html#L114">114</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L115" href="ResizableDoubleArray.html#L115">115</a> <em class="jxr_javadoccomment">     * The internal storage array.</em>
+<a class="jxr_linenumber" name="L116" href="ResizableDoubleArray.html#L116">116</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L117" href="ResizableDoubleArray.html#L117">117</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[] internalArray;
+<a class="jxr_linenumber" name="L118" href="ResizableDoubleArray.html#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="ResizableDoubleArray.html#L119">119</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L120" href="ResizableDoubleArray.html#L120">120</a> <em class="jxr_javadoccomment">     * The number of addressable elements in the array.  Note that this</em>
+<a class="jxr_linenumber" name="L121" href="ResizableDoubleArray.html#L121">121</a> <em class="jxr_javadoccomment">     * has nothing to do with the length of the internal storage array.</em>
+<a class="jxr_linenumber" name="L122" href="ResizableDoubleArray.html#L122">122</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L123" href="ResizableDoubleArray.html#L123">123</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> numElements = 0;
+<a class="jxr_linenumber" name="L124" href="ResizableDoubleArray.html#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="ResizableDoubleArray.html#L125">125</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L126" href="ResizableDoubleArray.html#L126">126</a> <em class="jxr_javadoccomment">     * The position of the first addressable element in the internal storage</em>
+<a class="jxr_linenumber" name="L127" href="ResizableDoubleArray.html#L127">127</a> <em class="jxr_javadoccomment">     * array.  The addressable elements in the array are</em>
+<a class="jxr_linenumber" name="L128" href="ResizableDoubleArray.html#L128">128</a> <em class="jxr_javadoccomment">     * {@code internalArray[startIndex],...,internalArray[startIndex + numElements - 1]}.</em>
+<a class="jxr_linenumber" name="L129" href="ResizableDoubleArray.html#L129">129</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L130" href="ResizableDoubleArray.html#L130">130</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> startIndex = 0;
+<a class="jxr_linenumber" name="L131" href="ResizableDoubleArray.html#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="ResizableDoubleArray.html#L132">132</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L133" href="ResizableDoubleArray.html#L133">133</a> <em class="jxr_javadoccomment">     * Specification of expansion algorithm.</em>
+<a class="jxr_linenumber" name="L134" href="ResizableDoubleArray.html#L134">134</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L135" href="ResizableDoubleArray.html#L135">135</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L136" href="ResizableDoubleArray.html#L136">136</a>     <strong class="jxr_keyword">public</strong> enum <a href="ResizableDoubleArray.html">ExpansionMode</a> {
+<a class="jxr_linenumber" name="L137" href="ResizableDoubleArray.html#L137">137</a>         <em class="jxr_javadoccomment">/** Multiplicative expansion mode. */</em>
+<a class="jxr_linenumber" name="L138" href="ResizableDoubleArray.html#L138">138</a>         MULTIPLICATIVE,
+<a class="jxr_linenumber" name="L139" href="ResizableDoubleArray.html#L139">139</a>         <em class="jxr_javadoccomment">/** Additive expansion mode. */</em>
+<a class="jxr_linenumber" name="L140" href="ResizableDoubleArray.html#L140">140</a>         ADDITIVE
+<a class="jxr_linenumber" name="L141" href="ResizableDoubleArray.html#L141">141</a>     }
+<a class="jxr_linenumber" name="L142" href="ResizableDoubleArray.html#L142">142</a> 
+<a class="jxr_linenumber" name="L143" href="ResizableDoubleArray.html#L143">143</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L144" href="ResizableDoubleArray.html#L144">144</a> <em class="jxr_javadoccomment">     * Creates an instance with default properties.</em>
+<a class="jxr_linenumber" name="L145" href="ResizableDoubleArray.html#L145">145</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L146" href="ResizableDoubleArray.html#L146">146</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code initialCapacity = 16}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L147" href="ResizableDoubleArray.html#L147">147</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code expansionMode = MULTIPLICATIVE}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L148" href="ResizableDoubleArray.html#L148">148</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code expansionFactor = 2.0}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L149" href="ResizableDoubleArray.html#L149">149</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code contractionCriterion = 2.5}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L150" href="ResizableDoubleArray.html#L150">150</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L151" href="ResizableDoubleArray.html#L151">151</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L152" href="ResizableDoubleArray.html#L152">152</a>     <strong class="jxr_keyword">public</strong> <a href="ResizableDoubleArray.html">ResizableDoubleArray</a>() {
+<a class="jxr_linenumber" name="L153" href="ResizableDoubleArray.html#L153">153</a>         <strong class="jxr_keyword">this</strong>(DEFAULT_INITIAL_CAPACITY);
+<a class="jxr_linenumber" name="L154" href="ResizableDoubleArray.html#L154">154</a>     }
+<a class="jxr_linenumber" name="L155" href="ResizableDoubleArray.html#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="ResizableDoubleArray.html#L156">156</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L157" href="ResizableDoubleArray.html#L157">157</a> <em class="jxr_javadoccomment">     * Creates an instance with the specified initial capacity.</em>
+<a class="jxr_linenumber" name="L158" href="ResizableDoubleArray.html#L158">158</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L159" href="ResizableDoubleArray.html#L159">159</a> <em class="jxr_javadoccomment">     * Other properties take default values:</em>
+<a class="jxr_linenumber" name="L160" href="ResizableDoubleArray.html#L160">160</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L161" href="ResizableDoubleArray.html#L161">161</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code expansionMode = MULTIPLICATIVE}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L162" href="ResizableDoubleArray.html#L162">162</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code expansionFactor = 2.0}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L163" href="ResizableDoubleArray.html#L163">163</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code contractionCriterion = 2.5}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L164" href="ResizableDoubleArray.html#L164">164</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L165" href="ResizableDoubleArray.html#L165">165</a> <em class="jxr_javadoccomment">     * @param initialCapacity Initial size of the internal storage array.</em>
+<a class="jxr_linenumber" name="L166" href="ResizableDoubleArray.html#L166">166</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if {@code initialCapacity &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L167" href="ResizableDoubleArray.html#L167">167</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L168" href="ResizableDoubleArray.html#L168">168</a>     <strong class="jxr_keyword">public</strong> <a href="ResizableDoubleArray.html">ResizableDoubleArray</a>(<strong class="jxr_keyword">int</strong> initialCapacity) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L169" href="ResizableDoubleArray.html#L169">169</a>         <strong class="jxr_keyword">this</strong>(initialCapacity, DEFAULT_EXPANSION_FACTOR);
+<a class="jxr_linenumber" name="L170" href="ResizableDoubleArray.html#L170">170</a>     }
+<a class="jxr_linenumber" name="L171" href="ResizableDoubleArray.html#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="ResizableDoubleArray.html#L172">172</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L173" href="ResizableDoubleArray.html#L173">173</a> <em class="jxr_javadoccomment">     * Creates an instance from an existing {@code double[]} with the</em>
+<a class="jxr_linenumber" name="L174" href="ResizableDoubleArray.html#L174">174</a> <em class="jxr_javadoccomment">     * initial capacity and numElements corresponding to the size of</em>
+<a class="jxr_linenumber" name="L175" href="ResizableDoubleArray.html#L175">175</a> <em class="jxr_javadoccomment">     * the supplied {@code double[]} array.</em>
+<a class="jxr_linenumber" name="L176" href="ResizableDoubleArray.html#L176">176</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L177" href="ResizableDoubleArray.html#L177">177</a> <em class="jxr_javadoccomment">     * If the supplied array is null, a new empty array with the default</em>
+<a class="jxr_linenumber" name="L178" href="ResizableDoubleArray.html#L178">178</a> <em class="jxr_javadoccomment">     * initial capacity will be created.</em>
+<a class="jxr_linenumber" name="L179" href="ResizableDoubleArray.html#L179">179</a> <em class="jxr_javadoccomment">     * The input array is copied, not referenced.</em>
+<a class="jxr_linenumber" name="L180" href="ResizableDoubleArray.html#L180">180</a> <em class="jxr_javadoccomment">     * Other properties take default values:</em>
+<a class="jxr_linenumber" name="L181" href="ResizableDoubleArray.html#L181">181</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L182" href="ResizableDoubleArray.html#L182">182</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code expansionMode = MULTIPLICATIVE}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L183" href="ResizableDoubleArray.html#L183">183</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code expansionFactor = 2.0}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L184" href="ResizableDoubleArray.html#L184">184</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code contractionCriterion = 2.5}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L185" href="ResizableDoubleArray.html#L185">185</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L186" href="ResizableDoubleArray.html#L186">186</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L187" href="ResizableDoubleArray.html#L187">187</a> <em class="jxr_javadoccomment">     * @param initialArray initial array</em>
+<a class="jxr_linenumber" name="L188" href="ResizableDoubleArray.html#L188">188</a> <em class="jxr_javadoccomment">     * @since 2.2</em>
+<a class="jxr_linenumber" name="L189" href="ResizableDoubleArray.html#L189">189</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L190" href="ResizableDoubleArray.html#L190">190</a>     <strong class="jxr_keyword">public</strong> <a href="ResizableDoubleArray.html">ResizableDoubleArray</a>(<strong class="jxr_keyword">double</strong>[] initialArray) {
+<a class="jxr_linenumber" name="L191" href="ResizableDoubleArray.html#L191">191</a>         <strong class="jxr_keyword">this</strong>(initialArray == <strong class="jxr_keyword">null</strong> || initialArray.length == 0 ?
+<a class="jxr_linenumber" name="L192" href="ResizableDoubleArray.html#L192">192</a>               DEFAULT_INITIAL_CAPACITY :
+<a class="jxr_linenumber" name="L193" href="ResizableDoubleArray.html#L193">193</a>               initialArray.length,
+<a class="jxr_linenumber" name="L194" href="ResizableDoubleArray.html#L194">194</a>              DEFAULT_EXPANSION_FACTOR,
+<a class="jxr_linenumber" name="L195" href="ResizableDoubleArray.html#L195">195</a>              DEFAULT_CONTRACTION_DELTA + DEFAULT_EXPANSION_FACTOR,
+<a class="jxr_linenumber" name="L196" href="ResizableDoubleArray.html#L196">196</a>              DEFAULT_EXPANSION_MODE,
+<a class="jxr_linenumber" name="L197" href="ResizableDoubleArray.html#L197">197</a>              initialArray);
+<a class="jxr_linenumber" name="L198" href="ResizableDoubleArray.html#L198">198</a>     }
+<a class="jxr_linenumber" name="L199" href="ResizableDoubleArray.html#L199">199</a> 
+<a class="jxr_linenumber" name="L200" href="ResizableDoubleArray.html#L200">200</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L201" href="ResizableDoubleArray.html#L201">201</a> <em class="jxr_javadoccomment">     * Creates an instance with the specified initial capacity</em>
+<a class="jxr_linenumber" name="L202" href="ResizableDoubleArray.html#L202">202</a> <em class="jxr_javadoccomment">     * and expansion factor.</em>
+<a class="jxr_linenumber" name="L203" href="ResizableDoubleArray.html#L203">203</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L204" href="ResizableDoubleArray.html#L204">204</a> <em class="jxr_javadoccomment">     * The remaining properties take default values:</em>
+<a class="jxr_linenumber" name="L205" href="ResizableDoubleArray.html#L205">205</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L206" href="ResizableDoubleArray.html#L206">206</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code expansionMode = MULTIPLICATIVE}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L207" href="ResizableDoubleArray.html#L207">207</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code contractionCriterion = 0.5 + expansionFactor}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L208" href="ResizableDoubleArray.html#L208">208</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L209" href="ResizableDoubleArray.html#L209">209</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L210" href="ResizableDoubleArray.html#L210">210</a> <em class="jxr_javadoccomment">     * Throws MathIllegalArgumentException if the following conditions</em>
+<a class="jxr_linenumber" name="L211" href="ResizableDoubleArray.html#L211">211</a> <em class="jxr_javadoccomment">     * are not met:</em>
+<a class="jxr_linenumber" name="L212" href="ResizableDoubleArray.html#L212">212</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L213" href="ResizableDoubleArray.html#L213">213</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code initialCapacity &gt; 0}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L214" href="ResizableDoubleArray.html#L214">214</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code expansionFactor &gt; 1}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L215" href="ResizableDoubleArray.html#L215">215</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L216" href="ResizableDoubleArray.html#L216">216</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L217" href="ResizableDoubleArray.html#L217">217</a> <em class="jxr_javadoccomment">     * @param initialCapacity Initial size of the internal storage array.</em>
+<a class="jxr_linenumber" name="L218" href="ResizableDoubleArray.html#L218">218</a> <em class="jxr_javadoccomment">     * @param expansionFactor The array will be expanded based on this parameter.</em>
+<a class="jxr_linenumber" name="L219" href="ResizableDoubleArray.html#L219">219</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if parameters are not valid.</em>
+<a class="jxr_linenumber" name="L220" href="ResizableDoubleArray.html#L220">220</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L221" href="ResizableDoubleArray.html#L221">221</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L222" href="ResizableDoubleArray.html#L222">222</a>     <strong class="jxr_keyword">public</strong> <a href="ResizableDoubleArray.html">ResizableDoubleArray</a>(<strong class="jxr_keyword">int</strong> initialCapacity, <strong class="jxr_keyword">double</strong> expansionFactor) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L223" href="ResizableDoubleArray.html#L223">223</a>         <strong class="jxr_keyword">this</strong>(initialCapacity, expansionFactor, DEFAULT_CONTRACTION_DELTA + expansionFactor);
+<a class="jxr_linenumber" name="L224" href="ResizableDoubleArray.html#L224">224</a>     }
+<a class="jxr_linenumber" name="L225" href="ResizableDoubleArray.html#L225">225</a> 
+<a class="jxr_linenumber" name="L226" href="ResizableDoubleArray.html#L226">226</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L227" href="ResizableDoubleArray.html#L227">227</a> <em class="jxr_javadoccomment">     * Creates an instance with the specified initial capacity,</em>
+<a class="jxr_linenumber" name="L228" href="ResizableDoubleArray.html#L228">228</a> <em class="jxr_javadoccomment">     * expansion factor, and contraction criteria.</em>
+<a class="jxr_linenumber" name="L229" href="ResizableDoubleArray.html#L229">229</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L230" href="ResizableDoubleArray.html#L230">230</a> <em class="jxr_javadoccomment">     * The expansion mode will default to {@code MULTIPLICATIVE}.</em>
+<a class="jxr_linenumber" name="L231" href="ResizableDoubleArray.html#L231">231</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L232" href="ResizableDoubleArray.html#L232">232</a> <em class="jxr_javadoccomment">     * Throws MathIllegalArgumentException if the following conditions</em>
+<a class="jxr_linenumber" name="L233" href="ResizableDoubleArray.html#L233">233</a> <em class="jxr_javadoccomment">     * are not met:</em>
+<a class="jxr_linenumber" name="L234" href="ResizableDoubleArray.html#L234">234</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L235" href="ResizableDoubleArray.html#L235">235</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code initialCapacity &gt; 0}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L236" href="ResizableDoubleArray.html#L236">236</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code expansionFactor &gt; 1}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L237" href="ResizableDoubleArray.html#L237">237</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code contractionCriterion &gt;= expansionFactor}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L238" href="ResizableDoubleArray.html#L238">238</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L239" href="ResizableDoubleArray.html#L239">239</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L240" href="ResizableDoubleArray.html#L240">240</a> <em class="jxr_javadoccomment">     * @param initialCapacity Initial size of the internal storage array.</em>
+<a class="jxr_linenumber" name="L241" href="ResizableDoubleArray.html#L241">241</a> <em class="jxr_javadoccomment">     * @param expansionFactor The array will be expanded based on this parameter.</em>
+<a class="jxr_linenumber" name="L242" href="ResizableDoubleArray.html#L242">242</a> <em class="jxr_javadoccomment">     * @param contractionCriterion Contraction criterion.</em>
+<a class="jxr_linenumber" name="L243" href="ResizableDoubleArray.html#L243">243</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the parameters are not valid.</em>
+<a class="jxr_linenumber" name="L244" href="ResizableDoubleArray.html#L244">244</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L245" href="ResizableDoubleArray.html#L245">245</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L246" href="ResizableDoubleArray.html#L246">246</a>     <strong class="jxr_keyword">public</strong> <a href="ResizableDoubleArray.html">ResizableDoubleArray</a>(<strong class="jxr_keyword">int</strong> initialCapacity, <strong class="jxr_keyword">double</strong> expansionFactor, <strong class="jxr_keyword">double</strong> contractionCriterion)
+<a class="jxr_linenumber" name="L247" href="ResizableDoubleArray.html#L247">247</a>         <strong class="jxr_keyword">throws</strong> <a href="../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L248" href="ResizableDoubleArray.html#L248">248</a>         <strong class="jxr_keyword">this</strong>(initialCapacity, expansionFactor, contractionCriterion, DEFAULT_EXPANSION_MODE, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L249" href="ResizableDoubleArray.html#L249">249</a>     }
+<a class="jxr_linenumber" name="L250" href="ResizableDoubleArray.html#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="ResizableDoubleArray.html#L251">251</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L252" href="ResizableDoubleArray.html#L252">252</a> <em class="jxr_javadoccomment">     * Creates an instance with the specified properties.</em>
+<a class="jxr_linenumber" name="L253" href="ResizableDoubleArray.html#L253">253</a> <em class="jxr_javadoccomment">     * &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L254" href="ResizableDoubleArray.html#L254">254</a> <em class="jxr_javadoccomment">     * Throws MathIllegalArgumentException if the following conditions</em>
+<a class="jxr_linenumber" name="L255" href="ResizableDoubleArray.html#L255">255</a> <em class="jxr_javadoccomment">     * are not met:</em>
+<a class="jxr_linenumber" name="L256" href="ResizableDoubleArray.html#L256">256</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L257" href="ResizableDoubleArray.html#L257">257</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code initialCapacity &gt; 0}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L258" href="ResizableDoubleArray.html#L258">258</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code expansionFactor &gt; 1}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L259" href="ResizableDoubleArray.html#L259">259</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code contractionCriterion &gt;= expansionFactor}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L260" href="ResizableDoubleArray.html#L260">260</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L261" href="ResizableDoubleArray.html#L261">261</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L262" href="ResizableDoubleArray.html#L262">262</a> <em class="jxr_javadoccomment">     * @param initialCapacity Initial size of the internal storage array.</em>
+<a class="jxr_linenumber" name="L263" href="ResizableDoubleArray.html#L263">263</a> <em class="jxr_javadoccomment">     * @param expansionFactor The array will be expanded based on this parameter.</em>
+<a class="jxr_linenumber" name="L264" href="ResizableDoubleArray.html#L264">264</a> <em class="jxr_javadoccomment">     * @param contractionCriterion Contraction criteria.</em>
+<a class="jxr_linenumber" name="L265" href="ResizableDoubleArray.html#L265">265</a> <em class="jxr_javadoccomment">     * @param expansionMode Expansion mode.</em>
+<a class="jxr_linenumber" name="L266" href="ResizableDoubleArray.html#L266">266</a> <em class="jxr_javadoccomment">     * @param data Initial contents of the array.</em>
+<a class="jxr_linenumber" name="L267" href="ResizableDoubleArray.html#L267">267</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the parameters are not valid.</em>
+<a class="jxr_linenumber" name="L268" href="ResizableDoubleArray.html#L268">268</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if expansionMode is null</em>
+<a class="jxr_linenumber" name="L269" href="ResizableDoubleArray.html#L269">269</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L270" href="ResizableDoubleArray.html#L270">270</a>     <strong class="jxr_keyword">public</strong> <a href="ResizableDoubleArray.html">ResizableDoubleArray</a>(<strong class="jxr_keyword">int</strong> initialCapacity,
+<a class="jxr_linenumber" name="L271" href="ResizableDoubleArray.html#L271">271</a>                                 <strong class="jxr_keyword">double</strong> expansionFactor,
+<a class="jxr_linenumber" name="L272" href="ResizableDoubleArray.html#L272">272</a>                                 <strong class="jxr_keyword">double</strong> contractionCriterion,
+<a class="jxr_linenumber" name="L273" href="ResizableDoubleArray.html#L273">273</a>                                 <a href="ResizableDoubleArray.html">ExpansionMode</a> expansionMode,
+<a class="jxr_linenumber" name="L274" href="ResizableDoubleArray.html#L274">274</a>                                 <strong class="jxr_keyword">double</strong> ... data)
+<a class="jxr_linenumber" name="L275" href="ResizableDoubleArray.html#L275">275</a>         <strong class="jxr_keyword">throws</strong> <a href="../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L276" href="ResizableDoubleArray.html#L276">276</a>         <strong class="jxr_keyword">if</strong> (initialCapacity &lt;= 0) {
+<a class="jxr_linenumber" name="L277" href="ResizableDoubleArray.html#L277">277</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(LocalizedFormats.INITIAL_CAPACITY_NOT_POSITIVE,
+<a class="jxr_linenumber" name="L278" href="ResizableDoubleArray.html#L278">278</a>                                                    initialCapacity);
+<a class="jxr_linenumber" name="L279" href="ResizableDoubleArray.html#L279">279</a>         }
+<a class="jxr_linenumber" name="L280" href="ResizableDoubleArray.html#L280">280</a>         checkContractExpand(contractionCriterion, expansionFactor);
+<a class="jxr_linenumber" name="L281" href="ResizableDoubleArray.html#L281">281</a>         MathUtils.checkNotNull(expansionMode);
+<a class="jxr_linenumber" name="L282" href="ResizableDoubleArray.html#L282">282</a> 
+<a class="jxr_linenumber" name="L283" href="ResizableDoubleArray.html#L283">283</a>         <strong class="jxr_keyword">this</strong>.expansionFactor = expansionFactor;
+<a class="jxr_linenumber" name="L284" href="ResizableDoubleArray.html#L284">284</a>         <strong class="jxr_keyword">this</strong>.contractionCriterion = contractionCriterion;
+<a class="jxr_linenumber" name="L285" href="ResizableDoubleArray.html#L285">285</a>         <strong class="jxr_keyword">this</strong>.expansionMode = expansionMode;
+<a class="jxr_linenumber" name="L286" href="ResizableDoubleArray.html#L286">286</a>         internalArray = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[initialCapacity];
+<a class="jxr_linenumber" name="L287" href="ResizableDoubleArray.html#L287">287</a>         numElements = 0;
+<a class="jxr_linenumber" name="L288" href="ResizableDoubleArray.html#L288">288</a>         startIndex = 0;
+<a class="jxr_linenumber" name="L289" href="ResizableDoubleArray.html#L289">289</a> 
+<a class="jxr_linenumber" name="L290" href="ResizableDoubleArray.html#L290">290</a>         <strong class="jxr_keyword">if</strong> (data != <strong class="jxr_keyword">null</strong> &amp;&amp; data.length &gt; 0) {
+<a class="jxr_linenumber" name="L291" href="ResizableDoubleArray.html#L291">291</a>             addElements(data);
+<a class="jxr_linenumber" name="L292" href="ResizableDoubleArray.html#L292">292</a>         }
+<a class="jxr_linenumber" name="L293" href="ResizableDoubleArray.html#L293">293</a>     }
+<a class="jxr_linenumber" name="L294" href="ResizableDoubleArray.html#L294">294</a> 
+<a class="jxr_linenumber" name="L295" href="ResizableDoubleArray.html#L295">295</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L296" href="ResizableDoubleArray.html#L296">296</a> <em class="jxr_javadoccomment">     * Copy constructor.</em>
+<a class="jxr_linenumber" name="L297" href="ResizableDoubleArray.html#L297">297</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L298" href="ResizableDoubleArray.html#L298">298</a> <em class="jxr_javadoccomment">     * Creates a new ResizableDoubleArray that is a deep, fresh copy of the original.</em>
+<a class="jxr_linenumber" name="L299" href="ResizableDoubleArray.html#L299">299</a> <em class="jxr_javadoccomment">     * Original may not be null; otherwise a {@link NullArgumentException} is thrown.</em>
+<a class="jxr_linenumber" name="L300" href="ResizableDoubleArray.html#L300">300</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L301" href="ResizableDoubleArray.html#L301">301</a> <em class="jxr_javadoccomment">     * @param original array to copy</em>
+<a class="jxr_linenumber" name="L302" href="ResizableDoubleArray.html#L302">302</a> <em class="jxr_javadoccomment">     * @exception NullArgumentException if original is null</em>
+<a class="jxr_linenumber" name="L303" href="ResizableDoubleArray.html#L303">303</a> <em class="jxr_javadoccomment">     * @since 2.0</em>
+<a class="jxr_linenumber" name="L304" href="ResizableDoubleArray.html#L304">304</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L305" href="ResizableDoubleArray.html#L305">305</a>     <strong class="jxr_keyword">public</strong> <a href="ResizableDoubleArray.html">ResizableDoubleArray</a>(<strong class="jxr_keyword">final</strong> <a href="ResizableDoubleArray.html">ResizableDoubleArray</a> original)
+<a class="jxr_linenumber" name="L306" href="ResizableDoubleArray.html#L306">306</a>         <strong class="jxr_keyword">throws</strong> <a href="../exception/NullArgumentException.html">NullArgumentException</a> {
+<a class="jxr_linenumber" name="L307" href="ResizableDoubleArray.html#L307">307</a>         MathUtils.checkNotNull(original);
+<a class="jxr_linenumber" name="L308" href="ResizableDoubleArray.html#L308">308</a>         <strong class="jxr_keyword">this</strong>.contractionCriterion = original.contractionCriterion;
+<a class="jxr_linenumber" name="L309" href="ResizableDoubleArray.html#L309">309</a>         <strong class="jxr_keyword">this</strong>.expansionFactor = original.expansionFactor;
+<a class="jxr_linenumber" name="L310" href="ResizableDoubleArray.html#L310">310</a>         <strong class="jxr_keyword">this</strong>.expansionMode = original.expansionMode;
+<a class="jxr_linenumber" name="L311" href="ResizableDoubleArray.html#L311">311</a>         <strong class="jxr_keyword">this</strong>.internalArray = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[original.internalArray.length];
+<a class="jxr_linenumber" name="L312" href="ResizableDoubleArray.html#L312">312</a>         System.arraycopy(original.internalArray, 0, <strong class="jxr_keyword">this</strong>.internalArray, 0, <strong class="jxr_keyword">this</strong>.internalArray.length);
+<a class="jxr_linenumber" name="L313" href="ResizableDoubleArray.html#L313">313</a>         <strong class="jxr_keyword">this</strong>.numElements = original.numElements;
+<a class="jxr_linenumber" name="L314" href="ResizableDoubleArray.html#L314">314</a>         <strong class="jxr_keyword">this</strong>.startIndex = original.startIndex;
+<a class="jxr_linenumber" name="L315" href="ResizableDoubleArray.html#L315">315</a>     }
+<a class="jxr_linenumber" name="L316" href="ResizableDoubleArray.html#L316">316</a> 
+<a class="jxr_linenumber" name="L317" href="ResizableDoubleArray.html#L317">317</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L318" href="ResizableDoubleArray.html#L318">318</a> <em class="jxr_javadoccomment">     * Adds an element to the end of this expandable array.</em>
+<a class="jxr_linenumber" name="L319" href="ResizableDoubleArray.html#L319">319</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L320" href="ResizableDoubleArray.html#L320">320</a> <em class="jxr_javadoccomment">     * @param value Value to be added to end of array.</em>
+<a class="jxr_linenumber" name="L321" href="ResizableDoubleArray.html#L321">321</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L322" href="ResizableDoubleArray.html#L322">322</a>     @Override
+<a class="jxr_linenumber" name="L323" href="ResizableDoubleArray.html#L323">323</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addElement(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> value) {
+<a class="jxr_linenumber" name="L324" href="ResizableDoubleArray.html#L324">324</a>         <strong class="jxr_keyword">if</strong> (internalArray.length &lt;= startIndex + numElements) {
+<a class="jxr_linenumber" name="L325" href="ResizableDoubleArray.html#L325">325</a>             expand();
+<a class="jxr_linenumber" name="L326" href="ResizableDoubleArray.html#L326">326</a>         }
+<a class="jxr_linenumber" name="L327" href="ResizableDoubleArray.html#L327">327</a>         internalArray[startIndex + numElements++] = value;
+<a class="jxr_linenumber" name="L328" href="ResizableDoubleArray.html#L328">328</a>     }
+<a class="jxr_linenumber" name="L329" href="ResizableDoubleArray.html#L329">329</a> 
+<a class="jxr_linenumber" name="L330" href="ResizableDoubleArray.html#L330">330</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L331" href="ResizableDoubleArray.html#L331">331</a> <em class="jxr_javadoccomment">     * Adds several element to the end of this expandable array.</em>
+<a class="jxr_linenumber" name="L332" href="ResizableDoubleArray.html#L332">332</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L333" href="ResizableDoubleArray.html#L333">333</a> <em class="jxr_javadoccomment">     * @param values Values to be added to end of array.</em>
+<a class="jxr_linenumber" name="L334" href="ResizableDoubleArray.html#L334">334</a> <em class="jxr_javadoccomment">     * @since 2.2</em>
+<a class="jxr_linenumber" name="L335" href="ResizableDoubleArray.html#L335">335</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L336" href="ResizableDoubleArray.html#L336">336</a>     @Override
+<a class="jxr_linenumber" name="L337" href="ResizableDoubleArray.html#L337">337</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addElements(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values) {
+<a class="jxr_linenumber" name="L338" href="ResizableDoubleArray.html#L338">338</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] tempArray = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[numElements + values.length + 1];
+<a class="jxr_linenumber" name="L339" href="ResizableDoubleArray.html#L339">339</a>         System.arraycopy(internalArray, startIndex, tempArray, 0, numElements);
+<a class="jxr_linenumber" name="L340" href="ResizableDoubleArray.html#L340">340</a>         System.arraycopy(values, 0, tempArray, numElements, values.length);
+<a class="jxr_linenumber" name="L341" href="ResizableDoubleArray.html#L341">341</a>         internalArray = tempArray;
+<a class="jxr_linenumber" name="L342" href="ResizableDoubleArray.html#L342">342</a>         startIndex = 0;
+<a class="jxr_linenumber" name="L343" href="ResizableDoubleArray.html#L343">343</a>         numElements += values.length;
+<a class="jxr_linenumber" name="L344" href="ResizableDoubleArray.html#L344">344</a>     }
+<a class="jxr_linenumber" name="L345" href="ResizableDoubleArray.html#L345">345</a> 
+<a class="jxr_linenumber" name="L346" href="ResizableDoubleArray.html#L346">346</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L347" href="ResizableDoubleArray.html#L347">347</a> <em class="jxr_javadoccomment">     * Adds an element to the end of the array and removes the first</em>
+<a class="jxr_linenumber" name="L348" href="ResizableDoubleArray.html#L348">348</a> <em class="jxr_javadoccomment">     * element in the array.  Returns the discarded first element.</em>
+<a class="jxr_linenumber" name="L349" href="ResizableDoubleArray.html#L349">349</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L350" href="ResizableDoubleArray.html#L350">350</a> <em class="jxr_javadoccomment">     * The effect is similar to a push operation in a FIFO queue.</em>
+<a class="jxr_linenumber" name="L351" href="ResizableDoubleArray.html#L351">351</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L352" href="ResizableDoubleArray.html#L352">352</a> <em class="jxr_javadoccomment">     * Example: If the array contains the elements 1, 2, 3, 4 (in that order)</em>
+<a class="jxr_linenumber" name="L353" href="ResizableDoubleArray.html#L353">353</a> <em class="jxr_javadoccomment">     * and addElementRolling(5) is invoked, the result is an array containing</em>
+<a class="jxr_linenumber" name="L354" href="ResizableDoubleArray.html#L354">354</a> <em class="jxr_javadoccomment">     * the entries 2, 3, 4, 5 and the value returned is 1.</em>
+<a class="jxr_linenumber" name="L355" href="ResizableDoubleArray.html#L355">355</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L356" href="ResizableDoubleArray.html#L356">356</a> <em class="jxr_javadoccomment">     * @param value Value to be added to the array.</em>
+<a class="jxr_linenumber" name="L357" href="ResizableDoubleArray.html#L357">357</a> <em class="jxr_javadoccomment">     * @return the value which has been discarded or "pushed" out of the array</em>
+<a class="jxr_linenumber" name="L358" href="ResizableDoubleArray.html#L358">358</a> <em class="jxr_javadoccomment">     * by this rolling insert.</em>
+<a class="jxr_linenumber" name="L359" href="ResizableDoubleArray.html#L359">359</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L360" href="ResizableDoubleArray.html#L360">360</a>     @Override
+<a class="jxr_linenumber" name="L361" href="ResizableDoubleArray.html#L361">361</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> addElementRolling(<strong class="jxr_keyword">double</strong> value) {
+<a class="jxr_linenumber" name="L362" href="ResizableDoubleArray.html#L362">362</a>         <strong class="jxr_keyword">double</strong> discarded = internalArray[startIndex];
+<a class="jxr_linenumber" name="L363" href="ResizableDoubleArray.html#L363">363</a> 
+<a class="jxr_linenumber" name="L364" href="ResizableDoubleArray.html#L364">364</a>         <strong class="jxr_keyword">if</strong> ((startIndex + (numElements + 1)) &gt; internalArray.length) {
+<a class="jxr_linenumber" name="L365" href="ResizableDoubleArray.html#L365">365</a>             expand();
+<a class="jxr_linenumber" name="L366" href="ResizableDoubleArray.html#L366">366</a>         }
+<a class="jxr_linenumber" name="L367" href="ResizableDoubleArray.html#L367">367</a>         <em class="jxr_comment">// Increment the start index</em>
+<a class="jxr_linenumber" name="L368" href="ResizableDoubleArray.html#L368">368</a>         startIndex += 1;
+<a class="jxr_linenumber" name="L369" href="ResizableDoubleArray.html#L369">369</a> 
+<a class="jxr_linenumber" name="L370" href="ResizableDoubleArray.html#L370">370</a>         <em class="jxr_comment">// Add the new value</em>
+<a class="jxr_linenumber" name="L371" href="ResizableDoubleArray.html#L371">371</a>         internalArray[startIndex + (numElements - 1)] = value;
+<a class="jxr_linenumber" name="L372" href="ResizableDoubleArray.html#L372">372</a> 
+<a class="jxr_linenumber" name="L373" href="ResizableDoubleArray.html#L373">373</a>         <em class="jxr_comment">// Check the contraction criterion.</em>
+<a class="jxr_linenumber" name="L374" href="ResizableDoubleArray.html#L374">374</a>         <strong class="jxr_keyword">if</strong> (shouldContract()) {
+<a class="jxr_linenumber" name="L375" href="ResizableDoubleArray.html#L375">375</a>             contract();
+<a class="jxr_linenumber" name="L376" href="ResizableDoubleArray.html#L376">376</a>         }
+<a class="jxr_linenumber" name="L377" href="ResizableDoubleArray.html#L377">377</a>         <strong class="jxr_keyword">return</strong> discarded;
+<a class="jxr_linenumber" name="L378" href="ResizableDoubleArray.html#L378">378</a>     }
+<a class="jxr_linenumber" name="L379" href="ResizableDoubleArray.html#L379">379</a> 
+<a class="jxr_linenumber" name="L380" href="ResizableDoubleArray.html#L380">380</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L381" href="ResizableDoubleArray.html#L381">381</a> <em class="jxr_javadoccomment">     * Substitutes {@code value} for the most recently added value.</em>
+<a class="jxr_linenumber" name="L382" href="ResizableDoubleArray.html#L382">382</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L383" href="ResizableDoubleArray.html#L383">383</a> <em class="jxr_javadoccomment">     * Returns the value that has been replaced. If the array is empty (i.e.</em>
+<a class="jxr_linenumber" name="L384" href="ResizableDoubleArray.html#L384">384</a> <em class="jxr_javadoccomment">     * if {@link #numElements} is zero), an MathIllegalStateException is thrown.</em>
+<a class="jxr_linenumber" name="L385" href="ResizableDoubleArray.html#L385">385</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L386" href="ResizableDoubleArray.html#L386">386</a> <em class="jxr_javadoccomment">     * @param value New value to substitute for the most recently added value</em>
+<a class="jxr_linenumber" name="L387" href="ResizableDoubleArray.html#L387">387</a> <em class="jxr_javadoccomment">     * @return the value that has been replaced in the array.</em>
+<a class="jxr_linenumber" name="L388" href="ResizableDoubleArray.html#L388">388</a> <em class="jxr_javadoccomment">     * @throws MathIllegalStateException if the array is empty</em>
+<a class="jxr_linenumber" name="L389" href="ResizableDoubleArray.html#L389">389</a> <em class="jxr_javadoccomment">     * @since 2.0</em>
+<a class="jxr_linenumber" name="L390" href="ResizableDoubleArray.html#L390">390</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L391" href="ResizableDoubleArray.html#L391">391</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> substituteMostRecentElement(<strong class="jxr_keyword">double</strong> value) <strong class="jxr_keyword">throws</strong> MathIllegalStateException {
+<a class="jxr_linenumber" name="L392" href="ResizableDoubleArray.html#L392">392</a>         <strong class="jxr_keyword">if</strong> (numElements &lt; 1) {
+<a class="jxr_linenumber" name="L393" href="ResizableDoubleArray.html#L393">393</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathIllegalStateException.html">MathIllegalStateException</a>(LocalizedFormats.CANNOT_SUBSTITUTE_ELEMENT_FROM_EMPTY_ARRAY);
+<a class="jxr_linenumber" name="L394" href="ResizableDoubleArray.html#L394">394</a>         }
+<a class="jxr_linenumber" name="L395" href="ResizableDoubleArray.html#L395">395</a> 
+<a class="jxr_linenumber" name="L396" href="ResizableDoubleArray.html#L396">396</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> substIndex = startIndex + (numElements - 1);
+<a class="jxr_linenumber" name="L397" href="ResizableDoubleArray.html#L397">397</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> discarded = internalArray[substIndex];
+<a class="jxr_linenumber" name="L398" href="ResizableDoubleArray.html#L398">398</a> 
+<a class="jxr_linenumber" name="L399" href="ResizableDoubleArray.html#L399">399</a>         internalArray[substIndex] = value;
+<a class="jxr_linenumber" name="L400" href="ResizableDoubleArray.html#L400">400</a> 
+<a class="jxr_linenumber" name="L401" href="ResizableDoubleArray.html#L401">401</a>         <strong class="jxr_keyword">return</strong> discarded;
+<a class="jxr_linenumber" name="L402" href="ResizableDoubleArray.html#L402">402</a>     }
+<a class="jxr_linenumber" name="L403" href="ResizableDoubleArray.html#L403">403</a> 
+<a class="jxr_linenumber" name="L404" href="ResizableDoubleArray.html#L404">404</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L405" href="ResizableDoubleArray.html#L405">405</a> <em class="jxr_javadoccomment">     * Checks the expansion factor and the contraction criterion and raises</em>
+<a class="jxr_linenumber" name="L406" href="ResizableDoubleArray.html#L406">406</a> <em class="jxr_javadoccomment">     * an exception if the contraction criterion is smaller than the</em>
+<a class="jxr_linenumber" name="L407" href="ResizableDoubleArray.html#L407">407</a> <em class="jxr_javadoccomment">     * expansion criterion.</em>
+<a class="jxr_linenumber" name="L408" href="ResizableDoubleArray.html#L408">408</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L409" href="ResizableDoubleArray.html#L409">409</a> <em class="jxr_javadoccomment">     * @param contraction Criterion to be checked.</em>
+<a class="jxr_linenumber" name="L410" href="ResizableDoubleArray.html#L410">410</a> <em class="jxr_javadoccomment">     * @param expansion Factor to be checked.</em>
+<a class="jxr_linenumber" name="L411" href="ResizableDoubleArray.html#L411">411</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code contraction &lt; expansion}.</em>
+<a class="jxr_linenumber" name="L412" href="ResizableDoubleArray.html#L412">412</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code contraction &lt;= 1}.</em>
+<a class="jxr_linenumber" name="L413" href="ResizableDoubleArray.html#L413">413</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code expansion &lt;= 1 }.</em>
+<a class="jxr_linenumber" name="L414" href="ResizableDoubleArray.html#L414">414</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L415" href="ResizableDoubleArray.html#L415">415</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L416" href="ResizableDoubleArray.html#L416">416</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> checkContractExpand(<strong class="jxr_keyword">double</strong> contraction, <strong class="jxr_keyword">double</strong> expansion) <strong class="jxr_keyword">throws</strong> NumberIsTooSmallException {
+<a class="jxr_linenumber" name="L417" href="ResizableDoubleArray.html#L417">417</a>         <strong class="jxr_keyword">if</strong> (contraction &lt; expansion) {
+<a class="jxr_linenumber" name="L418" href="ResizableDoubleArray.html#L418">418</a>             <strong class="jxr_keyword">final</strong> <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a> e = <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(contraction, 1, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L419" href="ResizableDoubleArray.html#L419">419</a>             e.getContext().addMessage(LocalizedFormats.CONTRACTION_CRITERIA_SMALLER_THAN_EXPANSION_FACTOR,
+<a class="jxr_linenumber" name="L420" href="ResizableDoubleArray.html#L420">420</a>                                       contraction, expansion);
+<a class="jxr_linenumber" name="L421" href="ResizableDoubleArray.html#L421">421</a>             <strong class="jxr_keyword">throw</strong> e;
+<a class="jxr_linenumber" name="L422" href="ResizableDoubleArray.html#L422">422</a>         }
+<a class="jxr_linenumber" name="L423" href="ResizableDoubleArray.html#L423">423</a> 
+<a class="jxr_linenumber" name="L424" href="ResizableDoubleArray.html#L424">424</a>         <strong class="jxr_keyword">if</strong> (contraction &lt;= 1) {
+<a class="jxr_linenumber" name="L425" href="ResizableDoubleArray.html#L425">425</a>             <strong class="jxr_keyword">final</strong> <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a> e = <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(contraction, 1, false);
+<a class="jxr_linenumber" name="L426" href="ResizableDoubleArray.html#L426">426</a>             e.getContext().addMessage(LocalizedFormats.CONTRACTION_CRITERIA_SMALLER_THAN_ONE,
+<a class="jxr_linenumber" name="L427" href="ResizableDoubleArray.html#L427">427</a>                                       contraction);
+<a class="jxr_linenumber" name="L428" href="ResizableDoubleArray.html#L428">428</a>             <strong class="jxr_keyword">throw</strong> e;
+<a class="jxr_linenumber" name="L429" href="ResizableDoubleArray.html#L429">429</a>         }
+<a class="jxr_linenumber" name="L430" href="ResizableDoubleArray.html#L430">430</a> 
+<a class="jxr_linenumber" name="L431" href="ResizableDoubleArray.html#L431">431</a>         <strong class="jxr_keyword">if</strong> (expansion &lt;= 1) {
+<a class="jxr_linenumber" name="L432" href="ResizableDoubleArray.html#L432">432</a>             <strong class="jxr_keyword">final</strong> <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a> e = <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(contraction, 1, false);
+<a class="jxr_linenumber" name="L433" href="ResizableDoubleArray.html#L433">433</a>             e.getContext().addMessage(LocalizedFormats.EXPANSION_FACTOR_SMALLER_THAN_ONE,
+<a class="jxr_linenumber" name="L434" href="ResizableDoubleArray.html#L434">434</a>                                       expansion);
+<a class="jxr_linenumber" name="L435" href="ResizableDoubleArray.html#L435">435</a>             <strong class="jxr_keyword">throw</strong> e;
+<a class="jxr_linenumber" name="L436" href="ResizableDoubleArray.html#L436">436</a>         }
+<a class="jxr_linenumber" name="L437" href="ResizableDoubleArray.html#L437">437</a>     }
+<a class="jxr_linenumber" name="L438" href="ResizableDoubleArray.html#L438">438</a> 
+<a class="jxr_linenumber" name="L439" href="ResizableDoubleArray.html#L439">439</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L440" href="ResizableDoubleArray.html#L440">440</a> <em class="jxr_javadoccomment">     * Clear the array contents, resetting the number of elements to zero.</em>
+<a class="jxr_linenumber" name="L441" href="ResizableDoubleArray.html#L441">441</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L442" href="ResizableDoubleArray.html#L442">442</a>     @Override
+<a class="jxr_linenumber" name="L443" href="ResizableDoubleArray.html#L443">443</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> clear() {
+<a class="jxr_linenumber" name="L444" href="ResizableDoubleArray.html#L444">444</a>         numElements = 0;
+<a class="jxr_linenumber" name="L445" href="ResizableDoubleArray.html#L445">445</a>         startIndex = 0;
+<a class="jxr_linenumber" name="L446" href="ResizableDoubleArray.html#L446">446</a>     }
+<a class="jxr_linenumber" name="L447" href="ResizableDoubleArray.html#L447">447</a> 
+<a class="jxr_linenumber" name="L448" href="ResizableDoubleArray.html#L448">448</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L449" href="ResizableDoubleArray.html#L449">449</a> <em class="jxr_javadoccomment">     * Contracts the storage array to the (size of the element set) + 1 - to avoid</em>
+<a class="jxr_linenumber" name="L450" href="ResizableDoubleArray.html#L450">450</a> <em class="jxr_javadoccomment">     * a zero length array. This function also resets the startIndex to zero.</em>
+<a class="jxr_linenumber" name="L451" href="ResizableDoubleArray.html#L451">451</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L452" href="ResizableDoubleArray.html#L452">452</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> contract() {
+<a class="jxr_linenumber" name="L453" href="ResizableDoubleArray.html#L453">453</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] tempArray = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[numElements + 1];
+<a class="jxr_linenumber" name="L454" href="ResizableDoubleArray.html#L454">454</a> 
+<a class="jxr_linenumber" name="L455" href="ResizableDoubleArray.html#L455">455</a>         <em class="jxr_comment">// Copy and swap - copy only the element array from the src array.</em>
+<a class="jxr_linenumber" name="L456" href="ResizableDoubleArray.html#L456">456</a>         System.arraycopy(internalArray, startIndex, tempArray, 0, numElements);
+<a class="jxr_linenumber" name="L457" href="ResizableDoubleArray.html#L457">457</a>         internalArray = tempArray;
+<a class="jxr_linenumber" name="L458" href="ResizableDoubleArray.html#L458">458</a> 
+<a class="jxr_linenumber" name="L459" href="ResizableDoubleArray.html#L459">459</a>         <em class="jxr_comment">// Reset the start index to zero</em>
+<a class="jxr_linenumber" name="L460" href="ResizableDoubleArray.html#L460">460</a>         startIndex = 0;
+<a class="jxr_linenumber" name="L461" href="ResizableDoubleArray.html#L461">461</a>     }
+<a class="jxr_linenumber" name="L462" href="ResizableDoubleArray.html#L462">462</a> 
+<a class="jxr_linenumber" name="L463" href="ResizableDoubleArray.html#L463">463</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L464" href="ResizableDoubleArray.html#L464">464</a> <em class="jxr_javadoccomment">     * Discards the {@code i} initial elements of the array.</em>
+<a class="jxr_linenumber" name="L465" href="ResizableDoubleArray.html#L465">465</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L466" href="ResizableDoubleArray.html#L466">466</a> <em class="jxr_javadoccomment">     * For example, if the array contains the elements 1,2,3,4, invoking</em>
+<a class="jxr_linenumber" name="L467" href="ResizableDoubleArray.html#L467">467</a> <em class="jxr_javadoccomment">     * {@code discardFrontElements(2)} will cause the first two elements</em>
+<a class="jxr_linenumber" name="L468" href="ResizableDoubleArray.html#L468">468</a> <em class="jxr_javadoccomment">     * to be discarded, leaving 3,4 in the array.</em>
+<a class="jxr_linenumber" name="L469" href="ResizableDoubleArray.html#L469">469</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L470" href="ResizableDoubleArray.html#L470">470</a> <em class="jxr_javadoccomment">     * @param i  the number of elements to discard from the front of the array</em>
+<a class="jxr_linenumber" name="L471" href="ResizableDoubleArray.html#L471">471</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if i is greater than numElements.</em>
+<a class="jxr_linenumber" name="L472" href="ResizableDoubleArray.html#L472">472</a> <em class="jxr_javadoccomment">     * @since 2.0</em>
+<a class="jxr_linenumber" name="L473" href="ResizableDoubleArray.html#L473">473</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L474" href="ResizableDoubleArray.html#L474">474</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> discardFrontElements(<strong class="jxr_keyword">int</strong> i) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L475" href="ResizableDoubleArray.html#L475">475</a>         discardExtremeElements(i,<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L476" href="ResizableDoubleArray.html#L476">476</a>     }
+<a class="jxr_linenumber" name="L477" href="ResizableDoubleArray.html#L477">477</a> 
+<a class="jxr_linenumber" name="L478" href="ResizableDoubleArray.html#L478">478</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L479" href="ResizableDoubleArray.html#L479">479</a> <em class="jxr_javadoccomment">     * Discards the {@code i} last elements of the array.</em>
+<a class="jxr_linenumber" name="L480" href="ResizableDoubleArray.html#L480">480</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L481" href="ResizableDoubleArray.html#L481">481</a> <em class="jxr_javadoccomment">     * For example, if the array contains the elements 1,2,3,4, invoking</em>
+<a class="jxr_linenumber" name="L482" href="ResizableDoubleArray.html#L482">482</a> <em class="jxr_javadoccomment">     * {@code discardMostRecentElements(2)} will cause the last two elements</em>
+<a class="jxr_linenumber" name="L483" href="ResizableDoubleArray.html#L483">483</a> <em class="jxr_javadoccomment">     * to be discarded, leaving 1,2 in the array.</em>
+<a class="jxr_linenumber" name="L484" href="ResizableDoubleArray.html#L484">484</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L485" href="ResizableDoubleArray.html#L485">485</a> <em class="jxr_javadoccomment">     * @param i  the number of elements to discard from the end of the array</em>
+<a class="jxr_linenumber" name="L486" href="ResizableDoubleArray.html#L486">486</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if i is greater than numElements.</em>
+<a class="jxr_linenumber" name="L487" href="ResizableDoubleArray.html#L487">487</a> <em class="jxr_javadoccomment">     * @since 2.0</em>
+<a class="jxr_linenumber" name="L488" href="ResizableDoubleArray.html#L488">488</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L489" href="ResizableDoubleArray.html#L489">489</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> discardMostRecentElements(<strong class="jxr_keyword">int</strong> i) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L490" href="ResizableDoubleArray.html#L490">490</a>         discardExtremeElements(i,false);
+<a class="jxr_linenumber" name="L491" href="ResizableDoubleArray.html#L491">491</a>     }
+<a class="jxr_linenumber" name="L492" href="ResizableDoubleArray.html#L492">492</a> 
+<a class="jxr_linenumber" name="L493" href="ResizableDoubleArray.html#L493">493</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L494" href="ResizableDoubleArray.html#L494">494</a> <em class="jxr_javadoccomment">     * Discards the {@code i} first or last elements of the array,</em>
+<a class="jxr_linenumber" name="L495" href="ResizableDoubleArray.html#L495">495</a> <em class="jxr_javadoccomment">     * depending on the value of {@code front}.</em>
+<a class="jxr_linenumber" name="L496" href="ResizableDoubleArray.html#L496">496</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L497" href="ResizableDoubleArray.html#L497">497</a> <em class="jxr_javadoccomment">     * For example, if the array contains the elements 1,2,3,4, invoking</em>
+<a class="jxr_linenumber" name="L498" href="ResizableDoubleArray.html#L498">498</a> <em class="jxr_javadoccomment">     * {@code discardExtremeElements(2,false)} will cause the last two elements</em>
+<a class="jxr_linenumber" name="L499" href="ResizableDoubleArray.html#L499">499</a> <em class="jxr_javadoccomment">     * to be discarded, leaving 1,2 in the array.</em>
+<a class="jxr_linenumber" name="L500" href="ResizableDoubleArray.html#L500">500</a> <em class="jxr_javadoccomment">     * For example, if the array contains the elements 1,2,3,4, invoking</em>
+<a class="jxr_linenumber" name="L501" href="ResizableDoubleArray.html#L501">501</a> <em class="jxr_javadoccomment">     * {@code discardExtremeElements(2,true)} will cause the first two elements</em>
+<a class="jxr_linenumber" name="L502" href="ResizableDoubleArray.html#L502">502</a> <em class="jxr_javadoccomment">     * to be discarded, leaving 3,4 in the array.</em>
+<a class="jxr_linenumber" name="L503" href="ResizableDoubleArray.html#L503">503</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L504" href="ResizableDoubleArray.html#L504">504</a> <em class="jxr_javadoccomment">     * @param i  the number of elements to discard from the front/end of the array</em>
+<a class="jxr_linenumber" name="L505" href="ResizableDoubleArray.html#L505">505</a> <em class="jxr_javadoccomment">     * @param front true if elements are to be discarded from the front</em>
+<a class="jxr_linenumber" name="L506" href="ResizableDoubleArray.html#L506">506</a> <em class="jxr_javadoccomment">     * of the array, false if elements are to be discarded from the end</em>
+<a class="jxr_linenumber" name="L507" href="ResizableDoubleArray.html#L507">507</a> <em class="jxr_javadoccomment">     * of the array</em>
+<a class="jxr_linenumber" name="L508" href="ResizableDoubleArray.html#L508">508</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if i is greater than numElements.</em>
+<a class="jxr_linenumber" name="L509" href="ResizableDoubleArray.html#L509">509</a> <em class="jxr_javadoccomment">     * @since 2.0</em>
+<a class="jxr_linenumber" name="L510" href="ResizableDoubleArray.html#L510">510</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L511" href="ResizableDoubleArray.html#L511">511</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> discardExtremeElements(<strong class="jxr_keyword">int</strong> i, <strong class="jxr_keyword">boolean</strong> front) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L512" href="ResizableDoubleArray.html#L512">512</a>         <strong class="jxr_keyword">if</strong> (i &gt; numElements) {
+<a class="jxr_linenumber" name="L513" href="ResizableDoubleArray.html#L513">513</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(
+<a class="jxr_linenumber" name="L514" href="ResizableDoubleArray.html#L514">514</a>                     LocalizedFormats.TOO_MANY_ELEMENTS_TO_DISCARD_FROM_ARRAY,
+<a class="jxr_linenumber" name="L515" href="ResizableDoubleArray.html#L515">515</a>                     i, numElements);
+<a class="jxr_linenumber" name="L516" href="ResizableDoubleArray.html#L516">516</a>        } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (i &lt; 0) {
+<a class="jxr_linenumber" name="L517" href="ResizableDoubleArray.html#L517">517</a>            <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(
+<a class="jxr_linenumber" name="L518" href="ResizableDoubleArray.html#L518">518</a>                    LocalizedFormats.CANNOT_DISCARD_NEGATIVE_NUMBER_OF_ELEMENTS,
+<a class="jxr_linenumber" name="L519" href="ResizableDoubleArray.html#L519">519</a>                    i);
+<a class="jxr_linenumber" name="L520" href="ResizableDoubleArray.html#L520">520</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L521" href="ResizableDoubleArray.html#L521">521</a>             <em class="jxr_comment">// "Subtract" this number of discarded from numElements</em>
+<a class="jxr_linenumber" name="L522" href="ResizableDoubleArray.html#L522">522</a>             numElements -= i;
+<a class="jxr_linenumber" name="L523" href="ResizableDoubleArray.html#L523">523</a>             <strong class="jxr_keyword">if</strong> (front) {
+<a class="jxr_linenumber" name="L524" href="ResizableDoubleArray.html#L524">524</a>                 startIndex += i;
+<a class="jxr_linenumber" name="L525" href="ResizableDoubleArray.html#L525">525</a>             }
+<a class="jxr_linenumber" name="L526" href="ResizableDoubleArray.html#L526">526</a>         }
+<a class="jxr_linenumber" name="L527" href="ResizableDoubleArray.html#L527">527</a>         <strong class="jxr_keyword">if</strong> (shouldContract()) {
+<a class="jxr_linenumber" name="L528" href="ResizableDoubleArray.html#L528">528</a>             contract();
+<a class="jxr_linenumber" name="L529" href="ResizableDoubleArray.html#L529">529</a>         }
+<a class="jxr_linenumber" name="L530" href="ResizableDoubleArray.html#L530">530</a>     }
+<a class="jxr_linenumber" name="L531" href="ResizableDoubleArray.html#L531">531</a> 
+<a class="jxr_linenumber" name="L532" href="ResizableDoubleArray.html#L532">532</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L533" href="ResizableDoubleArray.html#L533">533</a> <em class="jxr_javadoccomment">     * Expands the internal storage array using the expansion factor.</em>
+<a class="jxr_linenumber" name="L534" href="ResizableDoubleArray.html#L534">534</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L535" href="ResizableDoubleArray.html#L535">535</a> <em class="jxr_javadoccomment">     * If {@code expansionMode} is set to MULTIPLICATIVE,</em>
+<a class="jxr_linenumber" name="L536" href="ResizableDoubleArray.html#L536">536</a> <em class="jxr_javadoccomment">     * the new array size will be {@code internalArray.length * expansionFactor}.</em>
+<a class="jxr_linenumber" name="L537" href="ResizableDoubleArray.html#L537">537</a> <em class="jxr_javadoccomment">     * If {@code expansionMode} is set to ADDITIVE, the length</em>
+<a class="jxr_linenumber" name="L538" href="ResizableDoubleArray.html#L538">538</a> <em class="jxr_javadoccomment">     * after expansion will be {@code internalArray.length + expansionFactor}.</em>
+<a class="jxr_linenumber" name="L539" href="ResizableDoubleArray.html#L539">539</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L540" href="ResizableDoubleArray.html#L540">540</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> expand() {
+<a class="jxr_linenumber" name="L541" href="ResizableDoubleArray.html#L541">541</a>         <em class="jxr_comment">// notice the use of FastMath.ceil(), this guarantees that we will always</em>
+<a class="jxr_linenumber" name="L542" href="ResizableDoubleArray.html#L542">542</a>         <em class="jxr_comment">// have an array of at least currentSize + 1.   Assume that the</em>
+<a class="jxr_linenumber" name="L543" href="ResizableDoubleArray.html#L543">543</a>         <em class="jxr_comment">// current initial capacity is 1 and the expansion factor</em>
+<a class="jxr_linenumber" name="L544" href="ResizableDoubleArray.html#L544">544</a>         <em class="jxr_comment">// is 1.000000000000000001.  The newly calculated size will be</em>
+<a class="jxr_linenumber" name="L545" href="ResizableDoubleArray.html#L545">545</a>         <em class="jxr_comment">// rounded up to 2 after the multiplication is performed.</em>
+<a class="jxr_linenumber" name="L546" href="ResizableDoubleArray.html#L546">546</a>         <strong class="jxr_keyword">int</strong> newSize = 0;
+<a class="jxr_linenumber" name="L547" href="ResizableDoubleArray.html#L547">547</a>         <strong class="jxr_keyword">if</strong> (expansionMode == ExpansionMode.MULTIPLICATIVE) {
+<a class="jxr_linenumber" name="L548" href="ResizableDoubleArray.html#L548">548</a>             newSize = (<strong class="jxr_keyword">int</strong>) FastMath.ceil(internalArray.length * expansionFactor);
+<a class="jxr_linenumber" name="L549" href="ResizableDoubleArray.html#L549">549</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L550" href="ResizableDoubleArray.html#L550">550</a>             newSize = (<strong class="jxr_keyword">int</strong>) (internalArray.length + FastMath.round(expansionFactor));
+<a class="jxr_linenumber" name="L551" href="ResizableDoubleArray.html#L551">551</a>         }
+<a class="jxr_linenumber" name="L552" href="ResizableDoubleArray.html#L552">552</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] tempArray = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[newSize];
+<a class="jxr_linenumber" name="L553" href="ResizableDoubleArray.html#L553">553</a> 
+<a class="jxr_linenumber" name="L554" href="ResizableDoubleArray.html#L554">554</a>         <em class="jxr_comment">// Copy and swap</em>
+<a class="jxr_linenumber" name="L555" href="ResizableDoubleArray.html#L555">555</a>         System.arraycopy(internalArray, 0, tempArray, 0, internalArray.length);
+<a class="jxr_linenumber" name="L556" href="ResizableDoubleArray.html#L556">556</a>         internalArray = tempArray;
+<a class="jxr_linenumber" name="L557" href="ResizableDoubleArray.html#L557">557</a>     }
+<a class="jxr_linenumber" name="L558" href="ResizableDoubleArray.html#L558">558</a> 
+<a class="jxr_linenumber" name="L559" href="ResizableDoubleArray.html#L559">559</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L560" href="ResizableDoubleArray.html#L560">560</a> <em class="jxr_javadoccomment">     * Expands the internal storage array to the specified size.</em>
+<a class="jxr_linenumber" name="L561" href="ResizableDoubleArray.html#L561">561</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L562" href="ResizableDoubleArray.html#L562">562</a> <em class="jxr_javadoccomment">     * @param size Size of the new internal storage array.</em>
+<a class="jxr_linenumber" name="L563" href="ResizableDoubleArray.html#L563">563</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L564" href="ResizableDoubleArray.html#L564">564</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> expandTo(<strong class="jxr_keyword">int</strong> size) {
+<a class="jxr_linenumber" name="L565" href="ResizableDoubleArray.html#L565">565</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] tempArray = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[size];
+<a class="jxr_linenumber" name="L566" href="ResizableDoubleArray.html#L566">566</a>         <em class="jxr_comment">// Copy and swap</em>
+<a class="jxr_linenumber" name="L567" href="ResizableDoubleArray.html#L567">567</a>         System.arraycopy(internalArray, 0, tempArray, 0, internalArray.length);
+<a class="jxr_linenumber" name="L568" href="ResizableDoubleArray.html#L568">568</a>         internalArray = tempArray;
+<a class="jxr_linenumber" name="L569" href="ResizableDoubleArray.html#L569">569</a>     }
+<a class="jxr_linenumber" name="L570" href="ResizableDoubleArray.html#L570">570</a> 
+<a class="jxr_linenumber" name="L571" href="ResizableDoubleArray.html#L571">571</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L572" href="ResizableDoubleArray.html#L572">572</a> <em class="jxr_javadoccomment">     * The contraction criterion defines when the internal array will contract</em>
+<a class="jxr_linenumber" name="L573" href="ResizableDoubleArray.html#L573">573</a> <em class="jxr_javadoccomment">     * to store only the number of elements in the element array.</em>
+<a class="jxr_linenumber" name="L574" href="ResizableDoubleArray.html#L574">574</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L575" href="ResizableDoubleArray.html#L575">575</a> <em class="jxr_javadoccomment">     * If the {@code expansionMode} is {@code MULTIPLICATIVE},</em>
+<a class="jxr_linenumber" name="L576" href="ResizableDoubleArray.html#L576">576</a> <em class="jxr_javadoccomment">     * contraction is triggered when the ratio between storage array length</em>
+<a class="jxr_linenumber" name="L577" href="ResizableDoubleArray.html#L577">577</a> <em class="jxr_javadoccomment">     * and {@code numElements} exceeds {@code contractionFactor}.</em>
+<a class="jxr_linenumber" name="L578" href="ResizableDoubleArray.html#L578">578</a> <em class="jxr_javadoccomment">     * If the {@code expansionMode} is {@code ADDITIVE}, the</em>
+<a class="jxr_linenumber" name="L579" href="ResizableDoubleArray.html#L579">579</a> <em class="jxr_javadoccomment">     * number of excess storage locations is compared to {@code contractionFactor}.</em>
+<a class="jxr_linenumber" name="L580" href="ResizableDoubleArray.html#L580">580</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L581" href="ResizableDoubleArray.html#L581">581</a> <em class="jxr_javadoccomment">     * @return the contraction criterion used to reclaim memory.</em>
+<a class="jxr_linenumber" name="L582" href="ResizableDoubleArray.html#L582">582</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L583" href="ResizableDoubleArray.html#L583">583</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L584" href="ResizableDoubleArray.html#L584">584</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getContractionCriterion() {
+<a class="jxr_linenumber" name="L585" href="ResizableDoubleArray.html#L585">585</a>         <strong class="jxr_keyword">return</strong> contractionCriterion;
+<a class="jxr_linenumber" name="L586" href="ResizableDoubleArray.html#L586">586</a>     }
+<a class="jxr_linenumber" name="L587" href="ResizableDoubleArray.html#L587">587</a> 
+<a class="jxr_linenumber" name="L588" href="ResizableDoubleArray.html#L588">588</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L589" href="ResizableDoubleArray.html#L589">589</a> <em class="jxr_javadoccomment">     * Returns the element at the specified index.</em>
+<a class="jxr_linenumber" name="L590" href="ResizableDoubleArray.html#L590">590</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L591" href="ResizableDoubleArray.html#L591">591</a> <em class="jxr_javadoccomment">     * @param index index to fetch a value from</em>
+<a class="jxr_linenumber" name="L592" href="ResizableDoubleArray.html#L592">592</a> <em class="jxr_javadoccomment">     * @return value stored at the specified index</em>
+<a class="jxr_linenumber" name="L593" href="ResizableDoubleArray.html#L593">593</a> <em class="jxr_javadoccomment">     * @throws ArrayIndexOutOfBoundsException if {@code index} is less than</em>
+<a class="jxr_linenumber" name="L594" href="ResizableDoubleArray.html#L594">594</a> <em class="jxr_javadoccomment">     * zero or is greater than {@code getNumElements() - 1}.</em>
+<a class="jxr_linenumber" name="L595" href="ResizableDoubleArray.html#L595">595</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L596" href="ResizableDoubleArray.html#L596">596</a>     @Override
+<a class="jxr_linenumber" name="L597" href="ResizableDoubleArray.html#L597">597</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getElement(<strong class="jxr_keyword">int</strong> index) {
+<a class="jxr_linenumber" name="L598" href="ResizableDoubleArray.html#L598">598</a>         <strong class="jxr_keyword">if</strong> (index &gt;= numElements) {
+<a class="jxr_linenumber" name="L599" href="ResizableDoubleArray.html#L599">599</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> ArrayIndexOutOfBoundsException(index);
+<a class="jxr_linenumber" name="L600" href="ResizableDoubleArray.html#L600">600</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (index &gt;= 0) {
+<a class="jxr_linenumber" name="L601" href="ResizableDoubleArray.html#L601">601</a>             <strong class="jxr_keyword">return</strong> internalArray[startIndex + index];
+<a class="jxr_linenumber" name="L602" href="ResizableDoubleArray.html#L602">602</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L603" href="ResizableDoubleArray.html#L603">603</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> ArrayIndexOutOfBoundsException(index);
+<a class="jxr_linenumber" name="L604" href="ResizableDoubleArray.html#L604">604</a>         }
+<a class="jxr_linenumber" name="L605" href="ResizableDoubleArray.html#L605">605</a>     }
+<a class="jxr_linenumber" name="L606" href="ResizableDoubleArray.html#L606">606</a> 
+<a class="jxr_linenumber" name="L607" href="ResizableDoubleArray.html#L607">607</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L608" href="ResizableDoubleArray.html#L608">608</a> <em class="jxr_javadoccomment">     * Returns a double array containing the elements of this ResizableArray.</em>
+<a class="jxr_linenumber" name="L609" href="ResizableDoubleArray.html#L609">609</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L610" href="ResizableDoubleArray.html#L610">610</a> <em class="jxr_javadoccomment">     * This method returns a copy, not a reference to the underlying array,</em>
+<a class="jxr_linenumber" name="L611" href="ResizableDoubleArray.html#L611">611</a> <em class="jxr_javadoccomment">     * so that changes made to the returned array have no effect on this ResizableArray.</em>
+<a class="jxr_linenumber" name="L612" href="ResizableDoubleArray.html#L612">612</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L613" href="ResizableDoubleArray.html#L613">613</a> <em class="jxr_javadoccomment">     * @return the double array.</em>
+<a class="jxr_linenumber" name="L614" href="ResizableDoubleArray.html#L614">614</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L615" href="ResizableDoubleArray.html#L615">615</a>     @Override
+<a class="jxr_linenumber" name="L616" href="ResizableDoubleArray.html#L616">616</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getElements() {
+<a class="jxr_linenumber" name="L617" href="ResizableDoubleArray.html#L617">617</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] elementArray = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[numElements];
+<a class="jxr_linenumber" name="L618" href="ResizableDoubleArray.html#L618">618</a>         System.arraycopy(internalArray, startIndex, elementArray, 0, numElements);
+<a class="jxr_linenumber" name="L619" href="ResizableDoubleArray.html#L619">619</a>         <strong class="jxr_keyword">return</strong> elementArray;
+<a class="jxr_linenumber" name="L620" href="ResizableDoubleArray.html#L620">620</a>     }
+<a class="jxr_linenumber" name="L621" href="ResizableDoubleArray.html#L621">621</a> 
+<a class="jxr_linenumber" name="L622" href="ResizableDoubleArray.html#L622">622</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L623" href="ResizableDoubleArray.html#L623">623</a> <em class="jxr_javadoccomment">     * The expansion factor controls the size of a new array when an array</em>
+<a class="jxr_linenumber" name="L624" href="ResizableDoubleArray.html#L624">624</a> <em class="jxr_javadoccomment">     * needs to be expanded.</em>
+<a class="jxr_linenumber" name="L625" href="ResizableDoubleArray.html#L625">625</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L626" href="ResizableDoubleArray.html#L626">626</a> <em class="jxr_javadoccomment">     * The {@code expansionMode} determines whether the size of the array</em>
+<a class="jxr_linenumber" name="L627" href="ResizableDoubleArray.html#L627">627</a> <em class="jxr_javadoccomment">     * is multiplied by the {@code expansionFactor} (MULTIPLICATIVE) or if</em>
+<a class="jxr_linenumber" name="L628" href="ResizableDoubleArray.html#L628">628</a> <em class="jxr_javadoccomment">     * the expansion is additive (ADDITIVE -- {@code expansionFactor}</em>
+<a class="jxr_linenumber" name="L629" href="ResizableDoubleArray.html#L629">629</a> <em class="jxr_javadoccomment">     * storage locations added).  The default {@code expansionMode} is</em>
+<a class="jxr_linenumber" name="L630" href="ResizableDoubleArray.html#L630">630</a> <em class="jxr_javadoccomment">     * MULTIPLICATIVE and the default {@code expansionFactor} is 2.0.</em>
+<a class="jxr_linenumber" name="L631" href="ResizableDoubleArray.html#L631">631</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L632" href="ResizableDoubleArray.html#L632">632</a> <em class="jxr_javadoccomment">     * @return the expansion factor of this expandable double array</em>
+<a class="jxr_linenumber" name="L633" href="ResizableDoubleArray.html#L633">633</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L634" href="ResizableDoubleArray.html#L634">634</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getExpansionFactor() {
+<a class="jxr_linenumber" name="L635" href="ResizableDoubleArray.html#L635">635</a>         <strong class="jxr_keyword">return</strong> expansionFactor;
+<a class="jxr_linenumber" name="L636" href="ResizableDoubleArray.html#L636">636</a>     }
+<a class="jxr_linenumber" name="L637" href="ResizableDoubleArray.html#L637">637</a> 
+<a class="jxr_linenumber" name="L638" href="ResizableDoubleArray.html#L638">638</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L639" href="ResizableDoubleArray.html#L639">639</a> <em class="jxr_javadoccomment">     * The expansion mode determines whether the internal storage</em>
+<a class="jxr_linenumber" name="L640" href="ResizableDoubleArray.html#L640">640</a> <em class="jxr_javadoccomment">     * array grows additively or multiplicatively when it is expanded.</em>
+<a class="jxr_linenumber" name="L641" href="ResizableDoubleArray.html#L641">641</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L642" href="ResizableDoubleArray.html#L642">642</a> <em class="jxr_javadoccomment">     * @return the expansion mode.</em>
+<a class="jxr_linenumber" name="L643" href="ResizableDoubleArray.html#L643">643</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L644" href="ResizableDoubleArray.html#L644">644</a>     <strong class="jxr_keyword">public</strong> <a href="ResizableDoubleArray.html">ExpansionMode</a> getExpansionMode() {
+<a class="jxr_linenumber" name="L645" href="ResizableDoubleArray.html#L645">645</a>         <strong class="jxr_keyword">return</strong> expansionMode;
+<a class="jxr_linenumber" name="L646" href="ResizableDoubleArray.html#L646">646</a>     }
+<a class="jxr_linenumber" name="L647" href="ResizableDoubleArray.html#L647">647</a> 
+<a class="jxr_linenumber" name="L648" href="ResizableDoubleArray.html#L648">648</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L649" href="ResizableDoubleArray.html#L649">649</a> <em class="jxr_javadoccomment">     * Gets the currently allocated size of the internal data structure used</em>
+<a class="jxr_linenumber" name="L650" href="ResizableDoubleArray.html#L650">650</a> <em class="jxr_javadoccomment">     * for storing elements.</em>
+<a class="jxr_linenumber" name="L651" href="ResizableDoubleArray.html#L651">651</a> <em class="jxr_javadoccomment">     * This is not to be confused with {@link #getNumElements() the number of</em>
+<a class="jxr_linenumber" name="L652" href="ResizableDoubleArray.html#L652">652</a> <em class="jxr_javadoccomment">     * elements actually stored}.</em>
+<a class="jxr_linenumber" name="L653" href="ResizableDoubleArray.html#L653">653</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L654" href="ResizableDoubleArray.html#L654">654</a> <em class="jxr_javadoccomment">     * @return the length of the internal array.</em>
+<a class="jxr_linenumber" name="L655" href="ResizableDoubleArray.html#L655">655</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L656" href="ResizableDoubleArray.html#L656">656</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L657" href="ResizableDoubleArray.html#L657">657</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getCapacity() {
+<a class="jxr_linenumber" name="L658" href="ResizableDoubleArray.html#L658">658</a>         <strong class="jxr_keyword">return</strong> internalArray.length;
+<a class="jxr_linenumber" name="L659" href="ResizableDoubleArray.html#L659">659</a>     }
+<a class="jxr_linenumber" name="L660" href="ResizableDoubleArray.html#L660">660</a> 
+<a class="jxr_linenumber" name="L661" href="ResizableDoubleArray.html#L661">661</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L662" href="ResizableDoubleArray.html#L662">662</a> <em class="jxr_javadoccomment">     * Returns the number of elements currently in the array.  Please note</em>
+<a class="jxr_linenumber" name="L663" href="ResizableDoubleArray.html#L663">663</a> <em class="jxr_javadoccomment">     * that this is different from the length of the internal storage array.</em>
+<a class="jxr_linenumber" name="L664" href="ResizableDoubleArray.html#L664">664</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L665" href="ResizableDoubleArray.html#L665">665</a> <em class="jxr_javadoccomment">     * @return the number of elements.</em>
+<a class="jxr_linenumber" name="L666" href="ResizableDoubleArray.html#L666">666</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L667" href="ResizableDoubleArray.html#L667">667</a>     @Override
+<a class="jxr_linenumber" name="L668" href="ResizableDoubleArray.html#L668">668</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getNumElements() {
+<a class="jxr_linenumber" name="L669" href="ResizableDoubleArray.html#L669">669</a>         <strong class="jxr_keyword">return</strong> numElements;
+<a class="jxr_linenumber" name="L670" href="ResizableDoubleArray.html#L670">670</a>     }
+<a class="jxr_linenumber" name="L671" href="ResizableDoubleArray.html#L671">671</a> 
+<a class="jxr_linenumber" name="L672" href="ResizableDoubleArray.html#L672">672</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L673" href="ResizableDoubleArray.html#L673">673</a> <em class="jxr_javadoccomment">     * Provides &lt;em&gt;direct&lt;/em&gt; access to the internal storage array.</em>
+<a class="jxr_linenumber" name="L674" href="ResizableDoubleArray.html#L674">674</a> <em class="jxr_javadoccomment">     * Please note that this method returns a reference to this object's</em>
+<a class="jxr_linenumber" name="L675" href="ResizableDoubleArray.html#L675">675</a> <em class="jxr_javadoccomment">     * storage array, not a copy.</em>
+<a class="jxr_linenumber" name="L676" href="ResizableDoubleArray.html#L676">676</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L677" href="ResizableDoubleArray.html#L677">677</a> <em class="jxr_javadoccomment">     * To correctly address elements of the array, the "start index" is</em>
+<a class="jxr_linenumber" name="L678" href="ResizableDoubleArray.html#L678">678</a> <em class="jxr_javadoccomment">     * required (available via the {@link #getStartIndex() getStartIndex}</em>
+<a class="jxr_linenumber" name="L679" href="ResizableDoubleArray.html#L679">679</a> <em class="jxr_javadoccomment">     * method.</em>
+<a class="jxr_linenumber" name="L680" href="ResizableDoubleArray.html#L680">680</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L681" href="ResizableDoubleArray.html#L681">681</a> <em class="jxr_javadoccomment">     * This method should only be used to avoid copying the internal array.</em>
+<a class="jxr_linenumber" name="L682" href="ResizableDoubleArray.html#L682">682</a> <em class="jxr_javadoccomment">     * The returned value &lt;em&gt;must&lt;/em&gt; be used for reading only; other</em>
+<a class="jxr_linenumber" name="L683" href="ResizableDoubleArray.html#L683">683</a> <em class="jxr_javadoccomment">     * uses could lead to this object becoming inconsistent.</em>
+<a class="jxr_linenumber" name="L684" href="ResizableDoubleArray.html#L684">684</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L685" href="ResizableDoubleArray.html#L685">685</a> <em class="jxr_javadoccomment">     * The {@link #getElements} method has no such limitation since it</em>
+<a class="jxr_linenumber" name="L686" href="ResizableDoubleArray.html#L686">686</a> <em class="jxr_javadoccomment">     * returns a copy of this array's addressable elements.</em>
+<a class="jxr_linenumber" name="L687" href="ResizableDoubleArray.html#L687">687</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L688" href="ResizableDoubleArray.html#L688">688</a> <em class="jxr_javadoccomment">     * @return the internal storage array used by this object.</em>
+<a class="jxr_linenumber" name="L689" href="ResizableDoubleArray.html#L689">689</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L690" href="ResizableDoubleArray.html#L690">690</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L691" href="ResizableDoubleArray.html#L691">691</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong>[] getArrayRef() {
+<a class="jxr_linenumber" name="L692" href="ResizableDoubleArray.html#L692">692</a>         <strong class="jxr_keyword">return</strong> internalArray;
+<a class="jxr_linenumber" name="L693" href="ResizableDoubleArray.html#L693">693</a>     }
+<a class="jxr_linenumber" name="L694" href="ResizableDoubleArray.html#L694">694</a> 
+<a class="jxr_linenumber" name="L695" href="ResizableDoubleArray.html#L695">695</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L696" href="ResizableDoubleArray.html#L696">696</a> <em class="jxr_javadoccomment">     * Returns the "start index" of the internal array.</em>
+<a class="jxr_linenumber" name="L697" href="ResizableDoubleArray.html#L697">697</a> <em class="jxr_javadoccomment">     * This index is the position of the first addressable element in the</em>
+<a class="jxr_linenumber" name="L698" href="ResizableDoubleArray.html#L698">698</a> <em class="jxr_javadoccomment">     * internal storage array.</em>
+<a class="jxr_linenumber" name="L699" href="ResizableDoubleArray.html#L699">699</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L700" href="ResizableDoubleArray.html#L700">700</a> <em class="jxr_javadoccomment">     * The addressable elements in the array are at indices contained in</em>
+<a class="jxr_linenumber" name="L701" href="ResizableDoubleArray.html#L701">701</a> <em class="jxr_javadoccomment">     * the interval [{@link #getStartIndex()},</em>
+<a class="jxr_linenumber" name="L702" href="ResizableDoubleArray.html#L702">702</a> <em class="jxr_javadoccomment">     *               {@link #getStartIndex()} + {@link #getNumElements()} - 1].</em>
+<a class="jxr_linenumber" name="L703" href="ResizableDoubleArray.html#L703">703</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L704" href="ResizableDoubleArray.html#L704">704</a> <em class="jxr_javadoccomment">     * @return the start index.</em>
+<a class="jxr_linenumber" name="L705" href="ResizableDoubleArray.html#L705">705</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L706" href="ResizableDoubleArray.html#L706">706</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L707" href="ResizableDoubleArray.html#L707">707</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">int</strong> getStartIndex() {
+<a class="jxr_linenumber" name="L708" href="ResizableDoubleArray.html#L708">708</a>         <strong class="jxr_keyword">return</strong> startIndex;
+<a class="jxr_linenumber" name="L709" href="ResizableDoubleArray.html#L709">709</a>     }
+<a class="jxr_linenumber" name="L710" href="ResizableDoubleArray.html#L710">710</a> 
+<a class="jxr_linenumber" name="L711" href="ResizableDoubleArray.html#L711">711</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L712" href="ResizableDoubleArray.html#L712">712</a> <em class="jxr_javadoccomment">     * Performs an operation on the addressable elements of the array.</em>
+<a class="jxr_linenumber" name="L713" href="ResizableDoubleArray.html#L713">713</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L714" href="ResizableDoubleArray.html#L714">714</a> <em class="jxr_javadoccomment">     * @param f Function to be applied on this array.</em>
+<a class="jxr_linenumber" name="L715" href="ResizableDoubleArray.html#L715">715</a> <em class="jxr_javadoccomment">     * @return the result.</em>
+<a class="jxr_linenumber" name="L716" href="ResizableDoubleArray.html#L716">716</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L717" href="ResizableDoubleArray.html#L717">717</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L718" href="ResizableDoubleArray.html#L718">718</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> compute(MathArrays.Function f) {
+<a class="jxr_linenumber" name="L719" href="ResizableDoubleArray.html#L719">719</a>         <strong class="jxr_keyword">return</strong> f.evaluate(internalArray, startIndex, numElements);
+<a class="jxr_linenumber" name="L720" href="ResizableDoubleArray.html#L720">720</a>     }
+<a class="jxr_linenumber" name="L721" href="ResizableDoubleArray.html#L721">721</a> 
+<a class="jxr_linenumber" name="L722" href="ResizableDoubleArray.html#L722">722</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L723" href="ResizableDoubleArray.html#L723">723</a> <em class="jxr_javadoccomment">     * Sets the element at the specified index.</em>
+<a class="jxr_linenumber" name="L724" href="ResizableDoubleArray.html#L724">724</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L725" href="ResizableDoubleArray.html#L725">725</a> <em class="jxr_javadoccomment">     * If the specified index is greater than {@code getNumElements() - 1},</em>
+<a class="jxr_linenumber" name="L726" href="ResizableDoubleArray.html#L726">726</a> <em class="jxr_javadoccomment">     * the {@code numElements} property is increased to {@code index +1}</em>
+<a class="jxr_linenumber" name="L727" href="ResizableDoubleArray.html#L727">727</a> <em class="jxr_javadoccomment">     * and additional storage is allocated (if necessary) for the new element and</em>
+<a class="jxr_linenumber" name="L728" href="ResizableDoubleArray.html#L728">728</a> <em class="jxr_javadoccomment">     * all (uninitialized) elements between the new element and the previous end</em>
+<a class="jxr_linenumber" name="L729" href="ResizableDoubleArray.html#L729">729</a> <em class="jxr_javadoccomment">     * of the array).</em>
+<a class="jxr_linenumber" name="L730" href="ResizableDoubleArray.html#L730">730</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L731" href="ResizableDoubleArray.html#L731">731</a> <em class="jxr_javadoccomment">     * @param index index to store a value in</em>
+<a class="jxr_linenumber" name="L732" href="ResizableDoubleArray.html#L732">732</a> <em class="jxr_javadoccomment">     * @param value value to store at the specified index</em>
+<a class="jxr_linenumber" name="L733" href="ResizableDoubleArray.html#L733">733</a> <em class="jxr_javadoccomment">     * @throws ArrayIndexOutOfBoundsException if {@code index &lt; 0}.</em>
+<a class="jxr_linenumber" name="L734" href="ResizableDoubleArray.html#L734">734</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L735" href="ResizableDoubleArray.html#L735">735</a>     @Override
+<a class="jxr_linenumber" name="L736" href="ResizableDoubleArray.html#L736">736</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setElement(<strong class="jxr_keyword">int</strong> index, <strong class="jxr_keyword">double</strong> value) {
+<a class="jxr_linenumber" name="L737" href="ResizableDoubleArray.html#L737">737</a>         <strong class="jxr_keyword">if</strong> (index &lt; 0) {
+<a class="jxr_linenumber" name="L738" href="ResizableDoubleArray.html#L738">738</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> ArrayIndexOutOfBoundsException(index);
+<a class="jxr_linenumber" name="L739" href="ResizableDoubleArray.html#L739">739</a>         }
+<a class="jxr_linenumber" name="L740" href="ResizableDoubleArray.html#L740">740</a>         <strong class="jxr_keyword">if</strong> (index + 1 &gt; numElements) {
+<a class="jxr_linenumber" name="L741" href="ResizableDoubleArray.html#L741">741</a>             numElements = index + 1;
+<a class="jxr_linenumber" name="L742" href="ResizableDoubleArray.html#L742">742</a>         }
+<a class="jxr_linenumber" name="L743" href="ResizableDoubleArray.html#L743">743</a>         <strong class="jxr_keyword">if</strong> ((startIndex + index) &gt;= internalArray.length) {
+<a class="jxr_linenumber" name="L744" href="ResizableDoubleArray.html#L744">744</a>             expandTo(startIndex + (index + 1));
+<a class="jxr_linenumber" name="L745" href="ResizableDoubleArray.html#L745">745</a>         }
+<a class="jxr_linenumber" name="L746" href="ResizableDoubleArray.html#L746">746</a>         internalArray[startIndex + index] = value;
+<a class="jxr_linenumber" name="L747" href="ResizableDoubleArray.html#L747">747</a>     }
+<a class="jxr_linenumber" name="L748" href="ResizableDoubleArray.html#L748">748</a> 
+<a class="jxr_linenumber" name="L749" href="ResizableDoubleArray.html#L749">749</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L750" href="ResizableDoubleArray.html#L750">750</a> <em class="jxr_javadoccomment">     * This function allows you to control the number of elements contained</em>
+<a class="jxr_linenumber" name="L751" href="ResizableDoubleArray.html#L751">751</a> <em class="jxr_javadoccomment">     * in this array, and can be used to "throw out" the last n values in an</em>
+<a class="jxr_linenumber" name="L752" href="ResizableDoubleArray.html#L752">752</a> <em class="jxr_javadoccomment">     * array. This function will also expand the internal array as needed.</em>
+<a class="jxr_linenumber" name="L753" href="ResizableDoubleArray.html#L753">753</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L754" href="ResizableDoubleArray.html#L754">754</a> <em class="jxr_javadoccomment">     * @param i a new number of elements</em>
+<a class="jxr_linenumber" name="L755" href="ResizableDoubleArray.html#L755">755</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if {@code i} is negative.</em>
+<a class="jxr_linenumber" name="L756" href="ResizableDoubleArray.html#L756">756</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L757" href="ResizableDoubleArray.html#L757">757</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setNumElements(<strong class="jxr_keyword">int</strong> i) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L758" href="ResizableDoubleArray.html#L758">758</a>         <em class="jxr_comment">// If index is negative thrown an error.</em>
+<a class="jxr_linenumber" name="L759" href="ResizableDoubleArray.html#L759">759</a>         <strong class="jxr_keyword">if</strong> (i &lt; 0) {
+<a class="jxr_linenumber" name="L760" href="ResizableDoubleArray.html#L760">760</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(LocalizedFormats.INDEX_NOT_POSITIVE, i);
+<a class="jxr_linenumber" name="L761" href="ResizableDoubleArray.html#L761">761</a>         }
+<a class="jxr_linenumber" name="L762" href="ResizableDoubleArray.html#L762">762</a> 
+<a class="jxr_linenumber" name="L763" href="ResizableDoubleArray.html#L763">763</a>         <em class="jxr_comment">// Test the new num elements, check to see if the array needs to be</em>
+<a class="jxr_linenumber" name="L764" href="ResizableDoubleArray.html#L764">764</a>         <em class="jxr_comment">// expanded to accommodate this new number of elements.</em>
+<a class="jxr_linenumber" name="L765" href="ResizableDoubleArray.html#L765">765</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> newSize = startIndex + i;
+<a class="jxr_linenumber" name="L766" href="ResizableDoubleArray.html#L766">766</a>         <strong class="jxr_keyword">if</strong> (newSize &gt; internalArray.length) {
+<a class="jxr_linenumber" name="L767" href="ResizableDoubleArray.html#L767">767</a>             expandTo(newSize);
+<a class="jxr_linenumber" name="L768" href="ResizableDoubleArray.html#L768">768</a>         }
+<a class="jxr_linenumber" name="L769" href="ResizableDoubleArray.html#L769">769</a> 
+<a class="jxr_linenumber" name="L770" href="ResizableDoubleArray.html#L770">770</a>         <em class="jxr_comment">// Set the new number of elements to new value.</em>
+<a class="jxr_linenumber" name="L771" href="ResizableDoubleArray.html#L771">771</a>         numElements = i;
+<a class="jxr_linenumber" name="L772" href="ResizableDoubleArray.html#L772">772</a>     }
+<a class="jxr_linenumber" name="L773" href="ResizableDoubleArray.html#L773">773</a> 
+<a class="jxr_linenumber" name="L774" href="ResizableDoubleArray.html#L774">774</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L775" href="ResizableDoubleArray.html#L775">775</a> <em class="jxr_javadoccomment">     * Returns true if the internal storage array has too many unused</em>
+<a class="jxr_linenumber" name="L776" href="ResizableDoubleArray.html#L776">776</a> <em class="jxr_javadoccomment">     * storage positions.</em>
+<a class="jxr_linenumber" name="L777" href="ResizableDoubleArray.html#L777">777</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L778" href="ResizableDoubleArray.html#L778">778</a> <em class="jxr_javadoccomment">     * @return true if array satisfies the contraction criteria</em>
+<a class="jxr_linenumber" name="L779" href="ResizableDoubleArray.html#L779">779</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L780" href="ResizableDoubleArray.html#L780">780</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> shouldContract() {
+<a class="jxr_linenumber" name="L781" href="ResizableDoubleArray.html#L781">781</a>         <strong class="jxr_keyword">if</strong> (expansionMode == ExpansionMode.MULTIPLICATIVE) {
+<a class="jxr_linenumber" name="L782" href="ResizableDoubleArray.html#L782">782</a>             <strong class="jxr_keyword">return</strong> (internalArray.length / ((<strong class="jxr_keyword">float</strong>) numElements)) &gt; contractionCriterion;
+<a class="jxr_linenumber" name="L783" href="ResizableDoubleArray.html#L783">783</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L784" href="ResizableDoubleArray.html#L784">784</a>             <strong class="jxr_keyword">return</strong> (internalArray.length - numElements) &gt; contractionCriterion;
+<a class="jxr_linenumber" name="L785" href="ResizableDoubleArray.html#L785">785</a>         }
+<a class="jxr_linenumber" name="L786" href="ResizableDoubleArray.html#L786">786</a>     }
+<a class="jxr_linenumber" name="L787" href="ResizableDoubleArray.html#L787">787</a> 
+<a class="jxr_linenumber" name="L788" href="ResizableDoubleArray.html#L788">788</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L789" href="ResizableDoubleArray.html#L789">789</a> <em class="jxr_javadoccomment">     * Returns a copy of the ResizableDoubleArray.  Does not contract before</em>
+<a class="jxr_linenumber" name="L790" href="ResizableDoubleArray.html#L790">790</a> <em class="jxr_javadoccomment">     * the copy, so the returned object is an exact copy of this.</em>
+<a class="jxr_linenumber" name="L791" href="ResizableDoubleArray.html#L791">791</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L792" href="ResizableDoubleArray.html#L792">792</a> <em class="jxr_javadoccomment">     * @return a new ResizableDoubleArray with the same data and configuration</em>
+<a class="jxr_linenumber" name="L793" href="ResizableDoubleArray.html#L793">793</a> <em class="jxr_javadoccomment">     * properties as this</em>
+<a class="jxr_linenumber" name="L794" href="ResizableDoubleArray.html#L794">794</a> <em class="jxr_javadoccomment">     * @since 2.0</em>
+<a class="jxr_linenumber" name="L795" href="ResizableDoubleArray.html#L795">795</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L796" href="ResizableDoubleArray.html#L796">796</a>     <strong class="jxr_keyword">public</strong> <a href="ResizableDoubleArray.html">ResizableDoubleArray</a> copy() {
+<a class="jxr_linenumber" name="L797" href="ResizableDoubleArray.html#L797">797</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="ResizableDoubleArray.html">ResizableDoubleArray</a>(<strong class="jxr_keyword">this</strong>);
+<a class="jxr_linenumber" name="L798" href="ResizableDoubleArray.html#L798">798</a>     }
+<a class="jxr_linenumber" name="L799" href="ResizableDoubleArray.html#L799">799</a> 
+<a class="jxr_linenumber" name="L800" href="ResizableDoubleArray.html#L800">800</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L801" href="ResizableDoubleArray.html#L801">801</a> <em class="jxr_javadoccomment">     * Returns true iff object is a ResizableDoubleArray with the same properties</em>
+<a class="jxr_linenumber" name="L802" href="ResizableDoubleArray.html#L802">802</a> <em class="jxr_javadoccomment">     * as this and an identical internal storage array.</em>
+<a class="jxr_linenumber" name="L803" href="ResizableDoubleArray.html#L803">803</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L804" href="ResizableDoubleArray.html#L804">804</a> <em class="jxr_javadoccomment">     * @param object object to be compared for equality with this</em>
+<a class="jxr_linenumber" name="L805" href="ResizableDoubleArray.html#L805">805</a> <em class="jxr_javadoccomment">     * @return true iff object is a ResizableDoubleArray with the same data and</em>
+<a class="jxr_linenumber" name="L806" href="ResizableDoubleArray.html#L806">806</a> <em class="jxr_javadoccomment">     * properties as this</em>
+<a class="jxr_linenumber" name="L807" href="ResizableDoubleArray.html#L807">807</a> <em class="jxr_javadoccomment">     * @since 2.0</em>
+<a class="jxr_linenumber" name="L808" href="ResizableDoubleArray.html#L808">808</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L809" href="ResizableDoubleArray.html#L809">809</a>     @Override
+<a class="jxr_linenumber" name="L810" href="ResizableDoubleArray.html#L810">810</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equals(Object object) {
+<a class="jxr_linenumber" name="L811" href="ResizableDoubleArray.html#L811">811</a>         <strong class="jxr_keyword">if</strong> (object == <strong class="jxr_keyword">this</strong> ) {
+<a class="jxr_linenumber" name="L812" href="ResizableDoubleArray.html#L812">812</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L813" href="ResizableDoubleArray.html#L813">813</a>         }
+<a class="jxr_linenumber" name="L814" href="ResizableDoubleArray.html#L814">814</a>         <strong class="jxr_keyword">if</strong> (object instanceof ResizableDoubleArray == false) {
+<a class="jxr_linenumber" name="L815" href="ResizableDoubleArray.html#L815">815</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L816" href="ResizableDoubleArray.html#L816">816</a>         }
+<a class="jxr_linenumber" name="L817" href="ResizableDoubleArray.html#L817">817</a>         <strong class="jxr_keyword">boolean</strong> result = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L818" href="ResizableDoubleArray.html#L818">818</a>         <strong class="jxr_keyword">final</strong> <a href="ResizableDoubleArray.html">ResizableDoubleArray</a> other = (ResizableDoubleArray) object;
+<a class="jxr_linenumber" name="L819" href="ResizableDoubleArray.html#L819">819</a>         result = result &amp;&amp; (other.contractionCriterion == contractionCriterion);
+<a class="jxr_linenumber" name="L820" href="ResizableDoubleArray.html#L820">820</a>         result = result &amp;&amp; (other.expansionFactor == expansionFactor);
+<a class="jxr_linenumber" name="L821" href="ResizableDoubleArray.html#L821">821</a>         result = result &amp;&amp; (other.expansionMode == expansionMode);
+<a class="jxr_linenumber" name="L822" href="ResizableDoubleArray.html#L822">822</a>         result = result &amp;&amp; (other.numElements == numElements);
+<a class="jxr_linenumber" name="L823" href="ResizableDoubleArray.html#L823">823</a>         result = result &amp;&amp; (other.startIndex == startIndex);
+<a class="jxr_linenumber" name="L824" href="ResizableDoubleArray.html#L824">824</a>         <strong class="jxr_keyword">if</strong> (!result) {
+<a class="jxr_linenumber" name="L825" href="ResizableDoubleArray.html#L825">825</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L826" href="ResizableDoubleArray.html#L826">826</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L827" href="ResizableDoubleArray.html#L827">827</a>             <strong class="jxr_keyword">return</strong> Arrays.equals(internalArray, other.internalArray);
+<a class="jxr_linenumber" name="L828" href="ResizableDoubleArray.html#L828">828</a>         }
+<a class="jxr_linenumber" name="L829" href="ResizableDoubleArray.html#L829">829</a>     }
+<a class="jxr_linenumber" name="L830" href="ResizableDoubleArray.html#L830">830</a> 
+<a class="jxr_linenumber" name="L831" href="ResizableDoubleArray.html#L831">831</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L832" href="ResizableDoubleArray.html#L832">832</a> <em class="jxr_javadoccomment">     * Returns a hash code consistent with equals.</em>
+<a class="jxr_linenumber" name="L833" href="ResizableDoubleArray.html#L833">833</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L834" href="ResizableDoubleArray.html#L834">834</a> <em class="jxr_javadoccomment">     * @return the hash code representing this {@code ResizableDoubleArray}.</em>
+<a class="jxr_linenumber" name="L835" href="ResizableDoubleArray.html#L835">835</a> <em class="jxr_javadoccomment">     * @since 2.0</em>
+<a class="jxr_linenumber" name="L836" href="ResizableDoubleArray.html#L836">836</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L837" href="ResizableDoubleArray.html#L837">837</a>     @Override
+<a class="jxr_linenumber" name="L838" href="ResizableDoubleArray.html#L838">838</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> hashCode() {
+<a class="jxr_linenumber" name="L839" href="ResizableDoubleArray.html#L839">839</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] hashData = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[6];
+<a class="jxr_linenumber" name="L840" href="ResizableDoubleArray.html#L840">840</a>         hashData[0] = Double.valueOf(expansionFactor).hashCode();
+<a class="jxr_linenumber" name="L841" href="ResizableDoubleArray.html#L841">841</a>         hashData[1] = Double.valueOf(contractionCriterion).hashCode();
+<a class="jxr_linenumber" name="L842" href="ResizableDoubleArray.html#L842">842</a>         hashData[2] = expansionMode.hashCode();
+<a class="jxr_linenumber" name="L843" href="ResizableDoubleArray.html#L843">843</a>         hashData[3] = Arrays.hashCode(internalArray);
+<a class="jxr_linenumber" name="L844" href="ResizableDoubleArray.html#L844">844</a>         hashData[4] = numElements;
+<a class="jxr_linenumber" name="L845" href="ResizableDoubleArray.html#L845">845</a>         hashData[5] = startIndex;
+<a class="jxr_linenumber" name="L846" href="ResizableDoubleArray.html#L846">846</a>         <strong class="jxr_keyword">return</strong> Arrays.hashCode(hashData);
+<a class="jxr_linenumber" name="L847" href="ResizableDoubleArray.html#L847">847</a>     }
+<a class="jxr_linenumber" name="L848" href="ResizableDoubleArray.html#L848">848</a> 
+<a class="jxr_linenumber" name="L849" href="ResizableDoubleArray.html#L849">849</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Covariance xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/stat/correlation/Covariance.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="Covariance.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="Covariance.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="Covariance.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="Covariance.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="Covariance.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="Covariance.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="Covariance.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="Covariance.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="Covariance.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="Covariance.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="Covariance.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="Covariance.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="Covariance.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="Covariance.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="Covariance.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="Covariance.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="Covariance.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.stat.correlation;
+<a class="jxr_linenumber" name="L18" href="Covariance.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="Covariance.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L20" href="Covariance.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L21" href="Covariance.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L22" href="Covariance.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.BlockRealMatrix;
+<a class="jxr_linenumber" name="L23" href="Covariance.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.RealMatrix;
+<a class="jxr_linenumber" name="L24" href="Covariance.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.descriptive.moment.Mean;
+<a class="jxr_linenumber" name="L25" href="Covariance.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.descriptive.moment.Variance;
+<a class="jxr_linenumber" name="L26" href="Covariance.html#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="Covariance.html#L27">27</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L28" href="Covariance.html#L28">28</a>  <em class="jxr_javadoccomment"> * Computes covariances for pairs of arrays or columns of a matrix.</em>
+<a class="jxr_linenumber" name="L29" href="Covariance.html#L29">29</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L30" href="Covariance.html#L30">30</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;The constructors that take &lt;code&gt;RealMatrix&lt;/code&gt; or</em>
+<a class="jxr_linenumber" name="L31" href="Covariance.html#L31">31</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;double[][]&lt;/code&gt; arguments generate covariance matrices.  The</em>
+<a class="jxr_linenumber" name="L32" href="Covariance.html#L32">32</a>  <em class="jxr_javadoccomment"> * columns of the input matrices are assumed to represent variable values.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L33" href="Covariance.html#L33">33</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L34" href="Covariance.html#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;The constructor argument &lt;code&gt;biasCorrected&lt;/code&gt; determines whether or</em>
+<a class="jxr_linenumber" name="L35" href="Covariance.html#L35">35</a>  <em class="jxr_javadoccomment"> * not computed covariances are bias-corrected.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L36" href="Covariance.html#L36">36</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L37" href="Covariance.html#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Unbiased covariances are given by the formula&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L38" href="Covariance.html#L38">38</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;cov(X, Y) = &amp;Sigma;[(x&lt;sub&gt;i&lt;/sub&gt; - E(X))(y&lt;sub&gt;i&lt;/sub&gt; - E(Y))] / (n - 1)&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L39" href="Covariance.html#L39">39</a>  <em class="jxr_javadoccomment"> * where &lt;code&gt;E(X)&lt;/code&gt; is the mean of &lt;code&gt;X&lt;/code&gt; and &lt;code&gt;E(Y)&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L40" href="Covariance.html#L40">40</a>  <em class="jxr_javadoccomment"> * is the mean of the &lt;code&gt;Y&lt;/code&gt; values.</em>
+<a class="jxr_linenumber" name="L41" href="Covariance.html#L41">41</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L42" href="Covariance.html#L42">42</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Non-bias-corrected estimates use &lt;code&gt;n&lt;/code&gt; in place of &lt;code&gt;n - 1&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L43" href="Covariance.html#L43">43</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L44" href="Covariance.html#L44">44</a>  <em class="jxr_javadoccomment"> * @since 2.0</em>
+<a class="jxr_linenumber" name="L45" href="Covariance.html#L45">45</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L46" href="Covariance.html#L46">46</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="Covariance.html">Covariance</a> {
+<a class="jxr_linenumber" name="L47" href="Covariance.html#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="Covariance.html#L48">48</a>      <em class="jxr_javadoccomment">/** covariance matrix */</em>
+<a class="jxr_linenumber" name="L49" href="Covariance.html#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> covarianceMatrix;
+<a class="jxr_linenumber" name="L50" href="Covariance.html#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="Covariance.html#L51">51</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L52" href="Covariance.html#L52">52</a>  <em class="jxr_javadoccomment">     * Create an empty covariance matrix.</em>
+<a class="jxr_linenumber" name="L53" href="Covariance.html#L53">53</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L54" href="Covariance.html#L54">54</a>      <em class="jxr_javadoccomment">/** Number of observations (length of covariate vectors) */</em>
+<a class="jxr_linenumber" name="L55" href="Covariance.html#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n;
+<a class="jxr_linenumber" name="L56" href="Covariance.html#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="Covariance.html#L57">57</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L58" href="Covariance.html#L58">58</a>  <em class="jxr_javadoccomment">     * Create a Covariance with no data</em>
+<a class="jxr_linenumber" name="L59" href="Covariance.html#L59">59</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L60" href="Covariance.html#L60">60</a>      <strong class="jxr_keyword">public</strong> <a href="Covariance.html">Covariance</a>() {
+<a class="jxr_linenumber" name="L61" href="Covariance.html#L61">61</a>          <strong class="jxr_keyword">super</strong>();
+<a class="jxr_linenumber" name="L62" href="Covariance.html#L62">62</a>          covarianceMatrix = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L63" href="Covariance.html#L63">63</a>          n = 0;
+<a class="jxr_linenumber" name="L64" href="Covariance.html#L64">64</a>      }
+<a class="jxr_linenumber" name="L65" href="Covariance.html#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="Covariance.html#L66">66</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L67" href="Covariance.html#L67">67</a>  <em class="jxr_javadoccomment">     * Create a Covariance matrix from a rectangular array</em>
+<a class="jxr_linenumber" name="L68" href="Covariance.html#L68">68</a>  <em class="jxr_javadoccomment">     * whose columns represent covariates.</em>
+<a class="jxr_linenumber" name="L69" href="Covariance.html#L69">69</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L70" href="Covariance.html#L70">70</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;The &lt;code&gt;biasCorrected&lt;/code&gt; parameter determines whether or not</em>
+<a class="jxr_linenumber" name="L71" href="Covariance.html#L71">71</a>  <em class="jxr_javadoccomment">     * covariance estimates are bias-corrected.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L72" href="Covariance.html#L72">72</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L73" href="Covariance.html#L73">73</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;The input array must be rectangular with at least one column</em>
+<a class="jxr_linenumber" name="L74" href="Covariance.html#L74">74</a>  <em class="jxr_javadoccomment">     * and two rows.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L75" href="Covariance.html#L75">75</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L76" href="Covariance.html#L76">76</a>  <em class="jxr_javadoccomment">     * @param data rectangular array with columns representing covariates</em>
+<a class="jxr_linenumber" name="L77" href="Covariance.html#L77">77</a>  <em class="jxr_javadoccomment">     * @param biasCorrected true means covariances are bias-corrected</em>
+<a class="jxr_linenumber" name="L78" href="Covariance.html#L78">78</a>  <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the input data array is not</em>
+<a class="jxr_linenumber" name="L79" href="Covariance.html#L79">79</a>  <em class="jxr_javadoccomment">     * rectangular with at least two rows and one column.</em>
+<a class="jxr_linenumber" name="L80" href="Covariance.html#L80">80</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if the input data array is not</em>
+<a class="jxr_linenumber" name="L81" href="Covariance.html#L81">81</a>  <em class="jxr_javadoccomment">     * rectangular with at least one row and one column.</em>
+<a class="jxr_linenumber" name="L82" href="Covariance.html#L82">82</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L83" href="Covariance.html#L83">83</a>      <strong class="jxr_keyword">public</strong> <a href="Covariance.html">Covariance</a>(<strong class="jxr_keyword">double</strong>[][] data, <strong class="jxr_keyword">boolean</strong> biasCorrected)
+<a class="jxr_linenumber" name="L84" href="Covariance.html#L84">84</a>      <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException, <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L85" href="Covariance.html#L85">85</a>          <strong class="jxr_keyword">this</strong>(<strong class="jxr_keyword">new</strong> <a href="../../linear/BlockRealMatrix.html">BlockRealMatrix</a>(data), biasCorrected);
+<a class="jxr_linenumber" name="L86" href="Covariance.html#L86">86</a>      }
+<a class="jxr_linenumber" name="L87" href="Covariance.html#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="Covariance.html#L88">88</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L89" href="Covariance.html#L89">89</a>  <em class="jxr_javadoccomment">     * Create a Covariance matrix from a rectangular array</em>
+<a class="jxr_linenumber" name="L90" href="Covariance.html#L90">90</a>  <em class="jxr_javadoccomment">     * whose columns represent covariates.</em>
+<a class="jxr_linenumber" name="L91" href="Covariance.html#L91">91</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L92" href="Covariance.html#L92">92</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;The input array must be rectangular with at least one column</em>
+<a class="jxr_linenumber" name="L93" href="Covariance.html#L93">93</a>  <em class="jxr_javadoccomment">     * and two rows&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L94" href="Covariance.html#L94">94</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L95" href="Covariance.html#L95">95</a>  <em class="jxr_javadoccomment">     * @param data rectangular array with columns representing covariates</em>
+<a class="jxr_linenumber" name="L96" href="Covariance.html#L96">96</a>  <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the input data array is not</em>
+<a class="jxr_linenumber" name="L97" href="Covariance.html#L97">97</a>  <em class="jxr_javadoccomment">     * rectangular with at least two rows and one column.</em>
+<a class="jxr_linenumber" name="L98" href="Covariance.html#L98">98</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if the input data array is not</em>
+<a class="jxr_linenumber" name="L99" href="Covariance.html#L99">99</a>  <em class="jxr_javadoccomment">     * rectangular with at least one row and one column.</em>
+<a class="jxr_linenumber" name="L100" href="Covariance.html#L100">100</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L101" href="Covariance.html#L101">101</a>     <strong class="jxr_keyword">public</strong> <a href="Covariance.html">Covariance</a>(<strong class="jxr_keyword">double</strong>[][] data)
+<a class="jxr_linenumber" name="L102" href="Covariance.html#L102">102</a>     <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException, <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L103" href="Covariance.html#L103">103</a>         <strong class="jxr_keyword">this</strong>(data, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L104" href="Covariance.html#L104">104</a>     }
+<a class="jxr_linenumber" name="L105" href="Covariance.html#L105">105</a> 
+<a class="jxr_linenumber" name="L106" href="Covariance.html#L106">106</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L107" href="Covariance.html#L107">107</a> <em class="jxr_javadoccomment">     * Create a covariance matrix from a matrix whose columns</em>
+<a class="jxr_linenumber" name="L108" href="Covariance.html#L108">108</a> <em class="jxr_javadoccomment">     * represent covariates.</em>
+<a class="jxr_linenumber" name="L109" href="Covariance.html#L109">109</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L110" href="Covariance.html#L110">110</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The &lt;code&gt;biasCorrected&lt;/code&gt; parameter determines whether or not</em>
+<a class="jxr_linenumber" name="L111" href="Covariance.html#L111">111</a> <em class="jxr_javadoccomment">     * covariance estimates are bias-corrected.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L112" href="Covariance.html#L112">112</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L113" href="Covariance.html#L113">113</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The matrix must have at least one column and two rows&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L114" href="Covariance.html#L114">114</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L115" href="Covariance.html#L115">115</a> <em class="jxr_javadoccomment">     * @param matrix matrix with columns representing covariates</em>
+<a class="jxr_linenumber" name="L116" href="Covariance.html#L116">116</a> <em class="jxr_javadoccomment">     * @param biasCorrected true means covariances are bias-corrected</em>
+<a class="jxr_linenumber" name="L117" href="Covariance.html#L117">117</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the input matrix does not have</em>
+<a class="jxr_linenumber" name="L118" href="Covariance.html#L118">118</a> <em class="jxr_javadoccomment">     * at least two rows and one column</em>
+<a class="jxr_linenumber" name="L119" href="Covariance.html#L119">119</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L120" href="Covariance.html#L120">120</a>     <strong class="jxr_keyword">public</strong> <a href="Covariance.html">Covariance</a>(<a href="../../linear/RealMatrix.html">RealMatrix</a> matrix, <strong class="jxr_keyword">boolean</strong> biasCorrected)
+<a class="jxr_linenumber" name="L121" href="Covariance.html#L121">121</a>     <strong class="jxr_keyword">throws</strong> <a href="../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L122" href="Covariance.html#L122">122</a>        checkSufficientData(matrix);
+<a class="jxr_linenumber" name="L123" href="Covariance.html#L123">123</a>        n = matrix.getRowDimension();
+<a class="jxr_linenumber" name="L124" href="Covariance.html#L124">124</a>        covarianceMatrix = computeCovarianceMatrix(matrix, biasCorrected);
+<a class="jxr_linenumber" name="L125" href="Covariance.html#L125">125</a>     }
+<a class="jxr_linenumber" name="L126" href="Covariance.html#L126">126</a> 
+<a class="jxr_linenumber" name="L127" href="Covariance.html#L127">127</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L128" href="Covariance.html#L128">128</a> <em class="jxr_javadoccomment">     * Create a covariance matrix from a matrix whose columns</em>
+<a class="jxr_linenumber" name="L129" href="Covariance.html#L129">129</a> <em class="jxr_javadoccomment">     * represent covariates.</em>
+<a class="jxr_linenumber" name="L130" href="Covariance.html#L130">130</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L131" href="Covariance.html#L131">131</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The matrix must have at least one column and two rows&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L132" href="Covariance.html#L132">132</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L133" href="Covariance.html#L133">133</a> <em class="jxr_javadoccomment">     * @param matrix matrix with columns representing covariates</em>
+<a class="jxr_linenumber" name="L134" href="Covariance.html#L134">134</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the input matrix does not have</em>
+<a class="jxr_linenumber" name="L135" href="Covariance.html#L135">135</a> <em class="jxr_javadoccomment">     * at least two rows and one column</em>
+<a class="jxr_linenumber" name="L136" href="Covariance.html#L136">136</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L137" href="Covariance.html#L137">137</a>     <strong class="jxr_keyword">public</strong> <a href="Covariance.html">Covariance</a>(<a href="../../linear/RealMatrix.html">RealMatrix</a> matrix) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L138" href="Covariance.html#L138">138</a>         <strong class="jxr_keyword">this</strong>(matrix, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L139" href="Covariance.html#L139">139</a>     }
+<a class="jxr_linenumber" name="L140" href="Covariance.html#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="Covariance.html#L141">141</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L142" href="Covariance.html#L142">142</a> <em class="jxr_javadoccomment">     * Returns the covariance matrix</em>
+<a class="jxr_linenumber" name="L143" href="Covariance.html#L143">143</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L144" href="Covariance.html#L144">144</a> <em class="jxr_javadoccomment">     * @return covariance matrix</em>
+<a class="jxr_linenumber" name="L145" href="Covariance.html#L145">145</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L146" href="Covariance.html#L146">146</a>     <strong class="jxr_keyword">public</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> getCovarianceMatrix() {
+<a class="jxr_linenumber" name="L147" href="Covariance.html#L147">147</a>         <strong class="jxr_keyword">return</strong> covarianceMatrix;
+<a class="jxr_linenumber" name="L148" href="Covariance.html#L148">148</a>     }
+<a class="jxr_linenumber" name="L149" href="Covariance.html#L149">149</a> 
+<a class="jxr_linenumber" name="L150" href="Covariance.html#L150">150</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L151" href="Covariance.html#L151">151</a> <em class="jxr_javadoccomment">     * Returns the number of observations (length of covariate vectors)</em>
+<a class="jxr_linenumber" name="L152" href="Covariance.html#L152">152</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L153" href="Covariance.html#L153">153</a> <em class="jxr_javadoccomment">     * @return number of observations</em>
+<a class="jxr_linenumber" name="L154" href="Covariance.html#L154">154</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L155" href="Covariance.html#L155">155</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getN() {
+<a class="jxr_linenumber" name="L156" href="Covariance.html#L156">156</a>         <strong class="jxr_keyword">return</strong> n;
+<a class="jxr_linenumber" name="L157" href="Covariance.html#L157">157</a>     }
+<a class="jxr_linenumber" name="L158" href="Covariance.html#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="Covariance.html#L159">159</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L160" href="Covariance.html#L160">160</a> <em class="jxr_javadoccomment">     * Compute a covariance matrix from a matrix whose columns represent</em>
+<a class="jxr_linenumber" name="L161" href="Covariance.html#L161">161</a> <em class="jxr_javadoccomment">     * covariates.</em>
+<a class="jxr_linenumber" name="L162" href="Covariance.html#L162">162</a> <em class="jxr_javadoccomment">     * @param matrix input matrix (must have at least one column and two rows)</em>
+<a class="jxr_linenumber" name="L163" href="Covariance.html#L163">163</a> <em class="jxr_javadoccomment">     * @param biasCorrected determines whether or not covariance estimates are bias-corrected</em>
+<a class="jxr_linenumber" name="L164" href="Covariance.html#L164">164</a> <em class="jxr_javadoccomment">     * @return covariance matrix</em>
+<a class="jxr_linenumber" name="L165" href="Covariance.html#L165">165</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the matrix does not contain sufficient data</em>
+<a class="jxr_linenumber" name="L166" href="Covariance.html#L166">166</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L167" href="Covariance.html#L167">167</a>     <strong class="jxr_keyword">protected</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> computeCovarianceMatrix(<a href="../../linear/RealMatrix.html">RealMatrix</a> matrix, <strong class="jxr_keyword">boolean</strong> biasCorrected)
+<a class="jxr_linenumber" name="L168" href="Covariance.html#L168">168</a>     <strong class="jxr_keyword">throws</strong> <a href="../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L169" href="Covariance.html#L169">169</a>         <strong class="jxr_keyword">int</strong> dimension = matrix.getColumnDimension();
+<a class="jxr_linenumber" name="L170" href="Covariance.html#L170">170</a>         <a href="../descriptive/moment/Variance.html">Variance</a> variance = <strong class="jxr_keyword">new</strong> <a href="../descriptive/moment/Variance.html">Variance</a>(biasCorrected);
+<a class="jxr_linenumber" name="L171" href="Covariance.html#L171">171</a>         <a href="../../linear/RealMatrix.html">RealMatrix</a> outMatrix = <strong class="jxr_keyword">new</strong> <a href="../../linear/BlockRealMatrix.html">BlockRealMatrix</a>(dimension, dimension);
+<a class="jxr_linenumber" name="L172" href="Covariance.html#L172">172</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; dimension; i++) {
+<a class="jxr_linenumber" name="L173" href="Covariance.html#L173">173</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; i; j++) {
+<a class="jxr_linenumber" name="L174" href="Covariance.html#L174">174</a>               <strong class="jxr_keyword">double</strong> cov = covariance(matrix.getColumn(i), matrix.getColumn(j), biasCorrected);
+<a class="jxr_linenumber" name="L175" href="Covariance.html#L175">175</a>               outMatrix.setEntry(i, j, cov);
+<a class="jxr_linenumber" name="L176" href="Covariance.html#L176">176</a>               outMatrix.setEntry(j, i, cov);
+<a class="jxr_linenumber" name="L177" href="Covariance.html#L177">177</a>             }
+<a class="jxr_linenumber" name="L178" href="Covariance.html#L178">178</a>             outMatrix.setEntry(i, i, variance.evaluate(matrix.getColumn(i)));
+<a class="jxr_linenumber" name="L179" href="Covariance.html#L179">179</a>         }
+<a class="jxr_linenumber" name="L180" href="Covariance.html#L180">180</a>         <strong class="jxr_keyword">return</strong> outMatrix;
+<a class="jxr_linenumber" name="L181" href="Covariance.html#L181">181</a>     }
+<a class="jxr_linenumber" name="L182" href="Covariance.html#L182">182</a> 
+<a class="jxr_linenumber" name="L183" href="Covariance.html#L183">183</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L184" href="Covariance.html#L184">184</a> <em class="jxr_javadoccomment">     * Create a covariance matrix from a matrix whose columns represent</em>
+<a class="jxr_linenumber" name="L185" href="Covariance.html#L185">185</a> <em class="jxr_javadoccomment">     * covariates. Covariances are computed using the bias-corrected formula.</em>
+<a class="jxr_linenumber" name="L186" href="Covariance.html#L186">186</a> <em class="jxr_javadoccomment">     * @param matrix input matrix (must have at least one column and two rows)</em>
+<a class="jxr_linenumber" name="L187" href="Covariance.html#L187">187</a> <em class="jxr_javadoccomment">     * @return covariance matrix</em>
+<a class="jxr_linenumber" name="L188" href="Covariance.html#L188">188</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if matrix does not contain sufficient data</em>
+<a class="jxr_linenumber" name="L189" href="Covariance.html#L189">189</a> <em class="jxr_javadoccomment">     * @see #Covariance</em>
+<a class="jxr_linenumber" name="L190" href="Covariance.html#L190">190</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L191" href="Covariance.html#L191">191</a>     <strong class="jxr_keyword">protected</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> computeCovarianceMatrix(<a href="../../linear/RealMatrix.html">RealMatrix</a> matrix)
+<a class="jxr_linenumber" name="L192" href="Covariance.html#L192">192</a>     <strong class="jxr_keyword">throws</strong> <a href="../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L193" href="Covariance.html#L193">193</a>         <strong class="jxr_keyword">return</strong> computeCovarianceMatrix(matrix, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L194" href="Covariance.html#L194">194</a>     }
+<a class="jxr_linenumber" name="L195" href="Covariance.html#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="Covariance.html#L196">196</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L197" href="Covariance.html#L197">197</a> <em class="jxr_javadoccomment">     * Compute a covariance matrix from a rectangular array whose columns represent</em>
+<a class="jxr_linenumber" name="L198" href="Covariance.html#L198">198</a> <em class="jxr_javadoccomment">     * covariates.</em>
+<a class="jxr_linenumber" name="L199" href="Covariance.html#L199">199</a> <em class="jxr_javadoccomment">     * @param data input array (must have at least one column and two rows)</em>
+<a class="jxr_linenumber" name="L200" href="Covariance.html#L200">200</a> <em class="jxr_javadoccomment">     * @param biasCorrected determines whether or not covariance estimates are bias-corrected</em>
+<a class="jxr_linenumber" name="L201" href="Covariance.html#L201">201</a> <em class="jxr_javadoccomment">     * @return covariance matrix</em>
+<a class="jxr_linenumber" name="L202" href="Covariance.html#L202">202</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the data array does not contain sufficient</em>
+<a class="jxr_linenumber" name="L203" href="Covariance.html#L203">203</a> <em class="jxr_javadoccomment">     * data</em>
+<a class="jxr_linenumber" name="L204" href="Covariance.html#L204">204</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if the input data array is not</em>
+<a class="jxr_linenumber" name="L205" href="Covariance.html#L205">205</a> <em class="jxr_javadoccomment">     * rectangular with at least one row and one column.</em>
+<a class="jxr_linenumber" name="L206" href="Covariance.html#L206">206</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L207" href="Covariance.html#L207">207</a>     <strong class="jxr_keyword">protected</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> computeCovarianceMatrix(<strong class="jxr_keyword">double</strong>[][] data, <strong class="jxr_keyword">boolean</strong> biasCorrected)
+<a class="jxr_linenumber" name="L208" href="Covariance.html#L208">208</a>     <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException, <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L209" href="Covariance.html#L209">209</a>         <strong class="jxr_keyword">return</strong> computeCovarianceMatrix(<strong class="jxr_keyword">new</strong> <a href="../../linear/BlockRealMatrix.html">BlockRealMatrix</a>(data), biasCorrected);
+<a class="jxr_linenumber" name="L210" href="Covariance.html#L210">210</a>     }
+<a class="jxr_linenumber" name="L211" href="Covariance.html#L211">211</a> 
+<a class="jxr_linenumber" name="L212" href="Covariance.html#L212">212</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L213" href="Covariance.html#L213">213</a> <em class="jxr_javadoccomment">     * Create a covariance matrix from a rectangular array whose columns represent</em>
+<a class="jxr_linenumber" name="L214" href="Covariance.html#L214">214</a> <em class="jxr_javadoccomment">     * covariates. Covariances are computed using the bias-corrected formula.</em>
+<a class="jxr_linenumber" name="L215" href="Covariance.html#L215">215</a> <em class="jxr_javadoccomment">     * @param data input array (must have at least one column and two rows)</em>
+<a class="jxr_linenumber" name="L216" href="Covariance.html#L216">216</a> <em class="jxr_javadoccomment">     * @return covariance matrix</em>
+<a class="jxr_linenumber" name="L217" href="Covariance.html#L217">217</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the data array does not contain sufficient data</em>
+<a class="jxr_linenumber" name="L218" href="Covariance.html#L218">218</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if the input data array is not</em>
+<a class="jxr_linenumber" name="L219" href="Covariance.html#L219">219</a> <em class="jxr_javadoccomment">     * rectangular with at least one row and one column.</em>
+<a class="jxr_linenumber" name="L220" href="Covariance.html#L220">220</a> <em class="jxr_javadoccomment">     * @see #Covariance</em>
+<a class="jxr_linenumber" name="L221" href="Covariance.html#L221">221</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L222" href="Covariance.html#L222">222</a>     <strong class="jxr_keyword">protected</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> computeCovarianceMatrix(<strong class="jxr_keyword">double</strong>[][] data)
+<a class="jxr_linenumber" name="L223" href="Covariance.html#L223">223</a>     <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException, <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L224" href="Covariance.html#L224">224</a>         <strong class="jxr_keyword">return</strong> computeCovarianceMatrix(data, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L225" href="Covariance.html#L225">225</a>     }
+<a class="jxr_linenumber" name="L226" href="Covariance.html#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="Covariance.html#L227">227</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L228" href="Covariance.html#L228">228</a> <em class="jxr_javadoccomment">     * Computes the covariance between the two arrays.</em>
+<a class="jxr_linenumber" name="L229" href="Covariance.html#L229">229</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L230" href="Covariance.html#L230">230</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Array lengths must match and the common length must be at least 2.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L231" href="Covariance.html#L231">231</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L232" href="Covariance.html#L232">232</a> <em class="jxr_javadoccomment">     * @param xArray first data array</em>
+<a class="jxr_linenumber" name="L233" href="Covariance.html#L233">233</a> <em class="jxr_javadoccomment">     * @param yArray second data array</em>
+<a class="jxr_linenumber" name="L234" href="Covariance.html#L234">234</a> <em class="jxr_javadoccomment">     * @param biasCorrected if true, returned value will be bias-corrected</em>
+<a class="jxr_linenumber" name="L235" href="Covariance.html#L235">235</a> <em class="jxr_javadoccomment">     * @return returns the covariance for the two arrays</em>
+<a class="jxr_linenumber" name="L236" href="Covariance.html#L236">236</a> <em class="jxr_javadoccomment">     * @throws  MathIllegalArgumentException if the arrays lengths do not match or</em>
+<a class="jxr_linenumber" name="L237" href="Covariance.html#L237">237</a> <em class="jxr_javadoccomment">     * there is insufficient data</em>
+<a class="jxr_linenumber" name="L238" href="Covariance.html#L238">238</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L239" href="Covariance.html#L239">239</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> covariance(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xArray, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yArray, <strong class="jxr_keyword">boolean</strong> biasCorrected)
+<a class="jxr_linenumber" name="L240" href="Covariance.html#L240">240</a>         <strong class="jxr_keyword">throws</strong> <a href="../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L241" href="Covariance.html#L241">241</a>         <a href="../descriptive/moment/Mean.html">Mean</a> mean = <strong class="jxr_keyword">new</strong> <a href="../descriptive/moment/Mean.html">Mean</a>();
+<a class="jxr_linenumber" name="L242" href="Covariance.html#L242">242</a>         <strong class="jxr_keyword">double</strong> result = 0d;
+<a class="jxr_linenumber" name="L243" href="Covariance.html#L243">243</a>         <strong class="jxr_keyword">int</strong> length = xArray.length;
+<a class="jxr_linenumber" name="L244" href="Covariance.html#L244">244</a>         <strong class="jxr_keyword">if</strong> (length != yArray.length) {
+<a class="jxr_linenumber" name="L245" href="Covariance.html#L245">245</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(
+<a class="jxr_linenumber" name="L246" href="Covariance.html#L246">246</a>                   LocalizedFormats.DIMENSIONS_MISMATCH_SIMPLE, length, yArray.length);
+<a class="jxr_linenumber" name="L247" href="Covariance.html#L247">247</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (length &lt; 2) {
+<a class="jxr_linenumber" name="L248" href="Covariance.html#L248">248</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(
+<a class="jxr_linenumber" name="L249" href="Covariance.html#L249">249</a>                   LocalizedFormats.INSUFFICIENT_OBSERVED_POINTS_IN_SAMPLE, length, 2);
+<a class="jxr_linenumber" name="L250" href="Covariance.html#L250">250</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L251" href="Covariance.html#L251">251</a>             <strong class="jxr_keyword">double</strong> xMean = mean.evaluate(xArray);
+<a class="jxr_linenumber" name="L252" href="Covariance.html#L252">252</a>             <strong class="jxr_keyword">double</strong> yMean = mean.evaluate(yArray);
+<a class="jxr_linenumber" name="L253" href="Covariance.html#L253">253</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; length; i++) {
+<a class="jxr_linenumber" name="L254" href="Covariance.html#L254">254</a>                 <strong class="jxr_keyword">double</strong> xDev = xArray[i] - xMean;
+<a class="jxr_linenumber" name="L255" href="Covariance.html#L255">255</a>                 <strong class="jxr_keyword">double</strong> yDev = yArray[i] - yMean;
+<a class="jxr_linenumber" name="L256" href="Covariance.html#L256">256</a>                 result += (xDev * yDev - result) / (i + 1);
+<a class="jxr_linenumber" name="L257" href="Covariance.html#L257">257</a>             }
+<a class="jxr_linenumber" name="L258" href="Covariance.html#L258">258</a>         }
+<a class="jxr_linenumber" name="L259" href="Covariance.html#L259">259</a>         <strong class="jxr_keyword">return</strong> biasCorrected ? result * ((<strong class="jxr_keyword">double</strong>) length / (<strong class="jxr_keyword">double</strong>)(length - 1)) : result;
+<a class="jxr_linenumber" name="L260" href="Covariance.html#L260">260</a>     }
+<a class="jxr_linenumber" name="L261" href="Covariance.html#L261">261</a> 
+<a class="jxr_linenumber" name="L262" href="Covariance.html#L262">262</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L263" href="Covariance.html#L263">263</a> <em class="jxr_javadoccomment">     * Computes the covariance between the two arrays, using the bias-corrected</em>
+<a class="jxr_linenumber" name="L264" href="Covariance.html#L264">264</a> <em class="jxr_javadoccomment">     * formula.</em>
+<a class="jxr_linenumber" name="L265" href="Covariance.html#L265">265</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L266" href="Covariance.html#L266">266</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Array lengths must match and the common length must be at least 2.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L267" href="Covariance.html#L267">267</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L268" href="Covariance.html#L268">268</a> <em class="jxr_javadoccomment">     * @param xArray first data array</em>
+<a class="jxr_linenumber" name="L269" href="Covariance.html#L269">269</a> <em class="jxr_javadoccomment">     * @param yArray second data array</em>
+<a class="jxr_linenumber" name="L270" href="Covariance.html#L270">270</a> <em class="jxr_javadoccomment">     * @return returns the covariance for the two arrays</em>
+<a class="jxr_linenumber" name="L271" href="Covariance.html#L271">271</a> <em class="jxr_javadoccomment">     * @throws  MathIllegalArgumentException if the arrays lengths do not match or</em>
+<a class="jxr_linenumber" name="L272" href="Covariance.html#L272">272</a> <em class="jxr_javadoccomment">     * there is insufficient data</em>
+<a class="jxr_linenumber" name="L273" href="Covariance.html#L273">273</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L274" href="Covariance.html#L274">274</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> covariance(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xArray, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yArray)
+<a class="jxr_linenumber" name="L275" href="Covariance.html#L275">275</a>         <strong class="jxr_keyword">throws</strong> <a href="../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L276" href="Covariance.html#L276">276</a>         <strong class="jxr_keyword">return</strong> covariance(xArray, yArray, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L277" href="Covariance.html#L277">277</a>     }
+<a class="jxr_linenumber" name="L278" href="Covariance.html#L278">278</a> 
+<a class="jxr_linenumber" name="L279" href="Covariance.html#L279">279</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L280" href="Covariance.html#L280">280</a> <em class="jxr_javadoccomment">     * Throws MathIllegalArgumentException if the matrix does not have at least</em>
+<a class="jxr_linenumber" name="L281" href="Covariance.html#L281">281</a> <em class="jxr_javadoccomment">     * one column and two rows.</em>
+<a class="jxr_linenumber" name="L282" href="Covariance.html#L282">282</a> <em class="jxr_javadoccomment">     * @param matrix matrix to check</em>
+<a class="jxr_linenumber" name="L283" href="Covariance.html#L283">283</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the matrix does not contain sufficient data</em>
+<a class="jxr_linenumber" name="L284" href="Covariance.html#L284">284</a> <em class="jxr_javadoccomment">     * to compute covariance</em>
+<a class="jxr_linenumber" name="L285" href="Covariance.html#L285">285</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L286" href="Covariance.html#L286">286</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> checkSufficientData(<strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> matrix) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L287" href="Covariance.html#L287">287</a>         <strong class="jxr_keyword">int</strong> nRows = matrix.getRowDimension();
+<a class="jxr_linenumber" name="L288" href="Covariance.html#L288">288</a>         <strong class="jxr_keyword">int</strong> nCols = matrix.getColumnDimension();
+<a class="jxr_linenumber" name="L289" href="Covariance.html#L289">289</a>         <strong class="jxr_keyword">if</strong> (nRows &lt; 2 || nCols &lt; 1) {
+<a class="jxr_linenumber" name="L290" href="Covariance.html#L290">290</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(
+<a class="jxr_linenumber" name="L291" href="Covariance.html#L291">291</a>                     LocalizedFormats.INSUFFICIENT_ROWS_AND_COLUMNS,
+<a class="jxr_linenumber" name="L292" href="Covariance.html#L292">292</a>                     nRows, nCols);
+<a class="jxr_linenumber" name="L293" href="Covariance.html#L293">293</a>         }
+<a class="jxr_linenumber" name="L294" href="Covariance.html#L294">294</a>     }
+<a class="jxr_linenumber" name="L295" href="Covariance.html#L295">295</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

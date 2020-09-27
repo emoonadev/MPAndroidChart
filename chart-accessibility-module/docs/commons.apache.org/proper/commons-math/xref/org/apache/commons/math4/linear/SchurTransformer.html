@@ -1,0 +1,466 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>SchurTransformer xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math4/linear/SchurTransformer.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="SchurTransformer.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="SchurTransformer.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="SchurTransformer.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="SchurTransformer.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="SchurTransformer.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="SchurTransformer.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="SchurTransformer.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="SchurTransformer.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="SchurTransformer.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="SchurTransformer.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="SchurTransformer.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="SchurTransformer.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="SchurTransformer.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="SchurTransformer.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="SchurTransformer.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="SchurTransformer.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="SchurTransformer.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="SchurTransformer.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.linear;
+<a class="jxr_linenumber" name="L19" href="SchurTransformer.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="SchurTransformer.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MaxCountExceededException;
+<a class="jxr_linenumber" name="L21" href="SchurTransformer.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L22" href="SchurTransformer.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L23" href="SchurTransformer.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Precision;
+<a class="jxr_linenumber" name="L24" href="SchurTransformer.html#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="SchurTransformer.html#L25">25</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L26" href="SchurTransformer.html#L26">26</a>  <em class="jxr_javadoccomment"> * Class transforming a general real matrix to Schur form.</em>
+<a class="jxr_linenumber" name="L27" href="SchurTransformer.html#L27">27</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;A m &amp;times; m matrix A can be written as the product of three matrices: A = P</em>
+<a class="jxr_linenumber" name="L28" href="SchurTransformer.html#L28">28</a>  <em class="jxr_javadoccomment"> * &amp;times; T &amp;times; P&lt;sup&gt;T&lt;/sup&gt; with P an orthogonal matrix and T an quasi-triangular</em>
+<a class="jxr_linenumber" name="L29" href="SchurTransformer.html#L29">29</a>  <em class="jxr_javadoccomment"> * matrix. Both P and T are m &amp;times; m matrices.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L30" href="SchurTransformer.html#L30">30</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Transformation to Schur form is often not a goal by itself, but it is an</em>
+<a class="jxr_linenumber" name="L31" href="SchurTransformer.html#L31">31</a>  <em class="jxr_javadoccomment"> * intermediate step in more general decomposition algorithms like</em>
+<a class="jxr_linenumber" name="L32" href="SchurTransformer.html#L32">32</a>  <em class="jxr_javadoccomment"> * {@link EigenDecomposition eigen decomposition}. This class is therefore</em>
+<a class="jxr_linenumber" name="L33" href="SchurTransformer.html#L33">33</a>  <em class="jxr_javadoccomment"> * intended for internal use by the library and is not public. As a consequence</em>
+<a class="jxr_linenumber" name="L34" href="SchurTransformer.html#L34">34</a>  <em class="jxr_javadoccomment"> * of this explicitly limited scope, many methods directly returns references to</em>
+<a class="jxr_linenumber" name="L35" href="SchurTransformer.html#L35">35</a>  <em class="jxr_javadoccomment"> * internal arrays, not copies.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L36" href="SchurTransformer.html#L36">36</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This class is based on the method hqr2 in class EigenvalueDecomposition</em>
+<a class="jxr_linenumber" name="L37" href="SchurTransformer.html#L37">37</a>  <em class="jxr_javadoccomment"> * from the &lt;a href="<a href="http://math.nist.gov/javanumerics/jama/" target="alexandria_uri">http://math.nist.gov/javanumerics/jama/</a>"&gt;JAMA&lt;/a&gt; library.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L38" href="SchurTransformer.html#L38">38</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L39" href="SchurTransformer.html#L39">39</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://mathworld.wolfram.com/SchurDecomposition.html" target="alexandria_uri">http://mathworld.wolfram.com/SchurDecomposition.html</a>"&gt;Schur Decomposition - MathWorld&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L40" href="SchurTransformer.html#L40">40</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/Schur_decomposition" target="alexandria_uri">http://en.wikipedia.org/wiki/Schur_decomposition</a>"&gt;Schur Decomposition - Wikipedia&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L41" href="SchurTransformer.html#L41">41</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/Householder_transformation" target="alexandria_uri">http://en.wikipedia.org/wiki/Householder_transformation</a>"&gt;Householder Transformations&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L42" href="SchurTransformer.html#L42">42</a>  <em class="jxr_javadoccomment"> * @since 3.1</em>
+<a class="jxr_linenumber" name="L43" href="SchurTransformer.html#L43">43</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L44" href="SchurTransformer.html#L44">44</a>  <strong class="jxr_keyword">class</strong> <a href="SchurTransformer.html">SchurTransformer</a> {
+<a class="jxr_linenumber" name="L45" href="SchurTransformer.html#L45">45</a>      <em class="jxr_javadoccomment">/** Maximum allowed iterations for convergence of the transformation. */</em>
+<a class="jxr_linenumber" name="L46" href="SchurTransformer.html#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> MAX_ITERATIONS = 100;
+<a class="jxr_linenumber" name="L47" href="SchurTransformer.html#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="SchurTransformer.html#L48">48</a>      <em class="jxr_javadoccomment">/** P matrix. */</em>
+<a class="jxr_linenumber" name="L49" href="SchurTransformer.html#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> matrixP[][];
+<a class="jxr_linenumber" name="L50" href="SchurTransformer.html#L50">50</a>      <em class="jxr_javadoccomment">/** T matrix. */</em>
+<a class="jxr_linenumber" name="L51" href="SchurTransformer.html#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> matrixT[][];
+<a class="jxr_linenumber" name="L52" href="SchurTransformer.html#L52">52</a>      <em class="jxr_javadoccomment">/** Cached value of P. */</em>
+<a class="jxr_linenumber" name="L53" href="SchurTransformer.html#L53">53</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedP;
+<a class="jxr_linenumber" name="L54" href="SchurTransformer.html#L54">54</a>      <em class="jxr_javadoccomment">/** Cached value of T. */</em>
+<a class="jxr_linenumber" name="L55" href="SchurTransformer.html#L55">55</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedT;
+<a class="jxr_linenumber" name="L56" href="SchurTransformer.html#L56">56</a>      <em class="jxr_javadoccomment">/** Cached value of PT. */</em>
+<a class="jxr_linenumber" name="L57" href="SchurTransformer.html#L57">57</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedPt;
+<a class="jxr_linenumber" name="L58" href="SchurTransformer.html#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="SchurTransformer.html#L59">59</a>      <em class="jxr_javadoccomment">/** Epsilon criteria taken from JAMA code (originally was 2^-52). */</em>
+<a class="jxr_linenumber" name="L60" href="SchurTransformer.html#L60">60</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> epsilon = Precision.EPSILON;
+<a class="jxr_linenumber" name="L61" href="SchurTransformer.html#L61">61</a>  
+<a class="jxr_linenumber" name="L62" href="SchurTransformer.html#L62">62</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L63" href="SchurTransformer.html#L63">63</a>  <em class="jxr_javadoccomment">     * Build the transformation to Schur form of a general real matrix.</em>
+<a class="jxr_linenumber" name="L64" href="SchurTransformer.html#L64">64</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L65" href="SchurTransformer.html#L65">65</a>  <em class="jxr_javadoccomment">     * @param matrix matrix to transform</em>
+<a class="jxr_linenumber" name="L66" href="SchurTransformer.html#L66">66</a>  <em class="jxr_javadoccomment">     * @throws NonSquareMatrixException if the matrix is not square</em>
+<a class="jxr_linenumber" name="L67" href="SchurTransformer.html#L67">67</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L68" href="SchurTransformer.html#L68">68</a>      <a href="SchurTransformer.html">SchurTransformer</a>(<strong class="jxr_keyword">final</strong> <a href="RealMatrix.html">RealMatrix</a> matrix) {
+<a class="jxr_linenumber" name="L69" href="SchurTransformer.html#L69">69</a>          <strong class="jxr_keyword">if</strong> (!matrix.isSquare()) {
+<a class="jxr_linenumber" name="L70" href="SchurTransformer.html#L70">70</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="NonSquareMatrixException.html">NonSquareMatrixException</a>(matrix.getRowDimension(),
+<a class="jxr_linenumber" name="L71" href="SchurTransformer.html#L71">71</a>                                                 matrix.getColumnDimension());
+<a class="jxr_linenumber" name="L72" href="SchurTransformer.html#L72">72</a>          }
+<a class="jxr_linenumber" name="L73" href="SchurTransformer.html#L73">73</a>  
+<a class="jxr_linenumber" name="L74" href="SchurTransformer.html#L74">74</a>          <a href="HessenbergTransformer.html">HessenbergTransformer</a> transformer = <strong class="jxr_keyword">new</strong> <a href="HessenbergTransformer.html">HessenbergTransformer</a>(matrix);
+<a class="jxr_linenumber" name="L75" href="SchurTransformer.html#L75">75</a>          matrixT = transformer.getH().getData();
+<a class="jxr_linenumber" name="L76" href="SchurTransformer.html#L76">76</a>          matrixP = transformer.getP().getData();
+<a class="jxr_linenumber" name="L77" href="SchurTransformer.html#L77">77</a>          cachedT = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L78" href="SchurTransformer.html#L78">78</a>          cachedP = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L79" href="SchurTransformer.html#L79">79</a>          cachedPt = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L80" href="SchurTransformer.html#L80">80</a>  
+<a class="jxr_linenumber" name="L81" href="SchurTransformer.html#L81">81</a>          <em class="jxr_comment">// transform matrix</em>
+<a class="jxr_linenumber" name="L82" href="SchurTransformer.html#L82">82</a>          transform();
+<a class="jxr_linenumber" name="L83" href="SchurTransformer.html#L83">83</a>      }
+<a class="jxr_linenumber" name="L84" href="SchurTransformer.html#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="SchurTransformer.html#L85">85</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L86" href="SchurTransformer.html#L86">86</a>  <em class="jxr_javadoccomment">     * Returns the matrix P of the transform.</em>
+<a class="jxr_linenumber" name="L87" href="SchurTransformer.html#L87">87</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;P is an orthogonal matrix, i.e. its inverse is also its transpose.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L88" href="SchurTransformer.html#L88">88</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L89" href="SchurTransformer.html#L89">89</a>  <em class="jxr_javadoccomment">     * @return the P matrix</em>
+<a class="jxr_linenumber" name="L90" href="SchurTransformer.html#L90">90</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L91" href="SchurTransformer.html#L91">91</a>      <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getP() {
+<a class="jxr_linenumber" name="L92" href="SchurTransformer.html#L92">92</a>          <strong class="jxr_keyword">if</strong> (cachedP == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L93" href="SchurTransformer.html#L93">93</a>              cachedP = MatrixUtils.createRealMatrix(matrixP);
+<a class="jxr_linenumber" name="L94" href="SchurTransformer.html#L94">94</a>          }
+<a class="jxr_linenumber" name="L95" href="SchurTransformer.html#L95">95</a>          <strong class="jxr_keyword">return</strong> cachedP;
+<a class="jxr_linenumber" name="L96" href="SchurTransformer.html#L96">96</a>      }
+<a class="jxr_linenumber" name="L97" href="SchurTransformer.html#L97">97</a>  
+<a class="jxr_linenumber" name="L98" href="SchurTransformer.html#L98">98</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L99" href="SchurTransformer.html#L99">99</a>  <em class="jxr_javadoccomment">     * Returns the transpose of the matrix P of the transform.</em>
+<a class="jxr_linenumber" name="L100" href="SchurTransformer.html#L100">100</a> <em class="jxr_javadoccomment">     * &lt;p&gt;P is an orthogonal matrix, i.e. its inverse is also its transpose.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L101" href="SchurTransformer.html#L101">101</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L102" href="SchurTransformer.html#L102">102</a> <em class="jxr_javadoccomment">     * @return the transpose of the P matrix</em>
+<a class="jxr_linenumber" name="L103" href="SchurTransformer.html#L103">103</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L104" href="SchurTransformer.html#L104">104</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getPT() {
+<a class="jxr_linenumber" name="L105" href="SchurTransformer.html#L105">105</a>         <strong class="jxr_keyword">if</strong> (cachedPt == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L106" href="SchurTransformer.html#L106">106</a>             cachedPt = getP().transpose();
+<a class="jxr_linenumber" name="L107" href="SchurTransformer.html#L107">107</a>         }
+<a class="jxr_linenumber" name="L108" href="SchurTransformer.html#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="SchurTransformer.html#L109">109</a>         <em class="jxr_comment">// return the cached matrix</em>
+<a class="jxr_linenumber" name="L110" href="SchurTransformer.html#L110">110</a>         <strong class="jxr_keyword">return</strong> cachedPt;
+<a class="jxr_linenumber" name="L111" href="SchurTransformer.html#L111">111</a>     }
+<a class="jxr_linenumber" name="L112" href="SchurTransformer.html#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="SchurTransformer.html#L113">113</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L114" href="SchurTransformer.html#L114">114</a> <em class="jxr_javadoccomment">     * Returns the quasi-triangular Schur matrix T of the transform.</em>
+<a class="jxr_linenumber" name="L115" href="SchurTransformer.html#L115">115</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L116" href="SchurTransformer.html#L116">116</a> <em class="jxr_javadoccomment">     * @return the T matrix</em>
+<a class="jxr_linenumber" name="L117" href="SchurTransformer.html#L117">117</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L118" href="SchurTransformer.html#L118">118</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getT() {
+<a class="jxr_linenumber" name="L119" href="SchurTransformer.html#L119">119</a>         <strong class="jxr_keyword">if</strong> (cachedT == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L120" href="SchurTransformer.html#L120">120</a>             cachedT = MatrixUtils.createRealMatrix(matrixT);
+<a class="jxr_linenumber" name="L121" href="SchurTransformer.html#L121">121</a>         }
+<a class="jxr_linenumber" name="L122" href="SchurTransformer.html#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="SchurTransformer.html#L123">123</a>         <em class="jxr_comment">// return the cached matrix</em>
+<a class="jxr_linenumber" name="L124" href="SchurTransformer.html#L124">124</a>         <strong class="jxr_keyword">return</strong> cachedT;
+<a class="jxr_linenumber" name="L125" href="SchurTransformer.html#L125">125</a>     }
+<a class="jxr_linenumber" name="L126" href="SchurTransformer.html#L126">126</a> 
+<a class="jxr_linenumber" name="L127" href="SchurTransformer.html#L127">127</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L128" href="SchurTransformer.html#L128">128</a> <em class="jxr_javadoccomment">     * Transform original matrix to Schur form.</em>
+<a class="jxr_linenumber" name="L129" href="SchurTransformer.html#L129">129</a> <em class="jxr_javadoccomment">     * @throws MaxCountExceededException if the transformation does not converge</em>
+<a class="jxr_linenumber" name="L130" href="SchurTransformer.html#L130">130</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L131" href="SchurTransformer.html#L131">131</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> transform() {
+<a class="jxr_linenumber" name="L132" href="SchurTransformer.html#L132">132</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = matrixT.length;
+<a class="jxr_linenumber" name="L133" href="SchurTransformer.html#L133">133</a> 
+<a class="jxr_linenumber" name="L134" href="SchurTransformer.html#L134">134</a>         <em class="jxr_comment">// compute matrix norm</em>
+<a class="jxr_linenumber" name="L135" href="SchurTransformer.html#L135">135</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> norm = getNorm();
+<a class="jxr_linenumber" name="L136" href="SchurTransformer.html#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="SchurTransformer.html#L137">137</a>         <em class="jxr_comment">// shift information</em>
+<a class="jxr_linenumber" name="L138" href="SchurTransformer.html#L138">138</a>         <strong class="jxr_keyword">final</strong> <a href="SchurTransformer.html">ShiftInfo</a> shift = <strong class="jxr_keyword">new</strong> <a href="SchurTransformer.html">ShiftInfo</a>();
+<a class="jxr_linenumber" name="L139" href="SchurTransformer.html#L139">139</a> 
+<a class="jxr_linenumber" name="L140" href="SchurTransformer.html#L140">140</a>         <em class="jxr_comment">// Outer loop over eigenvalue index</em>
+<a class="jxr_linenumber" name="L141" href="SchurTransformer.html#L141">141</a>         <strong class="jxr_keyword">int</strong> iteration = 0;
+<a class="jxr_linenumber" name="L142" href="SchurTransformer.html#L142">142</a>         <strong class="jxr_keyword">int</strong> iu = n - 1;
+<a class="jxr_linenumber" name="L143" href="SchurTransformer.html#L143">143</a>         <strong class="jxr_keyword">while</strong> (iu &gt;= 0) {
+<a class="jxr_linenumber" name="L144" href="SchurTransformer.html#L144">144</a> 
+<a class="jxr_linenumber" name="L145" href="SchurTransformer.html#L145">145</a>             <em class="jxr_comment">// Look for single small sub-diagonal element</em>
+<a class="jxr_linenumber" name="L146" href="SchurTransformer.html#L146">146</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> il = findSmallSubDiagonalElement(iu, norm);
+<a class="jxr_linenumber" name="L147" href="SchurTransformer.html#L147">147</a> 
+<a class="jxr_linenumber" name="L148" href="SchurTransformer.html#L148">148</a>             <em class="jxr_comment">// Check for convergence</em>
+<a class="jxr_linenumber" name="L149" href="SchurTransformer.html#L149">149</a>             <strong class="jxr_keyword">if</strong> (il == iu) {
+<a class="jxr_linenumber" name="L150" href="SchurTransformer.html#L150">150</a>                 <em class="jxr_comment">// One root found</em>
+<a class="jxr_linenumber" name="L151" href="SchurTransformer.html#L151">151</a>                 matrixT[iu][iu] += shift.exShift;
+<a class="jxr_linenumber" name="L152" href="SchurTransformer.html#L152">152</a>                 iu--;
+<a class="jxr_linenumber" name="L153" href="SchurTransformer.html#L153">153</a>                 iteration = 0;
+<a class="jxr_linenumber" name="L154" href="SchurTransformer.html#L154">154</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (il == iu - 1) {
+<a class="jxr_linenumber" name="L155" href="SchurTransformer.html#L155">155</a>                 <em class="jxr_comment">// Two roots found</em>
+<a class="jxr_linenumber" name="L156" href="SchurTransformer.html#L156">156</a>                 <strong class="jxr_keyword">double</strong> p = (matrixT[iu - 1][iu - 1] - matrixT[iu][iu]) / 2.0;
+<a class="jxr_linenumber" name="L157" href="SchurTransformer.html#L157">157</a>                 <strong class="jxr_keyword">double</strong> q = p * p + matrixT[iu][iu - 1] * matrixT[iu - 1][iu];
+<a class="jxr_linenumber" name="L158" href="SchurTransformer.html#L158">158</a>                 matrixT[iu][iu] += shift.exShift;
+<a class="jxr_linenumber" name="L159" href="SchurTransformer.html#L159">159</a>                 matrixT[iu - 1][iu - 1] += shift.exShift;
+<a class="jxr_linenumber" name="L160" href="SchurTransformer.html#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="SchurTransformer.html#L161">161</a>                 <strong class="jxr_keyword">if</strong> (q &gt;= 0) {
+<a class="jxr_linenumber" name="L162" href="SchurTransformer.html#L162">162</a>                     <strong class="jxr_keyword">double</strong> z = FastMath.sqrt(FastMath.abs(q));
+<a class="jxr_linenumber" name="L163" href="SchurTransformer.html#L163">163</a>                     <strong class="jxr_keyword">if</strong> (p &gt;= 0) {
+<a class="jxr_linenumber" name="L164" href="SchurTransformer.html#L164">164</a>                         z = p + z;
+<a class="jxr_linenumber" name="L165" href="SchurTransformer.html#L165">165</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L166" href="SchurTransformer.html#L166">166</a>                         z = p - z;
+<a class="jxr_linenumber" name="L167" href="SchurTransformer.html#L167">167</a>                     }
+<a class="jxr_linenumber" name="L168" href="SchurTransformer.html#L168">168</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x = matrixT[iu][iu - 1];
+<a class="jxr_linenumber" name="L169" href="SchurTransformer.html#L169">169</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> s = FastMath.abs(x) + FastMath.abs(z);
+<a class="jxr_linenumber" name="L170" href="SchurTransformer.html#L170">170</a>                     p = x / s;
+<a class="jxr_linenumber" name="L171" href="SchurTransformer.html#L171">171</a>                     q = z / s;
+<a class="jxr_linenumber" name="L172" href="SchurTransformer.html#L172">172</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> r = FastMath.sqrt(p * p + q * q);
+<a class="jxr_linenumber" name="L173" href="SchurTransformer.html#L173">173</a>                     p /= r;
+<a class="jxr_linenumber" name="L174" href="SchurTransformer.html#L174">174</a>                     q /= r;
+<a class="jxr_linenumber" name="L175" href="SchurTransformer.html#L175">175</a> 
+<a class="jxr_linenumber" name="L176" href="SchurTransformer.html#L176">176</a>                     <em class="jxr_comment">// Row modification</em>
+<a class="jxr_linenumber" name="L177" href="SchurTransformer.html#L177">177</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = iu - 1; j &lt; n; j++) {
+<a class="jxr_linenumber" name="L178" href="SchurTransformer.html#L178">178</a>                         z = matrixT[iu - 1][j];
+<a class="jxr_linenumber" name="L179" href="SchurTransformer.html#L179">179</a>                         matrixT[iu - 1][j] = q * z + p * matrixT[iu][j];
+<a class="jxr_linenumber" name="L180" href="SchurTransformer.html#L180">180</a>                         matrixT[iu][j] = q * matrixT[iu][j] - p * z;
+<a class="jxr_linenumber" name="L181" href="SchurTransformer.html#L181">181</a>                     }
+<a class="jxr_linenumber" name="L182" href="SchurTransformer.html#L182">182</a> 
+<a class="jxr_linenumber" name="L183" href="SchurTransformer.html#L183">183</a>                     <em class="jxr_comment">// Column modification</em>
+<a class="jxr_linenumber" name="L184" href="SchurTransformer.html#L184">184</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt;= iu; i++) {
+<a class="jxr_linenumber" name="L185" href="SchurTransformer.html#L185">185</a>                         z = matrixT[i][iu - 1];
+<a class="jxr_linenumber" name="L186" href="SchurTransformer.html#L186">186</a>                         matrixT[i][iu - 1] = q * z + p * matrixT[i][iu];
+<a class="jxr_linenumber" name="L187" href="SchurTransformer.html#L187">187</a>                         matrixT[i][iu] = q * matrixT[i][iu] - p * z;
+<a class="jxr_linenumber" name="L188" href="SchurTransformer.html#L188">188</a>                     }
+<a class="jxr_linenumber" name="L189" href="SchurTransformer.html#L189">189</a> 
+<a class="jxr_linenumber" name="L190" href="SchurTransformer.html#L190">190</a>                     <em class="jxr_comment">// Accumulate transformations</em>
+<a class="jxr_linenumber" name="L191" href="SchurTransformer.html#L191">191</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt;= n - 1; i++) {
+<a class="jxr_linenumber" name="L192" href="SchurTransformer.html#L192">192</a>                         z = matrixP[i][iu - 1];
+<a class="jxr_linenumber" name="L193" href="SchurTransformer.html#L193">193</a>                         matrixP[i][iu - 1] = q * z + p * matrixP[i][iu];
+<a class="jxr_linenumber" name="L194" href="SchurTransformer.html#L194">194</a>                         matrixP[i][iu] = q * matrixP[i][iu] - p * z;
+<a class="jxr_linenumber" name="L195" href="SchurTransformer.html#L195">195</a>                     }
+<a class="jxr_linenumber" name="L196" href="SchurTransformer.html#L196">196</a>                 }
+<a class="jxr_linenumber" name="L197" href="SchurTransformer.html#L197">197</a>                 iu -= 2;
+<a class="jxr_linenumber" name="L198" href="SchurTransformer.html#L198">198</a>                 iteration = 0;
+<a class="jxr_linenumber" name="L199" href="SchurTransformer.html#L199">199</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L200" href="SchurTransformer.html#L200">200</a>                 <em class="jxr_comment">// No convergence yet</em>
+<a class="jxr_linenumber" name="L201" href="SchurTransformer.html#L201">201</a>                 computeShift(il, iu, iteration, shift);
+<a class="jxr_linenumber" name="L202" href="SchurTransformer.html#L202">202</a> 
+<a class="jxr_linenumber" name="L203" href="SchurTransformer.html#L203">203</a>                 <em class="jxr_comment">// stop transformation after too many iterations</em>
+<a class="jxr_linenumber" name="L204" href="SchurTransformer.html#L204">204</a>                 <strong class="jxr_keyword">if</strong> (++iteration &gt; MAX_ITERATIONS) {
+<a class="jxr_linenumber" name="L205" href="SchurTransformer.html#L205">205</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MaxCountExceededException.html">MaxCountExceededException</a>(LocalizedFormats.CONVERGENCE_FAILED,
+<a class="jxr_linenumber" name="L206" href="SchurTransformer.html#L206">206</a>                                                         MAX_ITERATIONS);
+<a class="jxr_linenumber" name="L207" href="SchurTransformer.html#L207">207</a>                 }
+<a class="jxr_linenumber" name="L208" href="SchurTransformer.html#L208">208</a> 
+<a class="jxr_linenumber" name="L209" href="SchurTransformer.html#L209">209</a>                 <em class="jxr_comment">// the initial houseHolder vector for the QR step</em>
+<a class="jxr_linenumber" name="L210" href="SchurTransformer.html#L210">210</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] hVec = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[3];
+<a class="jxr_linenumber" name="L211" href="SchurTransformer.html#L211">211</a> 
+<a class="jxr_linenumber" name="L212" href="SchurTransformer.html#L212">212</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> im = initQRStep(il, iu, shift, hVec);
+<a class="jxr_linenumber" name="L213" href="SchurTransformer.html#L213">213</a>                 performDoubleQRStep(il, im, iu, shift, hVec);
+<a class="jxr_linenumber" name="L214" href="SchurTransformer.html#L214">214</a>             }
+<a class="jxr_linenumber" name="L215" href="SchurTransformer.html#L215">215</a>         }
+<a class="jxr_linenumber" name="L216" href="SchurTransformer.html#L216">216</a>     }
+<a class="jxr_linenumber" name="L217" href="SchurTransformer.html#L217">217</a> 
+<a class="jxr_linenumber" name="L218" href="SchurTransformer.html#L218">218</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L219" href="SchurTransformer.html#L219">219</a> <em class="jxr_javadoccomment">     * Computes the L1 norm of the (quasi-)triangular matrix T.</em>
+<a class="jxr_linenumber" name="L220" href="SchurTransformer.html#L220">220</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L221" href="SchurTransformer.html#L221">221</a> <em class="jxr_javadoccomment">     * @return the L1 norm of matrix T</em>
+<a class="jxr_linenumber" name="L222" href="SchurTransformer.html#L222">222</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L223" href="SchurTransformer.html#L223">223</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> getNorm() {
+<a class="jxr_linenumber" name="L224" href="SchurTransformer.html#L224">224</a>         <strong class="jxr_keyword">double</strong> norm = 0.0;
+<a class="jxr_linenumber" name="L225" href="SchurTransformer.html#L225">225</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; matrixT.length; i++) {
+<a class="jxr_linenumber" name="L226" href="SchurTransformer.html#L226">226</a>             <em class="jxr_comment">// as matrix T is (quasi-)triangular, also take the sub-diagonal element into account</em>
+<a class="jxr_linenumber" name="L227" href="SchurTransformer.html#L227">227</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = FastMath.max(i - 1, 0); j &lt; matrixT.length; j++) {
+<a class="jxr_linenumber" name="L228" href="SchurTransformer.html#L228">228</a>                 norm += FastMath.abs(matrixT[i][j]);
+<a class="jxr_linenumber" name="L229" href="SchurTransformer.html#L229">229</a>             }
+<a class="jxr_linenumber" name="L230" href="SchurTransformer.html#L230">230</a>         }
+<a class="jxr_linenumber" name="L231" href="SchurTransformer.html#L231">231</a>         <strong class="jxr_keyword">return</strong> norm;
+<a class="jxr_linenumber" name="L232" href="SchurTransformer.html#L232">232</a>     }
+<a class="jxr_linenumber" name="L233" href="SchurTransformer.html#L233">233</a> 
+<a class="jxr_linenumber" name="L234" href="SchurTransformer.html#L234">234</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L235" href="SchurTransformer.html#L235">235</a> <em class="jxr_javadoccomment">     * Find the first small sub-diagonal element and returns its index.</em>
+<a class="jxr_linenumber" name="L236" href="SchurTransformer.html#L236">236</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L237" href="SchurTransformer.html#L237">237</a> <em class="jxr_javadoccomment">     * @param startIdx the starting index for the search</em>
+<a class="jxr_linenumber" name="L238" href="SchurTransformer.html#L238">238</a> <em class="jxr_javadoccomment">     * @param norm the L1 norm of the matrix</em>
+<a class="jxr_linenumber" name="L239" href="SchurTransformer.html#L239">239</a> <em class="jxr_javadoccomment">     * @return the index of the first small sub-diagonal element</em>
+<a class="jxr_linenumber" name="L240" href="SchurTransformer.html#L240">240</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L241" href="SchurTransformer.html#L241">241</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> findSmallSubDiagonalElement(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> startIdx, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> norm) {
+<a class="jxr_linenumber" name="L242" href="SchurTransformer.html#L242">242</a>         <strong class="jxr_keyword">int</strong> l = startIdx;
+<a class="jxr_linenumber" name="L243" href="SchurTransformer.html#L243">243</a>         <strong class="jxr_keyword">while</strong> (l &gt; 0) {
+<a class="jxr_linenumber" name="L244" href="SchurTransformer.html#L244">244</a>             <strong class="jxr_keyword">double</strong> s = FastMath.abs(matrixT[l - 1][l - 1]) + FastMath.abs(matrixT[l][l]);
+<a class="jxr_linenumber" name="L245" href="SchurTransformer.html#L245">245</a>             <strong class="jxr_keyword">if</strong> (s == 0.0) {
+<a class="jxr_linenumber" name="L246" href="SchurTransformer.html#L246">246</a>                 s = norm;
+<a class="jxr_linenumber" name="L247" href="SchurTransformer.html#L247">247</a>             }
+<a class="jxr_linenumber" name="L248" href="SchurTransformer.html#L248">248</a>             <strong class="jxr_keyword">if</strong> (FastMath.abs(matrixT[l][l - 1]) &lt; epsilon * s) {
+<a class="jxr_linenumber" name="L249" href="SchurTransformer.html#L249">249</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L250" href="SchurTransformer.html#L250">250</a>             }
+<a class="jxr_linenumber" name="L251" href="SchurTransformer.html#L251">251</a>             l--;
+<a class="jxr_linenumber" name="L252" href="SchurTransformer.html#L252">252</a>         }
+<a class="jxr_linenumber" name="L253" href="SchurTransformer.html#L253">253</a>         <strong class="jxr_keyword">return</strong> l;
+<a class="jxr_linenumber" name="L254" href="SchurTransformer.html#L254">254</a>     }
+<a class="jxr_linenumber" name="L255" href="SchurTransformer.html#L255">255</a> 
+<a class="jxr_linenumber" name="L256" href="SchurTransformer.html#L256">256</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L257" href="SchurTransformer.html#L257">257</a> <em class="jxr_javadoccomment">     * Compute the shift for the current iteration.</em>
+<a class="jxr_linenumber" name="L258" href="SchurTransformer.html#L258">258</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L259" href="SchurTransformer.html#L259">259</a> <em class="jxr_javadoccomment">     * @param l the index of the small sub-diagonal element</em>
+<a class="jxr_linenumber" name="L260" href="SchurTransformer.html#L260">260</a> <em class="jxr_javadoccomment">     * @param idx the current eigenvalue index</em>
+<a class="jxr_linenumber" name="L261" href="SchurTransformer.html#L261">261</a> <em class="jxr_javadoccomment">     * @param iteration the current iteration</em>
+<a class="jxr_linenumber" name="L262" href="SchurTransformer.html#L262">262</a> <em class="jxr_javadoccomment">     * @param shift holder for shift information</em>
+<a class="jxr_linenumber" name="L263" href="SchurTransformer.html#L263">263</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L264" href="SchurTransformer.html#L264">264</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> computeShift(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> l, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> idx, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> iteration, <strong class="jxr_keyword">final</strong> <a href="SchurTransformer.html">ShiftInfo</a> shift) {
+<a class="jxr_linenumber" name="L265" href="SchurTransformer.html#L265">265</a>         <em class="jxr_comment">// Form shift</em>
+<a class="jxr_linenumber" name="L266" href="SchurTransformer.html#L266">266</a>         shift.x = matrixT[idx][idx];
+<a class="jxr_linenumber" name="L267" href="SchurTransformer.html#L267">267</a>         shift.y = shift.w = 0.0;
+<a class="jxr_linenumber" name="L268" href="SchurTransformer.html#L268">268</a>         <strong class="jxr_keyword">if</strong> (l &lt; idx) {
+<a class="jxr_linenumber" name="L269" href="SchurTransformer.html#L269">269</a>             shift.y = matrixT[idx - 1][idx - 1];
+<a class="jxr_linenumber" name="L270" href="SchurTransformer.html#L270">270</a>             shift.w = matrixT[idx][idx - 1] * matrixT[idx - 1][idx];
+<a class="jxr_linenumber" name="L271" href="SchurTransformer.html#L271">271</a>         }
+<a class="jxr_linenumber" name="L272" href="SchurTransformer.html#L272">272</a> 
+<a class="jxr_linenumber" name="L273" href="SchurTransformer.html#L273">273</a>         <em class="jxr_comment">// Wilkinson's original ad hoc shift</em>
+<a class="jxr_linenumber" name="L274" href="SchurTransformer.html#L274">274</a>         <strong class="jxr_keyword">if</strong> (iteration == 10) {
+<a class="jxr_linenumber" name="L275" href="SchurTransformer.html#L275">275</a>             shift.exShift += shift.x;
+<a class="jxr_linenumber" name="L276" href="SchurTransformer.html#L276">276</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt;= idx; i++) {
+<a class="jxr_linenumber" name="L277" href="SchurTransformer.html#L277">277</a>                 matrixT[i][i] -= shift.x;
+<a class="jxr_linenumber" name="L278" href="SchurTransformer.html#L278">278</a>             }
+<a class="jxr_linenumber" name="L279" href="SchurTransformer.html#L279">279</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> s = FastMath.abs(matrixT[idx][idx - 1]) + FastMath.abs(matrixT[idx - 1][idx - 2]);
+<a class="jxr_linenumber" name="L280" href="SchurTransformer.html#L280">280</a>             shift.x = 0.75 * s;
+<a class="jxr_linenumber" name="L281" href="SchurTransformer.html#L281">281</a>             shift.y = 0.75 * s;
+<a class="jxr_linenumber" name="L282" href="SchurTransformer.html#L282">282</a>             shift.w = -0.4375 * s * s;
+<a class="jxr_linenumber" name="L283" href="SchurTransformer.html#L283">283</a>         }
+<a class="jxr_linenumber" name="L284" href="SchurTransformer.html#L284">284</a> 
+<a class="jxr_linenumber" name="L285" href="SchurTransformer.html#L285">285</a>         <em class="jxr_comment">// MATLAB's new ad hoc shift</em>
+<a class="jxr_linenumber" name="L286" href="SchurTransformer.html#L286">286</a>         <strong class="jxr_keyword">if</strong> (iteration == 30) {
+<a class="jxr_linenumber" name="L287" href="SchurTransformer.html#L287">287</a>             <strong class="jxr_keyword">double</strong> s = (shift.y - shift.x) / 2.0;
+<a class="jxr_linenumber" name="L288" href="SchurTransformer.html#L288">288</a>             s = s * s + shift.w;
+<a class="jxr_linenumber" name="L289" href="SchurTransformer.html#L289">289</a>             <strong class="jxr_keyword">if</strong> (s &gt; 0.0) {
+<a class="jxr_linenumber" name="L290" href="SchurTransformer.html#L290">290</a>                 s = FastMath.sqrt(s);
+<a class="jxr_linenumber" name="L291" href="SchurTransformer.html#L291">291</a>                 <strong class="jxr_keyword">if</strong> (shift.y &lt; shift.x) {
+<a class="jxr_linenumber" name="L292" href="SchurTransformer.html#L292">292</a>                     s = -s;
+<a class="jxr_linenumber" name="L293" href="SchurTransformer.html#L293">293</a>                 }
+<a class="jxr_linenumber" name="L294" href="SchurTransformer.html#L294">294</a>                 s = shift.x - shift.w / ((shift.y - shift.x) / 2.0 + s);
+<a class="jxr_linenumber" name="L295" href="SchurTransformer.html#L295">295</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt;= idx; i++) {
+<a class="jxr_linenumber" name="L296" href="SchurTransformer.html#L296">296</a>                     matrixT[i][i] -= s;
+<a class="jxr_linenumber" name="L297" href="SchurTransformer.html#L297">297</a>                 }
+<a class="jxr_linenumber" name="L298" href="SchurTransformer.html#L298">298</a>                 shift.exShift += s;
+<a class="jxr_linenumber" name="L299" href="SchurTransformer.html#L299">299</a>                 shift.x = shift.y = shift.w = 0.964;
+<a class="jxr_linenumber" name="L300" href="SchurTransformer.html#L300">300</a>             }
+<a class="jxr_linenumber" name="L301" href="SchurTransformer.html#L301">301</a>         }
+<a class="jxr_linenumber" name="L302" href="SchurTransformer.html#L302">302</a>     }
+<a class="jxr_linenumber" name="L303" href="SchurTransformer.html#L303">303</a> 
+<a class="jxr_linenumber" name="L304" href="SchurTransformer.html#L304">304</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L305" href="SchurTransformer.html#L305">305</a> <em class="jxr_javadoccomment">     * Initialize the householder vectors for the QR step.</em>
+<a class="jxr_linenumber" name="L306" href="SchurTransformer.html#L306">306</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L307" href="SchurTransformer.html#L307">307</a> <em class="jxr_javadoccomment">     * @param il the index of the small sub-diagonal element</em>
+<a class="jxr_linenumber" name="L308" href="SchurTransformer.html#L308">308</a> <em class="jxr_javadoccomment">     * @param iu the current eigenvalue index</em>
+<a class="jxr_linenumber" name="L309" href="SchurTransformer.html#L309">309</a> <em class="jxr_javadoccomment">     * @param shift shift information holder</em>
+<a class="jxr_linenumber" name="L310" href="SchurTransformer.html#L310">310</a> <em class="jxr_javadoccomment">     * @param hVec the initial houseHolder vector</em>
+<a class="jxr_linenumber" name="L311" href="SchurTransformer.html#L311">311</a> <em class="jxr_javadoccomment">     * @return the start index for the QR step</em>
+<a class="jxr_linenumber" name="L312" href="SchurTransformer.html#L312">312</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L313" href="SchurTransformer.html#L313">313</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> initQRStep(<strong class="jxr_keyword">int</strong> il, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> iu, <strong class="jxr_keyword">final</strong> <a href="SchurTransformer.html">ShiftInfo</a> shift, <strong class="jxr_keyword">double</strong>[] hVec) {
+<a class="jxr_linenumber" name="L314" href="SchurTransformer.html#L314">314</a>         <em class="jxr_comment">// Look for two consecutive small sub-diagonal elements</em>
+<a class="jxr_linenumber" name="L315" href="SchurTransformer.html#L315">315</a>         <strong class="jxr_keyword">int</strong> im = iu - 2;
+<a class="jxr_linenumber" name="L316" href="SchurTransformer.html#L316">316</a>         <strong class="jxr_keyword">while</strong> (im &gt;= il) {
+<a class="jxr_linenumber" name="L317" href="SchurTransformer.html#L317">317</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> z = matrixT[im][im];
+<a class="jxr_linenumber" name="L318" href="SchurTransformer.html#L318">318</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> r = shift.x - z;
+<a class="jxr_linenumber" name="L319" href="SchurTransformer.html#L319">319</a>             <strong class="jxr_keyword">double</strong> s = shift.y - z;
+<a class="jxr_linenumber" name="L320" href="SchurTransformer.html#L320">320</a>             hVec[0] = (r * s - shift.w) / matrixT[im + 1][im] + matrixT[im][im + 1];
+<a class="jxr_linenumber" name="L321" href="SchurTransformer.html#L321">321</a>             hVec[1] = matrixT[im + 1][im + 1] - z - r - s;
+<a class="jxr_linenumber" name="L322" href="SchurTransformer.html#L322">322</a>             hVec[2] = matrixT[im + 2][im + 1];
+<a class="jxr_linenumber" name="L323" href="SchurTransformer.html#L323">323</a> 
+<a class="jxr_linenumber" name="L324" href="SchurTransformer.html#L324">324</a>             <strong class="jxr_keyword">if</strong> (im == il) {
+<a class="jxr_linenumber" name="L325" href="SchurTransformer.html#L325">325</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L326" href="SchurTransformer.html#L326">326</a>             }
+<a class="jxr_linenumber" name="L327" href="SchurTransformer.html#L327">327</a> 
+<a class="jxr_linenumber" name="L328" href="SchurTransformer.html#L328">328</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lhs = FastMath.abs(matrixT[im][im - 1]) * (FastMath.abs(hVec[1]) + FastMath.abs(hVec[2]));
+<a class="jxr_linenumber" name="L329" href="SchurTransformer.html#L329">329</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> rhs = FastMath.abs(hVec[0]) * (FastMath.abs(matrixT[im - 1][im - 1]) +
+<a class="jxr_linenumber" name="L330" href="SchurTransformer.html#L330">330</a>                                                         FastMath.abs(z) +
+<a class="jxr_linenumber" name="L331" href="SchurTransformer.html#L331">331</a>                                                         FastMath.abs(matrixT[im + 1][im + 1]));
+<a class="jxr_linenumber" name="L332" href="SchurTransformer.html#L332">332</a> 
+<a class="jxr_linenumber" name="L333" href="SchurTransformer.html#L333">333</a>             <strong class="jxr_keyword">if</strong> (lhs &lt; epsilon * rhs) {
+<a class="jxr_linenumber" name="L334" href="SchurTransformer.html#L334">334</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L335" href="SchurTransformer.html#L335">335</a>             }
+<a class="jxr_linenumber" name="L336" href="SchurTransformer.html#L336">336</a>             im--;
+<a class="jxr_linenumber" name="L337" href="SchurTransformer.html#L337">337</a>         }
+<a class="jxr_linenumber" name="L338" href="SchurTransformer.html#L338">338</a> 
+<a class="jxr_linenumber" name="L339" href="SchurTransformer.html#L339">339</a>         <strong class="jxr_keyword">return</strong> im;
+<a class="jxr_linenumber" name="L340" href="SchurTransformer.html#L340">340</a>     }
+<a class="jxr_linenumber" name="L341" href="SchurTransformer.html#L341">341</a> 
+<a class="jxr_linenumber" name="L342" href="SchurTransformer.html#L342">342</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L343" href="SchurTransformer.html#L343">343</a> <em class="jxr_javadoccomment">     * Perform a double QR step involving rows l:idx and columns m:n</em>
+<a class="jxr_linenumber" name="L344" href="SchurTransformer.html#L344">344</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L345" href="SchurTransformer.html#L345">345</a> <em class="jxr_javadoccomment">     * @param il the index of the small sub-diagonal element</em>
+<a class="jxr_linenumber" name="L346" href="SchurTransformer.html#L346">346</a> <em class="jxr_javadoccomment">     * @param im the start index for the QR step</em>
+<a class="jxr_linenumber" name="L347" href="SchurTransformer.html#L347">347</a> <em class="jxr_javadoccomment">     * @param iu the current eigenvalue index</em>
+<a class="jxr_linenumber" name="L348" href="SchurTransformer.html#L348">348</a> <em class="jxr_javadoccomment">     * @param shift shift information holder</em>
+<a class="jxr_linenumber" name="L349" href="SchurTransformer.html#L349">349</a> <em class="jxr_javadoccomment">     * @param hVec the initial houseHolder vector</em>
+<a class="jxr_linenumber" name="L350" href="SchurTransformer.html#L350">350</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L351" href="SchurTransformer.html#L351">351</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> performDoubleQRStep(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> il, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> im, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> iu,
+<a class="jxr_linenumber" name="L352" href="SchurTransformer.html#L352">352</a>                                      <strong class="jxr_keyword">final</strong> <a href="SchurTransformer.html">ShiftInfo</a> shift, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] hVec) {
+<a class="jxr_linenumber" name="L353" href="SchurTransformer.html#L353">353</a> 
+<a class="jxr_linenumber" name="L354" href="SchurTransformer.html#L354">354</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = matrixT.length;
+<a class="jxr_linenumber" name="L355" href="SchurTransformer.html#L355">355</a>         <strong class="jxr_keyword">double</strong> p = hVec[0];
+<a class="jxr_linenumber" name="L356" href="SchurTransformer.html#L356">356</a>         <strong class="jxr_keyword">double</strong> q = hVec[1];
+<a class="jxr_linenumber" name="L357" href="SchurTransformer.html#L357">357</a>         <strong class="jxr_keyword">double</strong> r = hVec[2];
+<a class="jxr_linenumber" name="L358" href="SchurTransformer.html#L358">358</a> 
+<a class="jxr_linenumber" name="L359" href="SchurTransformer.html#L359">359</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = im; k &lt;= iu - 1; k++) {
+<a class="jxr_linenumber" name="L360" href="SchurTransformer.html#L360">360</a>             <strong class="jxr_keyword">boolean</strong> notlast = k != (iu - 1);
+<a class="jxr_linenumber" name="L361" href="SchurTransformer.html#L361">361</a>             <strong class="jxr_keyword">if</strong> (k != im) {
+<a class="jxr_linenumber" name="L362" href="SchurTransformer.html#L362">362</a>                 p = matrixT[k][k - 1];
+<a class="jxr_linenumber" name="L363" href="SchurTransformer.html#L363">363</a>                 q = matrixT[k + 1][k - 1];
+<a class="jxr_linenumber" name="L364" href="SchurTransformer.html#L364">364</a>                 r = notlast ? matrixT[k + 2][k - 1] : 0.0;
+<a class="jxr_linenumber" name="L365" href="SchurTransformer.html#L365">365</a>                 shift.x = FastMath.abs(p) + FastMath.abs(q) + FastMath.abs(r);
+<a class="jxr_linenumber" name="L366" href="SchurTransformer.html#L366">366</a>                 <strong class="jxr_keyword">if</strong> (Precision.equals(shift.x, 0.0, epsilon)) {
+<a class="jxr_linenumber" name="L367" href="SchurTransformer.html#L367">367</a>                     <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L368" href="SchurTransformer.html#L368">368</a>                 }
+<a class="jxr_linenumber" name="L369" href="SchurTransformer.html#L369">369</a>                 p /= shift.x;
+<a class="jxr_linenumber" name="L370" href="SchurTransformer.html#L370">370</a>                 q /= shift.x;
+<a class="jxr_linenumber" name="L371" href="SchurTransformer.html#L371">371</a>                 r /= shift.x;
+<a class="jxr_linenumber" name="L372" href="SchurTransformer.html#L372">372</a>             }
+<a class="jxr_linenumber" name="L373" href="SchurTransformer.html#L373">373</a>             <strong class="jxr_keyword">double</strong> s = FastMath.sqrt(p * p + q * q + r * r);
+<a class="jxr_linenumber" name="L374" href="SchurTransformer.html#L374">374</a>             <strong class="jxr_keyword">if</strong> (p &lt; 0.0) {
+<a class="jxr_linenumber" name="L375" href="SchurTransformer.html#L375">375</a>                 s = -s;
+<a class="jxr_linenumber" name="L376" href="SchurTransformer.html#L376">376</a>             }
+<a class="jxr_linenumber" name="L377" href="SchurTransformer.html#L377">377</a>             <strong class="jxr_keyword">if</strong> (s != 0.0) {
+<a class="jxr_linenumber" name="L378" href="SchurTransformer.html#L378">378</a>                 <strong class="jxr_keyword">if</strong> (k != im) {
+<a class="jxr_linenumber" name="L379" href="SchurTransformer.html#L379">379</a>                     matrixT[k][k - 1] = -s * shift.x;
+<a class="jxr_linenumber" name="L380" href="SchurTransformer.html#L380">380</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (il != im) {
+<a class="jxr_linenumber" name="L381" href="SchurTransformer.html#L381">381</a>                     matrixT[k][k - 1] = -matrixT[k][k - 1];
+<a class="jxr_linenumber" name="L382" href="SchurTransformer.html#L382">382</a>                 }
+<a class="jxr_linenumber" name="L383" href="SchurTransformer.html#L383">383</a>                 p += s;
+<a class="jxr_linenumber" name="L384" href="SchurTransformer.html#L384">384</a>                 shift.x = p / s;
+<a class="jxr_linenumber" name="L385" href="SchurTransformer.html#L385">385</a>                 shift.y = q / s;
+<a class="jxr_linenumber" name="L386" href="SchurTransformer.html#L386">386</a>                 <strong class="jxr_keyword">double</strong> z = r / s;
+<a class="jxr_linenumber" name="L387" href="SchurTransformer.html#L387">387</a>                 q /= p;
+<a class="jxr_linenumber" name="L388" href="SchurTransformer.html#L388">388</a>                 r /= p;
+<a class="jxr_linenumber" name="L389" href="SchurTransformer.html#L389">389</a> 
+<a class="jxr_linenumber" name="L390" href="SchurTransformer.html#L390">390</a>                 <em class="jxr_comment">// Row modification</em>
+<a class="jxr_linenumber" name="L391" href="SchurTransformer.html#L391">391</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = k; j &lt; n; j++) {
+<a class="jxr_linenumber" name="L392" href="SchurTransformer.html#L392">392</a>                     p = matrixT[k][j] + q * matrixT[k + 1][j];
+<a class="jxr_linenumber" name="L393" href="SchurTransformer.html#L393">393</a>                     <strong class="jxr_keyword">if</strong> (notlast) {
+<a class="jxr_linenumber" name="L394" href="SchurTransformer.html#L394">394</a>                         p += r * matrixT[k + 2][j];
+<a class="jxr_linenumber" name="L395" href="SchurTransformer.html#L395">395</a>                         matrixT[k + 2][j] -= p * z;
+<a class="jxr_linenumber" name="L396" href="SchurTransformer.html#L396">396</a>                     }
+<a class="jxr_linenumber" name="L397" href="SchurTransformer.html#L397">397</a>                     matrixT[k][j] -= p * shift.x;
+<a class="jxr_linenumber" name="L398" href="SchurTransformer.html#L398">398</a>                     matrixT[k + 1][j] -= p * shift.y;
+<a class="jxr_linenumber" name="L399" href="SchurTransformer.html#L399">399</a>                 }
+<a class="jxr_linenumber" name="L400" href="SchurTransformer.html#L400">400</a> 
+<a class="jxr_linenumber" name="L401" href="SchurTransformer.html#L401">401</a>                 <em class="jxr_comment">// Column modification</em>
+<a class="jxr_linenumber" name="L402" href="SchurTransformer.html#L402">402</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt;= FastMath.min(iu, k + 3); i++) {
+<a class="jxr_linenumber" name="L403" href="SchurTransformer.html#L403">403</a>                     p = shift.x * matrixT[i][k] + shift.y * matrixT[i][k + 1];
+<a class="jxr_linenumber" name="L404" href="SchurTransformer.html#L404">404</a>                     <strong class="jxr_keyword">if</strong> (notlast) {
+<a class="jxr_linenumber" name="L405" href="SchurTransformer.html#L405">405</a>                         p += z * matrixT[i][k + 2];
+<a class="jxr_linenumber" name="L406" href="SchurTransformer.html#L406">406</a>                         matrixT[i][k + 2] -= p * r;
+<a class="jxr_linenumber" name="L407" href="SchurTransformer.html#L407">407</a>                     }
+<a class="jxr_linenumber" name="L408" href="SchurTransformer.html#L408">408</a>                     matrixT[i][k] -= p;
+<a class="jxr_linenumber" name="L409" href="SchurTransformer.html#L409">409</a>                     matrixT[i][k + 1] -= p * q;
+<a class="jxr_linenumber" name="L410" href="SchurTransformer.html#L410">410</a>                 }
+<a class="jxr_linenumber" name="L411" href="SchurTransformer.html#L411">411</a> 
+<a class="jxr_linenumber" name="L412" href="SchurTransformer.html#L412">412</a>                 <em class="jxr_comment">// Accumulate transformations</em>
+<a class="jxr_linenumber" name="L413" href="SchurTransformer.html#L413">413</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> high = matrixT.length - 1;
+<a class="jxr_linenumber" name="L414" href="SchurTransformer.html#L414">414</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt;= high; i++) {
+<a class="jxr_linenumber" name="L415" href="SchurTransformer.html#L415">415</a>                     p = shift.x * matrixP[i][k] + shift.y * matrixP[i][k + 1];
+<a class="jxr_linenumber" name="L416" href="SchurTransformer.html#L416">416</a>                     <strong class="jxr_keyword">if</strong> (notlast) {
+<a class="jxr_linenumber" name="L417" href="SchurTransformer.html#L417">417</a>                         p += z * matrixP[i][k + 2];
+<a class="jxr_linenumber" name="L418" href="SchurTransformer.html#L418">418</a>                         matrixP[i][k + 2] -= p * r;
+<a class="jxr_linenumber" name="L419" href="SchurTransformer.html#L419">419</a>                     }
+<a class="jxr_linenumber" name="L420" href="SchurTransformer.html#L420">420</a>                     matrixP[i][k] -= p;
+<a class="jxr_linenumber" name="L421" href="SchurTransformer.html#L421">421</a>                     matrixP[i][k + 1] -= p * q;
+<a class="jxr_linenumber" name="L422" href="SchurTransformer.html#L422">422</a>                 }
+<a class="jxr_linenumber" name="L423" href="SchurTransformer.html#L423">423</a>             }  <em class="jxr_comment">// (s != 0)</em>
+<a class="jxr_linenumber" name="L424" href="SchurTransformer.html#L424">424</a>         }  <em class="jxr_comment">// k loop</em>
+<a class="jxr_linenumber" name="L425" href="SchurTransformer.html#L425">425</a> 
+<a class="jxr_linenumber" name="L426" href="SchurTransformer.html#L426">426</a>         <em class="jxr_comment">// clean up pollution due to round-off errors</em>
+<a class="jxr_linenumber" name="L427" href="SchurTransformer.html#L427">427</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = im + 2; i &lt;= iu; i++) {
+<a class="jxr_linenumber" name="L428" href="SchurTransformer.html#L428">428</a>             matrixT[i][i-2] = 0.0;
+<a class="jxr_linenumber" name="L429" href="SchurTransformer.html#L429">429</a>             <strong class="jxr_keyword">if</strong> (i &gt; im + 2) {
+<a class="jxr_linenumber" name="L430" href="SchurTransformer.html#L430">430</a>                 matrixT[i][i-3] = 0.0;
+<a class="jxr_linenumber" name="L431" href="SchurTransformer.html#L431">431</a>             }
+<a class="jxr_linenumber" name="L432" href="SchurTransformer.html#L432">432</a>         }
+<a class="jxr_linenumber" name="L433" href="SchurTransformer.html#L433">433</a>     }
+<a class="jxr_linenumber" name="L434" href="SchurTransformer.html#L434">434</a> 
+<a class="jxr_linenumber" name="L435" href="SchurTransformer.html#L435">435</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L436" href="SchurTransformer.html#L436">436</a> <em class="jxr_javadoccomment">     * Internal data structure holding the current shift information.</em>
+<a class="jxr_linenumber" name="L437" href="SchurTransformer.html#L437">437</a> <em class="jxr_javadoccomment">     * Contains variable names as present in the original JAMA code.</em>
+<a class="jxr_linenumber" name="L438" href="SchurTransformer.html#L438">438</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L439" href="SchurTransformer.html#L439">439</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="SchurTransformer.html">ShiftInfo</a> {
+<a class="jxr_linenumber" name="L440" href="SchurTransformer.html#L440">440</a>         <em class="jxr_comment">// CHECKSTYLE: stop all</em>
+<a class="jxr_linenumber" name="L441" href="SchurTransformer.html#L441">441</a> 
+<a class="jxr_linenumber" name="L442" href="SchurTransformer.html#L442">442</a>         <em class="jxr_javadoccomment">/** x shift info */</em>
+<a class="jxr_linenumber" name="L443" href="SchurTransformer.html#L443">443</a>         <strong class="jxr_keyword">double</strong> x;
+<a class="jxr_linenumber" name="L444" href="SchurTransformer.html#L444">444</a>         <em class="jxr_javadoccomment">/** y shift info */</em>
+<a class="jxr_linenumber" name="L445" href="SchurTransformer.html#L445">445</a>         <strong class="jxr_keyword">double</strong> y;
+<a class="jxr_linenumber" name="L446" href="SchurTransformer.html#L446">446</a>         <em class="jxr_javadoccomment">/** w shift info */</em>
+<a class="jxr_linenumber" name="L447" href="SchurTransformer.html#L447">447</a>         <strong class="jxr_keyword">double</strong> w;
+<a class="jxr_linenumber" name="L448" href="SchurTransformer.html#L448">448</a>         <em class="jxr_javadoccomment">/** Indicates an exceptional shift. */</em>
+<a class="jxr_linenumber" name="L449" href="SchurTransformer.html#L449">449</a>         <strong class="jxr_keyword">double</strong> exShift;
+<a class="jxr_linenumber" name="L450" href="SchurTransformer.html#L450">450</a> 
+<a class="jxr_linenumber" name="L451" href="SchurTransformer.html#L451">451</a>         <em class="jxr_comment">// CHECKSTYLE: resume all</em>
+<a class="jxr_linenumber" name="L452" href="SchurTransformer.html#L452">452</a>     }
+<a class="jxr_linenumber" name="L453" href="SchurTransformer.html#L453">453</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

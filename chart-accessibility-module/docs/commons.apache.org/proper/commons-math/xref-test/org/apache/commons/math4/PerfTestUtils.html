@@ -1,0 +1,396 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>PerfTestUtils xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="http://commons.apache.org/proper/commons-math/testapidocs/org/apache/commons/math4/PerfTestUtils.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="PerfTestUtils.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="PerfTestUtils.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="PerfTestUtils.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="PerfTestUtils.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="PerfTestUtils.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="PerfTestUtils.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="PerfTestUtils.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="PerfTestUtils.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="PerfTestUtils.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="PerfTestUtils.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="PerfTestUtils.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="PerfTestUtils.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="PerfTestUtils.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="PerfTestUtils.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="PerfTestUtils.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="PerfTestUtils.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="PerfTestUtils.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4;
+<a class="jxr_linenumber" name="L18" href="PerfTestUtils.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="PerfTestUtils.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.regex.Pattern;
+<a class="jxr_linenumber" name="L20" href="PerfTestUtils.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.regex.Matcher;
+<a class="jxr_linenumber" name="L21" href="PerfTestUtils.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.regex.MatchResult;
+<a class="jxr_linenumber" name="L22" href="PerfTestUtils.html#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.concurrent.Callable;
+<a class="jxr_linenumber" name="L23" href="PerfTestUtils.html#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="PerfTestUtils.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L25" href="PerfTestUtils.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L26" href="PerfTestUtils.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.RandomSource;
+<a class="jxr_linenumber" name="L27" href="PerfTestUtils.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalStateException;
+<a class="jxr_linenumber" name="L28" href="PerfTestUtils.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooLargeException;
+<a class="jxr_linenumber" name="L29" href="PerfTestUtils.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L30" href="PerfTestUtils.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.descriptive.StatisticalSummary;
+<a class="jxr_linenumber" name="L31" href="PerfTestUtils.html#L31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.descriptive.SummaryStatistics;
+<a class="jxr_linenumber" name="L32" href="PerfTestUtils.html#L32">32</a>  
+<a class="jxr_linenumber" name="L33" href="PerfTestUtils.html#L33">33</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L34" href="PerfTestUtils.html#L34">34</a>  <em class="jxr_javadoccomment"> * Simple benchmarking utilities.</em>
+<a class="jxr_linenumber" name="L35" href="PerfTestUtils.html#L35">35</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L36" href="PerfTestUtils.html#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="PerfTestUtils.html">PerfTestUtils</a> {
+<a class="jxr_linenumber" name="L37" href="PerfTestUtils.html#L37">37</a>      <em class="jxr_javadoccomment">/** Formatting. */</em>
+<a class="jxr_linenumber" name="L38" href="PerfTestUtils.html#L38">38</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> DEFAULT_MAX_NAME_WIDTH = 45;
+<a class="jxr_linenumber" name="L39" href="PerfTestUtils.html#L39">39</a>      <em class="jxr_javadoccomment">/** Formatting. */</em>
+<a class="jxr_linenumber" name="L40" href="PerfTestUtils.html#L40">40</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String ELLIPSIS = <span class="jxr_string">"..."</span>;
+<a class="jxr_linenumber" name="L41" href="PerfTestUtils.html#L41">41</a>      <em class="jxr_javadoccomment">/** Formatting. */</em>
+<a class="jxr_linenumber" name="L42" href="PerfTestUtils.html#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String TO_STRING_MEMORY_ADDRESS_REGEX = <span class="jxr_string">"@&#92;&#92;p{XDigit}{1,8}"</span>;
+<a class="jxr_linenumber" name="L43" href="PerfTestUtils.html#L43">43</a>      <em class="jxr_javadoccomment">/** Formatting. */</em>
+<a class="jxr_linenumber" name="L44" href="PerfTestUtils.html#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String JAVA_IDENTIFIER_REGEX =
+<a class="jxr_linenumber" name="L45" href="PerfTestUtils.html#L45">45</a>          <span class="jxr_string">"(&#92;&#92;p{javaJavaIdentifierStart}&#92;&#92;p{javaJavaIdentifierPart}*&#92;&#92;.)*&#92;&#92;p{javaJavaIdentifierStart}&#92;&#92;p{javaJavaIdentifierPart}*"</span>;
+<a class="jxr_linenumber" name="L46" href="PerfTestUtils.html#L46">46</a>      <em class="jxr_javadoccomment">/** Formatting. */</em>
+<a class="jxr_linenumber" name="L47" href="PerfTestUtils.html#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern JAVA_IDENTIFIER_PATTERN =
+<a class="jxr_linenumber" name="L48" href="PerfTestUtils.html#L48">48</a>          Pattern.compile(JAVA_IDENTIFIER_REGEX);
+<a class="jxr_linenumber" name="L49" href="PerfTestUtils.html#L49">49</a>      <em class="jxr_javadoccomment">/** Nanoseconds to milliseconds conversion factor ({@value}). */</em>
+<a class="jxr_linenumber" name="L50" href="PerfTestUtils.html#L50">50</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> NANO_TO_MILLI = 1e-6;
+<a class="jxr_linenumber" name="L51" href="PerfTestUtils.html#L51">51</a>      <em class="jxr_javadoccomment">/** Default number of code repeat per timed block. */</em>
+<a class="jxr_linenumber" name="L52" href="PerfTestUtils.html#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> DEFAULT_REPEAT_CHUNK = 1000;
+<a class="jxr_linenumber" name="L53" href="PerfTestUtils.html#L53">53</a>      <em class="jxr_javadoccomment">/** Default number of code repeats for computing the average run time. */</em>
+<a class="jxr_linenumber" name="L54" href="PerfTestUtils.html#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> DEFAULT_REPEAT_STAT = 10000;
+<a class="jxr_linenumber" name="L55" href="PerfTestUtils.html#L55">55</a>      <em class="jxr_javadoccomment">/** RNG. */</em>
+<a class="jxr_linenumber" name="L56" href="PerfTestUtils.html#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> UniformRandomProvider rng = RandomSource.create(RandomSource.WELL_19937_C);
+<a class="jxr_linenumber" name="L57" href="PerfTestUtils.html#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="PerfTestUtils.html#L58">58</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L59" href="PerfTestUtils.html#L59">59</a>  <em class="jxr_javadoccomment">     * Timing.</em>
+<a class="jxr_linenumber" name="L60" href="PerfTestUtils.html#L60">60</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L61" href="PerfTestUtils.html#L61">61</a>  <em class="jxr_javadoccomment">     * @param repeatChunk Each timing measurement will done done for that</em>
+<a class="jxr_linenumber" name="L62" href="PerfTestUtils.html#L62">62</a>  <em class="jxr_javadoccomment">     * number of repeats of the code.</em>
+<a class="jxr_linenumber" name="L63" href="PerfTestUtils.html#L63">63</a>  <em class="jxr_javadoccomment">     * @param repeatStat Timing will be averaged over that number of runs.</em>
+<a class="jxr_linenumber" name="L64" href="PerfTestUtils.html#L64">64</a>  <em class="jxr_javadoccomment">     * @param runGC Call {@code System.gc()} between each timed block. When</em>
+<a class="jxr_linenumber" name="L65" href="PerfTestUtils.html#L65">65</a>  <em class="jxr_javadoccomment">     * set to {@code true}, the test will run much slower.</em>
+<a class="jxr_linenumber" name="L66" href="PerfTestUtils.html#L66">66</a>  <em class="jxr_javadoccomment">     * @param methods Codes being timed.</em>
+<a class="jxr_linenumber" name="L67" href="PerfTestUtils.html#L67">67</a>  <em class="jxr_javadoccomment">     * @return for each of the given {@code methods}, a</em>
+<a class="jxr_linenumber" name="L68" href="PerfTestUtils.html#L68">68</a>  <em class="jxr_javadoccomment">     * {@link StatisticalSummary} of the average times (in milliseconds)</em>
+<a class="jxr_linenumber" name="L69" href="PerfTestUtils.html#L69">69</a>  <em class="jxr_javadoccomment">     * taken by a single call to the {@code call} method (i.e. the time</em>
+<a class="jxr_linenumber" name="L70" href="PerfTestUtils.html#L70">70</a>  <em class="jxr_javadoccomment">     * taken by each timed block divided by {@code repeatChunk}).</em>
+<a class="jxr_linenumber" name="L71" href="PerfTestUtils.html#L71">71</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L72" href="PerfTestUtils.html#L72">72</a>      @SafeVarargs
+<a class="jxr_linenumber" name="L73" href="PerfTestUtils.html#L73">73</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> StatisticalSummary[] time(<strong class="jxr_keyword">int</strong> repeatChunk,
+<a class="jxr_linenumber" name="L74" href="PerfTestUtils.html#L74">74</a>                                              <strong class="jxr_keyword">int</strong> repeatStat,
+<a class="jxr_linenumber" name="L75" href="PerfTestUtils.html#L75">75</a>                                              <strong class="jxr_keyword">boolean</strong> runGC,
+<a class="jxr_linenumber" name="L76" href="PerfTestUtils.html#L76">76</a>                                              Callable&lt;Double&gt; ... methods) {
+<a class="jxr_linenumber" name="L77" href="PerfTestUtils.html#L77">77</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] times = timesAndResults(repeatChunk,
+<a class="jxr_linenumber" name="L78" href="PerfTestUtils.html#L78">78</a>                                                     repeatStat,
+<a class="jxr_linenumber" name="L79" href="PerfTestUtils.html#L79">79</a>                                                     runGC,
+<a class="jxr_linenumber" name="L80" href="PerfTestUtils.html#L80">80</a>                                                     methods);
+<a class="jxr_linenumber" name="L81" href="PerfTestUtils.html#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="PerfTestUtils.html#L82">82</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> len = methods.length;
+<a class="jxr_linenumber" name="L83" href="PerfTestUtils.html#L83">83</a>          <strong class="jxr_keyword">final</strong> StatisticalSummary[] stats = <strong class="jxr_keyword">new</strong> StatisticalSummary[len];
+<a class="jxr_linenumber" name="L84" href="PerfTestUtils.html#L84">84</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; len; j++) {
+<a class="jxr_linenumber" name="L85" href="PerfTestUtils.html#L85">85</a>              <strong class="jxr_keyword">final</strong> SummaryStatistics s = <strong class="jxr_keyword">new</strong> SummaryStatistics();
+<a class="jxr_linenumber" name="L86" href="PerfTestUtils.html#L86">86</a>              <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; repeatStat; k++) {
+<a class="jxr_linenumber" name="L87" href="PerfTestUtils.html#L87">87</a>                  s.addValue(times[j][k][0]);
+<a class="jxr_linenumber" name="L88" href="PerfTestUtils.html#L88">88</a>              }
+<a class="jxr_linenumber" name="L89" href="PerfTestUtils.html#L89">89</a>              stats[j] = s.getSummary();
+<a class="jxr_linenumber" name="L90" href="PerfTestUtils.html#L90">90</a>          }
+<a class="jxr_linenumber" name="L91" href="PerfTestUtils.html#L91">91</a>  
+<a class="jxr_linenumber" name="L92" href="PerfTestUtils.html#L92">92</a>          <strong class="jxr_keyword">return</strong> stats;
+<a class="jxr_linenumber" name="L93" href="PerfTestUtils.html#L93">93</a>      }
+<a class="jxr_linenumber" name="L94" href="PerfTestUtils.html#L94">94</a>  
+<a class="jxr_linenumber" name="L95" href="PerfTestUtils.html#L95">95</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L96" href="PerfTestUtils.html#L96">96</a>  <em class="jxr_javadoccomment">     * Timing.</em>
+<a class="jxr_linenumber" name="L97" href="PerfTestUtils.html#L97">97</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L98" href="PerfTestUtils.html#L98">98</a>  <em class="jxr_javadoccomment">     * @param repeatChunk Each timing measurement will done done for that</em>
+<a class="jxr_linenumber" name="L99" href="PerfTestUtils.html#L99">99</a>  <em class="jxr_javadoccomment">     * number of repeats of the code.</em>
+<a class="jxr_linenumber" name="L100" href="PerfTestUtils.html#L100">100</a> <em class="jxr_javadoccomment">     * @param repeatStat Timing will be averaged over that number of runs.</em>
+<a class="jxr_linenumber" name="L101" href="PerfTestUtils.html#L101">101</a> <em class="jxr_javadoccomment">     * @param runGC Call {@code System.gc()} between each timed block. When</em>
+<a class="jxr_linenumber" name="L102" href="PerfTestUtils.html#L102">102</a> <em class="jxr_javadoccomment">     * set to {@code true}, the test will run much slower.</em>
+<a class="jxr_linenumber" name="L103" href="PerfTestUtils.html#L103">103</a> <em class="jxr_javadoccomment">     * @param methods Codes being timed.</em>
+<a class="jxr_linenumber" name="L104" href="PerfTestUtils.html#L104">104</a> <em class="jxr_javadoccomment">     * @return for each of the given {@code methods} (first dimension), and</em>
+<a class="jxr_linenumber" name="L105" href="PerfTestUtils.html#L105">105</a> <em class="jxr_javadoccomment">     * each of the {@code repeatStat} runs (second dimension):</em>
+<a class="jxr_linenumber" name="L106" href="PerfTestUtils.html#L106">106</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L107" href="PerfTestUtils.html#L107">107</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L108" href="PerfTestUtils.html#L108">108</a> <em class="jxr_javadoccomment">     *   the average time (in milliseconds) taken by a single call to the</em>
+<a class="jxr_linenumber" name="L109" href="PerfTestUtils.html#L109">109</a> <em class="jxr_javadoccomment">     *   {@code call} method (i.e. the time taken by each timed block divided</em>
+<a class="jxr_linenumber" name="L110" href="PerfTestUtils.html#L110">110</a> <em class="jxr_javadoccomment">     *   by {@code repeatChunk})</em>
+<a class="jxr_linenumber" name="L111" href="PerfTestUtils.html#L111">111</a> <em class="jxr_javadoccomment">     *  &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L112" href="PerfTestUtils.html#L112">112</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L113" href="PerfTestUtils.html#L113">113</a> <em class="jxr_javadoccomment">     *   the result returned by the {@code call} method.</em>
+<a class="jxr_linenumber" name="L114" href="PerfTestUtils.html#L114">114</a> <em class="jxr_javadoccomment">     *  &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L115" href="PerfTestUtils.html#L115">115</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L116" href="PerfTestUtils.html#L116">116</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L117" href="PerfTestUtils.html#L117">117</a>     @SafeVarargs
+<a class="jxr_linenumber" name="L118" href="PerfTestUtils.html#L118">118</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong>[][][] timesAndResults(<strong class="jxr_keyword">int</strong> repeatChunk,
+<a class="jxr_linenumber" name="L119" href="PerfTestUtils.html#L119">119</a>                                                <strong class="jxr_keyword">int</strong> repeatStat,
+<a class="jxr_linenumber" name="L120" href="PerfTestUtils.html#L120">120</a>                                                <strong class="jxr_keyword">boolean</strong> runGC,
+<a class="jxr_linenumber" name="L121" href="PerfTestUtils.html#L121">121</a>                                                Callable&lt;Double&gt; ... methods) {
+<a class="jxr_linenumber" name="L122" href="PerfTestUtils.html#L122">122</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numMethods = methods.length;
+<a class="jxr_linenumber" name="L123" href="PerfTestUtils.html#L123">123</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] timesAndResults = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[numMethods][repeatStat][2];
+<a class="jxr_linenumber" name="L124" href="PerfTestUtils.html#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="PerfTestUtils.html#L125">125</a>         <em class="jxr_comment">// Indices into the array containing the methods to benchmark.</em>
+<a class="jxr_linenumber" name="L126" href="PerfTestUtils.html#L126">126</a>         <em class="jxr_comment">// The purpose is that at each repeat, the "methods" are called in a different order.</em>
+<a class="jxr_linenumber" name="L127" href="PerfTestUtils.html#L127">127</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] methodSequence = MathArrays.natural(numMethods);
+<a class="jxr_linenumber" name="L128" href="PerfTestUtils.html#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="PerfTestUtils.html#L129">129</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L130" href="PerfTestUtils.html#L130">130</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; repeatStat; k++) {
+<a class="jxr_linenumber" name="L131" href="PerfTestUtils.html#L131">131</a>                 MathArrays.shuffle(methodSequence, rng);
+<a class="jxr_linenumber" name="L132" href="PerfTestUtils.html#L132">132</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> n = 0; n &lt; numMethods; n++) {
+<a class="jxr_linenumber" name="L133" href="PerfTestUtils.html#L133">133</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> j = methodSequence[n]; <em class="jxr_comment">// Index of the timed method.</em>
+<a class="jxr_linenumber" name="L134" href="PerfTestUtils.html#L134">134</a> 
+<a class="jxr_linenumber" name="L135" href="PerfTestUtils.html#L135">135</a>                     <strong class="jxr_keyword">if</strong> (runGC) {
+<a class="jxr_linenumber" name="L136" href="PerfTestUtils.html#L136">136</a>                         <em class="jxr_comment">// Try to perform GC outside the timed block.</em>
+<a class="jxr_linenumber" name="L137" href="PerfTestUtils.html#L137">137</a>                         System.gc();
+<a class="jxr_linenumber" name="L138" href="PerfTestUtils.html#L138">138</a>                     }
+<a class="jxr_linenumber" name="L139" href="PerfTestUtils.html#L139">139</a> 
+<a class="jxr_linenumber" name="L140" href="PerfTestUtils.html#L140">140</a>                     <strong class="jxr_keyword">final</strong> Callable&lt;Double&gt; r = methods[j];
+<a class="jxr_linenumber" name="L141" href="PerfTestUtils.html#L141">141</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] result = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[repeatChunk];
+<a class="jxr_linenumber" name="L142" href="PerfTestUtils.html#L142">142</a> 
+<a class="jxr_linenumber" name="L143" href="PerfTestUtils.html#L143">143</a>                     <em class="jxr_comment">// Timed block.</em>
+<a class="jxr_linenumber" name="L144" href="PerfTestUtils.html#L144">144</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> start = System.nanoTime();
+<a class="jxr_linenumber" name="L145" href="PerfTestUtils.html#L145">145</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; repeatChunk; i++) {
+<a class="jxr_linenumber" name="L146" href="PerfTestUtils.html#L146">146</a>                         result[i] = r.call().doubleValue();
+<a class="jxr_linenumber" name="L147" href="PerfTestUtils.html#L147">147</a>                     }
+<a class="jxr_linenumber" name="L148" href="PerfTestUtils.html#L148">148</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> stop = System.nanoTime();
+<a class="jxr_linenumber" name="L149" href="PerfTestUtils.html#L149">149</a> 
+<a class="jxr_linenumber" name="L150" href="PerfTestUtils.html#L150">150</a>                     <em class="jxr_comment">// Collect run time.</em>
+<a class="jxr_linenumber" name="L151" href="PerfTestUtils.html#L151">151</a>                     timesAndResults[j][k][0] = (stop - start) * NANO_TO_MILLI;
+<a class="jxr_linenumber" name="L152" href="PerfTestUtils.html#L152">152</a>                     <em class="jxr_comment">// Keep track of a randomly selected result.</em>
+<a class="jxr_linenumber" name="L153" href="PerfTestUtils.html#L153">153</a>                     timesAndResults[j][k][1] = result[rng.nextInt(repeatChunk)];
+<a class="jxr_linenumber" name="L154" href="PerfTestUtils.html#L154">154</a>                 }
+<a class="jxr_linenumber" name="L155" href="PerfTestUtils.html#L155">155</a>             }
+<a class="jxr_linenumber" name="L156" href="PerfTestUtils.html#L156">156</a>         } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L157" href="PerfTestUtils.html#L157">157</a>             <em class="jxr_comment">// Abort benchmarking if codes throw exceptions.</em>
+<a class="jxr_linenumber" name="L158" href="PerfTestUtils.html#L158">158</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MathIllegalStateException(LocalizedFormats.SIMPLE_MESSAGE, e.getMessage());
+<a class="jxr_linenumber" name="L159" href="PerfTestUtils.html#L159">159</a>         }
+<a class="jxr_linenumber" name="L160" href="PerfTestUtils.html#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="PerfTestUtils.html#L161">161</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> normFactor = 1d / repeatChunk;
+<a class="jxr_linenumber" name="L162" href="PerfTestUtils.html#L162">162</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; numMethods; j++) {
+<a class="jxr_linenumber" name="L163" href="PerfTestUtils.html#L163">163</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; repeatStat; k++) {
+<a class="jxr_linenumber" name="L164" href="PerfTestUtils.html#L164">164</a>                 timesAndResults[j][k][0] *= normFactor;
+<a class="jxr_linenumber" name="L165" href="PerfTestUtils.html#L165">165</a>             }
+<a class="jxr_linenumber" name="L166" href="PerfTestUtils.html#L166">166</a>         }
+<a class="jxr_linenumber" name="L167" href="PerfTestUtils.html#L167">167</a> 
+<a class="jxr_linenumber" name="L168" href="PerfTestUtils.html#L168">168</a>         <strong class="jxr_keyword">return</strong> timesAndResults;
+<a class="jxr_linenumber" name="L169" href="PerfTestUtils.html#L169">169</a>     }
+<a class="jxr_linenumber" name="L170" href="PerfTestUtils.html#L170">170</a> 
+<a class="jxr_linenumber" name="L171" href="PerfTestUtils.html#L171">171</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L172" href="PerfTestUtils.html#L172">172</a> <em class="jxr_javadoccomment">     * Timing and report (to standard output) the average time and standard</em>
+<a class="jxr_linenumber" name="L173" href="PerfTestUtils.html#L173">173</a> <em class="jxr_javadoccomment">     * deviation of a single call.</em>
+<a class="jxr_linenumber" name="L174" href="PerfTestUtils.html#L174">174</a> <em class="jxr_javadoccomment">     * The timing is performed by calling the</em>
+<a class="jxr_linenumber" name="L175" href="PerfTestUtils.html#L175">175</a> <em class="jxr_javadoccomment">     * {@link #time(int,int,boolean,Callable[]) time} method.</em>
+<a class="jxr_linenumber" name="L176" href="PerfTestUtils.html#L176">176</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L177" href="PerfTestUtils.html#L177">177</a> <em class="jxr_javadoccomment">     * @param title Title of the test (for the report).</em>
+<a class="jxr_linenumber" name="L178" href="PerfTestUtils.html#L178">178</a> <em class="jxr_javadoccomment">     * @param maxNameWidth Maximum width of the first column of the report.</em>
+<a class="jxr_linenumber" name="L179" href="PerfTestUtils.html#L179">179</a> <em class="jxr_javadoccomment">     * @param repeatChunk Each timing measurement will done done for that</em>
+<a class="jxr_linenumber" name="L180" href="PerfTestUtils.html#L180">180</a> <em class="jxr_javadoccomment">     * number of repeats of the code.</em>
+<a class="jxr_linenumber" name="L181" href="PerfTestUtils.html#L181">181</a> <em class="jxr_javadoccomment">     * @param repeatStat Timing will be averaged over that number of runs.</em>
+<a class="jxr_linenumber" name="L182" href="PerfTestUtils.html#L182">182</a> <em class="jxr_javadoccomment">     * @param runGC Call {@code System.gc()} between each timed block. When</em>
+<a class="jxr_linenumber" name="L183" href="PerfTestUtils.html#L183">183</a> <em class="jxr_javadoccomment">     * set to {@code true}, the test will run much slower.</em>
+<a class="jxr_linenumber" name="L184" href="PerfTestUtils.html#L184">184</a> <em class="jxr_javadoccomment">     * @param methods Codes being timed.</em>
+<a class="jxr_linenumber" name="L185" href="PerfTestUtils.html#L185">185</a> <em class="jxr_javadoccomment">     * @return for each of the given {@code methods}, a statistics of the</em>
+<a class="jxr_linenumber" name="L186" href="PerfTestUtils.html#L186">186</a> <em class="jxr_javadoccomment">     * average times (in milliseconds) taken by a single call to the</em>
+<a class="jxr_linenumber" name="L187" href="PerfTestUtils.html#L187">187</a> <em class="jxr_javadoccomment">     * {@code call} method (i.e. the time taken by each timed block divided</em>
+<a class="jxr_linenumber" name="L188" href="PerfTestUtils.html#L188">188</a> <em class="jxr_javadoccomment">     * by {@code repeatChunk}).</em>
+<a class="jxr_linenumber" name="L189" href="PerfTestUtils.html#L189">189</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L190" href="PerfTestUtils.html#L190">190</a>     @SuppressWarnings(<span class="jxr_string">"boxing"</span>)
+<a class="jxr_linenumber" name="L191" href="PerfTestUtils.html#L191">191</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> StatisticalSummary[] timeAndReport(String title,
+<a class="jxr_linenumber" name="L192" href="PerfTestUtils.html#L192">192</a>                                                      <strong class="jxr_keyword">int</strong> maxNameWidth,
+<a class="jxr_linenumber" name="L193" href="PerfTestUtils.html#L193">193</a>                                                      <strong class="jxr_keyword">int</strong> repeatChunk,
+<a class="jxr_linenumber" name="L194" href="PerfTestUtils.html#L194">194</a>                                                      <strong class="jxr_keyword">int</strong> repeatStat,
+<a class="jxr_linenumber" name="L195" href="PerfTestUtils.html#L195">195</a>                                                      <strong class="jxr_keyword">boolean</strong> runGC,
+<a class="jxr_linenumber" name="L196" href="PerfTestUtils.html#L196">196</a>                                                      <a href="PerfTestUtils.html">RunTest</a> ... methods) {
+<a class="jxr_linenumber" name="L197" href="PerfTestUtils.html#L197">197</a>         <em class="jxr_comment">// Header format.</em>
+<a class="jxr_linenumber" name="L198" href="PerfTestUtils.html#L198">198</a>         <strong class="jxr_keyword">final</strong> String hFormat = <span class="jxr_string">"%s (calls per timed block: %d, timed blocks: %d, time unit: ms)"</span>;
+<a class="jxr_linenumber" name="L199" href="PerfTestUtils.html#L199">199</a> 
+<a class="jxr_linenumber" name="L200" href="PerfTestUtils.html#L200">200</a>         <em class="jxr_comment">// TODO: user-defined parameter?</em>
+<a class="jxr_linenumber" name="L201" href="PerfTestUtils.html#L201">201</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> removePackageName = false;
+<a class="jxr_linenumber" name="L202" href="PerfTestUtils.html#L202">202</a> 
+<a class="jxr_linenumber" name="L203" href="PerfTestUtils.html#L203">203</a>         <em class="jxr_comment">// Width of the longest name.</em>
+<a class="jxr_linenumber" name="L204" href="PerfTestUtils.html#L204">204</a>         <strong class="jxr_keyword">int</strong> nameLength = 0;
+<a class="jxr_linenumber" name="L205" href="PerfTestUtils.html#L205">205</a>         <strong class="jxr_keyword">for</strong> (RunTest m : methods) {
+<a class="jxr_linenumber" name="L206" href="PerfTestUtils.html#L206">206</a>             <strong class="jxr_keyword">int</strong> len = shorten(m.getName(), removePackageName).length();
+<a class="jxr_linenumber" name="L207" href="PerfTestUtils.html#L207">207</a>             <strong class="jxr_keyword">if</strong> (len &gt; nameLength) {
+<a class="jxr_linenumber" name="L208" href="PerfTestUtils.html#L208">208</a>                 nameLength = len;
+<a class="jxr_linenumber" name="L209" href="PerfTestUtils.html#L209">209</a>             }
+<a class="jxr_linenumber" name="L210" href="PerfTestUtils.html#L210">210</a>         }
+<a class="jxr_linenumber" name="L211" href="PerfTestUtils.html#L211">211</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> actualNameLength = nameLength &lt; maxNameWidth ?
+<a class="jxr_linenumber" name="L212" href="PerfTestUtils.html#L212">212</a>             nameLength :
+<a class="jxr_linenumber" name="L213" href="PerfTestUtils.html#L213">213</a>             maxNameWidth;
+<a class="jxr_linenumber" name="L214" href="PerfTestUtils.html#L214">214</a>         <strong class="jxr_keyword">final</strong> String nameLengthFormat = <span class="jxr_string">"%"</span> + actualNameLength + <span class="jxr_string">"s"</span>;
+<a class="jxr_linenumber" name="L215" href="PerfTestUtils.html#L215">215</a> 
+<a class="jxr_linenumber" name="L216" href="PerfTestUtils.html#L216">216</a>         <em class="jxr_comment">// Column format.</em>
+<a class="jxr_linenumber" name="L217" href="PerfTestUtils.html#L217">217</a>         <strong class="jxr_keyword">final</strong> String cFormat = nameLengthFormat + <span class="jxr_string">" %9s %7s %10s %5s %4s %10s"</span>;
+<a class="jxr_linenumber" name="L218" href="PerfTestUtils.html#L218">218</a>         <em class="jxr_comment">// Result format.</em>
+<a class="jxr_linenumber" name="L219" href="PerfTestUtils.html#L219">219</a>         <strong class="jxr_keyword">final</strong> String format = nameLengthFormat + <span class="jxr_string">" %.3e %.1e %.4e %.3f %.2f %.4e"</span>;
+<a class="jxr_linenumber" name="L220" href="PerfTestUtils.html#L220">220</a> 
+<a class="jxr_linenumber" name="L221" href="PerfTestUtils.html#L221">221</a>         System.out.println(String.format(hFormat,
+<a class="jxr_linenumber" name="L222" href="PerfTestUtils.html#L222">222</a>                                          title,
+<a class="jxr_linenumber" name="L223" href="PerfTestUtils.html#L223">223</a>                                          repeatChunk,
+<a class="jxr_linenumber" name="L224" href="PerfTestUtils.html#L224">224</a>                                          repeatStat));
+<a class="jxr_linenumber" name="L225" href="PerfTestUtils.html#L225">225</a>         System.out.println(String.format(cFormat,
+<a class="jxr_linenumber" name="L226" href="PerfTestUtils.html#L226">226</a>                                          <span class="jxr_string">"name"</span>,
+<a class="jxr_linenumber" name="L227" href="PerfTestUtils.html#L227">227</a>                                          <span class="jxr_string">"time/call"</span>,
+<a class="jxr_linenumber" name="L228" href="PerfTestUtils.html#L228">228</a>                                          <span class="jxr_string">"std dev"</span>,
+<a class="jxr_linenumber" name="L229" href="PerfTestUtils.html#L229">229</a>                                          <span class="jxr_string">"total time"</span>,
+<a class="jxr_linenumber" name="L230" href="PerfTestUtils.html#L230">230</a>                                          <span class="jxr_string">"ratio"</span>,
+<a class="jxr_linenumber" name="L231" href="PerfTestUtils.html#L231">231</a>                                          <span class="jxr_string">"cv"</span>,
+<a class="jxr_linenumber" name="L232" href="PerfTestUtils.html#L232">232</a>                                          <span class="jxr_string">"difference"</span>));
+<a class="jxr_linenumber" name="L233" href="PerfTestUtils.html#L233">233</a>         <strong class="jxr_keyword">final</strong> StatisticalSummary[] time = time(repeatChunk,
+<a class="jxr_linenumber" name="L234" href="PerfTestUtils.html#L234">234</a>                                                repeatStat,
+<a class="jxr_linenumber" name="L235" href="PerfTestUtils.html#L235">235</a>                                                runGC,
+<a class="jxr_linenumber" name="L236" href="PerfTestUtils.html#L236">236</a>                                                methods);
+<a class="jxr_linenumber" name="L237" href="PerfTestUtils.html#L237">237</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> refSum = time[0].getSum() * repeatChunk;
+<a class="jxr_linenumber" name="L238" href="PerfTestUtils.html#L238">238</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0, max = time.length; i &lt; max; i++) {
+<a class="jxr_linenumber" name="L239" href="PerfTestUtils.html#L239">239</a>             <strong class="jxr_keyword">final</strong> StatisticalSummary s = time[i];
+<a class="jxr_linenumber" name="L240" href="PerfTestUtils.html#L240">240</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> sum = s.getSum() * repeatChunk;
+<a class="jxr_linenumber" name="L241" href="PerfTestUtils.html#L241">241</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> mean = s.getMean();
+<a class="jxr_linenumber" name="L242" href="PerfTestUtils.html#L242">242</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> sigma = s.getStandardDeviation();
+<a class="jxr_linenumber" name="L243" href="PerfTestUtils.html#L243">243</a>             System.out.println(String.format(format,
+<a class="jxr_linenumber" name="L244" href="PerfTestUtils.html#L244">244</a>                                              truncate(shorten(methods[i].getName(),
+<a class="jxr_linenumber" name="L245" href="PerfTestUtils.html#L245">245</a>                                                               removePackageName),
+<a class="jxr_linenumber" name="L246" href="PerfTestUtils.html#L246">246</a>                                                       actualNameLength,
+<a class="jxr_linenumber" name="L247" href="PerfTestUtils.html#L247">247</a>                                                       ELLIPSIS),
+<a class="jxr_linenumber" name="L248" href="PerfTestUtils.html#L248">248</a>                                              mean,
+<a class="jxr_linenumber" name="L249" href="PerfTestUtils.html#L249">249</a>                                              sigma,
+<a class="jxr_linenumber" name="L250" href="PerfTestUtils.html#L250">250</a>                                              sum,
+<a class="jxr_linenumber" name="L251" href="PerfTestUtils.html#L251">251</a>                                              sum / refSum,
+<a class="jxr_linenumber" name="L252" href="PerfTestUtils.html#L252">252</a>                                              sigma / mean,
+<a class="jxr_linenumber" name="L253" href="PerfTestUtils.html#L253">253</a>                                              sum - refSum));
+<a class="jxr_linenumber" name="L254" href="PerfTestUtils.html#L254">254</a>         }
+<a class="jxr_linenumber" name="L255" href="PerfTestUtils.html#L255">255</a> 
+<a class="jxr_linenumber" name="L256" href="PerfTestUtils.html#L256">256</a>         <strong class="jxr_keyword">return</strong> time;
+<a class="jxr_linenumber" name="L257" href="PerfTestUtils.html#L257">257</a>     }
+<a class="jxr_linenumber" name="L258" href="PerfTestUtils.html#L258">258</a> 
+<a class="jxr_linenumber" name="L259" href="PerfTestUtils.html#L259">259</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L260" href="PerfTestUtils.html#L260">260</a> <em class="jxr_javadoccomment">     * Timing and report (to standard output).</em>
+<a class="jxr_linenumber" name="L261" href="PerfTestUtils.html#L261">261</a> <em class="jxr_javadoccomment">     * This method calls {@link #timeAndReport(String,int,int,boolean,RunTest[])</em>
+<a class="jxr_linenumber" name="L262" href="PerfTestUtils.html#L262">262</a> <em class="jxr_javadoccomment">     * timeAndReport(title, 1000, 10000, false, methods)}.</em>
+<a class="jxr_linenumber" name="L263" href="PerfTestUtils.html#L263">263</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L264" href="PerfTestUtils.html#L264">264</a> <em class="jxr_javadoccomment">     * @param title Title of the test (for the report).</em>
+<a class="jxr_linenumber" name="L265" href="PerfTestUtils.html#L265">265</a> <em class="jxr_javadoccomment">     * @param methods Codes being timed.</em>
+<a class="jxr_linenumber" name="L266" href="PerfTestUtils.html#L266">266</a> <em class="jxr_javadoccomment">     * @return for each of the given {@code methods}, a statistics of the</em>
+<a class="jxr_linenumber" name="L267" href="PerfTestUtils.html#L267">267</a> <em class="jxr_javadoccomment">     * average times (in milliseconds) taken by a single call to the</em>
+<a class="jxr_linenumber" name="L268" href="PerfTestUtils.html#L268">268</a> <em class="jxr_javadoccomment">     * {@code call} method (i.e. the time taken by each timed block divided</em>
+<a class="jxr_linenumber" name="L269" href="PerfTestUtils.html#L269">269</a> <em class="jxr_javadoccomment">     * by {@code repeatChunk}).</em>
+<a class="jxr_linenumber" name="L270" href="PerfTestUtils.html#L270">270</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L271" href="PerfTestUtils.html#L271">271</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> StatisticalSummary[] timeAndReport(String title,
+<a class="jxr_linenumber" name="L272" href="PerfTestUtils.html#L272">272</a>                                                      <a href="PerfTestUtils.html">RunTest</a> ... methods) {
+<a class="jxr_linenumber" name="L273" href="PerfTestUtils.html#L273">273</a>         <strong class="jxr_keyword">return</strong> timeAndReport(title,
+<a class="jxr_linenumber" name="L274" href="PerfTestUtils.html#L274">274</a>                              DEFAULT_MAX_NAME_WIDTH,
+<a class="jxr_linenumber" name="L275" href="PerfTestUtils.html#L275">275</a>                              DEFAULT_REPEAT_CHUNK,
+<a class="jxr_linenumber" name="L276" href="PerfTestUtils.html#L276">276</a>                              DEFAULT_REPEAT_STAT,
+<a class="jxr_linenumber" name="L277" href="PerfTestUtils.html#L277">277</a>                              false,
+<a class="jxr_linenumber" name="L278" href="PerfTestUtils.html#L278">278</a>                              methods);
+<a class="jxr_linenumber" name="L279" href="PerfTestUtils.html#L279">279</a>     }
+<a class="jxr_linenumber" name="L280" href="PerfTestUtils.html#L280">280</a> 
+<a class="jxr_linenumber" name="L281" href="PerfTestUtils.html#L281">281</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L282" href="PerfTestUtils.html#L282">282</a> <em class="jxr_javadoccomment">     * Utility class for storing a test label.</em>
+<a class="jxr_linenumber" name="L283" href="PerfTestUtils.html#L283">283</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L284" href="PerfTestUtils.html#L284">284</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="PerfTestUtils.html">RunTest</a> <strong class="jxr_keyword">implements</strong> Callable&lt;Double&gt; {
+<a class="jxr_linenumber" name="L285" href="PerfTestUtils.html#L285">285</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String name;
+<a class="jxr_linenumber" name="L286" href="PerfTestUtils.html#L286">286</a> 
+<a class="jxr_linenumber" name="L287" href="PerfTestUtils.html#L287">287</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L288" href="PerfTestUtils.html#L288">288</a> <em class="jxr_javadoccomment">         * @param name Test name.</em>
+<a class="jxr_linenumber" name="L289" href="PerfTestUtils.html#L289">289</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L290" href="PerfTestUtils.html#L290">290</a>         <strong class="jxr_keyword">public</strong> <a href="PerfTestUtils.html">RunTest</a>(String name) {
+<a class="jxr_linenumber" name="L291" href="PerfTestUtils.html#L291">291</a>             <strong class="jxr_keyword">this</strong>.name = name;
+<a class="jxr_linenumber" name="L292" href="PerfTestUtils.html#L292">292</a>         }
+<a class="jxr_linenumber" name="L293" href="PerfTestUtils.html#L293">293</a> 
+<a class="jxr_linenumber" name="L294" href="PerfTestUtils.html#L294">294</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L295" href="PerfTestUtils.html#L295">295</a> <em class="jxr_javadoccomment">         * @return the name of this test.</em>
+<a class="jxr_linenumber" name="L296" href="PerfTestUtils.html#L296">296</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L297" href="PerfTestUtils.html#L297">297</a>         <strong class="jxr_keyword">public</strong> String getName() {
+<a class="jxr_linenumber" name="L298" href="PerfTestUtils.html#L298">298</a>             <strong class="jxr_keyword">return</strong> name;
+<a class="jxr_linenumber" name="L299" href="PerfTestUtils.html#L299">299</a>         }
+<a class="jxr_linenumber" name="L300" href="PerfTestUtils.html#L300">300</a> 
+<a class="jxr_linenumber" name="L301" href="PerfTestUtils.html#L301">301</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L302" href="PerfTestUtils.html#L302">302</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> Double call() <strong class="jxr_keyword">throws</strong> Exception;
+<a class="jxr_linenumber" name="L303" href="PerfTestUtils.html#L303">303</a>     }
+<a class="jxr_linenumber" name="L304" href="PerfTestUtils.html#L304">304</a> 
+<a class="jxr_linenumber" name="L305" href="PerfTestUtils.html#L305">305</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L306" href="PerfTestUtils.html#L306">306</a> <em class="jxr_javadoccomment">     * Truncates a string so that it will not be longer than the</em>
+<a class="jxr_linenumber" name="L307" href="PerfTestUtils.html#L307">307</a> <em class="jxr_javadoccomment">     * specified length.</em>
+<a class="jxr_linenumber" name="L308" href="PerfTestUtils.html#L308">308</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L309" href="PerfTestUtils.html#L309">309</a> <em class="jxr_javadoccomment">     * @param str String to truncate.</em>
+<a class="jxr_linenumber" name="L310" href="PerfTestUtils.html#L310">310</a> <em class="jxr_javadoccomment">     * @param maxLength Maximum length.</em>
+<a class="jxr_linenumber" name="L311" href="PerfTestUtils.html#L311">311</a> <em class="jxr_javadoccomment">     * @param ellipsis String to use in place of the part being removed</em>
+<a class="jxr_linenumber" name="L312" href="PerfTestUtils.html#L312">312</a> <em class="jxr_javadoccomment">     * from the original string.</em>
+<a class="jxr_linenumber" name="L313" href="PerfTestUtils.html#L313">313</a> <em class="jxr_javadoccomment">     * @return the truncated string.</em>
+<a class="jxr_linenumber" name="L314" href="PerfTestUtils.html#L314">314</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooLargeException if the length of {@code ellipsis}</em>
+<a class="jxr_linenumber" name="L315" href="PerfTestUtils.html#L315">315</a> <em class="jxr_javadoccomment">     * is larger than {@code maxLength - 2}.</em>
+<a class="jxr_linenumber" name="L316" href="PerfTestUtils.html#L316">316</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L317" href="PerfTestUtils.html#L317">317</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String truncate(String str,
+<a class="jxr_linenumber" name="L318" href="PerfTestUtils.html#L318">318</a>                                    <strong class="jxr_keyword">int</strong> maxLength,
+<a class="jxr_linenumber" name="L319" href="PerfTestUtils.html#L319">319</a>                                    String ellipsis) {
+<a class="jxr_linenumber" name="L320" href="PerfTestUtils.html#L320">320</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ellSize = ellipsis.length();
+<a class="jxr_linenumber" name="L321" href="PerfTestUtils.html#L321">321</a>         <strong class="jxr_keyword">if</strong> (ellSize &gt; maxLength - 2) {
+<a class="jxr_linenumber" name="L322" href="PerfTestUtils.html#L322">322</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> NumberIsTooLargeException(ellSize, maxLength - 2, false);
+<a class="jxr_linenumber" name="L323" href="PerfTestUtils.html#L323">323</a>         }
+<a class="jxr_linenumber" name="L324" href="PerfTestUtils.html#L324">324</a> 
+<a class="jxr_linenumber" name="L325" href="PerfTestUtils.html#L325">325</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> strSize = str.length();
+<a class="jxr_linenumber" name="L326" href="PerfTestUtils.html#L326">326</a>         <strong class="jxr_keyword">if</strong> (strSize &lt;= maxLength) {
+<a class="jxr_linenumber" name="L327" href="PerfTestUtils.html#L327">327</a>             <em class="jxr_comment">// Size is OK.</em>
+<a class="jxr_linenumber" name="L328" href="PerfTestUtils.html#L328">328</a>             <strong class="jxr_keyword">return</strong> str;
+<a class="jxr_linenumber" name="L329" href="PerfTestUtils.html#L329">329</a>         }
+<a class="jxr_linenumber" name="L330" href="PerfTestUtils.html#L330">330</a> 
+<a class="jxr_linenumber" name="L331" href="PerfTestUtils.html#L331">331</a>         <strong class="jxr_keyword">return</strong> str.substring(0, maxLength - ellSize) + ellipsis;
+<a class="jxr_linenumber" name="L332" href="PerfTestUtils.html#L332">332</a>     }
+<a class="jxr_linenumber" name="L333" href="PerfTestUtils.html#L333">333</a> 
+<a class="jxr_linenumber" name="L334" href="PerfTestUtils.html#L334">334</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L335" href="PerfTestUtils.html#L335">335</a> <em class="jxr_javadoccomment">     * Shortens a string.</em>
+<a class="jxr_linenumber" name="L336" href="PerfTestUtils.html#L336">336</a> <em class="jxr_javadoccomment">     * It will shorten package names and remove memory addresses</em>
+<a class="jxr_linenumber" name="L337" href="PerfTestUtils.html#L337">337</a> <em class="jxr_javadoccomment">     * that appear in an instance's name.</em>
+<a class="jxr_linenumber" name="L338" href="PerfTestUtils.html#L338">338</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L339" href="PerfTestUtils.html#L339">339</a> <em class="jxr_javadoccomment">     * @param str Orginal string.</em>
+<a class="jxr_linenumber" name="L340" href="PerfTestUtils.html#L340">340</a> <em class="jxr_javadoccomment">     * @param removePackageName Whether package name part of a</em>
+<a class="jxr_linenumber" name="L341" href="PerfTestUtils.html#L341">341</a> <em class="jxr_javadoccomment">     * fully-quallified name should be removed entirely.</em>
+<a class="jxr_linenumber" name="L342" href="PerfTestUtils.html#L342">342</a> <em class="jxr_javadoccomment">     * @return the shortened string.</em>
+<a class="jxr_linenumber" name="L343" href="PerfTestUtils.html#L343">343</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L344" href="PerfTestUtils.html#L344">344</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String shorten(String str,
+<a class="jxr_linenumber" name="L345" href="PerfTestUtils.html#L345">345</a>                                   <strong class="jxr_keyword">boolean</strong> removePackageName) {
+<a class="jxr_linenumber" name="L346" href="PerfTestUtils.html#L346">346</a>         <strong class="jxr_keyword">final</strong> Matcher m = JAVA_IDENTIFIER_PATTERN.matcher(str);
+<a class="jxr_linenumber" name="L347" href="PerfTestUtils.html#L347">347</a>         <strong class="jxr_keyword">final</strong> StringBuffer sb = <strong class="jxr_keyword">new</strong> StringBuffer();
+<a class="jxr_linenumber" name="L348" href="PerfTestUtils.html#L348">348</a>         <strong class="jxr_keyword">while</strong> (m.find()) {
+<a class="jxr_linenumber" name="L349" href="PerfTestUtils.html#L349">349</a>             <strong class="jxr_keyword">final</strong> MatchResult r = m.toMatchResult();
+<a class="jxr_linenumber" name="L350" href="PerfTestUtils.html#L350">350</a>             m.appendReplacement(sb, shortenPackageName(r.group(),
+<a class="jxr_linenumber" name="L351" href="PerfTestUtils.html#L351">351</a>                                                        removePackageName));
+<a class="jxr_linenumber" name="L352" href="PerfTestUtils.html#L352">352</a>         }
+<a class="jxr_linenumber" name="L353" href="PerfTestUtils.html#L353">353</a>         m.appendTail(sb);
+<a class="jxr_linenumber" name="L354" href="PerfTestUtils.html#L354">354</a> 
+<a class="jxr_linenumber" name="L355" href="PerfTestUtils.html#L355">355</a>         <strong class="jxr_keyword">return</strong> sb.toString().replaceAll(TO_STRING_MEMORY_ADDRESS_REGEX, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L356" href="PerfTestUtils.html#L356">356</a>     }
+<a class="jxr_linenumber" name="L357" href="PerfTestUtils.html#L357">357</a> 
+<a class="jxr_linenumber" name="L358" href="PerfTestUtils.html#L358">358</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L359" href="PerfTestUtils.html#L359">359</a> <em class="jxr_javadoccomment">     * Shortens package part of the name of a class.</em>
+<a class="jxr_linenumber" name="L360" href="PerfTestUtils.html#L360">360</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L361" href="PerfTestUtils.html#L361">361</a> <em class="jxr_javadoccomment">     * @param name Class name.</em>
+<a class="jxr_linenumber" name="L362" href="PerfTestUtils.html#L362">362</a> <em class="jxr_javadoccomment">     * @param remove Whether package name part of a fully-qualified</em>
+<a class="jxr_linenumber" name="L363" href="PerfTestUtils.html#L363">363</a> <em class="jxr_javadoccomment">     * name should be removed entirely.</em>
+<a class="jxr_linenumber" name="L364" href="PerfTestUtils.html#L364">364</a> <em class="jxr_javadoccomment">     * @return the shortened name.</em>
+<a class="jxr_linenumber" name="L365" href="PerfTestUtils.html#L365">365</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L366" href="PerfTestUtils.html#L366">366</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String shortenPackageName(String name,
+<a class="jxr_linenumber" name="L367" href="PerfTestUtils.html#L367">367</a>                                              <strong class="jxr_keyword">boolean</strong> remove) {
+<a class="jxr_linenumber" name="L368" href="PerfTestUtils.html#L368">368</a>         <strong class="jxr_keyword">final</strong> String[] comp = name.split(<span class="jxr_string">"&#92;&#92;."</span>);
+<a class="jxr_linenumber" name="L369" href="PerfTestUtils.html#L369">369</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> last = comp.length - 1;
+<a class="jxr_linenumber" name="L370" href="PerfTestUtils.html#L370">370</a> 
+<a class="jxr_linenumber" name="L371" href="PerfTestUtils.html#L371">371</a>         <strong class="jxr_keyword">if</strong> (remove) {
+<a class="jxr_linenumber" name="L372" href="PerfTestUtils.html#L372">372</a>             <strong class="jxr_keyword">return</strong> comp[last];
+<a class="jxr_linenumber" name="L373" href="PerfTestUtils.html#L373">373</a>         }
+<a class="jxr_linenumber" name="L374" href="PerfTestUtils.html#L374">374</a> 
+<a class="jxr_linenumber" name="L375" href="PerfTestUtils.html#L375">375</a>         <strong class="jxr_keyword">final</strong> StringBuilder s = <strong class="jxr_keyword">new</strong> StringBuilder();
+<a class="jxr_linenumber" name="L376" href="PerfTestUtils.html#L376">376</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; last; i++) {
+<a class="jxr_linenumber" name="L377" href="PerfTestUtils.html#L377">377</a>             s.append(comp[i].substring(0, 1)).append(<span class="jxr_string">"."</span>);
+<a class="jxr_linenumber" name="L378" href="PerfTestUtils.html#L378">378</a>         }
+<a class="jxr_linenumber" name="L379" href="PerfTestUtils.html#L379">379</a>         s.append(comp[last]);
+<a class="jxr_linenumber" name="L380" href="PerfTestUtils.html#L380">380</a> 
+<a class="jxr_linenumber" name="L381" href="PerfTestUtils.html#L381">381</a>         <strong class="jxr_keyword">return</strong> s.toString();
+<a class="jxr_linenumber" name="L382" href="PerfTestUtils.html#L382">382</a>     }
+<a class="jxr_linenumber" name="L383" href="PerfTestUtils.html#L383">383</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

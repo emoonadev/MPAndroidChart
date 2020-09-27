@@ -1,0 +1,338 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>FastHadamardTransformer xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/transform/FastHadamardTransformer.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="FastHadamardTransformer.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="FastHadamardTransformer.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="FastHadamardTransformer.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="FastHadamardTransformer.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="FastHadamardTransformer.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="FastHadamardTransformer.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="FastHadamardTransformer.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="FastHadamardTransformer.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="FastHadamardTransformer.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="FastHadamardTransformer.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="FastHadamardTransformer.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="FastHadamardTransformer.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="FastHadamardTransformer.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="FastHadamardTransformer.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="FastHadamardTransformer.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="FastHadamardTransformer.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="FastHadamardTransformer.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.transform;
+<a class="jxr_linenumber" name="L18" href="FastHadamardTransformer.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="FastHadamardTransformer.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.io.Serializable;
+<a class="jxr_linenumber" name="L20" href="FastHadamardTransformer.html#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="FastHadamardTransformer.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.FunctionUtils;
+<a class="jxr_linenumber" name="L22" href="FastHadamardTransformer.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.UnivariateFunction;
+<a class="jxr_linenumber" name="L23" href="FastHadamardTransformer.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L24" href="FastHadamardTransformer.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L25" href="FastHadamardTransformer.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.ArithmeticUtils;
+<a class="jxr_linenumber" name="L26" href="FastHadamardTransformer.html#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="FastHadamardTransformer.html#L27">27</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L28" href="FastHadamardTransformer.html#L28">28</a>  <em class="jxr_javadoccomment"> * Implements the &lt;a href="<a href="http://www.archive.chipcenter.com/dsp/DSP000517F1.html" target="alexandria_uri">http://www.archive.chipcenter.com/dsp/DSP000517F1.html</a>"&gt;Fast Hadamard Transform&lt;/a&gt; (FHT).</em>
+<a class="jxr_linenumber" name="L29" href="FastHadamardTransformer.html#L29">29</a>  <em class="jxr_javadoccomment"> * Transformation of an input vector x to the output vector y.</em>
+<a class="jxr_linenumber" name="L30" href="FastHadamardTransformer.html#L30">30</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L31" href="FastHadamardTransformer.html#L31">31</a>  <em class="jxr_javadoccomment"> * In addition to transformation of real vectors, the Hadamard transform can</em>
+<a class="jxr_linenumber" name="L32" href="FastHadamardTransformer.html#L32">32</a>  <em class="jxr_javadoccomment"> * transform integer vectors into integer vectors. However, this integer transform</em>
+<a class="jxr_linenumber" name="L33" href="FastHadamardTransformer.html#L33">33</a>  <em class="jxr_javadoccomment"> * cannot be inverted directly. Due to a scaling factor it may lead to rational results.</em>
+<a class="jxr_linenumber" name="L34" href="FastHadamardTransformer.html#L34">34</a>  <em class="jxr_javadoccomment"> * As an example, the inverse transform of integer vector (0, 1, 0, 1) is rational</em>
+<a class="jxr_linenumber" name="L35" href="FastHadamardTransformer.html#L35">35</a>  <em class="jxr_javadoccomment"> * vector (1/2, -1/2, 0, 0).</em>
+<a class="jxr_linenumber" name="L36" href="FastHadamardTransformer.html#L36">36</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L37" href="FastHadamardTransformer.html#L37">37</a>  <em class="jxr_javadoccomment"> * @since 2.0</em>
+<a class="jxr_linenumber" name="L38" href="FastHadamardTransformer.html#L38">38</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L39" href="FastHadamardTransformer.html#L39">39</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="FastHadamardTransformer.html">FastHadamardTransformer</a> <strong class="jxr_keyword">implements</strong> RealTransformer, Serializable {
+<a class="jxr_linenumber" name="L40" href="FastHadamardTransformer.html#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="FastHadamardTransformer.html#L41">41</a>      <em class="jxr_javadoccomment">/** Serializable version identifier. */</em>
+<a class="jxr_linenumber" name="L42" href="FastHadamardTransformer.html#L42">42</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20120211L;
+<a class="jxr_linenumber" name="L43" href="FastHadamardTransformer.html#L43">43</a>  
+<a class="jxr_linenumber" name="L44" href="FastHadamardTransformer.html#L44">44</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L45" href="FastHadamardTransformer.html#L45">45</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L46" href="FastHadamardTransformer.html#L46">46</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L47" href="FastHadamardTransformer.html#L47">47</a>  <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the length of the data array is</em>
+<a class="jxr_linenumber" name="L48" href="FastHadamardTransformer.html#L48">48</a>  <em class="jxr_javadoccomment">     * not a power of two</em>
+<a class="jxr_linenumber" name="L49" href="FastHadamardTransformer.html#L49">49</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L50" href="FastHadamardTransformer.html#L50">50</a>      @Override
+<a class="jxr_linenumber" name="L51" href="FastHadamardTransformer.html#L51">51</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] transform(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] f, <strong class="jxr_keyword">final</strong> <a href="TransformType.html">TransformType</a> type) {
+<a class="jxr_linenumber" name="L52" href="FastHadamardTransformer.html#L52">52</a>          <strong class="jxr_keyword">if</strong> (type == TransformType.FORWARD) {
+<a class="jxr_linenumber" name="L53" href="FastHadamardTransformer.html#L53">53</a>              <strong class="jxr_keyword">return</strong> fht(f);
+<a class="jxr_linenumber" name="L54" href="FastHadamardTransformer.html#L54">54</a>          }
+<a class="jxr_linenumber" name="L55" href="FastHadamardTransformer.html#L55">55</a>          <strong class="jxr_keyword">return</strong> TransformUtils.scaleArray(fht(f), 1.0 / f.length);
+<a class="jxr_linenumber" name="L56" href="FastHadamardTransformer.html#L56">56</a>      }
+<a class="jxr_linenumber" name="L57" href="FastHadamardTransformer.html#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="FastHadamardTransformer.html#L58">58</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L59" href="FastHadamardTransformer.html#L59">59</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L60" href="FastHadamardTransformer.html#L60">60</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L61" href="FastHadamardTransformer.html#L61">61</a>  <em class="jxr_javadoccomment">     * @throws org.apache.commons.math4.exception.NonMonotonicSequenceException</em>
+<a class="jxr_linenumber" name="L62" href="FastHadamardTransformer.html#L62">62</a>  <em class="jxr_javadoccomment">     *   if the lower bound is greater than, or equal to the upper bound</em>
+<a class="jxr_linenumber" name="L63" href="FastHadamardTransformer.html#L63">63</a>  <em class="jxr_javadoccomment">     * @throws org.apache.commons.math4.exception.NotStrictlyPositiveException</em>
+<a class="jxr_linenumber" name="L64" href="FastHadamardTransformer.html#L64">64</a>  <em class="jxr_javadoccomment">     *   if the number of sample points is negative</em>
+<a class="jxr_linenumber" name="L65" href="FastHadamardTransformer.html#L65">65</a>  <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the number of sample points is not a power of two</em>
+<a class="jxr_linenumber" name="L66" href="FastHadamardTransformer.html#L66">66</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L67" href="FastHadamardTransformer.html#L67">67</a>      @Override
+<a class="jxr_linenumber" name="L68" href="FastHadamardTransformer.html#L68">68</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] transform(<strong class="jxr_keyword">final</strong> <a href="../analysis/UnivariateFunction.html">UnivariateFunction</a> f,
+<a class="jxr_linenumber" name="L69" href="FastHadamardTransformer.html#L69">69</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> min, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> max, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n,
+<a class="jxr_linenumber" name="L70" href="FastHadamardTransformer.html#L70">70</a>          <strong class="jxr_keyword">final</strong> <a href="TransformType.html">TransformType</a> type) {
+<a class="jxr_linenumber" name="L71" href="FastHadamardTransformer.html#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="FastHadamardTransformer.html#L72">72</a>          <strong class="jxr_keyword">return</strong> transform(FunctionUtils.sample(f, min, max, n), type);
+<a class="jxr_linenumber" name="L73" href="FastHadamardTransformer.html#L73">73</a>      }
+<a class="jxr_linenumber" name="L74" href="FastHadamardTransformer.html#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="FastHadamardTransformer.html#L75">75</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L76" href="FastHadamardTransformer.html#L76">76</a>  <em class="jxr_javadoccomment">     * Returns the forward transform of the specified integer data set.The</em>
+<a class="jxr_linenumber" name="L77" href="FastHadamardTransformer.html#L77">77</a>  <em class="jxr_javadoccomment">     * integer transform cannot be inverted directly, due to a scaling factor</em>
+<a class="jxr_linenumber" name="L78" href="FastHadamardTransformer.html#L78">78</a>  <em class="jxr_javadoccomment">     * which may lead to double results.</em>
+<a class="jxr_linenumber" name="L79" href="FastHadamardTransformer.html#L79">79</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L80" href="FastHadamardTransformer.html#L80">80</a>  <em class="jxr_javadoccomment">     * @param f the integer data array to be transformed (signal)</em>
+<a class="jxr_linenumber" name="L81" href="FastHadamardTransformer.html#L81">81</a>  <em class="jxr_javadoccomment">     * @return the integer transformed array (spectrum)</em>
+<a class="jxr_linenumber" name="L82" href="FastHadamardTransformer.html#L82">82</a>  <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the length of the data array is not a power of two</em>
+<a class="jxr_linenumber" name="L83" href="FastHadamardTransformer.html#L83">83</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L84" href="FastHadamardTransformer.html#L84">84</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong>[] transform(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] f) {
+<a class="jxr_linenumber" name="L85" href="FastHadamardTransformer.html#L85">85</a>          <strong class="jxr_keyword">return</strong> fht(f);
+<a class="jxr_linenumber" name="L86" href="FastHadamardTransformer.html#L86">86</a>      }
+<a class="jxr_linenumber" name="L87" href="FastHadamardTransformer.html#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="FastHadamardTransformer.html#L88">88</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L89" href="FastHadamardTransformer.html#L89">89</a>  <em class="jxr_javadoccomment">     * The FHT (Fast Hadamard Transformation) which uses only subtraction and</em>
+<a class="jxr_linenumber" name="L90" href="FastHadamardTransformer.html#L90">90</a>  <em class="jxr_javadoccomment">     * addition. Requires {@code N * log2(N) = n * 2^n} additions.</em>
+<a class="jxr_linenumber" name="L91" href="FastHadamardTransformer.html#L91">91</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L92" href="FastHadamardTransformer.html#L92">92</a>  <em class="jxr_javadoccomment">     * &lt;h3&gt;Short Table of manual calculation for N=8&lt;/h3&gt;</em>
+<a class="jxr_linenumber" name="L93" href="FastHadamardTransformer.html#L93">93</a>  <em class="jxr_javadoccomment">     * &lt;ol&gt;</em>
+<a class="jxr_linenumber" name="L94" href="FastHadamardTransformer.html#L94">94</a>  <em class="jxr_javadoccomment">     * &lt;li&gt;&lt;b&gt;x&lt;/b&gt; is the input vector to be transformed,&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L95" href="FastHadamardTransformer.html#L95">95</a>  <em class="jxr_javadoccomment">     * &lt;li&gt;&lt;b&gt;y&lt;/b&gt; is the output vector (Fast Hadamard transform of &lt;b&gt;x&lt;/b&gt;),&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L96" href="FastHadamardTransformer.html#L96">96</a>  <em class="jxr_javadoccomment">     * &lt;li&gt;a and b are helper rows.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L97" href="FastHadamardTransformer.html#L97">97</a>  <em class="jxr_javadoccomment">     * &lt;/ol&gt;</em>
+<a class="jxr_linenumber" name="L98" href="FastHadamardTransformer.html#L98">98</a>  <em class="jxr_javadoccomment">     * &lt;table align="center" border="1" cellpadding="3"&gt;</em>
+<a class="jxr_linenumber" name="L99" href="FastHadamardTransformer.html#L99">99</a>  <em class="jxr_javadoccomment">     * &lt;tbody align="center"&gt;</em>
+<a class="jxr_linenumber" name="L100" href="FastHadamardTransformer.html#L100">100</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L101" href="FastHadamardTransformer.html#L101">101</a> <em class="jxr_javadoccomment">     *     &lt;th&gt;x&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L102" href="FastHadamardTransformer.html#L102">102</a> <em class="jxr_javadoccomment">     *     &lt;th&gt;a&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L103" href="FastHadamardTransformer.html#L103">103</a> <em class="jxr_javadoccomment">     *     &lt;th&gt;b&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L104" href="FastHadamardTransformer.html#L104">104</a> <em class="jxr_javadoccomment">     *     &lt;th&gt;y&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L105" href="FastHadamardTransformer.html#L105">105</a> <em class="jxr_javadoccomment">     * &lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L106" href="FastHadamardTransformer.html#L106">106</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L107" href="FastHadamardTransformer.html#L107">107</a> <em class="jxr_javadoccomment">     *     &lt;th&gt;x&lt;sub&gt;0&lt;/sub&gt;&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L108" href="FastHadamardTransformer.html#L108">108</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;a&lt;sub&gt;0&lt;/sub&gt; = x&lt;sub&gt;0&lt;/sub&gt; + x&lt;sub&gt;1&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L109" href="FastHadamardTransformer.html#L109">109</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;b&lt;sub&gt;0&lt;/sub&gt; = a&lt;sub&gt;0&lt;/sub&gt; + a&lt;sub&gt;1&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L110" href="FastHadamardTransformer.html#L110">110</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;y&lt;sub&gt;0&lt;/sub&gt; = b&lt;sub&gt;0&lt;/sub &gt;+ b&lt;sub&gt;1&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L111" href="FastHadamardTransformer.html#L111">111</a> <em class="jxr_javadoccomment">     * &lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L112" href="FastHadamardTransformer.html#L112">112</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L113" href="FastHadamardTransformer.html#L113">113</a> <em class="jxr_javadoccomment">     *     &lt;th&gt;x&lt;sub&gt;1&lt;/sub&gt;&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L114" href="FastHadamardTransformer.html#L114">114</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;a&lt;sub&gt;1&lt;/sub&gt; = x&lt;sub&gt;2&lt;/sub&gt; + x&lt;sub&gt;3&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L115" href="FastHadamardTransformer.html#L115">115</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;b&lt;sub&gt;0&lt;/sub&gt; = a&lt;sub&gt;2&lt;/sub&gt; + a&lt;sub&gt;3&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L116" href="FastHadamardTransformer.html#L116">116</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;y&lt;sub&gt;0&lt;/sub&gt; = b&lt;sub&gt;2&lt;/sub&gt; + b&lt;sub&gt;3&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L117" href="FastHadamardTransformer.html#L117">117</a> <em class="jxr_javadoccomment">     * &lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L118" href="FastHadamardTransformer.html#L118">118</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L119" href="FastHadamardTransformer.html#L119">119</a> <em class="jxr_javadoccomment">     *     &lt;th&gt;x&lt;sub&gt;2&lt;/sub&gt;&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L120" href="FastHadamardTransformer.html#L120">120</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;a&lt;sub&gt;2&lt;/sub&gt; = x&lt;sub&gt;4&lt;/sub&gt; + x&lt;sub&gt;5&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L121" href="FastHadamardTransformer.html#L121">121</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;b&lt;sub&gt;0&lt;/sub&gt; = a&lt;sub&gt;4&lt;/sub&gt; + a&lt;sub&gt;5&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L122" href="FastHadamardTransformer.html#L122">122</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;y&lt;sub&gt;0&lt;/sub&gt; = b&lt;sub&gt;4&lt;/sub&gt; + b&lt;sub&gt;5&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L123" href="FastHadamardTransformer.html#L123">123</a> <em class="jxr_javadoccomment">     * &lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L124" href="FastHadamardTransformer.html#L124">124</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L125" href="FastHadamardTransformer.html#L125">125</a> <em class="jxr_javadoccomment">     *     &lt;th&gt;x&lt;sub&gt;3&lt;/sub&gt;&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L126" href="FastHadamardTransformer.html#L126">126</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;a&lt;sub&gt;3&lt;/sub&gt; = x&lt;sub&gt;6&lt;/sub&gt; + x&lt;sub&gt;7&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L127" href="FastHadamardTransformer.html#L127">127</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;b&lt;sub&gt;0&lt;/sub&gt; = a&lt;sub&gt;6&lt;/sub&gt; + a&lt;sub&gt;7&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L128" href="FastHadamardTransformer.html#L128">128</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;y&lt;sub&gt;0&lt;/sub&gt; = b&lt;sub&gt;6&lt;/sub&gt; + b&lt;sub&gt;7&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L129" href="FastHadamardTransformer.html#L129">129</a> <em class="jxr_javadoccomment">     * &lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L130" href="FastHadamardTransformer.html#L130">130</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L131" href="FastHadamardTransformer.html#L131">131</a> <em class="jxr_javadoccomment">     *     &lt;th&gt;x&lt;sub&gt;4&lt;/sub&gt;&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L132" href="FastHadamardTransformer.html#L132">132</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;a&lt;sub&gt;0&lt;/sub&gt; = x&lt;sub&gt;0&lt;/sub&gt; - x&lt;sub&gt;1&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L133" href="FastHadamardTransformer.html#L133">133</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;b&lt;sub&gt;0&lt;/sub&gt; = a&lt;sub&gt;0&lt;/sub&gt; - a&lt;sub&gt;1&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L134" href="FastHadamardTransformer.html#L134">134</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;y&lt;sub&gt;0&lt;/sub&gt; = b&lt;sub&gt;0&lt;/sub&gt; - b&lt;sub&gt;1&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L135" href="FastHadamardTransformer.html#L135">135</a> <em class="jxr_javadoccomment">     * &lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L136" href="FastHadamardTransformer.html#L136">136</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L137" href="FastHadamardTransformer.html#L137">137</a> <em class="jxr_javadoccomment">     *     &lt;th&gt;x&lt;sub&gt;5&lt;/sub&gt;&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L138" href="FastHadamardTransformer.html#L138">138</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;a&lt;sub&gt;1&lt;/sub&gt; = x&lt;sub&gt;2&lt;/sub&gt; - x&lt;sub&gt;3&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L139" href="FastHadamardTransformer.html#L139">139</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;b&lt;sub&gt;0&lt;/sub&gt; = a&lt;sub&gt;2&lt;/sub&gt; - a&lt;sub&gt;3&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L140" href="FastHadamardTransformer.html#L140">140</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;y&lt;sub&gt;0&lt;/sub&gt; = b&lt;sub&gt;2&lt;/sub&gt; - b&lt;sub&gt;3&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L141" href="FastHadamardTransformer.html#L141">141</a> <em class="jxr_javadoccomment">     * &lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L142" href="FastHadamardTransformer.html#L142">142</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L143" href="FastHadamardTransformer.html#L143">143</a> <em class="jxr_javadoccomment">     *     &lt;th&gt;x&lt;sub&gt;6&lt;/sub&gt;&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L144" href="FastHadamardTransformer.html#L144">144</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;a&lt;sub&gt;2&lt;/sub&gt; = x&lt;sub&gt;4&lt;/sub&gt; - x&lt;sub&gt;5&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L145" href="FastHadamardTransformer.html#L145">145</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;b&lt;sub&gt;0&lt;/sub&gt; = a&lt;sub&gt;4&lt;/sub&gt; - a&lt;sub&gt;5&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L146" href="FastHadamardTransformer.html#L146">146</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;y&lt;sub&gt;0&lt;/sub&gt; = b&lt;sub&gt;4&lt;/sub&gt; - b&lt;sub&gt;5&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L147" href="FastHadamardTransformer.html#L147">147</a> <em class="jxr_javadoccomment">     * &lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L148" href="FastHadamardTransformer.html#L148">148</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L149" href="FastHadamardTransformer.html#L149">149</a> <em class="jxr_javadoccomment">     *     &lt;th&gt;x&lt;sub&gt;7&lt;/sub&gt;&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L150" href="FastHadamardTransformer.html#L150">150</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;a&lt;sub&gt;3&lt;/sub&gt; = x&lt;sub&gt;6&lt;/sub&gt; - x&lt;sub&gt;7&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L151" href="FastHadamardTransformer.html#L151">151</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;b&lt;sub&gt;0&lt;/sub&gt; = a&lt;sub&gt;6&lt;/sub&gt; - a&lt;sub&gt;7&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L152" href="FastHadamardTransformer.html#L152">152</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;y&lt;sub&gt;0&lt;/sub&gt; = b&lt;sub&gt;6&lt;/sub&gt; - b&lt;sub&gt;7&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L153" href="FastHadamardTransformer.html#L153">153</a> <em class="jxr_javadoccomment">     * &lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L154" href="FastHadamardTransformer.html#L154">154</a> <em class="jxr_javadoccomment">     * &lt;/tbody&gt;</em>
+<a class="jxr_linenumber" name="L155" href="FastHadamardTransformer.html#L155">155</a> <em class="jxr_javadoccomment">     * &lt;/table&gt;</em>
+<a class="jxr_linenumber" name="L156" href="FastHadamardTransformer.html#L156">156</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L157" href="FastHadamardTransformer.html#L157">157</a> <em class="jxr_javadoccomment">     * &lt;h3&gt;How it works&lt;/h3&gt;</em>
+<a class="jxr_linenumber" name="L158" href="FastHadamardTransformer.html#L158">158</a> <em class="jxr_javadoccomment">     * &lt;ol&gt;</em>
+<a class="jxr_linenumber" name="L159" href="FastHadamardTransformer.html#L159">159</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Construct a matrix with {@code N} rows and {@code n + 1} columns,</em>
+<a class="jxr_linenumber" name="L160" href="FastHadamardTransformer.html#L160">160</a> <em class="jxr_javadoccomment">     * {@code hadm[n+1][N]}.&lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L161" href="FastHadamardTransformer.html#L161">161</a> <em class="jxr_javadoccomment">     * &lt;em&gt;(If I use [x][y] it always means [row-offset][column-offset] of a</em>
+<a class="jxr_linenumber" name="L162" href="FastHadamardTransformer.html#L162">162</a> <em class="jxr_javadoccomment">     * Matrix with n rows and m columns. Its entries go from M[0][0]</em>
+<a class="jxr_linenumber" name="L163" href="FastHadamardTransformer.html#L163">163</a> <em class="jxr_javadoccomment">     * to M[n][N])&lt;/em&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L164" href="FastHadamardTransformer.html#L164">164</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Place the input vector {@code x[N]} in the first column of the</em>
+<a class="jxr_linenumber" name="L165" href="FastHadamardTransformer.html#L165">165</a> <em class="jxr_javadoccomment">     * matrix {@code hadm}.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L166" href="FastHadamardTransformer.html#L166">166</a> <em class="jxr_javadoccomment">     * &lt;li&gt;The entries of the submatrix {@code D_top} are calculated as follows</em>
+<a class="jxr_linenumber" name="L167" href="FastHadamardTransformer.html#L167">167</a> <em class="jxr_javadoccomment">     *     &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L168" href="FastHadamardTransformer.html#L168">168</a> <em class="jxr_javadoccomment">     *         &lt;li&gt;{@code D_top} goes from entry {@code [0][1]} to</em>
+<a class="jxr_linenumber" name="L169" href="FastHadamardTransformer.html#L169">169</a> <em class="jxr_javadoccomment">     *         {@code [N / 2 - 1][n + 1]},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L170" href="FastHadamardTransformer.html#L170">170</a> <em class="jxr_javadoccomment">     *         &lt;li&gt;the columns of {@code D_top} are the pairwise mutually</em>
+<a class="jxr_linenumber" name="L171" href="FastHadamardTransformer.html#L171">171</a> <em class="jxr_javadoccomment">     *         exclusive sums of the previous column.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L172" href="FastHadamardTransformer.html#L172">172</a> <em class="jxr_javadoccomment">     *     &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L173" href="FastHadamardTransformer.html#L173">173</a> <em class="jxr_javadoccomment">     * &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L174" href="FastHadamardTransformer.html#L174">174</a> <em class="jxr_javadoccomment">     * &lt;li&gt;The entries of the submatrix {@code D_bottom} are calculated as</em>
+<a class="jxr_linenumber" name="L175" href="FastHadamardTransformer.html#L175">175</a> <em class="jxr_javadoccomment">     * follows</em>
+<a class="jxr_linenumber" name="L176" href="FastHadamardTransformer.html#L176">176</a> <em class="jxr_javadoccomment">     *     &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L177" href="FastHadamardTransformer.html#L177">177</a> <em class="jxr_javadoccomment">     *         &lt;li&gt;{@code D_bottom} goes from entry {@code [N / 2][1]} to</em>
+<a class="jxr_linenumber" name="L178" href="FastHadamardTransformer.html#L178">178</a> <em class="jxr_javadoccomment">     *         {@code [N][n + 1]},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L179" href="FastHadamardTransformer.html#L179">179</a> <em class="jxr_javadoccomment">     *         &lt;li&gt;the columns of {@code D_bottom} are the pairwise differences</em>
+<a class="jxr_linenumber" name="L180" href="FastHadamardTransformer.html#L180">180</a> <em class="jxr_javadoccomment">     *         of the previous column.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L181" href="FastHadamardTransformer.html#L181">181</a> <em class="jxr_javadoccomment">     *     &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L182" href="FastHadamardTransformer.html#L182">182</a> <em class="jxr_javadoccomment">     * &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L183" href="FastHadamardTransformer.html#L183">183</a> <em class="jxr_javadoccomment">     * &lt;li&gt;The consputation of {@code D_top} and {@code D_bottom} are best</em>
+<a class="jxr_linenumber" name="L184" href="FastHadamardTransformer.html#L184">184</a> <em class="jxr_javadoccomment">     * understood with the above example (for {@code N = 8}).</em>
+<a class="jxr_linenumber" name="L185" href="FastHadamardTransformer.html#L185">185</a> <em class="jxr_javadoccomment">     * &lt;li&gt;The output vector {@code y} is now in the last column of</em>
+<a class="jxr_linenumber" name="L186" href="FastHadamardTransformer.html#L186">186</a> <em class="jxr_javadoccomment">     * {@code hadm}.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L187" href="FastHadamardTransformer.html#L187">187</a> <em class="jxr_javadoccomment">     * &lt;li&gt;&lt;em&gt;Algorithm from &lt;a href="<a href="http://www.archive.chipcenter.com/dsp/DSP000517F1.html" target="alexandria_uri">http://www.archive.chipcenter.com/dsp/DSP000517F1.html</a>"&gt;chipcenter&lt;/a&gt;.&lt;/em&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L188" href="FastHadamardTransformer.html#L188">188</a> <em class="jxr_javadoccomment">     * &lt;/ol&gt;</em>
+<a class="jxr_linenumber" name="L189" href="FastHadamardTransformer.html#L189">189</a> <em class="jxr_javadoccomment">     * &lt;h3&gt;Visually&lt;/h3&gt;</em>
+<a class="jxr_linenumber" name="L190" href="FastHadamardTransformer.html#L190">190</a> <em class="jxr_javadoccomment">     * &lt;table border="1" align="center" cellpadding="3"&gt;</em>
+<a class="jxr_linenumber" name="L191" href="FastHadamardTransformer.html#L191">191</a> <em class="jxr_javadoccomment">     * &lt;tbody align="center"&gt;</em>
+<a class="jxr_linenumber" name="L192" href="FastHadamardTransformer.html#L192">192</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L193" href="FastHadamardTransformer.html#L193">193</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;&lt;/td&gt;&lt;th&gt;0&lt;/th&gt;&lt;th&gt;1&lt;/th&gt;&lt;th&gt;2&lt;/th&gt;&lt;th&gt;3&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L194" href="FastHadamardTransformer.html#L194">194</a> <em class="jxr_javadoccomment">     *     &lt;th&gt;&amp;hellip;&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L195" href="FastHadamardTransformer.html#L195">195</a> <em class="jxr_javadoccomment">     *     &lt;th&gt;n + 1&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L196" href="FastHadamardTransformer.html#L196">196</a> <em class="jxr_javadoccomment">     * &lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L197" href="FastHadamardTransformer.html#L197">197</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L198" href="FastHadamardTransformer.html#L198">198</a> <em class="jxr_javadoccomment">     *     &lt;th&gt;0&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L199" href="FastHadamardTransformer.html#L199">199</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;x&lt;sub&gt;0&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L200" href="FastHadamardTransformer.html#L200">200</a> <em class="jxr_javadoccomment">     *     &lt;td colspan="5" rowspan="5" align="center" valign="middle"&gt;</em>
+<a class="jxr_linenumber" name="L201" href="FastHadamardTransformer.html#L201">201</a> <em class="jxr_javadoccomment">     *         &amp;uarr;&lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L202" href="FastHadamardTransformer.html#L202">202</a> <em class="jxr_javadoccomment">     *         &amp;larr; D&lt;sub&gt;top&lt;/sub&gt; &amp;rarr;&lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L203" href="FastHadamardTransformer.html#L203">203</a> <em class="jxr_javadoccomment">     *         &amp;darr;</em>
+<a class="jxr_linenumber" name="L204" href="FastHadamardTransformer.html#L204">204</a> <em class="jxr_javadoccomment">     *     &lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L205" href="FastHadamardTransformer.html#L205">205</a> <em class="jxr_javadoccomment">     * &lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L206" href="FastHadamardTransformer.html#L206">206</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;&lt;th&gt;1&lt;/th&gt;&lt;td&gt;x&lt;sub&gt;1&lt;/sub&gt;&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L207" href="FastHadamardTransformer.html#L207">207</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;&lt;th&gt;2&lt;/th&gt;&lt;td&gt;x&lt;sub&gt;2&lt;/sub&gt;&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L208" href="FastHadamardTransformer.html#L208">208</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;&lt;th&gt;&amp;hellip;&lt;/th&gt;&lt;td&gt;&amp;hellip;&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L209" href="FastHadamardTransformer.html#L209">209</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;&lt;th&gt;N / 2 - 1&lt;/th&gt;&lt;td&gt;x&lt;sub&gt;N/2-1&lt;/sub&gt;&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L210" href="FastHadamardTransformer.html#L210">210</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L211" href="FastHadamardTransformer.html#L211">211</a> <em class="jxr_javadoccomment">     *     &lt;th&gt;N / 2&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L212" href="FastHadamardTransformer.html#L212">212</a> <em class="jxr_javadoccomment">     *     &lt;td&gt;x&lt;sub&gt;N/2&lt;/sub&gt;&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L213" href="FastHadamardTransformer.html#L213">213</a> <em class="jxr_javadoccomment">     *     &lt;td colspan="5" rowspan="5" align="center" valign="middle"&gt;</em>
+<a class="jxr_linenumber" name="L214" href="FastHadamardTransformer.html#L214">214</a> <em class="jxr_javadoccomment">     *         &amp;uarr;&lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L215" href="FastHadamardTransformer.html#L215">215</a> <em class="jxr_javadoccomment">     *         &amp;larr; D&lt;sub&gt;bottom&lt;/sub&gt; &amp;rarr;&lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L216" href="FastHadamardTransformer.html#L216">216</a> <em class="jxr_javadoccomment">     *         &amp;darr;</em>
+<a class="jxr_linenumber" name="L217" href="FastHadamardTransformer.html#L217">217</a> <em class="jxr_javadoccomment">     *     &lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L218" href="FastHadamardTransformer.html#L218">218</a> <em class="jxr_javadoccomment">     * &lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L219" href="FastHadamardTransformer.html#L219">219</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;&lt;th&gt;N / 2 + 1&lt;/th&gt;&lt;td&gt;x&lt;sub&gt;N/2+1&lt;/sub&gt;&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L220" href="FastHadamardTransformer.html#L220">220</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;&lt;th&gt;N / 2 + 2&lt;/th&gt;&lt;td&gt;x&lt;sub&gt;N/2+2&lt;/sub&gt;&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L221" href="FastHadamardTransformer.html#L221">221</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;&lt;th&gt;&amp;hellip;&lt;/th&gt;&lt;td&gt;&amp;hellip;&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L222" href="FastHadamardTransformer.html#L222">222</a> <em class="jxr_javadoccomment">     * &lt;tr&gt;&lt;th&gt;N&lt;/th&gt;&lt;td&gt;x&lt;sub&gt;N&lt;/sub&gt;&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L223" href="FastHadamardTransformer.html#L223">223</a> <em class="jxr_javadoccomment">     * &lt;/tbody&gt;</em>
+<a class="jxr_linenumber" name="L224" href="FastHadamardTransformer.html#L224">224</a> <em class="jxr_javadoccomment">     * &lt;/table&gt;</em>
+<a class="jxr_linenumber" name="L225" href="FastHadamardTransformer.html#L225">225</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L226" href="FastHadamardTransformer.html#L226">226</a> <em class="jxr_javadoccomment">     * @param x the real data array to be transformed</em>
+<a class="jxr_linenumber" name="L227" href="FastHadamardTransformer.html#L227">227</a> <em class="jxr_javadoccomment">     * @return the real transformed array, {@code y}</em>
+<a class="jxr_linenumber" name="L228" href="FastHadamardTransformer.html#L228">228</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the length of the data array is not a power of two</em>
+<a class="jxr_linenumber" name="L229" href="FastHadamardTransformer.html#L229">229</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L230" href="FastHadamardTransformer.html#L230">230</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong>[] fht(<strong class="jxr_keyword">double</strong>[] x) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L231" href="FastHadamardTransformer.html#L231">231</a> 
+<a class="jxr_linenumber" name="L232" href="FastHadamardTransformer.html#L232">232</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n     = x.length;
+<a class="jxr_linenumber" name="L233" href="FastHadamardTransformer.html#L233">233</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> halfN = n / 2;
+<a class="jxr_linenumber" name="L234" href="FastHadamardTransformer.html#L234">234</a> 
+<a class="jxr_linenumber" name="L235" href="FastHadamardTransformer.html#L235">235</a>         <strong class="jxr_keyword">if</strong> (!ArithmeticUtils.isPowerOfTwo(n)) {
+<a class="jxr_linenumber" name="L236" href="FastHadamardTransformer.html#L236">236</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(
+<a class="jxr_linenumber" name="L237" href="FastHadamardTransformer.html#L237">237</a>                     LocalizedFormats.NOT_POWER_OF_TWO,
+<a class="jxr_linenumber" name="L238" href="FastHadamardTransformer.html#L238">238</a>                     Integer.valueOf(n));
+<a class="jxr_linenumber" name="L239" href="FastHadamardTransformer.html#L239">239</a>         }
+<a class="jxr_linenumber" name="L240" href="FastHadamardTransformer.html#L240">240</a> 
+<a class="jxr_linenumber" name="L241" href="FastHadamardTransformer.html#L241">241</a>         <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L242" href="FastHadamardTransformer.html#L242">242</a> <em class="jxr_comment">         * Instead of creating a matrix with p+1 columns and n rows, we use two</em>
+<a class="jxr_linenumber" name="L243" href="FastHadamardTransformer.html#L243">243</a> <em class="jxr_comment">         * one dimension arrays which we are used in an alternating way.</em>
+<a class="jxr_linenumber" name="L244" href="FastHadamardTransformer.html#L244">244</a> <em class="jxr_comment">         */</em>
+<a class="jxr_linenumber" name="L245" href="FastHadamardTransformer.html#L245">245</a>         <strong class="jxr_keyword">double</strong>[] yPrevious = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n];
+<a class="jxr_linenumber" name="L246" href="FastHadamardTransformer.html#L246">246</a>         <strong class="jxr_keyword">double</strong>[] yCurrent  = x.clone();
+<a class="jxr_linenumber" name="L247" href="FastHadamardTransformer.html#L247">247</a> 
+<a class="jxr_linenumber" name="L248" href="FastHadamardTransformer.html#L248">248</a>         <em class="jxr_comment">// iterate from left to right (column)</em>
+<a class="jxr_linenumber" name="L249" href="FastHadamardTransformer.html#L249">249</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 1; j &lt; n; j &lt;&lt;= 1) {
+<a class="jxr_linenumber" name="L250" href="FastHadamardTransformer.html#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="FastHadamardTransformer.html#L251">251</a>             <em class="jxr_comment">// switch columns</em>
+<a class="jxr_linenumber" name="L252" href="FastHadamardTransformer.html#L252">252</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yTmp = yCurrent;
+<a class="jxr_linenumber" name="L253" href="FastHadamardTransformer.html#L253">253</a>             yCurrent  = yPrevious;
+<a class="jxr_linenumber" name="L254" href="FastHadamardTransformer.html#L254">254</a>             yPrevious = yTmp;
+<a class="jxr_linenumber" name="L255" href="FastHadamardTransformer.html#L255">255</a> 
+<a class="jxr_linenumber" name="L256" href="FastHadamardTransformer.html#L256">256</a>             <em class="jxr_comment">// iterate from top to bottom (row)</em>
+<a class="jxr_linenumber" name="L257" href="FastHadamardTransformer.html#L257">257</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; halfN; ++i) {
+<a class="jxr_linenumber" name="L258" href="FastHadamardTransformer.html#L258">258</a>                 <em class="jxr_comment">// Dtop: the top part works with addition</em>
+<a class="jxr_linenumber" name="L259" href="FastHadamardTransformer.html#L259">259</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> twoI = 2 * i;
+<a class="jxr_linenumber" name="L260" href="FastHadamardTransformer.html#L260">260</a>                 yCurrent[i] = yPrevious[twoI] + yPrevious[twoI + 1];
+<a class="jxr_linenumber" name="L261" href="FastHadamardTransformer.html#L261">261</a>             }
+<a class="jxr_linenumber" name="L262" href="FastHadamardTransformer.html#L262">262</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = halfN; i &lt; n; ++i) {
+<a class="jxr_linenumber" name="L263" href="FastHadamardTransformer.html#L263">263</a>                 <em class="jxr_comment">// Dbottom: the bottom part works with subtraction</em>
+<a class="jxr_linenumber" name="L264" href="FastHadamardTransformer.html#L264">264</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> twoI = 2 * i;
+<a class="jxr_linenumber" name="L265" href="FastHadamardTransformer.html#L265">265</a>                 yCurrent[i] = yPrevious[twoI - n] - yPrevious[twoI - n + 1];
+<a class="jxr_linenumber" name="L266" href="FastHadamardTransformer.html#L266">266</a>             }
+<a class="jxr_linenumber" name="L267" href="FastHadamardTransformer.html#L267">267</a>         }
+<a class="jxr_linenumber" name="L268" href="FastHadamardTransformer.html#L268">268</a> 
+<a class="jxr_linenumber" name="L269" href="FastHadamardTransformer.html#L269">269</a>         <strong class="jxr_keyword">return</strong> yCurrent;
+<a class="jxr_linenumber" name="L270" href="FastHadamardTransformer.html#L270">270</a> 
+<a class="jxr_linenumber" name="L271" href="FastHadamardTransformer.html#L271">271</a>     }
+<a class="jxr_linenumber" name="L272" href="FastHadamardTransformer.html#L272">272</a> 
+<a class="jxr_linenumber" name="L273" href="FastHadamardTransformer.html#L273">273</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L274" href="FastHadamardTransformer.html#L274">274</a> <em class="jxr_javadoccomment">     * Returns the forward transform of the specified integer data set. The FHT</em>
+<a class="jxr_linenumber" name="L275" href="FastHadamardTransformer.html#L275">275</a> <em class="jxr_javadoccomment">     * (Fast Hadamard Transform) uses only subtraction and addition.</em>
+<a class="jxr_linenumber" name="L276" href="FastHadamardTransformer.html#L276">276</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L277" href="FastHadamardTransformer.html#L277">277</a> <em class="jxr_javadoccomment">     * @param x the integer data array to be transformed</em>
+<a class="jxr_linenumber" name="L278" href="FastHadamardTransformer.html#L278">278</a> <em class="jxr_javadoccomment">     * @return the integer transformed array, {@code y}</em>
+<a class="jxr_linenumber" name="L279" href="FastHadamardTransformer.html#L279">279</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the length of the data array is not a power of two</em>
+<a class="jxr_linenumber" name="L280" href="FastHadamardTransformer.html#L280">280</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L281" href="FastHadamardTransformer.html#L281">281</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">int</strong>[] fht(<strong class="jxr_keyword">int</strong>[] x) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L282" href="FastHadamardTransformer.html#L282">282</a> 
+<a class="jxr_linenumber" name="L283" href="FastHadamardTransformer.html#L283">283</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n     = x.length;
+<a class="jxr_linenumber" name="L284" href="FastHadamardTransformer.html#L284">284</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> halfN = n / 2;
+<a class="jxr_linenumber" name="L285" href="FastHadamardTransformer.html#L285">285</a> 
+<a class="jxr_linenumber" name="L286" href="FastHadamardTransformer.html#L286">286</a>         <strong class="jxr_keyword">if</strong> (!ArithmeticUtils.isPowerOfTwo(n)) {
+<a class="jxr_linenumber" name="L287" href="FastHadamardTransformer.html#L287">287</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(
+<a class="jxr_linenumber" name="L288" href="FastHadamardTransformer.html#L288">288</a>                     LocalizedFormats.NOT_POWER_OF_TWO,
+<a class="jxr_linenumber" name="L289" href="FastHadamardTransformer.html#L289">289</a>                     Integer.valueOf(n));
+<a class="jxr_linenumber" name="L290" href="FastHadamardTransformer.html#L290">290</a>         }
+<a class="jxr_linenumber" name="L291" href="FastHadamardTransformer.html#L291">291</a> 
+<a class="jxr_linenumber" name="L292" href="FastHadamardTransformer.html#L292">292</a>         <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L293" href="FastHadamardTransformer.html#L293">293</a> <em class="jxr_comment">         * Instead of creating a matrix with p+1 columns and n rows, we use two</em>
+<a class="jxr_linenumber" name="L294" href="FastHadamardTransformer.html#L294">294</a> <em class="jxr_comment">         * one dimension arrays which we are used in an alternating way.</em>
+<a class="jxr_linenumber" name="L295" href="FastHadamardTransformer.html#L295">295</a> <em class="jxr_comment">         */</em>
+<a class="jxr_linenumber" name="L296" href="FastHadamardTransformer.html#L296">296</a>         <strong class="jxr_keyword">int</strong>[] yPrevious = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[n];
+<a class="jxr_linenumber" name="L297" href="FastHadamardTransformer.html#L297">297</a>         <strong class="jxr_keyword">int</strong>[] yCurrent  = x.clone();
+<a class="jxr_linenumber" name="L298" href="FastHadamardTransformer.html#L298">298</a> 
+<a class="jxr_linenumber" name="L299" href="FastHadamardTransformer.html#L299">299</a>         <em class="jxr_comment">// iterate from left to right (column)</em>
+<a class="jxr_linenumber" name="L300" href="FastHadamardTransformer.html#L300">300</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 1; j &lt; n; j &lt;&lt;= 1) {
+<a class="jxr_linenumber" name="L301" href="FastHadamardTransformer.html#L301">301</a> 
+<a class="jxr_linenumber" name="L302" href="FastHadamardTransformer.html#L302">302</a>             <em class="jxr_comment">// switch columns</em>
+<a class="jxr_linenumber" name="L303" href="FastHadamardTransformer.html#L303">303</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] yTmp = yCurrent;
+<a class="jxr_linenumber" name="L304" href="FastHadamardTransformer.html#L304">304</a>             yCurrent  = yPrevious;
+<a class="jxr_linenumber" name="L305" href="FastHadamardTransformer.html#L305">305</a>             yPrevious = yTmp;
+<a class="jxr_linenumber" name="L306" href="FastHadamardTransformer.html#L306">306</a> 
+<a class="jxr_linenumber" name="L307" href="FastHadamardTransformer.html#L307">307</a>             <em class="jxr_comment">// iterate from top to bottom (row)</em>
+<a class="jxr_linenumber" name="L308" href="FastHadamardTransformer.html#L308">308</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; halfN; ++i) {
+<a class="jxr_linenumber" name="L309" href="FastHadamardTransformer.html#L309">309</a>                 <em class="jxr_comment">// Dtop: the top part works with addition</em>
+<a class="jxr_linenumber" name="L310" href="FastHadamardTransformer.html#L310">310</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> twoI = 2 * i;
+<a class="jxr_linenumber" name="L311" href="FastHadamardTransformer.html#L311">311</a>                 yCurrent[i] = yPrevious[twoI] + yPrevious[twoI + 1];
+<a class="jxr_linenumber" name="L312" href="FastHadamardTransformer.html#L312">312</a>             }
+<a class="jxr_linenumber" name="L313" href="FastHadamardTransformer.html#L313">313</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = halfN; i &lt; n; ++i) {
+<a class="jxr_linenumber" name="L314" href="FastHadamardTransformer.html#L314">314</a>                 <em class="jxr_comment">// Dbottom: the bottom part works with subtraction</em>
+<a class="jxr_linenumber" name="L315" href="FastHadamardTransformer.html#L315">315</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> twoI = 2 * i;
+<a class="jxr_linenumber" name="L316" href="FastHadamardTransformer.html#L316">316</a>                 yCurrent[i] = yPrevious[twoI - n] - yPrevious[twoI - n + 1];
+<a class="jxr_linenumber" name="L317" href="FastHadamardTransformer.html#L317">317</a>             }
+<a class="jxr_linenumber" name="L318" href="FastHadamardTransformer.html#L318">318</a>         }
+<a class="jxr_linenumber" name="L319" href="FastHadamardTransformer.html#L319">319</a> 
+<a class="jxr_linenumber" name="L320" href="FastHadamardTransformer.html#L320">320</a>         <em class="jxr_comment">// return the last computed output vector y</em>
+<a class="jxr_linenumber" name="L321" href="FastHadamardTransformer.html#L321">321</a>         <strong class="jxr_keyword">return</strong> yCurrent;
+<a class="jxr_linenumber" name="L322" href="FastHadamardTransformer.html#L322">322</a> 
+<a class="jxr_linenumber" name="L323" href="FastHadamardTransformer.html#L323">323</a>     }
+<a class="jxr_linenumber" name="L324" href="FastHadamardTransformer.html#L324">324</a> 
+<a class="jxr_linenumber" name="L325" href="FastHadamardTransformer.html#L325">325</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

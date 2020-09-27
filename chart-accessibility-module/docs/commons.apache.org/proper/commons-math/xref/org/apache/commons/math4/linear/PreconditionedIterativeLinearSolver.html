@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>PreconditionedIterativeLinearSolver xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/linear/PreconditionedIterativeLinearSolver.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="PreconditionedIterativeLinearSolver.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="PreconditionedIterativeLinearSolver.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="PreconditionedIterativeLinearSolver.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="PreconditionedIterativeLinearSolver.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="PreconditionedIterativeLinearSolver.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="PreconditionedIterativeLinearSolver.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="PreconditionedIterativeLinearSolver.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="PreconditionedIterativeLinearSolver.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="PreconditionedIterativeLinearSolver.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="PreconditionedIterativeLinearSolver.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="PreconditionedIterativeLinearSolver.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="PreconditionedIterativeLinearSolver.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="PreconditionedIterativeLinearSolver.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="PreconditionedIterativeLinearSolver.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="PreconditionedIterativeLinearSolver.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="PreconditionedIterativeLinearSolver.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="PreconditionedIterativeLinearSolver.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.linear;
+<a class="jxr_linenumber" name="L18" href="PreconditionedIterativeLinearSolver.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="PreconditionedIterativeLinearSolver.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L20" href="PreconditionedIterativeLinearSolver.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MaxCountExceededException;
+<a class="jxr_linenumber" name="L21" href="PreconditionedIterativeLinearSolver.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NullArgumentException;
+<a class="jxr_linenumber" name="L22" href="PreconditionedIterativeLinearSolver.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.IterationManager;
+<a class="jxr_linenumber" name="L23" href="PreconditionedIterativeLinearSolver.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathUtils;
+<a class="jxr_linenumber" name="L24" href="PreconditionedIterativeLinearSolver.html#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="PreconditionedIterativeLinearSolver.html#L25">25</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L26" href="PreconditionedIterativeLinearSolver.html#L26">26</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L27" href="PreconditionedIterativeLinearSolver.html#L27">27</a>  <em class="jxr_javadoccomment"> * This abstract class defines preconditioned iterative solvers. When A is</em>
+<a class="jxr_linenumber" name="L28" href="PreconditionedIterativeLinearSolver.html#L28">28</a>  <em class="jxr_javadoccomment"> * ill-conditioned, instead of solving system A &amp;middot; x = b directly, it is</em>
+<a class="jxr_linenumber" name="L29" href="PreconditionedIterativeLinearSolver.html#L29">29</a>  <em class="jxr_javadoccomment"> * preferable to solve either</em>
+<a class="jxr_linenumber" name="L30" href="PreconditionedIterativeLinearSolver.html#L30">30</a>  <em class="jxr_javadoccomment"> * &lt;center&gt;</em>
+<a class="jxr_linenumber" name="L31" href="PreconditionedIterativeLinearSolver.html#L31">31</a>  <em class="jxr_javadoccomment"> * (M &amp;middot; A) &amp;middot; x = M &amp;middot; b</em>
+<a class="jxr_linenumber" name="L32" href="PreconditionedIterativeLinearSolver.html#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;/center&gt;</em>
+<a class="jxr_linenumber" name="L33" href="PreconditionedIterativeLinearSolver.html#L33">33</a>  <em class="jxr_javadoccomment"> * (left preconditioning), or</em>
+<a class="jxr_linenumber" name="L34" href="PreconditionedIterativeLinearSolver.html#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;center&gt;</em>
+<a class="jxr_linenumber" name="L35" href="PreconditionedIterativeLinearSolver.html#L35">35</a>  <em class="jxr_javadoccomment"> * (A &amp;middot; M) &amp;middot; y = b, &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;followed by</em>
+<a class="jxr_linenumber" name="L36" href="PreconditionedIterativeLinearSolver.html#L36">36</a>  <em class="jxr_javadoccomment"> * M &amp;middot; y = x</em>
+<a class="jxr_linenumber" name="L37" href="PreconditionedIterativeLinearSolver.html#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;/center&gt;</em>
+<a class="jxr_linenumber" name="L38" href="PreconditionedIterativeLinearSolver.html#L38">38</a>  <em class="jxr_javadoccomment"> * (right preconditioning), where M approximates in some way A&lt;sup&gt;-1&lt;/sup&gt;,</em>
+<a class="jxr_linenumber" name="L39" href="PreconditionedIterativeLinearSolver.html#L39">39</a>  <em class="jxr_javadoccomment"> * while matrix-vector products of the type M &amp;middot; y remain comparatively</em>
+<a class="jxr_linenumber" name="L40" href="PreconditionedIterativeLinearSolver.html#L40">40</a>  <em class="jxr_javadoccomment"> * easy to compute. In this library, M (not M&lt;sup&gt;-1&lt;/sup&gt;!) is called the</em>
+<a class="jxr_linenumber" name="L41" href="PreconditionedIterativeLinearSolver.html#L41">41</a>  <em class="jxr_javadoccomment"> * &lt;em&gt;preconditionner&lt;/em&gt;.</em>
+<a class="jxr_linenumber" name="L42" href="PreconditionedIterativeLinearSolver.html#L42">42</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L43" href="PreconditionedIterativeLinearSolver.html#L43">43</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L44" href="PreconditionedIterativeLinearSolver.html#L44">44</a>  <em class="jxr_javadoccomment"> * Concrete implementations of this abstract class must be provided with the</em>
+<a class="jxr_linenumber" name="L45" href="PreconditionedIterativeLinearSolver.html#L45">45</a>  <em class="jxr_javadoccomment"> * preconditioner M, as a {@link RealLinearOperator}.</em>
+<a class="jxr_linenumber" name="L46" href="PreconditionedIterativeLinearSolver.html#L46">46</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L47" href="PreconditionedIterativeLinearSolver.html#L47">47</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L48" href="PreconditionedIterativeLinearSolver.html#L48">48</a>  <em class="jxr_javadoccomment"> * @since 3.0</em>
+<a class="jxr_linenumber" name="L49" href="PreconditionedIterativeLinearSolver.html#L49">49</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L50" href="PreconditionedIterativeLinearSolver.html#L50">50</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="PreconditionedIterativeLinearSolver.html">PreconditionedIterativeLinearSolver</a>
+<a class="jxr_linenumber" name="L51" href="PreconditionedIterativeLinearSolver.html#L51">51</a>      <strong class="jxr_keyword">extends</strong> <a href="IterativeLinearSolver.html">IterativeLinearSolver</a> {
+<a class="jxr_linenumber" name="L52" href="PreconditionedIterativeLinearSolver.html#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="PreconditionedIterativeLinearSolver.html#L53">53</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L54" href="PreconditionedIterativeLinearSolver.html#L54">54</a>  <em class="jxr_javadoccomment">     * Creates a new instance of this class, with default iteration manager.</em>
+<a class="jxr_linenumber" name="L55" href="PreconditionedIterativeLinearSolver.html#L55">55</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L56" href="PreconditionedIterativeLinearSolver.html#L56">56</a>  <em class="jxr_javadoccomment">     * @param maxIterations the maximum number of iterations</em>
+<a class="jxr_linenumber" name="L57" href="PreconditionedIterativeLinearSolver.html#L57">57</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L58" href="PreconditionedIterativeLinearSolver.html#L58">58</a>      <strong class="jxr_keyword">public</strong> <a href="PreconditionedIterativeLinearSolver.html">PreconditionedIterativeLinearSolver</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIterations) {
+<a class="jxr_linenumber" name="L59" href="PreconditionedIterativeLinearSolver.html#L59">59</a>          <strong class="jxr_keyword">super</strong>(maxIterations);
+<a class="jxr_linenumber" name="L60" href="PreconditionedIterativeLinearSolver.html#L60">60</a>      }
+<a class="jxr_linenumber" name="L61" href="PreconditionedIterativeLinearSolver.html#L61">61</a>  
+<a class="jxr_linenumber" name="L62" href="PreconditionedIterativeLinearSolver.html#L62">62</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L63" href="PreconditionedIterativeLinearSolver.html#L63">63</a>  <em class="jxr_javadoccomment">     * Creates a new instance of this class, with custom iteration manager.</em>
+<a class="jxr_linenumber" name="L64" href="PreconditionedIterativeLinearSolver.html#L64">64</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L65" href="PreconditionedIterativeLinearSolver.html#L65">65</a>  <em class="jxr_javadoccomment">     * @param manager the custom iteration manager</em>
+<a class="jxr_linenumber" name="L66" href="PreconditionedIterativeLinearSolver.html#L66">66</a>  <em class="jxr_javadoccomment">     * @throws NullArgumentException if {@code manager} is {@code null}</em>
+<a class="jxr_linenumber" name="L67" href="PreconditionedIterativeLinearSolver.html#L67">67</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L68" href="PreconditionedIterativeLinearSolver.html#L68">68</a>      <strong class="jxr_keyword">public</strong> <a href="PreconditionedIterativeLinearSolver.html">PreconditionedIterativeLinearSolver</a>(<strong class="jxr_keyword">final</strong> <a href="../util/IterationManager.html">IterationManager</a> manager)
+<a class="jxr_linenumber" name="L69" href="PreconditionedIterativeLinearSolver.html#L69">69</a>          <strong class="jxr_keyword">throws</strong> <a href="../exception/NullArgumentException.html">NullArgumentException</a> {
+<a class="jxr_linenumber" name="L70" href="PreconditionedIterativeLinearSolver.html#L70">70</a>          <strong class="jxr_keyword">super</strong>(manager);
+<a class="jxr_linenumber" name="L71" href="PreconditionedIterativeLinearSolver.html#L71">71</a>      }
+<a class="jxr_linenumber" name="L72" href="PreconditionedIterativeLinearSolver.html#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="PreconditionedIterativeLinearSolver.html#L73">73</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L74" href="PreconditionedIterativeLinearSolver.html#L74">74</a>  <em class="jxr_javadoccomment">     * Returns an estimate of the solution to the linear system A &amp;middot; x =</em>
+<a class="jxr_linenumber" name="L75" href="PreconditionedIterativeLinearSolver.html#L75">75</a>  <em class="jxr_javadoccomment">     * b.</em>
+<a class="jxr_linenumber" name="L76" href="PreconditionedIterativeLinearSolver.html#L76">76</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L77" href="PreconditionedIterativeLinearSolver.html#L77">77</a>  <em class="jxr_javadoccomment">     * @param a the linear operator A of the system</em>
+<a class="jxr_linenumber" name="L78" href="PreconditionedIterativeLinearSolver.html#L78">78</a>  <em class="jxr_javadoccomment">     * @param m the preconditioner, M (can be {@code null})</em>
+<a class="jxr_linenumber" name="L79" href="PreconditionedIterativeLinearSolver.html#L79">79</a>  <em class="jxr_javadoccomment">     * @param b the right-hand side vector</em>
+<a class="jxr_linenumber" name="L80" href="PreconditionedIterativeLinearSolver.html#L80">80</a>  <em class="jxr_javadoccomment">     * @param x0 the initial guess of the solution</em>
+<a class="jxr_linenumber" name="L81" href="PreconditionedIterativeLinearSolver.html#L81">81</a>  <em class="jxr_javadoccomment">     * @return a new vector containing the solution</em>
+<a class="jxr_linenumber" name="L82" href="PreconditionedIterativeLinearSolver.html#L82">82</a>  <em class="jxr_javadoccomment">     * @throws NullArgumentException if one of the parameters is {@code null}</em>
+<a class="jxr_linenumber" name="L83" href="PreconditionedIterativeLinearSolver.html#L83">83</a>  <em class="jxr_javadoccomment">     * @throws NonSquareOperatorException if {@code a} or {@code m} is not</em>
+<a class="jxr_linenumber" name="L84" href="PreconditionedIterativeLinearSolver.html#L84">84</a>  <em class="jxr_javadoccomment">     * square</em>
+<a class="jxr_linenumber" name="L85" href="PreconditionedIterativeLinearSolver.html#L85">85</a>  <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if {@code m}, {@code b} or</em>
+<a class="jxr_linenumber" name="L86" href="PreconditionedIterativeLinearSolver.html#L86">86</a>  <em class="jxr_javadoccomment">     * {@code x0} have dimensions inconsistent with {@code a}</em>
+<a class="jxr_linenumber" name="L87" href="PreconditionedIterativeLinearSolver.html#L87">87</a>  <em class="jxr_javadoccomment">     * @throws MaxCountExceededException at exhaustion of the iteration count,</em>
+<a class="jxr_linenumber" name="L88" href="PreconditionedIterativeLinearSolver.html#L88">88</a>  <em class="jxr_javadoccomment">     * unless a custom</em>
+<a class="jxr_linenumber" name="L89" href="PreconditionedIterativeLinearSolver.html#L89">89</a>  <em class="jxr_javadoccomment">     * {@link org.apache.commons.math4.util.Incrementor.MaxCountExceededCallback callback}</em>
+<a class="jxr_linenumber" name="L90" href="PreconditionedIterativeLinearSolver.html#L90">90</a>  <em class="jxr_javadoccomment">     * has been set at construction of the {@link IterationManager}</em>
+<a class="jxr_linenumber" name="L91" href="PreconditionedIterativeLinearSolver.html#L91">91</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L92" href="PreconditionedIterativeLinearSolver.html#L92">92</a>      <strong class="jxr_keyword">public</strong> <a href="RealVector.html">RealVector</a> solve(<strong class="jxr_keyword">final</strong> <a href="RealLinearOperator.html">RealLinearOperator</a> a,
+<a class="jxr_linenumber" name="L93" href="PreconditionedIterativeLinearSolver.html#L93">93</a>          <strong class="jxr_keyword">final</strong> <a href="RealLinearOperator.html">RealLinearOperator</a> m, <strong class="jxr_keyword">final</strong> <a href="RealVector.html">RealVector</a> b, <strong class="jxr_keyword">final</strong> <a href="RealVector.html">RealVector</a> x0)
+<a class="jxr_linenumber" name="L94" href="PreconditionedIterativeLinearSolver.html#L94">94</a>          <strong class="jxr_keyword">throws</strong> NullArgumentException, NonSquareOperatorException,
+<a class="jxr_linenumber" name="L95" href="PreconditionedIterativeLinearSolver.html#L95">95</a>          DimensionMismatchException, <a href="../exception/MaxCountExceededException.html">MaxCountExceededException</a> {
+<a class="jxr_linenumber" name="L96" href="PreconditionedIterativeLinearSolver.html#L96">96</a>          MathUtils.checkNotNull(x0);
+<a class="jxr_linenumber" name="L97" href="PreconditionedIterativeLinearSolver.html#L97">97</a>          <strong class="jxr_keyword">return</strong> solveInPlace(a, m, b, x0.copy());
+<a class="jxr_linenumber" name="L98" href="PreconditionedIterativeLinearSolver.html#L98">98</a>      }
+<a class="jxr_linenumber" name="L99" href="PreconditionedIterativeLinearSolver.html#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="PreconditionedIterativeLinearSolver.html#L100">100</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L101" href="PreconditionedIterativeLinearSolver.html#L101">101</a>     @Override
+<a class="jxr_linenumber" name="L102" href="PreconditionedIterativeLinearSolver.html#L102">102</a>     <strong class="jxr_keyword">public</strong> <a href="RealVector.html">RealVector</a> solve(<strong class="jxr_keyword">final</strong> <a href="RealLinearOperator.html">RealLinearOperator</a> a, <strong class="jxr_keyword">final</strong> <a href="RealVector.html">RealVector</a> b)
+<a class="jxr_linenumber" name="L103" href="PreconditionedIterativeLinearSolver.html#L103">103</a>         <strong class="jxr_keyword">throws</strong> NullArgumentException, NonSquareOperatorException,
+<a class="jxr_linenumber" name="L104" href="PreconditionedIterativeLinearSolver.html#L104">104</a>         DimensionMismatchException, <a href="../exception/MaxCountExceededException.html">MaxCountExceededException</a> {
+<a class="jxr_linenumber" name="L105" href="PreconditionedIterativeLinearSolver.html#L105">105</a>         MathUtils.checkNotNull(a);
+<a class="jxr_linenumber" name="L106" href="PreconditionedIterativeLinearSolver.html#L106">106</a>         <strong class="jxr_keyword">final</strong> <a href="RealVector.html">RealVector</a> x = <strong class="jxr_keyword">new</strong> <a href="ArrayRealVector.html">ArrayRealVector</a>(a.getColumnDimension());
+<a class="jxr_linenumber" name="L107" href="PreconditionedIterativeLinearSolver.html#L107">107</a>         x.set(0.);
+<a class="jxr_linenumber" name="L108" href="PreconditionedIterativeLinearSolver.html#L108">108</a>         <strong class="jxr_keyword">return</strong> solveInPlace(a, <strong class="jxr_keyword">null</strong>, b, x);
+<a class="jxr_linenumber" name="L109" href="PreconditionedIterativeLinearSolver.html#L109">109</a>     }
+<a class="jxr_linenumber" name="L110" href="PreconditionedIterativeLinearSolver.html#L110">110</a> 
+<a class="jxr_linenumber" name="L111" href="PreconditionedIterativeLinearSolver.html#L111">111</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L112" href="PreconditionedIterativeLinearSolver.html#L112">112</a>     @Override
+<a class="jxr_linenumber" name="L113" href="PreconditionedIterativeLinearSolver.html#L113">113</a>     <strong class="jxr_keyword">public</strong> <a href="RealVector.html">RealVector</a> solve(<strong class="jxr_keyword">final</strong> <a href="RealLinearOperator.html">RealLinearOperator</a> a, <strong class="jxr_keyword">final</strong> <a href="RealVector.html">RealVector</a> b,
+<a class="jxr_linenumber" name="L114" href="PreconditionedIterativeLinearSolver.html#L114">114</a>                             <strong class="jxr_keyword">final</strong> <a href="RealVector.html">RealVector</a> x0)
+<a class="jxr_linenumber" name="L115" href="PreconditionedIterativeLinearSolver.html#L115">115</a>         <strong class="jxr_keyword">throws</strong> NullArgumentException, NonSquareOperatorException,
+<a class="jxr_linenumber" name="L116" href="PreconditionedIterativeLinearSolver.html#L116">116</a>         DimensionMismatchException, <a href="../exception/MaxCountExceededException.html">MaxCountExceededException</a> {
+<a class="jxr_linenumber" name="L117" href="PreconditionedIterativeLinearSolver.html#L117">117</a>         MathUtils.checkNotNull(x0);
+<a class="jxr_linenumber" name="L118" href="PreconditionedIterativeLinearSolver.html#L118">118</a>         <strong class="jxr_keyword">return</strong> solveInPlace(a, <strong class="jxr_keyword">null</strong>, b, x0.copy());
+<a class="jxr_linenumber" name="L119" href="PreconditionedIterativeLinearSolver.html#L119">119</a>     }
+<a class="jxr_linenumber" name="L120" href="PreconditionedIterativeLinearSolver.html#L120">120</a> 
+<a class="jxr_linenumber" name="L121" href="PreconditionedIterativeLinearSolver.html#L121">121</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L122" href="PreconditionedIterativeLinearSolver.html#L122">122</a> <em class="jxr_javadoccomment">     * Performs all dimension checks on the parameters of</em>
+<a class="jxr_linenumber" name="L123" href="PreconditionedIterativeLinearSolver.html#L123">123</a> <em class="jxr_javadoccomment">     * {@link #solve(RealLinearOperator, RealLinearOperator, RealVector, RealVector) solve}</em>
+<a class="jxr_linenumber" name="L124" href="PreconditionedIterativeLinearSolver.html#L124">124</a> <em class="jxr_javadoccomment">     * and</em>
+<a class="jxr_linenumber" name="L125" href="PreconditionedIterativeLinearSolver.html#L125">125</a> <em class="jxr_javadoccomment">     * {@link #solveInPlace(RealLinearOperator, RealLinearOperator, RealVector, RealVector) solveInPlace},</em>
+<a class="jxr_linenumber" name="L126" href="PreconditionedIterativeLinearSolver.html#L126">126</a> <em class="jxr_javadoccomment">     * and throws an exception if one of the checks fails.</em>
+<a class="jxr_linenumber" name="L127" href="PreconditionedIterativeLinearSolver.html#L127">127</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L128" href="PreconditionedIterativeLinearSolver.html#L128">128</a> <em class="jxr_javadoccomment">     * @param a the linear operator A of the system</em>
+<a class="jxr_linenumber" name="L129" href="PreconditionedIterativeLinearSolver.html#L129">129</a> <em class="jxr_javadoccomment">     * @param m the preconditioner, M (can be {@code null})</em>
+<a class="jxr_linenumber" name="L130" href="PreconditionedIterativeLinearSolver.html#L130">130</a> <em class="jxr_javadoccomment">     * @param b the right-hand side vector</em>
+<a class="jxr_linenumber" name="L131" href="PreconditionedIterativeLinearSolver.html#L131">131</a> <em class="jxr_javadoccomment">     * @param x0 the initial guess of the solution</em>
+<a class="jxr_linenumber" name="L132" href="PreconditionedIterativeLinearSolver.html#L132">132</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if one of the parameters is {@code null}</em>
+<a class="jxr_linenumber" name="L133" href="PreconditionedIterativeLinearSolver.html#L133">133</a> <em class="jxr_javadoccomment">     * @throws NonSquareOperatorException if {@code a} or {@code m} is not</em>
+<a class="jxr_linenumber" name="L134" href="PreconditionedIterativeLinearSolver.html#L134">134</a> <em class="jxr_javadoccomment">     * square</em>
+<a class="jxr_linenumber" name="L135" href="PreconditionedIterativeLinearSolver.html#L135">135</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if {@code m}, {@code b} or</em>
+<a class="jxr_linenumber" name="L136" href="PreconditionedIterativeLinearSolver.html#L136">136</a> <em class="jxr_javadoccomment">     * {@code x0} have dimensions inconsistent with {@code a}</em>
+<a class="jxr_linenumber" name="L137" href="PreconditionedIterativeLinearSolver.html#L137">137</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L138" href="PreconditionedIterativeLinearSolver.html#L138">138</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> checkParameters(<strong class="jxr_keyword">final</strong> <a href="RealLinearOperator.html">RealLinearOperator</a> a,
+<a class="jxr_linenumber" name="L139" href="PreconditionedIterativeLinearSolver.html#L139">139</a>         <strong class="jxr_keyword">final</strong> <a href="RealLinearOperator.html">RealLinearOperator</a> m, <strong class="jxr_keyword">final</strong> <a href="RealVector.html">RealVector</a> b, <strong class="jxr_keyword">final</strong> <a href="RealVector.html">RealVector</a> x0)
+<a class="jxr_linenumber" name="L140" href="PreconditionedIterativeLinearSolver.html#L140">140</a>         <strong class="jxr_keyword">throws</strong> NullArgumentException, NonSquareOperatorException,
+<a class="jxr_linenumber" name="L141" href="PreconditionedIterativeLinearSolver.html#L141">141</a>         <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a> {
+<a class="jxr_linenumber" name="L142" href="PreconditionedIterativeLinearSolver.html#L142">142</a>         checkParameters(a, b, x0);
+<a class="jxr_linenumber" name="L143" href="PreconditionedIterativeLinearSolver.html#L143">143</a>         <strong class="jxr_keyword">if</strong> (m != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L144" href="PreconditionedIterativeLinearSolver.html#L144">144</a>             <strong class="jxr_keyword">if</strong> (m.getColumnDimension() != m.getRowDimension()) {
+<a class="jxr_linenumber" name="L145" href="PreconditionedIterativeLinearSolver.html#L145">145</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="NonSquareOperatorException.html">NonSquareOperatorException</a>(m.getColumnDimension(),
+<a class="jxr_linenumber" name="L146" href="PreconditionedIterativeLinearSolver.html#L146">146</a>                                                      m.getRowDimension());
+<a class="jxr_linenumber" name="L147" href="PreconditionedIterativeLinearSolver.html#L147">147</a>             }
+<a class="jxr_linenumber" name="L148" href="PreconditionedIterativeLinearSolver.html#L148">148</a>             <strong class="jxr_keyword">if</strong> (m.getRowDimension() != a.getRowDimension()) {
+<a class="jxr_linenumber" name="L149" href="PreconditionedIterativeLinearSolver.html#L149">149</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a>(m.getRowDimension(),
+<a class="jxr_linenumber" name="L150" href="PreconditionedIterativeLinearSolver.html#L150">150</a>                                                      a.getRowDimension());
+<a class="jxr_linenumber" name="L151" href="PreconditionedIterativeLinearSolver.html#L151">151</a>             }
+<a class="jxr_linenumber" name="L152" href="PreconditionedIterativeLinearSolver.html#L152">152</a>         }
+<a class="jxr_linenumber" name="L153" href="PreconditionedIterativeLinearSolver.html#L153">153</a>     }
+<a class="jxr_linenumber" name="L154" href="PreconditionedIterativeLinearSolver.html#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="PreconditionedIterativeLinearSolver.html#L155">155</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L156" href="PreconditionedIterativeLinearSolver.html#L156">156</a> <em class="jxr_javadoccomment">     * Returns an estimate of the solution to the linear system A &amp;middot; x =</em>
+<a class="jxr_linenumber" name="L157" href="PreconditionedIterativeLinearSolver.html#L157">157</a> <em class="jxr_javadoccomment">     * b.</em>
+<a class="jxr_linenumber" name="L158" href="PreconditionedIterativeLinearSolver.html#L158">158</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L159" href="PreconditionedIterativeLinearSolver.html#L159">159</a> <em class="jxr_javadoccomment">     * @param a the linear operator A of the system</em>
+<a class="jxr_linenumber" name="L160" href="PreconditionedIterativeLinearSolver.html#L160">160</a> <em class="jxr_javadoccomment">     * @param m the preconditioner, M (can be {@code null})</em>
+<a class="jxr_linenumber" name="L161" href="PreconditionedIterativeLinearSolver.html#L161">161</a> <em class="jxr_javadoccomment">     * @param b the right-hand side vector</em>
+<a class="jxr_linenumber" name="L162" href="PreconditionedIterativeLinearSolver.html#L162">162</a> <em class="jxr_javadoccomment">     * @return a new vector containing the solution</em>
+<a class="jxr_linenumber" name="L163" href="PreconditionedIterativeLinearSolver.html#L163">163</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if one of the parameters is {@code null}</em>
+<a class="jxr_linenumber" name="L164" href="PreconditionedIterativeLinearSolver.html#L164">164</a> <em class="jxr_javadoccomment">     * @throws NonSquareOperatorException if {@code a} or {@code m} is not</em>
+<a class="jxr_linenumber" name="L165" href="PreconditionedIterativeLinearSolver.html#L165">165</a> <em class="jxr_javadoccomment">     * square</em>
+<a class="jxr_linenumber" name="L166" href="PreconditionedIterativeLinearSolver.html#L166">166</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if {@code m} or {@code b} have</em>
+<a class="jxr_linenumber" name="L167" href="PreconditionedIterativeLinearSolver.html#L167">167</a> <em class="jxr_javadoccomment">     * dimensions inconsistent with {@code a}</em>
+<a class="jxr_linenumber" name="L168" href="PreconditionedIterativeLinearSolver.html#L168">168</a> <em class="jxr_javadoccomment">     * @throws MaxCountExceededException at exhaustion of the iteration count,</em>
+<a class="jxr_linenumber" name="L169" href="PreconditionedIterativeLinearSolver.html#L169">169</a> <em class="jxr_javadoccomment">     * unless a custom</em>
+<a class="jxr_linenumber" name="L170" href="PreconditionedIterativeLinearSolver.html#L170">170</a> <em class="jxr_javadoccomment">     * {@link org.apache.commons.math4.util.Incrementor.MaxCountExceededCallback callback}</em>
+<a class="jxr_linenumber" name="L171" href="PreconditionedIterativeLinearSolver.html#L171">171</a> <em class="jxr_javadoccomment">     * has been set at construction of the {@link IterationManager}</em>
+<a class="jxr_linenumber" name="L172" href="PreconditionedIterativeLinearSolver.html#L172">172</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L173" href="PreconditionedIterativeLinearSolver.html#L173">173</a>     <strong class="jxr_keyword">public</strong> <a href="RealVector.html">RealVector</a> solve(<a href="RealLinearOperator.html">RealLinearOperator</a> a, <a href="RealLinearOperator.html">RealLinearOperator</a> m,
+<a class="jxr_linenumber" name="L174" href="PreconditionedIterativeLinearSolver.html#L174">174</a>         <a href="RealVector.html">RealVector</a> b) <strong class="jxr_keyword">throws</strong> NullArgumentException, NonSquareOperatorException,
+<a class="jxr_linenumber" name="L175" href="PreconditionedIterativeLinearSolver.html#L175">175</a>         DimensionMismatchException, <a href="../exception/MaxCountExceededException.html">MaxCountExceededException</a> {
+<a class="jxr_linenumber" name="L176" href="PreconditionedIterativeLinearSolver.html#L176">176</a>         MathUtils.checkNotNull(a);
+<a class="jxr_linenumber" name="L177" href="PreconditionedIterativeLinearSolver.html#L177">177</a>         <strong class="jxr_keyword">final</strong> <a href="RealVector.html">RealVector</a> x = <strong class="jxr_keyword">new</strong> <a href="ArrayRealVector.html">ArrayRealVector</a>(a.getColumnDimension());
+<a class="jxr_linenumber" name="L178" href="PreconditionedIterativeLinearSolver.html#L178">178</a>         <strong class="jxr_keyword">return</strong> solveInPlace(a, m, b, x);
+<a class="jxr_linenumber" name="L179" href="PreconditionedIterativeLinearSolver.html#L179">179</a>     }
+<a class="jxr_linenumber" name="L180" href="PreconditionedIterativeLinearSolver.html#L180">180</a> 
+<a class="jxr_linenumber" name="L181" href="PreconditionedIterativeLinearSolver.html#L181">181</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L182" href="PreconditionedIterativeLinearSolver.html#L182">182</a> <em class="jxr_javadoccomment">     * Returns an estimate of the solution to the linear system A &amp;middot; x =</em>
+<a class="jxr_linenumber" name="L183" href="PreconditionedIterativeLinearSolver.html#L183">183</a> <em class="jxr_javadoccomment">     * b. The solution is computed in-place (initial guess is modified).</em>
+<a class="jxr_linenumber" name="L184" href="PreconditionedIterativeLinearSolver.html#L184">184</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L185" href="PreconditionedIterativeLinearSolver.html#L185">185</a> <em class="jxr_javadoccomment">     * @param a the linear operator A of the system</em>
+<a class="jxr_linenumber" name="L186" href="PreconditionedIterativeLinearSolver.html#L186">186</a> <em class="jxr_javadoccomment">     * @param m the preconditioner, M (can be {@code null})</em>
+<a class="jxr_linenumber" name="L187" href="PreconditionedIterativeLinearSolver.html#L187">187</a> <em class="jxr_javadoccomment">     * @param b the right-hand side vector</em>
+<a class="jxr_linenumber" name="L188" href="PreconditionedIterativeLinearSolver.html#L188">188</a> <em class="jxr_javadoccomment">     * @param x0 the initial guess of the solution</em>
+<a class="jxr_linenumber" name="L189" href="PreconditionedIterativeLinearSolver.html#L189">189</a> <em class="jxr_javadoccomment">     * @return a reference to {@code x0} (shallow copy) updated with the</em>
+<a class="jxr_linenumber" name="L190" href="PreconditionedIterativeLinearSolver.html#L190">190</a> <em class="jxr_javadoccomment">     * solution</em>
+<a class="jxr_linenumber" name="L191" href="PreconditionedIterativeLinearSolver.html#L191">191</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if one of the parameters is {@code null}</em>
+<a class="jxr_linenumber" name="L192" href="PreconditionedIterativeLinearSolver.html#L192">192</a> <em class="jxr_javadoccomment">     * @throws NonSquareOperatorException if {@code a} or {@code m} is not</em>
+<a class="jxr_linenumber" name="L193" href="PreconditionedIterativeLinearSolver.html#L193">193</a> <em class="jxr_javadoccomment">     * square</em>
+<a class="jxr_linenumber" name="L194" href="PreconditionedIterativeLinearSolver.html#L194">194</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if {@code m}, {@code b} or</em>
+<a class="jxr_linenumber" name="L195" href="PreconditionedIterativeLinearSolver.html#L195">195</a> <em class="jxr_javadoccomment">     * {@code x0} have dimensions inconsistent with {@code a}</em>
+<a class="jxr_linenumber" name="L196" href="PreconditionedIterativeLinearSolver.html#L196">196</a> <em class="jxr_javadoccomment">     * @throws MaxCountExceededException at exhaustion of the iteration count,</em>
+<a class="jxr_linenumber" name="L197" href="PreconditionedIterativeLinearSolver.html#L197">197</a> <em class="jxr_javadoccomment">     * unless a custom</em>
+<a class="jxr_linenumber" name="L198" href="PreconditionedIterativeLinearSolver.html#L198">198</a> <em class="jxr_javadoccomment">     * {@link org.apache.commons.math4.util.Incrementor.MaxCountExceededCallback callback}</em>
+<a class="jxr_linenumber" name="L199" href="PreconditionedIterativeLinearSolver.html#L199">199</a> <em class="jxr_javadoccomment">     * has been set at construction of the {@link IterationManager}</em>
+<a class="jxr_linenumber" name="L200" href="PreconditionedIterativeLinearSolver.html#L200">200</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L201" href="PreconditionedIterativeLinearSolver.html#L201">201</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <a href="RealVector.html">RealVector</a> solveInPlace(<a href="RealLinearOperator.html">RealLinearOperator</a> a,
+<a class="jxr_linenumber" name="L202" href="PreconditionedIterativeLinearSolver.html#L202">202</a>         <a href="RealLinearOperator.html">RealLinearOperator</a> m, <a href="RealVector.html">RealVector</a> b, <a href="RealVector.html">RealVector</a> x0) <strong class="jxr_keyword">throws</strong>
+<a class="jxr_linenumber" name="L203" href="PreconditionedIterativeLinearSolver.html#L203">203</a>         NullArgumentException, NonSquareOperatorException,
+<a class="jxr_linenumber" name="L204" href="PreconditionedIterativeLinearSolver.html#L204">204</a>         DimensionMismatchException, MaxCountExceededException;
+<a class="jxr_linenumber" name="L205" href="PreconditionedIterativeLinearSolver.html#L205">205</a> 
+<a class="jxr_linenumber" name="L206" href="PreconditionedIterativeLinearSolver.html#L206">206</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L207" href="PreconditionedIterativeLinearSolver.html#L207">207</a>     @Override
+<a class="jxr_linenumber" name="L208" href="PreconditionedIterativeLinearSolver.html#L208">208</a>     <strong class="jxr_keyword">public</strong> <a href="RealVector.html">RealVector</a> solveInPlace(<strong class="jxr_keyword">final</strong> <a href="RealLinearOperator.html">RealLinearOperator</a> a,
+<a class="jxr_linenumber" name="L209" href="PreconditionedIterativeLinearSolver.html#L209">209</a>         <strong class="jxr_keyword">final</strong> <a href="RealVector.html">RealVector</a> b, <strong class="jxr_keyword">final</strong> <a href="RealVector.html">RealVector</a> x0) <strong class="jxr_keyword">throws</strong>
+<a class="jxr_linenumber" name="L210" href="PreconditionedIterativeLinearSolver.html#L210">210</a>         NullArgumentException, NonSquareOperatorException,
+<a class="jxr_linenumber" name="L211" href="PreconditionedIterativeLinearSolver.html#L211">211</a>         DimensionMismatchException, <a href="../exception/MaxCountExceededException.html">MaxCountExceededException</a> {
+<a class="jxr_linenumber" name="L212" href="PreconditionedIterativeLinearSolver.html#L212">212</a>         <strong class="jxr_keyword">return</strong> solveInPlace(a, <strong class="jxr_keyword">null</strong>, b, x0);
+<a class="jxr_linenumber" name="L213" href="PreconditionedIterativeLinearSolver.html#L213">213</a>     }
+<a class="jxr_linenumber" name="L214" href="PreconditionedIterativeLinearSolver.html#L214">214</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/report.css" type="text/css"/><link rel="shortcut icon" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/report.gif" type="image/gif"/><title>JDKRandomAdaptor.java</title><link rel="stylesheet" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/prettify.css" type="text/css"/><script type="text/javascript" src="https://commons.apache.org/proper/commons-math/jacoco/.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="https://commons.apache.org/proper/commons-math/jacoco/.sessions.html" class="el_session">Sessions</a></span><a href="https://commons.apache.org/proper/commons-math/jacoco/index.html" class="el_report">Apache Commons Math</a> &gt; <a href="https://commons.apache.org/proper/commons-math/jacoco/org.apache.commons.math4.random/index.source.html" class="el_package">org.apache.commons.math4.random</a> &gt; <span class="el_source">JDKRandomAdaptor.java</span></div><h1>JDKRandomAdaptor.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math4.random;
+
+import java.util.Random;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
+import org.apache.commons.math4.exception.MathInternalError;
+import org.apache.commons.math4.exception.MathUnsupportedOperationException;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.math4.distribution.RealDistribution;
+import org.apache.commons.math4.distribution.NormalDistribution;
+
+/**
+ * Extension of {@link java.util.Random} that delegates the number
+ * generation to a {@link UniformRandomProvider}.
+ *
+ * &lt;p&gt;
+ * This class allows usage of JDK utilities that take an instance
+ * of type {@code Random} as argument.
+ * &lt;br&gt;
+ * Other than for this specific purpose, usage of this class
+ * is best avoided; indeed, because of the following limitations:
+ * &lt;ul&gt;
+ *  &lt;li&gt;
+ *   {@code MathUnsupportedOperationException} will be raised if
+ *   serialization is attempted.
+ *  &lt;/li&gt;
+ *  &lt;li&gt;
+ *   Reseeding is not supported.
+ *  &lt;/li&gt;
+ * &lt;/ul&gt;
+ * an instance of this class cannot be a substitute for an instance
+ * of the parent class if those functionalities are required.
+ * &lt;/p&gt;
+ *
+ * @since 4.0
+ */
+public final class JDKRandomAdaptor extends Random {
+    /** Serial version identifier. */
+    private static final long serialVersionUID = 666L;
+    /** Delegate. */
+    private final transient UniformRandomProvider rng;
+    /** Cf. &quot;nextGaussian()&quot; method. */
+    private final transient RealDistribution.Sampler gauss;
+
+    /**
+     * Creates an adaptor.
+     *
+     * @param rng Generator.
+     */
+    public JDKRandomAdaptor(UniformRandomProvider rng) {
+<span class="fc" id="L67">        super(0L);</span>
+
+<span class="fc" id="L69">        this.rng = rng;</span>
+<span class="fc" id="L70">        gauss = new NormalDistribution().createSampler(rng);</span>
+<span class="fc" id="L71">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean nextBoolean() {
+<span class="fc" id="L76">        return rng.nextBoolean();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void nextBytes(byte[] bytes) {
+<span class="fc" id="L82">        rng.nextBytes(bytes);</span>
+<span class="fc" id="L83">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public double nextDouble() {
+<span class="fc" id="L88">        return rng.nextDouble();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public float nextFloat() {
+<span class="fc" id="L94">        return rng.nextFloat();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double nextGaussian() {
+<span class="fc" id="L100">        return gauss.sample();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int nextInt() {
+<span class="fc" id="L106">        return rng.nextInt();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int nextInt(int n) {
+<span class="fc" id="L112">        return rng.nextInt(n);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public long nextLong() {
+<span class="fc" id="L118">        return rng.nextLong();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected int next(int bits) {
+        // Should never happen: it means that some methods were not overridden.
+<span class="nc" id="L125">        throw new MathInternalError();</span>
+    }
+
+    /**
+     * Seeding is not supported.
+     *
+     * @param seed Ignored.
+     */
+    @Override
+    public void setSeed(long seed) {
+        // Cannot throw because the constructor of &quot;Random&quot; calls it.
+        // throw new MathUnsupportedOperationException();
+<span class="fc" id="L137">    }</span>
+
+    /**
+     * @param out Ignored.
+     * @throws IOException Ignored.
+     * @throws MathUnsupportedOperationException if called.
+     */
+    private void writeObject(ObjectOutputStream out)
+        throws IOException {
+<span class="fc" id="L146">        throw new MathUnsupportedOperationException();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/report.css" type="text/css"/><link rel="shortcut icon" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/report.gif" type="image/gif"/><title>LogisticDistribution.java</title><link rel="stylesheet" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/prettify.css" type="text/css"/><script type="text/javascript" src="https://commons.apache.org/proper/commons-math/jacoco/.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="https://commons.apache.org/proper/commons-math/jacoco/.sessions.html" class="el_session">Sessions</a></span><a href="https://commons.apache.org/proper/commons-math/jacoco/index.html" class="el_report">Apache Commons Math</a> &gt; <a href="https://commons.apache.org/proper/commons-math/jacoco/org.apache.commons.math4.distribution/index.source.html" class="el_package">org.apache.commons.math4.distribution</a> &gt; <span class="el_source">LogisticDistribution.java</span></div><h1>LogisticDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math4.distribution;
+
+import org.apache.commons.math4.exception.NotStrictlyPositiveException;
+import org.apache.commons.math4.exception.OutOfRangeException;
+import org.apache.commons.math4.exception.util.LocalizedFormats;
+import org.apache.commons.math4.util.FastMath;
+import org.apache.commons.math4.util.MathUtils;
+
+/**
+ * This class implements the Logistic distribution.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Logistic_distribution&quot;&gt;Logistic Distribution (Wikipedia)&lt;/a&gt;
+ * @see &lt;a href=&quot;http://mathworld.wolfram.com/LogisticDistribution.html&quot;&gt;Logistic Distribution (Mathworld)&lt;/a&gt;
+ *
+ * @since 3.4
+ */
+public class LogisticDistribution extends AbstractRealDistribution {
+
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 20160311L;
+
+    /** The location parameter. */
+    private final double mu;
+    /** The scale parameter. */
+    private final double s;
+
+    /**
+     * Creates a distribution.
+     *
+     * @param mu location parameter
+     * @param s scale parameter (must be positive)
+     * @throws NotStrictlyPositiveException if {@code beta &lt;= 0}
+     */
+    public LogisticDistribution(double mu,
+<span class="fc" id="L51">                                double s) {</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (s &lt;= 0.0) {</span>
+<span class="nc" id="L53">            throw new NotStrictlyPositiveException(LocalizedFormats.NOT_POSITIVE_SCALE, s);</span>
+        }
+
+<span class="fc" id="L56">        this.mu = mu;</span>
+<span class="fc" id="L57">        this.s = s;</span>
+<span class="fc" id="L58">    }</span>
+
+    /**
+     * Access the location parameter, {@code mu}.
+     *
+     * @return the location parameter.
+     */
+    public double getLocation() {
+<span class="fc" id="L66">        return mu;</span>
+    }
+
+    /**
+     * Access the scale parameter, {@code s}.
+     *
+     * @return the scale parameter.
+     */
+    public double getScale() {
+<span class="fc" id="L75">        return s;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double density(double x) {
+<span class="fc" id="L81">        double z = (x - mu) / s;</span>
+<span class="fc" id="L82">        double v = FastMath.exp(-z);</span>
+<span class="fc" id="L83">        return 1 / s * v / ((1.0 + v) * (1.0 + v));</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double cumulativeProbability(double x) {
+<span class="fc" id="L89">        double z = 1 / s * (x - mu);</span>
+<span class="fc" id="L90">        return 1.0 / (1.0 + FastMath.exp(-z));</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double inverseCumulativeProbability(double p) throws OutOfRangeException {
+<span class="fc bfc" id="L96" title="All 4 branches covered.">        if (p &lt; 0.0 || p &gt; 1.0) {</span>
+<span class="fc" id="L97">            throw new OutOfRangeException(p, 0.0, 1.0);</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        } else if (p == 0) {</span>
+<span class="nc" id="L99">            return 0.0;</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        } else if (p == 1) {</span>
+<span class="nc" id="L101">            return Double.POSITIVE_INFINITY;</span>
+        }
+<span class="fc" id="L103">        return s * Math.log(p / (1.0 - p)) + mu;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double getNumericalMean() {
+<span class="nc" id="L109">        return mu;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double getNumericalVariance() {
+<span class="nc" id="L115">        return (MathUtils.PI_SQUARED / 3.0) * (1.0 / (s * s));</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double getSupportLowerBound() {
+<span class="fc" id="L121">        return Double.NEGATIVE_INFINITY;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double getSupportUpperBound() {
+<span class="fc" id="L127">        return Double.POSITIVE_INFINITY;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isSupportConnected() {
+<span class="fc" id="L133">        return true;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

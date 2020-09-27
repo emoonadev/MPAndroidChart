@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>BoundaryProjector xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math4/geometry/partitioning/BoundaryProjector.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="BoundaryProjector.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="BoundaryProjector.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="BoundaryProjector.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="BoundaryProjector.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="BoundaryProjector.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="BoundaryProjector.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="BoundaryProjector.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="BoundaryProjector.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="BoundaryProjector.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="BoundaryProjector.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="BoundaryProjector.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="BoundaryProjector.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="BoundaryProjector.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="BoundaryProjector.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="BoundaryProjector.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="BoundaryProjector.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="BoundaryProjector.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.geometry.partitioning;
+<a class="jxr_linenumber" name="L18" href="BoundaryProjector.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="BoundaryProjector.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L20" href="BoundaryProjector.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L21" href="BoundaryProjector.html#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="BoundaryProjector.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.Point;
+<a class="jxr_linenumber" name="L23" href="BoundaryProjector.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.Space;
+<a class="jxr_linenumber" name="L24" href="BoundaryProjector.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.partitioning.Region.Location;
+<a class="jxr_linenumber" name="L25" href="BoundaryProjector.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L26" href="BoundaryProjector.html#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="BoundaryProjector.html#L27">27</a>  <em class="jxr_javadoccomment">/** Local tree visitor to compute projection on boundary.</em>
+<a class="jxr_linenumber" name="L28" href="BoundaryProjector.html#L28">28</a>  <em class="jxr_javadoccomment"> * @param &lt;S&gt; Type of the space.</em>
+<a class="jxr_linenumber" name="L29" href="BoundaryProjector.html#L29">29</a>  <em class="jxr_javadoccomment"> * @param &lt;T&gt; Type of the sub-space.</em>
+<a class="jxr_linenumber" name="L30" href="BoundaryProjector.html#L30">30</a>  <em class="jxr_javadoccomment"> * @since 3.3</em>
+<a class="jxr_linenumber" name="L31" href="BoundaryProjector.html#L31">31</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L32" href="BoundaryProjector.html#L32">32</a>  <strong class="jxr_keyword">class</strong> BoundaryProjector&lt;S <strong class="jxr_keyword">extends</strong> Space, T <strong class="jxr_keyword">extends</strong> Space&gt; <strong class="jxr_keyword">implements</strong> BSPTreeVisitor&lt;S&gt; {
+<a class="jxr_linenumber" name="L33" href="BoundaryProjector.html#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="BoundaryProjector.html#L34">34</a>      <em class="jxr_javadoccomment">/** Original point. */</em>
+<a class="jxr_linenumber" name="L35" href="BoundaryProjector.html#L35">35</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Point&lt;S&gt; original;
+<a class="jxr_linenumber" name="L36" href="BoundaryProjector.html#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="BoundaryProjector.html#L37">37</a>      <em class="jxr_javadoccomment">/** Current best projected point. */</em>
+<a class="jxr_linenumber" name="L38" href="BoundaryProjector.html#L38">38</a>      <strong class="jxr_keyword">private</strong> Point&lt;S&gt; projected;
+<a class="jxr_linenumber" name="L39" href="BoundaryProjector.html#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="BoundaryProjector.html#L40">40</a>      <em class="jxr_javadoccomment">/** Leaf node closest to the test point. */</em>
+<a class="jxr_linenumber" name="L41" href="BoundaryProjector.html#L41">41</a>      <strong class="jxr_keyword">private</strong> BSPTree&lt;S&gt; leaf;
+<a class="jxr_linenumber" name="L42" href="BoundaryProjector.html#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="BoundaryProjector.html#L43">43</a>      <em class="jxr_javadoccomment">/** Current offset. */</em>
+<a class="jxr_linenumber" name="L44" href="BoundaryProjector.html#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> offset;
+<a class="jxr_linenumber" name="L45" href="BoundaryProjector.html#L45">45</a>  
+<a class="jxr_linenumber" name="L46" href="BoundaryProjector.html#L46">46</a>      <em class="jxr_javadoccomment">/** Simple constructor.</em>
+<a class="jxr_linenumber" name="L47" href="BoundaryProjector.html#L47">47</a>  <em class="jxr_javadoccomment">     * @param original original point</em>
+<a class="jxr_linenumber" name="L48" href="BoundaryProjector.html#L48">48</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L49" href="BoundaryProjector.html#L49">49</a>      <a href="BoundaryProjector.html">BoundaryProjector</a>(<strong class="jxr_keyword">final</strong> Point&lt;S&gt; original) {
+<a class="jxr_linenumber" name="L50" href="BoundaryProjector.html#L50">50</a>          <strong class="jxr_keyword">this</strong>.original  = original;
+<a class="jxr_linenumber" name="L51" href="BoundaryProjector.html#L51">51</a>          <strong class="jxr_keyword">this</strong>.projected = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L52" href="BoundaryProjector.html#L52">52</a>          <strong class="jxr_keyword">this</strong>.leaf      = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L53" href="BoundaryProjector.html#L53">53</a>          <strong class="jxr_keyword">this</strong>.offset    = Double.POSITIVE_INFINITY;
+<a class="jxr_linenumber" name="L54" href="BoundaryProjector.html#L54">54</a>      }
+<a class="jxr_linenumber" name="L55" href="BoundaryProjector.html#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="BoundaryProjector.html#L56">56</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L57" href="BoundaryProjector.html#L57">57</a>      @Override
+<a class="jxr_linenumber" name="L58" href="BoundaryProjector.html#L58">58</a>      <strong class="jxr_keyword">public</strong> <a href="BSPTreeVisitor.html">Order</a> visitOrder(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; node) {
+<a class="jxr_linenumber" name="L59" href="BoundaryProjector.html#L59">59</a>          <em class="jxr_comment">// we want to visit the tree so that the first encountered</em>
+<a class="jxr_linenumber" name="L60" href="BoundaryProjector.html#L60">60</a>          <em class="jxr_comment">// leaf is the one closest to the test point</em>
+<a class="jxr_linenumber" name="L61" href="BoundaryProjector.html#L61">61</a>          <strong class="jxr_keyword">if</strong> (node.getCut().getHyperplane().getOffset(original) &lt;= 0) {
+<a class="jxr_linenumber" name="L62" href="BoundaryProjector.html#L62">62</a>              <strong class="jxr_keyword">return</strong> Order.MINUS_SUB_PLUS;
+<a class="jxr_linenumber" name="L63" href="BoundaryProjector.html#L63">63</a>          } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L64" href="BoundaryProjector.html#L64">64</a>              <strong class="jxr_keyword">return</strong> Order.PLUS_SUB_MINUS;
+<a class="jxr_linenumber" name="L65" href="BoundaryProjector.html#L65">65</a>          }
+<a class="jxr_linenumber" name="L66" href="BoundaryProjector.html#L66">66</a>      }
+<a class="jxr_linenumber" name="L67" href="BoundaryProjector.html#L67">67</a>  
+<a class="jxr_linenumber" name="L68" href="BoundaryProjector.html#L68">68</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L69" href="BoundaryProjector.html#L69">69</a>      @Override
+<a class="jxr_linenumber" name="L70" href="BoundaryProjector.html#L70">70</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> visitInternalNode(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; node) {
+<a class="jxr_linenumber" name="L71" href="BoundaryProjector.html#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="BoundaryProjector.html#L72">72</a>          <em class="jxr_comment">// project the point on the cut sub-hyperplane</em>
+<a class="jxr_linenumber" name="L73" href="BoundaryProjector.html#L73">73</a>          <strong class="jxr_keyword">final</strong> Hyperplane&lt;S&gt; hyperplane = node.getCut().getHyperplane();
+<a class="jxr_linenumber" name="L74" href="BoundaryProjector.html#L74">74</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> signedOffset = hyperplane.getOffset(original);
+<a class="jxr_linenumber" name="L75" href="BoundaryProjector.html#L75">75</a>          <strong class="jxr_keyword">if</strong> (FastMath.abs(signedOffset) &lt; offset) {
+<a class="jxr_linenumber" name="L76" href="BoundaryProjector.html#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="BoundaryProjector.html#L77">77</a>              <em class="jxr_comment">// project point</em>
+<a class="jxr_linenumber" name="L78" href="BoundaryProjector.html#L78">78</a>              <strong class="jxr_keyword">final</strong> Point&lt;S&gt; regular = hyperplane.project(original);
+<a class="jxr_linenumber" name="L79" href="BoundaryProjector.html#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="BoundaryProjector.html#L80">80</a>              <em class="jxr_comment">// get boundary parts</em>
+<a class="jxr_linenumber" name="L81" href="BoundaryProjector.html#L81">81</a>              <strong class="jxr_keyword">final</strong> List&lt;Region&lt;T&gt;&gt; boundaryParts = boundaryRegions(node);
+<a class="jxr_linenumber" name="L82" href="BoundaryProjector.html#L82">82</a>  
+<a class="jxr_linenumber" name="L83" href="BoundaryProjector.html#L83">83</a>              <em class="jxr_comment">// check if regular projection really belongs to the boundary</em>
+<a class="jxr_linenumber" name="L84" href="BoundaryProjector.html#L84">84</a>              <strong class="jxr_keyword">boolean</strong> regularFound = false;
+<a class="jxr_linenumber" name="L85" href="BoundaryProjector.html#L85">85</a>              <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> Region&lt;T&gt; part : boundaryParts) {
+<a class="jxr_linenumber" name="L86" href="BoundaryProjector.html#L86">86</a>                  <strong class="jxr_keyword">if</strong> (!regularFound &amp;&amp; belongsToPart(regular, hyperplane, part)) {
+<a class="jxr_linenumber" name="L87" href="BoundaryProjector.html#L87">87</a>                      <em class="jxr_comment">// the projected point lies in the boundary</em>
+<a class="jxr_linenumber" name="L88" href="BoundaryProjector.html#L88">88</a>                      projected    = regular;
+<a class="jxr_linenumber" name="L89" href="BoundaryProjector.html#L89">89</a>                      offset       = FastMath.abs(signedOffset);
+<a class="jxr_linenumber" name="L90" href="BoundaryProjector.html#L90">90</a>                      regularFound = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L91" href="BoundaryProjector.html#L91">91</a>                  }
+<a class="jxr_linenumber" name="L92" href="BoundaryProjector.html#L92">92</a>              }
+<a class="jxr_linenumber" name="L93" href="BoundaryProjector.html#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="BoundaryProjector.html#L94">94</a>              <strong class="jxr_keyword">if</strong> (!regularFound) {
+<a class="jxr_linenumber" name="L95" href="BoundaryProjector.html#L95">95</a>                  <em class="jxr_comment">// the regular projected point is not on boundary,</em>
+<a class="jxr_linenumber" name="L96" href="BoundaryProjector.html#L96">96</a>                  <em class="jxr_comment">// so we have to check further if a singular point</em>
+<a class="jxr_linenumber" name="L97" href="BoundaryProjector.html#L97">97</a>                  <em class="jxr_comment">// (i.e. a vertex in 2D case) is a possible projection</em>
+<a class="jxr_linenumber" name="L98" href="BoundaryProjector.html#L98">98</a>                  <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> Region&lt;T&gt; part : boundaryParts) {
+<a class="jxr_linenumber" name="L99" href="BoundaryProjector.html#L99">99</a>                      <strong class="jxr_keyword">final</strong> Point&lt;S&gt; spI = singularProjection(regular, hyperplane, part);
+<a class="jxr_linenumber" name="L100" href="BoundaryProjector.html#L100">100</a>                     <strong class="jxr_keyword">if</strong> (spI != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L101" href="BoundaryProjector.html#L101">101</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> distance = original.distance(spI);
+<a class="jxr_linenumber" name="L102" href="BoundaryProjector.html#L102">102</a>                         <strong class="jxr_keyword">if</strong> (distance &lt; offset) {
+<a class="jxr_linenumber" name="L103" href="BoundaryProjector.html#L103">103</a>                             projected = spI;
+<a class="jxr_linenumber" name="L104" href="BoundaryProjector.html#L104">104</a>                             offset    = distance;
+<a class="jxr_linenumber" name="L105" href="BoundaryProjector.html#L105">105</a>                         }
+<a class="jxr_linenumber" name="L106" href="BoundaryProjector.html#L106">106</a>                     }
+<a class="jxr_linenumber" name="L107" href="BoundaryProjector.html#L107">107</a>                 }
+<a class="jxr_linenumber" name="L108" href="BoundaryProjector.html#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="BoundaryProjector.html#L109">109</a>             }
+<a class="jxr_linenumber" name="L110" href="BoundaryProjector.html#L110">110</a> 
+<a class="jxr_linenumber" name="L111" href="BoundaryProjector.html#L111">111</a>         }
+<a class="jxr_linenumber" name="L112" href="BoundaryProjector.html#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="BoundaryProjector.html#L113">113</a>     }
+<a class="jxr_linenumber" name="L114" href="BoundaryProjector.html#L114">114</a> 
+<a class="jxr_linenumber" name="L115" href="BoundaryProjector.html#L115">115</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L116" href="BoundaryProjector.html#L116">116</a>     @Override
+<a class="jxr_linenumber" name="L117" href="BoundaryProjector.html#L117">117</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> visitLeafNode(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; node) {
+<a class="jxr_linenumber" name="L118" href="BoundaryProjector.html#L118">118</a>         <strong class="jxr_keyword">if</strong> (leaf == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L119" href="BoundaryProjector.html#L119">119</a>             <em class="jxr_comment">// this is the first leaf we visit,</em>
+<a class="jxr_linenumber" name="L120" href="BoundaryProjector.html#L120">120</a>             <em class="jxr_comment">// it is the closest one to the original point</em>
+<a class="jxr_linenumber" name="L121" href="BoundaryProjector.html#L121">121</a>             leaf = node;
+<a class="jxr_linenumber" name="L122" href="BoundaryProjector.html#L122">122</a>         }
+<a class="jxr_linenumber" name="L123" href="BoundaryProjector.html#L123">123</a>     }
+<a class="jxr_linenumber" name="L124" href="BoundaryProjector.html#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="BoundaryProjector.html#L125">125</a>     <em class="jxr_javadoccomment">/** Get the projection.</em>
+<a class="jxr_linenumber" name="L126" href="BoundaryProjector.html#L126">126</a> <em class="jxr_javadoccomment">     * @return projection</em>
+<a class="jxr_linenumber" name="L127" href="BoundaryProjector.html#L127">127</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L128" href="BoundaryProjector.html#L128">128</a>     <strong class="jxr_keyword">public</strong> BoundaryProjection&lt;S&gt; getProjection() {
+<a class="jxr_linenumber" name="L129" href="BoundaryProjector.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="BoundaryProjector.html#L130">130</a>         <em class="jxr_comment">// fix offset sign</em>
+<a class="jxr_linenumber" name="L131" href="BoundaryProjector.html#L131">131</a>         offset = FastMath.copySign(offset, (Boolean) leaf.getAttribute() ? -1 : +1);
+<a class="jxr_linenumber" name="L132" href="BoundaryProjector.html#L132">132</a> 
+<a class="jxr_linenumber" name="L133" href="BoundaryProjector.html#L133">133</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> BoundaryProjection&lt;S&gt;(original, projected, offset);
+<a class="jxr_linenumber" name="L134" href="BoundaryProjector.html#L134">134</a> 
+<a class="jxr_linenumber" name="L135" href="BoundaryProjector.html#L135">135</a>     }
+<a class="jxr_linenumber" name="L136" href="BoundaryProjector.html#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="BoundaryProjector.html#L137">137</a>     <em class="jxr_javadoccomment">/** Extract the regions of the boundary on an internal node.</em>
+<a class="jxr_linenumber" name="L138" href="BoundaryProjector.html#L138">138</a> <em class="jxr_javadoccomment">     * @param node internal node</em>
+<a class="jxr_linenumber" name="L139" href="BoundaryProjector.html#L139">139</a> <em class="jxr_javadoccomment">     * @return regions in the node sub-hyperplane</em>
+<a class="jxr_linenumber" name="L140" href="BoundaryProjector.html#L140">140</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L141" href="BoundaryProjector.html#L141">141</a>     <strong class="jxr_keyword">private</strong> List&lt;Region&lt;T&gt;&gt; boundaryRegions(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; node) {
+<a class="jxr_linenumber" name="L142" href="BoundaryProjector.html#L142">142</a> 
+<a class="jxr_linenumber" name="L143" href="BoundaryProjector.html#L143">143</a>         <strong class="jxr_keyword">final</strong> List&lt;Region&lt;T&gt;&gt; regions = <strong class="jxr_keyword">new</strong> ArrayList&lt;Region&lt;T&gt;&gt;(2);
+<a class="jxr_linenumber" name="L144" href="BoundaryProjector.html#L144">144</a> 
+<a class="jxr_linenumber" name="L145" href="BoundaryProjector.html#L145">145</a>         @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L146" href="BoundaryProjector.html#L146">146</a>         <strong class="jxr_keyword">final</strong> BoundaryAttribute&lt;S&gt; ba = (BoundaryAttribute&lt;S&gt;) node.getAttribute();
+<a class="jxr_linenumber" name="L147" href="BoundaryProjector.html#L147">147</a>         addRegion(ba.getPlusInside(),  regions);
+<a class="jxr_linenumber" name="L148" href="BoundaryProjector.html#L148">148</a>         addRegion(ba.getPlusOutside(), regions);
+<a class="jxr_linenumber" name="L149" href="BoundaryProjector.html#L149">149</a> 
+<a class="jxr_linenumber" name="L150" href="BoundaryProjector.html#L150">150</a>         <strong class="jxr_keyword">return</strong> regions;
+<a class="jxr_linenumber" name="L151" href="BoundaryProjector.html#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="BoundaryProjector.html#L152">152</a>     }
+<a class="jxr_linenumber" name="L153" href="BoundaryProjector.html#L153">153</a> 
+<a class="jxr_linenumber" name="L154" href="BoundaryProjector.html#L154">154</a>     <em class="jxr_javadoccomment">/** Add a boundary region to a list.</em>
+<a class="jxr_linenumber" name="L155" href="BoundaryProjector.html#L155">155</a> <em class="jxr_javadoccomment">     * @param sub sub-hyperplane defining the region</em>
+<a class="jxr_linenumber" name="L156" href="BoundaryProjector.html#L156">156</a> <em class="jxr_javadoccomment">     * @param list to fill up</em>
+<a class="jxr_linenumber" name="L157" href="BoundaryProjector.html#L157">157</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L158" href="BoundaryProjector.html#L158">158</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> addRegion(<strong class="jxr_keyword">final</strong> SubHyperplane&lt;S&gt; sub, <strong class="jxr_keyword">final</strong> List&lt;Region&lt;T&gt;&gt; list) {
+<a class="jxr_linenumber" name="L159" href="BoundaryProjector.html#L159">159</a>         <strong class="jxr_keyword">if</strong> (sub != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L160" href="BoundaryProjector.html#L160">160</a>             @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L161" href="BoundaryProjector.html#L161">161</a>             <strong class="jxr_keyword">final</strong> Region&lt;T&gt; region = ((AbstractSubHyperplane&lt;S, T&gt;) sub).getRemainingRegion();
+<a class="jxr_linenumber" name="L162" href="BoundaryProjector.html#L162">162</a>             <strong class="jxr_keyword">if</strong> (region != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L163" href="BoundaryProjector.html#L163">163</a>                 list.add(region);
+<a class="jxr_linenumber" name="L164" href="BoundaryProjector.html#L164">164</a>             }
+<a class="jxr_linenumber" name="L165" href="BoundaryProjector.html#L165">165</a>         }
+<a class="jxr_linenumber" name="L166" href="BoundaryProjector.html#L166">166</a>     }
+<a class="jxr_linenumber" name="L167" href="BoundaryProjector.html#L167">167</a> 
+<a class="jxr_linenumber" name="L168" href="BoundaryProjector.html#L168">168</a>     <em class="jxr_javadoccomment">/** Check if a projected point lies on a boundary part.</em>
+<a class="jxr_linenumber" name="L169" href="BoundaryProjector.html#L169">169</a> <em class="jxr_javadoccomment">     * @param point projected point to check</em>
+<a class="jxr_linenumber" name="L170" href="BoundaryProjector.html#L170">170</a> <em class="jxr_javadoccomment">     * @param hyperplane hyperplane into which the point was projected</em>
+<a class="jxr_linenumber" name="L171" href="BoundaryProjector.html#L171">171</a> <em class="jxr_javadoccomment">     * @param part boundary part</em>
+<a class="jxr_linenumber" name="L172" href="BoundaryProjector.html#L172">172</a> <em class="jxr_javadoccomment">     * @return true if point lies on the boundary part</em>
+<a class="jxr_linenumber" name="L173" href="BoundaryProjector.html#L173">173</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L174" href="BoundaryProjector.html#L174">174</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> belongsToPart(<strong class="jxr_keyword">final</strong> Point&lt;S&gt; point, <strong class="jxr_keyword">final</strong> Hyperplane&lt;S&gt; hyperplane,
+<a class="jxr_linenumber" name="L175" href="BoundaryProjector.html#L175">175</a>                                   <strong class="jxr_keyword">final</strong> Region&lt;T&gt; part) {
+<a class="jxr_linenumber" name="L176" href="BoundaryProjector.html#L176">176</a> 
+<a class="jxr_linenumber" name="L177" href="BoundaryProjector.html#L177">177</a>         <em class="jxr_comment">// there is a non-null sub-space, we can dive into smaller dimensions</em>
+<a class="jxr_linenumber" name="L178" href="BoundaryProjector.html#L178">178</a>         @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L179" href="BoundaryProjector.html#L179">179</a>         <strong class="jxr_keyword">final</strong> Embedding&lt;S, T&gt; embedding = (Embedding&lt;S, T&gt;) hyperplane;
+<a class="jxr_linenumber" name="L180" href="BoundaryProjector.html#L180">180</a>         <strong class="jxr_keyword">return</strong> part.checkPoint(embedding.toSubSpace(point)) != Location.OUTSIDE;
+<a class="jxr_linenumber" name="L181" href="BoundaryProjector.html#L181">181</a> 
+<a class="jxr_linenumber" name="L182" href="BoundaryProjector.html#L182">182</a>     }
+<a class="jxr_linenumber" name="L183" href="BoundaryProjector.html#L183">183</a> 
+<a class="jxr_linenumber" name="L184" href="BoundaryProjector.html#L184">184</a>     <em class="jxr_javadoccomment">/** Get the projection to the closest boundary singular point.</em>
+<a class="jxr_linenumber" name="L185" href="BoundaryProjector.html#L185">185</a> <em class="jxr_javadoccomment">     * @param point projected point to check</em>
+<a class="jxr_linenumber" name="L186" href="BoundaryProjector.html#L186">186</a> <em class="jxr_javadoccomment">     * @param hyperplane hyperplane into which the point was projected</em>
+<a class="jxr_linenumber" name="L187" href="BoundaryProjector.html#L187">187</a> <em class="jxr_javadoccomment">     * @param part boundary part</em>
+<a class="jxr_linenumber" name="L188" href="BoundaryProjector.html#L188">188</a> <em class="jxr_javadoccomment">     * @return projection to a singular point of boundary part (may be null)</em>
+<a class="jxr_linenumber" name="L189" href="BoundaryProjector.html#L189">189</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L190" href="BoundaryProjector.html#L190">190</a>     <strong class="jxr_keyword">private</strong> Point&lt;S&gt; singularProjection(<strong class="jxr_keyword">final</strong> Point&lt;S&gt; point, <strong class="jxr_keyword">final</strong> Hyperplane&lt;S&gt; hyperplane,
+<a class="jxr_linenumber" name="L191" href="BoundaryProjector.html#L191">191</a>                                         <strong class="jxr_keyword">final</strong> Region&lt;T&gt; part) {
+<a class="jxr_linenumber" name="L192" href="BoundaryProjector.html#L192">192</a> 
+<a class="jxr_linenumber" name="L193" href="BoundaryProjector.html#L193">193</a>         <em class="jxr_comment">// there is a non-null sub-space, we can dive into smaller dimensions</em>
+<a class="jxr_linenumber" name="L194" href="BoundaryProjector.html#L194">194</a>         @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L195" href="BoundaryProjector.html#L195">195</a>         <strong class="jxr_keyword">final</strong> Embedding&lt;S, T&gt; embedding = (Embedding&lt;S, T&gt;) hyperplane;
+<a class="jxr_linenumber" name="L196" href="BoundaryProjector.html#L196">196</a>         <strong class="jxr_keyword">final</strong> BoundaryProjection&lt;T&gt; bp = part.projectToBoundary(embedding.toSubSpace(point));
+<a class="jxr_linenumber" name="L197" href="BoundaryProjector.html#L197">197</a> 
+<a class="jxr_linenumber" name="L198" href="BoundaryProjector.html#L198">198</a>         <em class="jxr_comment">// back to initial dimension</em>
+<a class="jxr_linenumber" name="L199" href="BoundaryProjector.html#L199">199</a>         <strong class="jxr_keyword">return</strong> (bp.getProjected() == <strong class="jxr_keyword">null</strong>) ? <strong class="jxr_keyword">null</strong> : embedding.toSpace(bp.getProjected());
+<a class="jxr_linenumber" name="L200" href="BoundaryProjector.html#L200">200</a> 
+<a class="jxr_linenumber" name="L201" href="BoundaryProjector.html#L201">201</a>     }
+<a class="jxr_linenumber" name="L202" href="BoundaryProjector.html#L202">202</a> 
+<a class="jxr_linenumber" name="L203" href="BoundaryProjector.html#L203">203</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

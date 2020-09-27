@@ -1,0 +1,828 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>FieldMatrix xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/linear/FieldMatrix.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="FieldMatrix.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="FieldMatrix.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="FieldMatrix.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="FieldMatrix.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="FieldMatrix.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="FieldMatrix.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="FieldMatrix.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="FieldMatrix.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="FieldMatrix.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="FieldMatrix.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="FieldMatrix.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="FieldMatrix.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="FieldMatrix.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="FieldMatrix.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="FieldMatrix.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="FieldMatrix.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="FieldMatrix.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="FieldMatrix.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.linear;
+<a class="jxr_linenumber" name="L19" href="FieldMatrix.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="FieldMatrix.html#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="FieldMatrix.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.Field;
+<a class="jxr_linenumber" name="L22" href="FieldMatrix.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.FieldElement;
+<a class="jxr_linenumber" name="L23" href="FieldMatrix.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L24" href="FieldMatrix.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoDataException;
+<a class="jxr_linenumber" name="L25" href="FieldMatrix.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotPositiveException;
+<a class="jxr_linenumber" name="L26" href="FieldMatrix.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L27" href="FieldMatrix.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NullArgumentException;
+<a class="jxr_linenumber" name="L28" href="FieldMatrix.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L29" href="FieldMatrix.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L30" href="FieldMatrix.html#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="FieldMatrix.html#L31">31</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L32" href="FieldMatrix.html#L32">32</a>  <em class="jxr_javadoccomment"> * Interface defining field-valued matrix with basic algebraic operations.</em>
+<a class="jxr_linenumber" name="L33" href="FieldMatrix.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L34" href="FieldMatrix.html#L34">34</a>  <em class="jxr_javadoccomment"> * Matrix element indexing is 0-based -- e.g., &lt;code&gt;getEntry(0, 0)&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L35" href="FieldMatrix.html#L35">35</a>  <em class="jxr_javadoccomment"> * returns the element in the first row, first column of the matrix.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L36" href="FieldMatrix.html#L36">36</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L37" href="FieldMatrix.html#L37">37</a>  <em class="jxr_javadoccomment"> * @param &lt;T&gt; the type of the field elements</em>
+<a class="jxr_linenumber" name="L38" href="FieldMatrix.html#L38">38</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L39" href="FieldMatrix.html#L39">39</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> FieldMatrix&lt;T <strong class="jxr_keyword">extends</strong> FieldElement&lt;T&gt;&gt; <strong class="jxr_keyword">extends</strong> <a href="AnyMatrix.html">AnyMatrix</a> {
+<a class="jxr_linenumber" name="L40" href="FieldMatrix.html#L40">40</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L41" href="FieldMatrix.html#L41">41</a>  <em class="jxr_javadoccomment">     * Get the type of field elements of the matrix.</em>
+<a class="jxr_linenumber" name="L42" href="FieldMatrix.html#L42">42</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L43" href="FieldMatrix.html#L43">43</a>  <em class="jxr_javadoccomment">     * @return the type of field elements of the matrix.</em>
+<a class="jxr_linenumber" name="L44" href="FieldMatrix.html#L44">44</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L45" href="FieldMatrix.html#L45">45</a>      Field&lt;T&gt; getField();
+<a class="jxr_linenumber" name="L46" href="FieldMatrix.html#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="FieldMatrix.html#L47">47</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L48" href="FieldMatrix.html#L48">48</a>  <em class="jxr_javadoccomment">     * Create a new FieldMatrix&lt;T&gt; of the same type as the instance with</em>
+<a class="jxr_linenumber" name="L49" href="FieldMatrix.html#L49">49</a>  <em class="jxr_javadoccomment">     * the supplied row and column dimensions.</em>
+<a class="jxr_linenumber" name="L50" href="FieldMatrix.html#L50">50</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L51" href="FieldMatrix.html#L51">51</a>  <em class="jxr_javadoccomment">     * @param rowDimension  the number of rows in the new matrix</em>
+<a class="jxr_linenumber" name="L52" href="FieldMatrix.html#L52">52</a>  <em class="jxr_javadoccomment">     * @param columnDimension  the number of columns in the new matrix</em>
+<a class="jxr_linenumber" name="L53" href="FieldMatrix.html#L53">53</a>  <em class="jxr_javadoccomment">     * @return a new matrix of the same type as the instance</em>
+<a class="jxr_linenumber" name="L54" href="FieldMatrix.html#L54">54</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if row or column dimension is not</em>
+<a class="jxr_linenumber" name="L55" href="FieldMatrix.html#L55">55</a>  <em class="jxr_javadoccomment">     * positive.</em>
+<a class="jxr_linenumber" name="L56" href="FieldMatrix.html#L56">56</a>  <em class="jxr_javadoccomment">     * @since 2.0</em>
+<a class="jxr_linenumber" name="L57" href="FieldMatrix.html#L57">57</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L58" href="FieldMatrix.html#L58">58</a>      FieldMatrix&lt;T&gt; createMatrix(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> rowDimension, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> columnDimension)
+<a class="jxr_linenumber" name="L59" href="FieldMatrix.html#L59">59</a>      <strong class="jxr_keyword">throws</strong> NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L60" href="FieldMatrix.html#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="FieldMatrix.html#L61">61</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L62" href="FieldMatrix.html#L62">62</a>  <em class="jxr_javadoccomment">     * Make a (deep) copy of this.</em>
+<a class="jxr_linenumber" name="L63" href="FieldMatrix.html#L63">63</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L64" href="FieldMatrix.html#L64">64</a>  <em class="jxr_javadoccomment">     * @return a copy of this matrix.</em>
+<a class="jxr_linenumber" name="L65" href="FieldMatrix.html#L65">65</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L66" href="FieldMatrix.html#L66">66</a>      FieldMatrix&lt;T&gt; copy();
+<a class="jxr_linenumber" name="L67" href="FieldMatrix.html#L67">67</a>  
+<a class="jxr_linenumber" name="L68" href="FieldMatrix.html#L68">68</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L69" href="FieldMatrix.html#L69">69</a>  <em class="jxr_javadoccomment">     * Compute the sum of this and m.</em>
+<a class="jxr_linenumber" name="L70" href="FieldMatrix.html#L70">70</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L71" href="FieldMatrix.html#L71">71</a>  <em class="jxr_javadoccomment">     * @param m Matrix to be added.</em>
+<a class="jxr_linenumber" name="L72" href="FieldMatrix.html#L72">72</a>  <em class="jxr_javadoccomment">     * @return {@code this} + {@code m}.</em>
+<a class="jxr_linenumber" name="L73" href="FieldMatrix.html#L73">73</a>  <em class="jxr_javadoccomment">     * @throws MatrixDimensionMismatchException if {@code m} is not the same</em>
+<a class="jxr_linenumber" name="L74" href="FieldMatrix.html#L74">74</a>  <em class="jxr_javadoccomment">     * size as {@code this} matrix.</em>
+<a class="jxr_linenumber" name="L75" href="FieldMatrix.html#L75">75</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L76" href="FieldMatrix.html#L76">76</a>      FieldMatrix&lt;T&gt; add(FieldMatrix&lt;T&gt; m) <strong class="jxr_keyword">throws</strong> MatrixDimensionMismatchException;
+<a class="jxr_linenumber" name="L77" href="FieldMatrix.html#L77">77</a>  
+<a class="jxr_linenumber" name="L78" href="FieldMatrix.html#L78">78</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L79" href="FieldMatrix.html#L79">79</a>  <em class="jxr_javadoccomment">     * Subtract {@code m} from this matrix.</em>
+<a class="jxr_linenumber" name="L80" href="FieldMatrix.html#L80">80</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L81" href="FieldMatrix.html#L81">81</a>  <em class="jxr_javadoccomment">     * @param m Matrix to be subtracted.</em>
+<a class="jxr_linenumber" name="L82" href="FieldMatrix.html#L82">82</a>  <em class="jxr_javadoccomment">     * @return {@code this} - {@code m}.</em>
+<a class="jxr_linenumber" name="L83" href="FieldMatrix.html#L83">83</a>  <em class="jxr_javadoccomment">     * @throws MatrixDimensionMismatchException if {@code m} is not the same</em>
+<a class="jxr_linenumber" name="L84" href="FieldMatrix.html#L84">84</a>  <em class="jxr_javadoccomment">     * size as {@code this} matrix.</em>
+<a class="jxr_linenumber" name="L85" href="FieldMatrix.html#L85">85</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L86" href="FieldMatrix.html#L86">86</a>      FieldMatrix&lt;T&gt; subtract(FieldMatrix&lt;T&gt; m) <strong class="jxr_keyword">throws</strong> MatrixDimensionMismatchException;
+<a class="jxr_linenumber" name="L87" href="FieldMatrix.html#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="FieldMatrix.html#L88">88</a>       <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L89" href="FieldMatrix.html#L89">89</a>  <em class="jxr_javadoccomment">     * Increment each entry of this matrix.</em>
+<a class="jxr_linenumber" name="L90" href="FieldMatrix.html#L90">90</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L91" href="FieldMatrix.html#L91">91</a>  <em class="jxr_javadoccomment">     * @param d Value to be added to each entry.</em>
+<a class="jxr_linenumber" name="L92" href="FieldMatrix.html#L92">92</a>  <em class="jxr_javadoccomment">     * @return {@code d} + {@code this}.</em>
+<a class="jxr_linenumber" name="L93" href="FieldMatrix.html#L93">93</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L94" href="FieldMatrix.html#L94">94</a>      FieldMatrix&lt;T&gt; scalarAdd(T d);
+<a class="jxr_linenumber" name="L95" href="FieldMatrix.html#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="FieldMatrix.html#L96">96</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L97" href="FieldMatrix.html#L97">97</a>  <em class="jxr_javadoccomment">     * Multiply each entry by {@code d}.</em>
+<a class="jxr_linenumber" name="L98" href="FieldMatrix.html#L98">98</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L99" href="FieldMatrix.html#L99">99</a>  <em class="jxr_javadoccomment">     * @param d Value to multiply all entries by.</em>
+<a class="jxr_linenumber" name="L100" href="FieldMatrix.html#L100">100</a> <em class="jxr_javadoccomment">     * @return {@code d} * {@code this}.</em>
+<a class="jxr_linenumber" name="L101" href="FieldMatrix.html#L101">101</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L102" href="FieldMatrix.html#L102">102</a>     FieldMatrix&lt;T&gt; scalarMultiply(T d);
+<a class="jxr_linenumber" name="L103" href="FieldMatrix.html#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="FieldMatrix.html#L104">104</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L105" href="FieldMatrix.html#L105">105</a> <em class="jxr_javadoccomment">     * Postmultiply this matrix by {@code m}.</em>
+<a class="jxr_linenumber" name="L106" href="FieldMatrix.html#L106">106</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L107" href="FieldMatrix.html#L107">107</a> <em class="jxr_javadoccomment">     * @param m  Matrix to postmultiply by.</em>
+<a class="jxr_linenumber" name="L108" href="FieldMatrix.html#L108">108</a> <em class="jxr_javadoccomment">     * @return {@code this} * {@code m}.</em>
+<a class="jxr_linenumber" name="L109" href="FieldMatrix.html#L109">109</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the number of columns of</em>
+<a class="jxr_linenumber" name="L110" href="FieldMatrix.html#L110">110</a> <em class="jxr_javadoccomment">     * {@code this} matrix is not equal to the number of rows of matrix</em>
+<a class="jxr_linenumber" name="L111" href="FieldMatrix.html#L111">111</a> <em class="jxr_javadoccomment">     * {@code m}.</em>
+<a class="jxr_linenumber" name="L112" href="FieldMatrix.html#L112">112</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L113" href="FieldMatrix.html#L113">113</a>     FieldMatrix&lt;T&gt; multiply(FieldMatrix&lt;T&gt; m) <strong class="jxr_keyword">throws</strong> DimensionMismatchException;
+<a class="jxr_linenumber" name="L114" href="FieldMatrix.html#L114">114</a> 
+<a class="jxr_linenumber" name="L115" href="FieldMatrix.html#L115">115</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L116" href="FieldMatrix.html#L116">116</a> <em class="jxr_javadoccomment">     * Premultiply this matrix by {@code m}.</em>
+<a class="jxr_linenumber" name="L117" href="FieldMatrix.html#L117">117</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L118" href="FieldMatrix.html#L118">118</a> <em class="jxr_javadoccomment">     * @param m Matrix to premultiply by.</em>
+<a class="jxr_linenumber" name="L119" href="FieldMatrix.html#L119">119</a> <em class="jxr_javadoccomment">     * @return {@code m} * {@code this}.</em>
+<a class="jxr_linenumber" name="L120" href="FieldMatrix.html#L120">120</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the number of columns of {@code m}</em>
+<a class="jxr_linenumber" name="L121" href="FieldMatrix.html#L121">121</a> <em class="jxr_javadoccomment">     * differs from the number of rows of {@code this} matrix.</em>
+<a class="jxr_linenumber" name="L122" href="FieldMatrix.html#L122">122</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L123" href="FieldMatrix.html#L123">123</a>     FieldMatrix&lt;T&gt; preMultiply(FieldMatrix&lt;T&gt; m) <strong class="jxr_keyword">throws</strong> DimensionMismatchException;
+<a class="jxr_linenumber" name="L124" href="FieldMatrix.html#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="FieldMatrix.html#L125">125</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L126" href="FieldMatrix.html#L126">126</a> <em class="jxr_javadoccomment">     * Returns the result multiplying this with itself &lt;code&gt;p&lt;/code&gt; times.</em>
+<a class="jxr_linenumber" name="L127" href="FieldMatrix.html#L127">127</a> <em class="jxr_javadoccomment">     * Depending on the type of the field elements, T, instability for high</em>
+<a class="jxr_linenumber" name="L128" href="FieldMatrix.html#L128">128</a> <em class="jxr_javadoccomment">     * powers might occur.</em>
+<a class="jxr_linenumber" name="L129" href="FieldMatrix.html#L129">129</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L130" href="FieldMatrix.html#L130">130</a> <em class="jxr_javadoccomment">     * @param p raise this to power p</em>
+<a class="jxr_linenumber" name="L131" href="FieldMatrix.html#L131">131</a> <em class="jxr_javadoccomment">     * @return this^p</em>
+<a class="jxr_linenumber" name="L132" href="FieldMatrix.html#L132">132</a> <em class="jxr_javadoccomment">     * @throws NotPositiveException if {@code p &lt; 0}</em>
+<a class="jxr_linenumber" name="L133" href="FieldMatrix.html#L133">133</a> <em class="jxr_javadoccomment">     * @throws NonSquareMatrixException if {@code this matrix} is not square</em>
+<a class="jxr_linenumber" name="L134" href="FieldMatrix.html#L134">134</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L135" href="FieldMatrix.html#L135">135</a>     FieldMatrix&lt;T&gt; power(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> p) <strong class="jxr_keyword">throws</strong> NonSquareMatrixException,
+<a class="jxr_linenumber" name="L136" href="FieldMatrix.html#L136">136</a>     NotPositiveException;
+<a class="jxr_linenumber" name="L137" href="FieldMatrix.html#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="FieldMatrix.html#L138">138</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L139" href="FieldMatrix.html#L139">139</a> <em class="jxr_javadoccomment">     * Returns matrix entries as a two-dimensional array.</em>
+<a class="jxr_linenumber" name="L140" href="FieldMatrix.html#L140">140</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L141" href="FieldMatrix.html#L141">141</a> <em class="jxr_javadoccomment">     * @return a 2-dimensional array of entries.</em>
+<a class="jxr_linenumber" name="L142" href="FieldMatrix.html#L142">142</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L143" href="FieldMatrix.html#L143">143</a>     T[][] getData();
+<a class="jxr_linenumber" name="L144" href="FieldMatrix.html#L144">144</a> 
+<a class="jxr_linenumber" name="L145" href="FieldMatrix.html#L145">145</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L146" href="FieldMatrix.html#L146">146</a> <em class="jxr_javadoccomment">     * Get a submatrix. Rows and columns are indicated</em>
+<a class="jxr_linenumber" name="L147" href="FieldMatrix.html#L147">147</a> <em class="jxr_javadoccomment">     * counting from 0 to n - 1.</em>
+<a class="jxr_linenumber" name="L148" href="FieldMatrix.html#L148">148</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L149" href="FieldMatrix.html#L149">149</a> <em class="jxr_javadoccomment">     * @param startRow Initial row index</em>
+<a class="jxr_linenumber" name="L150" href="FieldMatrix.html#L150">150</a> <em class="jxr_javadoccomment">     * @param endRow Final row index (inclusive)</em>
+<a class="jxr_linenumber" name="L151" href="FieldMatrix.html#L151">151</a> <em class="jxr_javadoccomment">     * @param startColumn Initial column index</em>
+<a class="jxr_linenumber" name="L152" href="FieldMatrix.html#L152">152</a> <em class="jxr_javadoccomment">     * @param endColumn Final column index (inclusive)</em>
+<a class="jxr_linenumber" name="L153" href="FieldMatrix.html#L153">153</a> <em class="jxr_javadoccomment">     * @return the matrix containing the data of the specified rows and columns.</em>
+<a class="jxr_linenumber" name="L154" href="FieldMatrix.html#L154">154</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException is {@code endRow &lt; startRow} of</em>
+<a class="jxr_linenumber" name="L155" href="FieldMatrix.html#L155">155</a> <em class="jxr_javadoccomment">     * {@code endColumn &lt; startColumn}.</em>
+<a class="jxr_linenumber" name="L156" href="FieldMatrix.html#L156">156</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the indices are not valid.</em>
+<a class="jxr_linenumber" name="L157" href="FieldMatrix.html#L157">157</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L158" href="FieldMatrix.html#L158">158</a>    FieldMatrix&lt;T&gt; getSubMatrix(<strong class="jxr_keyword">int</strong> startRow, <strong class="jxr_keyword">int</strong> endRow, <strong class="jxr_keyword">int</strong> startColumn, <strong class="jxr_keyword">int</strong> endColumn)
+<a class="jxr_linenumber" name="L159" href="FieldMatrix.html#L159">159</a>    <strong class="jxr_keyword">throws</strong> NumberIsTooSmallException, OutOfRangeException;
+<a class="jxr_linenumber" name="L160" href="FieldMatrix.html#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="FieldMatrix.html#L161">161</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L162" href="FieldMatrix.html#L162">162</a> <em class="jxr_javadoccomment">    * Get a submatrix. Rows and columns are indicated</em>
+<a class="jxr_linenumber" name="L163" href="FieldMatrix.html#L163">163</a> <em class="jxr_javadoccomment">    * counting from 0 to n - 1.</em>
+<a class="jxr_linenumber" name="L164" href="FieldMatrix.html#L164">164</a> <em class="jxr_javadoccomment">    *</em>
+<a class="jxr_linenumber" name="L165" href="FieldMatrix.html#L165">165</a> <em class="jxr_javadoccomment">    * @param selectedRows Array of row indices.</em>
+<a class="jxr_linenumber" name="L166" href="FieldMatrix.html#L166">166</a> <em class="jxr_javadoccomment">    * @param selectedColumns Array of column indices.</em>
+<a class="jxr_linenumber" name="L167" href="FieldMatrix.html#L167">167</a> <em class="jxr_javadoccomment">    * @return the matrix containing the data in the</em>
+<a class="jxr_linenumber" name="L168" href="FieldMatrix.html#L168">168</a> <em class="jxr_javadoccomment">    * specified rows and columns.</em>
+<a class="jxr_linenumber" name="L169" href="FieldMatrix.html#L169">169</a> <em class="jxr_javadoccomment">    * @throws NoDataException if {@code selectedRows} or</em>
+<a class="jxr_linenumber" name="L170" href="FieldMatrix.html#L170">170</a> <em class="jxr_javadoccomment">    * {@code selectedColumns} is empty</em>
+<a class="jxr_linenumber" name="L171" href="FieldMatrix.html#L171">171</a> <em class="jxr_javadoccomment">    * @throws NullArgumentException if {@code selectedRows} or</em>
+<a class="jxr_linenumber" name="L172" href="FieldMatrix.html#L172">172</a> <em class="jxr_javadoccomment">    * {@code selectedColumns} is {@code null}.</em>
+<a class="jxr_linenumber" name="L173" href="FieldMatrix.html#L173">173</a> <em class="jxr_javadoccomment">    * @throws OutOfRangeException if row or column selections are not valid.</em>
+<a class="jxr_linenumber" name="L174" href="FieldMatrix.html#L174">174</a> <em class="jxr_javadoccomment">    */</em>
+<a class="jxr_linenumber" name="L175" href="FieldMatrix.html#L175">175</a>    FieldMatrix&lt;T&gt; getSubMatrix(<strong class="jxr_keyword">int</strong>[] selectedRows, <strong class="jxr_keyword">int</strong>[] selectedColumns)
+<a class="jxr_linenumber" name="L176" href="FieldMatrix.html#L176">176</a>    <strong class="jxr_keyword">throws</strong> NoDataException, NullArgumentException, OutOfRangeException;
+<a class="jxr_linenumber" name="L177" href="FieldMatrix.html#L177">177</a> 
+<a class="jxr_linenumber" name="L178" href="FieldMatrix.html#L178">178</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L179" href="FieldMatrix.html#L179">179</a> <em class="jxr_javadoccomment">    * Copy a submatrix. Rows and columns are 0-based. The designated submatrix</em>
+<a class="jxr_linenumber" name="L180" href="FieldMatrix.html#L180">180</a> <em class="jxr_javadoccomment">    * is copied into the top left portion of the destination array.</em>
+<a class="jxr_linenumber" name="L181" href="FieldMatrix.html#L181">181</a> <em class="jxr_javadoccomment">    *</em>
+<a class="jxr_linenumber" name="L182" href="FieldMatrix.html#L182">182</a> <em class="jxr_javadoccomment">    * @param startRow Initial row index.</em>
+<a class="jxr_linenumber" name="L183" href="FieldMatrix.html#L183">183</a> <em class="jxr_javadoccomment">    * @param endRow Final row index (inclusive).</em>
+<a class="jxr_linenumber" name="L184" href="FieldMatrix.html#L184">184</a> <em class="jxr_javadoccomment">    * @param startColumn Initial column index.</em>
+<a class="jxr_linenumber" name="L185" href="FieldMatrix.html#L185">185</a> <em class="jxr_javadoccomment">    * @param endColumn Final column index (inclusive).</em>
+<a class="jxr_linenumber" name="L186" href="FieldMatrix.html#L186">186</a> <em class="jxr_javadoccomment">    * @param destination The array where the submatrix data should be copied</em>
+<a class="jxr_linenumber" name="L187" href="FieldMatrix.html#L187">187</a> <em class="jxr_javadoccomment">    * (if larger than rows/columns counts, only the upper-left part will be modified).</em>
+<a class="jxr_linenumber" name="L188" href="FieldMatrix.html#L188">188</a> <em class="jxr_javadoccomment">    * @throws MatrixDimensionMismatchException if the dimensions of</em>
+<a class="jxr_linenumber" name="L189" href="FieldMatrix.html#L189">189</a> <em class="jxr_javadoccomment">    * {@code destination} are not large enough to hold the submatrix.</em>
+<a class="jxr_linenumber" name="L190" href="FieldMatrix.html#L190">190</a> <em class="jxr_javadoccomment">    * @throws NumberIsTooSmallException if {@code endRow &lt; startRow} or</em>
+<a class="jxr_linenumber" name="L191" href="FieldMatrix.html#L191">191</a> <em class="jxr_javadoccomment">    * {@code endColumn &lt; startColumn}.</em>
+<a class="jxr_linenumber" name="L192" href="FieldMatrix.html#L192">192</a> <em class="jxr_javadoccomment">    * @throws OutOfRangeException if the indices are not valid.</em>
+<a class="jxr_linenumber" name="L193" href="FieldMatrix.html#L193">193</a> <em class="jxr_javadoccomment">    */</em>
+<a class="jxr_linenumber" name="L194" href="FieldMatrix.html#L194">194</a>     <strong class="jxr_keyword">void</strong> copySubMatrix(<strong class="jxr_keyword">int</strong> startRow, <strong class="jxr_keyword">int</strong> endRow, <strong class="jxr_keyword">int</strong> startColumn, <strong class="jxr_keyword">int</strong> endColumn,
+<a class="jxr_linenumber" name="L195" href="FieldMatrix.html#L195">195</a>                        T[][] destination)
+<a class="jxr_linenumber" name="L196" href="FieldMatrix.html#L196">196</a>     <strong class="jxr_keyword">throws</strong> MatrixDimensionMismatchException, NumberIsTooSmallException,
+<a class="jxr_linenumber" name="L197" href="FieldMatrix.html#L197">197</a>     OutOfRangeException;
+<a class="jxr_linenumber" name="L198" href="FieldMatrix.html#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="FieldMatrix.html#L199">199</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L200" href="FieldMatrix.html#L200">200</a> <em class="jxr_javadoccomment">   * Copy a submatrix. Rows and columns are indicated</em>
+<a class="jxr_linenumber" name="L201" href="FieldMatrix.html#L201">201</a> <em class="jxr_javadoccomment">   * counting from 0 to n - 1.</em>
+<a class="jxr_linenumber" name="L202" href="FieldMatrix.html#L202">202</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L203" href="FieldMatrix.html#L203">203</a> <em class="jxr_javadoccomment">   * @param selectedRows Array of row indices.</em>
+<a class="jxr_linenumber" name="L204" href="FieldMatrix.html#L204">204</a> <em class="jxr_javadoccomment">   * @param selectedColumns Array of column indices.</em>
+<a class="jxr_linenumber" name="L205" href="FieldMatrix.html#L205">205</a> <em class="jxr_javadoccomment">   * @param destination Arrays where the submatrix data should be copied</em>
+<a class="jxr_linenumber" name="L206" href="FieldMatrix.html#L206">206</a> <em class="jxr_javadoccomment">   * (if larger than rows/columns counts, only the upper-left part will be used)</em>
+<a class="jxr_linenumber" name="L207" href="FieldMatrix.html#L207">207</a> <em class="jxr_javadoccomment">   * @throws MatrixDimensionMismatchException if the dimensions of</em>
+<a class="jxr_linenumber" name="L208" href="FieldMatrix.html#L208">208</a> <em class="jxr_javadoccomment">   * {@code destination} do not match those of {@code this}.</em>
+<a class="jxr_linenumber" name="L209" href="FieldMatrix.html#L209">209</a> <em class="jxr_javadoccomment">   * @throws NoDataException if {@code selectedRows} or</em>
+<a class="jxr_linenumber" name="L210" href="FieldMatrix.html#L210">210</a> <em class="jxr_javadoccomment">   * {@code selectedColumns} is empty</em>
+<a class="jxr_linenumber" name="L211" href="FieldMatrix.html#L211">211</a> <em class="jxr_javadoccomment">   * @throws NullArgumentException if {@code selectedRows} or</em>
+<a class="jxr_linenumber" name="L212" href="FieldMatrix.html#L212">212</a> <em class="jxr_javadoccomment">   * {@code selectedColumns} is {@code null}.</em>
+<a class="jxr_linenumber" name="L213" href="FieldMatrix.html#L213">213</a> <em class="jxr_javadoccomment">   * @throws OutOfRangeException if the indices are not valid.</em>
+<a class="jxr_linenumber" name="L214" href="FieldMatrix.html#L214">214</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L215" href="FieldMatrix.html#L215">215</a>   <strong class="jxr_keyword">void</strong> copySubMatrix(<strong class="jxr_keyword">int</strong>[] selectedRows, <strong class="jxr_keyword">int</strong>[] selectedColumns, T[][] destination)
+<a class="jxr_linenumber" name="L216" href="FieldMatrix.html#L216">216</a>   <strong class="jxr_keyword">throws</strong> MatrixDimensionMismatchException, NoDataException, NullArgumentException,
+<a class="jxr_linenumber" name="L217" href="FieldMatrix.html#L217">217</a>   OutOfRangeException;
+<a class="jxr_linenumber" name="L218" href="FieldMatrix.html#L218">218</a> 
+<a class="jxr_linenumber" name="L219" href="FieldMatrix.html#L219">219</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L220" href="FieldMatrix.html#L220">220</a> <em class="jxr_javadoccomment">     * Replace the submatrix starting at {@code (row, column)} using data in the</em>
+<a class="jxr_linenumber" name="L221" href="FieldMatrix.html#L221">221</a> <em class="jxr_javadoccomment">     * input {@code subMatrix} array. Indexes are 0-based.</em>
+<a class="jxr_linenumber" name="L222" href="FieldMatrix.html#L222">222</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L223" href="FieldMatrix.html#L223">223</a> <em class="jxr_javadoccomment">     * Example:&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L224" href="FieldMatrix.html#L224">224</a> <em class="jxr_javadoccomment">     * Starting with</em>
+<a class="jxr_linenumber" name="L225" href="FieldMatrix.html#L225">225</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L226" href="FieldMatrix.html#L226">226</a> <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L227" href="FieldMatrix.html#L227">227</a> <em class="jxr_javadoccomment">     * 1  2  3  4</em>
+<a class="jxr_linenumber" name="L228" href="FieldMatrix.html#L228">228</a> <em class="jxr_javadoccomment">     * 5  6  7  8</em>
+<a class="jxr_linenumber" name="L229" href="FieldMatrix.html#L229">229</a> <em class="jxr_javadoccomment">     * 9  0  1  2</em>
+<a class="jxr_linenumber" name="L230" href="FieldMatrix.html#L230">230</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L231" href="FieldMatrix.html#L231">231</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L232" href="FieldMatrix.html#L232">232</a> <em class="jxr_javadoccomment">     * and &lt;code&gt;subMatrix = {{3, 4} {5,6}}&lt;/code&gt;, invoking</em>
+<a class="jxr_linenumber" name="L233" href="FieldMatrix.html#L233">233</a> <em class="jxr_javadoccomment">     * &lt;code&gt;setSubMatrix(subMatrix,1,1))&lt;/code&gt; will result in</em>
+<a class="jxr_linenumber" name="L234" href="FieldMatrix.html#L234">234</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L235" href="FieldMatrix.html#L235">235</a> <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L236" href="FieldMatrix.html#L236">236</a> <em class="jxr_javadoccomment">     * 1  2  3  4</em>
+<a class="jxr_linenumber" name="L237" href="FieldMatrix.html#L237">237</a> <em class="jxr_javadoccomment">     * 5  3  4  8</em>
+<a class="jxr_linenumber" name="L238" href="FieldMatrix.html#L238">238</a> <em class="jxr_javadoccomment">     * 9  5  6  2</em>
+<a class="jxr_linenumber" name="L239" href="FieldMatrix.html#L239">239</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L240" href="FieldMatrix.html#L240">240</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L241" href="FieldMatrix.html#L241">241</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L242" href="FieldMatrix.html#L242">242</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L243" href="FieldMatrix.html#L243">243</a> <em class="jxr_javadoccomment">     * @param subMatrix Array containing the submatrix replacement data.</em>
+<a class="jxr_linenumber" name="L244" href="FieldMatrix.html#L244">244</a> <em class="jxr_javadoccomment">     * @param row Row coordinate of the top-left element to be replaced.</em>
+<a class="jxr_linenumber" name="L245" href="FieldMatrix.html#L245">245</a> <em class="jxr_javadoccomment">     * @param column Column coordinate of the top-left element to be replaced.</em>
+<a class="jxr_linenumber" name="L246" href="FieldMatrix.html#L246">246</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if {@code subMatrix} does not fit into this</em>
+<a class="jxr_linenumber" name="L247" href="FieldMatrix.html#L247">247</a> <em class="jxr_javadoccomment">     * matrix from element in {@code (row, column)}.</em>
+<a class="jxr_linenumber" name="L248" href="FieldMatrix.html#L248">248</a> <em class="jxr_javadoccomment">     * @throws NoDataException if a row or column of {@code subMatrix} is empty.</em>
+<a class="jxr_linenumber" name="L249" href="FieldMatrix.html#L249">249</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if {@code subMatrix} is not</em>
+<a class="jxr_linenumber" name="L250" href="FieldMatrix.html#L250">250</a> <em class="jxr_javadoccomment">     * rectangular (not all rows have the same length).</em>
+<a class="jxr_linenumber" name="L251" href="FieldMatrix.html#L251">251</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if {@code subMatrix} is {@code null}.</em>
+<a class="jxr_linenumber" name="L252" href="FieldMatrix.html#L252">252</a> <em class="jxr_javadoccomment">     * @since 2.0</em>
+<a class="jxr_linenumber" name="L253" href="FieldMatrix.html#L253">253</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L254" href="FieldMatrix.html#L254">254</a>     <strong class="jxr_keyword">void</strong> setSubMatrix(T[][] subMatrix, <strong class="jxr_keyword">int</strong> row, <strong class="jxr_keyword">int</strong> column)
+<a class="jxr_linenumber" name="L255" href="FieldMatrix.html#L255">255</a>         <strong class="jxr_keyword">throws</strong> DimensionMismatchException, OutOfRangeException,
+<a class="jxr_linenumber" name="L256" href="FieldMatrix.html#L256">256</a>         NoDataException, NullArgumentException;
+<a class="jxr_linenumber" name="L257" href="FieldMatrix.html#L257">257</a> 
+<a class="jxr_linenumber" name="L258" href="FieldMatrix.html#L258">258</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L259" href="FieldMatrix.html#L259">259</a> <em class="jxr_javadoccomment">    * Get the entries in row number {@code row}</em>
+<a class="jxr_linenumber" name="L260" href="FieldMatrix.html#L260">260</a> <em class="jxr_javadoccomment">    * as a row matrix.</em>
+<a class="jxr_linenumber" name="L261" href="FieldMatrix.html#L261">261</a> <em class="jxr_javadoccomment">    *</em>
+<a class="jxr_linenumber" name="L262" href="FieldMatrix.html#L262">262</a> <em class="jxr_javadoccomment">    * @param row Row to be fetched.</em>
+<a class="jxr_linenumber" name="L263" href="FieldMatrix.html#L263">263</a> <em class="jxr_javadoccomment">    * @return a row matrix.</em>
+<a class="jxr_linenumber" name="L264" href="FieldMatrix.html#L264">264</a> <em class="jxr_javadoccomment">    * @throws OutOfRangeException if the specified row index is invalid.</em>
+<a class="jxr_linenumber" name="L265" href="FieldMatrix.html#L265">265</a> <em class="jxr_javadoccomment">    */</em>
+<a class="jxr_linenumber" name="L266" href="FieldMatrix.html#L266">266</a>    FieldMatrix&lt;T&gt; getRowMatrix(<strong class="jxr_keyword">int</strong> row) <strong class="jxr_keyword">throws</strong> OutOfRangeException;
+<a class="jxr_linenumber" name="L267" href="FieldMatrix.html#L267">267</a> 
+<a class="jxr_linenumber" name="L268" href="FieldMatrix.html#L268">268</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L269" href="FieldMatrix.html#L269">269</a> <em class="jxr_javadoccomment">    * Set the entries in row number {@code row}</em>
+<a class="jxr_linenumber" name="L270" href="FieldMatrix.html#L270">270</a> <em class="jxr_javadoccomment">    * as a row matrix.</em>
+<a class="jxr_linenumber" name="L271" href="FieldMatrix.html#L271">271</a> <em class="jxr_javadoccomment">    *</em>
+<a class="jxr_linenumber" name="L272" href="FieldMatrix.html#L272">272</a> <em class="jxr_javadoccomment">    * @param row Row to be set.</em>
+<a class="jxr_linenumber" name="L273" href="FieldMatrix.html#L273">273</a> <em class="jxr_javadoccomment">    * @param matrix Row matrix (must have one row and the same number</em>
+<a class="jxr_linenumber" name="L274" href="FieldMatrix.html#L274">274</a> <em class="jxr_javadoccomment">    * of columns as the instance).</em>
+<a class="jxr_linenumber" name="L275" href="FieldMatrix.html#L275">275</a> <em class="jxr_javadoccomment">    * @throws OutOfRangeException if the specified row index is invalid.</em>
+<a class="jxr_linenumber" name="L276" href="FieldMatrix.html#L276">276</a> <em class="jxr_javadoccomment">    * @throws MatrixDimensionMismatchException</em>
+<a class="jxr_linenumber" name="L277" href="FieldMatrix.html#L277">277</a> <em class="jxr_javadoccomment">    * if the matrix dimensions do not match one instance row.</em>
+<a class="jxr_linenumber" name="L278" href="FieldMatrix.html#L278">278</a> <em class="jxr_javadoccomment">    */</em>
+<a class="jxr_linenumber" name="L279" href="FieldMatrix.html#L279">279</a>    <strong class="jxr_keyword">void</strong> setRowMatrix(<strong class="jxr_keyword">int</strong> row, FieldMatrix&lt;T&gt; matrix)
+<a class="jxr_linenumber" name="L280" href="FieldMatrix.html#L280">280</a>    <strong class="jxr_keyword">throws</strong> MatrixDimensionMismatchException, OutOfRangeException;
+<a class="jxr_linenumber" name="L281" href="FieldMatrix.html#L281">281</a> 
+<a class="jxr_linenumber" name="L282" href="FieldMatrix.html#L282">282</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L283" href="FieldMatrix.html#L283">283</a> <em class="jxr_javadoccomment">    * Get the entries in column number {@code column}</em>
+<a class="jxr_linenumber" name="L284" href="FieldMatrix.html#L284">284</a> <em class="jxr_javadoccomment">    * as a column matrix.</em>
+<a class="jxr_linenumber" name="L285" href="FieldMatrix.html#L285">285</a> <em class="jxr_javadoccomment">    *</em>
+<a class="jxr_linenumber" name="L286" href="FieldMatrix.html#L286">286</a> <em class="jxr_javadoccomment">    * @param column Column to be fetched.</em>
+<a class="jxr_linenumber" name="L287" href="FieldMatrix.html#L287">287</a> <em class="jxr_javadoccomment">    * @return a column matrix.</em>
+<a class="jxr_linenumber" name="L288" href="FieldMatrix.html#L288">288</a> <em class="jxr_javadoccomment">    * @throws OutOfRangeException if the specified column index is invalid.</em>
+<a class="jxr_linenumber" name="L289" href="FieldMatrix.html#L289">289</a> <em class="jxr_javadoccomment">    */</em>
+<a class="jxr_linenumber" name="L290" href="FieldMatrix.html#L290">290</a>    FieldMatrix&lt;T&gt; getColumnMatrix(<strong class="jxr_keyword">int</strong> column) <strong class="jxr_keyword">throws</strong> OutOfRangeException;
+<a class="jxr_linenumber" name="L291" href="FieldMatrix.html#L291">291</a> 
+<a class="jxr_linenumber" name="L292" href="FieldMatrix.html#L292">292</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L293" href="FieldMatrix.html#L293">293</a> <em class="jxr_javadoccomment">    * Set the entries in column number {@code column}</em>
+<a class="jxr_linenumber" name="L294" href="FieldMatrix.html#L294">294</a> <em class="jxr_javadoccomment">    * as a column matrix.</em>
+<a class="jxr_linenumber" name="L295" href="FieldMatrix.html#L295">295</a> <em class="jxr_javadoccomment">    *</em>
+<a class="jxr_linenumber" name="L296" href="FieldMatrix.html#L296">296</a> <em class="jxr_javadoccomment">    * @param column Column to be set.</em>
+<a class="jxr_linenumber" name="L297" href="FieldMatrix.html#L297">297</a> <em class="jxr_javadoccomment">    * @param matrix column matrix (must have one column and the same</em>
+<a class="jxr_linenumber" name="L298" href="FieldMatrix.html#L298">298</a> <em class="jxr_javadoccomment">    * number of rows as the instance).</em>
+<a class="jxr_linenumber" name="L299" href="FieldMatrix.html#L299">299</a> <em class="jxr_javadoccomment">    * @throws OutOfRangeException if the specified column index is invalid.</em>
+<a class="jxr_linenumber" name="L300" href="FieldMatrix.html#L300">300</a> <em class="jxr_javadoccomment">    * @throws MatrixDimensionMismatchException if the matrix dimensions do</em>
+<a class="jxr_linenumber" name="L301" href="FieldMatrix.html#L301">301</a> <em class="jxr_javadoccomment">    * not match one instance column.</em>
+<a class="jxr_linenumber" name="L302" href="FieldMatrix.html#L302">302</a> <em class="jxr_javadoccomment">    */</em>
+<a class="jxr_linenumber" name="L303" href="FieldMatrix.html#L303">303</a>    <strong class="jxr_keyword">void</strong> setColumnMatrix(<strong class="jxr_keyword">int</strong> column, FieldMatrix&lt;T&gt; matrix)
+<a class="jxr_linenumber" name="L304" href="FieldMatrix.html#L304">304</a>    <strong class="jxr_keyword">throws</strong> MatrixDimensionMismatchException, OutOfRangeException;
+<a class="jxr_linenumber" name="L305" href="FieldMatrix.html#L305">305</a> 
+<a class="jxr_linenumber" name="L306" href="FieldMatrix.html#L306">306</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L307" href="FieldMatrix.html#L307">307</a> <em class="jxr_javadoccomment">    * Get the entries in row number {@code row}</em>
+<a class="jxr_linenumber" name="L308" href="FieldMatrix.html#L308">308</a> <em class="jxr_javadoccomment">    * as a vector.</em>
+<a class="jxr_linenumber" name="L309" href="FieldMatrix.html#L309">309</a> <em class="jxr_javadoccomment">    *</em>
+<a class="jxr_linenumber" name="L310" href="FieldMatrix.html#L310">310</a> <em class="jxr_javadoccomment">    * @param row Row to be fetched</em>
+<a class="jxr_linenumber" name="L311" href="FieldMatrix.html#L311">311</a> <em class="jxr_javadoccomment">    * @return a row vector.</em>
+<a class="jxr_linenumber" name="L312" href="FieldMatrix.html#L312">312</a> <em class="jxr_javadoccomment">    * @throws OutOfRangeException if the specified row index is invalid.</em>
+<a class="jxr_linenumber" name="L313" href="FieldMatrix.html#L313">313</a> <em class="jxr_javadoccomment">    */</em>
+<a class="jxr_linenumber" name="L314" href="FieldMatrix.html#L314">314</a>    FieldVector&lt;T&gt; getRowVector(<strong class="jxr_keyword">int</strong> row) <strong class="jxr_keyword">throws</strong> OutOfRangeException;
+<a class="jxr_linenumber" name="L315" href="FieldMatrix.html#L315">315</a> 
+<a class="jxr_linenumber" name="L316" href="FieldMatrix.html#L316">316</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L317" href="FieldMatrix.html#L317">317</a> <em class="jxr_javadoccomment">    * Set the entries in row number {@code row}</em>
+<a class="jxr_linenumber" name="L318" href="FieldMatrix.html#L318">318</a> <em class="jxr_javadoccomment">    * as a vector.</em>
+<a class="jxr_linenumber" name="L319" href="FieldMatrix.html#L319">319</a> <em class="jxr_javadoccomment">    *</em>
+<a class="jxr_linenumber" name="L320" href="FieldMatrix.html#L320">320</a> <em class="jxr_javadoccomment">    * @param row Row to be set.</em>
+<a class="jxr_linenumber" name="L321" href="FieldMatrix.html#L321">321</a> <em class="jxr_javadoccomment">    * @param vector row vector (must have the same number of columns</em>
+<a class="jxr_linenumber" name="L322" href="FieldMatrix.html#L322">322</a> <em class="jxr_javadoccomment">    * as the instance).</em>
+<a class="jxr_linenumber" name="L323" href="FieldMatrix.html#L323">323</a> <em class="jxr_javadoccomment">    * @throws OutOfRangeException if the specified row index is invalid.</em>
+<a class="jxr_linenumber" name="L324" href="FieldMatrix.html#L324">324</a> <em class="jxr_javadoccomment">    * @throws MatrixDimensionMismatchException if the vector dimension does not</em>
+<a class="jxr_linenumber" name="L325" href="FieldMatrix.html#L325">325</a> <em class="jxr_javadoccomment">    * match one instance row.</em>
+<a class="jxr_linenumber" name="L326" href="FieldMatrix.html#L326">326</a> <em class="jxr_javadoccomment">    */</em>
+<a class="jxr_linenumber" name="L327" href="FieldMatrix.html#L327">327</a>    <strong class="jxr_keyword">void</strong> setRowVector(<strong class="jxr_keyword">int</strong> row, FieldVector&lt;T&gt; vector)
+<a class="jxr_linenumber" name="L328" href="FieldMatrix.html#L328">328</a>    <strong class="jxr_keyword">throws</strong> MatrixDimensionMismatchException, OutOfRangeException;
+<a class="jxr_linenumber" name="L329" href="FieldMatrix.html#L329">329</a> 
+<a class="jxr_linenumber" name="L330" href="FieldMatrix.html#L330">330</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L331" href="FieldMatrix.html#L331">331</a> <em class="jxr_javadoccomment">    * Returns the entries in column number {@code column}</em>
+<a class="jxr_linenumber" name="L332" href="FieldMatrix.html#L332">332</a> <em class="jxr_javadoccomment">    * as a vector.</em>
+<a class="jxr_linenumber" name="L333" href="FieldMatrix.html#L333">333</a> <em class="jxr_javadoccomment">    *</em>
+<a class="jxr_linenumber" name="L334" href="FieldMatrix.html#L334">334</a> <em class="jxr_javadoccomment">    * @param column Column to be fetched.</em>
+<a class="jxr_linenumber" name="L335" href="FieldMatrix.html#L335">335</a> <em class="jxr_javadoccomment">    * @return a column vector.</em>
+<a class="jxr_linenumber" name="L336" href="FieldMatrix.html#L336">336</a> <em class="jxr_javadoccomment">    * @throws OutOfRangeException if the specified column index is invalid.</em>
+<a class="jxr_linenumber" name="L337" href="FieldMatrix.html#L337">337</a> <em class="jxr_javadoccomment">    */</em>
+<a class="jxr_linenumber" name="L338" href="FieldMatrix.html#L338">338</a>    FieldVector&lt;T&gt; getColumnVector(<strong class="jxr_keyword">int</strong> column) <strong class="jxr_keyword">throws</strong> OutOfRangeException;
+<a class="jxr_linenumber" name="L339" href="FieldMatrix.html#L339">339</a> 
+<a class="jxr_linenumber" name="L340" href="FieldMatrix.html#L340">340</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L341" href="FieldMatrix.html#L341">341</a> <em class="jxr_javadoccomment">    * Set the entries in column number {@code column}</em>
+<a class="jxr_linenumber" name="L342" href="FieldMatrix.html#L342">342</a> <em class="jxr_javadoccomment">    * as a vector.</em>
+<a class="jxr_linenumber" name="L343" href="FieldMatrix.html#L343">343</a> <em class="jxr_javadoccomment">    *</em>
+<a class="jxr_linenumber" name="L344" href="FieldMatrix.html#L344">344</a> <em class="jxr_javadoccomment">    * @param column Column to be set.</em>
+<a class="jxr_linenumber" name="L345" href="FieldMatrix.html#L345">345</a> <em class="jxr_javadoccomment">    * @param vector Column vector (must have the same number of rows</em>
+<a class="jxr_linenumber" name="L346" href="FieldMatrix.html#L346">346</a> <em class="jxr_javadoccomment">    * as the instance).</em>
+<a class="jxr_linenumber" name="L347" href="FieldMatrix.html#L347">347</a> <em class="jxr_javadoccomment">    * @throws OutOfRangeException if the specified column index is invalid.</em>
+<a class="jxr_linenumber" name="L348" href="FieldMatrix.html#L348">348</a> <em class="jxr_javadoccomment">    * @throws MatrixDimensionMismatchException if the vector dimension does not</em>
+<a class="jxr_linenumber" name="L349" href="FieldMatrix.html#L349">349</a> <em class="jxr_javadoccomment">    * match one instance column.</em>
+<a class="jxr_linenumber" name="L350" href="FieldMatrix.html#L350">350</a> <em class="jxr_javadoccomment">    */</em>
+<a class="jxr_linenumber" name="L351" href="FieldMatrix.html#L351">351</a>    <strong class="jxr_keyword">void</strong> setColumnVector(<strong class="jxr_keyword">int</strong> column, FieldVector&lt;T&gt; vector)
+<a class="jxr_linenumber" name="L352" href="FieldMatrix.html#L352">352</a>    <strong class="jxr_keyword">throws</strong> MatrixDimensionMismatchException, OutOfRangeException;
+<a class="jxr_linenumber" name="L353" href="FieldMatrix.html#L353">353</a> 
+<a class="jxr_linenumber" name="L354" href="FieldMatrix.html#L354">354</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L355" href="FieldMatrix.html#L355">355</a> <em class="jxr_javadoccomment">     * Get the entries in row number {@code row} as an array.</em>
+<a class="jxr_linenumber" name="L356" href="FieldMatrix.html#L356">356</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L357" href="FieldMatrix.html#L357">357</a> <em class="jxr_javadoccomment">     * @param row Row to be fetched.</em>
+<a class="jxr_linenumber" name="L358" href="FieldMatrix.html#L358">358</a> <em class="jxr_javadoccomment">     * @return array of entries in the row.</em>
+<a class="jxr_linenumber" name="L359" href="FieldMatrix.html#L359">359</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the specified row index is not valid.</em>
+<a class="jxr_linenumber" name="L360" href="FieldMatrix.html#L360">360</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L361" href="FieldMatrix.html#L361">361</a>     T[] getRow(<strong class="jxr_keyword">int</strong> row) <strong class="jxr_keyword">throws</strong> OutOfRangeException;
+<a class="jxr_linenumber" name="L362" href="FieldMatrix.html#L362">362</a> 
+<a class="jxr_linenumber" name="L363" href="FieldMatrix.html#L363">363</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L364" href="FieldMatrix.html#L364">364</a> <em class="jxr_javadoccomment">     * Set the entries in row number {@code row}</em>
+<a class="jxr_linenumber" name="L365" href="FieldMatrix.html#L365">365</a> <em class="jxr_javadoccomment">     * as a row matrix.</em>
+<a class="jxr_linenumber" name="L366" href="FieldMatrix.html#L366">366</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L367" href="FieldMatrix.html#L367">367</a> <em class="jxr_javadoccomment">     * @param row Row to be set.</em>
+<a class="jxr_linenumber" name="L368" href="FieldMatrix.html#L368">368</a> <em class="jxr_javadoccomment">     * @param array Row matrix (must have the same number of columns as</em>
+<a class="jxr_linenumber" name="L369" href="FieldMatrix.html#L369">369</a> <em class="jxr_javadoccomment">     * the instance).</em>
+<a class="jxr_linenumber" name="L370" href="FieldMatrix.html#L370">370</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the specified row index is invalid.</em>
+<a class="jxr_linenumber" name="L371" href="FieldMatrix.html#L371">371</a> <em class="jxr_javadoccomment">     * @throws MatrixDimensionMismatchException if the array size does not match</em>
+<a class="jxr_linenumber" name="L372" href="FieldMatrix.html#L372">372</a> <em class="jxr_javadoccomment">     * one instance row.</em>
+<a class="jxr_linenumber" name="L373" href="FieldMatrix.html#L373">373</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L374" href="FieldMatrix.html#L374">374</a>     <strong class="jxr_keyword">void</strong> setRow(<strong class="jxr_keyword">int</strong> row, T[] array) <strong class="jxr_keyword">throws</strong> MatrixDimensionMismatchException,
+<a class="jxr_linenumber" name="L375" href="FieldMatrix.html#L375">375</a>     OutOfRangeException;
+<a class="jxr_linenumber" name="L376" href="FieldMatrix.html#L376">376</a> 
+<a class="jxr_linenumber" name="L377" href="FieldMatrix.html#L377">377</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L378" href="FieldMatrix.html#L378">378</a> <em class="jxr_javadoccomment">     * Get the entries in column number {@code col} as an array.</em>
+<a class="jxr_linenumber" name="L379" href="FieldMatrix.html#L379">379</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L380" href="FieldMatrix.html#L380">380</a> <em class="jxr_javadoccomment">     * @param column the column to be fetched</em>
+<a class="jxr_linenumber" name="L381" href="FieldMatrix.html#L381">381</a> <em class="jxr_javadoccomment">     * @return array of entries in the column</em>
+<a class="jxr_linenumber" name="L382" href="FieldMatrix.html#L382">382</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the specified column index is not valid.</em>
+<a class="jxr_linenumber" name="L383" href="FieldMatrix.html#L383">383</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L384" href="FieldMatrix.html#L384">384</a>     T[] getColumn(<strong class="jxr_keyword">int</strong> column) <strong class="jxr_keyword">throws</strong> OutOfRangeException;
+<a class="jxr_linenumber" name="L385" href="FieldMatrix.html#L385">385</a> 
+<a class="jxr_linenumber" name="L386" href="FieldMatrix.html#L386">386</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L387" href="FieldMatrix.html#L387">387</a> <em class="jxr_javadoccomment">     * Set the entries in column number {@code column}</em>
+<a class="jxr_linenumber" name="L388" href="FieldMatrix.html#L388">388</a> <em class="jxr_javadoccomment">     * as a column matrix.</em>
+<a class="jxr_linenumber" name="L389" href="FieldMatrix.html#L389">389</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L390" href="FieldMatrix.html#L390">390</a> <em class="jxr_javadoccomment">     * @param column the column to be set</em>
+<a class="jxr_linenumber" name="L391" href="FieldMatrix.html#L391">391</a> <em class="jxr_javadoccomment">     * @param array column array (must have the same number of rows as the instance)</em>
+<a class="jxr_linenumber" name="L392" href="FieldMatrix.html#L392">392</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the specified column index is invalid.</em>
+<a class="jxr_linenumber" name="L393" href="FieldMatrix.html#L393">393</a> <em class="jxr_javadoccomment">     * @throws MatrixDimensionMismatchException if the array size does not match</em>
+<a class="jxr_linenumber" name="L394" href="FieldMatrix.html#L394">394</a> <em class="jxr_javadoccomment">     * one instance column.</em>
+<a class="jxr_linenumber" name="L395" href="FieldMatrix.html#L395">395</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L396" href="FieldMatrix.html#L396">396</a>     <strong class="jxr_keyword">void</strong> setColumn(<strong class="jxr_keyword">int</strong> column, T[] array) <strong class="jxr_keyword">throws</strong> MatrixDimensionMismatchException,
+<a class="jxr_linenumber" name="L397" href="FieldMatrix.html#L397">397</a>     OutOfRangeException;
+<a class="jxr_linenumber" name="L398" href="FieldMatrix.html#L398">398</a> 
+<a class="jxr_linenumber" name="L399" href="FieldMatrix.html#L399">399</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L400" href="FieldMatrix.html#L400">400</a> <em class="jxr_javadoccomment">     * Returns the entry in the specified row and column.</em>
+<a class="jxr_linenumber" name="L401" href="FieldMatrix.html#L401">401</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L402" href="FieldMatrix.html#L402">402</a> <em class="jxr_javadoccomment">     * @param row  row location of entry to be fetched</em>
+<a class="jxr_linenumber" name="L403" href="FieldMatrix.html#L403">403</a> <em class="jxr_javadoccomment">     * @param column  column location of entry to be fetched</em>
+<a class="jxr_linenumber" name="L404" href="FieldMatrix.html#L404">404</a> <em class="jxr_javadoccomment">     * @return matrix entry in row,column</em>
+<a class="jxr_linenumber" name="L405" href="FieldMatrix.html#L405">405</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the row or column index is not valid.</em>
+<a class="jxr_linenumber" name="L406" href="FieldMatrix.html#L406">406</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L407" href="FieldMatrix.html#L407">407</a>     T getEntry(<strong class="jxr_keyword">int</strong> row, <strong class="jxr_keyword">int</strong> column) <strong class="jxr_keyword">throws</strong> OutOfRangeException;
+<a class="jxr_linenumber" name="L408" href="FieldMatrix.html#L408">408</a> 
+<a class="jxr_linenumber" name="L409" href="FieldMatrix.html#L409">409</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L410" href="FieldMatrix.html#L410">410</a> <em class="jxr_javadoccomment">     * Set the entry in the specified row and column.</em>
+<a class="jxr_linenumber" name="L411" href="FieldMatrix.html#L411">411</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L412" href="FieldMatrix.html#L412">412</a> <em class="jxr_javadoccomment">     * @param row  row location of entry to be set</em>
+<a class="jxr_linenumber" name="L413" href="FieldMatrix.html#L413">413</a> <em class="jxr_javadoccomment">     * @param column  column location of entry to be set</em>
+<a class="jxr_linenumber" name="L414" href="FieldMatrix.html#L414">414</a> <em class="jxr_javadoccomment">     * @param value matrix entry to be set in row,column</em>
+<a class="jxr_linenumber" name="L415" href="FieldMatrix.html#L415">415</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the row or column index is not valid.</em>
+<a class="jxr_linenumber" name="L416" href="FieldMatrix.html#L416">416</a> <em class="jxr_javadoccomment">     * @since 2.0</em>
+<a class="jxr_linenumber" name="L417" href="FieldMatrix.html#L417">417</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L418" href="FieldMatrix.html#L418">418</a>     <strong class="jxr_keyword">void</strong> setEntry(<strong class="jxr_keyword">int</strong> row, <strong class="jxr_keyword">int</strong> column, T value) <strong class="jxr_keyword">throws</strong> OutOfRangeException;
+<a class="jxr_linenumber" name="L419" href="FieldMatrix.html#L419">419</a> 
+<a class="jxr_linenumber" name="L420" href="FieldMatrix.html#L420">420</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L421" href="FieldMatrix.html#L421">421</a> <em class="jxr_javadoccomment">     * Change an entry in the specified row and column.</em>
+<a class="jxr_linenumber" name="L422" href="FieldMatrix.html#L422">422</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L423" href="FieldMatrix.html#L423">423</a> <em class="jxr_javadoccomment">     * @param row Row location of entry to be set.</em>
+<a class="jxr_linenumber" name="L424" href="FieldMatrix.html#L424">424</a> <em class="jxr_javadoccomment">     * @param column Column location of entry to be set.</em>
+<a class="jxr_linenumber" name="L425" href="FieldMatrix.html#L425">425</a> <em class="jxr_javadoccomment">     * @param increment Value to add to the current matrix entry in</em>
+<a class="jxr_linenumber" name="L426" href="FieldMatrix.html#L426">426</a> <em class="jxr_javadoccomment">     * {@code (row, column)}.</em>
+<a class="jxr_linenumber" name="L427" href="FieldMatrix.html#L427">427</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the row or column index is not valid.</em>
+<a class="jxr_linenumber" name="L428" href="FieldMatrix.html#L428">428</a> <em class="jxr_javadoccomment">     * @since 2.0</em>
+<a class="jxr_linenumber" name="L429" href="FieldMatrix.html#L429">429</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L430" href="FieldMatrix.html#L430">430</a>     <strong class="jxr_keyword">void</strong> addToEntry(<strong class="jxr_keyword">int</strong> row, <strong class="jxr_keyword">int</strong> column, T increment) <strong class="jxr_keyword">throws</strong> OutOfRangeException;
+<a class="jxr_linenumber" name="L431" href="FieldMatrix.html#L431">431</a> 
+<a class="jxr_linenumber" name="L432" href="FieldMatrix.html#L432">432</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L433" href="FieldMatrix.html#L433">433</a> <em class="jxr_javadoccomment">     * Change an entry in the specified row and column.</em>
+<a class="jxr_linenumber" name="L434" href="FieldMatrix.html#L434">434</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L435" href="FieldMatrix.html#L435">435</a> <em class="jxr_javadoccomment">     * @param row Row location of entry to be set.</em>
+<a class="jxr_linenumber" name="L436" href="FieldMatrix.html#L436">436</a> <em class="jxr_javadoccomment">     * @param column Column location of entry to be set.</em>
+<a class="jxr_linenumber" name="L437" href="FieldMatrix.html#L437">437</a> <em class="jxr_javadoccomment">     * @param factor Multiplication factor for the current matrix entry</em>
+<a class="jxr_linenumber" name="L438" href="FieldMatrix.html#L438">438</a> <em class="jxr_javadoccomment">     * in {@code (row,column)}</em>
+<a class="jxr_linenumber" name="L439" href="FieldMatrix.html#L439">439</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the row or column index is not valid.</em>
+<a class="jxr_linenumber" name="L440" href="FieldMatrix.html#L440">440</a> <em class="jxr_javadoccomment">     * @since 2.0</em>
+<a class="jxr_linenumber" name="L441" href="FieldMatrix.html#L441">441</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L442" href="FieldMatrix.html#L442">442</a>     <strong class="jxr_keyword">void</strong> multiplyEntry(<strong class="jxr_keyword">int</strong> row, <strong class="jxr_keyword">int</strong> column, T factor) <strong class="jxr_keyword">throws</strong> OutOfRangeException;
+<a class="jxr_linenumber" name="L443" href="FieldMatrix.html#L443">443</a> 
+<a class="jxr_linenumber" name="L444" href="FieldMatrix.html#L444">444</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L445" href="FieldMatrix.html#L445">445</a> <em class="jxr_javadoccomment">     * Returns the transpose of this matrix.</em>
+<a class="jxr_linenumber" name="L446" href="FieldMatrix.html#L446">446</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L447" href="FieldMatrix.html#L447">447</a> <em class="jxr_javadoccomment">     * @return transpose matrix</em>
+<a class="jxr_linenumber" name="L448" href="FieldMatrix.html#L448">448</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L449" href="FieldMatrix.html#L449">449</a>     FieldMatrix&lt;T&gt; transpose();
+<a class="jxr_linenumber" name="L450" href="FieldMatrix.html#L450">450</a> 
+<a class="jxr_linenumber" name="L451" href="FieldMatrix.html#L451">451</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L452" href="FieldMatrix.html#L452">452</a> <em class="jxr_javadoccomment">     * Returns the &lt;a href="<a href="http://mathworld.wolfram.com/MatrixTrace.html" target="alexandria_uri">http://mathworld.wolfram.com/MatrixTrace.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L453" href="FieldMatrix.html#L453">453</a> <em class="jxr_javadoccomment">     * trace&lt;/a&gt; of the matrix (the sum of the elements on the main diagonal).</em>
+<a class="jxr_linenumber" name="L454" href="FieldMatrix.html#L454">454</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L455" href="FieldMatrix.html#L455">455</a> <em class="jxr_javadoccomment">     * @return trace</em>
+<a class="jxr_linenumber" name="L456" href="FieldMatrix.html#L456">456</a> <em class="jxr_javadoccomment">     * @throws NonSquareMatrixException if the matrix is not square.</em>
+<a class="jxr_linenumber" name="L457" href="FieldMatrix.html#L457">457</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L458" href="FieldMatrix.html#L458">458</a>     T getTrace() <strong class="jxr_keyword">throws</strong> NonSquareMatrixException;
+<a class="jxr_linenumber" name="L459" href="FieldMatrix.html#L459">459</a> 
+<a class="jxr_linenumber" name="L460" href="FieldMatrix.html#L460">460</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L461" href="FieldMatrix.html#L461">461</a> <em class="jxr_javadoccomment">     * Returns the result of multiplying this by the vector {@code v}.</em>
+<a class="jxr_linenumber" name="L462" href="FieldMatrix.html#L462">462</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L463" href="FieldMatrix.html#L463">463</a> <em class="jxr_javadoccomment">     * @param v the vector to operate on</em>
+<a class="jxr_linenumber" name="L464" href="FieldMatrix.html#L464">464</a> <em class="jxr_javadoccomment">     * @return {@code this * v}</em>
+<a class="jxr_linenumber" name="L465" href="FieldMatrix.html#L465">465</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the number of columns of</em>
+<a class="jxr_linenumber" name="L466" href="FieldMatrix.html#L466">466</a> <em class="jxr_javadoccomment">     * {@code this} matrix is not equal to the size of the vector {@code v}.</em>
+<a class="jxr_linenumber" name="L467" href="FieldMatrix.html#L467">467</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L468" href="FieldMatrix.html#L468">468</a>     T[] operate(T[] v) <strong class="jxr_keyword">throws</strong> DimensionMismatchException;
+<a class="jxr_linenumber" name="L469" href="FieldMatrix.html#L469">469</a> 
+<a class="jxr_linenumber" name="L470" href="FieldMatrix.html#L470">470</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L471" href="FieldMatrix.html#L471">471</a> <em class="jxr_javadoccomment">     * Returns the result of multiplying this by the vector {@code v}.</em>
+<a class="jxr_linenumber" name="L472" href="FieldMatrix.html#L472">472</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L473" href="FieldMatrix.html#L473">473</a> <em class="jxr_javadoccomment">     * @param v the vector to operate on</em>
+<a class="jxr_linenumber" name="L474" href="FieldMatrix.html#L474">474</a> <em class="jxr_javadoccomment">     * @return {@code this * v}</em>
+<a class="jxr_linenumber" name="L475" href="FieldMatrix.html#L475">475</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the number of columns of</em>
+<a class="jxr_linenumber" name="L476" href="FieldMatrix.html#L476">476</a> <em class="jxr_javadoccomment">     * {@code this} matrix is not equal to the size of the vector {@code v}.</em>
+<a class="jxr_linenumber" name="L477" href="FieldMatrix.html#L477">477</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L478" href="FieldMatrix.html#L478">478</a>     FieldVector&lt;T&gt; operate(FieldVector&lt;T&gt; v) <strong class="jxr_keyword">throws</strong> DimensionMismatchException;
+<a class="jxr_linenumber" name="L479" href="FieldMatrix.html#L479">479</a> 
+<a class="jxr_linenumber" name="L480" href="FieldMatrix.html#L480">480</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L481" href="FieldMatrix.html#L481">481</a> <em class="jxr_javadoccomment">     * Returns the (row) vector result of premultiplying this by the vector</em>
+<a class="jxr_linenumber" name="L482" href="FieldMatrix.html#L482">482</a> <em class="jxr_javadoccomment">     * {@code v}.</em>
+<a class="jxr_linenumber" name="L483" href="FieldMatrix.html#L483">483</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L484" href="FieldMatrix.html#L484">484</a> <em class="jxr_javadoccomment">     * @param v the row vector to premultiply by</em>
+<a class="jxr_linenumber" name="L485" href="FieldMatrix.html#L485">485</a> <em class="jxr_javadoccomment">     * @return {@code v * this}</em>
+<a class="jxr_linenumber" name="L486" href="FieldMatrix.html#L486">486</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the number of rows of {@code this}</em>
+<a class="jxr_linenumber" name="L487" href="FieldMatrix.html#L487">487</a> <em class="jxr_javadoccomment">     * matrix is not equal to the size of the vector {@code v}</em>
+<a class="jxr_linenumber" name="L488" href="FieldMatrix.html#L488">488</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L489" href="FieldMatrix.html#L489">489</a>     T[] preMultiply(T[] v) <strong class="jxr_keyword">throws</strong> DimensionMismatchException;
+<a class="jxr_linenumber" name="L490" href="FieldMatrix.html#L490">490</a> 
+<a class="jxr_linenumber" name="L491" href="FieldMatrix.html#L491">491</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L492" href="FieldMatrix.html#L492">492</a> <em class="jxr_javadoccomment">     * Returns the (row) vector result of premultiplying this by the vector</em>
+<a class="jxr_linenumber" name="L493" href="FieldMatrix.html#L493">493</a> <em class="jxr_javadoccomment">     * {@code v}.</em>
+<a class="jxr_linenumber" name="L494" href="FieldMatrix.html#L494">494</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L495" href="FieldMatrix.html#L495">495</a> <em class="jxr_javadoccomment">     * @param v the row vector to premultiply by</em>
+<a class="jxr_linenumber" name="L496" href="FieldMatrix.html#L496">496</a> <em class="jxr_javadoccomment">     * @return {@code v * this}</em>
+<a class="jxr_linenumber" name="L497" href="FieldMatrix.html#L497">497</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the number of rows of {@code this}</em>
+<a class="jxr_linenumber" name="L498" href="FieldMatrix.html#L498">498</a> <em class="jxr_javadoccomment">     * matrix is not equal to the size of the vector {@code v}</em>
+<a class="jxr_linenumber" name="L499" href="FieldMatrix.html#L499">499</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L500" href="FieldMatrix.html#L500">500</a>     FieldVector&lt;T&gt; preMultiply(FieldVector&lt;T&gt; v) <strong class="jxr_keyword">throws</strong> DimensionMismatchException;
+<a class="jxr_linenumber" name="L501" href="FieldMatrix.html#L501">501</a> 
+<a class="jxr_linenumber" name="L502" href="FieldMatrix.html#L502">502</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L503" href="FieldMatrix.html#L503">503</a> <em class="jxr_javadoccomment">     * Visit (and possibly change) all matrix entries in row order.</em>
+<a class="jxr_linenumber" name="L504" href="FieldMatrix.html#L504">504</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Row order starts at upper left and iterating through all elements</em>
+<a class="jxr_linenumber" name="L505" href="FieldMatrix.html#L505">505</a> <em class="jxr_javadoccomment">     * of a row from left to right before going to the leftmost element</em>
+<a class="jxr_linenumber" name="L506" href="FieldMatrix.html#L506">506</a> <em class="jxr_javadoccomment">     * of the next row.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L507" href="FieldMatrix.html#L507">507</a> <em class="jxr_javadoccomment">     * @param visitor visitor used to process all matrix entries</em>
+<a class="jxr_linenumber" name="L508" href="FieldMatrix.html#L508">508</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L509" href="FieldMatrix.html#L509">509</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L510" href="FieldMatrix.html#L510">510</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L511" href="FieldMatrix.html#L511">511</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L512" href="FieldMatrix.html#L512">512</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L513" href="FieldMatrix.html#L513">513</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L514" href="FieldMatrix.html#L514">514</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L515" href="FieldMatrix.html#L515">515</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L516" href="FieldMatrix.html#L516">516</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L517" href="FieldMatrix.html#L517">517</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L518" href="FieldMatrix.html#L518">518</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L519" href="FieldMatrix.html#L519">519</a> <em class="jxr_javadoccomment">     * @return the value returned by {@link FieldMatrixChangingVisitor#end()} at the end</em>
+<a class="jxr_linenumber" name="L520" href="FieldMatrix.html#L520">520</a> <em class="jxr_javadoccomment">     * of the walk</em>
+<a class="jxr_linenumber" name="L521" href="FieldMatrix.html#L521">521</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L522" href="FieldMatrix.html#L522">522</a>     T walkInRowOrder(FieldMatrixChangingVisitor&lt;T&gt; visitor);
+<a class="jxr_linenumber" name="L523" href="FieldMatrix.html#L523">523</a> 
+<a class="jxr_linenumber" name="L524" href="FieldMatrix.html#L524">524</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L525" href="FieldMatrix.html#L525">525</a> <em class="jxr_javadoccomment">     * Visit (but don't change) all matrix entries in row order.</em>
+<a class="jxr_linenumber" name="L526" href="FieldMatrix.html#L526">526</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Row order starts at upper left and iterating through all elements</em>
+<a class="jxr_linenumber" name="L527" href="FieldMatrix.html#L527">527</a> <em class="jxr_javadoccomment">     * of a row from left to right before going to the leftmost element</em>
+<a class="jxr_linenumber" name="L528" href="FieldMatrix.html#L528">528</a> <em class="jxr_javadoccomment">     * of the next row.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L529" href="FieldMatrix.html#L529">529</a> <em class="jxr_javadoccomment">     * @param visitor visitor used to process all matrix entries</em>
+<a class="jxr_linenumber" name="L530" href="FieldMatrix.html#L530">530</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L531" href="FieldMatrix.html#L531">531</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L532" href="FieldMatrix.html#L532">532</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L533" href="FieldMatrix.html#L533">533</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L534" href="FieldMatrix.html#L534">534</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L535" href="FieldMatrix.html#L535">535</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L536" href="FieldMatrix.html#L536">536</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L537" href="FieldMatrix.html#L537">537</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L538" href="FieldMatrix.html#L538">538</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L539" href="FieldMatrix.html#L539">539</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L540" href="FieldMatrix.html#L540">540</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L541" href="FieldMatrix.html#L541">541</a> <em class="jxr_javadoccomment">     * @return the value returned by {@link FieldMatrixPreservingVisitor#end()} at the end</em>
+<a class="jxr_linenumber" name="L542" href="FieldMatrix.html#L542">542</a> <em class="jxr_javadoccomment">     * of the walk</em>
+<a class="jxr_linenumber" name="L543" href="FieldMatrix.html#L543">543</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L544" href="FieldMatrix.html#L544">544</a>     T walkInRowOrder(FieldMatrixPreservingVisitor&lt;T&gt; visitor);
+<a class="jxr_linenumber" name="L545" href="FieldMatrix.html#L545">545</a> 
+<a class="jxr_linenumber" name="L546" href="FieldMatrix.html#L546">546</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L547" href="FieldMatrix.html#L547">547</a> <em class="jxr_javadoccomment">     * Visit (and possibly change) some matrix entries in row order.</em>
+<a class="jxr_linenumber" name="L548" href="FieldMatrix.html#L548">548</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Row order starts at upper left and iterating through all elements</em>
+<a class="jxr_linenumber" name="L549" href="FieldMatrix.html#L549">549</a> <em class="jxr_javadoccomment">     * of a row from left to right before going to the leftmost element</em>
+<a class="jxr_linenumber" name="L550" href="FieldMatrix.html#L550">550</a> <em class="jxr_javadoccomment">     * of the next row.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L551" href="FieldMatrix.html#L551">551</a> <em class="jxr_javadoccomment">     * @param visitor visitor used to process all matrix entries</em>
+<a class="jxr_linenumber" name="L552" href="FieldMatrix.html#L552">552</a> <em class="jxr_javadoccomment">     * @param startRow Initial row index</em>
+<a class="jxr_linenumber" name="L553" href="FieldMatrix.html#L553">553</a> <em class="jxr_javadoccomment">     * @param endRow Final row index (inclusive)</em>
+<a class="jxr_linenumber" name="L554" href="FieldMatrix.html#L554">554</a> <em class="jxr_javadoccomment">     * @param startColumn Initial column index</em>
+<a class="jxr_linenumber" name="L555" href="FieldMatrix.html#L555">555</a> <em class="jxr_javadoccomment">     * @param endColumn Final column index</em>
+<a class="jxr_linenumber" name="L556" href="FieldMatrix.html#L556">556</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the indices are not valid.</em>
+<a class="jxr_linenumber" name="L557" href="FieldMatrix.html#L557">557</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code endRow &lt; startRow} or</em>
+<a class="jxr_linenumber" name="L558" href="FieldMatrix.html#L558">558</a> <em class="jxr_javadoccomment">     * {@code endColumn &lt; startColumn}.</em>
+<a class="jxr_linenumber" name="L559" href="FieldMatrix.html#L559">559</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L560" href="FieldMatrix.html#L560">560</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L561" href="FieldMatrix.html#L561">561</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L562" href="FieldMatrix.html#L562">562</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L563" href="FieldMatrix.html#L563">563</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L564" href="FieldMatrix.html#L564">564</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L565" href="FieldMatrix.html#L565">565</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L566" href="FieldMatrix.html#L566">566</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L567" href="FieldMatrix.html#L567">567</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L568" href="FieldMatrix.html#L568">568</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L569" href="FieldMatrix.html#L569">569</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L570" href="FieldMatrix.html#L570">570</a> <em class="jxr_javadoccomment">     * @return the value returned by {@link FieldMatrixChangingVisitor#end()} at the end</em>
+<a class="jxr_linenumber" name="L571" href="FieldMatrix.html#L571">571</a> <em class="jxr_javadoccomment">     * of the walk</em>
+<a class="jxr_linenumber" name="L572" href="FieldMatrix.html#L572">572</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L573" href="FieldMatrix.html#L573">573</a>     T walkInRowOrder(FieldMatrixChangingVisitor&lt;T&gt; visitor,
+<a class="jxr_linenumber" name="L574" href="FieldMatrix.html#L574">574</a>                      <strong class="jxr_keyword">int</strong> startRow, <strong class="jxr_keyword">int</strong> endRow, <strong class="jxr_keyword">int</strong> startColumn, <strong class="jxr_keyword">int</strong> endColumn)
+<a class="jxr_linenumber" name="L575" href="FieldMatrix.html#L575">575</a>     <strong class="jxr_keyword">throws</strong> OutOfRangeException, NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L576" href="FieldMatrix.html#L576">576</a> 
+<a class="jxr_linenumber" name="L577" href="FieldMatrix.html#L577">577</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L578" href="FieldMatrix.html#L578">578</a> <em class="jxr_javadoccomment">     * Visit (but don't change) some matrix entries in row order.</em>
+<a class="jxr_linenumber" name="L579" href="FieldMatrix.html#L579">579</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Row order starts at upper left and iterating through all elements</em>
+<a class="jxr_linenumber" name="L580" href="FieldMatrix.html#L580">580</a> <em class="jxr_javadoccomment">     * of a row from left to right before going to the leftmost element</em>
+<a class="jxr_linenumber" name="L581" href="FieldMatrix.html#L581">581</a> <em class="jxr_javadoccomment">     * of the next row.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L582" href="FieldMatrix.html#L582">582</a> <em class="jxr_javadoccomment">     * @param visitor visitor used to process all matrix entries</em>
+<a class="jxr_linenumber" name="L583" href="FieldMatrix.html#L583">583</a> <em class="jxr_javadoccomment">     * @param startRow Initial row index</em>
+<a class="jxr_linenumber" name="L584" href="FieldMatrix.html#L584">584</a> <em class="jxr_javadoccomment">     * @param endRow Final row index (inclusive)</em>
+<a class="jxr_linenumber" name="L585" href="FieldMatrix.html#L585">585</a> <em class="jxr_javadoccomment">     * @param startColumn Initial column index</em>
+<a class="jxr_linenumber" name="L586" href="FieldMatrix.html#L586">586</a> <em class="jxr_javadoccomment">     * @param endColumn Final column index</em>
+<a class="jxr_linenumber" name="L587" href="FieldMatrix.html#L587">587</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the indices are not valid.</em>
+<a class="jxr_linenumber" name="L588" href="FieldMatrix.html#L588">588</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code endRow &lt; startRow} or</em>
+<a class="jxr_linenumber" name="L589" href="FieldMatrix.html#L589">589</a> <em class="jxr_javadoccomment">     * {@code endColumn &lt; startColumn}.</em>
+<a class="jxr_linenumber" name="L590" href="FieldMatrix.html#L590">590</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L591" href="FieldMatrix.html#L591">591</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L592" href="FieldMatrix.html#L592">592</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L593" href="FieldMatrix.html#L593">593</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L594" href="FieldMatrix.html#L594">594</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L595" href="FieldMatrix.html#L595">595</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L596" href="FieldMatrix.html#L596">596</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L597" href="FieldMatrix.html#L597">597</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L598" href="FieldMatrix.html#L598">598</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L599" href="FieldMatrix.html#L599">599</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L600" href="FieldMatrix.html#L600">600</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L601" href="FieldMatrix.html#L601">601</a> <em class="jxr_javadoccomment">     * @return the value returned by {@link FieldMatrixPreservingVisitor#end()} at the end</em>
+<a class="jxr_linenumber" name="L602" href="FieldMatrix.html#L602">602</a> <em class="jxr_javadoccomment">     * of the walk</em>
+<a class="jxr_linenumber" name="L603" href="FieldMatrix.html#L603">603</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L604" href="FieldMatrix.html#L604">604</a>     T walkInRowOrder(FieldMatrixPreservingVisitor&lt;T&gt; visitor,
+<a class="jxr_linenumber" name="L605" href="FieldMatrix.html#L605">605</a>                      <strong class="jxr_keyword">int</strong> startRow, <strong class="jxr_keyword">int</strong> endRow, <strong class="jxr_keyword">int</strong> startColumn, <strong class="jxr_keyword">int</strong> endColumn)
+<a class="jxr_linenumber" name="L606" href="FieldMatrix.html#L606">606</a>     <strong class="jxr_keyword">throws</strong> OutOfRangeException, NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L607" href="FieldMatrix.html#L607">607</a> 
+<a class="jxr_linenumber" name="L608" href="FieldMatrix.html#L608">608</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L609" href="FieldMatrix.html#L609">609</a> <em class="jxr_javadoccomment">     * Visit (and possibly change) all matrix entries in column order.</em>
+<a class="jxr_linenumber" name="L610" href="FieldMatrix.html#L610">610</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Column order starts at upper left and iterating through all elements</em>
+<a class="jxr_linenumber" name="L611" href="FieldMatrix.html#L611">611</a> <em class="jxr_javadoccomment">     * of a column from top to bottom before going to the topmost element</em>
+<a class="jxr_linenumber" name="L612" href="FieldMatrix.html#L612">612</a> <em class="jxr_javadoccomment">     * of the next column.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L613" href="FieldMatrix.html#L613">613</a> <em class="jxr_javadoccomment">     * @param visitor visitor used to process all matrix entries</em>
+<a class="jxr_linenumber" name="L614" href="FieldMatrix.html#L614">614</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L615" href="FieldMatrix.html#L615">615</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L616" href="FieldMatrix.html#L616">616</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L617" href="FieldMatrix.html#L617">617</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L618" href="FieldMatrix.html#L618">618</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L619" href="FieldMatrix.html#L619">619</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L620" href="FieldMatrix.html#L620">620</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L621" href="FieldMatrix.html#L621">621</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L622" href="FieldMatrix.html#L622">622</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L623" href="FieldMatrix.html#L623">623</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L624" href="FieldMatrix.html#L624">624</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L625" href="FieldMatrix.html#L625">625</a> <em class="jxr_javadoccomment">     * @return the value returned by {@link FieldMatrixChangingVisitor#end()} at the end</em>
+<a class="jxr_linenumber" name="L626" href="FieldMatrix.html#L626">626</a> <em class="jxr_javadoccomment">     * of the walk</em>
+<a class="jxr_linenumber" name="L627" href="FieldMatrix.html#L627">627</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L628" href="FieldMatrix.html#L628">628</a>     T walkInColumnOrder(FieldMatrixChangingVisitor&lt;T&gt; visitor);
+<a class="jxr_linenumber" name="L629" href="FieldMatrix.html#L629">629</a> 
+<a class="jxr_linenumber" name="L630" href="FieldMatrix.html#L630">630</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L631" href="FieldMatrix.html#L631">631</a> <em class="jxr_javadoccomment">     * Visit (but don't change) all matrix entries in column order.</em>
+<a class="jxr_linenumber" name="L632" href="FieldMatrix.html#L632">632</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Column order starts at upper left and iterating through all elements</em>
+<a class="jxr_linenumber" name="L633" href="FieldMatrix.html#L633">633</a> <em class="jxr_javadoccomment">     * of a column from top to bottom before going to the topmost element</em>
+<a class="jxr_linenumber" name="L634" href="FieldMatrix.html#L634">634</a> <em class="jxr_javadoccomment">     * of the next column.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L635" href="FieldMatrix.html#L635">635</a> <em class="jxr_javadoccomment">     * @param visitor visitor used to process all matrix entries</em>
+<a class="jxr_linenumber" name="L636" href="FieldMatrix.html#L636">636</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L637" href="FieldMatrix.html#L637">637</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L638" href="FieldMatrix.html#L638">638</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L639" href="FieldMatrix.html#L639">639</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L640" href="FieldMatrix.html#L640">640</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L641" href="FieldMatrix.html#L641">641</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L642" href="FieldMatrix.html#L642">642</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L643" href="FieldMatrix.html#L643">643</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L644" href="FieldMatrix.html#L644">644</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L645" href="FieldMatrix.html#L645">645</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L646" href="FieldMatrix.html#L646">646</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L647" href="FieldMatrix.html#L647">647</a> <em class="jxr_javadoccomment">     * @return the value returned by {@link FieldMatrixPreservingVisitor#end()} at the end</em>
+<a class="jxr_linenumber" name="L648" href="FieldMatrix.html#L648">648</a> <em class="jxr_javadoccomment">     * of the walk</em>
+<a class="jxr_linenumber" name="L649" href="FieldMatrix.html#L649">649</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L650" href="FieldMatrix.html#L650">650</a>     T walkInColumnOrder(FieldMatrixPreservingVisitor&lt;T&gt; visitor);
+<a class="jxr_linenumber" name="L651" href="FieldMatrix.html#L651">651</a> 
+<a class="jxr_linenumber" name="L652" href="FieldMatrix.html#L652">652</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L653" href="FieldMatrix.html#L653">653</a> <em class="jxr_javadoccomment">     * Visit (and possibly change) some matrix entries in column order.</em>
+<a class="jxr_linenumber" name="L654" href="FieldMatrix.html#L654">654</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Column order starts at upper left and iterating through all elements</em>
+<a class="jxr_linenumber" name="L655" href="FieldMatrix.html#L655">655</a> <em class="jxr_javadoccomment">     * of a column from top to bottom before going to the topmost element</em>
+<a class="jxr_linenumber" name="L656" href="FieldMatrix.html#L656">656</a> <em class="jxr_javadoccomment">     * of the next column.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L657" href="FieldMatrix.html#L657">657</a> <em class="jxr_javadoccomment">     * @param visitor visitor used to process all matrix entries</em>
+<a class="jxr_linenumber" name="L658" href="FieldMatrix.html#L658">658</a> <em class="jxr_javadoccomment">     * @param startRow Initial row index</em>
+<a class="jxr_linenumber" name="L659" href="FieldMatrix.html#L659">659</a> <em class="jxr_javadoccomment">     * @param endRow Final row index (inclusive)</em>
+<a class="jxr_linenumber" name="L660" href="FieldMatrix.html#L660">660</a> <em class="jxr_javadoccomment">     * @param startColumn Initial column index</em>
+<a class="jxr_linenumber" name="L661" href="FieldMatrix.html#L661">661</a> <em class="jxr_javadoccomment">     * @param endColumn Final column index</em>
+<a class="jxr_linenumber" name="L662" href="FieldMatrix.html#L662">662</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code endRow &lt; startRow} or</em>
+<a class="jxr_linenumber" name="L663" href="FieldMatrix.html#L663">663</a> <em class="jxr_javadoccomment">     * {@code endColumn &lt; startColumn}.</em>
+<a class="jxr_linenumber" name="L664" href="FieldMatrix.html#L664">664</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the indices are not valid.</em>
+<a class="jxr_linenumber" name="L665" href="FieldMatrix.html#L665">665</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L666" href="FieldMatrix.html#L666">666</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L667" href="FieldMatrix.html#L667">667</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L668" href="FieldMatrix.html#L668">668</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L669" href="FieldMatrix.html#L669">669</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L670" href="FieldMatrix.html#L670">670</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L671" href="FieldMatrix.html#L671">671</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L672" href="FieldMatrix.html#L672">672</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L673" href="FieldMatrix.html#L673">673</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L674" href="FieldMatrix.html#L674">674</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L675" href="FieldMatrix.html#L675">675</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L676" href="FieldMatrix.html#L676">676</a> <em class="jxr_javadoccomment">     * @return the value returned by {@link FieldMatrixChangingVisitor#end()} at the end</em>
+<a class="jxr_linenumber" name="L677" href="FieldMatrix.html#L677">677</a> <em class="jxr_javadoccomment">     * of the walk</em>
+<a class="jxr_linenumber" name="L678" href="FieldMatrix.html#L678">678</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L679" href="FieldMatrix.html#L679">679</a>     T walkInColumnOrder(FieldMatrixChangingVisitor&lt;T&gt; visitor,
+<a class="jxr_linenumber" name="L680" href="FieldMatrix.html#L680">680</a>                         <strong class="jxr_keyword">int</strong> startRow, <strong class="jxr_keyword">int</strong> endRow, <strong class="jxr_keyword">int</strong> startColumn, <strong class="jxr_keyword">int</strong> endColumn)
+<a class="jxr_linenumber" name="L681" href="FieldMatrix.html#L681">681</a>     <strong class="jxr_keyword">throws</strong> NumberIsTooSmallException, OutOfRangeException;
+<a class="jxr_linenumber" name="L682" href="FieldMatrix.html#L682">682</a> 
+<a class="jxr_linenumber" name="L683" href="FieldMatrix.html#L683">683</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L684" href="FieldMatrix.html#L684">684</a> <em class="jxr_javadoccomment">     * Visit (but don't change) some matrix entries in column order.</em>
+<a class="jxr_linenumber" name="L685" href="FieldMatrix.html#L685">685</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Column order starts at upper left and iterating through all elements</em>
+<a class="jxr_linenumber" name="L686" href="FieldMatrix.html#L686">686</a> <em class="jxr_javadoccomment">     * of a column from top to bottom before going to the topmost element</em>
+<a class="jxr_linenumber" name="L687" href="FieldMatrix.html#L687">687</a> <em class="jxr_javadoccomment">     * of the next column.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L688" href="FieldMatrix.html#L688">688</a> <em class="jxr_javadoccomment">     * @param visitor visitor used to process all matrix entries</em>
+<a class="jxr_linenumber" name="L689" href="FieldMatrix.html#L689">689</a> <em class="jxr_javadoccomment">     * @param startRow Initial row index</em>
+<a class="jxr_linenumber" name="L690" href="FieldMatrix.html#L690">690</a> <em class="jxr_javadoccomment">     * @param endRow Final row index (inclusive)</em>
+<a class="jxr_linenumber" name="L691" href="FieldMatrix.html#L691">691</a> <em class="jxr_javadoccomment">     * @param startColumn Initial column index</em>
+<a class="jxr_linenumber" name="L692" href="FieldMatrix.html#L692">692</a> <em class="jxr_javadoccomment">     * @param endColumn Final column index</em>
+<a class="jxr_linenumber" name="L693" href="FieldMatrix.html#L693">693</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code endRow &lt; startRow} or</em>
+<a class="jxr_linenumber" name="L694" href="FieldMatrix.html#L694">694</a> <em class="jxr_javadoccomment">     * {@code endColumn &lt; startColumn}.</em>
+<a class="jxr_linenumber" name="L695" href="FieldMatrix.html#L695">695</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the indices are not valid.</em>
+<a class="jxr_linenumber" name="L696" href="FieldMatrix.html#L696">696</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L697" href="FieldMatrix.html#L697">697</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L698" href="FieldMatrix.html#L698">698</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L699" href="FieldMatrix.html#L699">699</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L700" href="FieldMatrix.html#L700">700</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L701" href="FieldMatrix.html#L701">701</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L702" href="FieldMatrix.html#L702">702</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L703" href="FieldMatrix.html#L703">703</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L704" href="FieldMatrix.html#L704">704</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L705" href="FieldMatrix.html#L705">705</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L706" href="FieldMatrix.html#L706">706</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L707" href="FieldMatrix.html#L707">707</a> <em class="jxr_javadoccomment">     * @return the value returned by {@link FieldMatrixPreservingVisitor#end()} at the end</em>
+<a class="jxr_linenumber" name="L708" href="FieldMatrix.html#L708">708</a> <em class="jxr_javadoccomment">     * of the walk</em>
+<a class="jxr_linenumber" name="L709" href="FieldMatrix.html#L709">709</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L710" href="FieldMatrix.html#L710">710</a>     T walkInColumnOrder(FieldMatrixPreservingVisitor&lt;T&gt; visitor,
+<a class="jxr_linenumber" name="L711" href="FieldMatrix.html#L711">711</a>                         <strong class="jxr_keyword">int</strong> startRow, <strong class="jxr_keyword">int</strong> endRow, <strong class="jxr_keyword">int</strong> startColumn, <strong class="jxr_keyword">int</strong> endColumn)
+<a class="jxr_linenumber" name="L712" href="FieldMatrix.html#L712">712</a>     <strong class="jxr_keyword">throws</strong> NumberIsTooSmallException, OutOfRangeException;
+<a class="jxr_linenumber" name="L713" href="FieldMatrix.html#L713">713</a> 
+<a class="jxr_linenumber" name="L714" href="FieldMatrix.html#L714">714</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L715" href="FieldMatrix.html#L715">715</a> <em class="jxr_javadoccomment">     * Visit (and possibly change) all matrix entries using the fastest possible order.</em>
+<a class="jxr_linenumber" name="L716" href="FieldMatrix.html#L716">716</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The fastest walking order depends on the exact matrix class. It may be</em>
+<a class="jxr_linenumber" name="L717" href="FieldMatrix.html#L717">717</a> <em class="jxr_javadoccomment">     * different from traditional row or column orders.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L718" href="FieldMatrix.html#L718">718</a> <em class="jxr_javadoccomment">     * @param visitor visitor used to process all matrix entries</em>
+<a class="jxr_linenumber" name="L719" href="FieldMatrix.html#L719">719</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L720" href="FieldMatrix.html#L720">720</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L721" href="FieldMatrix.html#L721">721</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L722" href="FieldMatrix.html#L722">722</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L723" href="FieldMatrix.html#L723">723</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L724" href="FieldMatrix.html#L724">724</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L725" href="FieldMatrix.html#L725">725</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L726" href="FieldMatrix.html#L726">726</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L727" href="FieldMatrix.html#L727">727</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L728" href="FieldMatrix.html#L728">728</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L729" href="FieldMatrix.html#L729">729</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L730" href="FieldMatrix.html#L730">730</a> <em class="jxr_javadoccomment">     * @return the value returned by {@link FieldMatrixChangingVisitor#end()} at the end</em>
+<a class="jxr_linenumber" name="L731" href="FieldMatrix.html#L731">731</a> <em class="jxr_javadoccomment">     * of the walk</em>
+<a class="jxr_linenumber" name="L732" href="FieldMatrix.html#L732">732</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L733" href="FieldMatrix.html#L733">733</a>     T walkInOptimizedOrder(FieldMatrixChangingVisitor&lt;T&gt; visitor);
+<a class="jxr_linenumber" name="L734" href="FieldMatrix.html#L734">734</a> 
+<a class="jxr_linenumber" name="L735" href="FieldMatrix.html#L735">735</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L736" href="FieldMatrix.html#L736">736</a> <em class="jxr_javadoccomment">     * Visit (but don't change) all matrix entries using the fastest possible order.</em>
+<a class="jxr_linenumber" name="L737" href="FieldMatrix.html#L737">737</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The fastest walking order depends on the exact matrix class. It may be</em>
+<a class="jxr_linenumber" name="L738" href="FieldMatrix.html#L738">738</a> <em class="jxr_javadoccomment">     * different from traditional row or column orders.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L739" href="FieldMatrix.html#L739">739</a> <em class="jxr_javadoccomment">     * @param visitor visitor used to process all matrix entries</em>
+<a class="jxr_linenumber" name="L740" href="FieldMatrix.html#L740">740</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L741" href="FieldMatrix.html#L741">741</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L742" href="FieldMatrix.html#L742">742</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L743" href="FieldMatrix.html#L743">743</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L744" href="FieldMatrix.html#L744">744</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L745" href="FieldMatrix.html#L745">745</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L746" href="FieldMatrix.html#L746">746</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L747" href="FieldMatrix.html#L747">747</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L748" href="FieldMatrix.html#L748">748</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L749" href="FieldMatrix.html#L749">749</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L750" href="FieldMatrix.html#L750">750</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L751" href="FieldMatrix.html#L751">751</a> <em class="jxr_javadoccomment">     * @return the value returned by {@link FieldMatrixPreservingVisitor#end()} at the end</em>
+<a class="jxr_linenumber" name="L752" href="FieldMatrix.html#L752">752</a> <em class="jxr_javadoccomment">     * of the walk</em>
+<a class="jxr_linenumber" name="L753" href="FieldMatrix.html#L753">753</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L754" href="FieldMatrix.html#L754">754</a>     T walkInOptimizedOrder(FieldMatrixPreservingVisitor&lt;T&gt; visitor);
+<a class="jxr_linenumber" name="L755" href="FieldMatrix.html#L755">755</a> 
+<a class="jxr_linenumber" name="L756" href="FieldMatrix.html#L756">756</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L757" href="FieldMatrix.html#L757">757</a> <em class="jxr_javadoccomment">     * Visit (and possibly change) some matrix entries using the fastest possible order.</em>
+<a class="jxr_linenumber" name="L758" href="FieldMatrix.html#L758">758</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The fastest walking order depends on the exact matrix class. It may be</em>
+<a class="jxr_linenumber" name="L759" href="FieldMatrix.html#L759">759</a> <em class="jxr_javadoccomment">     * different from traditional row or column orders.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L760" href="FieldMatrix.html#L760">760</a> <em class="jxr_javadoccomment">     * @param visitor visitor used to process all matrix entries</em>
+<a class="jxr_linenumber" name="L761" href="FieldMatrix.html#L761">761</a> <em class="jxr_javadoccomment">     * @param startRow Initial row index</em>
+<a class="jxr_linenumber" name="L762" href="FieldMatrix.html#L762">762</a> <em class="jxr_javadoccomment">     * @param endRow Final row index (inclusive)</em>
+<a class="jxr_linenumber" name="L763" href="FieldMatrix.html#L763">763</a> <em class="jxr_javadoccomment">     * @param startColumn Initial column index</em>
+<a class="jxr_linenumber" name="L764" href="FieldMatrix.html#L764">764</a> <em class="jxr_javadoccomment">     * @param endColumn Final column index (inclusive)</em>
+<a class="jxr_linenumber" name="L765" href="FieldMatrix.html#L765">765</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code endRow &lt; startRow} or</em>
+<a class="jxr_linenumber" name="L766" href="FieldMatrix.html#L766">766</a> <em class="jxr_javadoccomment">     * {@code endColumn &lt; startColumn}.</em>
+<a class="jxr_linenumber" name="L767" href="FieldMatrix.html#L767">767</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the indices are not valid.</em>
+<a class="jxr_linenumber" name="L768" href="FieldMatrix.html#L768">768</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L769" href="FieldMatrix.html#L769">769</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L770" href="FieldMatrix.html#L770">770</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L771" href="FieldMatrix.html#L771">771</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L772" href="FieldMatrix.html#L772">772</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L773" href="FieldMatrix.html#L773">773</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L774" href="FieldMatrix.html#L774">774</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L775" href="FieldMatrix.html#L775">775</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L776" href="FieldMatrix.html#L776">776</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L777" href="FieldMatrix.html#L777">777</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L778" href="FieldMatrix.html#L778">778</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L779" href="FieldMatrix.html#L779">779</a> <em class="jxr_javadoccomment">     * @return the value returned by {@link FieldMatrixChangingVisitor#end()} at the end</em>
+<a class="jxr_linenumber" name="L780" href="FieldMatrix.html#L780">780</a> <em class="jxr_javadoccomment">     * of the walk</em>
+<a class="jxr_linenumber" name="L781" href="FieldMatrix.html#L781">781</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L782" href="FieldMatrix.html#L782">782</a>     T walkInOptimizedOrder(FieldMatrixChangingVisitor&lt;T&gt; visitor,
+<a class="jxr_linenumber" name="L783" href="FieldMatrix.html#L783">783</a>                            <strong class="jxr_keyword">int</strong> startRow, <strong class="jxr_keyword">int</strong> endRow, <strong class="jxr_keyword">int</strong> startColumn, <strong class="jxr_keyword">int</strong> endColumn)
+<a class="jxr_linenumber" name="L784" href="FieldMatrix.html#L784">784</a>     <strong class="jxr_keyword">throws</strong> NumberIsTooSmallException, OutOfRangeException;
+<a class="jxr_linenumber" name="L785" href="FieldMatrix.html#L785">785</a> 
+<a class="jxr_linenumber" name="L786" href="FieldMatrix.html#L786">786</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L787" href="FieldMatrix.html#L787">787</a> <em class="jxr_javadoccomment">     * Visit (but don't change) some matrix entries using the fastest possible order.</em>
+<a class="jxr_linenumber" name="L788" href="FieldMatrix.html#L788">788</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The fastest walking order depends on the exact matrix class. It may be</em>
+<a class="jxr_linenumber" name="L789" href="FieldMatrix.html#L789">789</a> <em class="jxr_javadoccomment">     * different from traditional row or column orders.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L790" href="FieldMatrix.html#L790">790</a> <em class="jxr_javadoccomment">     * @param visitor visitor used to process all matrix entries</em>
+<a class="jxr_linenumber" name="L791" href="FieldMatrix.html#L791">791</a> <em class="jxr_javadoccomment">     * @param startRow Initial row index</em>
+<a class="jxr_linenumber" name="L792" href="FieldMatrix.html#L792">792</a> <em class="jxr_javadoccomment">     * @param endRow Final row index (inclusive)</em>
+<a class="jxr_linenumber" name="L793" href="FieldMatrix.html#L793">793</a> <em class="jxr_javadoccomment">     * @param startColumn Initial column index</em>
+<a class="jxr_linenumber" name="L794" href="FieldMatrix.html#L794">794</a> <em class="jxr_javadoccomment">     * @param endColumn Final column index (inclusive)</em>
+<a class="jxr_linenumber" name="L795" href="FieldMatrix.html#L795">795</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code endRow &lt; startRow} or</em>
+<a class="jxr_linenumber" name="L796" href="FieldMatrix.html#L796">796</a> <em class="jxr_javadoccomment">     * {@code endColumn &lt; startColumn}.</em>
+<a class="jxr_linenumber" name="L797" href="FieldMatrix.html#L797">797</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the indices are not valid.</em>
+<a class="jxr_linenumber" name="L798" href="FieldMatrix.html#L798">798</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L799" href="FieldMatrix.html#L799">799</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L800" href="FieldMatrix.html#L800">800</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L801" href="FieldMatrix.html#L801">801</a> <em class="jxr_javadoccomment">     * @see #walkInRowOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L802" href="FieldMatrix.html#L802">802</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L803" href="FieldMatrix.html#L803">803</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L804" href="FieldMatrix.html#L804">804</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L805" href="FieldMatrix.html#L805">805</a> <em class="jxr_javadoccomment">     * @see #walkInColumnOrder(FieldMatrixPreservingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L806" href="FieldMatrix.html#L806">806</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor)</em>
+<a class="jxr_linenumber" name="L807" href="FieldMatrix.html#L807">807</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixPreservingVisitor)</em>
+<a class="jxr_linenumber" name="L808" href="FieldMatrix.html#L808">808</a> <em class="jxr_javadoccomment">     * @see #walkInOptimizedOrder(FieldMatrixChangingVisitor, int, int, int, int)</em>
+<a class="jxr_linenumber" name="L809" href="FieldMatrix.html#L809">809</a> <em class="jxr_javadoccomment">     * @return the value returned by {@link FieldMatrixPreservingVisitor#end()} at the end</em>
+<a class="jxr_linenumber" name="L810" href="FieldMatrix.html#L810">810</a> <em class="jxr_javadoccomment">     * of the walk</em>
+<a class="jxr_linenumber" name="L811" href="FieldMatrix.html#L811">811</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L812" href="FieldMatrix.html#L812">812</a>     T walkInOptimizedOrder(FieldMatrixPreservingVisitor&lt;T&gt; visitor,
+<a class="jxr_linenumber" name="L813" href="FieldMatrix.html#L813">813</a>                            <strong class="jxr_keyword">int</strong> startRow, <strong class="jxr_keyword">int</strong> endRow, <strong class="jxr_keyword">int</strong> startColumn, <strong class="jxr_keyword">int</strong> endColumn)
+<a class="jxr_linenumber" name="L814" href="FieldMatrix.html#L814">814</a>     <strong class="jxr_keyword">throws</strong> NumberIsTooSmallException, OutOfRangeException;
+<a class="jxr_linenumber" name="L815" href="FieldMatrix.html#L815">815</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

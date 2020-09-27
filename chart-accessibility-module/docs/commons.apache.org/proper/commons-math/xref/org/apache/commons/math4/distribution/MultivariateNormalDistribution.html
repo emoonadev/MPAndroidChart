@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>MultivariateNormalDistribution xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/distribution/MultivariateNormalDistribution.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="MultivariateNormalDistribution.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="MultivariateNormalDistribution.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="MultivariateNormalDistribution.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="MultivariateNormalDistribution.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="MultivariateNormalDistribution.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="MultivariateNormalDistribution.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="MultivariateNormalDistribution.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="MultivariateNormalDistribution.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="MultivariateNormalDistribution.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="MultivariateNormalDistribution.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="MultivariateNormalDistribution.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="MultivariateNormalDistribution.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="MultivariateNormalDistribution.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="MultivariateNormalDistribution.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="MultivariateNormalDistribution.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="MultivariateNormalDistribution.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="MultivariateNormalDistribution.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.distribution;
+<a class="jxr_linenumber" name="L18" href="MultivariateNormalDistribution.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="MultivariateNormalDistribution.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L20" href="MultivariateNormalDistribution.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.Array2DRowRealMatrix;
+<a class="jxr_linenumber" name="L21" href="MultivariateNormalDistribution.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.EigenDecomposition;
+<a class="jxr_linenumber" name="L22" href="MultivariateNormalDistribution.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.NonPositiveDefiniteMatrixException;
+<a class="jxr_linenumber" name="L23" href="MultivariateNormalDistribution.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.RealMatrix;
+<a class="jxr_linenumber" name="L24" href="MultivariateNormalDistribution.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.SingularMatrixException;
+<a class="jxr_linenumber" name="L25" href="MultivariateNormalDistribution.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L26" href="MultivariateNormalDistribution.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L27" href="MultivariateNormalDistribution.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L28" href="MultivariateNormalDistribution.html#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="MultivariateNormalDistribution.html#L29">29</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L30" href="MultivariateNormalDistribution.html#L30">30</a>  <em class="jxr_javadoccomment"> * Implementation of the multivariate normal (Gaussian) distribution.</em>
+<a class="jxr_linenumber" name="L31" href="MultivariateNormalDistribution.html#L31">31</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L32" href="MultivariateNormalDistribution.html#L32">32</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/Multivariate_normal_distribution" target="alexandria_uri">http://en.wikipedia.org/wiki/Multivariate_normal_distribution</a>"&gt;</em>
+<a class="jxr_linenumber" name="L33" href="MultivariateNormalDistribution.html#L33">33</a>  <em class="jxr_javadoccomment"> * Multivariate normal distribution (Wikipedia)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L34" href="MultivariateNormalDistribution.html#L34">34</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://mathworld.wolfram.com/MultivariateNormalDistribution.html" target="alexandria_uri">http://mathworld.wolfram.com/MultivariateNormalDistribution.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L35" href="MultivariateNormalDistribution.html#L35">35</a>  <em class="jxr_javadoccomment"> * Multivariate normal distribution (MathWorld)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L36" href="MultivariateNormalDistribution.html#L36">36</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L37" href="MultivariateNormalDistribution.html#L37">37</a>  <em class="jxr_javadoccomment"> * @since 3.1</em>
+<a class="jxr_linenumber" name="L38" href="MultivariateNormalDistribution.html#L38">38</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L39" href="MultivariateNormalDistribution.html#L39">39</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="MultivariateNormalDistribution.html">MultivariateNormalDistribution</a>
+<a class="jxr_linenumber" name="L40" href="MultivariateNormalDistribution.html#L40">40</a>      <strong class="jxr_keyword">extends</strong> <a href="AbstractMultivariateRealDistribution.html">AbstractMultivariateRealDistribution</a> {
+<a class="jxr_linenumber" name="L41" href="MultivariateNormalDistribution.html#L41">41</a>      <em class="jxr_javadoccomment">/** Vector of means. */</em>
+<a class="jxr_linenumber" name="L42" href="MultivariateNormalDistribution.html#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] means;
+<a class="jxr_linenumber" name="L43" href="MultivariateNormalDistribution.html#L43">43</a>      <em class="jxr_javadoccomment">/** Covariance matrix. */</em>
+<a class="jxr_linenumber" name="L44" href="MultivariateNormalDistribution.html#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> covarianceMatrix;
+<a class="jxr_linenumber" name="L45" href="MultivariateNormalDistribution.html#L45">45</a>      <em class="jxr_javadoccomment">/** The matrix inverse of the covariance matrix. */</em>
+<a class="jxr_linenumber" name="L46" href="MultivariateNormalDistribution.html#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> covarianceMatrixInverse;
+<a class="jxr_linenumber" name="L47" href="MultivariateNormalDistribution.html#L47">47</a>      <em class="jxr_javadoccomment">/** The determinant of the covariance matrix. */</em>
+<a class="jxr_linenumber" name="L48" href="MultivariateNormalDistribution.html#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> covarianceMatrixDeterminant;
+<a class="jxr_linenumber" name="L49" href="MultivariateNormalDistribution.html#L49">49</a>      <em class="jxr_javadoccomment">/** Matrix used in computation of samples. */</em>
+<a class="jxr_linenumber" name="L50" href="MultivariateNormalDistribution.html#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> samplingMatrix;
+<a class="jxr_linenumber" name="L51" href="MultivariateNormalDistribution.html#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="MultivariateNormalDistribution.html#L52">52</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L53" href="MultivariateNormalDistribution.html#L53">53</a>  <em class="jxr_javadoccomment">     * Creates a multivariate normal distribution with the given mean vector and</em>
+<a class="jxr_linenumber" name="L54" href="MultivariateNormalDistribution.html#L54">54</a>  <em class="jxr_javadoccomment">     * covariance matrix.</em>
+<a class="jxr_linenumber" name="L55" href="MultivariateNormalDistribution.html#L55">55</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L56" href="MultivariateNormalDistribution.html#L56">56</a>  <em class="jxr_javadoccomment">     * The number of dimensions is equal to the length of the mean vector</em>
+<a class="jxr_linenumber" name="L57" href="MultivariateNormalDistribution.html#L57">57</a>  <em class="jxr_javadoccomment">     * and to the number of rows and columns of the covariance matrix.</em>
+<a class="jxr_linenumber" name="L58" href="MultivariateNormalDistribution.html#L58">58</a>  <em class="jxr_javadoccomment">     * It is frequently written as "p" in formulae.</em>
+<a class="jxr_linenumber" name="L59" href="MultivariateNormalDistribution.html#L59">59</a>  <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L60" href="MultivariateNormalDistribution.html#L60">60</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L61" href="MultivariateNormalDistribution.html#L61">61</a>  <em class="jxr_javadoccomment">     * @param means Vector of means.</em>
+<a class="jxr_linenumber" name="L62" href="MultivariateNormalDistribution.html#L62">62</a>  <em class="jxr_javadoccomment">     * @param covariances Covariance matrix.</em>
+<a class="jxr_linenumber" name="L63" href="MultivariateNormalDistribution.html#L63">63</a>  <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the arrays length are</em>
+<a class="jxr_linenumber" name="L64" href="MultivariateNormalDistribution.html#L64">64</a>  <em class="jxr_javadoccomment">     * inconsistent.</em>
+<a class="jxr_linenumber" name="L65" href="MultivariateNormalDistribution.html#L65">65</a>  <em class="jxr_javadoccomment">     * @throws SingularMatrixException if the eigenvalue decomposition cannot</em>
+<a class="jxr_linenumber" name="L66" href="MultivariateNormalDistribution.html#L66">66</a>  <em class="jxr_javadoccomment">     * be performed on the provided covariance matrix.</em>
+<a class="jxr_linenumber" name="L67" href="MultivariateNormalDistribution.html#L67">67</a>  <em class="jxr_javadoccomment">     * @throws NonPositiveDefiniteMatrixException if any of the eigenvalues is</em>
+<a class="jxr_linenumber" name="L68" href="MultivariateNormalDistribution.html#L68">68</a>  <em class="jxr_javadoccomment">     * negative.</em>
+<a class="jxr_linenumber" name="L69" href="MultivariateNormalDistribution.html#L69">69</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L70" href="MultivariateNormalDistribution.html#L70">70</a>      <strong class="jxr_keyword">public</strong> <a href="MultivariateNormalDistribution.html">MultivariateNormalDistribution</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] means,
+<a class="jxr_linenumber" name="L71" href="MultivariateNormalDistribution.html#L71">71</a>                                            <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] covariances)
+<a class="jxr_linenumber" name="L72" href="MultivariateNormalDistribution.html#L72">72</a>              <strong class="jxr_keyword">throws</strong> SingularMatrixException,
+<a class="jxr_linenumber" name="L73" href="MultivariateNormalDistribution.html#L73">73</a>                     DimensionMismatchException,
+<a class="jxr_linenumber" name="L74" href="MultivariateNormalDistribution.html#L74">74</a>                     <a href="../linear/NonPositiveDefiniteMatrixException.html">NonPositiveDefiniteMatrixException</a> {
+<a class="jxr_linenumber" name="L75" href="MultivariateNormalDistribution.html#L75">75</a>          <strong class="jxr_keyword">super</strong>(means.length);
+<a class="jxr_linenumber" name="L76" href="MultivariateNormalDistribution.html#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="MultivariateNormalDistribution.html#L77">77</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> dim = means.length;
+<a class="jxr_linenumber" name="L78" href="MultivariateNormalDistribution.html#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="MultivariateNormalDistribution.html#L79">79</a>          <strong class="jxr_keyword">if</strong> (covariances.length != dim) {
+<a class="jxr_linenumber" name="L80" href="MultivariateNormalDistribution.html#L80">80</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a>(covariances.length, dim);
+<a class="jxr_linenumber" name="L81" href="MultivariateNormalDistribution.html#L81">81</a>          }
+<a class="jxr_linenumber" name="L82" href="MultivariateNormalDistribution.html#L82">82</a>  
+<a class="jxr_linenumber" name="L83" href="MultivariateNormalDistribution.html#L83">83</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; dim; i++) {
+<a class="jxr_linenumber" name="L84" href="MultivariateNormalDistribution.html#L84">84</a>              <strong class="jxr_keyword">if</strong> (dim != covariances[i].length) {
+<a class="jxr_linenumber" name="L85" href="MultivariateNormalDistribution.html#L85">85</a>                  <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a>(covariances[i].length, dim);
+<a class="jxr_linenumber" name="L86" href="MultivariateNormalDistribution.html#L86">86</a>              }
+<a class="jxr_linenumber" name="L87" href="MultivariateNormalDistribution.html#L87">87</a>          }
+<a class="jxr_linenumber" name="L88" href="MultivariateNormalDistribution.html#L88">88</a>  
+<a class="jxr_linenumber" name="L89" href="MultivariateNormalDistribution.html#L89">89</a>          <strong class="jxr_keyword">this</strong>.means = MathArrays.copyOf(means);
+<a class="jxr_linenumber" name="L90" href="MultivariateNormalDistribution.html#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="MultivariateNormalDistribution.html#L91">91</a>          covarianceMatrix = <strong class="jxr_keyword">new</strong> <a href="../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(covariances);
+<a class="jxr_linenumber" name="L92" href="MultivariateNormalDistribution.html#L92">92</a>  
+<a class="jxr_linenumber" name="L93" href="MultivariateNormalDistribution.html#L93">93</a>          <em class="jxr_comment">// Covariance matrix eigen decomposition.</em>
+<a class="jxr_linenumber" name="L94" href="MultivariateNormalDistribution.html#L94">94</a>          <strong class="jxr_keyword">final</strong> <a href="../linear/EigenDecomposition.html">EigenDecomposition</a> covMatDec = <strong class="jxr_keyword">new</strong> <a href="../linear/EigenDecomposition.html">EigenDecomposition</a>(covarianceMatrix);
+<a class="jxr_linenumber" name="L95" href="MultivariateNormalDistribution.html#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="MultivariateNormalDistribution.html#L96">96</a>          <em class="jxr_comment">// Compute and store the inverse.</em>
+<a class="jxr_linenumber" name="L97" href="MultivariateNormalDistribution.html#L97">97</a>          covarianceMatrixInverse = covMatDec.getSolver().getInverse();
+<a class="jxr_linenumber" name="L98" href="MultivariateNormalDistribution.html#L98">98</a>          <em class="jxr_comment">// Compute and store the determinant.</em>
+<a class="jxr_linenumber" name="L99" href="MultivariateNormalDistribution.html#L99">99</a>          covarianceMatrixDeterminant = covMatDec.getDeterminant();
+<a class="jxr_linenumber" name="L100" href="MultivariateNormalDistribution.html#L100">100</a> 
+<a class="jxr_linenumber" name="L101" href="MultivariateNormalDistribution.html#L101">101</a>         <em class="jxr_comment">// Eigenvalues of the covariance matrix.</em>
+<a class="jxr_linenumber" name="L102" href="MultivariateNormalDistribution.html#L102">102</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] covMatEigenvalues = covMatDec.getRealEigenvalues();
+<a class="jxr_linenumber" name="L103" href="MultivariateNormalDistribution.html#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="MultivariateNormalDistribution.html#L104">104</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; covMatEigenvalues.length; i++) {
+<a class="jxr_linenumber" name="L105" href="MultivariateNormalDistribution.html#L105">105</a>             <strong class="jxr_keyword">if</strong> (covMatEigenvalues[i] &lt; 0) {
+<a class="jxr_linenumber" name="L106" href="MultivariateNormalDistribution.html#L106">106</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../linear/NonPositiveDefiniteMatrixException.html">NonPositiveDefiniteMatrixException</a>(covMatEigenvalues[i], i, 0);
+<a class="jxr_linenumber" name="L107" href="MultivariateNormalDistribution.html#L107">107</a>             }
+<a class="jxr_linenumber" name="L108" href="MultivariateNormalDistribution.html#L108">108</a>         }
+<a class="jxr_linenumber" name="L109" href="MultivariateNormalDistribution.html#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="MultivariateNormalDistribution.html#L110">110</a>         <em class="jxr_comment">// Matrix where each column is an eigenvector of the covariance matrix.</em>
+<a class="jxr_linenumber" name="L111" href="MultivariateNormalDistribution.html#L111">111</a>         <strong class="jxr_keyword">final</strong> <a href="../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a> covMatEigenvectors = <strong class="jxr_keyword">new</strong> <a href="../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(dim, dim);
+<a class="jxr_linenumber" name="L112" href="MultivariateNormalDistribution.html#L112">112</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> v = 0; v &lt; dim; v++) {
+<a class="jxr_linenumber" name="L113" href="MultivariateNormalDistribution.html#L113">113</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] evec = covMatDec.getEigenvector(v).toArray();
+<a class="jxr_linenumber" name="L114" href="MultivariateNormalDistribution.html#L114">114</a>             covMatEigenvectors.setColumn(v, evec);
+<a class="jxr_linenumber" name="L115" href="MultivariateNormalDistribution.html#L115">115</a>         }
+<a class="jxr_linenumber" name="L116" href="MultivariateNormalDistribution.html#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="MultivariateNormalDistribution.html#L117">117</a>         <strong class="jxr_keyword">final</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> tmpMatrix = covMatEigenvectors.transpose();
+<a class="jxr_linenumber" name="L118" href="MultivariateNormalDistribution.html#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="MultivariateNormalDistribution.html#L119">119</a>         <em class="jxr_comment">// Scale each eigenvector by the square root of its eigenvalue.</em>
+<a class="jxr_linenumber" name="L120" href="MultivariateNormalDistribution.html#L120">120</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = 0; row &lt; dim; row++) {
+<a class="jxr_linenumber" name="L121" href="MultivariateNormalDistribution.html#L121">121</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> factor = FastMath.sqrt(covMatEigenvalues[row]);
+<a class="jxr_linenumber" name="L122" href="MultivariateNormalDistribution.html#L122">122</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = 0; col &lt; dim; col++) {
+<a class="jxr_linenumber" name="L123" href="MultivariateNormalDistribution.html#L123">123</a>                 tmpMatrix.multiplyEntry(row, col, factor);
+<a class="jxr_linenumber" name="L124" href="MultivariateNormalDistribution.html#L124">124</a>             }
+<a class="jxr_linenumber" name="L125" href="MultivariateNormalDistribution.html#L125">125</a>         }
+<a class="jxr_linenumber" name="L126" href="MultivariateNormalDistribution.html#L126">126</a> 
+<a class="jxr_linenumber" name="L127" href="MultivariateNormalDistribution.html#L127">127</a>         samplingMatrix = covMatEigenvectors.multiply(tmpMatrix);
+<a class="jxr_linenumber" name="L128" href="MultivariateNormalDistribution.html#L128">128</a>     }
+<a class="jxr_linenumber" name="L129" href="MultivariateNormalDistribution.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="MultivariateNormalDistribution.html#L130">130</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L131" href="MultivariateNormalDistribution.html#L131">131</a> <em class="jxr_javadoccomment">     * Gets the mean vector.</em>
+<a class="jxr_linenumber" name="L132" href="MultivariateNormalDistribution.html#L132">132</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L133" href="MultivariateNormalDistribution.html#L133">133</a> <em class="jxr_javadoccomment">     * @return the mean vector.</em>
+<a class="jxr_linenumber" name="L134" href="MultivariateNormalDistribution.html#L134">134</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L135" href="MultivariateNormalDistribution.html#L135">135</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getMeans() {
+<a class="jxr_linenumber" name="L136" href="MultivariateNormalDistribution.html#L136">136</a>         <strong class="jxr_keyword">return</strong> MathArrays.copyOf(means);
+<a class="jxr_linenumber" name="L137" href="MultivariateNormalDistribution.html#L137">137</a>     }
+<a class="jxr_linenumber" name="L138" href="MultivariateNormalDistribution.html#L138">138</a> 
+<a class="jxr_linenumber" name="L139" href="MultivariateNormalDistribution.html#L139">139</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L140" href="MultivariateNormalDistribution.html#L140">140</a> <em class="jxr_javadoccomment">     * Gets the covariance matrix.</em>
+<a class="jxr_linenumber" name="L141" href="MultivariateNormalDistribution.html#L141">141</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L142" href="MultivariateNormalDistribution.html#L142">142</a> <em class="jxr_javadoccomment">     * @return the covariance matrix.</em>
+<a class="jxr_linenumber" name="L143" href="MultivariateNormalDistribution.html#L143">143</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L144" href="MultivariateNormalDistribution.html#L144">144</a>     <strong class="jxr_keyword">public</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> getCovariances() {
+<a class="jxr_linenumber" name="L145" href="MultivariateNormalDistribution.html#L145">145</a>         <strong class="jxr_keyword">return</strong> covarianceMatrix.copy();
+<a class="jxr_linenumber" name="L146" href="MultivariateNormalDistribution.html#L146">146</a>     }
+<a class="jxr_linenumber" name="L147" href="MultivariateNormalDistribution.html#L147">147</a> 
+<a class="jxr_linenumber" name="L148" href="MultivariateNormalDistribution.html#L148">148</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L149" href="MultivariateNormalDistribution.html#L149">149</a>     @Override
+<a class="jxr_linenumber" name="L150" href="MultivariateNormalDistribution.html#L150">150</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> density(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] vals) <strong class="jxr_keyword">throws</strong> DimensionMismatchException {
+<a class="jxr_linenumber" name="L151" href="MultivariateNormalDistribution.html#L151">151</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> dim = getDimension();
+<a class="jxr_linenumber" name="L152" href="MultivariateNormalDistribution.html#L152">152</a>         <strong class="jxr_keyword">if</strong> (vals.length != dim) {
+<a class="jxr_linenumber" name="L153" href="MultivariateNormalDistribution.html#L153">153</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a>(vals.length, dim);
+<a class="jxr_linenumber" name="L154" href="MultivariateNormalDistribution.html#L154">154</a>         }
+<a class="jxr_linenumber" name="L155" href="MultivariateNormalDistribution.html#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="MultivariateNormalDistribution.html#L156">156</a>         <strong class="jxr_keyword">return</strong> FastMath.pow(2 * FastMath.PI, -0.5 * dim) *
+<a class="jxr_linenumber" name="L157" href="MultivariateNormalDistribution.html#L157">157</a>             FastMath.pow(covarianceMatrixDeterminant, -0.5) *
+<a class="jxr_linenumber" name="L158" href="MultivariateNormalDistribution.html#L158">158</a>             getExponentTerm(vals);
+<a class="jxr_linenumber" name="L159" href="MultivariateNormalDistribution.html#L159">159</a>     }
+<a class="jxr_linenumber" name="L160" href="MultivariateNormalDistribution.html#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="MultivariateNormalDistribution.html#L161">161</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L162" href="MultivariateNormalDistribution.html#L162">162</a> <em class="jxr_javadoccomment">     * Gets the square root of each element on the diagonal of the covariance</em>
+<a class="jxr_linenumber" name="L163" href="MultivariateNormalDistribution.html#L163">163</a> <em class="jxr_javadoccomment">     * matrix.</em>
+<a class="jxr_linenumber" name="L164" href="MultivariateNormalDistribution.html#L164">164</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L165" href="MultivariateNormalDistribution.html#L165">165</a> <em class="jxr_javadoccomment">     * @return the standard deviations.</em>
+<a class="jxr_linenumber" name="L166" href="MultivariateNormalDistribution.html#L166">166</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L167" href="MultivariateNormalDistribution.html#L167">167</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getStandardDeviations() {
+<a class="jxr_linenumber" name="L168" href="MultivariateNormalDistribution.html#L168">168</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> dim = getDimension();
+<a class="jxr_linenumber" name="L169" href="MultivariateNormalDistribution.html#L169">169</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] std = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[dim];
+<a class="jxr_linenumber" name="L170" href="MultivariateNormalDistribution.html#L170">170</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] s = covarianceMatrix.getData();
+<a class="jxr_linenumber" name="L171" href="MultivariateNormalDistribution.html#L171">171</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; dim; i++) {
+<a class="jxr_linenumber" name="L172" href="MultivariateNormalDistribution.html#L172">172</a>             std[i] = FastMath.sqrt(s[i][i]);
+<a class="jxr_linenumber" name="L173" href="MultivariateNormalDistribution.html#L173">173</a>         }
+<a class="jxr_linenumber" name="L174" href="MultivariateNormalDistribution.html#L174">174</a>         <strong class="jxr_keyword">return</strong> std;
+<a class="jxr_linenumber" name="L175" href="MultivariateNormalDistribution.html#L175">175</a>     }
+<a class="jxr_linenumber" name="L176" href="MultivariateNormalDistribution.html#L176">176</a> 
+<a class="jxr_linenumber" name="L177" href="MultivariateNormalDistribution.html#L177">177</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L178" href="MultivariateNormalDistribution.html#L178">178</a>     @Override
+<a class="jxr_linenumber" name="L179" href="MultivariateNormalDistribution.html#L179">179</a>     <strong class="jxr_keyword">public</strong> MultivariateRealDistribution.Sampler createSampler(<strong class="jxr_keyword">final</strong> UniformRandomProvider rng) {
+<a class="jxr_linenumber" name="L180" href="MultivariateNormalDistribution.html#L180">180</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> MultivariateRealDistribution.Sampler() {
+<a class="jxr_linenumber" name="L181" href="MultivariateNormalDistribution.html#L181">181</a>             <em class="jxr_javadoccomment">/** Normal distribution. */</em>
+<a class="jxr_linenumber" name="L182" href="MultivariateNormalDistribution.html#L182">182</a>             <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> RealDistribution.Sampler gauss = <strong class="jxr_keyword">new</strong> <a href="NormalDistribution.html">NormalDistribution</a>().createSampler(rng);
+<a class="jxr_linenumber" name="L183" href="MultivariateNormalDistribution.html#L183">183</a> 
+<a class="jxr_linenumber" name="L184" href="MultivariateNormalDistribution.html#L184">184</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L185" href="MultivariateNormalDistribution.html#L185">185</a>             @Override
+<a class="jxr_linenumber" name="L186" href="MultivariateNormalDistribution.html#L186">186</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] sample() {
+<a class="jxr_linenumber" name="L187" href="MultivariateNormalDistribution.html#L187">187</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> dim = getDimension();
+<a class="jxr_linenumber" name="L188" href="MultivariateNormalDistribution.html#L188">188</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] normalVals = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[dim];
+<a class="jxr_linenumber" name="L189" href="MultivariateNormalDistribution.html#L189">189</a> 
+<a class="jxr_linenumber" name="L190" href="MultivariateNormalDistribution.html#L190">190</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; dim; i++) {
+<a class="jxr_linenumber" name="L191" href="MultivariateNormalDistribution.html#L191">191</a>                     normalVals[i] = gauss.sample();
+<a class="jxr_linenumber" name="L192" href="MultivariateNormalDistribution.html#L192">192</a>                 }
+<a class="jxr_linenumber" name="L193" href="MultivariateNormalDistribution.html#L193">193</a> 
+<a class="jxr_linenumber" name="L194" href="MultivariateNormalDistribution.html#L194">194</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] vals = samplingMatrix.operate(normalVals);
+<a class="jxr_linenumber" name="L195" href="MultivariateNormalDistribution.html#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="MultivariateNormalDistribution.html#L196">196</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; dim; i++) {
+<a class="jxr_linenumber" name="L197" href="MultivariateNormalDistribution.html#L197">197</a>                     vals[i] += means[i];
+<a class="jxr_linenumber" name="L198" href="MultivariateNormalDistribution.html#L198">198</a>                 }
+<a class="jxr_linenumber" name="L199" href="MultivariateNormalDistribution.html#L199">199</a> 
+<a class="jxr_linenumber" name="L200" href="MultivariateNormalDistribution.html#L200">200</a>                 <strong class="jxr_keyword">return</strong> vals;
+<a class="jxr_linenumber" name="L201" href="MultivariateNormalDistribution.html#L201">201</a>             }
+<a class="jxr_linenumber" name="L202" href="MultivariateNormalDistribution.html#L202">202</a>         };
+<a class="jxr_linenumber" name="L203" href="MultivariateNormalDistribution.html#L203">203</a>     }
+<a class="jxr_linenumber" name="L204" href="MultivariateNormalDistribution.html#L204">204</a> 
+<a class="jxr_linenumber" name="L205" href="MultivariateNormalDistribution.html#L205">205</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L206" href="MultivariateNormalDistribution.html#L206">206</a> <em class="jxr_javadoccomment">     * Computes the term used in the exponent (see definition of the distribution).</em>
+<a class="jxr_linenumber" name="L207" href="MultivariateNormalDistribution.html#L207">207</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L208" href="MultivariateNormalDistribution.html#L208">208</a> <em class="jxr_javadoccomment">     * @param values Values at which to compute density.</em>
+<a class="jxr_linenumber" name="L209" href="MultivariateNormalDistribution.html#L209">209</a> <em class="jxr_javadoccomment">     * @return the multiplication factor of density calculations.</em>
+<a class="jxr_linenumber" name="L210" href="MultivariateNormalDistribution.html#L210">210</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L211" href="MultivariateNormalDistribution.html#L211">211</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> getExponentTerm(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values) {
+<a class="jxr_linenumber" name="L212" href="MultivariateNormalDistribution.html#L212">212</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] centered = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[values.length];
+<a class="jxr_linenumber" name="L213" href="MultivariateNormalDistribution.html#L213">213</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; centered.length; i++) {
+<a class="jxr_linenumber" name="L214" href="MultivariateNormalDistribution.html#L214">214</a>             centered[i] = values[i] - getMeans()[i];
+<a class="jxr_linenumber" name="L215" href="MultivariateNormalDistribution.html#L215">215</a>         }
+<a class="jxr_linenumber" name="L216" href="MultivariateNormalDistribution.html#L216">216</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] preMultiplied = covarianceMatrixInverse.preMultiply(centered);
+<a class="jxr_linenumber" name="L217" href="MultivariateNormalDistribution.html#L217">217</a>         <strong class="jxr_keyword">double</strong> sum = 0;
+<a class="jxr_linenumber" name="L218" href="MultivariateNormalDistribution.html#L218">218</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; preMultiplied.length; i++) {
+<a class="jxr_linenumber" name="L219" href="MultivariateNormalDistribution.html#L219">219</a>             sum += preMultiplied[i] * centered[i];
+<a class="jxr_linenumber" name="L220" href="MultivariateNormalDistribution.html#L220">220</a>         }
+<a class="jxr_linenumber" name="L221" href="MultivariateNormalDistribution.html#L221">221</a>         <strong class="jxr_keyword">return</strong> FastMath.exp(-0.5 * sum);
+<a class="jxr_linenumber" name="L222" href="MultivariateNormalDistribution.html#L222">222</a>     }
+<a class="jxr_linenumber" name="L223" href="MultivariateNormalDistribution.html#L223">223</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

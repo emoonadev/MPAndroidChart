@@ -1,0 +1,310 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>WeibullDistribution xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/distribution/WeibullDistribution.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="WeibullDistribution.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="WeibullDistribution.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="WeibullDistribution.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="WeibullDistribution.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="WeibullDistribution.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="WeibullDistribution.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="WeibullDistribution.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="WeibullDistribution.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="WeibullDistribution.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="WeibullDistribution.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="WeibullDistribution.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="WeibullDistribution.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="WeibullDistribution.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="WeibullDistribution.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="WeibullDistribution.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="WeibullDistribution.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="WeibullDistribution.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="WeibullDistribution.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.distribution;
+<a class="jxr_linenumber" name="L19" href="WeibullDistribution.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="WeibullDistribution.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L21" href="WeibullDistribution.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L22" href="WeibullDistribution.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L23" href="WeibullDistribution.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.special.Gamma;
+<a class="jxr_linenumber" name="L24" href="WeibullDistribution.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L25" href="WeibullDistribution.html#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="WeibullDistribution.html#L26">26</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L27" href="WeibullDistribution.html#L27">27</a>  <em class="jxr_javadoccomment"> * Implementation of the Weibull distribution. This implementation uses the</em>
+<a class="jxr_linenumber" name="L28" href="WeibullDistribution.html#L28">28</a>  <em class="jxr_javadoccomment"> * two parameter form of the distribution defined by</em>
+<a class="jxr_linenumber" name="L29" href="WeibullDistribution.html#L29">29</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://mathworld.wolfram.com/WeibullDistribution.html" target="alexandria_uri">http://mathworld.wolfram.com/WeibullDistribution.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L30" href="WeibullDistribution.html#L30">30</a>  <em class="jxr_javadoccomment"> * Weibull Distribution&lt;/a&gt;, equations (1) and (2).</em>
+<a class="jxr_linenumber" name="L31" href="WeibullDistribution.html#L31">31</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L32" href="WeibullDistribution.html#L32">32</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/Weibull_distribution" target="alexandria_uri">http://en.wikipedia.org/wiki/Weibull_distribution</a>"&gt;Weibull distribution (Wikipedia)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L33" href="WeibullDistribution.html#L33">33</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://mathworld.wolfram.com/WeibullDistribution.html" target="alexandria_uri">http://mathworld.wolfram.com/WeibullDistribution.html</a>"&gt;Weibull distribution (MathWorld)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L34" href="WeibullDistribution.html#L34">34</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L35" href="WeibullDistribution.html#L35">35</a>  <em class="jxr_javadoccomment"> * @since 1.1</em>
+<a class="jxr_linenumber" name="L36" href="WeibullDistribution.html#L36">36</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L37" href="WeibullDistribution.html#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="WeibullDistribution.html">WeibullDistribution</a> <strong class="jxr_keyword">extends</strong> <a href="AbstractRealDistribution.html">AbstractRealDistribution</a> {
+<a class="jxr_linenumber" name="L38" href="WeibullDistribution.html#L38">38</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L39" href="WeibullDistribution.html#L39">39</a>  <em class="jxr_javadoccomment">     * Default inverse cumulative probability accuracy.</em>
+<a class="jxr_linenumber" name="L40" href="WeibullDistribution.html#L40">40</a>  <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L41" href="WeibullDistribution.html#L41">41</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L42" href="WeibullDistribution.html#L42">42</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_INVERSE_ABSOLUTE_ACCURACY = 1e-9;
+<a class="jxr_linenumber" name="L43" href="WeibullDistribution.html#L43">43</a>      <em class="jxr_javadoccomment">/** Serializable version identifier. */</em>
+<a class="jxr_linenumber" name="L44" href="WeibullDistribution.html#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20160311L;
+<a class="jxr_linenumber" name="L45" href="WeibullDistribution.html#L45">45</a>      <em class="jxr_javadoccomment">/** The shape parameter. */</em>
+<a class="jxr_linenumber" name="L46" href="WeibullDistribution.html#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> shape;
+<a class="jxr_linenumber" name="L47" href="WeibullDistribution.html#L47">47</a>      <em class="jxr_javadoccomment">/** The scale parameter. */</em>
+<a class="jxr_linenumber" name="L48" href="WeibullDistribution.html#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> scale;
+<a class="jxr_linenumber" name="L49" href="WeibullDistribution.html#L49">49</a>      <em class="jxr_javadoccomment">/** Inverse cumulative probability accuracy. */</em>
+<a class="jxr_linenumber" name="L50" href="WeibullDistribution.html#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> solverAbsoluteAccuracy;
+<a class="jxr_linenumber" name="L51" href="WeibullDistribution.html#L51">51</a>      <em class="jxr_javadoccomment">/** Cached numerical mean */</em>
+<a class="jxr_linenumber" name="L52" href="WeibullDistribution.html#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> numericalMean = Double.NaN;
+<a class="jxr_linenumber" name="L53" href="WeibullDistribution.html#L53">53</a>      <em class="jxr_javadoccomment">/** Whether or not the numerical mean has been calculated */</em>
+<a class="jxr_linenumber" name="L54" href="WeibullDistribution.html#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> numericalMeanIsCalculated = false;
+<a class="jxr_linenumber" name="L55" href="WeibullDistribution.html#L55">55</a>      <em class="jxr_javadoccomment">/** Cached numerical variance */</em>
+<a class="jxr_linenumber" name="L56" href="WeibullDistribution.html#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> numericalVariance = Double.NaN;
+<a class="jxr_linenumber" name="L57" href="WeibullDistribution.html#L57">57</a>      <em class="jxr_javadoccomment">/** Whether or not the numerical variance has been calculated */</em>
+<a class="jxr_linenumber" name="L58" href="WeibullDistribution.html#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> numericalVarianceIsCalculated = false;
+<a class="jxr_linenumber" name="L59" href="WeibullDistribution.html#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="WeibullDistribution.html#L60">60</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L61" href="WeibullDistribution.html#L61">61</a>  <em class="jxr_javadoccomment">     * Creates a distribution.</em>
+<a class="jxr_linenumber" name="L62" href="WeibullDistribution.html#L62">62</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L63" href="WeibullDistribution.html#L63">63</a>  <em class="jxr_javadoccomment">     * @param alpha Shape parameter.</em>
+<a class="jxr_linenumber" name="L64" href="WeibullDistribution.html#L64">64</a>  <em class="jxr_javadoccomment">     * @param beta Scale parameter.</em>
+<a class="jxr_linenumber" name="L65" href="WeibullDistribution.html#L65">65</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code alpha &lt;= 0} or</em>
+<a class="jxr_linenumber" name="L66" href="WeibullDistribution.html#L66">66</a>  <em class="jxr_javadoccomment">     * {@code beta &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L67" href="WeibullDistribution.html#L67">67</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L68" href="WeibullDistribution.html#L68">68</a>      <strong class="jxr_keyword">public</strong> <a href="WeibullDistribution.html">WeibullDistribution</a>(<strong class="jxr_keyword">double</strong> alpha, <strong class="jxr_keyword">double</strong> beta)
+<a class="jxr_linenumber" name="L69" href="WeibullDistribution.html#L69">69</a>          <strong class="jxr_keyword">throws</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L70" href="WeibullDistribution.html#L70">70</a>          <strong class="jxr_keyword">this</strong>(alpha, beta, DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
+<a class="jxr_linenumber" name="L71" href="WeibullDistribution.html#L71">71</a>      }
+<a class="jxr_linenumber" name="L72" href="WeibullDistribution.html#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="WeibullDistribution.html#L73">73</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L74" href="WeibullDistribution.html#L74">74</a>  <em class="jxr_javadoccomment">     * Creates a distribution.</em>
+<a class="jxr_linenumber" name="L75" href="WeibullDistribution.html#L75">75</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L76" href="WeibullDistribution.html#L76">76</a>  <em class="jxr_javadoccomment">     * @param alpha Shape parameter.</em>
+<a class="jxr_linenumber" name="L77" href="WeibullDistribution.html#L77">77</a>  <em class="jxr_javadoccomment">     * @param beta Scale parameter.</em>
+<a class="jxr_linenumber" name="L78" href="WeibullDistribution.html#L78">78</a>  <em class="jxr_javadoccomment">     * @param inverseCumAccuracy Maximum absolute error in inverse</em>
+<a class="jxr_linenumber" name="L79" href="WeibullDistribution.html#L79">79</a>  <em class="jxr_javadoccomment">     * cumulative probability estimates</em>
+<a class="jxr_linenumber" name="L80" href="WeibullDistribution.html#L80">80</a>  <em class="jxr_javadoccomment">     * (defaults to {@link #DEFAULT_INVERSE_ABSOLUTE_ACCURACY}).</em>
+<a class="jxr_linenumber" name="L81" href="WeibullDistribution.html#L81">81</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code alpha &lt;= 0} or {@code beta &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L82" href="WeibullDistribution.html#L82">82</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L83" href="WeibullDistribution.html#L83">83</a>      <strong class="jxr_keyword">public</strong> <a href="WeibullDistribution.html">WeibullDistribution</a>(<strong class="jxr_keyword">double</strong> alpha,
+<a class="jxr_linenumber" name="L84" href="WeibullDistribution.html#L84">84</a>                                 <strong class="jxr_keyword">double</strong> beta,
+<a class="jxr_linenumber" name="L85" href="WeibullDistribution.html#L85">85</a>                                 <strong class="jxr_keyword">double</strong> inverseCumAccuracy)
+<a class="jxr_linenumber" name="L86" href="WeibullDistribution.html#L86">86</a>          <strong class="jxr_keyword">throws</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L87" href="WeibullDistribution.html#L87">87</a>          <strong class="jxr_keyword">if</strong> (alpha &lt;= 0) {
+<a class="jxr_linenumber" name="L88" href="WeibullDistribution.html#L88">88</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(LocalizedFormats.SHAPE,
+<a class="jxr_linenumber" name="L89" href="WeibullDistribution.html#L89">89</a>                                                     alpha);
+<a class="jxr_linenumber" name="L90" href="WeibullDistribution.html#L90">90</a>          }
+<a class="jxr_linenumber" name="L91" href="WeibullDistribution.html#L91">91</a>          <strong class="jxr_keyword">if</strong> (beta &lt;= 0) {
+<a class="jxr_linenumber" name="L92" href="WeibullDistribution.html#L92">92</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(LocalizedFormats.SCALE,
+<a class="jxr_linenumber" name="L93" href="WeibullDistribution.html#L93">93</a>                                                     beta);
+<a class="jxr_linenumber" name="L94" href="WeibullDistribution.html#L94">94</a>          }
+<a class="jxr_linenumber" name="L95" href="WeibullDistribution.html#L95">95</a>          scale = beta;
+<a class="jxr_linenumber" name="L96" href="WeibullDistribution.html#L96">96</a>          shape = alpha;
+<a class="jxr_linenumber" name="L97" href="WeibullDistribution.html#L97">97</a>          solverAbsoluteAccuracy = inverseCumAccuracy;
+<a class="jxr_linenumber" name="L98" href="WeibullDistribution.html#L98">98</a>      }
+<a class="jxr_linenumber" name="L99" href="WeibullDistribution.html#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="WeibullDistribution.html#L100">100</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L101" href="WeibullDistribution.html#L101">101</a> <em class="jxr_javadoccomment">     * Access the shape parameter, {@code alpha}.</em>
+<a class="jxr_linenumber" name="L102" href="WeibullDistribution.html#L102">102</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L103" href="WeibullDistribution.html#L103">103</a> <em class="jxr_javadoccomment">     * @return the shape parameter, {@code alpha}.</em>
+<a class="jxr_linenumber" name="L104" href="WeibullDistribution.html#L104">104</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L105" href="WeibullDistribution.html#L105">105</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getShape() {
+<a class="jxr_linenumber" name="L106" href="WeibullDistribution.html#L106">106</a>         <strong class="jxr_keyword">return</strong> shape;
+<a class="jxr_linenumber" name="L107" href="WeibullDistribution.html#L107">107</a>     }
+<a class="jxr_linenumber" name="L108" href="WeibullDistribution.html#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="WeibullDistribution.html#L109">109</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L110" href="WeibullDistribution.html#L110">110</a> <em class="jxr_javadoccomment">     * Access the scale parameter, {@code beta}.</em>
+<a class="jxr_linenumber" name="L111" href="WeibullDistribution.html#L111">111</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L112" href="WeibullDistribution.html#L112">112</a> <em class="jxr_javadoccomment">     * @return the scale parameter, {@code beta}.</em>
+<a class="jxr_linenumber" name="L113" href="WeibullDistribution.html#L113">113</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L114" href="WeibullDistribution.html#L114">114</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getScale() {
+<a class="jxr_linenumber" name="L115" href="WeibullDistribution.html#L115">115</a>         <strong class="jxr_keyword">return</strong> scale;
+<a class="jxr_linenumber" name="L116" href="WeibullDistribution.html#L116">116</a>     }
+<a class="jxr_linenumber" name="L117" href="WeibullDistribution.html#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="WeibullDistribution.html#L118">118</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L119" href="WeibullDistribution.html#L119">119</a>     @Override
+<a class="jxr_linenumber" name="L120" href="WeibullDistribution.html#L120">120</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> density(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L121" href="WeibullDistribution.html#L121">121</a>         <strong class="jxr_keyword">if</strong> (x &lt; 0) {
+<a class="jxr_linenumber" name="L122" href="WeibullDistribution.html#L122">122</a>             <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L123" href="WeibullDistribution.html#L123">123</a>         }
+<a class="jxr_linenumber" name="L124" href="WeibullDistribution.html#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="WeibullDistribution.html#L125">125</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xscale = x / scale;
+<a class="jxr_linenumber" name="L126" href="WeibullDistribution.html#L126">126</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xscalepow = FastMath.pow(xscale, shape - 1);
+<a class="jxr_linenumber" name="L127" href="WeibullDistribution.html#L127">127</a> 
+<a class="jxr_linenumber" name="L128" href="WeibullDistribution.html#L128">128</a>         <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L129" href="WeibullDistribution.html#L129">129</a> <em class="jxr_comment">         * FastMath.pow(x / scale, shape) =</em>
+<a class="jxr_linenumber" name="L130" href="WeibullDistribution.html#L130">130</a> <em class="jxr_comment">         * FastMath.pow(xscale, shape) =</em>
+<a class="jxr_linenumber" name="L131" href="WeibullDistribution.html#L131">131</a> <em class="jxr_comment">         * FastMath.pow(xscale, shape - 1) * xscale</em>
+<a class="jxr_linenumber" name="L132" href="WeibullDistribution.html#L132">132</a> <em class="jxr_comment">         */</em>
+<a class="jxr_linenumber" name="L133" href="WeibullDistribution.html#L133">133</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xscalepowshape = xscalepow * xscale;
+<a class="jxr_linenumber" name="L134" href="WeibullDistribution.html#L134">134</a> 
+<a class="jxr_linenumber" name="L135" href="WeibullDistribution.html#L135">135</a>         <strong class="jxr_keyword">return</strong> (shape / scale) * xscalepow * FastMath.exp(-xscalepowshape);
+<a class="jxr_linenumber" name="L136" href="WeibullDistribution.html#L136">136</a>     }
+<a class="jxr_linenumber" name="L137" href="WeibullDistribution.html#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="WeibullDistribution.html#L138">138</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L139" href="WeibullDistribution.html#L139">139</a>     @Override
+<a class="jxr_linenumber" name="L140" href="WeibullDistribution.html#L140">140</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> logDensity(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L141" href="WeibullDistribution.html#L141">141</a>         <strong class="jxr_keyword">if</strong> (x &lt; 0) {
+<a class="jxr_linenumber" name="L142" href="WeibullDistribution.html#L142">142</a>             <strong class="jxr_keyword">return</strong> Double.NEGATIVE_INFINITY;
+<a class="jxr_linenumber" name="L143" href="WeibullDistribution.html#L143">143</a>         }
+<a class="jxr_linenumber" name="L144" href="WeibullDistribution.html#L144">144</a> 
+<a class="jxr_linenumber" name="L145" href="WeibullDistribution.html#L145">145</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xscale = x / scale;
+<a class="jxr_linenumber" name="L146" href="WeibullDistribution.html#L146">146</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> logxscalepow = FastMath.log(xscale) * (shape - 1);
+<a class="jxr_linenumber" name="L147" href="WeibullDistribution.html#L147">147</a> 
+<a class="jxr_linenumber" name="L148" href="WeibullDistribution.html#L148">148</a>         <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L149" href="WeibullDistribution.html#L149">149</a> <em class="jxr_comment">         * FastMath.pow(x / scale, shape) =</em>
+<a class="jxr_linenumber" name="L150" href="WeibullDistribution.html#L150">150</a> <em class="jxr_comment">         * FastMath.pow(xscale, shape) =</em>
+<a class="jxr_linenumber" name="L151" href="WeibullDistribution.html#L151">151</a> <em class="jxr_comment">         * FastMath.pow(xscale, shape - 1) * xscale</em>
+<a class="jxr_linenumber" name="L152" href="WeibullDistribution.html#L152">152</a> <em class="jxr_comment">         */</em>
+<a class="jxr_linenumber" name="L153" href="WeibullDistribution.html#L153">153</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xscalepowshape = FastMath.exp(logxscalepow) * xscale;
+<a class="jxr_linenumber" name="L154" href="WeibullDistribution.html#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="WeibullDistribution.html#L155">155</a>         <strong class="jxr_keyword">return</strong> FastMath.log(shape / scale) + logxscalepow - xscalepowshape;
+<a class="jxr_linenumber" name="L156" href="WeibullDistribution.html#L156">156</a>     }
+<a class="jxr_linenumber" name="L157" href="WeibullDistribution.html#L157">157</a> 
+<a class="jxr_linenumber" name="L158" href="WeibullDistribution.html#L158">158</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L159" href="WeibullDistribution.html#L159">159</a>     @Override
+<a class="jxr_linenumber" name="L160" href="WeibullDistribution.html#L160">160</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> cumulativeProbability(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L161" href="WeibullDistribution.html#L161">161</a>         <strong class="jxr_keyword">double</strong> ret;
+<a class="jxr_linenumber" name="L162" href="WeibullDistribution.html#L162">162</a>         <strong class="jxr_keyword">if</strong> (x &lt;= 0.0) {
+<a class="jxr_linenumber" name="L163" href="WeibullDistribution.html#L163">163</a>             ret = 0.0;
+<a class="jxr_linenumber" name="L164" href="WeibullDistribution.html#L164">164</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L165" href="WeibullDistribution.html#L165">165</a>             ret = 1.0 - FastMath.exp(-FastMath.pow(x / scale, shape));
+<a class="jxr_linenumber" name="L166" href="WeibullDistribution.html#L166">166</a>         }
+<a class="jxr_linenumber" name="L167" href="WeibullDistribution.html#L167">167</a>         <strong class="jxr_keyword">return</strong> ret;
+<a class="jxr_linenumber" name="L168" href="WeibullDistribution.html#L168">168</a>     }
+<a class="jxr_linenumber" name="L169" href="WeibullDistribution.html#L169">169</a> 
+<a class="jxr_linenumber" name="L170" href="WeibullDistribution.html#L170">170</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L171" href="WeibullDistribution.html#L171">171</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L172" href="WeibullDistribution.html#L172">172</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L173" href="WeibullDistribution.html#L173">173</a> <em class="jxr_javadoccomment">     * Returns {@code 0} when {@code p == 0} and</em>
+<a class="jxr_linenumber" name="L174" href="WeibullDistribution.html#L174">174</a> <em class="jxr_javadoccomment">     * {@code Double.POSITIVE_INFINITY} when {@code p == 1}.</em>
+<a class="jxr_linenumber" name="L175" href="WeibullDistribution.html#L175">175</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L176" href="WeibullDistribution.html#L176">176</a>     @Override
+<a class="jxr_linenumber" name="L177" href="WeibullDistribution.html#L177">177</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> inverseCumulativeProbability(<strong class="jxr_keyword">double</strong> p) {
+<a class="jxr_linenumber" name="L178" href="WeibullDistribution.html#L178">178</a>         <strong class="jxr_keyword">double</strong> ret;
+<a class="jxr_linenumber" name="L179" href="WeibullDistribution.html#L179">179</a>         <strong class="jxr_keyword">if</strong> (p &lt; 0.0 || p &gt; 1.0) {
+<a class="jxr_linenumber" name="L180" href="WeibullDistribution.html#L180">180</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/OutOfRangeException.html">OutOfRangeException</a>(p, 0.0, 1.0);
+<a class="jxr_linenumber" name="L181" href="WeibullDistribution.html#L181">181</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (p == 0) {
+<a class="jxr_linenumber" name="L182" href="WeibullDistribution.html#L182">182</a>             ret = 0.0;
+<a class="jxr_linenumber" name="L183" href="WeibullDistribution.html#L183">183</a>         } <strong class="jxr_keyword">else</strong>  <strong class="jxr_keyword">if</strong> (p == 1) {
+<a class="jxr_linenumber" name="L184" href="WeibullDistribution.html#L184">184</a>             ret = Double.POSITIVE_INFINITY;
+<a class="jxr_linenumber" name="L185" href="WeibullDistribution.html#L185">185</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L186" href="WeibullDistribution.html#L186">186</a>             ret = scale * FastMath.pow(-FastMath.log1p(-p), 1.0 / shape);
+<a class="jxr_linenumber" name="L187" href="WeibullDistribution.html#L187">187</a>         }
+<a class="jxr_linenumber" name="L188" href="WeibullDistribution.html#L188">188</a>         <strong class="jxr_keyword">return</strong> ret;
+<a class="jxr_linenumber" name="L189" href="WeibullDistribution.html#L189">189</a>     }
+<a class="jxr_linenumber" name="L190" href="WeibullDistribution.html#L190">190</a> 
+<a class="jxr_linenumber" name="L191" href="WeibullDistribution.html#L191">191</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L192" href="WeibullDistribution.html#L192">192</a> <em class="jxr_javadoccomment">     * Return the absolute accuracy setting of the solver used to estimate</em>
+<a class="jxr_linenumber" name="L193" href="WeibullDistribution.html#L193">193</a> <em class="jxr_javadoccomment">     * inverse cumulative probabilities.</em>
+<a class="jxr_linenumber" name="L194" href="WeibullDistribution.html#L194">194</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L195" href="WeibullDistribution.html#L195">195</a> <em class="jxr_javadoccomment">     * @return the solver absolute accuracy.</em>
+<a class="jxr_linenumber" name="L196" href="WeibullDistribution.html#L196">196</a> <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L197" href="WeibullDistribution.html#L197">197</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L198" href="WeibullDistribution.html#L198">198</a>     @Override
+<a class="jxr_linenumber" name="L199" href="WeibullDistribution.html#L199">199</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> getSolverAbsoluteAccuracy() {
+<a class="jxr_linenumber" name="L200" href="WeibullDistribution.html#L200">200</a>         <strong class="jxr_keyword">return</strong> solverAbsoluteAccuracy;
+<a class="jxr_linenumber" name="L201" href="WeibullDistribution.html#L201">201</a>     }
+<a class="jxr_linenumber" name="L202" href="WeibullDistribution.html#L202">202</a> 
+<a class="jxr_linenumber" name="L203" href="WeibullDistribution.html#L203">203</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L204" href="WeibullDistribution.html#L204">204</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L205" href="WeibullDistribution.html#L205">205</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L206" href="WeibullDistribution.html#L206">206</a> <em class="jxr_javadoccomment">     * The mean is {@code scale * Gamma(1 + (1 / shape))}, where {@code Gamma()}</em>
+<a class="jxr_linenumber" name="L207" href="WeibullDistribution.html#L207">207</a> <em class="jxr_javadoccomment">     * is the Gamma-function.</em>
+<a class="jxr_linenumber" name="L208" href="WeibullDistribution.html#L208">208</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L209" href="WeibullDistribution.html#L209">209</a>     @Override
+<a class="jxr_linenumber" name="L210" href="WeibullDistribution.html#L210">210</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalMean() {
+<a class="jxr_linenumber" name="L211" href="WeibullDistribution.html#L211">211</a>         <strong class="jxr_keyword">if</strong> (!numericalMeanIsCalculated) {
+<a class="jxr_linenumber" name="L212" href="WeibullDistribution.html#L212">212</a>             numericalMean = calculateNumericalMean();
+<a class="jxr_linenumber" name="L213" href="WeibullDistribution.html#L213">213</a>             numericalMeanIsCalculated = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L214" href="WeibullDistribution.html#L214">214</a>         }
+<a class="jxr_linenumber" name="L215" href="WeibullDistribution.html#L215">215</a>         <strong class="jxr_keyword">return</strong> numericalMean;
+<a class="jxr_linenumber" name="L216" href="WeibullDistribution.html#L216">216</a>     }
+<a class="jxr_linenumber" name="L217" href="WeibullDistribution.html#L217">217</a> 
+<a class="jxr_linenumber" name="L218" href="WeibullDistribution.html#L218">218</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L219" href="WeibullDistribution.html#L219">219</a> <em class="jxr_javadoccomment">     * used by {@link #getNumericalMean()}</em>
+<a class="jxr_linenumber" name="L220" href="WeibullDistribution.html#L220">220</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L221" href="WeibullDistribution.html#L221">221</a> <em class="jxr_javadoccomment">     * @return the mean of this distribution</em>
+<a class="jxr_linenumber" name="L222" href="WeibullDistribution.html#L222">222</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L223" href="WeibullDistribution.html#L223">223</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> calculateNumericalMean() {
+<a class="jxr_linenumber" name="L224" href="WeibullDistribution.html#L224">224</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> sh = getShape();
+<a class="jxr_linenumber" name="L225" href="WeibullDistribution.html#L225">225</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> sc = getScale();
+<a class="jxr_linenumber" name="L226" href="WeibullDistribution.html#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="WeibullDistribution.html#L227">227</a>         <strong class="jxr_keyword">return</strong> sc * FastMath.exp(Gamma.logGamma(1 + (1 / sh)));
+<a class="jxr_linenumber" name="L228" href="WeibullDistribution.html#L228">228</a>     }
+<a class="jxr_linenumber" name="L229" href="WeibullDistribution.html#L229">229</a> 
+<a class="jxr_linenumber" name="L230" href="WeibullDistribution.html#L230">230</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L231" href="WeibullDistribution.html#L231">231</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L232" href="WeibullDistribution.html#L232">232</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L233" href="WeibullDistribution.html#L233">233</a> <em class="jxr_javadoccomment">     * The variance is {@code scale^2 * Gamma(1 + (2 / shape)) - mean^2}</em>
+<a class="jxr_linenumber" name="L234" href="WeibullDistribution.html#L234">234</a> <em class="jxr_javadoccomment">     * where {@code Gamma()} is the Gamma-function.</em>
+<a class="jxr_linenumber" name="L235" href="WeibullDistribution.html#L235">235</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L236" href="WeibullDistribution.html#L236">236</a>     @Override
+<a class="jxr_linenumber" name="L237" href="WeibullDistribution.html#L237">237</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalVariance() {
+<a class="jxr_linenumber" name="L238" href="WeibullDistribution.html#L238">238</a>         <strong class="jxr_keyword">if</strong> (!numericalVarianceIsCalculated) {
+<a class="jxr_linenumber" name="L239" href="WeibullDistribution.html#L239">239</a>             numericalVariance = calculateNumericalVariance();
+<a class="jxr_linenumber" name="L240" href="WeibullDistribution.html#L240">240</a>             numericalVarianceIsCalculated = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L241" href="WeibullDistribution.html#L241">241</a>         }
+<a class="jxr_linenumber" name="L242" href="WeibullDistribution.html#L242">242</a>         <strong class="jxr_keyword">return</strong> numericalVariance;
+<a class="jxr_linenumber" name="L243" href="WeibullDistribution.html#L243">243</a>     }
+<a class="jxr_linenumber" name="L244" href="WeibullDistribution.html#L244">244</a> 
+<a class="jxr_linenumber" name="L245" href="WeibullDistribution.html#L245">245</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L246" href="WeibullDistribution.html#L246">246</a> <em class="jxr_javadoccomment">     * used by {@link #getNumericalVariance()}</em>
+<a class="jxr_linenumber" name="L247" href="WeibullDistribution.html#L247">247</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L248" href="WeibullDistribution.html#L248">248</a> <em class="jxr_javadoccomment">     * @return the variance of this distribution</em>
+<a class="jxr_linenumber" name="L249" href="WeibullDistribution.html#L249">249</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L250" href="WeibullDistribution.html#L250">250</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> calculateNumericalVariance() {
+<a class="jxr_linenumber" name="L251" href="WeibullDistribution.html#L251">251</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> sh = getShape();
+<a class="jxr_linenumber" name="L252" href="WeibullDistribution.html#L252">252</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> sc = getScale();
+<a class="jxr_linenumber" name="L253" href="WeibullDistribution.html#L253">253</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> mn = getNumericalMean();
+<a class="jxr_linenumber" name="L254" href="WeibullDistribution.html#L254">254</a> 
+<a class="jxr_linenumber" name="L255" href="WeibullDistribution.html#L255">255</a>         <strong class="jxr_keyword">return</strong> (sc * sc) * FastMath.exp(Gamma.logGamma(1 + (2 / sh))) -
+<a class="jxr_linenumber" name="L256" href="WeibullDistribution.html#L256">256</a>                (mn * mn);
+<a class="jxr_linenumber" name="L257" href="WeibullDistribution.html#L257">257</a>     }
+<a class="jxr_linenumber" name="L258" href="WeibullDistribution.html#L258">258</a> 
+<a class="jxr_linenumber" name="L259" href="WeibullDistribution.html#L259">259</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L260" href="WeibullDistribution.html#L260">260</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L261" href="WeibullDistribution.html#L261">261</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L262" href="WeibullDistribution.html#L262">262</a> <em class="jxr_javadoccomment">     * The lower bound of the support is always 0 no matter the parameters.</em>
+<a class="jxr_linenumber" name="L263" href="WeibullDistribution.html#L263">263</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L264" href="WeibullDistribution.html#L264">264</a> <em class="jxr_javadoccomment">     * @return lower bound of the support (always 0)</em>
+<a class="jxr_linenumber" name="L265" href="WeibullDistribution.html#L265">265</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L266" href="WeibullDistribution.html#L266">266</a>     @Override
+<a class="jxr_linenumber" name="L267" href="WeibullDistribution.html#L267">267</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSupportLowerBound() {
+<a class="jxr_linenumber" name="L268" href="WeibullDistribution.html#L268">268</a>         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L269" href="WeibullDistribution.html#L269">269</a>     }
+<a class="jxr_linenumber" name="L270" href="WeibullDistribution.html#L270">270</a> 
+<a class="jxr_linenumber" name="L271" href="WeibullDistribution.html#L271">271</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L272" href="WeibullDistribution.html#L272">272</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L273" href="WeibullDistribution.html#L273">273</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L274" href="WeibullDistribution.html#L274">274</a> <em class="jxr_javadoccomment">     * The upper bound of the support is always positive infinity</em>
+<a class="jxr_linenumber" name="L275" href="WeibullDistribution.html#L275">275</a> <em class="jxr_javadoccomment">     * no matter the parameters.</em>
+<a class="jxr_linenumber" name="L276" href="WeibullDistribution.html#L276">276</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L277" href="WeibullDistribution.html#L277">277</a> <em class="jxr_javadoccomment">     * @return upper bound of the support (always</em>
+<a class="jxr_linenumber" name="L278" href="WeibullDistribution.html#L278">278</a> <em class="jxr_javadoccomment">     * {@code Double.POSITIVE_INFINITY})</em>
+<a class="jxr_linenumber" name="L279" href="WeibullDistribution.html#L279">279</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L280" href="WeibullDistribution.html#L280">280</a>     @Override
+<a class="jxr_linenumber" name="L281" href="WeibullDistribution.html#L281">281</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSupportUpperBound() {
+<a class="jxr_linenumber" name="L282" href="WeibullDistribution.html#L282">282</a>         <strong class="jxr_keyword">return</strong> Double.POSITIVE_INFINITY;
+<a class="jxr_linenumber" name="L283" href="WeibullDistribution.html#L283">283</a>     }
+<a class="jxr_linenumber" name="L284" href="WeibullDistribution.html#L284">284</a> 
+<a class="jxr_linenumber" name="L285" href="WeibullDistribution.html#L285">285</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L286" href="WeibullDistribution.html#L286">286</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L287" href="WeibullDistribution.html#L287">287</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L288" href="WeibullDistribution.html#L288">288</a> <em class="jxr_javadoccomment">     * The support of this distribution is connected.</em>
+<a class="jxr_linenumber" name="L289" href="WeibullDistribution.html#L289">289</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L290" href="WeibullDistribution.html#L290">290</a> <em class="jxr_javadoccomment">     * @return {@code true}</em>
+<a class="jxr_linenumber" name="L291" href="WeibullDistribution.html#L291">291</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L292" href="WeibullDistribution.html#L292">292</a>     @Override
+<a class="jxr_linenumber" name="L293" href="WeibullDistribution.html#L293">293</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isSupportConnected() {
+<a class="jxr_linenumber" name="L294" href="WeibullDistribution.html#L294">294</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L295" href="WeibullDistribution.html#L295">295</a>     }
+<a class="jxr_linenumber" name="L296" href="WeibullDistribution.html#L296">296</a> }
+<a class="jxr_linenumber" name="L297" href="WeibullDistribution.html#L297">297</a> 
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

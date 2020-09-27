@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>GillStepInterpolator xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math4/ode/nonstiff/GillStepInterpolator.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="GillStepInterpolator.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="GillStepInterpolator.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="GillStepInterpolator.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="GillStepInterpolator.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="GillStepInterpolator.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="GillStepInterpolator.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="GillStepInterpolator.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="GillStepInterpolator.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="GillStepInterpolator.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="GillStepInterpolator.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="GillStepInterpolator.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="GillStepInterpolator.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="GillStepInterpolator.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="GillStepInterpolator.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="GillStepInterpolator.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="GillStepInterpolator.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="GillStepInterpolator.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="GillStepInterpolator.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.ode.nonstiff;
+<a class="jxr_linenumber" name="L19" href="GillStepInterpolator.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="GillStepInterpolator.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.sampling.StepInterpolator;
+<a class="jxr_linenumber" name="L21" href="GillStepInterpolator.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L22" href="GillStepInterpolator.html#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="GillStepInterpolator.html#L23">23</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L24" href="GillStepInterpolator.html#L24">24</a>  <em class="jxr_javadoccomment"> * This class implements a step interpolator for the Gill fourth</em>
+<a class="jxr_linenumber" name="L25" href="GillStepInterpolator.html#L25">25</a>  <em class="jxr_javadoccomment"> * order Runge-Kutta integrator.</em>
+<a class="jxr_linenumber" name="L26" href="GillStepInterpolator.html#L26">26</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L27" href="GillStepInterpolator.html#L27">27</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This interpolator allows to compute dense output inside the last</em>
+<a class="jxr_linenumber" name="L28" href="GillStepInterpolator.html#L28">28</a>  <em class="jxr_javadoccomment"> * step computed. The interpolation equation is consistent with the</em>
+<a class="jxr_linenumber" name="L29" href="GillStepInterpolator.html#L29">29</a>  <em class="jxr_javadoccomment"> * integration scheme :</em>
+<a class="jxr_linenumber" name="L30" href="GillStepInterpolator.html#L30">30</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L31" href="GillStepInterpolator.html#L31">31</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;Using reference point at step start:&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L32" href="GillStepInterpolator.html#L32">32</a>  <em class="jxr_javadoccomment"> *   y(t&lt;sub&gt;n&lt;/sub&gt; + &amp;theta; h) = y (t&lt;sub&gt;n&lt;/sub&gt;)</em>
+<a class="jxr_linenumber" name="L33" href="GillStepInterpolator.html#L33">33</a>  <em class="jxr_javadoccomment"> *                    + &amp;theta; (h/6) [ (6 - 9 &amp;theta; + 4 &amp;theta;&lt;sup&gt;2&lt;/sup&gt;) y'&lt;sub&gt;1&lt;/sub&gt;</em>
+<a class="jxr_linenumber" name="L34" href="GillStepInterpolator.html#L34">34</a>  <em class="jxr_javadoccomment"> *                                    + (    6 &amp;theta; - 4 &amp;theta;&lt;sup&gt;2&lt;/sup&gt;) ((1-1/&amp;radic;2) y'&lt;sub&gt;2&lt;/sub&gt; + (1+1/&amp;radic;2)) y'&lt;sub&gt;3&lt;/sub&gt;)</em>
+<a class="jxr_linenumber" name="L35" href="GillStepInterpolator.html#L35">35</a>  <em class="jxr_javadoccomment"> *                                    + (  - 3 &amp;theta; + 4 &amp;theta;&lt;sup&gt;2&lt;/sup&gt;) y'&lt;sub&gt;4&lt;/sub&gt;</em>
+<a class="jxr_linenumber" name="L36" href="GillStepInterpolator.html#L36">36</a>  <em class="jxr_javadoccomment"> *                                    ]</em>
+<a class="jxr_linenumber" name="L37" href="GillStepInterpolator.html#L37">37</a>  <em class="jxr_javadoccomment"> *   &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L38" href="GillStepInterpolator.html#L38">38</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;Using reference point at step start:&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L39" href="GillStepInterpolator.html#L39">39</a>  <em class="jxr_javadoccomment"> *   y(t&lt;sub&gt;n&lt;/sub&gt; + &amp;theta; h) = y (t&lt;sub&gt;n&lt;/sub&gt; + h)</em>
+<a class="jxr_linenumber" name="L40" href="GillStepInterpolator.html#L40">40</a>  <em class="jxr_javadoccomment"> *                    - (1 - &amp;theta;) (h/6) [ (1 - 5 &amp;theta; + 4 &amp;theta;&lt;sup&gt;2&lt;/sup&gt;) y'&lt;sub&gt;1&lt;/sub&gt;</em>
+<a class="jxr_linenumber" name="L41" href="GillStepInterpolator.html#L41">41</a>  <em class="jxr_javadoccomment"> *                                          + (2 + 2 &amp;theta; - 4 &amp;theta;&lt;sup&gt;2&lt;/sup&gt;) ((1-1/&amp;radic;2) y'&lt;sub&gt;2&lt;/sub&gt; + (1+1/&amp;radic;2)) y'&lt;sub&gt;3&lt;/sub&gt;)</em>
+<a class="jxr_linenumber" name="L42" href="GillStepInterpolator.html#L42">42</a>  <em class="jxr_javadoccomment"> *                                          + (1 +   &amp;theta; + 4 &amp;theta;&lt;sup&gt;2&lt;/sup&gt;) y'&lt;sub&gt;4&lt;/sub&gt;</em>
+<a class="jxr_linenumber" name="L43" href="GillStepInterpolator.html#L43">43</a>  <em class="jxr_javadoccomment"> *                                          ]</em>
+<a class="jxr_linenumber" name="L44" href="GillStepInterpolator.html#L44">44</a>  <em class="jxr_javadoccomment"> *   &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L45" href="GillStepInterpolator.html#L45">45</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L46" href="GillStepInterpolator.html#L46">46</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L47" href="GillStepInterpolator.html#L47">47</a>  <em class="jxr_javadoccomment"> * where &amp;theta; belongs to [0 ; 1] and where y'&lt;sub&gt;1&lt;/sub&gt; to y'&lt;sub&gt;4&lt;/sub&gt;</em>
+<a class="jxr_linenumber" name="L48" href="GillStepInterpolator.html#L48">48</a>  <em class="jxr_javadoccomment"> * are the four evaluations of the derivatives already computed during</em>
+<a class="jxr_linenumber" name="L49" href="GillStepInterpolator.html#L49">49</a>  <em class="jxr_javadoccomment"> * the step.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L50" href="GillStepInterpolator.html#L50">50</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L51" href="GillStepInterpolator.html#L51">51</a>  <em class="jxr_javadoccomment"> * @see GillIntegrator</em>
+<a class="jxr_linenumber" name="L52" href="GillStepInterpolator.html#L52">52</a>  <em class="jxr_javadoccomment"> * @since 1.2</em>
+<a class="jxr_linenumber" name="L53" href="GillStepInterpolator.html#L53">53</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L54" href="GillStepInterpolator.html#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="GillStepInterpolator.html#L55">55</a>  <strong class="jxr_keyword">class</strong> <a href="GillStepInterpolator.html">GillStepInterpolator</a>
+<a class="jxr_linenumber" name="L56" href="GillStepInterpolator.html#L56">56</a>    <strong class="jxr_keyword">extends</strong> <a href="RungeKuttaStepInterpolator.html">RungeKuttaStepInterpolator</a> {
+<a class="jxr_linenumber" name="L57" href="GillStepInterpolator.html#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="GillStepInterpolator.html#L58">58</a>      <em class="jxr_javadoccomment">/** First Gill coefficient. */</em>
+<a class="jxr_linenumber" name="L59" href="GillStepInterpolator.html#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> ONE_MINUS_INV_SQRT_2 = 1 - FastMath.sqrt(0.5);
+<a class="jxr_linenumber" name="L60" href="GillStepInterpolator.html#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="GillStepInterpolator.html#L61">61</a>      <em class="jxr_javadoccomment">/** Second Gill coefficient. */</em>
+<a class="jxr_linenumber" name="L62" href="GillStepInterpolator.html#L62">62</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> ONE_PLUS_INV_SQRT_2 = 1 + FastMath.sqrt(0.5);
+<a class="jxr_linenumber" name="L63" href="GillStepInterpolator.html#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="GillStepInterpolator.html#L64">64</a>      <em class="jxr_javadoccomment">/** Serializable version identifier. */</em>
+<a class="jxr_linenumber" name="L65" href="GillStepInterpolator.html#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20111120L;
+<a class="jxr_linenumber" name="L66" href="GillStepInterpolator.html#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="GillStepInterpolator.html#L67">67</a>    <em class="jxr_javadoccomment">/** Simple constructor.</em>
+<a class="jxr_linenumber" name="L68" href="GillStepInterpolator.html#L68">68</a>  <em class="jxr_javadoccomment">   * This constructor builds an instance that is not usable yet, the</em>
+<a class="jxr_linenumber" name="L69" href="GillStepInterpolator.html#L69">69</a>  <em class="jxr_javadoccomment">   * {@link</em>
+<a class="jxr_linenumber" name="L70" href="GillStepInterpolator.html#L70">70</a>  <em class="jxr_javadoccomment">   * org.apache.commons.math4.ode.sampling.AbstractStepInterpolator#reinitialize}</em>
+<a class="jxr_linenumber" name="L71" href="GillStepInterpolator.html#L71">71</a>  <em class="jxr_javadoccomment">   * method should be called before using the instance in order to</em>
+<a class="jxr_linenumber" name="L72" href="GillStepInterpolator.html#L72">72</a>  <em class="jxr_javadoccomment">   * initialize the internal arrays. This constructor is used only</em>
+<a class="jxr_linenumber" name="L73" href="GillStepInterpolator.html#L73">73</a>  <em class="jxr_javadoccomment">   * in order to delay the initialization in some cases. The {@link</em>
+<a class="jxr_linenumber" name="L74" href="GillStepInterpolator.html#L74">74</a>  <em class="jxr_javadoccomment">   * RungeKuttaIntegrator} class uses the prototyping design pattern</em>
+<a class="jxr_linenumber" name="L75" href="GillStepInterpolator.html#L75">75</a>  <em class="jxr_javadoccomment">   * to create the step interpolators by cloning an uninitialized model</em>
+<a class="jxr_linenumber" name="L76" href="GillStepInterpolator.html#L76">76</a>  <em class="jxr_javadoccomment">   * and later initializing the copy.</em>
+<a class="jxr_linenumber" name="L77" href="GillStepInterpolator.html#L77">77</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L78" href="GillStepInterpolator.html#L78">78</a>    <em class="jxr_comment">// CHECKSTYLE: stop RedundantModifier</em>
+<a class="jxr_linenumber" name="L79" href="GillStepInterpolator.html#L79">79</a>    <em class="jxr_comment">// the public modifier here is needed for serialization</em>
+<a class="jxr_linenumber" name="L80" href="GillStepInterpolator.html#L80">80</a>    <strong class="jxr_keyword">public</strong> <a href="GillStepInterpolator.html">GillStepInterpolator</a>() {
+<a class="jxr_linenumber" name="L81" href="GillStepInterpolator.html#L81">81</a>    }
+<a class="jxr_linenumber" name="L82" href="GillStepInterpolator.html#L82">82</a>    <em class="jxr_comment">// CHECKSTYLE: resume RedundantModifier</em>
+<a class="jxr_linenumber" name="L83" href="GillStepInterpolator.html#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="GillStepInterpolator.html#L84">84</a>    <em class="jxr_javadoccomment">/** Copy constructor.</em>
+<a class="jxr_linenumber" name="L85" href="GillStepInterpolator.html#L85">85</a>  <em class="jxr_javadoccomment">   * @param interpolator interpolator to copy from. The copy is a deep</em>
+<a class="jxr_linenumber" name="L86" href="GillStepInterpolator.html#L86">86</a>  <em class="jxr_javadoccomment">   * copy: its arrays are separated from the original arrays of the</em>
+<a class="jxr_linenumber" name="L87" href="GillStepInterpolator.html#L87">87</a>  <em class="jxr_javadoccomment">   * instance</em>
+<a class="jxr_linenumber" name="L88" href="GillStepInterpolator.html#L88">88</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L89" href="GillStepInterpolator.html#L89">89</a>    <a href="GillStepInterpolator.html">GillStepInterpolator</a>(<strong class="jxr_keyword">final</strong> <a href="GillStepInterpolator.html">GillStepInterpolator</a> interpolator) {
+<a class="jxr_linenumber" name="L90" href="GillStepInterpolator.html#L90">90</a>      <strong class="jxr_keyword">super</strong>(interpolator);
+<a class="jxr_linenumber" name="L91" href="GillStepInterpolator.html#L91">91</a>    }
+<a class="jxr_linenumber" name="L92" href="GillStepInterpolator.html#L92">92</a>  
+<a class="jxr_linenumber" name="L93" href="GillStepInterpolator.html#L93">93</a>    <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L94" href="GillStepInterpolator.html#L94">94</a>    @Override
+<a class="jxr_linenumber" name="L95" href="GillStepInterpolator.html#L95">95</a>    <strong class="jxr_keyword">protected</strong> <a href="../sampling/StepInterpolator.html">StepInterpolator</a> doCopy() {
+<a class="jxr_linenumber" name="L96" href="GillStepInterpolator.html#L96">96</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="GillStepInterpolator.html">GillStepInterpolator</a>(<strong class="jxr_keyword">this</strong>);
+<a class="jxr_linenumber" name="L97" href="GillStepInterpolator.html#L97">97</a>    }
+<a class="jxr_linenumber" name="L98" href="GillStepInterpolator.html#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="GillStepInterpolator.html#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="GillStepInterpolator.html#L100">100</a>   <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L101" href="GillStepInterpolator.html#L101">101</a>   @Override
+<a class="jxr_linenumber" name="L102" href="GillStepInterpolator.html#L102">102</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> computeInterpolatedStateAndDerivatives(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> theta,
+<a class="jxr_linenumber" name="L103" href="GillStepInterpolator.html#L103">103</a>                                           <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> oneMinusThetaH) {
+<a class="jxr_linenumber" name="L104" href="GillStepInterpolator.html#L104">104</a> 
+<a class="jxr_linenumber" name="L105" href="GillStepInterpolator.html#L105">105</a>     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> twoTheta   = 2 * theta;
+<a class="jxr_linenumber" name="L106" href="GillStepInterpolator.html#L106">106</a>     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> fourTheta2 = twoTheta * twoTheta;
+<a class="jxr_linenumber" name="L107" href="GillStepInterpolator.html#L107">107</a>     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> coeffDot1  = theta * (twoTheta - 3) + 1;
+<a class="jxr_linenumber" name="L108" href="GillStepInterpolator.html#L108">108</a>     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> cDot23     = twoTheta * (1 - theta);
+<a class="jxr_linenumber" name="L109" href="GillStepInterpolator.html#L109">109</a>     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> coeffDot2  = cDot23  * ONE_MINUS_INV_SQRT_2;
+<a class="jxr_linenumber" name="L110" href="GillStepInterpolator.html#L110">110</a>     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> coeffDot3  = cDot23  * ONE_PLUS_INV_SQRT_2;
+<a class="jxr_linenumber" name="L111" href="GillStepInterpolator.html#L111">111</a>     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> coeffDot4  = theta * (twoTheta - 1);
+<a class="jxr_linenumber" name="L112" href="GillStepInterpolator.html#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="GillStepInterpolator.html#L113">113</a>     <strong class="jxr_keyword">if</strong> ((previousState != <strong class="jxr_keyword">null</strong>) &amp;&amp; (theta &lt;= 0.5)) {
+<a class="jxr_linenumber" name="L114" href="GillStepInterpolator.html#L114">114</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> s         = theta * h / 6.0;
+<a class="jxr_linenumber" name="L115" href="GillStepInterpolator.html#L115">115</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> c23       = s * (6 * theta - fourTheta2);
+<a class="jxr_linenumber" name="L116" href="GillStepInterpolator.html#L116">116</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> coeff1    = s * (6 - 9 * theta + fourTheta2);
+<a class="jxr_linenumber" name="L117" href="GillStepInterpolator.html#L117">117</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> coeff2    = c23  * ONE_MINUS_INV_SQRT_2;
+<a class="jxr_linenumber" name="L118" href="GillStepInterpolator.html#L118">118</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> coeff3    = c23  * ONE_PLUS_INV_SQRT_2;
+<a class="jxr_linenumber" name="L119" href="GillStepInterpolator.html#L119">119</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> coeff4    = s * (-3 * theta + fourTheta2);
+<a class="jxr_linenumber" name="L120" href="GillStepInterpolator.html#L120">120</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; interpolatedState.length; ++i) {
+<a class="jxr_linenumber" name="L121" href="GillStepInterpolator.html#L121">121</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yDot1 = yDotK[0][i];
+<a class="jxr_linenumber" name="L122" href="GillStepInterpolator.html#L122">122</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yDot2 = yDotK[1][i];
+<a class="jxr_linenumber" name="L123" href="GillStepInterpolator.html#L123">123</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yDot3 = yDotK[2][i];
+<a class="jxr_linenumber" name="L124" href="GillStepInterpolator.html#L124">124</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yDot4 = yDotK[3][i];
+<a class="jxr_linenumber" name="L125" href="GillStepInterpolator.html#L125">125</a>             interpolatedState[i] =
+<a class="jxr_linenumber" name="L126" href="GillStepInterpolator.html#L126">126</a>                     previousState[i] + coeff1 * yDot1 + coeff2 * yDot2 + coeff3 * yDot3 + coeff4 * yDot4;
+<a class="jxr_linenumber" name="L127" href="GillStepInterpolator.html#L127">127</a>             interpolatedDerivatives[i] =
+<a class="jxr_linenumber" name="L128" href="GillStepInterpolator.html#L128">128</a>                     coeffDot1 * yDot1 + coeffDot2 * yDot2 + coeffDot3 * yDot3 + coeffDot4 * yDot4;
+<a class="jxr_linenumber" name="L129" href="GillStepInterpolator.html#L129">129</a>         }
+<a class="jxr_linenumber" name="L130" href="GillStepInterpolator.html#L130">130</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L131" href="GillStepInterpolator.html#L131">131</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> s      = oneMinusThetaH / 6.0;
+<a class="jxr_linenumber" name="L132" href="GillStepInterpolator.html#L132">132</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> c23    = s * (2 + twoTheta - fourTheta2);
+<a class="jxr_linenumber" name="L133" href="GillStepInterpolator.html#L133">133</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> coeff1 = s * (1 - 5 * theta + fourTheta2);
+<a class="jxr_linenumber" name="L134" href="GillStepInterpolator.html#L134">134</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> coeff2 = c23  * ONE_MINUS_INV_SQRT_2;
+<a class="jxr_linenumber" name="L135" href="GillStepInterpolator.html#L135">135</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> coeff3 = c23  * ONE_PLUS_INV_SQRT_2;
+<a class="jxr_linenumber" name="L136" href="GillStepInterpolator.html#L136">136</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> coeff4 = s * (1 + theta + fourTheta2);
+<a class="jxr_linenumber" name="L137" href="GillStepInterpolator.html#L137">137</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; interpolatedState.length; ++i) {
+<a class="jxr_linenumber" name="L138" href="GillStepInterpolator.html#L138">138</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yDot1 = yDotK[0][i];
+<a class="jxr_linenumber" name="L139" href="GillStepInterpolator.html#L139">139</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yDot2 = yDotK[1][i];
+<a class="jxr_linenumber" name="L140" href="GillStepInterpolator.html#L140">140</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yDot3 = yDotK[2][i];
+<a class="jxr_linenumber" name="L141" href="GillStepInterpolator.html#L141">141</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yDot4 = yDotK[3][i];
+<a class="jxr_linenumber" name="L142" href="GillStepInterpolator.html#L142">142</a>             interpolatedState[i] =
+<a class="jxr_linenumber" name="L143" href="GillStepInterpolator.html#L143">143</a>                     currentState[i] - coeff1 * yDot1 - coeff2 * yDot2 - coeff3 * yDot3 - coeff4 * yDot4;
+<a class="jxr_linenumber" name="L144" href="GillStepInterpolator.html#L144">144</a>             interpolatedDerivatives[i] =
+<a class="jxr_linenumber" name="L145" href="GillStepInterpolator.html#L145">145</a>                     coeffDot1 * yDot1 + coeffDot2 * yDot2 + coeffDot3 * yDot3 + coeffDot4 * yDot4;
+<a class="jxr_linenumber" name="L146" href="GillStepInterpolator.html#L146">146</a>         }
+<a class="jxr_linenumber" name="L147" href="GillStepInterpolator.html#L147">147</a>     }
+<a class="jxr_linenumber" name="L148" href="GillStepInterpolator.html#L148">148</a> 
+<a class="jxr_linenumber" name="L149" href="GillStepInterpolator.html#L149">149</a>   }
+<a class="jxr_linenumber" name="L150" href="GillStepInterpolator.html#L150">150</a> 
+<a class="jxr_linenumber" name="L151" href="GillStepInterpolator.html#L151">151</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

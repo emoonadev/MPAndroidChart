@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Line xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../../apidocs/org/apache/commons/math4/geometry/euclidean/threed/Line.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="Line.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="Line.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="Line.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="Line.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="Line.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="Line.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="Line.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="Line.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="Line.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="Line.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="Line.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="Line.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="Line.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="Line.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="Line.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="Line.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="Line.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.geometry.euclidean.threed;
+<a class="jxr_linenumber" name="L18" href="Line.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="Line.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L20" href="Line.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L21" href="Line.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.Point;
+<a class="jxr_linenumber" name="L22" href="Line.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.Vector;
+<a class="jxr_linenumber" name="L23" href="Line.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.euclidean.oned.Euclidean1D;
+<a class="jxr_linenumber" name="L24" href="Line.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.euclidean.oned.IntervalsSet;
+<a class="jxr_linenumber" name="L25" href="Line.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.euclidean.oned.Vector1D;
+<a class="jxr_linenumber" name="L26" href="Line.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.partitioning.Embedding;
+<a class="jxr_linenumber" name="L27" href="Line.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L28" href="Line.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Precision;
+<a class="jxr_linenumber" name="L29" href="Line.html#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="Line.html#L30">30</a>  <em class="jxr_javadoccomment">/** The class represent lines in a three dimensional space.</em>
+<a class="jxr_linenumber" name="L31" href="Line.html#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="Line.html#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Each oriented line is intrinsically associated with an abscissa</em>
+<a class="jxr_linenumber" name="L33" href="Line.html#L33">33</a>  <em class="jxr_javadoccomment"> * which is a coordinate on the line. The point at abscissa 0 is the</em>
+<a class="jxr_linenumber" name="L34" href="Line.html#L34">34</a>  <em class="jxr_javadoccomment"> * orthogonal projection of the origin on the line, another equivalent</em>
+<a class="jxr_linenumber" name="L35" href="Line.html#L35">35</a>  <em class="jxr_javadoccomment"> * way to express this is to say that it is the point of the line</em>
+<a class="jxr_linenumber" name="L36" href="Line.html#L36">36</a>  <em class="jxr_javadoccomment"> * which is closest to the origin. Abscissa increases in the line</em>
+<a class="jxr_linenumber" name="L37" href="Line.html#L37">37</a>  <em class="jxr_javadoccomment"> * direction.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L38" href="Line.html#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="Line.html#L39">39</a>  <em class="jxr_javadoccomment"> * @since 3.0</em>
+<a class="jxr_linenumber" name="L40" href="Line.html#L40">40</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L41" href="Line.html#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="Line.html">Line</a> <strong class="jxr_keyword">implements</strong> Embedding&lt;Euclidean3D, Euclidean1D&gt; {
+<a class="jxr_linenumber" name="L42" href="Line.html#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="Line.html#L43">43</a>      <em class="jxr_javadoccomment">/** Line direction. */</em>
+<a class="jxr_linenumber" name="L44" href="Line.html#L44">44</a>      <strong class="jxr_keyword">private</strong> <a href="Vector3D.html">Vector3D</a> direction;
+<a class="jxr_linenumber" name="L45" href="Line.html#L45">45</a>  
+<a class="jxr_linenumber" name="L46" href="Line.html#L46">46</a>      <em class="jxr_javadoccomment">/** Line point closest to the origin. */</em>
+<a class="jxr_linenumber" name="L47" href="Line.html#L47">47</a>      <strong class="jxr_keyword">private</strong> <a href="Vector3D.html">Vector3D</a> zero;
+<a class="jxr_linenumber" name="L48" href="Line.html#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="Line.html#L49">49</a>      <em class="jxr_javadoccomment">/** Tolerance below which points are considered identical. */</em>
+<a class="jxr_linenumber" name="L50" href="Line.html#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tolerance;
+<a class="jxr_linenumber" name="L51" href="Line.html#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="Line.html#L52">52</a>      <em class="jxr_javadoccomment">/** Build a line from two points.</em>
+<a class="jxr_linenumber" name="L53" href="Line.html#L53">53</a>  <em class="jxr_javadoccomment">     * @param p1 first point belonging to the line (this can be any point)</em>
+<a class="jxr_linenumber" name="L54" href="Line.html#L54">54</a>  <em class="jxr_javadoccomment">     * @param p2 second point belonging to the line (this can be any point, different from p1)</em>
+<a class="jxr_linenumber" name="L55" href="Line.html#L55">55</a>  <em class="jxr_javadoccomment">     * @param tolerance tolerance below which points are considered identical</em>
+<a class="jxr_linenumber" name="L56" href="Line.html#L56">56</a>  <em class="jxr_javadoccomment">     * @exception MathIllegalArgumentException if the points are equal</em>
+<a class="jxr_linenumber" name="L57" href="Line.html#L57">57</a>  <em class="jxr_javadoccomment">     * @since 3.3</em>
+<a class="jxr_linenumber" name="L58" href="Line.html#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L59" href="Line.html#L59">59</a>      <strong class="jxr_keyword">public</strong> <a href="Line.html">Line</a>(<strong class="jxr_keyword">final</strong> <a href="Vector3D.html">Vector3D</a> p1, <strong class="jxr_keyword">final</strong> <a href="Vector3D.html">Vector3D</a> p2, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tolerance)
+<a class="jxr_linenumber" name="L60" href="Line.html#L60">60</a>          <strong class="jxr_keyword">throws</strong> <a href="../../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L61" href="Line.html#L61">61</a>          reset(p1, p2);
+<a class="jxr_linenumber" name="L62" href="Line.html#L62">62</a>          <strong class="jxr_keyword">this</strong>.tolerance = tolerance;
+<a class="jxr_linenumber" name="L63" href="Line.html#L63">63</a>      }
+<a class="jxr_linenumber" name="L64" href="Line.html#L64">64</a>  
+<a class="jxr_linenumber" name="L65" href="Line.html#L65">65</a>      <em class="jxr_javadoccomment">/** Copy constructor.</em>
+<a class="jxr_linenumber" name="L66" href="Line.html#L66">66</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;The created instance is completely independent from the</em>
+<a class="jxr_linenumber" name="L67" href="Line.html#L67">67</a>  <em class="jxr_javadoccomment">     * original instance, it is a deep copy.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L68" href="Line.html#L68">68</a>  <em class="jxr_javadoccomment">     * @param line line to copy</em>
+<a class="jxr_linenumber" name="L69" href="Line.html#L69">69</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L70" href="Line.html#L70">70</a>      <strong class="jxr_keyword">public</strong> <a href="Line.html">Line</a>(<strong class="jxr_keyword">final</strong> <a href="Line.html">Line</a> line) {
+<a class="jxr_linenumber" name="L71" href="Line.html#L71">71</a>          <strong class="jxr_keyword">this</strong>.direction = line.direction;
+<a class="jxr_linenumber" name="L72" href="Line.html#L72">72</a>          <strong class="jxr_keyword">this</strong>.zero      = line.zero;
+<a class="jxr_linenumber" name="L73" href="Line.html#L73">73</a>          <strong class="jxr_keyword">this</strong>.tolerance = line.tolerance;
+<a class="jxr_linenumber" name="L74" href="Line.html#L74">74</a>      }
+<a class="jxr_linenumber" name="L75" href="Line.html#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="Line.html#L76">76</a>      <em class="jxr_javadoccomment">/** Reset the instance as if built from two points.</em>
+<a class="jxr_linenumber" name="L77" href="Line.html#L77">77</a>  <em class="jxr_javadoccomment">     * @param p1 first point belonging to the line (this can be any point)</em>
+<a class="jxr_linenumber" name="L78" href="Line.html#L78">78</a>  <em class="jxr_javadoccomment">     * @param p2 second point belonging to the line (this can be any point, different from p1)</em>
+<a class="jxr_linenumber" name="L79" href="Line.html#L79">79</a>  <em class="jxr_javadoccomment">     * @exception MathIllegalArgumentException if the points are equal</em>
+<a class="jxr_linenumber" name="L80" href="Line.html#L80">80</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L81" href="Line.html#L81">81</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> reset(<strong class="jxr_keyword">final</strong> <a href="Vector3D.html">Vector3D</a> p1, <strong class="jxr_keyword">final</strong> <a href="Vector3D.html">Vector3D</a> p2) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L82" href="Line.html#L82">82</a>          <strong class="jxr_keyword">final</strong> <a href="Vector3D.html">Vector3D</a> delta = p2.subtract(p1);
+<a class="jxr_linenumber" name="L83" href="Line.html#L83">83</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> norm2 = delta.getNormSq();
+<a class="jxr_linenumber" name="L84" href="Line.html#L84">84</a>          <strong class="jxr_keyword">if</strong> (norm2 == 0.0) {
+<a class="jxr_linenumber" name="L85" href="Line.html#L85">85</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(LocalizedFormats.ZERO_NORM);
+<a class="jxr_linenumber" name="L86" href="Line.html#L86">86</a>          }
+<a class="jxr_linenumber" name="L87" href="Line.html#L87">87</a>          <strong class="jxr_keyword">this</strong>.direction = <strong class="jxr_keyword">new</strong> <a href="Vector3D.html">Vector3D</a>(1.0 / FastMath.sqrt(norm2), delta);
+<a class="jxr_linenumber" name="L88" href="Line.html#L88">88</a>          zero = <strong class="jxr_keyword">new</strong> <a href="Vector3D.html">Vector3D</a>(1.0, p1, -p1.dotProduct(delta) / norm2, delta);
+<a class="jxr_linenumber" name="L89" href="Line.html#L89">89</a>      }
+<a class="jxr_linenumber" name="L90" href="Line.html#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="Line.html#L91">91</a>      <em class="jxr_javadoccomment">/** Get the tolerance below which points are considered identical.</em>
+<a class="jxr_linenumber" name="L92" href="Line.html#L92">92</a>  <em class="jxr_javadoccomment">     * @return tolerance below which points are considered identical</em>
+<a class="jxr_linenumber" name="L93" href="Line.html#L93">93</a>  <em class="jxr_javadoccomment">     * @since 3.3</em>
+<a class="jxr_linenumber" name="L94" href="Line.html#L94">94</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L95" href="Line.html#L95">95</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getTolerance() {
+<a class="jxr_linenumber" name="L96" href="Line.html#L96">96</a>          <strong class="jxr_keyword">return</strong> tolerance;
+<a class="jxr_linenumber" name="L97" href="Line.html#L97">97</a>      }
+<a class="jxr_linenumber" name="L98" href="Line.html#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="Line.html#L99">99</a>      <em class="jxr_javadoccomment">/** Get a line with reversed direction.</em>
+<a class="jxr_linenumber" name="L100" href="Line.html#L100">100</a> <em class="jxr_javadoccomment">     * @return a new instance, with reversed direction</em>
+<a class="jxr_linenumber" name="L101" href="Line.html#L101">101</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L102" href="Line.html#L102">102</a>     <strong class="jxr_keyword">public</strong> <a href="Line.html">Line</a> revert() {
+<a class="jxr_linenumber" name="L103" href="Line.html#L103">103</a>         <strong class="jxr_keyword">final</strong> <a href="Line.html">Line</a> reverted = <strong class="jxr_keyword">new</strong> <a href="Line.html">Line</a>(<strong class="jxr_keyword">this</strong>);
+<a class="jxr_linenumber" name="L104" href="Line.html#L104">104</a>         reverted.direction = reverted.direction.negate();
+<a class="jxr_linenumber" name="L105" href="Line.html#L105">105</a>         <strong class="jxr_keyword">return</strong> reverted;
+<a class="jxr_linenumber" name="L106" href="Line.html#L106">106</a>     }
+<a class="jxr_linenumber" name="L107" href="Line.html#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="Line.html#L108">108</a>     <em class="jxr_javadoccomment">/** Get the normalized direction vector.</em>
+<a class="jxr_linenumber" name="L109" href="Line.html#L109">109</a> <em class="jxr_javadoccomment">     * @return normalized direction vector</em>
+<a class="jxr_linenumber" name="L110" href="Line.html#L110">110</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L111" href="Line.html#L111">111</a>     <strong class="jxr_keyword">public</strong> <a href="Vector3D.html">Vector3D</a> getDirection() {
+<a class="jxr_linenumber" name="L112" href="Line.html#L112">112</a>         <strong class="jxr_keyword">return</strong> direction;
+<a class="jxr_linenumber" name="L113" href="Line.html#L113">113</a>     }
+<a class="jxr_linenumber" name="L114" href="Line.html#L114">114</a> 
+<a class="jxr_linenumber" name="L115" href="Line.html#L115">115</a>     <em class="jxr_javadoccomment">/** Get the line point closest to the origin.</em>
+<a class="jxr_linenumber" name="L116" href="Line.html#L116">116</a> <em class="jxr_javadoccomment">     * @return line point closest to the origin</em>
+<a class="jxr_linenumber" name="L117" href="Line.html#L117">117</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L118" href="Line.html#L118">118</a>     <strong class="jxr_keyword">public</strong> <a href="Vector3D.html">Vector3D</a> getOrigin() {
+<a class="jxr_linenumber" name="L119" href="Line.html#L119">119</a>         <strong class="jxr_keyword">return</strong> zero;
+<a class="jxr_linenumber" name="L120" href="Line.html#L120">120</a>     }
+<a class="jxr_linenumber" name="L121" href="Line.html#L121">121</a> 
+<a class="jxr_linenumber" name="L122" href="Line.html#L122">122</a>     <em class="jxr_javadoccomment">/** Get the abscissa of a point with respect to the line.</em>
+<a class="jxr_linenumber" name="L123" href="Line.html#L123">123</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The abscissa is 0 if the projection of the point and the</em>
+<a class="jxr_linenumber" name="L124" href="Line.html#L124">124</a> <em class="jxr_javadoccomment">     * projection of the frame origin on the line are the same</em>
+<a class="jxr_linenumber" name="L125" href="Line.html#L125">125</a> <em class="jxr_javadoccomment">     * point.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L126" href="Line.html#L126">126</a> <em class="jxr_javadoccomment">     * @param point point to check</em>
+<a class="jxr_linenumber" name="L127" href="Line.html#L127">127</a> <em class="jxr_javadoccomment">     * @return abscissa of the point</em>
+<a class="jxr_linenumber" name="L128" href="Line.html#L128">128</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L129" href="Line.html#L129">129</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getAbscissa(<strong class="jxr_keyword">final</strong> <a href="Vector3D.html">Vector3D</a> point) {
+<a class="jxr_linenumber" name="L130" href="Line.html#L130">130</a>         <strong class="jxr_keyword">return</strong> point.subtract(zero).dotProduct(direction);
+<a class="jxr_linenumber" name="L131" href="Line.html#L131">131</a>     }
+<a class="jxr_linenumber" name="L132" href="Line.html#L132">132</a> 
+<a class="jxr_linenumber" name="L133" href="Line.html#L133">133</a>     <em class="jxr_javadoccomment">/** Get one point from the line.</em>
+<a class="jxr_linenumber" name="L134" href="Line.html#L134">134</a> <em class="jxr_javadoccomment">     * @param abscissa desired abscissa for the point</em>
+<a class="jxr_linenumber" name="L135" href="Line.html#L135">135</a> <em class="jxr_javadoccomment">     * @return one point belonging to the line, at specified abscissa</em>
+<a class="jxr_linenumber" name="L136" href="Line.html#L136">136</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L137" href="Line.html#L137">137</a>     <strong class="jxr_keyword">public</strong> <a href="Vector3D.html">Vector3D</a> pointAt(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> abscissa) {
+<a class="jxr_linenumber" name="L138" href="Line.html#L138">138</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="Vector3D.html">Vector3D</a>(1.0, zero, abscissa, direction);
+<a class="jxr_linenumber" name="L139" href="Line.html#L139">139</a>     }
+<a class="jxr_linenumber" name="L140" href="Line.html#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="Line.html#L141">141</a>     <em class="jxr_javadoccomment">/** Transform a space point into a sub-space point.</em>
+<a class="jxr_linenumber" name="L142" href="Line.html#L142">142</a> <em class="jxr_javadoccomment">     * @param vector n-dimension point of the space</em>
+<a class="jxr_linenumber" name="L143" href="Line.html#L143">143</a> <em class="jxr_javadoccomment">     * @return (n-1)-dimension point of the sub-space corresponding to</em>
+<a class="jxr_linenumber" name="L144" href="Line.html#L144">144</a> <em class="jxr_javadoccomment">     * the specified space point</em>
+<a class="jxr_linenumber" name="L145" href="Line.html#L145">145</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L146" href="Line.html#L146">146</a>     <strong class="jxr_keyword">public</strong> <a href="../oned/Vector1D.html">Vector1D</a> toSubSpace(Vector&lt;Euclidean3D&gt; vector) {
+<a class="jxr_linenumber" name="L147" href="Line.html#L147">147</a>         <strong class="jxr_keyword">return</strong> toSubSpace((Point&lt;Euclidean3D&gt;) vector);
+<a class="jxr_linenumber" name="L148" href="Line.html#L148">148</a>     }
+<a class="jxr_linenumber" name="L149" href="Line.html#L149">149</a> 
+<a class="jxr_linenumber" name="L150" href="Line.html#L150">150</a>     <em class="jxr_javadoccomment">/** Transform a sub-space point into a space point.</em>
+<a class="jxr_linenumber" name="L151" href="Line.html#L151">151</a> <em class="jxr_javadoccomment">     * @param vector (n-1)-dimension point of the sub-space</em>
+<a class="jxr_linenumber" name="L152" href="Line.html#L152">152</a> <em class="jxr_javadoccomment">     * @return n-dimension point of the space corresponding to the</em>
+<a class="jxr_linenumber" name="L153" href="Line.html#L153">153</a> <em class="jxr_javadoccomment">     * specified sub-space point</em>
+<a class="jxr_linenumber" name="L154" href="Line.html#L154">154</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L155" href="Line.html#L155">155</a>     <strong class="jxr_keyword">public</strong> <a href="Vector3D.html">Vector3D</a> toSpace(Vector&lt;Euclidean1D&gt; vector) {
+<a class="jxr_linenumber" name="L156" href="Line.html#L156">156</a>         <strong class="jxr_keyword">return</strong> toSpace((Point&lt;Euclidean1D&gt;) vector);
+<a class="jxr_linenumber" name="L157" href="Line.html#L157">157</a>     }
+<a class="jxr_linenumber" name="L158" href="Line.html#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="Line.html#L159">159</a>     <em class="jxr_javadoccomment">/** {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L160" href="Line.html#L160">160</a> <em class="jxr_javadoccomment">     * @see #getAbscissa(Vector3D)</em>
+<a class="jxr_linenumber" name="L161" href="Line.html#L161">161</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L162" href="Line.html#L162">162</a>     @Override
+<a class="jxr_linenumber" name="L163" href="Line.html#L163">163</a>     <strong class="jxr_keyword">public</strong> <a href="../oned/Vector1D.html">Vector1D</a> toSubSpace(<strong class="jxr_keyword">final</strong> Point&lt;Euclidean3D&gt; point) {
+<a class="jxr_linenumber" name="L164" href="Line.html#L164">164</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../oned/Vector1D.html">Vector1D</a>(getAbscissa((Vector3D) point));
+<a class="jxr_linenumber" name="L165" href="Line.html#L165">165</a>     }
+<a class="jxr_linenumber" name="L166" href="Line.html#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="Line.html#L167">167</a>     <em class="jxr_javadoccomment">/** {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L168" href="Line.html#L168">168</a> <em class="jxr_javadoccomment">     * @see #pointAt(double)</em>
+<a class="jxr_linenumber" name="L169" href="Line.html#L169">169</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L170" href="Line.html#L170">170</a>     @Override
+<a class="jxr_linenumber" name="L171" href="Line.html#L171">171</a>     <strong class="jxr_keyword">public</strong> <a href="Vector3D.html">Vector3D</a> toSpace(<strong class="jxr_keyword">final</strong> Point&lt;Euclidean1D&gt; point) {
+<a class="jxr_linenumber" name="L172" href="Line.html#L172">172</a>         <strong class="jxr_keyword">return</strong> pointAt(((Vector1D) point).getX());
+<a class="jxr_linenumber" name="L173" href="Line.html#L173">173</a>     }
+<a class="jxr_linenumber" name="L174" href="Line.html#L174">174</a> 
+<a class="jxr_linenumber" name="L175" href="Line.html#L175">175</a>     <em class="jxr_javadoccomment">/** Check if the instance is similar to another line.</em>
+<a class="jxr_linenumber" name="L176" href="Line.html#L176">176</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Lines are considered similar if they contain the same</em>
+<a class="jxr_linenumber" name="L177" href="Line.html#L177">177</a> <em class="jxr_javadoccomment">     * points. This does not mean they are equal since they can have</em>
+<a class="jxr_linenumber" name="L178" href="Line.html#L178">178</a> <em class="jxr_javadoccomment">     * opposite directions.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L179" href="Line.html#L179">179</a> <em class="jxr_javadoccomment">     * @param line line to which instance should be compared</em>
+<a class="jxr_linenumber" name="L180" href="Line.html#L180">180</a> <em class="jxr_javadoccomment">     * @return true if the lines are similar</em>
+<a class="jxr_linenumber" name="L181" href="Line.html#L181">181</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L182" href="Line.html#L182">182</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isSimilarTo(<strong class="jxr_keyword">final</strong> <a href="Line.html">Line</a> line) {
+<a class="jxr_linenumber" name="L183" href="Line.html#L183">183</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> angle = Vector3D.angle(direction, line.direction);
+<a class="jxr_linenumber" name="L184" href="Line.html#L184">184</a>         <strong class="jxr_keyword">return</strong> ((angle &lt; tolerance) || (angle &gt; (FastMath.PI - tolerance))) &amp;&amp; contains(line.zero);
+<a class="jxr_linenumber" name="L185" href="Line.html#L185">185</a>     }
+<a class="jxr_linenumber" name="L186" href="Line.html#L186">186</a> 
+<a class="jxr_linenumber" name="L187" href="Line.html#L187">187</a>     <em class="jxr_javadoccomment">/** Check if the instance contains a point.</em>
+<a class="jxr_linenumber" name="L188" href="Line.html#L188">188</a> <em class="jxr_javadoccomment">     * @param p point to check</em>
+<a class="jxr_linenumber" name="L189" href="Line.html#L189">189</a> <em class="jxr_javadoccomment">     * @return true if p belongs to the line</em>
+<a class="jxr_linenumber" name="L190" href="Line.html#L190">190</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L191" href="Line.html#L191">191</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> contains(<strong class="jxr_keyword">final</strong> <a href="Vector3D.html">Vector3D</a> p) {
+<a class="jxr_linenumber" name="L192" href="Line.html#L192">192</a>         <strong class="jxr_keyword">return</strong> distance(p) &lt; tolerance;
+<a class="jxr_linenumber" name="L193" href="Line.html#L193">193</a>     }
+<a class="jxr_linenumber" name="L194" href="Line.html#L194">194</a> 
+<a class="jxr_linenumber" name="L195" href="Line.html#L195">195</a>     <em class="jxr_javadoccomment">/** Compute the distance between the instance and a point.</em>
+<a class="jxr_linenumber" name="L196" href="Line.html#L196">196</a> <em class="jxr_javadoccomment">     * @param p to check</em>
+<a class="jxr_linenumber" name="L197" href="Line.html#L197">197</a> <em class="jxr_javadoccomment">     * @return distance between the instance and the point</em>
+<a class="jxr_linenumber" name="L198" href="Line.html#L198">198</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L199" href="Line.html#L199">199</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> distance(<strong class="jxr_keyword">final</strong> <a href="Vector3D.html">Vector3D</a> p) {
+<a class="jxr_linenumber" name="L200" href="Line.html#L200">200</a>         <strong class="jxr_keyword">final</strong> <a href="Vector3D.html">Vector3D</a> d = p.subtract(zero);
+<a class="jxr_linenumber" name="L201" href="Line.html#L201">201</a>         <strong class="jxr_keyword">final</strong> <a href="Vector3D.html">Vector3D</a> n = <strong class="jxr_keyword">new</strong> <a href="Vector3D.html">Vector3D</a>(1.0, d, -d.dotProduct(direction), direction);
+<a class="jxr_linenumber" name="L202" href="Line.html#L202">202</a>         <strong class="jxr_keyword">return</strong> n.getNorm();
+<a class="jxr_linenumber" name="L203" href="Line.html#L203">203</a>     }
+<a class="jxr_linenumber" name="L204" href="Line.html#L204">204</a> 
+<a class="jxr_linenumber" name="L205" href="Line.html#L205">205</a>     <em class="jxr_javadoccomment">/** Compute the shortest distance between the instance and another line.</em>
+<a class="jxr_linenumber" name="L206" href="Line.html#L206">206</a> <em class="jxr_javadoccomment">     * @param line line to check against the instance</em>
+<a class="jxr_linenumber" name="L207" href="Line.html#L207">207</a> <em class="jxr_javadoccomment">     * @return shortest distance between the instance and the line</em>
+<a class="jxr_linenumber" name="L208" href="Line.html#L208">208</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L209" href="Line.html#L209">209</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> distance(<strong class="jxr_keyword">final</strong> <a href="Line.html">Line</a> line) {
+<a class="jxr_linenumber" name="L210" href="Line.html#L210">210</a> 
+<a class="jxr_linenumber" name="L211" href="Line.html#L211">211</a>         <strong class="jxr_keyword">final</strong> <a href="Vector3D.html">Vector3D</a> normal = Vector3D.crossProduct(direction, line.direction);
+<a class="jxr_linenumber" name="L212" href="Line.html#L212">212</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> n = normal.getNorm();
+<a class="jxr_linenumber" name="L213" href="Line.html#L213">213</a>         <strong class="jxr_keyword">if</strong> (n &lt; Precision.SAFE_MIN) {
+<a class="jxr_linenumber" name="L214" href="Line.html#L214">214</a>             <em class="jxr_comment">// lines are parallel</em>
+<a class="jxr_linenumber" name="L215" href="Line.html#L215">215</a>             <strong class="jxr_keyword">return</strong> distance(line.zero);
+<a class="jxr_linenumber" name="L216" href="Line.html#L216">216</a>         }
+<a class="jxr_linenumber" name="L217" href="Line.html#L217">217</a> 
+<a class="jxr_linenumber" name="L218" href="Line.html#L218">218</a>         <em class="jxr_comment">// signed separation of the two parallel planes that contains the lines</em>
+<a class="jxr_linenumber" name="L219" href="Line.html#L219">219</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> offset = line.zero.subtract(zero).dotProduct(normal) / n;
+<a class="jxr_linenumber" name="L220" href="Line.html#L220">220</a> 
+<a class="jxr_linenumber" name="L221" href="Line.html#L221">221</a>         <strong class="jxr_keyword">return</strong> FastMath.abs(offset);
+<a class="jxr_linenumber" name="L222" href="Line.html#L222">222</a> 
+<a class="jxr_linenumber" name="L223" href="Line.html#L223">223</a>     }
+<a class="jxr_linenumber" name="L224" href="Line.html#L224">224</a> 
+<a class="jxr_linenumber" name="L225" href="Line.html#L225">225</a>     <em class="jxr_javadoccomment">/** Compute the point of the instance closest to another line.</em>
+<a class="jxr_linenumber" name="L226" href="Line.html#L226">226</a> <em class="jxr_javadoccomment">     * @param line line to check against the instance</em>
+<a class="jxr_linenumber" name="L227" href="Line.html#L227">227</a> <em class="jxr_javadoccomment">     * @return point of the instance closest to another line</em>
+<a class="jxr_linenumber" name="L228" href="Line.html#L228">228</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L229" href="Line.html#L229">229</a>     <strong class="jxr_keyword">public</strong> <a href="Vector3D.html">Vector3D</a> closestPoint(<strong class="jxr_keyword">final</strong> <a href="Line.html">Line</a> line) {
+<a class="jxr_linenumber" name="L230" href="Line.html#L230">230</a> 
+<a class="jxr_linenumber" name="L231" href="Line.html#L231">231</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> cos = direction.dotProduct(line.direction);
+<a class="jxr_linenumber" name="L232" href="Line.html#L232">232</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> n = 1 - cos * cos;
+<a class="jxr_linenumber" name="L233" href="Line.html#L233">233</a>         <strong class="jxr_keyword">if</strong> (n &lt; Precision.EPSILON) {
+<a class="jxr_linenumber" name="L234" href="Line.html#L234">234</a>             <em class="jxr_comment">// the lines are parallel</em>
+<a class="jxr_linenumber" name="L235" href="Line.html#L235">235</a>             <strong class="jxr_keyword">return</strong> zero;
+<a class="jxr_linenumber" name="L236" href="Line.html#L236">236</a>         }
+<a class="jxr_linenumber" name="L237" href="Line.html#L237">237</a> 
+<a class="jxr_linenumber" name="L238" href="Line.html#L238">238</a>         <strong class="jxr_keyword">final</strong> <a href="Vector3D.html">Vector3D</a> delta0 = line.zero.subtract(zero);
+<a class="jxr_linenumber" name="L239" href="Line.html#L239">239</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> a        = delta0.dotProduct(direction);
+<a class="jxr_linenumber" name="L240" href="Line.html#L240">240</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> b        = delta0.dotProduct(line.direction);
+<a class="jxr_linenumber" name="L241" href="Line.html#L241">241</a> 
+<a class="jxr_linenumber" name="L242" href="Line.html#L242">242</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="Vector3D.html">Vector3D</a>(1, zero, (a - b * cos) / n, direction);
+<a class="jxr_linenumber" name="L243" href="Line.html#L243">243</a> 
+<a class="jxr_linenumber" name="L244" href="Line.html#L244">244</a>     }
+<a class="jxr_linenumber" name="L245" href="Line.html#L245">245</a> 
+<a class="jxr_linenumber" name="L246" href="Line.html#L246">246</a>     <em class="jxr_javadoccomment">/** Get the intersection point of the instance and another line.</em>
+<a class="jxr_linenumber" name="L247" href="Line.html#L247">247</a> <em class="jxr_javadoccomment">     * @param line other line</em>
+<a class="jxr_linenumber" name="L248" href="Line.html#L248">248</a> <em class="jxr_javadoccomment">     * @return intersection point of the instance and the other line</em>
+<a class="jxr_linenumber" name="L249" href="Line.html#L249">249</a> <em class="jxr_javadoccomment">     * or null if there are no intersection points</em>
+<a class="jxr_linenumber" name="L250" href="Line.html#L250">250</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L251" href="Line.html#L251">251</a>     <strong class="jxr_keyword">public</strong> <a href="Vector3D.html">Vector3D</a> intersection(<strong class="jxr_keyword">final</strong> <a href="Line.html">Line</a> line) {
+<a class="jxr_linenumber" name="L252" href="Line.html#L252">252</a>         <strong class="jxr_keyword">final</strong> <a href="Vector3D.html">Vector3D</a> closest = closestPoint(line);
+<a class="jxr_linenumber" name="L253" href="Line.html#L253">253</a>         <strong class="jxr_keyword">return</strong> line.contains(closest) ? closest : <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L254" href="Line.html#L254">254</a>     }
+<a class="jxr_linenumber" name="L255" href="Line.html#L255">255</a> 
+<a class="jxr_linenumber" name="L256" href="Line.html#L256">256</a>     <em class="jxr_javadoccomment">/** Build a sub-line covering the whole line.</em>
+<a class="jxr_linenumber" name="L257" href="Line.html#L257">257</a> <em class="jxr_javadoccomment">     * @return a sub-line covering the whole line</em>
+<a class="jxr_linenumber" name="L258" href="Line.html#L258">258</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L259" href="Line.html#L259">259</a>     <strong class="jxr_keyword">public</strong> <a href="SubLine.html">SubLine</a> wholeLine() {
+<a class="jxr_linenumber" name="L260" href="Line.html#L260">260</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="SubLine.html">SubLine</a>(<strong class="jxr_keyword">this</strong>, <strong class="jxr_keyword">new</strong> <a href="../oned/IntervalsSet.html">IntervalsSet</a>(tolerance));
+<a class="jxr_linenumber" name="L261" href="Line.html#L261">261</a>     }
+<a class="jxr_linenumber" name="L262" href="Line.html#L262">262</a> 
+<a class="jxr_linenumber" name="L263" href="Line.html#L263">263</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

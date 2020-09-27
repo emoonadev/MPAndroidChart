@@ -14,6 +14,7 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.dataprovider.BarDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.renderer.BarChartRenderer;
+import com.google.gson.Gson;
 
 import java.util.Locale;
 
@@ -267,9 +268,9 @@ public class BarChart extends BarLineChartBase<BarData> implements BarDataProvid
         int entryCount = barData.getEntryCount();
 
         // Find the min and max index
-        ValueFormatter yAxisValueFormmater = getAxisLeft().getValueFormatter();
-        String minVal = yAxisValueFormmater.getFormattedValue(barData.getYMin());
-        String maxVal = yAxisValueFormmater.getFormattedValue(barData.getYMax());
+        ValueFormatter yAxisValueFormatter = getAxisLeft().getValueFormatter();
+        String minVal = yAxisValueFormatter.getFormattedValue(barData.getYMin());
+        String maxVal = yAxisValueFormatter.getFormattedValue(barData.getYMax());
 
         // Data range...
         ValueFormatter xAxisValueFormatter = getXAxis().getValueFormatter();
@@ -285,6 +286,12 @@ public class BarChart extends BarLineChartBase<BarData> implements BarDataProvid
                         "Data ranges from %s to %s.",
                 entryCount, entries, minVal, maxVal, minRange, maxRange);
 
-        return description;
+        return description + getDataAsJson();
+    }
+
+    @Override
+    public String getDataAsJson() {
+        //TODO: implement GSON via an interface class
+        return super.getDataAsJson();
     }
 }

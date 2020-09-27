@@ -1,0 +1,487 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>ZipfDistribution xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/distribution/ZipfDistribution.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="ZipfDistribution.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="ZipfDistribution.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="ZipfDistribution.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="ZipfDistribution.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="ZipfDistribution.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="ZipfDistribution.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="ZipfDistribution.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="ZipfDistribution.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="ZipfDistribution.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="ZipfDistribution.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="ZipfDistribution.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="ZipfDistribution.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="ZipfDistribution.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="ZipfDistribution.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="ZipfDistribution.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="ZipfDistribution.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="ZipfDistribution.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="ZipfDistribution.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.distribution;
+<a class="jxr_linenumber" name="L19" href="ZipfDistribution.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="ZipfDistribution.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L21" href="ZipfDistribution.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L22" href="ZipfDistribution.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L23" href="ZipfDistribution.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L24" href="ZipfDistribution.html#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="ZipfDistribution.html#L25">25</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L26" href="ZipfDistribution.html#L26">26</a>  <em class="jxr_javadoccomment"> * Implementation of the Zipf distribution.</em>
+<a class="jxr_linenumber" name="L27" href="ZipfDistribution.html#L27">27</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L28" href="ZipfDistribution.html#L28">28</a>  <em class="jxr_javadoccomment"> * &lt;strong&gt;Parameters:&lt;/strong&gt;</em>
+<a class="jxr_linenumber" name="L29" href="ZipfDistribution.html#L29">29</a>  <em class="jxr_javadoccomment"> * For a random variable {@code X} whose values are distributed according to this</em>
+<a class="jxr_linenumber" name="L30" href="ZipfDistribution.html#L30">30</a>  <em class="jxr_javadoccomment"> * distribution, the probability mass function is given by</em>
+<a class="jxr_linenumber" name="L31" href="ZipfDistribution.html#L31">31</a>  <em class="jxr_javadoccomment"> * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L32" href="ZipfDistribution.html#L32">32</a>  <em class="jxr_javadoccomment"> *   P(X = k) = H(N,s) * 1 / k^s    for {@code k = 1,2,...,N}.</em>
+<a class="jxr_linenumber" name="L33" href="ZipfDistribution.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L34" href="ZipfDistribution.html#L34">34</a>  <em class="jxr_javadoccomment"> * {@code H(N,s)} is the normalizing constant</em>
+<a class="jxr_linenumber" name="L35" href="ZipfDistribution.html#L35">35</a>  <em class="jxr_javadoccomment"> * which corresponds to the generalized harmonic number of order N of s.</em>
+<a class="jxr_linenumber" name="L36" href="ZipfDistribution.html#L36">36</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L37" href="ZipfDistribution.html#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L38" href="ZipfDistribution.html#L38">38</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;{@code N} is the number of elements&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L39" href="ZipfDistribution.html#L39">39</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;{@code s} is the exponent&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L40" href="ZipfDistribution.html#L40">40</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L41" href="ZipfDistribution.html#L41">41</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="https://en.wikipedia.org/wiki/Zipf's_law"&gt;Zipf's law (Wikipedia)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L42" href="ZipfDistribution.html#L42">42</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="https://en.wikipedia.org/wiki/Harmonic_number#Generalized_harmonic_numbers"&gt;Generalized harmonic numbers&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L43" href="ZipfDistribution.html#L43">43</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L44" href="ZipfDistribution.html#L44">44</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="ZipfDistribution.html">ZipfDistribution</a> <strong class="jxr_keyword">extends</strong> <a href="AbstractIntegerDistribution.html">AbstractIntegerDistribution</a> {
+<a class="jxr_linenumber" name="L45" href="ZipfDistribution.html#L45">45</a>      <em class="jxr_javadoccomment">/** Serializable version identifier. */</em>
+<a class="jxr_linenumber" name="L46" href="ZipfDistribution.html#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20150501L;
+<a class="jxr_linenumber" name="L47" href="ZipfDistribution.html#L47">47</a>      <em class="jxr_javadoccomment">/** Number of elements. */</em>
+<a class="jxr_linenumber" name="L48" href="ZipfDistribution.html#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numberOfElements;
+<a class="jxr_linenumber" name="L49" href="ZipfDistribution.html#L49">49</a>      <em class="jxr_javadoccomment">/** Exponent parameter of the distribution. */</em>
+<a class="jxr_linenumber" name="L50" href="ZipfDistribution.html#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> exponent;
+<a class="jxr_linenumber" name="L51" href="ZipfDistribution.html#L51">51</a>      <em class="jxr_javadoccomment">/** Cached values of the nth generalized harmonic. */</em>
+<a class="jxr_linenumber" name="L52" href="ZipfDistribution.html#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> nthHarmonic;
+<a class="jxr_linenumber" name="L53" href="ZipfDistribution.html#L53">53</a>      <em class="jxr_javadoccomment">/** Cached numerical mean */</em>
+<a class="jxr_linenumber" name="L54" href="ZipfDistribution.html#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> numericalMean = Double.NaN;
+<a class="jxr_linenumber" name="L55" href="ZipfDistribution.html#L55">55</a>      <em class="jxr_javadoccomment">/** Whether or not the numerical mean has been calculated */</em>
+<a class="jxr_linenumber" name="L56" href="ZipfDistribution.html#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> numericalMeanIsCalculated = false;
+<a class="jxr_linenumber" name="L57" href="ZipfDistribution.html#L57">57</a>      <em class="jxr_javadoccomment">/** Cached numerical variance */</em>
+<a class="jxr_linenumber" name="L58" href="ZipfDistribution.html#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> numericalVariance = Double.NaN;
+<a class="jxr_linenumber" name="L59" href="ZipfDistribution.html#L59">59</a>      <em class="jxr_javadoccomment">/** Whether or not the numerical variance has been calculated */</em>
+<a class="jxr_linenumber" name="L60" href="ZipfDistribution.html#L60">60</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> numericalVarianceIsCalculated = false;
+<a class="jxr_linenumber" name="L61" href="ZipfDistribution.html#L61">61</a>  
+<a class="jxr_linenumber" name="L62" href="ZipfDistribution.html#L62">62</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L63" href="ZipfDistribution.html#L63">63</a>  <em class="jxr_javadoccomment">     * Creates a distribution.</em>
+<a class="jxr_linenumber" name="L64" href="ZipfDistribution.html#L64">64</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L65" href="ZipfDistribution.html#L65">65</a>  <em class="jxr_javadoccomment">     * @param numberOfElements Number of elements.</em>
+<a class="jxr_linenumber" name="L66" href="ZipfDistribution.html#L66">66</a>  <em class="jxr_javadoccomment">     * @param exponent Exponent.</em>
+<a class="jxr_linenumber" name="L67" href="ZipfDistribution.html#L67">67</a>  <em class="jxr_javadoccomment">     * @exception NotStrictlyPositiveException if {@code numberOfElements &lt;= 0}</em>
+<a class="jxr_linenumber" name="L68" href="ZipfDistribution.html#L68">68</a>  <em class="jxr_javadoccomment">     * or {@code exponent &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L69" href="ZipfDistribution.html#L69">69</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L70" href="ZipfDistribution.html#L70">70</a>      <strong class="jxr_keyword">public</strong> <a href="ZipfDistribution.html">ZipfDistribution</a>(<strong class="jxr_keyword">int</strong> numberOfElements,
+<a class="jxr_linenumber" name="L71" href="ZipfDistribution.html#L71">71</a>                              <strong class="jxr_keyword">double</strong> exponent)
+<a class="jxr_linenumber" name="L72" href="ZipfDistribution.html#L72">72</a>          <strong class="jxr_keyword">throws</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L73" href="ZipfDistribution.html#L73">73</a>          <strong class="jxr_keyword">if</strong> (numberOfElements &lt;= 0) {
+<a class="jxr_linenumber" name="L74" href="ZipfDistribution.html#L74">74</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(LocalizedFormats.DIMENSION,
+<a class="jxr_linenumber" name="L75" href="ZipfDistribution.html#L75">75</a>                                                     numberOfElements);
+<a class="jxr_linenumber" name="L76" href="ZipfDistribution.html#L76">76</a>          }
+<a class="jxr_linenumber" name="L77" href="ZipfDistribution.html#L77">77</a>          <strong class="jxr_keyword">if</strong> (exponent &lt;= 0) {
+<a class="jxr_linenumber" name="L78" href="ZipfDistribution.html#L78">78</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(LocalizedFormats.EXPONENT,
+<a class="jxr_linenumber" name="L79" href="ZipfDistribution.html#L79">79</a>                                                     exponent);
+<a class="jxr_linenumber" name="L80" href="ZipfDistribution.html#L80">80</a>          }
+<a class="jxr_linenumber" name="L81" href="ZipfDistribution.html#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="ZipfDistribution.html#L82">82</a>          <strong class="jxr_keyword">this</strong>.numberOfElements = numberOfElements;
+<a class="jxr_linenumber" name="L83" href="ZipfDistribution.html#L83">83</a>          <strong class="jxr_keyword">this</strong>.exponent = exponent;
+<a class="jxr_linenumber" name="L84" href="ZipfDistribution.html#L84">84</a>          <strong class="jxr_keyword">this</strong>.nthHarmonic = generalizedHarmonic(numberOfElements, exponent);
+<a class="jxr_linenumber" name="L85" href="ZipfDistribution.html#L85">85</a>      }
+<a class="jxr_linenumber" name="L86" href="ZipfDistribution.html#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="ZipfDistribution.html#L87">87</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L88" href="ZipfDistribution.html#L88">88</a>  <em class="jxr_javadoccomment">     * Get the number of elements (e.g. corpus size) for the distribution.</em>
+<a class="jxr_linenumber" name="L89" href="ZipfDistribution.html#L89">89</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L90" href="ZipfDistribution.html#L90">90</a>  <em class="jxr_javadoccomment">     * @return the number of elements</em>
+<a class="jxr_linenumber" name="L91" href="ZipfDistribution.html#L91">91</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L92" href="ZipfDistribution.html#L92">92</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getNumberOfElements() {
+<a class="jxr_linenumber" name="L93" href="ZipfDistribution.html#L93">93</a>          <strong class="jxr_keyword">return</strong> numberOfElements;
+<a class="jxr_linenumber" name="L94" href="ZipfDistribution.html#L94">94</a>      }
+<a class="jxr_linenumber" name="L95" href="ZipfDistribution.html#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="ZipfDistribution.html#L96">96</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L97" href="ZipfDistribution.html#L97">97</a>  <em class="jxr_javadoccomment">     * Get the exponent characterizing the distribution.</em>
+<a class="jxr_linenumber" name="L98" href="ZipfDistribution.html#L98">98</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L99" href="ZipfDistribution.html#L99">99</a>  <em class="jxr_javadoccomment">     * @return the exponent</em>
+<a class="jxr_linenumber" name="L100" href="ZipfDistribution.html#L100">100</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L101" href="ZipfDistribution.html#L101">101</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getExponent() {
+<a class="jxr_linenumber" name="L102" href="ZipfDistribution.html#L102">102</a>         <strong class="jxr_keyword">return</strong> exponent;
+<a class="jxr_linenumber" name="L103" href="ZipfDistribution.html#L103">103</a>     }
+<a class="jxr_linenumber" name="L104" href="ZipfDistribution.html#L104">104</a> 
+<a class="jxr_linenumber" name="L105" href="ZipfDistribution.html#L105">105</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L106" href="ZipfDistribution.html#L106">106</a>     @Override
+<a class="jxr_linenumber" name="L107" href="ZipfDistribution.html#L107">107</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> probability(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> x) {
+<a class="jxr_linenumber" name="L108" href="ZipfDistribution.html#L108">108</a>         <strong class="jxr_keyword">if</strong> (x &lt;= 0 || x &gt; numberOfElements) {
+<a class="jxr_linenumber" name="L109" href="ZipfDistribution.html#L109">109</a>             <strong class="jxr_keyword">return</strong> 0.0;
+<a class="jxr_linenumber" name="L110" href="ZipfDistribution.html#L110">110</a>         }
+<a class="jxr_linenumber" name="L111" href="ZipfDistribution.html#L111">111</a> 
+<a class="jxr_linenumber" name="L112" href="ZipfDistribution.html#L112">112</a>         <strong class="jxr_keyword">return</strong> (1.0 / FastMath.pow(x, exponent)) / nthHarmonic;
+<a class="jxr_linenumber" name="L113" href="ZipfDistribution.html#L113">113</a>     }
+<a class="jxr_linenumber" name="L114" href="ZipfDistribution.html#L114">114</a> 
+<a class="jxr_linenumber" name="L115" href="ZipfDistribution.html#L115">115</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L116" href="ZipfDistribution.html#L116">116</a>     @Override
+<a class="jxr_linenumber" name="L117" href="ZipfDistribution.html#L117">117</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> logProbability(<strong class="jxr_keyword">int</strong> x) {
+<a class="jxr_linenumber" name="L118" href="ZipfDistribution.html#L118">118</a>         <strong class="jxr_keyword">if</strong> (x &lt;= 0 || x &gt; numberOfElements) {
+<a class="jxr_linenumber" name="L119" href="ZipfDistribution.html#L119">119</a>             <strong class="jxr_keyword">return</strong> Double.NEGATIVE_INFINITY;
+<a class="jxr_linenumber" name="L120" href="ZipfDistribution.html#L120">120</a>         }
+<a class="jxr_linenumber" name="L121" href="ZipfDistribution.html#L121">121</a> 
+<a class="jxr_linenumber" name="L122" href="ZipfDistribution.html#L122">122</a>         <strong class="jxr_keyword">return</strong> -FastMath.log(x) * exponent - FastMath.log(nthHarmonic);
+<a class="jxr_linenumber" name="L123" href="ZipfDistribution.html#L123">123</a>     }
+<a class="jxr_linenumber" name="L124" href="ZipfDistribution.html#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="ZipfDistribution.html#L125">125</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L126" href="ZipfDistribution.html#L126">126</a>     @Override
+<a class="jxr_linenumber" name="L127" href="ZipfDistribution.html#L127">127</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> cumulativeProbability(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> x) {
+<a class="jxr_linenumber" name="L128" href="ZipfDistribution.html#L128">128</a>         <strong class="jxr_keyword">if</strong> (x &lt;= 0) {
+<a class="jxr_linenumber" name="L129" href="ZipfDistribution.html#L129">129</a>             <strong class="jxr_keyword">return</strong> 0.0;
+<a class="jxr_linenumber" name="L130" href="ZipfDistribution.html#L130">130</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (x &gt;= numberOfElements) {
+<a class="jxr_linenumber" name="L131" href="ZipfDistribution.html#L131">131</a>             <strong class="jxr_keyword">return</strong> 1.0;
+<a class="jxr_linenumber" name="L132" href="ZipfDistribution.html#L132">132</a>         }
+<a class="jxr_linenumber" name="L133" href="ZipfDistribution.html#L133">133</a> 
+<a class="jxr_linenumber" name="L134" href="ZipfDistribution.html#L134">134</a>         <strong class="jxr_keyword">return</strong> generalizedHarmonic(x, exponent) / nthHarmonic;
+<a class="jxr_linenumber" name="L135" href="ZipfDistribution.html#L135">135</a>     }
+<a class="jxr_linenumber" name="L136" href="ZipfDistribution.html#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="ZipfDistribution.html#L137">137</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L138" href="ZipfDistribution.html#L138">138</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L139" href="ZipfDistribution.html#L139">139</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L140" href="ZipfDistribution.html#L140">140</a> <em class="jxr_javadoccomment">     * For number of elements {@code N} and exponent {@code s}, the mean is</em>
+<a class="jxr_linenumber" name="L141" href="ZipfDistribution.html#L141">141</a> <em class="jxr_javadoccomment">     * {@code Hs1 / Hs}, where</em>
+<a class="jxr_linenumber" name="L142" href="ZipfDistribution.html#L142">142</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L143" href="ZipfDistribution.html#L143">143</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code Hs1 = generalizedHarmonic(N, s - 1)},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L144" href="ZipfDistribution.html#L144">144</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code Hs = generalizedHarmonic(N, s)}.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L145" href="ZipfDistribution.html#L145">145</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L146" href="ZipfDistribution.html#L146">146</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L147" href="ZipfDistribution.html#L147">147</a>     @Override
+<a class="jxr_linenumber" name="L148" href="ZipfDistribution.html#L148">148</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalMean() {
+<a class="jxr_linenumber" name="L149" href="ZipfDistribution.html#L149">149</a>         <strong class="jxr_keyword">if</strong> (!numericalMeanIsCalculated) {
+<a class="jxr_linenumber" name="L150" href="ZipfDistribution.html#L150">150</a>             numericalMean = calculateNumericalMean();
+<a class="jxr_linenumber" name="L151" href="ZipfDistribution.html#L151">151</a>             numericalMeanIsCalculated = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L152" href="ZipfDistribution.html#L152">152</a>         }
+<a class="jxr_linenumber" name="L153" href="ZipfDistribution.html#L153">153</a>         <strong class="jxr_keyword">return</strong> numericalMean;
+<a class="jxr_linenumber" name="L154" href="ZipfDistribution.html#L154">154</a>     }
+<a class="jxr_linenumber" name="L155" href="ZipfDistribution.html#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="ZipfDistribution.html#L156">156</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L157" href="ZipfDistribution.html#L157">157</a> <em class="jxr_javadoccomment">     * Used by {@link #getNumericalMean()}.</em>
+<a class="jxr_linenumber" name="L158" href="ZipfDistribution.html#L158">158</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L159" href="ZipfDistribution.html#L159">159</a> <em class="jxr_javadoccomment">     * @return the mean of this distribution</em>
+<a class="jxr_linenumber" name="L160" href="ZipfDistribution.html#L160">160</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L161" href="ZipfDistribution.html#L161">161</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> calculateNumericalMean() {
+<a class="jxr_linenumber" name="L162" href="ZipfDistribution.html#L162">162</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> N = getNumberOfElements();
+<a class="jxr_linenumber" name="L163" href="ZipfDistribution.html#L163">163</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> s = getExponent();
+<a class="jxr_linenumber" name="L164" href="ZipfDistribution.html#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="ZipfDistribution.html#L165">165</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> Hs1 = generalizedHarmonic(N, s - 1);
+<a class="jxr_linenumber" name="L166" href="ZipfDistribution.html#L166">166</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> Hs = nthHarmonic;
+<a class="jxr_linenumber" name="L167" href="ZipfDistribution.html#L167">167</a> 
+<a class="jxr_linenumber" name="L168" href="ZipfDistribution.html#L168">168</a>         <strong class="jxr_keyword">return</strong> Hs1 / Hs;
+<a class="jxr_linenumber" name="L169" href="ZipfDistribution.html#L169">169</a>     }
+<a class="jxr_linenumber" name="L170" href="ZipfDistribution.html#L170">170</a> 
+<a class="jxr_linenumber" name="L171" href="ZipfDistribution.html#L171">171</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L172" href="ZipfDistribution.html#L172">172</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L173" href="ZipfDistribution.html#L173">173</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L174" href="ZipfDistribution.html#L174">174</a> <em class="jxr_javadoccomment">     * For number of elements {@code N} and exponent {@code s}, the mean is</em>
+<a class="jxr_linenumber" name="L175" href="ZipfDistribution.html#L175">175</a> <em class="jxr_javadoccomment">     * {@code (Hs2 / Hs) - (Hs1^2 / Hs^2)}, where</em>
+<a class="jxr_linenumber" name="L176" href="ZipfDistribution.html#L176">176</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L177" href="ZipfDistribution.html#L177">177</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code Hs2 = generalizedHarmonic(N, s - 2)},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L178" href="ZipfDistribution.html#L178">178</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code Hs1 = generalizedHarmonic(N, s - 1)},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L179" href="ZipfDistribution.html#L179">179</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;{@code Hs = generalizedHarmonic(N, s)}.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L180" href="ZipfDistribution.html#L180">180</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L181" href="ZipfDistribution.html#L181">181</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L182" href="ZipfDistribution.html#L182">182</a>     @Override
+<a class="jxr_linenumber" name="L183" href="ZipfDistribution.html#L183">183</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalVariance() {
+<a class="jxr_linenumber" name="L184" href="ZipfDistribution.html#L184">184</a>         <strong class="jxr_keyword">if</strong> (!numericalVarianceIsCalculated) {
+<a class="jxr_linenumber" name="L185" href="ZipfDistribution.html#L185">185</a>             numericalVariance = calculateNumericalVariance();
+<a class="jxr_linenumber" name="L186" href="ZipfDistribution.html#L186">186</a>             numericalVarianceIsCalculated = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L187" href="ZipfDistribution.html#L187">187</a>         }
+<a class="jxr_linenumber" name="L188" href="ZipfDistribution.html#L188">188</a>         <strong class="jxr_keyword">return</strong> numericalVariance;
+<a class="jxr_linenumber" name="L189" href="ZipfDistribution.html#L189">189</a>     }
+<a class="jxr_linenumber" name="L190" href="ZipfDistribution.html#L190">190</a> 
+<a class="jxr_linenumber" name="L191" href="ZipfDistribution.html#L191">191</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L192" href="ZipfDistribution.html#L192">192</a> <em class="jxr_javadoccomment">     * Used by {@link #getNumericalVariance()}.</em>
+<a class="jxr_linenumber" name="L193" href="ZipfDistribution.html#L193">193</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L194" href="ZipfDistribution.html#L194">194</a> <em class="jxr_javadoccomment">     * @return the variance of this distribution</em>
+<a class="jxr_linenumber" name="L195" href="ZipfDistribution.html#L195">195</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L196" href="ZipfDistribution.html#L196">196</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> calculateNumericalVariance() {
+<a class="jxr_linenumber" name="L197" href="ZipfDistribution.html#L197">197</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> N = getNumberOfElements();
+<a class="jxr_linenumber" name="L198" href="ZipfDistribution.html#L198">198</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> s = getExponent();
+<a class="jxr_linenumber" name="L199" href="ZipfDistribution.html#L199">199</a> 
+<a class="jxr_linenumber" name="L200" href="ZipfDistribution.html#L200">200</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> Hs2 = generalizedHarmonic(N, s - 2);
+<a class="jxr_linenumber" name="L201" href="ZipfDistribution.html#L201">201</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> Hs1 = generalizedHarmonic(N, s - 1);
+<a class="jxr_linenumber" name="L202" href="ZipfDistribution.html#L202">202</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> Hs = nthHarmonic;
+<a class="jxr_linenumber" name="L203" href="ZipfDistribution.html#L203">203</a> 
+<a class="jxr_linenumber" name="L204" href="ZipfDistribution.html#L204">204</a>         <strong class="jxr_keyword">return</strong> (Hs2 / Hs) - ((Hs1 * Hs1) / (Hs * Hs));
+<a class="jxr_linenumber" name="L205" href="ZipfDistribution.html#L205">205</a>     }
+<a class="jxr_linenumber" name="L206" href="ZipfDistribution.html#L206">206</a> 
+<a class="jxr_linenumber" name="L207" href="ZipfDistribution.html#L207">207</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L208" href="ZipfDistribution.html#L208">208</a> <em class="jxr_javadoccomment">     * Calculates the Nth generalized harmonic number. See</em>
+<a class="jxr_linenumber" name="L209" href="ZipfDistribution.html#L209">209</a> <em class="jxr_javadoccomment">     * &lt;a href="<a href="http://mathworld.wolfram.com/HarmonicSeries.html" target="alexandria_uri">http://mathworld.wolfram.com/HarmonicSeries.html</a>"&gt;Harmonic</em>
+<a class="jxr_linenumber" name="L210" href="ZipfDistribution.html#L210">210</a> <em class="jxr_javadoccomment">     * Series&lt;/a&gt;.</em>
+<a class="jxr_linenumber" name="L211" href="ZipfDistribution.html#L211">211</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L212" href="ZipfDistribution.html#L212">212</a> <em class="jxr_javadoccomment">     * @param n Term in the series to calculate (must be larger than 1)</em>
+<a class="jxr_linenumber" name="L213" href="ZipfDistribution.html#L213">213</a> <em class="jxr_javadoccomment">     * @param m Exponent (special case {@code m = 1} is the harmonic series).</em>
+<a class="jxr_linenumber" name="L214" href="ZipfDistribution.html#L214">214</a> <em class="jxr_javadoccomment">     * @return the n&lt;sup&gt;th&lt;/sup&gt; generalized harmonic number.</em>
+<a class="jxr_linenumber" name="L215" href="ZipfDistribution.html#L215">215</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L216" href="ZipfDistribution.html#L216">216</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> generalizedHarmonic(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> m) {
+<a class="jxr_linenumber" name="L217" href="ZipfDistribution.html#L217">217</a>         <strong class="jxr_keyword">double</strong> value = 0;
+<a class="jxr_linenumber" name="L218" href="ZipfDistribution.html#L218">218</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = n; k &gt; 0; --k) {
+<a class="jxr_linenumber" name="L219" href="ZipfDistribution.html#L219">219</a>             value += 1.0 / FastMath.pow(k, m);
+<a class="jxr_linenumber" name="L220" href="ZipfDistribution.html#L220">220</a>         }
+<a class="jxr_linenumber" name="L221" href="ZipfDistribution.html#L221">221</a>         <strong class="jxr_keyword">return</strong> value;
+<a class="jxr_linenumber" name="L222" href="ZipfDistribution.html#L222">222</a>     }
+<a class="jxr_linenumber" name="L223" href="ZipfDistribution.html#L223">223</a> 
+<a class="jxr_linenumber" name="L224" href="ZipfDistribution.html#L224">224</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L225" href="ZipfDistribution.html#L225">225</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L226" href="ZipfDistribution.html#L226">226</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L227" href="ZipfDistribution.html#L227">227</a> <em class="jxr_javadoccomment">     * The lower bound of the support is always 1 no matter the parameters.</em>
+<a class="jxr_linenumber" name="L228" href="ZipfDistribution.html#L228">228</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L229" href="ZipfDistribution.html#L229">229</a> <em class="jxr_javadoccomment">     * @return lower bound of the support (always 1)</em>
+<a class="jxr_linenumber" name="L230" href="ZipfDistribution.html#L230">230</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L231" href="ZipfDistribution.html#L231">231</a>     @Override
+<a class="jxr_linenumber" name="L232" href="ZipfDistribution.html#L232">232</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getSupportLowerBound() {
+<a class="jxr_linenumber" name="L233" href="ZipfDistribution.html#L233">233</a>         <strong class="jxr_keyword">return</strong> 1;
+<a class="jxr_linenumber" name="L234" href="ZipfDistribution.html#L234">234</a>     }
+<a class="jxr_linenumber" name="L235" href="ZipfDistribution.html#L235">235</a> 
+<a class="jxr_linenumber" name="L236" href="ZipfDistribution.html#L236">236</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L237" href="ZipfDistribution.html#L237">237</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L238" href="ZipfDistribution.html#L238">238</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L239" href="ZipfDistribution.html#L239">239</a> <em class="jxr_javadoccomment">     * The upper bound of the support is the number of elements.</em>
+<a class="jxr_linenumber" name="L240" href="ZipfDistribution.html#L240">240</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L241" href="ZipfDistribution.html#L241">241</a> <em class="jxr_javadoccomment">     * @return upper bound of the support</em>
+<a class="jxr_linenumber" name="L242" href="ZipfDistribution.html#L242">242</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L243" href="ZipfDistribution.html#L243">243</a>     @Override
+<a class="jxr_linenumber" name="L244" href="ZipfDistribution.html#L244">244</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getSupportUpperBound() {
+<a class="jxr_linenumber" name="L245" href="ZipfDistribution.html#L245">245</a>         <strong class="jxr_keyword">return</strong> getNumberOfElements();
+<a class="jxr_linenumber" name="L246" href="ZipfDistribution.html#L246">246</a>     }
+<a class="jxr_linenumber" name="L247" href="ZipfDistribution.html#L247">247</a> 
+<a class="jxr_linenumber" name="L248" href="ZipfDistribution.html#L248">248</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L249" href="ZipfDistribution.html#L249">249</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L250" href="ZipfDistribution.html#L250">250</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L251" href="ZipfDistribution.html#L251">251</a> <em class="jxr_javadoccomment">     * The support of this distribution is connected.</em>
+<a class="jxr_linenumber" name="L252" href="ZipfDistribution.html#L252">252</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L253" href="ZipfDistribution.html#L253">253</a> <em class="jxr_javadoccomment">     * @return {@code true}</em>
+<a class="jxr_linenumber" name="L254" href="ZipfDistribution.html#L254">254</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L255" href="ZipfDistribution.html#L255">255</a>     @Override
+<a class="jxr_linenumber" name="L256" href="ZipfDistribution.html#L256">256</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isSupportConnected() {
+<a class="jxr_linenumber" name="L257" href="ZipfDistribution.html#L257">257</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L258" href="ZipfDistribution.html#L258">258</a>     }
+<a class="jxr_linenumber" name="L259" href="ZipfDistribution.html#L259">259</a> 
+<a class="jxr_linenumber" name="L260" href="ZipfDistribution.html#L260">260</a>     <em class="jxr_javadoccomment">/**{@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L261" href="ZipfDistribution.html#L261">261</a>     @Override
+<a class="jxr_linenumber" name="L262" href="ZipfDistribution.html#L262">262</a>     <strong class="jxr_keyword">public</strong> IntegerDistribution.Sampler createSampler(<strong class="jxr_keyword">final</strong> UniformRandomProvider rng) {
+<a class="jxr_linenumber" name="L263" href="ZipfDistribution.html#L263">263</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> IntegerDistribution.Sampler() {
+<a class="jxr_linenumber" name="L264" href="ZipfDistribution.html#L264">264</a>             <em class="jxr_javadoccomment">/** Helper. */</em>
+<a class="jxr_linenumber" name="L265" href="ZipfDistribution.html#L265">265</a>             <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="ZipfDistribution.html">ZipfRejectionInversionSampler</a> sampler =
+<a class="jxr_linenumber" name="L266" href="ZipfDistribution.html#L266">266</a>                 <strong class="jxr_keyword">new</strong> <a href="ZipfDistribution.html">ZipfRejectionInversionSampler</a>(numberOfElements, exponent);
+<a class="jxr_linenumber" name="L267" href="ZipfDistribution.html#L267">267</a> 
+<a class="jxr_linenumber" name="L268" href="ZipfDistribution.html#L268">268</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L269" href="ZipfDistribution.html#L269">269</a>             @Override
+<a class="jxr_linenumber" name="L270" href="ZipfDistribution.html#L270">270</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> sample() {
+<a class="jxr_linenumber" name="L271" href="ZipfDistribution.html#L271">271</a>                 <strong class="jxr_keyword">return</strong> sampler.sample(rng);
+<a class="jxr_linenumber" name="L272" href="ZipfDistribution.html#L272">272</a>             }
+<a class="jxr_linenumber" name="L273" href="ZipfDistribution.html#L273">273</a>         };
+<a class="jxr_linenumber" name="L274" href="ZipfDistribution.html#L274">274</a>     }
+<a class="jxr_linenumber" name="L275" href="ZipfDistribution.html#L275">275</a> 
+<a class="jxr_linenumber" name="L276" href="ZipfDistribution.html#L276">276</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L277" href="ZipfDistribution.html#L277">277</a> <em class="jxr_javadoccomment">     * Utility class implementing a rejection inversion sampling method for a discrete,</em>
+<a class="jxr_linenumber" name="L278" href="ZipfDistribution.html#L278">278</a> <em class="jxr_javadoccomment">     * bounded Zipf distribution that is based on the method described in</em>
+<a class="jxr_linenumber" name="L279" href="ZipfDistribution.html#L279">279</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L280" href="ZipfDistribution.html#L280">280</a> <em class="jxr_javadoccomment">     * Wolfgang Hörmann and Gerhard Derflinger</em>
+<a class="jxr_linenumber" name="L281" href="ZipfDistribution.html#L281">281</a> <em class="jxr_javadoccomment">     * "Rejection-inversion to generate variates from monotone discrete distributions."</em>
+<a class="jxr_linenumber" name="L282" href="ZipfDistribution.html#L282">282</a> <em class="jxr_javadoccomment">     * ACM Transactions on Modeling and Computer Simulation (TOMACS) 6.3 (1996): 169-184.</em>
+<a class="jxr_linenumber" name="L283" href="ZipfDistribution.html#L283">283</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L284" href="ZipfDistribution.html#L284">284</a> <em class="jxr_javadoccomment">     * The paper describes an algorithm for exponents larger than 1 (Algorithm ZRI).</em>
+<a class="jxr_linenumber" name="L285" href="ZipfDistribution.html#L285">285</a> <em class="jxr_javadoccomment">     * The original method uses {@code H(x) := (v + x)^(1 - q) / (1 - q)}</em>
+<a class="jxr_linenumber" name="L286" href="ZipfDistribution.html#L286">286</a> <em class="jxr_javadoccomment">     * as the integral of the hat function. This function is undefined for</em>
+<a class="jxr_linenumber" name="L287" href="ZipfDistribution.html#L287">287</a> <em class="jxr_javadoccomment">     * q = 1, which is the reason for the limitation of the exponent.</em>
+<a class="jxr_linenumber" name="L288" href="ZipfDistribution.html#L288">288</a> <em class="jxr_javadoccomment">     * If instead the integral function</em>
+<a class="jxr_linenumber" name="L289" href="ZipfDistribution.html#L289">289</a> <em class="jxr_javadoccomment">     * {@code H(x) := ((v + x)^(1 - q) - 1) / (1 - q)} is used,</em>
+<a class="jxr_linenumber" name="L290" href="ZipfDistribution.html#L290">290</a> <em class="jxr_javadoccomment">     * for which a meaningful limit exists for q = 1,</em>
+<a class="jxr_linenumber" name="L291" href="ZipfDistribution.html#L291">291</a> <em class="jxr_javadoccomment">     * the method works for all positive exponents.</em>
+<a class="jxr_linenumber" name="L292" href="ZipfDistribution.html#L292">292</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L293" href="ZipfDistribution.html#L293">293</a> <em class="jxr_javadoccomment">     * The following implementation uses v := 0 and generates integral numbers</em>
+<a class="jxr_linenumber" name="L294" href="ZipfDistribution.html#L294">294</a> <em class="jxr_javadoccomment">     * in the range [1, numberOfElements]. This is different to the original method</em>
+<a class="jxr_linenumber" name="L295" href="ZipfDistribution.html#L295">295</a> <em class="jxr_javadoccomment">     * where v is defined to be positive and numbers are taken from [0, i_max].</em>
+<a class="jxr_linenumber" name="L296" href="ZipfDistribution.html#L296">296</a> <em class="jxr_javadoccomment">     * This explains why the implementation looks slightly different.</em>
+<a class="jxr_linenumber" name="L297" href="ZipfDistribution.html#L297">297</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L298" href="ZipfDistribution.html#L298">298</a> <em class="jxr_javadoccomment">     * @since 3.6</em>
+<a class="jxr_linenumber" name="L299" href="ZipfDistribution.html#L299">299</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L300" href="ZipfDistribution.html#L300">300</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="ZipfDistribution.html">ZipfRejectionInversionSampler</a> {
+<a class="jxr_linenumber" name="L301" href="ZipfDistribution.html#L301">301</a>         <em class="jxr_javadoccomment">/** Exponent parameter of the distribution. */</em>
+<a class="jxr_linenumber" name="L302" href="ZipfDistribution.html#L302">302</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> exponent;
+<a class="jxr_linenumber" name="L303" href="ZipfDistribution.html#L303">303</a>         <em class="jxr_javadoccomment">/** Number of elements. */</em>
+<a class="jxr_linenumber" name="L304" href="ZipfDistribution.html#L304">304</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numberOfElements;
+<a class="jxr_linenumber" name="L305" href="ZipfDistribution.html#L305">305</a>         <em class="jxr_javadoccomment">/** Constant equal to {@code hIntegral(1.5) - 1}. */</em>
+<a class="jxr_linenumber" name="L306" href="ZipfDistribution.html#L306">306</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> hIntegralX1;
+<a class="jxr_linenumber" name="L307" href="ZipfDistribution.html#L307">307</a>         <em class="jxr_javadoccomment">/** Constant equal to {@code hIntegral(numberOfElements + 0.5)}. */</em>
+<a class="jxr_linenumber" name="L308" href="ZipfDistribution.html#L308">308</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> hIntegralNumberOfElements;
+<a class="jxr_linenumber" name="L309" href="ZipfDistribution.html#L309">309</a>         <em class="jxr_javadoccomment">/** Constant equal to {@code 2 - hIntegralInverse(hIntegral(2.5) - h(2)}. */</em>
+<a class="jxr_linenumber" name="L310" href="ZipfDistribution.html#L310">310</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> s;
+<a class="jxr_linenumber" name="L311" href="ZipfDistribution.html#L311">311</a> 
+<a class="jxr_linenumber" name="L312" href="ZipfDistribution.html#L312">312</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L313" href="ZipfDistribution.html#L313">313</a> <em class="jxr_javadoccomment">         * @param numberOfElements number of elements</em>
+<a class="jxr_linenumber" name="L314" href="ZipfDistribution.html#L314">314</a> <em class="jxr_javadoccomment">         * @param exponent exponent parameter of the distribution</em>
+<a class="jxr_linenumber" name="L315" href="ZipfDistribution.html#L315">315</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L316" href="ZipfDistribution.html#L316">316</a>         <a href="ZipfDistribution.html">ZipfRejectionInversionSampler</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numberOfElements, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> exponent) {
+<a class="jxr_linenumber" name="L317" href="ZipfDistribution.html#L317">317</a>             <strong class="jxr_keyword">this</strong>.exponent = exponent;
+<a class="jxr_linenumber" name="L318" href="ZipfDistribution.html#L318">318</a>             <strong class="jxr_keyword">this</strong>.numberOfElements = numberOfElements;
+<a class="jxr_linenumber" name="L319" href="ZipfDistribution.html#L319">319</a>             <strong class="jxr_keyword">this</strong>.hIntegralX1 = hIntegral(1.5) - 1d;
+<a class="jxr_linenumber" name="L320" href="ZipfDistribution.html#L320">320</a>             <strong class="jxr_keyword">this</strong>.hIntegralNumberOfElements = hIntegral(numberOfElements + 0.5);
+<a class="jxr_linenumber" name="L321" href="ZipfDistribution.html#L321">321</a>             <strong class="jxr_keyword">this</strong>.s = 2d - hIntegralInverse(hIntegral(2.5) - h(2));
+<a class="jxr_linenumber" name="L322" href="ZipfDistribution.html#L322">322</a>         }
+<a class="jxr_linenumber" name="L323" href="ZipfDistribution.html#L323">323</a> 
+<a class="jxr_linenumber" name="L324" href="ZipfDistribution.html#L324">324</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L325" href="ZipfDistribution.html#L325">325</a> <em class="jxr_javadoccomment">         * Generates one integer in the range [1, numberOfElements].</em>
+<a class="jxr_linenumber" name="L326" href="ZipfDistribution.html#L326">326</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L327" href="ZipfDistribution.html#L327">327</a> <em class="jxr_javadoccomment">         * @param random random generator to use</em>
+<a class="jxr_linenumber" name="L328" href="ZipfDistribution.html#L328">328</a> <em class="jxr_javadoccomment">         * @return generated integral number in the range [1, numberOfElements]</em>
+<a class="jxr_linenumber" name="L329" href="ZipfDistribution.html#L329">329</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L330" href="ZipfDistribution.html#L330">330</a>         <strong class="jxr_keyword">int</strong> sample(<strong class="jxr_keyword">final</strong> UniformRandomProvider random) {
+<a class="jxr_linenumber" name="L331" href="ZipfDistribution.html#L331">331</a>             <strong class="jxr_keyword">while</strong>(<strong class="jxr_keyword">true</strong>) {
+<a class="jxr_linenumber" name="L332" href="ZipfDistribution.html#L332">332</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> u = hIntegralNumberOfElements + random.nextDouble() * (hIntegralX1 - hIntegralNumberOfElements);
+<a class="jxr_linenumber" name="L333" href="ZipfDistribution.html#L333">333</a>                 <em class="jxr_comment">// u is uniformly distributed in (hIntegralX1, hIntegralNumberOfElements]</em>
+<a class="jxr_linenumber" name="L334" href="ZipfDistribution.html#L334">334</a> 
+<a class="jxr_linenumber" name="L335" href="ZipfDistribution.html#L335">335</a>                 <strong class="jxr_keyword">double</strong> x = hIntegralInverse(u);
+<a class="jxr_linenumber" name="L336" href="ZipfDistribution.html#L336">336</a>                 <strong class="jxr_keyword">int</strong> k = (<strong class="jxr_keyword">int</strong>)(x + 0.5);
+<a class="jxr_linenumber" name="L337" href="ZipfDistribution.html#L337">337</a> 
+<a class="jxr_linenumber" name="L338" href="ZipfDistribution.html#L338">338</a>                 <em class="jxr_comment">// Limit k to the range [1, numberOfElements]</em>
+<a class="jxr_linenumber" name="L339" href="ZipfDistribution.html#L339">339</a>                 <em class="jxr_comment">// (k could be outside due to numerical inaccuracies)</em>
+<a class="jxr_linenumber" name="L340" href="ZipfDistribution.html#L340">340</a>                 <strong class="jxr_keyword">if</strong> (k &lt; 1) {
+<a class="jxr_linenumber" name="L341" href="ZipfDistribution.html#L341">341</a>                     k = 1;
+<a class="jxr_linenumber" name="L342" href="ZipfDistribution.html#L342">342</a>                 }
+<a class="jxr_linenumber" name="L343" href="ZipfDistribution.html#L343">343</a>                 <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (k &gt; numberOfElements) {
+<a class="jxr_linenumber" name="L344" href="ZipfDistribution.html#L344">344</a>                     k = numberOfElements;
+<a class="jxr_linenumber" name="L345" href="ZipfDistribution.html#L345">345</a>                 }
+<a class="jxr_linenumber" name="L346" href="ZipfDistribution.html#L346">346</a> 
+<a class="jxr_linenumber" name="L347" href="ZipfDistribution.html#L347">347</a>                 <em class="jxr_comment">// Here, the distribution of k is given by:</em>
+<a class="jxr_linenumber" name="L348" href="ZipfDistribution.html#L348">348</a>                 <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L349" href="ZipfDistribution.html#L349">349</a>                 <em class="jxr_comment">//   P(k = 1) = C * (hIntegral(1.5) - hIntegralX1) = C</em>
+<a class="jxr_linenumber" name="L350" href="ZipfDistribution.html#L350">350</a>                 <em class="jxr_comment">//   P(k = m) = C * (hIntegral(m + 1/2) - hIntegral(m - 1/2)) for m &gt;= 2</em>
+<a class="jxr_linenumber" name="L351" href="ZipfDistribution.html#L351">351</a>                 <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L352" href="ZipfDistribution.html#L352">352</a>                 <em class="jxr_comment">//   where C := 1 / (hIntegralNumberOfElements - hIntegralX1)</em>
+<a class="jxr_linenumber" name="L353" href="ZipfDistribution.html#L353">353</a> 
+<a class="jxr_linenumber" name="L354" href="ZipfDistribution.html#L354">354</a>                 <strong class="jxr_keyword">if</strong> (k - x &lt;= s || u &gt;= hIntegral(k + 0.5) - h(k)) {
+<a class="jxr_linenumber" name="L355" href="ZipfDistribution.html#L355">355</a> 
+<a class="jxr_linenumber" name="L356" href="ZipfDistribution.html#L356">356</a>                     <em class="jxr_comment">// Case k = 1:</em>
+<a class="jxr_linenumber" name="L357" href="ZipfDistribution.html#L357">357</a>                     <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L358" href="ZipfDistribution.html#L358">358</a>                     <em class="jxr_comment">//   The right inequality is always true, because replacing k by 1 gives</em>
+<a class="jxr_linenumber" name="L359" href="ZipfDistribution.html#L359">359</a>                     <em class="jxr_comment">//   u &gt;= hIntegral(1.5) - h(1) = hIntegralX1 and u is taken from</em>
+<a class="jxr_linenumber" name="L360" href="ZipfDistribution.html#L360">360</a>                     <em class="jxr_comment">//   (hIntegralX1, hIntegralNumberOfElements].</em>
+<a class="jxr_linenumber" name="L361" href="ZipfDistribution.html#L361">361</a>                     <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L362" href="ZipfDistribution.html#L362">362</a>                     <em class="jxr_comment">//   Therefore, the acceptance rate for k = 1 is P(accepted | k = 1) = 1</em>
+<a class="jxr_linenumber" name="L363" href="ZipfDistribution.html#L363">363</a>                     <em class="jxr_comment">//   and the probability that 1 is returned as random value is</em>
+<a class="jxr_linenumber" name="L364" href="ZipfDistribution.html#L364">364</a>                     <em class="jxr_comment">//   P(k = 1 and accepted) = P(accepted | k = 1) * P(k = 1) = C = C / 1^exponent</em>
+<a class="jxr_linenumber" name="L365" href="ZipfDistribution.html#L365">365</a>                     <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L366" href="ZipfDistribution.html#L366">366</a>                     <em class="jxr_comment">// Case k &gt;= 2:</em>
+<a class="jxr_linenumber" name="L367" href="ZipfDistribution.html#L367">367</a>                     <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L368" href="ZipfDistribution.html#L368">368</a>                     <em class="jxr_comment">//   The left inequality (k - x &lt;= s) is just a short cut</em>
+<a class="jxr_linenumber" name="L369" href="ZipfDistribution.html#L369">369</a>                     <em class="jxr_comment">//   to avoid the more expensive evaluation of the right inequality</em>
+<a class="jxr_linenumber" name="L370" href="ZipfDistribution.html#L370">370</a>                     <em class="jxr_comment">//   (u &gt;= hIntegral(k + 0.5) - h(k)) in many cases.</em>
+<a class="jxr_linenumber" name="L371" href="ZipfDistribution.html#L371">371</a>                     <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L372" href="ZipfDistribution.html#L372">372</a>                     <em class="jxr_comment">//   If the left inequality is true, the right inequality is also true:</em>
+<a class="jxr_linenumber" name="L373" href="ZipfDistribution.html#L373">373</a>                     <em class="jxr_comment">//     Theorem 2 in the paper is valid for all positive exponents, because</em>
+<a class="jxr_linenumber" name="L374" href="ZipfDistribution.html#L374">374</a>                     <em class="jxr_comment">//     the requirements h'(x) = -exponent/x^(exponent + 1) &lt; 0 and</em>
+<a class="jxr_linenumber" name="L375" href="ZipfDistribution.html#L375">375</a>                     <em class="jxr_comment">//     (-1/hInverse'(x))'' = (1+1/exponent) * x^(1/exponent-1) &gt;= 0</em>
+<a class="jxr_linenumber" name="L376" href="ZipfDistribution.html#L376">376</a>                     <em class="jxr_comment">//     are both fulfilled.</em>
+<a class="jxr_linenumber" name="L377" href="ZipfDistribution.html#L377">377</a>                     <em class="jxr_comment">//     Therefore, f(x) := x - hIntegralInverse(hIntegral(x + 0.5) - h(x))</em>
+<a class="jxr_linenumber" name="L378" href="ZipfDistribution.html#L378">378</a>                     <em class="jxr_comment">//     is a non-decreasing function. If k - x &lt;= s holds,</em>
+<a class="jxr_linenumber" name="L379" href="ZipfDistribution.html#L379">379</a>                     <em class="jxr_comment">//     k - x &lt;= s + f(k) - f(2) is obviously also true which is equivalent to</em>
+<a class="jxr_linenumber" name="L380" href="ZipfDistribution.html#L380">380</a>                     <em class="jxr_comment">//     -x &lt;= -hIntegralInverse(hIntegral(k + 0.5) - h(k)),</em>
+<a class="jxr_linenumber" name="L381" href="ZipfDistribution.html#L381">381</a>                     <em class="jxr_comment">//     -hIntegralInverse(u) &lt;= -hIntegralInverse(hIntegral(k + 0.5) - h(k)),</em>
+<a class="jxr_linenumber" name="L382" href="ZipfDistribution.html#L382">382</a>                     <em class="jxr_comment">//     and finally u &gt;= hIntegral(k + 0.5) - h(k).</em>
+<a class="jxr_linenumber" name="L383" href="ZipfDistribution.html#L383">383</a>                     <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L384" href="ZipfDistribution.html#L384">384</a>                     <em class="jxr_comment">//   Hence, the right inequality determines the acceptance rate:</em>
+<a class="jxr_linenumber" name="L385" href="ZipfDistribution.html#L385">385</a>                     <em class="jxr_comment">//   P(accepted | k = m) = h(m) / (hIntegrated(m+1/2) - hIntegrated(m-1/2))</em>
+<a class="jxr_linenumber" name="L386" href="ZipfDistribution.html#L386">386</a>                     <em class="jxr_comment">//   The probability that m is returned is given by</em>
+<a class="jxr_linenumber" name="L387" href="ZipfDistribution.html#L387">387</a>                     <em class="jxr_comment">//   P(k = m and accepted) = P(accepted | k = m) * P(k = m) = C * h(m) = C / m^exponent.</em>
+<a class="jxr_linenumber" name="L388" href="ZipfDistribution.html#L388">388</a>                     <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L389" href="ZipfDistribution.html#L389">389</a>                     <em class="jxr_comment">// In both cases the probabilities are proportional to the probability mass function</em>
+<a class="jxr_linenumber" name="L390" href="ZipfDistribution.html#L390">390</a>                     <em class="jxr_comment">// of the Zipf distribution.</em>
+<a class="jxr_linenumber" name="L391" href="ZipfDistribution.html#L391">391</a> 
+<a class="jxr_linenumber" name="L392" href="ZipfDistribution.html#L392">392</a>                     <strong class="jxr_keyword">return</strong> k;
+<a class="jxr_linenumber" name="L393" href="ZipfDistribution.html#L393">393</a>                 }
+<a class="jxr_linenumber" name="L394" href="ZipfDistribution.html#L394">394</a>             }
+<a class="jxr_linenumber" name="L395" href="ZipfDistribution.html#L395">395</a>         }
+<a class="jxr_linenumber" name="L396" href="ZipfDistribution.html#L396">396</a> 
+<a class="jxr_linenumber" name="L397" href="ZipfDistribution.html#L397">397</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L398" href="ZipfDistribution.html#L398">398</a> <em class="jxr_javadoccomment">         * {@code H(x) :=}</em>
+<a class="jxr_linenumber" name="L399" href="ZipfDistribution.html#L399">399</a> <em class="jxr_javadoccomment">         * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L400" href="ZipfDistribution.html#L400">400</a> <em class="jxr_javadoccomment">         * &lt;li&gt;{@code (x^(1-exponent) - 1)/(1 - exponent)}, if {@code exponent != 1}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L401" href="ZipfDistribution.html#L401">401</a> <em class="jxr_javadoccomment">         * &lt;li&gt;{@code log(x)}, if {@code exponent == 1}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L402" href="ZipfDistribution.html#L402">402</a> <em class="jxr_javadoccomment">         * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L403" href="ZipfDistribution.html#L403">403</a> <em class="jxr_javadoccomment">         * H(x) is an integral function of h(x),</em>
+<a class="jxr_linenumber" name="L404" href="ZipfDistribution.html#L404">404</a> <em class="jxr_javadoccomment">         * the derivative of H(x) is h(x).</em>
+<a class="jxr_linenumber" name="L405" href="ZipfDistribution.html#L405">405</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L406" href="ZipfDistribution.html#L406">406</a> <em class="jxr_javadoccomment">         * @param x free parameter</em>
+<a class="jxr_linenumber" name="L407" href="ZipfDistribution.html#L407">407</a> <em class="jxr_javadoccomment">         * @return {@code H(x)}</em>
+<a class="jxr_linenumber" name="L408" href="ZipfDistribution.html#L408">408</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L409" href="ZipfDistribution.html#L409">409</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> hIntegral(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L410" href="ZipfDistribution.html#L410">410</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> logX = FastMath.log(x);
+<a class="jxr_linenumber" name="L411" href="ZipfDistribution.html#L411">411</a>             <strong class="jxr_keyword">return</strong> helper2((1d-exponent)*logX)*logX;
+<a class="jxr_linenumber" name="L412" href="ZipfDistribution.html#L412">412</a>         }
+<a class="jxr_linenumber" name="L413" href="ZipfDistribution.html#L413">413</a> 
+<a class="jxr_linenumber" name="L414" href="ZipfDistribution.html#L414">414</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L415" href="ZipfDistribution.html#L415">415</a> <em class="jxr_javadoccomment">         * {@code h(x) := 1/x^exponent}</em>
+<a class="jxr_linenumber" name="L416" href="ZipfDistribution.html#L416">416</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L417" href="ZipfDistribution.html#L417">417</a> <em class="jxr_javadoccomment">         * @param x free parameter</em>
+<a class="jxr_linenumber" name="L418" href="ZipfDistribution.html#L418">418</a> <em class="jxr_javadoccomment">         * @return h(x)</em>
+<a class="jxr_linenumber" name="L419" href="ZipfDistribution.html#L419">419</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L420" href="ZipfDistribution.html#L420">420</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> h(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L421" href="ZipfDistribution.html#L421">421</a>             <strong class="jxr_keyword">return</strong> FastMath.exp(-exponent * FastMath.log(x));
+<a class="jxr_linenumber" name="L422" href="ZipfDistribution.html#L422">422</a>         }
+<a class="jxr_linenumber" name="L423" href="ZipfDistribution.html#L423">423</a> 
+<a class="jxr_linenumber" name="L424" href="ZipfDistribution.html#L424">424</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L425" href="ZipfDistribution.html#L425">425</a> <em class="jxr_javadoccomment">         * The inverse function of H(x).</em>
+<a class="jxr_linenumber" name="L426" href="ZipfDistribution.html#L426">426</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L427" href="ZipfDistribution.html#L427">427</a> <em class="jxr_javadoccomment">         * @param x free parameter</em>
+<a class="jxr_linenumber" name="L428" href="ZipfDistribution.html#L428">428</a> <em class="jxr_javadoccomment">         * @return y for which {@code H(y) = x}</em>
+<a class="jxr_linenumber" name="L429" href="ZipfDistribution.html#L429">429</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L430" href="ZipfDistribution.html#L430">430</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> hIntegralInverse(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L431" href="ZipfDistribution.html#L431">431</a>             <strong class="jxr_keyword">double</strong> t = x*(1d-exponent);
+<a class="jxr_linenumber" name="L432" href="ZipfDistribution.html#L432">432</a>             <strong class="jxr_keyword">if</strong> (t &lt; -1d) {
+<a class="jxr_linenumber" name="L433" href="ZipfDistribution.html#L433">433</a>                 <em class="jxr_comment">// Limit value to the range [-1, +inf).</em>
+<a class="jxr_linenumber" name="L434" href="ZipfDistribution.html#L434">434</a>                 <em class="jxr_comment">// t could be smaller than -1 in some rare cases due to numerical errors.</em>
+<a class="jxr_linenumber" name="L435" href="ZipfDistribution.html#L435">435</a>                 t = -1;
+<a class="jxr_linenumber" name="L436" href="ZipfDistribution.html#L436">436</a>             }
+<a class="jxr_linenumber" name="L437" href="ZipfDistribution.html#L437">437</a>             <strong class="jxr_keyword">return</strong> FastMath.exp(helper1(t)*x);
+<a class="jxr_linenumber" name="L438" href="ZipfDistribution.html#L438">438</a>         }
+<a class="jxr_linenumber" name="L439" href="ZipfDistribution.html#L439">439</a> 
+<a class="jxr_linenumber" name="L440" href="ZipfDistribution.html#L440">440</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L441" href="ZipfDistribution.html#L441">441</a> <em class="jxr_javadoccomment">         * Helper function that calculates {@code log(1+x)/x}.</em>
+<a class="jxr_linenumber" name="L442" href="ZipfDistribution.html#L442">442</a> <em class="jxr_javadoccomment">         * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L443" href="ZipfDistribution.html#L443">443</a> <em class="jxr_javadoccomment">         * A Taylor series expansion is used, if x is close to 0.</em>
+<a class="jxr_linenumber" name="L444" href="ZipfDistribution.html#L444">444</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L445" href="ZipfDistribution.html#L445">445</a> <em class="jxr_javadoccomment">         * @param x a value larger than or equal to -1</em>
+<a class="jxr_linenumber" name="L446" href="ZipfDistribution.html#L446">446</a> <em class="jxr_javadoccomment">         * @return {@code log(1+x)/x}</em>
+<a class="jxr_linenumber" name="L447" href="ZipfDistribution.html#L447">447</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L448" href="ZipfDistribution.html#L448">448</a>         <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> helper1(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L449" href="ZipfDistribution.html#L449">449</a>             <strong class="jxr_keyword">if</strong> (FastMath.abs(x)&gt;1e-8) {
+<a class="jxr_linenumber" name="L450" href="ZipfDistribution.html#L450">450</a>                 <strong class="jxr_keyword">return</strong> FastMath.log1p(x)/x;
+<a class="jxr_linenumber" name="L451" href="ZipfDistribution.html#L451">451</a>             }
+<a class="jxr_linenumber" name="L452" href="ZipfDistribution.html#L452">452</a>             <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L453" href="ZipfDistribution.html#L453">453</a>                 <strong class="jxr_keyword">return</strong> 1.-x*((1./2.)-x*((1./3.)-x*(1./4.)));
+<a class="jxr_linenumber" name="L454" href="ZipfDistribution.html#L454">454</a>             }
+<a class="jxr_linenumber" name="L455" href="ZipfDistribution.html#L455">455</a>         }
+<a class="jxr_linenumber" name="L456" href="ZipfDistribution.html#L456">456</a> 
+<a class="jxr_linenumber" name="L457" href="ZipfDistribution.html#L457">457</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L458" href="ZipfDistribution.html#L458">458</a> <em class="jxr_javadoccomment">         * Helper function to calculate {@code (exp(x)-1)/x}.</em>
+<a class="jxr_linenumber" name="L459" href="ZipfDistribution.html#L459">459</a> <em class="jxr_javadoccomment">         * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L460" href="ZipfDistribution.html#L460">460</a> <em class="jxr_javadoccomment">         * A Taylor series expansion is used, if x is close to 0.</em>
+<a class="jxr_linenumber" name="L461" href="ZipfDistribution.html#L461">461</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L462" href="ZipfDistribution.html#L462">462</a> <em class="jxr_javadoccomment">         * @param x free parameter</em>
+<a class="jxr_linenumber" name="L463" href="ZipfDistribution.html#L463">463</a> <em class="jxr_javadoccomment">         * @return {@code (exp(x)-1)/x} if x is non-zero, or 1 if x=0</em>
+<a class="jxr_linenumber" name="L464" href="ZipfDistribution.html#L464">464</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L465" href="ZipfDistribution.html#L465">465</a>         <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> helper2(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L466" href="ZipfDistribution.html#L466">466</a>             <strong class="jxr_keyword">if</strong> (FastMath.abs(x)&gt;1e-8) {
+<a class="jxr_linenumber" name="L467" href="ZipfDistribution.html#L467">467</a>                 <strong class="jxr_keyword">return</strong> FastMath.expm1(x)/x;
+<a class="jxr_linenumber" name="L468" href="ZipfDistribution.html#L468">468</a>             }
+<a class="jxr_linenumber" name="L469" href="ZipfDistribution.html#L469">469</a>             <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L470" href="ZipfDistribution.html#L470">470</a>                 <strong class="jxr_keyword">return</strong> 1.+x*(1./2.)*(1.+x*(1./3.)*(1.+x*(1./4.)));
+<a class="jxr_linenumber" name="L471" href="ZipfDistribution.html#L471">471</a>             }
+<a class="jxr_linenumber" name="L472" href="ZipfDistribution.html#L472">472</a>         }
+<a class="jxr_linenumber" name="L473" href="ZipfDistribution.html#L473">473</a>     }
+<a class="jxr_linenumber" name="L474" href="ZipfDistribution.html#L474">474</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>NPointCrossover xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/genetics/NPointCrossover.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="NPointCrossover.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="NPointCrossover.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="NPointCrossover.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="NPointCrossover.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="NPointCrossover.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="NPointCrossover.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="NPointCrossover.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="NPointCrossover.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="NPointCrossover.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="NPointCrossover.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="NPointCrossover.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="NPointCrossover.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="NPointCrossover.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="NPointCrossover.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="NPointCrossover.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="NPointCrossover.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="NPointCrossover.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.genetics;
+<a class="jxr_linenumber" name="L18" href="NPointCrossover.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="NPointCrossover.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L20" href="NPointCrossover.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L21" href="NPointCrossover.html#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="NPointCrossover.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L23" href="NPointCrossover.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L24" href="NPointCrossover.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L25" href="NPointCrossover.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooLargeException;
+<a class="jxr_linenumber" name="L26" href="NPointCrossover.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L27" href="NPointCrossover.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L28" href="NPointCrossover.html#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="NPointCrossover.html#L29">29</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L30" href="NPointCrossover.html#L30">30</a>  <em class="jxr_javadoccomment"> * N-point crossover policy. For each iteration a random crossover point is</em>
+<a class="jxr_linenumber" name="L31" href="NPointCrossover.html#L31">31</a>  <em class="jxr_javadoccomment"> * selected and the first part from each parent is copied to the corresponding</em>
+<a class="jxr_linenumber" name="L32" href="NPointCrossover.html#L32">32</a>  <em class="jxr_javadoccomment"> * child, and the second parts are copied crosswise.</em>
+<a class="jxr_linenumber" name="L33" href="NPointCrossover.html#L33">33</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L34" href="NPointCrossover.html#L34">34</a>  <em class="jxr_javadoccomment"> * Example (2-point crossover):</em>
+<a class="jxr_linenumber" name="L35" href="NPointCrossover.html#L35">35</a>  <em class="jxr_javadoccomment"> * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L36" href="NPointCrossover.html#L36">36</a>  <em class="jxr_javadoccomment"> * -C- denotes a crossover point</em>
+<a class="jxr_linenumber" name="L37" href="NPointCrossover.html#L37">37</a>  <em class="jxr_javadoccomment"> *           -C-       -C-                         -C-        -C-</em>
+<a class="jxr_linenumber" name="L38" href="NPointCrossover.html#L38">38</a>  <em class="jxr_javadoccomment"> * p1 = (1 0  | 1 0 0 1 | 0 1 1)    X    p2 = (0 1  | 1 0 1 0  | 1 1 1)</em>
+<a class="jxr_linenumber" name="L39" href="NPointCrossover.html#L39">39</a>  <em class="jxr_javadoccomment"> *      \----/ \-------/ \-----/              \----/ \--------/ \-----/</em>
+<a class="jxr_linenumber" name="L40" href="NPointCrossover.html#L40">40</a>  <em class="jxr_javadoccomment"> *        ||      (*)       ||                  ||      (**)       ||</em>
+<a class="jxr_linenumber" name="L41" href="NPointCrossover.html#L41">41</a>  <em class="jxr_javadoccomment"> *        VV      (**)      VV                  VV      (*)        VV</em>
+<a class="jxr_linenumber" name="L42" href="NPointCrossover.html#L42">42</a>  <em class="jxr_javadoccomment"> *      /----\ /--------\ /-----\             /----\ /--------\ /-----\</em>
+<a class="jxr_linenumber" name="L43" href="NPointCrossover.html#L43">43</a>  <em class="jxr_javadoccomment"> * c1 = (1 0  | 1 0 1 0  | 0 1 1)    X   c2 = (0 1  | 1 0 0 1  | 0 1 1)</em>
+<a class="jxr_linenumber" name="L44" href="NPointCrossover.html#L44">44</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L45" href="NPointCrossover.html#L45">45</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L46" href="NPointCrossover.html#L46">46</a>  <em class="jxr_javadoccomment"> * This policy works only on {@link AbstractListChromosome}, and therefore it</em>
+<a class="jxr_linenumber" name="L47" href="NPointCrossover.html#L47">47</a>  <em class="jxr_javadoccomment"> * is parameterized by T. Moreover, the chromosomes must have same lengths.</em>
+<a class="jxr_linenumber" name="L48" href="NPointCrossover.html#L48">48</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L49" href="NPointCrossover.html#L49">49</a>  <em class="jxr_javadoccomment"> * @param &lt;T&gt; generic type of the {@link AbstractListChromosome}s for crossover</em>
+<a class="jxr_linenumber" name="L50" href="NPointCrossover.html#L50">50</a>  <em class="jxr_javadoccomment"> * @since 3.1</em>
+<a class="jxr_linenumber" name="L51" href="NPointCrossover.html#L51">51</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L52" href="NPointCrossover.html#L52">52</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> NPointCrossover&lt;T&gt; <strong class="jxr_keyword">implements</strong> <a href="CrossoverPolicy.html">CrossoverPolicy</a> {
+<a class="jxr_linenumber" name="L53" href="NPointCrossover.html#L53">53</a>  
+<a class="jxr_linenumber" name="L54" href="NPointCrossover.html#L54">54</a>      <em class="jxr_javadoccomment">/** The number of crossover points. */</em>
+<a class="jxr_linenumber" name="L55" href="NPointCrossover.html#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> crossoverPoints;
+<a class="jxr_linenumber" name="L56" href="NPointCrossover.html#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="NPointCrossover.html#L57">57</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L58" href="NPointCrossover.html#L58">58</a>  <em class="jxr_javadoccomment">     * Creates a new {@link NPointCrossover} policy using the given number of points.</em>
+<a class="jxr_linenumber" name="L59" href="NPointCrossover.html#L59">59</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L60" href="NPointCrossover.html#L60">60</a>  <em class="jxr_javadoccomment">     * &lt;b&gt;Note&lt;/b&gt;: the number of crossover points must be &amp;lt; &lt;code&gt;chromosome length - 1&lt;/code&gt;.</em>
+<a class="jxr_linenumber" name="L61" href="NPointCrossover.html#L61">61</a>  <em class="jxr_javadoccomment">     * This condition can only be checked at runtime, as the chromosome length is not known in advance.</em>
+<a class="jxr_linenumber" name="L62" href="NPointCrossover.html#L62">62</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L63" href="NPointCrossover.html#L63">63</a>  <em class="jxr_javadoccomment">     * @param crossoverPoints the number of crossover points</em>
+<a class="jxr_linenumber" name="L64" href="NPointCrossover.html#L64">64</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if the number of {@code crossoverPoints} is not strictly positive</em>
+<a class="jxr_linenumber" name="L65" href="NPointCrossover.html#L65">65</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L66" href="NPointCrossover.html#L66">66</a>      <strong class="jxr_keyword">public</strong> <a href="NPointCrossover.html">NPointCrossover</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> crossoverPoints) <strong class="jxr_keyword">throws</strong> NotStrictlyPositiveException {
+<a class="jxr_linenumber" name="L67" href="NPointCrossover.html#L67">67</a>          <strong class="jxr_keyword">if</strong> (crossoverPoints &lt;= 0) {
+<a class="jxr_linenumber" name="L68" href="NPointCrossover.html#L68">68</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(crossoverPoints);
+<a class="jxr_linenumber" name="L69" href="NPointCrossover.html#L69">69</a>          }
+<a class="jxr_linenumber" name="L70" href="NPointCrossover.html#L70">70</a>          <strong class="jxr_keyword">this</strong>.crossoverPoints = crossoverPoints;
+<a class="jxr_linenumber" name="L71" href="NPointCrossover.html#L71">71</a>      }
+<a class="jxr_linenumber" name="L72" href="NPointCrossover.html#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="NPointCrossover.html#L73">73</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L74" href="NPointCrossover.html#L74">74</a>  <em class="jxr_javadoccomment">     * Returns the number of crossover points used by this {@link CrossoverPolicy}.</em>
+<a class="jxr_linenumber" name="L75" href="NPointCrossover.html#L75">75</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L76" href="NPointCrossover.html#L76">76</a>  <em class="jxr_javadoccomment">     * @return the number of crossover points</em>
+<a class="jxr_linenumber" name="L77" href="NPointCrossover.html#L77">77</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L78" href="NPointCrossover.html#L78">78</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getCrossoverPoints() {
+<a class="jxr_linenumber" name="L79" href="NPointCrossover.html#L79">79</a>          <strong class="jxr_keyword">return</strong> crossoverPoints;
+<a class="jxr_linenumber" name="L80" href="NPointCrossover.html#L80">80</a>      }
+<a class="jxr_linenumber" name="L81" href="NPointCrossover.html#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="NPointCrossover.html#L82">82</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L83" href="NPointCrossover.html#L83">83</a>  <em class="jxr_javadoccomment">     * Performs a N-point crossover. N random crossover points are selected and are used</em>
+<a class="jxr_linenumber" name="L84" href="NPointCrossover.html#L84">84</a>  <em class="jxr_javadoccomment">     * to divide the parent chromosomes into segments. The segments are copied in alternate</em>
+<a class="jxr_linenumber" name="L85" href="NPointCrossover.html#L85">85</a>  <em class="jxr_javadoccomment">     * order from the two parents to the corresponding child chromosomes.</em>
+<a class="jxr_linenumber" name="L86" href="NPointCrossover.html#L86">86</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L87" href="NPointCrossover.html#L87">87</a>  <em class="jxr_javadoccomment">     * Example (2-point crossover):</em>
+<a class="jxr_linenumber" name="L88" href="NPointCrossover.html#L88">88</a>  <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L89" href="NPointCrossover.html#L89">89</a>  <em class="jxr_javadoccomment">     * -C- denotes a crossover point</em>
+<a class="jxr_linenumber" name="L90" href="NPointCrossover.html#L90">90</a>  <em class="jxr_javadoccomment">     *           -C-       -C-                         -C-        -C-</em>
+<a class="jxr_linenumber" name="L91" href="NPointCrossover.html#L91">91</a>  <em class="jxr_javadoccomment">     * p1 = (1 0  | 1 0 0 1 | 0 1 1)    X    p2 = (0 1  | 1 0 1 0  | 1 1 1)</em>
+<a class="jxr_linenumber" name="L92" href="NPointCrossover.html#L92">92</a>  <em class="jxr_javadoccomment">     *      \----/ \-------/ \-----/              \----/ \--------/ \-----/</em>
+<a class="jxr_linenumber" name="L93" href="NPointCrossover.html#L93">93</a>  <em class="jxr_javadoccomment">     *        ||      (*)       ||                  ||      (**)       ||</em>
+<a class="jxr_linenumber" name="L94" href="NPointCrossover.html#L94">94</a>  <em class="jxr_javadoccomment">     *        VV      (**)      VV                  VV      (*)        VV</em>
+<a class="jxr_linenumber" name="L95" href="NPointCrossover.html#L95">95</a>  <em class="jxr_javadoccomment">     *      /----\ /--------\ /-----\             /----\ /--------\ /-----\</em>
+<a class="jxr_linenumber" name="L96" href="NPointCrossover.html#L96">96</a>  <em class="jxr_javadoccomment">     * c1 = (1 0  | 1 0 1 0  | 0 1 1)    X   c2 = (0 1  | 1 0 0 1  | 0 1 1)</em>
+<a class="jxr_linenumber" name="L97" href="NPointCrossover.html#L97">97</a>  <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L98" href="NPointCrossover.html#L98">98</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L99" href="NPointCrossover.html#L99">99</a>  <em class="jxr_javadoccomment">     * @param first first parent (p1)</em>
+<a class="jxr_linenumber" name="L100" href="NPointCrossover.html#L100">100</a> <em class="jxr_javadoccomment">     * @param second second parent (p2)</em>
+<a class="jxr_linenumber" name="L101" href="NPointCrossover.html#L101">101</a> <em class="jxr_javadoccomment">     * @return pair of two children (c1,c2)</em>
+<a class="jxr_linenumber" name="L102" href="NPointCrossover.html#L102">102</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException iff one of the chromosomes is</em>
+<a class="jxr_linenumber" name="L103" href="NPointCrossover.html#L103">103</a> <em class="jxr_javadoccomment">     *   not an instance of {@link AbstractListChromosome}</em>
+<a class="jxr_linenumber" name="L104" href="NPointCrossover.html#L104">104</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the length of the two chromosomes is different</em>
+<a class="jxr_linenumber" name="L105" href="NPointCrossover.html#L105">105</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L106" href="NPointCrossover.html#L106">106</a>     @Override
+<a class="jxr_linenumber" name="L107" href="NPointCrossover.html#L107">107</a>     @SuppressWarnings(<span class="jxr_string">"unchecked"</span>) <em class="jxr_comment">// OK because of instanceof checks</em>
+<a class="jxr_linenumber" name="L108" href="NPointCrossover.html#L108">108</a>     <strong class="jxr_keyword">public</strong> <a href="ChromosomePair.html">ChromosomePair</a> crossover(<strong class="jxr_keyword">final</strong> <a href="Chromosome.html">Chromosome</a> first, <strong class="jxr_keyword">final</strong> <a href="Chromosome.html">Chromosome</a> second)
+<a class="jxr_linenumber" name="L109" href="NPointCrossover.html#L109">109</a>         <strong class="jxr_keyword">throws</strong> DimensionMismatchException, <a href="../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L110" href="NPointCrossover.html#L110">110</a> 
+<a class="jxr_linenumber" name="L111" href="NPointCrossover.html#L111">111</a>         <strong class="jxr_keyword">if</strong> (!(first instanceof AbstractListChromosome&lt;?&gt; &amp;&amp; second instanceof AbstractListChromosome&lt;?&gt;)) {
+<a class="jxr_linenumber" name="L112" href="NPointCrossover.html#L112">112</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(LocalizedFormats.INVALID_FIXED_LENGTH_CHROMOSOME);
+<a class="jxr_linenumber" name="L113" href="NPointCrossover.html#L113">113</a>         }
+<a class="jxr_linenumber" name="L114" href="NPointCrossover.html#L114">114</a>         <strong class="jxr_keyword">return</strong> mate((AbstractListChromosome&lt;T&gt;) first, (AbstractListChromosome&lt;T&gt;) second);
+<a class="jxr_linenumber" name="L115" href="NPointCrossover.html#L115">115</a>     }
+<a class="jxr_linenumber" name="L116" href="NPointCrossover.html#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="NPointCrossover.html#L117">117</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L118" href="NPointCrossover.html#L118">118</a> <em class="jxr_javadoccomment">     * Helper for {@link #crossover(Chromosome, Chromosome)}. Performs the actual crossover.</em>
+<a class="jxr_linenumber" name="L119" href="NPointCrossover.html#L119">119</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L120" href="NPointCrossover.html#L120">120</a> <em class="jxr_javadoccomment">     * @param first the first chromosome</em>
+<a class="jxr_linenumber" name="L121" href="NPointCrossover.html#L121">121</a> <em class="jxr_javadoccomment">     * @param second the second chromosome</em>
+<a class="jxr_linenumber" name="L122" href="NPointCrossover.html#L122">122</a> <em class="jxr_javadoccomment">     * @return the pair of new chromosomes that resulted from the crossover</em>
+<a class="jxr_linenumber" name="L123" href="NPointCrossover.html#L123">123</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the length of the two chromosomes is different</em>
+<a class="jxr_linenumber" name="L124" href="NPointCrossover.html#L124">124</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooLargeException if the number of crossoverPoints is too large for the actual chromosomes</em>
+<a class="jxr_linenumber" name="L125" href="NPointCrossover.html#L125">125</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L126" href="NPointCrossover.html#L126">126</a>     <strong class="jxr_keyword">private</strong> <a href="ChromosomePair.html">ChromosomePair</a> mate(<strong class="jxr_keyword">final</strong> AbstractListChromosome&lt;T&gt; first,
+<a class="jxr_linenumber" name="L127" href="NPointCrossover.html#L127">127</a>                                 <strong class="jxr_keyword">final</strong> AbstractListChromosome&lt;T&gt; second)
+<a class="jxr_linenumber" name="L128" href="NPointCrossover.html#L128">128</a>         <strong class="jxr_keyword">throws</strong> DimensionMismatchException, <a href="../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a> {
+<a class="jxr_linenumber" name="L129" href="NPointCrossover.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="NPointCrossover.html#L130">130</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length = first.getLength();
+<a class="jxr_linenumber" name="L131" href="NPointCrossover.html#L131">131</a>         <strong class="jxr_keyword">if</strong> (length != second.getLength()) {
+<a class="jxr_linenumber" name="L132" href="NPointCrossover.html#L132">132</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a>(second.getLength(), length);
+<a class="jxr_linenumber" name="L133" href="NPointCrossover.html#L133">133</a>         }
+<a class="jxr_linenumber" name="L134" href="NPointCrossover.html#L134">134</a>         <strong class="jxr_keyword">if</strong> (crossoverPoints &gt;= length) {
+<a class="jxr_linenumber" name="L135" href="NPointCrossover.html#L135">135</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a>(crossoverPoints, length, false);
+<a class="jxr_linenumber" name="L136" href="NPointCrossover.html#L136">136</a>         }
+<a class="jxr_linenumber" name="L137" href="NPointCrossover.html#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="NPointCrossover.html#L138">138</a>         <em class="jxr_comment">// array representations of the parents</em>
+<a class="jxr_linenumber" name="L139" href="NPointCrossover.html#L139">139</a>         <strong class="jxr_keyword">final</strong> List&lt;T&gt; parent1Rep = first.getRepresentation();
+<a class="jxr_linenumber" name="L140" href="NPointCrossover.html#L140">140</a>         <strong class="jxr_keyword">final</strong> List&lt;T&gt; parent2Rep = second.getRepresentation();
+<a class="jxr_linenumber" name="L141" href="NPointCrossover.html#L141">141</a>         <em class="jxr_comment">// and of the children</em>
+<a class="jxr_linenumber" name="L142" href="NPointCrossover.html#L142">142</a>         <strong class="jxr_keyword">final</strong> List&lt;T&gt; child1Rep = <strong class="jxr_keyword">new</strong> ArrayList&lt;T&gt;(length);
+<a class="jxr_linenumber" name="L143" href="NPointCrossover.html#L143">143</a>         <strong class="jxr_keyword">final</strong> List&lt;T&gt; child2Rep = <strong class="jxr_keyword">new</strong> ArrayList&lt;T&gt;(length);
+<a class="jxr_linenumber" name="L144" href="NPointCrossover.html#L144">144</a> 
+<a class="jxr_linenumber" name="L145" href="NPointCrossover.html#L145">145</a>         <strong class="jxr_keyword">final</strong> UniformRandomProvider random = GeneticAlgorithm.getRandomGenerator();
+<a class="jxr_linenumber" name="L146" href="NPointCrossover.html#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="NPointCrossover.html#L147">147</a>         List&lt;T&gt; c1 = child1Rep;
+<a class="jxr_linenumber" name="L148" href="NPointCrossover.html#L148">148</a>         List&lt;T&gt; c2 = child2Rep;
+<a class="jxr_linenumber" name="L149" href="NPointCrossover.html#L149">149</a> 
+<a class="jxr_linenumber" name="L150" href="NPointCrossover.html#L150">150</a>         <strong class="jxr_keyword">int</strong> remainingPoints = crossoverPoints;
+<a class="jxr_linenumber" name="L151" href="NPointCrossover.html#L151">151</a>         <strong class="jxr_keyword">int</strong> lastIndex = 0;
+<a class="jxr_linenumber" name="L152" href="NPointCrossover.html#L152">152</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; crossoverPoints; i++, remainingPoints--) {
+<a class="jxr_linenumber" name="L153" href="NPointCrossover.html#L153">153</a>             <em class="jxr_comment">// select the next crossover point at random</em>
+<a class="jxr_linenumber" name="L154" href="NPointCrossover.html#L154">154</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> crossoverIndex = 1 + lastIndex + random.nextInt(length - lastIndex - remainingPoints);
+<a class="jxr_linenumber" name="L155" href="NPointCrossover.html#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="NPointCrossover.html#L156">156</a>             <em class="jxr_comment">// copy the current segment</em>
+<a class="jxr_linenumber" name="L157" href="NPointCrossover.html#L157">157</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = lastIndex; j &lt; crossoverIndex; j++) {
+<a class="jxr_linenumber" name="L158" href="NPointCrossover.html#L158">158</a>                 c1.add(parent1Rep.get(j));
+<a class="jxr_linenumber" name="L159" href="NPointCrossover.html#L159">159</a>                 c2.add(parent2Rep.get(j));
+<a class="jxr_linenumber" name="L160" href="NPointCrossover.html#L160">160</a>             }
+<a class="jxr_linenumber" name="L161" href="NPointCrossover.html#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="NPointCrossover.html#L162">162</a>             <em class="jxr_comment">// swap the children for the next segment</em>
+<a class="jxr_linenumber" name="L163" href="NPointCrossover.html#L163">163</a>             List&lt;T&gt; tmp = c1;
+<a class="jxr_linenumber" name="L164" href="NPointCrossover.html#L164">164</a>             c1 = c2;
+<a class="jxr_linenumber" name="L165" href="NPointCrossover.html#L165">165</a>             c2 = tmp;
+<a class="jxr_linenumber" name="L166" href="NPointCrossover.html#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="NPointCrossover.html#L167">167</a>             lastIndex = crossoverIndex;
+<a class="jxr_linenumber" name="L168" href="NPointCrossover.html#L168">168</a>         }
+<a class="jxr_linenumber" name="L169" href="NPointCrossover.html#L169">169</a> 
+<a class="jxr_linenumber" name="L170" href="NPointCrossover.html#L170">170</a>         <em class="jxr_comment">// copy the last segment</em>
+<a class="jxr_linenumber" name="L171" href="NPointCrossover.html#L171">171</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = lastIndex; j &lt; length; j++) {
+<a class="jxr_linenumber" name="L172" href="NPointCrossover.html#L172">172</a>             c1.add(parent1Rep.get(j));
+<a class="jxr_linenumber" name="L173" href="NPointCrossover.html#L173">173</a>             c2.add(parent2Rep.get(j));
+<a class="jxr_linenumber" name="L174" href="NPointCrossover.html#L174">174</a>         }
+<a class="jxr_linenumber" name="L175" href="NPointCrossover.html#L175">175</a> 
+<a class="jxr_linenumber" name="L176" href="NPointCrossover.html#L176">176</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="ChromosomePair.html">ChromosomePair</a>(first.newFixedLengthChromosome(child1Rep),
+<a class="jxr_linenumber" name="L177" href="NPointCrossover.html#L177">177</a>                                   second.newFixedLengthChromosome(child2Rep));
+<a class="jxr_linenumber" name="L178" href="NPointCrossover.html#L178">178</a>     }
+<a class="jxr_linenumber" name="L179" href="NPointCrossover.html#L179">179</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

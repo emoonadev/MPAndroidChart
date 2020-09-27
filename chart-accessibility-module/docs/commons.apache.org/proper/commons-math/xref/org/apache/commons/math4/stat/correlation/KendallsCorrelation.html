@@ -1,0 +1,286 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>KendallsCorrelation xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/stat/correlation/KendallsCorrelation.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="KendallsCorrelation.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="KendallsCorrelation.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="KendallsCorrelation.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="KendallsCorrelation.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="KendallsCorrelation.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="KendallsCorrelation.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="KendallsCorrelation.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="KendallsCorrelation.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="KendallsCorrelation.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="KendallsCorrelation.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="KendallsCorrelation.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="KendallsCorrelation.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="KendallsCorrelation.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="KendallsCorrelation.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="KendallsCorrelation.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="KendallsCorrelation.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="KendallsCorrelation.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.stat.correlation;
+<a class="jxr_linenumber" name="L18" href="KendallsCorrelation.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="KendallsCorrelation.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L20" href="KendallsCorrelation.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.Comparator;
+<a class="jxr_linenumber" name="L21" href="KendallsCorrelation.html#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="KendallsCorrelation.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L23" href="KendallsCorrelation.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.BlockRealMatrix;
+<a class="jxr_linenumber" name="L24" href="KendallsCorrelation.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.MatrixUtils;
+<a class="jxr_linenumber" name="L25" href="KendallsCorrelation.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.RealMatrix;
+<a class="jxr_linenumber" name="L26" href="KendallsCorrelation.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L27" href="KendallsCorrelation.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Pair;
+<a class="jxr_linenumber" name="L28" href="KendallsCorrelation.html#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="KendallsCorrelation.html#L29">29</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L30" href="KendallsCorrelation.html#L30">30</a>  <em class="jxr_javadoccomment"> * Implementation of Kendall's Tau-b rank correlation&lt;/a&gt;.</em>
+<a class="jxr_linenumber" name="L31" href="KendallsCorrelation.html#L31">31</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L32" href="KendallsCorrelation.html#L32">32</a>  <em class="jxr_javadoccomment"> * A pair of observations (x&lt;sub&gt;1&lt;/sub&gt;, y&lt;sub&gt;1&lt;/sub&gt;) and</em>
+<a class="jxr_linenumber" name="L33" href="KendallsCorrelation.html#L33">33</a>  <em class="jxr_javadoccomment"> * (x&lt;sub&gt;2&lt;/sub&gt;, y&lt;sub&gt;2&lt;/sub&gt;) are considered &lt;i&gt;concordant&lt;/i&gt; if</em>
+<a class="jxr_linenumber" name="L34" href="KendallsCorrelation.html#L34">34</a>  <em class="jxr_javadoccomment"> * x&lt;sub&gt;1&lt;/sub&gt; &amp;lt; x&lt;sub&gt;2&lt;/sub&gt; and y&lt;sub&gt;1&lt;/sub&gt; &amp;lt; y&lt;sub&gt;2&lt;/sub&gt;</em>
+<a class="jxr_linenumber" name="L35" href="KendallsCorrelation.html#L35">35</a>  <em class="jxr_javadoccomment"> * or x&lt;sub&gt;2&lt;/sub&gt; &amp;lt; x&lt;sub&gt;1&lt;/sub&gt; and y&lt;sub&gt;2&lt;/sub&gt; &amp;lt; y&lt;sub&gt;1&lt;/sub&gt;.</em>
+<a class="jxr_linenumber" name="L36" href="KendallsCorrelation.html#L36">36</a>  <em class="jxr_javadoccomment"> * The pair is &lt;i&gt;discordant&lt;/i&gt; if x&lt;sub&gt;1&lt;/sub&gt; &amp;lt; x&lt;sub&gt;2&lt;/sub&gt; and</em>
+<a class="jxr_linenumber" name="L37" href="KendallsCorrelation.html#L37">37</a>  <em class="jxr_javadoccomment"> * y&lt;sub&gt;2&lt;/sub&gt; &amp;lt; y&lt;sub&gt;1&lt;/sub&gt; or x&lt;sub&gt;2&lt;/sub&gt; &amp;lt; x&lt;sub&gt;1&lt;/sub&gt; and</em>
+<a class="jxr_linenumber" name="L38" href="KendallsCorrelation.html#L38">38</a>  <em class="jxr_javadoccomment"> * y&lt;sub&gt;1&lt;/sub&gt; &amp;lt; y&lt;sub&gt;2&lt;/sub&gt;.  If either x&lt;sub&gt;1&lt;/sub&gt; = x&lt;sub&gt;2&lt;/sub&gt;</em>
+<a class="jxr_linenumber" name="L39" href="KendallsCorrelation.html#L39">39</a>  <em class="jxr_javadoccomment"> * or y&lt;sub&gt;1&lt;/sub&gt; = y&lt;sub&gt;2&lt;/sub&gt;, the pair is neither concordant nor</em>
+<a class="jxr_linenumber" name="L40" href="KendallsCorrelation.html#L40">40</a>  <em class="jxr_javadoccomment"> * discordant.</em>
+<a class="jxr_linenumber" name="L41" href="KendallsCorrelation.html#L41">41</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L42" href="KendallsCorrelation.html#L42">42</a>  <em class="jxr_javadoccomment"> * Kendall's Tau-b is defined as:</em>
+<a class="jxr_linenumber" name="L43" href="KendallsCorrelation.html#L43">43</a>  <em class="jxr_javadoccomment"> * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L44" href="KendallsCorrelation.html#L44">44</a>  <em class="jxr_javadoccomment"> * tau&lt;sub&gt;b&lt;/sub&gt; = (n&lt;sub&gt;c&lt;/sub&gt; - n&lt;sub&gt;d&lt;/sub&gt;) / sqrt((n&lt;sub&gt;0&lt;/sub&gt; - n&lt;sub&gt;1&lt;/sub&gt;) * (n&lt;sub&gt;0&lt;/sub&gt; - n&lt;sub&gt;2&lt;/sub&gt;))</em>
+<a class="jxr_linenumber" name="L45" href="KendallsCorrelation.html#L45">45</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L46" href="KendallsCorrelation.html#L46">46</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L47" href="KendallsCorrelation.html#L47">47</a>  <em class="jxr_javadoccomment"> * where:</em>
+<a class="jxr_linenumber" name="L48" href="KendallsCorrelation.html#L48">48</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L49" href="KendallsCorrelation.html#L49">49</a>  <em class="jxr_javadoccomment"> *     &lt;li&gt;n&lt;sub&gt;0&lt;/sub&gt; = n * (n - 1) / 2&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L50" href="KendallsCorrelation.html#L50">50</a>  <em class="jxr_javadoccomment"> *     &lt;li&gt;n&lt;sub&gt;c&lt;/sub&gt; = Number of concordant pairs&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L51" href="KendallsCorrelation.html#L51">51</a>  <em class="jxr_javadoccomment"> *     &lt;li&gt;n&lt;sub&gt;d&lt;/sub&gt; = Number of discordant pairs&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L52" href="KendallsCorrelation.html#L52">52</a>  <em class="jxr_javadoccomment"> *     &lt;li&gt;n&lt;sub&gt;1&lt;/sub&gt; = sum of t&lt;sub&gt;i&lt;/sub&gt; * (t&lt;sub&gt;i&lt;/sub&gt; - 1) / 2 for all i&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L53" href="KendallsCorrelation.html#L53">53</a>  <em class="jxr_javadoccomment"> *     &lt;li&gt;n&lt;sub&gt;2&lt;/sub&gt; = sum of u&lt;sub&gt;j&lt;/sub&gt; * (u&lt;sub&gt;j&lt;/sub&gt; - 1) / 2 for all j&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L54" href="KendallsCorrelation.html#L54">54</a>  <em class="jxr_javadoccomment"> *     &lt;li&gt;t&lt;sub&gt;i&lt;/sub&gt; = Number of tied values in the i&lt;sup&gt;th&lt;/sup&gt; group of ties in x&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L55" href="KendallsCorrelation.html#L55">55</a>  <em class="jxr_javadoccomment"> *     &lt;li&gt;u&lt;sub&gt;j&lt;/sub&gt; = Number of tied values in the j&lt;sup&gt;th&lt;/sup&gt; group of ties in y&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L56" href="KendallsCorrelation.html#L56">56</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L57" href="KendallsCorrelation.html#L57">57</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L58" href="KendallsCorrelation.html#L58">58</a>  <em class="jxr_javadoccomment"> * This implementation uses the O(n log n) algorithm described in</em>
+<a class="jxr_linenumber" name="L59" href="KendallsCorrelation.html#L59">59</a>  <em class="jxr_javadoccomment"> * William R. Knight's 1966 paper "A Computer Method for Calculating</em>
+<a class="jxr_linenumber" name="L60" href="KendallsCorrelation.html#L60">60</a>  <em class="jxr_javadoccomment"> * Kendall's Tau with Ungrouped Data" in the Journal of the American</em>
+<a class="jxr_linenumber" name="L61" href="KendallsCorrelation.html#L61">61</a>  <em class="jxr_javadoccomment"> * Statistical Association.</em>
+<a class="jxr_linenumber" name="L62" href="KendallsCorrelation.html#L62">62</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L63" href="KendallsCorrelation.html#L63">63</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/Kendall_tau_rank_correlation_coefficient" target="alexandria_uri">http://en.wikipedia.org/wiki/Kendall_tau_rank_correlation_coefficient</a>"&gt;</em>
+<a class="jxr_linenumber" name="L64" href="KendallsCorrelation.html#L64">64</a>  <em class="jxr_javadoccomment"> * Kendall tau rank correlation coefficient (Wikipedia)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L65" href="KendallsCorrelation.html#L65">65</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://www.jstor.org/stable/2282833" target="alexandria_uri">http://www.jstor.org/stable/2282833</a>"&gt;A Computer</em>
+<a class="jxr_linenumber" name="L66" href="KendallsCorrelation.html#L66">66</a>  <em class="jxr_javadoccomment"> * Method for Calculating Kendall's Tau with Ungrouped Data&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L67" href="KendallsCorrelation.html#L67">67</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L68" href="KendallsCorrelation.html#L68">68</a>  <em class="jxr_javadoccomment"> * @since 3.3</em>
+<a class="jxr_linenumber" name="L69" href="KendallsCorrelation.html#L69">69</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L70" href="KendallsCorrelation.html#L70">70</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="KendallsCorrelation.html">KendallsCorrelation</a> {
+<a class="jxr_linenumber" name="L71" href="KendallsCorrelation.html#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="KendallsCorrelation.html#L72">72</a>      <em class="jxr_javadoccomment">/** correlation matrix */</em>
+<a class="jxr_linenumber" name="L73" href="KendallsCorrelation.html#L73">73</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> correlationMatrix;
+<a class="jxr_linenumber" name="L74" href="KendallsCorrelation.html#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="KendallsCorrelation.html#L75">75</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L76" href="KendallsCorrelation.html#L76">76</a>  <em class="jxr_javadoccomment">     * Create a KendallsCorrelation instance without data.</em>
+<a class="jxr_linenumber" name="L77" href="KendallsCorrelation.html#L77">77</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L78" href="KendallsCorrelation.html#L78">78</a>      <strong class="jxr_keyword">public</strong> <a href="KendallsCorrelation.html">KendallsCorrelation</a>() {
+<a class="jxr_linenumber" name="L79" href="KendallsCorrelation.html#L79">79</a>          correlationMatrix = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L80" href="KendallsCorrelation.html#L80">80</a>      }
+<a class="jxr_linenumber" name="L81" href="KendallsCorrelation.html#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="KendallsCorrelation.html#L82">82</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L83" href="KendallsCorrelation.html#L83">83</a>  <em class="jxr_javadoccomment">     * Create a KendallsCorrelation from a rectangular array</em>
+<a class="jxr_linenumber" name="L84" href="KendallsCorrelation.html#L84">84</a>  <em class="jxr_javadoccomment">     * whose columns represent values of variables to be correlated.</em>
+<a class="jxr_linenumber" name="L85" href="KendallsCorrelation.html#L85">85</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L86" href="KendallsCorrelation.html#L86">86</a>  <em class="jxr_javadoccomment">     * @param data rectangular array with columns representing variables</em>
+<a class="jxr_linenumber" name="L87" href="KendallsCorrelation.html#L87">87</a>  <em class="jxr_javadoccomment">     * @throws IllegalArgumentException if the input data array is not</em>
+<a class="jxr_linenumber" name="L88" href="KendallsCorrelation.html#L88">88</a>  <em class="jxr_javadoccomment">     * rectangular with at least two rows and two columns.</em>
+<a class="jxr_linenumber" name="L89" href="KendallsCorrelation.html#L89">89</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L90" href="KendallsCorrelation.html#L90">90</a>      <strong class="jxr_keyword">public</strong> <a href="KendallsCorrelation.html">KendallsCorrelation</a>(<strong class="jxr_keyword">double</strong>[][] data) {
+<a class="jxr_linenumber" name="L91" href="KendallsCorrelation.html#L91">91</a>          <strong class="jxr_keyword">this</strong>(MatrixUtils.createRealMatrix(data));
+<a class="jxr_linenumber" name="L92" href="KendallsCorrelation.html#L92">92</a>      }
+<a class="jxr_linenumber" name="L93" href="KendallsCorrelation.html#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="KendallsCorrelation.html#L94">94</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L95" href="KendallsCorrelation.html#L95">95</a>  <em class="jxr_javadoccomment">     * Create a KendallsCorrelation from a RealMatrix whose columns</em>
+<a class="jxr_linenumber" name="L96" href="KendallsCorrelation.html#L96">96</a>  <em class="jxr_javadoccomment">     * represent variables to be correlated.</em>
+<a class="jxr_linenumber" name="L97" href="KendallsCorrelation.html#L97">97</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L98" href="KendallsCorrelation.html#L98">98</a>  <em class="jxr_javadoccomment">     * @param matrix matrix with columns representing variables to correlate</em>
+<a class="jxr_linenumber" name="L99" href="KendallsCorrelation.html#L99">99</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L100" href="KendallsCorrelation.html#L100">100</a>     <strong class="jxr_keyword">public</strong> <a href="KendallsCorrelation.html">KendallsCorrelation</a>(<a href="../../linear/RealMatrix.html">RealMatrix</a> matrix) {
+<a class="jxr_linenumber" name="L101" href="KendallsCorrelation.html#L101">101</a>         correlationMatrix = computeCorrelationMatrix(matrix);
+<a class="jxr_linenumber" name="L102" href="KendallsCorrelation.html#L102">102</a>     }
+<a class="jxr_linenumber" name="L103" href="KendallsCorrelation.html#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="KendallsCorrelation.html#L104">104</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L105" href="KendallsCorrelation.html#L105">105</a> <em class="jxr_javadoccomment">     * Returns the correlation matrix.</em>
+<a class="jxr_linenumber" name="L106" href="KendallsCorrelation.html#L106">106</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L107" href="KendallsCorrelation.html#L107">107</a> <em class="jxr_javadoccomment">     * @return correlation matrix</em>
+<a class="jxr_linenumber" name="L108" href="KendallsCorrelation.html#L108">108</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L109" href="KendallsCorrelation.html#L109">109</a>     <strong class="jxr_keyword">public</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> getCorrelationMatrix() {
+<a class="jxr_linenumber" name="L110" href="KendallsCorrelation.html#L110">110</a>         <strong class="jxr_keyword">return</strong> correlationMatrix;
+<a class="jxr_linenumber" name="L111" href="KendallsCorrelation.html#L111">111</a>     }
+<a class="jxr_linenumber" name="L112" href="KendallsCorrelation.html#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="KendallsCorrelation.html#L113">113</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L114" href="KendallsCorrelation.html#L114">114</a> <em class="jxr_javadoccomment">     * Computes the Kendall's Tau rank correlation matrix for the columns of</em>
+<a class="jxr_linenumber" name="L115" href="KendallsCorrelation.html#L115">115</a> <em class="jxr_javadoccomment">     * the input matrix.</em>
+<a class="jxr_linenumber" name="L116" href="KendallsCorrelation.html#L116">116</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L117" href="KendallsCorrelation.html#L117">117</a> <em class="jxr_javadoccomment">     * @param matrix matrix with columns representing variables to correlate</em>
+<a class="jxr_linenumber" name="L118" href="KendallsCorrelation.html#L118">118</a> <em class="jxr_javadoccomment">     * @return correlation matrix</em>
+<a class="jxr_linenumber" name="L119" href="KendallsCorrelation.html#L119">119</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L120" href="KendallsCorrelation.html#L120">120</a>     <strong class="jxr_keyword">public</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> computeCorrelationMatrix(<strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> matrix) {
+<a class="jxr_linenumber" name="L121" href="KendallsCorrelation.html#L121">121</a>         <strong class="jxr_keyword">int</strong> nVars = matrix.getColumnDimension();
+<a class="jxr_linenumber" name="L122" href="KendallsCorrelation.html#L122">122</a>         <a href="../../linear/RealMatrix.html">RealMatrix</a> outMatrix = <strong class="jxr_keyword">new</strong> <a href="../../linear/BlockRealMatrix.html">BlockRealMatrix</a>(nVars, nVars);
+<a class="jxr_linenumber" name="L123" href="KendallsCorrelation.html#L123">123</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nVars; i++) {
+<a class="jxr_linenumber" name="L124" href="KendallsCorrelation.html#L124">124</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; i; j++) {
+<a class="jxr_linenumber" name="L125" href="KendallsCorrelation.html#L125">125</a>                 <strong class="jxr_keyword">double</strong> corr = correlation(matrix.getColumn(i), matrix.getColumn(j));
+<a class="jxr_linenumber" name="L126" href="KendallsCorrelation.html#L126">126</a>                 outMatrix.setEntry(i, j, corr);
+<a class="jxr_linenumber" name="L127" href="KendallsCorrelation.html#L127">127</a>                 outMatrix.setEntry(j, i, corr);
+<a class="jxr_linenumber" name="L128" href="KendallsCorrelation.html#L128">128</a>             }
+<a class="jxr_linenumber" name="L129" href="KendallsCorrelation.html#L129">129</a>             outMatrix.setEntry(i, i, 1d);
+<a class="jxr_linenumber" name="L130" href="KendallsCorrelation.html#L130">130</a>         }
+<a class="jxr_linenumber" name="L131" href="KendallsCorrelation.html#L131">131</a>         <strong class="jxr_keyword">return</strong> outMatrix;
+<a class="jxr_linenumber" name="L132" href="KendallsCorrelation.html#L132">132</a>     }
+<a class="jxr_linenumber" name="L133" href="KendallsCorrelation.html#L133">133</a> 
+<a class="jxr_linenumber" name="L134" href="KendallsCorrelation.html#L134">134</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L135" href="KendallsCorrelation.html#L135">135</a> <em class="jxr_javadoccomment">     * Computes the Kendall's Tau rank correlation matrix for the columns of</em>
+<a class="jxr_linenumber" name="L136" href="KendallsCorrelation.html#L136">136</a> <em class="jxr_javadoccomment">     * the input rectangular array.  The columns of the array represent values</em>
+<a class="jxr_linenumber" name="L137" href="KendallsCorrelation.html#L137">137</a> <em class="jxr_javadoccomment">     * of variables to be correlated.</em>
+<a class="jxr_linenumber" name="L138" href="KendallsCorrelation.html#L138">138</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L139" href="KendallsCorrelation.html#L139">139</a> <em class="jxr_javadoccomment">     * @param matrix matrix with columns representing variables to correlate</em>
+<a class="jxr_linenumber" name="L140" href="KendallsCorrelation.html#L140">140</a> <em class="jxr_javadoccomment">     * @return correlation matrix</em>
+<a class="jxr_linenumber" name="L141" href="KendallsCorrelation.html#L141">141</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L142" href="KendallsCorrelation.html#L142">142</a>     <strong class="jxr_keyword">public</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> computeCorrelationMatrix(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] matrix) {
+<a class="jxr_linenumber" name="L143" href="KendallsCorrelation.html#L143">143</a>        <strong class="jxr_keyword">return</strong> computeCorrelationMatrix(<strong class="jxr_keyword">new</strong> <a href="../../linear/BlockRealMatrix.html">BlockRealMatrix</a>(matrix));
+<a class="jxr_linenumber" name="L144" href="KendallsCorrelation.html#L144">144</a>     }
+<a class="jxr_linenumber" name="L145" href="KendallsCorrelation.html#L145">145</a> 
+<a class="jxr_linenumber" name="L146" href="KendallsCorrelation.html#L146">146</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L147" href="KendallsCorrelation.html#L147">147</a> <em class="jxr_javadoccomment">     * Computes the Kendall's Tau rank correlation coefficient between the two arrays.</em>
+<a class="jxr_linenumber" name="L148" href="KendallsCorrelation.html#L148">148</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L149" href="KendallsCorrelation.html#L149">149</a> <em class="jxr_javadoccomment">     * @param xArray first data array</em>
+<a class="jxr_linenumber" name="L150" href="KendallsCorrelation.html#L150">150</a> <em class="jxr_javadoccomment">     * @param yArray second data array</em>
+<a class="jxr_linenumber" name="L151" href="KendallsCorrelation.html#L151">151</a> <em class="jxr_javadoccomment">     * @return Returns Kendall's Tau rank correlation coefficient for the two arrays</em>
+<a class="jxr_linenumber" name="L152" href="KendallsCorrelation.html#L152">152</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the arrays lengths do not match</em>
+<a class="jxr_linenumber" name="L153" href="KendallsCorrelation.html#L153">153</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L154" href="KendallsCorrelation.html#L154">154</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> correlation(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xArray, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yArray)
+<a class="jxr_linenumber" name="L155" href="KendallsCorrelation.html#L155">155</a>             <strong class="jxr_keyword">throws</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a> {
+<a class="jxr_linenumber" name="L156" href="KendallsCorrelation.html#L156">156</a> 
+<a class="jxr_linenumber" name="L157" href="KendallsCorrelation.html#L157">157</a>         <strong class="jxr_keyword">if</strong> (xArray.length != yArray.length) {
+<a class="jxr_linenumber" name="L158" href="KendallsCorrelation.html#L158">158</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(xArray.length, yArray.length);
+<a class="jxr_linenumber" name="L159" href="KendallsCorrelation.html#L159">159</a>         }
+<a class="jxr_linenumber" name="L160" href="KendallsCorrelation.html#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="KendallsCorrelation.html#L161">161</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = xArray.length;
+<a class="jxr_linenumber" name="L162" href="KendallsCorrelation.html#L162">162</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> numPairs = sum(n - 1);
+<a class="jxr_linenumber" name="L163" href="KendallsCorrelation.html#L163">163</a> 
+<a class="jxr_linenumber" name="L164" href="KendallsCorrelation.html#L164">164</a>         @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L165" href="KendallsCorrelation.html#L165">165</a>         Pair&lt;Double, Double&gt;[] pairs = <strong class="jxr_keyword">new</strong> <a href="../../util/Pair.html">Pair</a>[n];
+<a class="jxr_linenumber" name="L166" href="KendallsCorrelation.html#L166">166</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L167" href="KendallsCorrelation.html#L167">167</a>             pairs[i] = <strong class="jxr_keyword">new</strong> Pair&lt;Double, Double&gt;(xArray[i], yArray[i]);
+<a class="jxr_linenumber" name="L168" href="KendallsCorrelation.html#L168">168</a>         }
+<a class="jxr_linenumber" name="L169" href="KendallsCorrelation.html#L169">169</a> 
+<a class="jxr_linenumber" name="L170" href="KendallsCorrelation.html#L170">170</a>         Arrays.sort(pairs, <strong class="jxr_keyword">new</strong> Comparator&lt;Pair&lt;Double, Double&gt;&gt;() {
+<a class="jxr_linenumber" name="L171" href="KendallsCorrelation.html#L171">171</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L172" href="KendallsCorrelation.html#L172">172</a>             @Override
+<a class="jxr_linenumber" name="L173" href="KendallsCorrelation.html#L173">173</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compare(Pair&lt;Double, Double&gt; pair1, Pair&lt;Double, Double&gt; pair2) {
+<a class="jxr_linenumber" name="L174" href="KendallsCorrelation.html#L174">174</a>                 <strong class="jxr_keyword">int</strong> compareFirst = pair1.getFirst().compareTo(pair2.getFirst());
+<a class="jxr_linenumber" name="L175" href="KendallsCorrelation.html#L175">175</a>                 <strong class="jxr_keyword">return</strong> compareFirst != 0 ? compareFirst : pair1.getSecond().compareTo(pair2.getSecond());
+<a class="jxr_linenumber" name="L176" href="KendallsCorrelation.html#L176">176</a>             }
+<a class="jxr_linenumber" name="L177" href="KendallsCorrelation.html#L177">177</a>         });
+<a class="jxr_linenumber" name="L178" href="KendallsCorrelation.html#L178">178</a> 
+<a class="jxr_linenumber" name="L179" href="KendallsCorrelation.html#L179">179</a>         <strong class="jxr_keyword">long</strong> tiedXPairs = 0;
+<a class="jxr_linenumber" name="L180" href="KendallsCorrelation.html#L180">180</a>         <strong class="jxr_keyword">long</strong> tiedXYPairs = 0;
+<a class="jxr_linenumber" name="L181" href="KendallsCorrelation.html#L181">181</a>         <strong class="jxr_keyword">long</strong> consecutiveXTies = 1;
+<a class="jxr_linenumber" name="L182" href="KendallsCorrelation.html#L182">182</a>         <strong class="jxr_keyword">long</strong> consecutiveXYTies = 1;
+<a class="jxr_linenumber" name="L183" href="KendallsCorrelation.html#L183">183</a>         Pair&lt;Double, Double&gt; prev = pairs[0];
+<a class="jxr_linenumber" name="L184" href="KendallsCorrelation.html#L184">184</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L185" href="KendallsCorrelation.html#L185">185</a>             <strong class="jxr_keyword">final</strong> Pair&lt;Double, Double&gt; curr = pairs[i];
+<a class="jxr_linenumber" name="L186" href="KendallsCorrelation.html#L186">186</a>             <strong class="jxr_keyword">if</strong> (curr.getFirst().equals(prev.getFirst())) {
+<a class="jxr_linenumber" name="L187" href="KendallsCorrelation.html#L187">187</a>                 consecutiveXTies++;
+<a class="jxr_linenumber" name="L188" href="KendallsCorrelation.html#L188">188</a>                 <strong class="jxr_keyword">if</strong> (curr.getSecond().equals(prev.getSecond())) {
+<a class="jxr_linenumber" name="L189" href="KendallsCorrelation.html#L189">189</a>                     consecutiveXYTies++;
+<a class="jxr_linenumber" name="L190" href="KendallsCorrelation.html#L190">190</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L191" href="KendallsCorrelation.html#L191">191</a>                     tiedXYPairs += sum(consecutiveXYTies - 1);
+<a class="jxr_linenumber" name="L192" href="KendallsCorrelation.html#L192">192</a>                     consecutiveXYTies = 1;
+<a class="jxr_linenumber" name="L193" href="KendallsCorrelation.html#L193">193</a>                 }
+<a class="jxr_linenumber" name="L194" href="KendallsCorrelation.html#L194">194</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L195" href="KendallsCorrelation.html#L195">195</a>                 tiedXPairs += sum(consecutiveXTies - 1);
+<a class="jxr_linenumber" name="L196" href="KendallsCorrelation.html#L196">196</a>                 consecutiveXTies = 1;
+<a class="jxr_linenumber" name="L197" href="KendallsCorrelation.html#L197">197</a>                 tiedXYPairs += sum(consecutiveXYTies - 1);
+<a class="jxr_linenumber" name="L198" href="KendallsCorrelation.html#L198">198</a>                 consecutiveXYTies = 1;
+<a class="jxr_linenumber" name="L199" href="KendallsCorrelation.html#L199">199</a>             }
+<a class="jxr_linenumber" name="L200" href="KendallsCorrelation.html#L200">200</a>             prev = curr;
+<a class="jxr_linenumber" name="L201" href="KendallsCorrelation.html#L201">201</a>         }
+<a class="jxr_linenumber" name="L202" href="KendallsCorrelation.html#L202">202</a>         tiedXPairs += sum(consecutiveXTies - 1);
+<a class="jxr_linenumber" name="L203" href="KendallsCorrelation.html#L203">203</a>         tiedXYPairs += sum(consecutiveXYTies - 1);
+<a class="jxr_linenumber" name="L204" href="KendallsCorrelation.html#L204">204</a> 
+<a class="jxr_linenumber" name="L205" href="KendallsCorrelation.html#L205">205</a>         <strong class="jxr_keyword">long</strong> swaps = 0;
+<a class="jxr_linenumber" name="L206" href="KendallsCorrelation.html#L206">206</a>         @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L207" href="KendallsCorrelation.html#L207">207</a>         Pair&lt;Double, Double&gt;[] pairsDestination = <strong class="jxr_keyword">new</strong> <a href="../../util/Pair.html">Pair</a>[n];
+<a class="jxr_linenumber" name="L208" href="KendallsCorrelation.html#L208">208</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> segmentSize = 1; segmentSize &lt; n; segmentSize &lt;&lt;= 1) {
+<a class="jxr_linenumber" name="L209" href="KendallsCorrelation.html#L209">209</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> offset = 0; offset &lt; n; offset += 2 * segmentSize) {
+<a class="jxr_linenumber" name="L210" href="KendallsCorrelation.html#L210">210</a>                 <strong class="jxr_keyword">int</strong> i = offset;
+<a class="jxr_linenumber" name="L211" href="KendallsCorrelation.html#L211">211</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> iEnd = FastMath.min(i + segmentSize, n);
+<a class="jxr_linenumber" name="L212" href="KendallsCorrelation.html#L212">212</a>                 <strong class="jxr_keyword">int</strong> j = iEnd;
+<a class="jxr_linenumber" name="L213" href="KendallsCorrelation.html#L213">213</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> jEnd = FastMath.min(j + segmentSize, n);
+<a class="jxr_linenumber" name="L214" href="KendallsCorrelation.html#L214">214</a> 
+<a class="jxr_linenumber" name="L215" href="KendallsCorrelation.html#L215">215</a>                 <strong class="jxr_keyword">int</strong> copyLocation = offset;
+<a class="jxr_linenumber" name="L216" href="KendallsCorrelation.html#L216">216</a>                 <strong class="jxr_keyword">while</strong> (i &lt; iEnd || j &lt; jEnd) {
+<a class="jxr_linenumber" name="L217" href="KendallsCorrelation.html#L217">217</a>                     <strong class="jxr_keyword">if</strong> (i &lt; iEnd) {
+<a class="jxr_linenumber" name="L218" href="KendallsCorrelation.html#L218">218</a>                         <strong class="jxr_keyword">if</strong> (j &lt; jEnd) {
+<a class="jxr_linenumber" name="L219" href="KendallsCorrelation.html#L219">219</a>                             <strong class="jxr_keyword">if</strong> (pairs[i].getSecond().compareTo(pairs[j].getSecond()) &lt;= 0) {
+<a class="jxr_linenumber" name="L220" href="KendallsCorrelation.html#L220">220</a>                                 pairsDestination[copyLocation] = pairs[i];
+<a class="jxr_linenumber" name="L221" href="KendallsCorrelation.html#L221">221</a>                                 i++;
+<a class="jxr_linenumber" name="L222" href="KendallsCorrelation.html#L222">222</a>                             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L223" href="KendallsCorrelation.html#L223">223</a>                                 pairsDestination[copyLocation] = pairs[j];
+<a class="jxr_linenumber" name="L224" href="KendallsCorrelation.html#L224">224</a>                                 j++;
+<a class="jxr_linenumber" name="L225" href="KendallsCorrelation.html#L225">225</a>                                 swaps += iEnd - i;
+<a class="jxr_linenumber" name="L226" href="KendallsCorrelation.html#L226">226</a>                             }
+<a class="jxr_linenumber" name="L227" href="KendallsCorrelation.html#L227">227</a>                         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L228" href="KendallsCorrelation.html#L228">228</a>                             pairsDestination[copyLocation] = pairs[i];
+<a class="jxr_linenumber" name="L229" href="KendallsCorrelation.html#L229">229</a>                             i++;
+<a class="jxr_linenumber" name="L230" href="KendallsCorrelation.html#L230">230</a>                         }
+<a class="jxr_linenumber" name="L231" href="KendallsCorrelation.html#L231">231</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L232" href="KendallsCorrelation.html#L232">232</a>                         pairsDestination[copyLocation] = pairs[j];
+<a class="jxr_linenumber" name="L233" href="KendallsCorrelation.html#L233">233</a>                         j++;
+<a class="jxr_linenumber" name="L234" href="KendallsCorrelation.html#L234">234</a>                     }
+<a class="jxr_linenumber" name="L235" href="KendallsCorrelation.html#L235">235</a>                     copyLocation++;
+<a class="jxr_linenumber" name="L236" href="KendallsCorrelation.html#L236">236</a>                 }
+<a class="jxr_linenumber" name="L237" href="KendallsCorrelation.html#L237">237</a>             }
+<a class="jxr_linenumber" name="L238" href="KendallsCorrelation.html#L238">238</a>             <strong class="jxr_keyword">final</strong> Pair&lt;Double, Double&gt;[] pairsTemp = pairs;
+<a class="jxr_linenumber" name="L239" href="KendallsCorrelation.html#L239">239</a>             pairs = pairsDestination;
+<a class="jxr_linenumber" name="L240" href="KendallsCorrelation.html#L240">240</a>             pairsDestination = pairsTemp;
+<a class="jxr_linenumber" name="L241" href="KendallsCorrelation.html#L241">241</a>         }
+<a class="jxr_linenumber" name="L242" href="KendallsCorrelation.html#L242">242</a> 
+<a class="jxr_linenumber" name="L243" href="KendallsCorrelation.html#L243">243</a>         <strong class="jxr_keyword">long</strong> tiedYPairs = 0;
+<a class="jxr_linenumber" name="L244" href="KendallsCorrelation.html#L244">244</a>         <strong class="jxr_keyword">long</strong> consecutiveYTies = 1;
+<a class="jxr_linenumber" name="L245" href="KendallsCorrelation.html#L245">245</a>         prev = pairs[0];
+<a class="jxr_linenumber" name="L246" href="KendallsCorrelation.html#L246">246</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L247" href="KendallsCorrelation.html#L247">247</a>             <strong class="jxr_keyword">final</strong> Pair&lt;Double, Double&gt; curr = pairs[i];
+<a class="jxr_linenumber" name="L248" href="KendallsCorrelation.html#L248">248</a>             <strong class="jxr_keyword">if</strong> (curr.getSecond().equals(prev.getSecond())) {
+<a class="jxr_linenumber" name="L249" href="KendallsCorrelation.html#L249">249</a>                 consecutiveYTies++;
+<a class="jxr_linenumber" name="L250" href="KendallsCorrelation.html#L250">250</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L251" href="KendallsCorrelation.html#L251">251</a>                 tiedYPairs += sum(consecutiveYTies - 1);
+<a class="jxr_linenumber" name="L252" href="KendallsCorrelation.html#L252">252</a>                 consecutiveYTies = 1;
+<a class="jxr_linenumber" name="L253" href="KendallsCorrelation.html#L253">253</a>             }
+<a class="jxr_linenumber" name="L254" href="KendallsCorrelation.html#L254">254</a>             prev = curr;
+<a class="jxr_linenumber" name="L255" href="KendallsCorrelation.html#L255">255</a>         }
+<a class="jxr_linenumber" name="L256" href="KendallsCorrelation.html#L256">256</a>         tiedYPairs += sum(consecutiveYTies - 1);
+<a class="jxr_linenumber" name="L257" href="KendallsCorrelation.html#L257">257</a> 
+<a class="jxr_linenumber" name="L258" href="KendallsCorrelation.html#L258">258</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> concordantMinusDiscordant = numPairs - tiedXPairs - tiedYPairs + tiedXYPairs - 2 * swaps;
+<a class="jxr_linenumber" name="L259" href="KendallsCorrelation.html#L259">259</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> nonTiedPairsMultiplied = (numPairs - tiedXPairs) * (<strong class="jxr_keyword">double</strong>) (numPairs - tiedYPairs);
+<a class="jxr_linenumber" name="L260" href="KendallsCorrelation.html#L260">260</a>         <strong class="jxr_keyword">return</strong> concordantMinusDiscordant / FastMath.sqrt(nonTiedPairsMultiplied);
+<a class="jxr_linenumber" name="L261" href="KendallsCorrelation.html#L261">261</a>     }
+<a class="jxr_linenumber" name="L262" href="KendallsCorrelation.html#L262">262</a> 
+<a class="jxr_linenumber" name="L263" href="KendallsCorrelation.html#L263">263</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L264" href="KendallsCorrelation.html#L264">264</a> <em class="jxr_javadoccomment">     * Returns the sum of the number from 1 .. n according to Gauss' summation formula:</em>
+<a class="jxr_linenumber" name="L265" href="KendallsCorrelation.html#L265">265</a> <em class="jxr_javadoccomment">     * \[ \sum\limits_{k=1}^n k = \frac{n(n + 1)}{2} \]</em>
+<a class="jxr_linenumber" name="L266" href="KendallsCorrelation.html#L266">266</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L267" href="KendallsCorrelation.html#L267">267</a> <em class="jxr_javadoccomment">     * @param n the summation end</em>
+<a class="jxr_linenumber" name="L268" href="KendallsCorrelation.html#L268">268</a> <em class="jxr_javadoccomment">     * @return the sum of the number from 1 to n</em>
+<a class="jxr_linenumber" name="L269" href="KendallsCorrelation.html#L269">269</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L270" href="KendallsCorrelation.html#L270">270</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> sum(<strong class="jxr_keyword">long</strong> n) {
+<a class="jxr_linenumber" name="L271" href="KendallsCorrelation.html#L271">271</a>         <strong class="jxr_keyword">return</strong> n * (n + 1) / 2l;
+<a class="jxr_linenumber" name="L272" href="KendallsCorrelation.html#L272">272</a>     }
+<a class="jxr_linenumber" name="L273" href="KendallsCorrelation.html#L273">273</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

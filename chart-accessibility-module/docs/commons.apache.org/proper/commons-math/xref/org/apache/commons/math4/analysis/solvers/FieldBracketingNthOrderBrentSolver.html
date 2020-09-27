@@ -1,0 +1,459 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>FieldBracketingNthOrderBrentSolver xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/analysis/solvers/FieldBracketingNthOrderBrentSolver.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="FieldBracketingNthOrderBrentSolver.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="FieldBracketingNthOrderBrentSolver.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="FieldBracketingNthOrderBrentSolver.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="FieldBracketingNthOrderBrentSolver.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="FieldBracketingNthOrderBrentSolver.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="FieldBracketingNthOrderBrentSolver.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="FieldBracketingNthOrderBrentSolver.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="FieldBracketingNthOrderBrentSolver.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="FieldBracketingNthOrderBrentSolver.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="FieldBracketingNthOrderBrentSolver.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="FieldBracketingNthOrderBrentSolver.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="FieldBracketingNthOrderBrentSolver.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="FieldBracketingNthOrderBrentSolver.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="FieldBracketingNthOrderBrentSolver.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="FieldBracketingNthOrderBrentSolver.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="FieldBracketingNthOrderBrentSolver.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="FieldBracketingNthOrderBrentSolver.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.solvers;
+<a class="jxr_linenumber" name="L18" href="FieldBracketingNthOrderBrentSolver.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="FieldBracketingNthOrderBrentSolver.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="FieldBracketingNthOrderBrentSolver.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.Field;
+<a class="jxr_linenumber" name="L21" href="FieldBracketingNthOrderBrentSolver.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.RealFieldElement;
+<a class="jxr_linenumber" name="L22" href="FieldBracketingNthOrderBrentSolver.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.RealFieldUnivariateFunction;
+<a class="jxr_linenumber" name="L23" href="FieldBracketingNthOrderBrentSolver.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathInternalError;
+<a class="jxr_linenumber" name="L24" href="FieldBracketingNthOrderBrentSolver.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoBracketingException;
+<a class="jxr_linenumber" name="L25" href="FieldBracketingNthOrderBrentSolver.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NullArgumentException;
+<a class="jxr_linenumber" name="L26" href="FieldBracketingNthOrderBrentSolver.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L27" href="FieldBracketingNthOrderBrentSolver.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.IntegerSequence;
+<a class="jxr_linenumber" name="L28" href="FieldBracketingNthOrderBrentSolver.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L29" href="FieldBracketingNthOrderBrentSolver.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathUtils;
+<a class="jxr_linenumber" name="L30" href="FieldBracketingNthOrderBrentSolver.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Precision;
+<a class="jxr_linenumber" name="L31" href="FieldBracketingNthOrderBrentSolver.html#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="FieldBracketingNthOrderBrentSolver.html#L32">32</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L33" href="FieldBracketingNthOrderBrentSolver.html#L33">33</a>  <em class="jxr_javadoccomment"> * This class implements a modification of the &lt;a</em>
+<a class="jxr_linenumber" name="L34" href="FieldBracketingNthOrderBrentSolver.html#L34">34</a>  <em class="jxr_javadoccomment"> * href="<a href="http://mathworld.wolfram.com/BrentsMethod.html" target="alexandria_uri">http://mathworld.wolfram.com/BrentsMethod.html</a>"&gt; Brent algorithm&lt;/a&gt;.</em>
+<a class="jxr_linenumber" name="L35" href="FieldBracketingNthOrderBrentSolver.html#L35">35</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L36" href="FieldBracketingNthOrderBrentSolver.html#L36">36</a>  <em class="jxr_javadoccomment"> * The changes with respect to the original Brent algorithm are:</em>
+<a class="jxr_linenumber" name="L37" href="FieldBracketingNthOrderBrentSolver.html#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L38" href="FieldBracketingNthOrderBrentSolver.html#L38">38</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;the returned value is chosen in the current interval according</em>
+<a class="jxr_linenumber" name="L39" href="FieldBracketingNthOrderBrentSolver.html#L39">39</a>  <em class="jxr_javadoccomment"> *   to user specified {@link AllowedSolution}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L40" href="FieldBracketingNthOrderBrentSolver.html#L40">40</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;the maximal order for the invert polynomial root search is</em>
+<a class="jxr_linenumber" name="L41" href="FieldBracketingNthOrderBrentSolver.html#L41">41</a>  <em class="jxr_javadoccomment"> *   user-specified instead of being invert quadratic only&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L42" href="FieldBracketingNthOrderBrentSolver.html#L42">42</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;&lt;p&gt;</em>
+<a class="jxr_linenumber" name="L43" href="FieldBracketingNthOrderBrentSolver.html#L43">43</a>  <em class="jxr_javadoccomment"> * The given interval must bracket the root.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L44" href="FieldBracketingNthOrderBrentSolver.html#L44">44</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L45" href="FieldBracketingNthOrderBrentSolver.html#L45">45</a>  <em class="jxr_javadoccomment"> * @param &lt;T&gt; the type of the field elements</em>
+<a class="jxr_linenumber" name="L46" href="FieldBracketingNthOrderBrentSolver.html#L46">46</a>  <em class="jxr_javadoccomment"> * @since 3.6</em>
+<a class="jxr_linenumber" name="L47" href="FieldBracketingNthOrderBrentSolver.html#L47">47</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L48" href="FieldBracketingNthOrderBrentSolver.html#L48">48</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> FieldBracketingNthOrderBrentSolver&lt;T <strong class="jxr_keyword">extends</strong> RealFieldElement&lt;T&gt;&gt;
+<a class="jxr_linenumber" name="L49" href="FieldBracketingNthOrderBrentSolver.html#L49">49</a>      <strong class="jxr_keyword">implements</strong> BracketedRealFieldUnivariateSolver&lt;T&gt; {
+<a class="jxr_linenumber" name="L50" href="FieldBracketingNthOrderBrentSolver.html#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="FieldBracketingNthOrderBrentSolver.html#L51">51</a>     <em class="jxr_javadoccomment">/** Maximal aging triggering an attempt to balance the bracketing interval. */</em>
+<a class="jxr_linenumber" name="L52" href="FieldBracketingNthOrderBrentSolver.html#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> MAXIMAL_AGING = 2;
+<a class="jxr_linenumber" name="L53" href="FieldBracketingNthOrderBrentSolver.html#L53">53</a>  
+<a class="jxr_linenumber" name="L54" href="FieldBracketingNthOrderBrentSolver.html#L54">54</a>      <em class="jxr_javadoccomment">/** Field to which the elements belong. */</em>
+<a class="jxr_linenumber" name="L55" href="FieldBracketingNthOrderBrentSolver.html#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Field&lt;T&gt; field;
+<a class="jxr_linenumber" name="L56" href="FieldBracketingNthOrderBrentSolver.html#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="FieldBracketingNthOrderBrentSolver.html#L57">57</a>      <em class="jxr_javadoccomment">/** Maximal order. */</em>
+<a class="jxr_linenumber" name="L58" href="FieldBracketingNthOrderBrentSolver.html#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maximalOrder;
+<a class="jxr_linenumber" name="L59" href="FieldBracketingNthOrderBrentSolver.html#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="FieldBracketingNthOrderBrentSolver.html#L60">60</a>      <em class="jxr_javadoccomment">/** Function value accuracy. */</em>
+<a class="jxr_linenumber" name="L61" href="FieldBracketingNthOrderBrentSolver.html#L61">61</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> T functionValueAccuracy;
+<a class="jxr_linenumber" name="L62" href="FieldBracketingNthOrderBrentSolver.html#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="FieldBracketingNthOrderBrentSolver.html#L63">63</a>      <em class="jxr_javadoccomment">/** Absolute accuracy. */</em>
+<a class="jxr_linenumber" name="L64" href="FieldBracketingNthOrderBrentSolver.html#L64">64</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> T absoluteAccuracy;
+<a class="jxr_linenumber" name="L65" href="FieldBracketingNthOrderBrentSolver.html#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="FieldBracketingNthOrderBrentSolver.html#L66">66</a>      <em class="jxr_javadoccomment">/** Relative accuracy. */</em>
+<a class="jxr_linenumber" name="L67" href="FieldBracketingNthOrderBrentSolver.html#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> T relativeAccuracy;
+<a class="jxr_linenumber" name="L68" href="FieldBracketingNthOrderBrentSolver.html#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="FieldBracketingNthOrderBrentSolver.html#L69">69</a>      <em class="jxr_javadoccomment">/** Evaluations counter. */</em>
+<a class="jxr_linenumber" name="L70" href="FieldBracketingNthOrderBrentSolver.html#L70">70</a>      <strong class="jxr_keyword">private</strong> IntegerSequence.Incrementor evaluations;
+<a class="jxr_linenumber" name="L71" href="FieldBracketingNthOrderBrentSolver.html#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="FieldBracketingNthOrderBrentSolver.html#L72">72</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L73" href="FieldBracketingNthOrderBrentSolver.html#L73">73</a>  <em class="jxr_javadoccomment">     * Construct a solver.</em>
+<a class="jxr_linenumber" name="L74" href="FieldBracketingNthOrderBrentSolver.html#L74">74</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L75" href="FieldBracketingNthOrderBrentSolver.html#L75">75</a>  <em class="jxr_javadoccomment">     * @param relativeAccuracy Relative accuracy.</em>
+<a class="jxr_linenumber" name="L76" href="FieldBracketingNthOrderBrentSolver.html#L76">76</a>  <em class="jxr_javadoccomment">     * @param absoluteAccuracy Absolute accuracy.</em>
+<a class="jxr_linenumber" name="L77" href="FieldBracketingNthOrderBrentSolver.html#L77">77</a>  <em class="jxr_javadoccomment">     * @param functionValueAccuracy Function value accuracy.</em>
+<a class="jxr_linenumber" name="L78" href="FieldBracketingNthOrderBrentSolver.html#L78">78</a>  <em class="jxr_javadoccomment">     * @param maximalOrder maximal order.</em>
+<a class="jxr_linenumber" name="L79" href="FieldBracketingNthOrderBrentSolver.html#L79">79</a>  <em class="jxr_javadoccomment">     * @exception NumberIsTooSmallException if maximal order is lower than 2</em>
+<a class="jxr_linenumber" name="L80" href="FieldBracketingNthOrderBrentSolver.html#L80">80</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L81" href="FieldBracketingNthOrderBrentSolver.html#L81">81</a>      <strong class="jxr_keyword">public</strong> <a href="FieldBracketingNthOrderBrentSolver.html">FieldBracketingNthOrderBrentSolver</a>(<strong class="jxr_keyword">final</strong> T relativeAccuracy,
+<a class="jxr_linenumber" name="L82" href="FieldBracketingNthOrderBrentSolver.html#L82">82</a>                                                <strong class="jxr_keyword">final</strong> T absoluteAccuracy,
+<a class="jxr_linenumber" name="L83" href="FieldBracketingNthOrderBrentSolver.html#L83">83</a>                                                <strong class="jxr_keyword">final</strong> T functionValueAccuracy,
+<a class="jxr_linenumber" name="L84" href="FieldBracketingNthOrderBrentSolver.html#L84">84</a>                                                <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maximalOrder)
+<a class="jxr_linenumber" name="L85" href="FieldBracketingNthOrderBrentSolver.html#L85">85</a>          <strong class="jxr_keyword">throws</strong> <a href="../../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a> {
+<a class="jxr_linenumber" name="L86" href="FieldBracketingNthOrderBrentSolver.html#L86">86</a>          <strong class="jxr_keyword">if</strong> (maximalOrder &lt; 2) {
+<a class="jxr_linenumber" name="L87" href="FieldBracketingNthOrderBrentSolver.html#L87">87</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(maximalOrder, 2, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L88" href="FieldBracketingNthOrderBrentSolver.html#L88">88</a>          }
+<a class="jxr_linenumber" name="L89" href="FieldBracketingNthOrderBrentSolver.html#L89">89</a>          <strong class="jxr_keyword">this</strong>.field                 = relativeAccuracy.getField();
+<a class="jxr_linenumber" name="L90" href="FieldBracketingNthOrderBrentSolver.html#L90">90</a>          <strong class="jxr_keyword">this</strong>.maximalOrder          = maximalOrder;
+<a class="jxr_linenumber" name="L91" href="FieldBracketingNthOrderBrentSolver.html#L91">91</a>          <strong class="jxr_keyword">this</strong>.absoluteAccuracy      = absoluteAccuracy;
+<a class="jxr_linenumber" name="L92" href="FieldBracketingNthOrderBrentSolver.html#L92">92</a>          <strong class="jxr_keyword">this</strong>.relativeAccuracy      = relativeAccuracy;
+<a class="jxr_linenumber" name="L93" href="FieldBracketingNthOrderBrentSolver.html#L93">93</a>          <strong class="jxr_keyword">this</strong>.functionValueAccuracy = functionValueAccuracy;
+<a class="jxr_linenumber" name="L94" href="FieldBracketingNthOrderBrentSolver.html#L94">94</a>          <strong class="jxr_keyword">this</strong>.evaluations           = IntegerSequence.Incrementor.create();
+<a class="jxr_linenumber" name="L95" href="FieldBracketingNthOrderBrentSolver.html#L95">95</a>      }
+<a class="jxr_linenumber" name="L96" href="FieldBracketingNthOrderBrentSolver.html#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="FieldBracketingNthOrderBrentSolver.html#L97">97</a>      <em class="jxr_javadoccomment">/** Get the maximal order.</em>
+<a class="jxr_linenumber" name="L98" href="FieldBracketingNthOrderBrentSolver.html#L98">98</a>  <em class="jxr_javadoccomment">     * @return maximal order</em>
+<a class="jxr_linenumber" name="L99" href="FieldBracketingNthOrderBrentSolver.html#L99">99</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L100" href="FieldBracketingNthOrderBrentSolver.html#L100">100</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getMaximalOrder() {
+<a class="jxr_linenumber" name="L101" href="FieldBracketingNthOrderBrentSolver.html#L101">101</a>         <strong class="jxr_keyword">return</strong> maximalOrder;
+<a class="jxr_linenumber" name="L102" href="FieldBracketingNthOrderBrentSolver.html#L102">102</a>     }
+<a class="jxr_linenumber" name="L103" href="FieldBracketingNthOrderBrentSolver.html#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="FieldBracketingNthOrderBrentSolver.html#L104">104</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L105" href="FieldBracketingNthOrderBrentSolver.html#L105">105</a> <em class="jxr_javadoccomment">     * Get the maximal number of function evaluations.</em>
+<a class="jxr_linenumber" name="L106" href="FieldBracketingNthOrderBrentSolver.html#L106">106</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L107" href="FieldBracketingNthOrderBrentSolver.html#L107">107</a> <em class="jxr_javadoccomment">     * @return the maximal number of function evaluations.</em>
+<a class="jxr_linenumber" name="L108" href="FieldBracketingNthOrderBrentSolver.html#L108">108</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L109" href="FieldBracketingNthOrderBrentSolver.html#L109">109</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getMaxEvaluations() {
+<a class="jxr_linenumber" name="L110" href="FieldBracketingNthOrderBrentSolver.html#L110">110</a>         <strong class="jxr_keyword">return</strong> evaluations.getMaximalCount();
+<a class="jxr_linenumber" name="L111" href="FieldBracketingNthOrderBrentSolver.html#L111">111</a>     }
+<a class="jxr_linenumber" name="L112" href="FieldBracketingNthOrderBrentSolver.html#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="FieldBracketingNthOrderBrentSolver.html#L113">113</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L114" href="FieldBracketingNthOrderBrentSolver.html#L114">114</a> <em class="jxr_javadoccomment">     * Get the number of evaluations of the objective function.</em>
+<a class="jxr_linenumber" name="L115" href="FieldBracketingNthOrderBrentSolver.html#L115">115</a> <em class="jxr_javadoccomment">     * The number of evaluations corresponds to the last call to the</em>
+<a class="jxr_linenumber" name="L116" href="FieldBracketingNthOrderBrentSolver.html#L116">116</a> <em class="jxr_javadoccomment">     * {@code optimize} method. It is 0 if the method has not been</em>
+<a class="jxr_linenumber" name="L117" href="FieldBracketingNthOrderBrentSolver.html#L117">117</a> <em class="jxr_javadoccomment">     * called yet.</em>
+<a class="jxr_linenumber" name="L118" href="FieldBracketingNthOrderBrentSolver.html#L118">118</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L119" href="FieldBracketingNthOrderBrentSolver.html#L119">119</a> <em class="jxr_javadoccomment">     * @return the number of evaluations of the objective function.</em>
+<a class="jxr_linenumber" name="L120" href="FieldBracketingNthOrderBrentSolver.html#L120">120</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L121" href="FieldBracketingNthOrderBrentSolver.html#L121">121</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getEvaluations() {
+<a class="jxr_linenumber" name="L122" href="FieldBracketingNthOrderBrentSolver.html#L122">122</a>         <strong class="jxr_keyword">return</strong> evaluations.getCount();
+<a class="jxr_linenumber" name="L123" href="FieldBracketingNthOrderBrentSolver.html#L123">123</a>     }
+<a class="jxr_linenumber" name="L124" href="FieldBracketingNthOrderBrentSolver.html#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="FieldBracketingNthOrderBrentSolver.html#L125">125</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L126" href="FieldBracketingNthOrderBrentSolver.html#L126">126</a> <em class="jxr_javadoccomment">     * Get the absolute accuracy.</em>
+<a class="jxr_linenumber" name="L127" href="FieldBracketingNthOrderBrentSolver.html#L127">127</a> <em class="jxr_javadoccomment">     * @return absolute accuracy</em>
+<a class="jxr_linenumber" name="L128" href="FieldBracketingNthOrderBrentSolver.html#L128">128</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L129" href="FieldBracketingNthOrderBrentSolver.html#L129">129</a>     <strong class="jxr_keyword">public</strong> T getAbsoluteAccuracy() {
+<a class="jxr_linenumber" name="L130" href="FieldBracketingNthOrderBrentSolver.html#L130">130</a>         <strong class="jxr_keyword">return</strong> absoluteAccuracy;
+<a class="jxr_linenumber" name="L131" href="FieldBracketingNthOrderBrentSolver.html#L131">131</a>     }
+<a class="jxr_linenumber" name="L132" href="FieldBracketingNthOrderBrentSolver.html#L132">132</a> 
+<a class="jxr_linenumber" name="L133" href="FieldBracketingNthOrderBrentSolver.html#L133">133</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L134" href="FieldBracketingNthOrderBrentSolver.html#L134">134</a> <em class="jxr_javadoccomment">     * Get the relative accuracy.</em>
+<a class="jxr_linenumber" name="L135" href="FieldBracketingNthOrderBrentSolver.html#L135">135</a> <em class="jxr_javadoccomment">     * @return relative accuracy</em>
+<a class="jxr_linenumber" name="L136" href="FieldBracketingNthOrderBrentSolver.html#L136">136</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L137" href="FieldBracketingNthOrderBrentSolver.html#L137">137</a>     <strong class="jxr_keyword">public</strong> T getRelativeAccuracy() {
+<a class="jxr_linenumber" name="L138" href="FieldBracketingNthOrderBrentSolver.html#L138">138</a>         <strong class="jxr_keyword">return</strong> relativeAccuracy;
+<a class="jxr_linenumber" name="L139" href="FieldBracketingNthOrderBrentSolver.html#L139">139</a>     }
+<a class="jxr_linenumber" name="L140" href="FieldBracketingNthOrderBrentSolver.html#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="FieldBracketingNthOrderBrentSolver.html#L141">141</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L142" href="FieldBracketingNthOrderBrentSolver.html#L142">142</a> <em class="jxr_javadoccomment">     * Get the function accuracy.</em>
+<a class="jxr_linenumber" name="L143" href="FieldBracketingNthOrderBrentSolver.html#L143">143</a> <em class="jxr_javadoccomment">     * @return function accuracy</em>
+<a class="jxr_linenumber" name="L144" href="FieldBracketingNthOrderBrentSolver.html#L144">144</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L145" href="FieldBracketingNthOrderBrentSolver.html#L145">145</a>     <strong class="jxr_keyword">public</strong> T getFunctionValueAccuracy() {
+<a class="jxr_linenumber" name="L146" href="FieldBracketingNthOrderBrentSolver.html#L146">146</a>         <strong class="jxr_keyword">return</strong> functionValueAccuracy;
+<a class="jxr_linenumber" name="L147" href="FieldBracketingNthOrderBrentSolver.html#L147">147</a>     }
+<a class="jxr_linenumber" name="L148" href="FieldBracketingNthOrderBrentSolver.html#L148">148</a> 
+<a class="jxr_linenumber" name="L149" href="FieldBracketingNthOrderBrentSolver.html#L149">149</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L150" href="FieldBracketingNthOrderBrentSolver.html#L150">150</a> <em class="jxr_javadoccomment">     * Solve for a zero in the given interval.</em>
+<a class="jxr_linenumber" name="L151" href="FieldBracketingNthOrderBrentSolver.html#L151">151</a> <em class="jxr_javadoccomment">     * A solver may require that the interval brackets a single zero root.</em>
+<a class="jxr_linenumber" name="L152" href="FieldBracketingNthOrderBrentSolver.html#L152">152</a> <em class="jxr_javadoccomment">     * Solvers that do require bracketing should be able to handle the case</em>
+<a class="jxr_linenumber" name="L153" href="FieldBracketingNthOrderBrentSolver.html#L153">153</a> <em class="jxr_javadoccomment">     * where one of the endpoints is itself a root.</em>
+<a class="jxr_linenumber" name="L154" href="FieldBracketingNthOrderBrentSolver.html#L154">154</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L155" href="FieldBracketingNthOrderBrentSolver.html#L155">155</a> <em class="jxr_javadoccomment">     * @param maxEval Maximum number of evaluations.</em>
+<a class="jxr_linenumber" name="L156" href="FieldBracketingNthOrderBrentSolver.html#L156">156</a> <em class="jxr_javadoccomment">     * @param f Function to solve.</em>
+<a class="jxr_linenumber" name="L157" href="FieldBracketingNthOrderBrentSolver.html#L157">157</a> <em class="jxr_javadoccomment">     * @param min Lower bound for the interval.</em>
+<a class="jxr_linenumber" name="L158" href="FieldBracketingNthOrderBrentSolver.html#L158">158</a> <em class="jxr_javadoccomment">     * @param max Upper bound for the interval.</em>
+<a class="jxr_linenumber" name="L159" href="FieldBracketingNthOrderBrentSolver.html#L159">159</a> <em class="jxr_javadoccomment">     * @param allowedSolution The kind of solutions that the root-finding algorithm may</em>
+<a class="jxr_linenumber" name="L160" href="FieldBracketingNthOrderBrentSolver.html#L160">160</a> <em class="jxr_javadoccomment">     * accept as solutions.</em>
+<a class="jxr_linenumber" name="L161" href="FieldBracketingNthOrderBrentSolver.html#L161">161</a> <em class="jxr_javadoccomment">     * @return a value where the function is zero.</em>
+<a class="jxr_linenumber" name="L162" href="FieldBracketingNthOrderBrentSolver.html#L162">162</a> <em class="jxr_javadoccomment">     * @exception NullArgumentException if f is null.</em>
+<a class="jxr_linenumber" name="L163" href="FieldBracketingNthOrderBrentSolver.html#L163">163</a> <em class="jxr_javadoccomment">     * @exception NoBracketingException if root cannot be bracketed</em>
+<a class="jxr_linenumber" name="L164" href="FieldBracketingNthOrderBrentSolver.html#L164">164</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L165" href="FieldBracketingNthOrderBrentSolver.html#L165">165</a>     <strong class="jxr_keyword">public</strong> T solve(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxEval, <strong class="jxr_keyword">final</strong> RealFieldUnivariateFunction&lt;T&gt; f,
+<a class="jxr_linenumber" name="L166" href="FieldBracketingNthOrderBrentSolver.html#L166">166</a>                    <strong class="jxr_keyword">final</strong> T min, <strong class="jxr_keyword">final</strong> T max, <strong class="jxr_keyword">final</strong> <a href="AllowedSolution.html">AllowedSolution</a> allowedSolution)
+<a class="jxr_linenumber" name="L167" href="FieldBracketingNthOrderBrentSolver.html#L167">167</a>         <strong class="jxr_keyword">throws</strong> NullArgumentException, <a href="../../exception/NoBracketingException.html">NoBracketingException</a> {
+<a class="jxr_linenumber" name="L168" href="FieldBracketingNthOrderBrentSolver.html#L168">168</a>         <strong class="jxr_keyword">return</strong> solve(maxEval, f, min, max, min.add(max).divide(2), allowedSolution);
+<a class="jxr_linenumber" name="L169" href="FieldBracketingNthOrderBrentSolver.html#L169">169</a>     }
+<a class="jxr_linenumber" name="L170" href="FieldBracketingNthOrderBrentSolver.html#L170">170</a> 
+<a class="jxr_linenumber" name="L171" href="FieldBracketingNthOrderBrentSolver.html#L171">171</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L172" href="FieldBracketingNthOrderBrentSolver.html#L172">172</a> <em class="jxr_javadoccomment">     * Solve for a zero in the given interval, start at {@code startValue}.</em>
+<a class="jxr_linenumber" name="L173" href="FieldBracketingNthOrderBrentSolver.html#L173">173</a> <em class="jxr_javadoccomment">     * A solver may require that the interval brackets a single zero root.</em>
+<a class="jxr_linenumber" name="L174" href="FieldBracketingNthOrderBrentSolver.html#L174">174</a> <em class="jxr_javadoccomment">     * Solvers that do require bracketing should be able to handle the case</em>
+<a class="jxr_linenumber" name="L175" href="FieldBracketingNthOrderBrentSolver.html#L175">175</a> <em class="jxr_javadoccomment">     * where one of the endpoints is itself a root.</em>
+<a class="jxr_linenumber" name="L176" href="FieldBracketingNthOrderBrentSolver.html#L176">176</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L177" href="FieldBracketingNthOrderBrentSolver.html#L177">177</a> <em class="jxr_javadoccomment">     * @param maxEval Maximum number of evaluations.</em>
+<a class="jxr_linenumber" name="L178" href="FieldBracketingNthOrderBrentSolver.html#L178">178</a> <em class="jxr_javadoccomment">     * @param f Function to solve.</em>
+<a class="jxr_linenumber" name="L179" href="FieldBracketingNthOrderBrentSolver.html#L179">179</a> <em class="jxr_javadoccomment">     * @param min Lower bound for the interval.</em>
+<a class="jxr_linenumber" name="L180" href="FieldBracketingNthOrderBrentSolver.html#L180">180</a> <em class="jxr_javadoccomment">     * @param max Upper bound for the interval.</em>
+<a class="jxr_linenumber" name="L181" href="FieldBracketingNthOrderBrentSolver.html#L181">181</a> <em class="jxr_javadoccomment">     * @param startValue Start value to use.</em>
+<a class="jxr_linenumber" name="L182" href="FieldBracketingNthOrderBrentSolver.html#L182">182</a> <em class="jxr_javadoccomment">     * @param allowedSolution The kind of solutions that the root-finding algorithm may</em>
+<a class="jxr_linenumber" name="L183" href="FieldBracketingNthOrderBrentSolver.html#L183">183</a> <em class="jxr_javadoccomment">     * accept as solutions.</em>
+<a class="jxr_linenumber" name="L184" href="FieldBracketingNthOrderBrentSolver.html#L184">184</a> <em class="jxr_javadoccomment">     * @return a value where the function is zero.</em>
+<a class="jxr_linenumber" name="L185" href="FieldBracketingNthOrderBrentSolver.html#L185">185</a> <em class="jxr_javadoccomment">     * @exception NullArgumentException if f is null.</em>
+<a class="jxr_linenumber" name="L186" href="FieldBracketingNthOrderBrentSolver.html#L186">186</a> <em class="jxr_javadoccomment">     * @exception NoBracketingException if root cannot be bracketed</em>
+<a class="jxr_linenumber" name="L187" href="FieldBracketingNthOrderBrentSolver.html#L187">187</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L188" href="FieldBracketingNthOrderBrentSolver.html#L188">188</a>     <strong class="jxr_keyword">public</strong> T solve(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxEval, <strong class="jxr_keyword">final</strong> RealFieldUnivariateFunction&lt;T&gt; f,
+<a class="jxr_linenumber" name="L189" href="FieldBracketingNthOrderBrentSolver.html#L189">189</a>                    <strong class="jxr_keyword">final</strong> T min, <strong class="jxr_keyword">final</strong> T max, <strong class="jxr_keyword">final</strong> T startValue,
+<a class="jxr_linenumber" name="L190" href="FieldBracketingNthOrderBrentSolver.html#L190">190</a>                    <strong class="jxr_keyword">final</strong> <a href="AllowedSolution.html">AllowedSolution</a> allowedSolution)
+<a class="jxr_linenumber" name="L191" href="FieldBracketingNthOrderBrentSolver.html#L191">191</a>         <strong class="jxr_keyword">throws</strong> NullArgumentException, <a href="../../exception/NoBracketingException.html">NoBracketingException</a> {
+<a class="jxr_linenumber" name="L192" href="FieldBracketingNthOrderBrentSolver.html#L192">192</a> 
+<a class="jxr_linenumber" name="L193" href="FieldBracketingNthOrderBrentSolver.html#L193">193</a>         <em class="jxr_comment">// Checks.</em>
+<a class="jxr_linenumber" name="L194" href="FieldBracketingNthOrderBrentSolver.html#L194">194</a>         MathUtils.checkNotNull(f);
+<a class="jxr_linenumber" name="L195" href="FieldBracketingNthOrderBrentSolver.html#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="FieldBracketingNthOrderBrentSolver.html#L196">196</a>         <em class="jxr_comment">// Reset.</em>
+<a class="jxr_linenumber" name="L197" href="FieldBracketingNthOrderBrentSolver.html#L197">197</a>         evaluations = evaluations.withMaximalCount(maxEval).withStart(0);
+<a class="jxr_linenumber" name="L198" href="FieldBracketingNthOrderBrentSolver.html#L198">198</a>         T zero = field.getZero();
+<a class="jxr_linenumber" name="L199" href="FieldBracketingNthOrderBrentSolver.html#L199">199</a>         T nan  = zero.add(Double.NaN);
+<a class="jxr_linenumber" name="L200" href="FieldBracketingNthOrderBrentSolver.html#L200">200</a> 
+<a class="jxr_linenumber" name="L201" href="FieldBracketingNthOrderBrentSolver.html#L201">201</a>         <em class="jxr_comment">// prepare arrays with the first points</em>
+<a class="jxr_linenumber" name="L202" href="FieldBracketingNthOrderBrentSolver.html#L202">202</a>         <strong class="jxr_keyword">final</strong> T[] x = MathArrays.buildArray(field, maximalOrder + 1);
+<a class="jxr_linenumber" name="L203" href="FieldBracketingNthOrderBrentSolver.html#L203">203</a>         <strong class="jxr_keyword">final</strong> T[] y = MathArrays.buildArray(field, maximalOrder + 1);
+<a class="jxr_linenumber" name="L204" href="FieldBracketingNthOrderBrentSolver.html#L204">204</a>         x[0] = min;
+<a class="jxr_linenumber" name="L205" href="FieldBracketingNthOrderBrentSolver.html#L205">205</a>         x[1] = startValue;
+<a class="jxr_linenumber" name="L206" href="FieldBracketingNthOrderBrentSolver.html#L206">206</a>         x[2] = max;
+<a class="jxr_linenumber" name="L207" href="FieldBracketingNthOrderBrentSolver.html#L207">207</a> 
+<a class="jxr_linenumber" name="L208" href="FieldBracketingNthOrderBrentSolver.html#L208">208</a>         <em class="jxr_comment">// evaluate initial guess</em>
+<a class="jxr_linenumber" name="L209" href="FieldBracketingNthOrderBrentSolver.html#L209">209</a>         evaluations.increment();
+<a class="jxr_linenumber" name="L210" href="FieldBracketingNthOrderBrentSolver.html#L210">210</a>         y[1] = f.value(x[1]);
+<a class="jxr_linenumber" name="L211" href="FieldBracketingNthOrderBrentSolver.html#L211">211</a>         <strong class="jxr_keyword">if</strong> (Precision.equals(y[1].getReal(), 0.0, 1)) {
+<a class="jxr_linenumber" name="L212" href="FieldBracketingNthOrderBrentSolver.html#L212">212</a>             <em class="jxr_comment">// return the initial guess if it is a perfect root.</em>
+<a class="jxr_linenumber" name="L213" href="FieldBracketingNthOrderBrentSolver.html#L213">213</a>             <strong class="jxr_keyword">return</strong> x[1];
+<a class="jxr_linenumber" name="L214" href="FieldBracketingNthOrderBrentSolver.html#L214">214</a>         }
+<a class="jxr_linenumber" name="L215" href="FieldBracketingNthOrderBrentSolver.html#L215">215</a> 
+<a class="jxr_linenumber" name="L216" href="FieldBracketingNthOrderBrentSolver.html#L216">216</a>         <em class="jxr_comment">// evaluate first endpoint</em>
+<a class="jxr_linenumber" name="L217" href="FieldBracketingNthOrderBrentSolver.html#L217">217</a>         evaluations.increment();
+<a class="jxr_linenumber" name="L218" href="FieldBracketingNthOrderBrentSolver.html#L218">218</a>         y[0] = f.value(x[0]);
+<a class="jxr_linenumber" name="L219" href="FieldBracketingNthOrderBrentSolver.html#L219">219</a>         <strong class="jxr_keyword">if</strong> (Precision.equals(y[0].getReal(), 0.0, 1)) {
+<a class="jxr_linenumber" name="L220" href="FieldBracketingNthOrderBrentSolver.html#L220">220</a>             <em class="jxr_comment">// return the first endpoint if it is a perfect root.</em>
+<a class="jxr_linenumber" name="L221" href="FieldBracketingNthOrderBrentSolver.html#L221">221</a>             <strong class="jxr_keyword">return</strong> x[0];
+<a class="jxr_linenumber" name="L222" href="FieldBracketingNthOrderBrentSolver.html#L222">222</a>         }
+<a class="jxr_linenumber" name="L223" href="FieldBracketingNthOrderBrentSolver.html#L223">223</a> 
+<a class="jxr_linenumber" name="L224" href="FieldBracketingNthOrderBrentSolver.html#L224">224</a>         <strong class="jxr_keyword">int</strong> nbPoints;
+<a class="jxr_linenumber" name="L225" href="FieldBracketingNthOrderBrentSolver.html#L225">225</a>         <strong class="jxr_keyword">int</strong> signChangeIndex;
+<a class="jxr_linenumber" name="L226" href="FieldBracketingNthOrderBrentSolver.html#L226">226</a>         <strong class="jxr_keyword">if</strong> (y[0].multiply(y[1]).getReal() &lt; 0) {
+<a class="jxr_linenumber" name="L227" href="FieldBracketingNthOrderBrentSolver.html#L227">227</a> 
+<a class="jxr_linenumber" name="L228" href="FieldBracketingNthOrderBrentSolver.html#L228">228</a>             <em class="jxr_comment">// reduce interval if it brackets the root</em>
+<a class="jxr_linenumber" name="L229" href="FieldBracketingNthOrderBrentSolver.html#L229">229</a>             nbPoints        = 2;
+<a class="jxr_linenumber" name="L230" href="FieldBracketingNthOrderBrentSolver.html#L230">230</a>             signChangeIndex = 1;
+<a class="jxr_linenumber" name="L231" href="FieldBracketingNthOrderBrentSolver.html#L231">231</a> 
+<a class="jxr_linenumber" name="L232" href="FieldBracketingNthOrderBrentSolver.html#L232">232</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L233" href="FieldBracketingNthOrderBrentSolver.html#L233">233</a> 
+<a class="jxr_linenumber" name="L234" href="FieldBracketingNthOrderBrentSolver.html#L234">234</a>             <em class="jxr_comment">// evaluate second endpoint</em>
+<a class="jxr_linenumber" name="L235" href="FieldBracketingNthOrderBrentSolver.html#L235">235</a>             evaluations.increment();
+<a class="jxr_linenumber" name="L236" href="FieldBracketingNthOrderBrentSolver.html#L236">236</a>             y[2] = f.value(x[2]);
+<a class="jxr_linenumber" name="L237" href="FieldBracketingNthOrderBrentSolver.html#L237">237</a>             <strong class="jxr_keyword">if</strong> (Precision.equals(y[2].getReal(), 0.0, 1)) {
+<a class="jxr_linenumber" name="L238" href="FieldBracketingNthOrderBrentSolver.html#L238">238</a>                 <em class="jxr_comment">// return the second endpoint if it is a perfect root.</em>
+<a class="jxr_linenumber" name="L239" href="FieldBracketingNthOrderBrentSolver.html#L239">239</a>                 <strong class="jxr_keyword">return</strong> x[2];
+<a class="jxr_linenumber" name="L240" href="FieldBracketingNthOrderBrentSolver.html#L240">240</a>             }
+<a class="jxr_linenumber" name="L241" href="FieldBracketingNthOrderBrentSolver.html#L241">241</a> 
+<a class="jxr_linenumber" name="L242" href="FieldBracketingNthOrderBrentSolver.html#L242">242</a>             <strong class="jxr_keyword">if</strong> (y[1].multiply(y[2]).getReal() &lt; 0) {
+<a class="jxr_linenumber" name="L243" href="FieldBracketingNthOrderBrentSolver.html#L243">243</a>                 <em class="jxr_comment">// use all computed point as a start sampling array for solving</em>
+<a class="jxr_linenumber" name="L244" href="FieldBracketingNthOrderBrentSolver.html#L244">244</a>                 nbPoints        = 3;
+<a class="jxr_linenumber" name="L245" href="FieldBracketingNthOrderBrentSolver.html#L245">245</a>                 signChangeIndex = 2;
+<a class="jxr_linenumber" name="L246" href="FieldBracketingNthOrderBrentSolver.html#L246">246</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L247" href="FieldBracketingNthOrderBrentSolver.html#L247">247</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NoBracketingException.html">NoBracketingException</a>(x[0].getReal(), x[2].getReal(),
+<a class="jxr_linenumber" name="L248" href="FieldBracketingNthOrderBrentSolver.html#L248">248</a>                                                 y[0].getReal(), y[2].getReal());
+<a class="jxr_linenumber" name="L249" href="FieldBracketingNthOrderBrentSolver.html#L249">249</a>             }
+<a class="jxr_linenumber" name="L250" href="FieldBracketingNthOrderBrentSolver.html#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="FieldBracketingNthOrderBrentSolver.html#L251">251</a>         }
+<a class="jxr_linenumber" name="L252" href="FieldBracketingNthOrderBrentSolver.html#L252">252</a> 
+<a class="jxr_linenumber" name="L253" href="FieldBracketingNthOrderBrentSolver.html#L253">253</a>         <em class="jxr_comment">// prepare a work array for inverse polynomial interpolation</em>
+<a class="jxr_linenumber" name="L254" href="FieldBracketingNthOrderBrentSolver.html#L254">254</a>         <strong class="jxr_keyword">final</strong> T[] tmpX = MathArrays.buildArray(field, x.length);
+<a class="jxr_linenumber" name="L255" href="FieldBracketingNthOrderBrentSolver.html#L255">255</a> 
+<a class="jxr_linenumber" name="L256" href="FieldBracketingNthOrderBrentSolver.html#L256">256</a>         <em class="jxr_comment">// current tightest bracketing of the root</em>
+<a class="jxr_linenumber" name="L257" href="FieldBracketingNthOrderBrentSolver.html#L257">257</a>         T xA    = x[signChangeIndex - 1];
+<a class="jxr_linenumber" name="L258" href="FieldBracketingNthOrderBrentSolver.html#L258">258</a>         T yA    = y[signChangeIndex - 1];
+<a class="jxr_linenumber" name="L259" href="FieldBracketingNthOrderBrentSolver.html#L259">259</a>         T absXA = xA.abs();
+<a class="jxr_linenumber" name="L260" href="FieldBracketingNthOrderBrentSolver.html#L260">260</a>         T absYA = yA.abs();
+<a class="jxr_linenumber" name="L261" href="FieldBracketingNthOrderBrentSolver.html#L261">261</a>         <strong class="jxr_keyword">int</strong> agingA   = 0;
+<a class="jxr_linenumber" name="L262" href="FieldBracketingNthOrderBrentSolver.html#L262">262</a>         T xB    = x[signChangeIndex];
+<a class="jxr_linenumber" name="L263" href="FieldBracketingNthOrderBrentSolver.html#L263">263</a>         T yB    = y[signChangeIndex];
+<a class="jxr_linenumber" name="L264" href="FieldBracketingNthOrderBrentSolver.html#L264">264</a>         T absXB = xB.abs();
+<a class="jxr_linenumber" name="L265" href="FieldBracketingNthOrderBrentSolver.html#L265">265</a>         T absYB = yB.abs();
+<a class="jxr_linenumber" name="L266" href="FieldBracketingNthOrderBrentSolver.html#L266">266</a>         <strong class="jxr_keyword">int</strong> agingB   = 0;
+<a class="jxr_linenumber" name="L267" href="FieldBracketingNthOrderBrentSolver.html#L267">267</a> 
+<a class="jxr_linenumber" name="L268" href="FieldBracketingNthOrderBrentSolver.html#L268">268</a>         <em class="jxr_comment">// search loop</em>
+<a class="jxr_linenumber" name="L269" href="FieldBracketingNthOrderBrentSolver.html#L269">269</a>         <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
+<a class="jxr_linenumber" name="L270" href="FieldBracketingNthOrderBrentSolver.html#L270">270</a> 
+<a class="jxr_linenumber" name="L271" href="FieldBracketingNthOrderBrentSolver.html#L271">271</a>             <em class="jxr_comment">// check convergence of bracketing interval</em>
+<a class="jxr_linenumber" name="L272" href="FieldBracketingNthOrderBrentSolver.html#L272">272</a>             T maxX = absXA.subtract(absXB).getReal() &lt; 0 ? absXB : absXA;
+<a class="jxr_linenumber" name="L273" href="FieldBracketingNthOrderBrentSolver.html#L273">273</a>             T maxY = absYA.subtract(absYB).getReal() &lt; 0 ? absYB : absYA;
+<a class="jxr_linenumber" name="L274" href="FieldBracketingNthOrderBrentSolver.html#L274">274</a>             <strong class="jxr_keyword">final</strong> T xTol = absoluteAccuracy.add(relativeAccuracy.multiply(maxX));
+<a class="jxr_linenumber" name="L275" href="FieldBracketingNthOrderBrentSolver.html#L275">275</a>             <strong class="jxr_keyword">if</strong> (xB.subtract(xA).subtract(xTol).getReal() &lt;= 0 ||
+<a class="jxr_linenumber" name="L276" href="FieldBracketingNthOrderBrentSolver.html#L276">276</a>                 maxY.subtract(functionValueAccuracy).getReal() &lt; 0) {
+<a class="jxr_linenumber" name="L277" href="FieldBracketingNthOrderBrentSolver.html#L277">277</a>                 <strong class="jxr_keyword">switch</strong> (allowedSolution) {
+<a class="jxr_linenumber" name="L278" href="FieldBracketingNthOrderBrentSolver.html#L278">278</a>                 <strong class="jxr_keyword">case</strong> ANY_SIDE :
+<a class="jxr_linenumber" name="L279" href="FieldBracketingNthOrderBrentSolver.html#L279">279</a>                     <strong class="jxr_keyword">return</strong> absYA.subtract(absYB).getReal() &lt; 0 ? xA : xB;
+<a class="jxr_linenumber" name="L280" href="FieldBracketingNthOrderBrentSolver.html#L280">280</a>                 <strong class="jxr_keyword">case</strong> LEFT_SIDE :
+<a class="jxr_linenumber" name="L281" href="FieldBracketingNthOrderBrentSolver.html#L281">281</a>                     <strong class="jxr_keyword">return</strong> xA;
+<a class="jxr_linenumber" name="L282" href="FieldBracketingNthOrderBrentSolver.html#L282">282</a>                 <strong class="jxr_keyword">case</strong> RIGHT_SIDE :
+<a class="jxr_linenumber" name="L283" href="FieldBracketingNthOrderBrentSolver.html#L283">283</a>                     <strong class="jxr_keyword">return</strong> xB;
+<a class="jxr_linenumber" name="L284" href="FieldBracketingNthOrderBrentSolver.html#L284">284</a>                 <strong class="jxr_keyword">case</strong> BELOW_SIDE :
+<a class="jxr_linenumber" name="L285" href="FieldBracketingNthOrderBrentSolver.html#L285">285</a>                     <strong class="jxr_keyword">return</strong> yA.getReal() &lt;= 0 ? xA : xB;
+<a class="jxr_linenumber" name="L286" href="FieldBracketingNthOrderBrentSolver.html#L286">286</a>                 <strong class="jxr_keyword">case</strong> ABOVE_SIDE :
+<a class="jxr_linenumber" name="L287" href="FieldBracketingNthOrderBrentSolver.html#L287">287</a>                     <strong class="jxr_keyword">return</strong> yA.getReal() &lt; 0 ? xB : xA;
+<a class="jxr_linenumber" name="L288" href="FieldBracketingNthOrderBrentSolver.html#L288">288</a>                 <strong class="jxr_keyword">default</strong> :
+<a class="jxr_linenumber" name="L289" href="FieldBracketingNthOrderBrentSolver.html#L289">289</a>                     <em class="jxr_comment">// this should never happen</em>
+<a class="jxr_linenumber" name="L290" href="FieldBracketingNthOrderBrentSolver.html#L290">290</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/MathInternalError.html">MathInternalError</a>(<strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L291" href="FieldBracketingNthOrderBrentSolver.html#L291">291</a>                 }
+<a class="jxr_linenumber" name="L292" href="FieldBracketingNthOrderBrentSolver.html#L292">292</a>             }
+<a class="jxr_linenumber" name="L293" href="FieldBracketingNthOrderBrentSolver.html#L293">293</a> 
+<a class="jxr_linenumber" name="L294" href="FieldBracketingNthOrderBrentSolver.html#L294">294</a>             <em class="jxr_comment">// target for the next evaluation point</em>
+<a class="jxr_linenumber" name="L295" href="FieldBracketingNthOrderBrentSolver.html#L295">295</a>             T targetY;
+<a class="jxr_linenumber" name="L296" href="FieldBracketingNthOrderBrentSolver.html#L296">296</a>             <strong class="jxr_keyword">if</strong> (agingA &gt;= MAXIMAL_AGING) {
+<a class="jxr_linenumber" name="L297" href="FieldBracketingNthOrderBrentSolver.html#L297">297</a>                 <em class="jxr_comment">// we keep updating the high bracket, try to compensate this</em>
+<a class="jxr_linenumber" name="L298" href="FieldBracketingNthOrderBrentSolver.html#L298">298</a>                 targetY = yB.divide(16).negate();
+<a class="jxr_linenumber" name="L299" href="FieldBracketingNthOrderBrentSolver.html#L299">299</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (agingB &gt;= MAXIMAL_AGING) {
+<a class="jxr_linenumber" name="L300" href="FieldBracketingNthOrderBrentSolver.html#L300">300</a>                 <em class="jxr_comment">// we keep updating the low bracket, try to compensate this</em>
+<a class="jxr_linenumber" name="L301" href="FieldBracketingNthOrderBrentSolver.html#L301">301</a>                 targetY = yA.divide(16).negate();
+<a class="jxr_linenumber" name="L302" href="FieldBracketingNthOrderBrentSolver.html#L302">302</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L303" href="FieldBracketingNthOrderBrentSolver.html#L303">303</a>                 <em class="jxr_comment">// bracketing is balanced, try to find the root itself</em>
+<a class="jxr_linenumber" name="L304" href="FieldBracketingNthOrderBrentSolver.html#L304">304</a>                 targetY = zero;
+<a class="jxr_linenumber" name="L305" href="FieldBracketingNthOrderBrentSolver.html#L305">305</a>             }
+<a class="jxr_linenumber" name="L306" href="FieldBracketingNthOrderBrentSolver.html#L306">306</a> 
+<a class="jxr_linenumber" name="L307" href="FieldBracketingNthOrderBrentSolver.html#L307">307</a>             <em class="jxr_comment">// make a few attempts to guess a root,</em>
+<a class="jxr_linenumber" name="L308" href="FieldBracketingNthOrderBrentSolver.html#L308">308</a>             T nextX;
+<a class="jxr_linenumber" name="L309" href="FieldBracketingNthOrderBrentSolver.html#L309">309</a>             <strong class="jxr_keyword">int</strong> start = 0;
+<a class="jxr_linenumber" name="L310" href="FieldBracketingNthOrderBrentSolver.html#L310">310</a>             <strong class="jxr_keyword">int</strong> end   = nbPoints;
+<a class="jxr_linenumber" name="L311" href="FieldBracketingNthOrderBrentSolver.html#L311">311</a>             <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L312" href="FieldBracketingNthOrderBrentSolver.html#L312">312</a> 
+<a class="jxr_linenumber" name="L313" href="FieldBracketingNthOrderBrentSolver.html#L313">313</a>                 <em class="jxr_comment">// guess a value for current target, using inverse polynomial interpolation</em>
+<a class="jxr_linenumber" name="L314" href="FieldBracketingNthOrderBrentSolver.html#L314">314</a>                 System.arraycopy(x, start, tmpX, start, end - start);
+<a class="jxr_linenumber" name="L315" href="FieldBracketingNthOrderBrentSolver.html#L315">315</a>                 nextX = guessX(targetY, tmpX, y, start, end);
+<a class="jxr_linenumber" name="L316" href="FieldBracketingNthOrderBrentSolver.html#L316">316</a> 
+<a class="jxr_linenumber" name="L317" href="FieldBracketingNthOrderBrentSolver.html#L317">317</a>                 <strong class="jxr_keyword">if</strong> (!((nextX.subtract(xA).getReal() &gt; 0) &amp;&amp; (nextX.subtract(xB).getReal() &lt; 0))) {
+<a class="jxr_linenumber" name="L318" href="FieldBracketingNthOrderBrentSolver.html#L318">318</a>                     <em class="jxr_comment">// the guessed root is not strictly inside of the tightest bracketing interval</em>
+<a class="jxr_linenumber" name="L319" href="FieldBracketingNthOrderBrentSolver.html#L319">319</a> 
+<a class="jxr_linenumber" name="L320" href="FieldBracketingNthOrderBrentSolver.html#L320">320</a>                     <em class="jxr_comment">// the guessed root is either not strictly inside the interval or it</em>
+<a class="jxr_linenumber" name="L321" href="FieldBracketingNthOrderBrentSolver.html#L321">321</a>                     <em class="jxr_comment">// is a NaN (which occurs when some sampling points share the same y)</em>
+<a class="jxr_linenumber" name="L322" href="FieldBracketingNthOrderBrentSolver.html#L322">322</a>                     <em class="jxr_comment">// we try again with a lower interpolation order</em>
+<a class="jxr_linenumber" name="L323" href="FieldBracketingNthOrderBrentSolver.html#L323">323</a>                     <strong class="jxr_keyword">if</strong> (signChangeIndex - start &gt;= end - signChangeIndex) {
+<a class="jxr_linenumber" name="L324" href="FieldBracketingNthOrderBrentSolver.html#L324">324</a>                         <em class="jxr_comment">// we have more points before the sign change, drop the lowest point</em>
+<a class="jxr_linenumber" name="L325" href="FieldBracketingNthOrderBrentSolver.html#L325">325</a>                         ++start;
+<a class="jxr_linenumber" name="L326" href="FieldBracketingNthOrderBrentSolver.html#L326">326</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L327" href="FieldBracketingNthOrderBrentSolver.html#L327">327</a>                         <em class="jxr_comment">// we have more points after sign change, drop the highest point</em>
+<a class="jxr_linenumber" name="L328" href="FieldBracketingNthOrderBrentSolver.html#L328">328</a>                         --end;
+<a class="jxr_linenumber" name="L329" href="FieldBracketingNthOrderBrentSolver.html#L329">329</a>                     }
+<a class="jxr_linenumber" name="L330" href="FieldBracketingNthOrderBrentSolver.html#L330">330</a> 
+<a class="jxr_linenumber" name="L331" href="FieldBracketingNthOrderBrentSolver.html#L331">331</a>                     <em class="jxr_comment">// we need to do one more attempt</em>
+<a class="jxr_linenumber" name="L332" href="FieldBracketingNthOrderBrentSolver.html#L332">332</a>                     nextX = nan;
+<a class="jxr_linenumber" name="L333" href="FieldBracketingNthOrderBrentSolver.html#L333">333</a> 
+<a class="jxr_linenumber" name="L334" href="FieldBracketingNthOrderBrentSolver.html#L334">334</a>                 }
+<a class="jxr_linenumber" name="L335" href="FieldBracketingNthOrderBrentSolver.html#L335">335</a> 
+<a class="jxr_linenumber" name="L336" href="FieldBracketingNthOrderBrentSolver.html#L336">336</a>             } <strong class="jxr_keyword">while</strong> (Double.isNaN(nextX.getReal()) &amp;&amp; (end - start &gt; 1));
+<a class="jxr_linenumber" name="L337" href="FieldBracketingNthOrderBrentSolver.html#L337">337</a> 
+<a class="jxr_linenumber" name="L338" href="FieldBracketingNthOrderBrentSolver.html#L338">338</a>             <strong class="jxr_keyword">if</strong> (Double.isNaN(nextX.getReal())) {
+<a class="jxr_linenumber" name="L339" href="FieldBracketingNthOrderBrentSolver.html#L339">339</a>                 <em class="jxr_comment">// fall back to bisection</em>
+<a class="jxr_linenumber" name="L340" href="FieldBracketingNthOrderBrentSolver.html#L340">340</a>                 nextX = xA.add(xB.subtract(xA).divide(2));
+<a class="jxr_linenumber" name="L341" href="FieldBracketingNthOrderBrentSolver.html#L341">341</a>                 start = signChangeIndex - 1;
+<a class="jxr_linenumber" name="L342" href="FieldBracketingNthOrderBrentSolver.html#L342">342</a>                 end   = signChangeIndex;
+<a class="jxr_linenumber" name="L343" href="FieldBracketingNthOrderBrentSolver.html#L343">343</a>             }
+<a class="jxr_linenumber" name="L344" href="FieldBracketingNthOrderBrentSolver.html#L344">344</a> 
+<a class="jxr_linenumber" name="L345" href="FieldBracketingNthOrderBrentSolver.html#L345">345</a>             <em class="jxr_comment">// evaluate the function at the guessed root</em>
+<a class="jxr_linenumber" name="L346" href="FieldBracketingNthOrderBrentSolver.html#L346">346</a>             evaluations.increment();
+<a class="jxr_linenumber" name="L347" href="FieldBracketingNthOrderBrentSolver.html#L347">347</a>             <strong class="jxr_keyword">final</strong> T nextY = f.value(nextX);
+<a class="jxr_linenumber" name="L348" href="FieldBracketingNthOrderBrentSolver.html#L348">348</a>             <strong class="jxr_keyword">if</strong> (Precision.equals(nextY.getReal(), 0.0, 1)) {
+<a class="jxr_linenumber" name="L349" href="FieldBracketingNthOrderBrentSolver.html#L349">349</a>                 <em class="jxr_comment">// we have found an exact root, since it is not an approximation</em>
+<a class="jxr_linenumber" name="L350" href="FieldBracketingNthOrderBrentSolver.html#L350">350</a>                 <em class="jxr_comment">// we don't need to bother about the allowed solutions setting</em>
+<a class="jxr_linenumber" name="L351" href="FieldBracketingNthOrderBrentSolver.html#L351">351</a>                 <strong class="jxr_keyword">return</strong> nextX;
+<a class="jxr_linenumber" name="L352" href="FieldBracketingNthOrderBrentSolver.html#L352">352</a>             }
+<a class="jxr_linenumber" name="L353" href="FieldBracketingNthOrderBrentSolver.html#L353">353</a> 
+<a class="jxr_linenumber" name="L354" href="FieldBracketingNthOrderBrentSolver.html#L354">354</a>             <strong class="jxr_keyword">if</strong> ((nbPoints &gt; 2) &amp;&amp; (end - start != nbPoints)) {
+<a class="jxr_linenumber" name="L355" href="FieldBracketingNthOrderBrentSolver.html#L355">355</a> 
+<a class="jxr_linenumber" name="L356" href="FieldBracketingNthOrderBrentSolver.html#L356">356</a>                 <em class="jxr_comment">// we have been forced to ignore some points to keep bracketing,</em>
+<a class="jxr_linenumber" name="L357" href="FieldBracketingNthOrderBrentSolver.html#L357">357</a>                 <em class="jxr_comment">// they are probably too far from the root, drop them from now on</em>
+<a class="jxr_linenumber" name="L358" href="FieldBracketingNthOrderBrentSolver.html#L358">358</a>                 nbPoints = end - start;
+<a class="jxr_linenumber" name="L359" href="FieldBracketingNthOrderBrentSolver.html#L359">359</a>                 System.arraycopy(x, start, x, 0, nbPoints);
+<a class="jxr_linenumber" name="L360" href="FieldBracketingNthOrderBrentSolver.html#L360">360</a>                 System.arraycopy(y, start, y, 0, nbPoints);
+<a class="jxr_linenumber" name="L361" href="FieldBracketingNthOrderBrentSolver.html#L361">361</a>                 signChangeIndex -= start;
+<a class="jxr_linenumber" name="L362" href="FieldBracketingNthOrderBrentSolver.html#L362">362</a> 
+<a class="jxr_linenumber" name="L363" href="FieldBracketingNthOrderBrentSolver.html#L363">363</a>             } <strong class="jxr_keyword">else</strong>  <strong class="jxr_keyword">if</strong> (nbPoints == x.length) {
+<a class="jxr_linenumber" name="L364" href="FieldBracketingNthOrderBrentSolver.html#L364">364</a> 
+<a class="jxr_linenumber" name="L365" href="FieldBracketingNthOrderBrentSolver.html#L365">365</a>                 <em class="jxr_comment">// we have to drop one point in order to insert the new one</em>
+<a class="jxr_linenumber" name="L366" href="FieldBracketingNthOrderBrentSolver.html#L366">366</a>                 nbPoints--;
+<a class="jxr_linenumber" name="L367" href="FieldBracketingNthOrderBrentSolver.html#L367">367</a> 
+<a class="jxr_linenumber" name="L368" href="FieldBracketingNthOrderBrentSolver.html#L368">368</a>                 <em class="jxr_comment">// keep the tightest bracketing interval as centered as possible</em>
+<a class="jxr_linenumber" name="L369" href="FieldBracketingNthOrderBrentSolver.html#L369">369</a>                 <strong class="jxr_keyword">if</strong> (signChangeIndex &gt;= (x.length + 1) / 2) {
+<a class="jxr_linenumber" name="L370" href="FieldBracketingNthOrderBrentSolver.html#L370">370</a>                     <em class="jxr_comment">// we drop the lowest point, we have to shift the arrays and the index</em>
+<a class="jxr_linenumber" name="L371" href="FieldBracketingNthOrderBrentSolver.html#L371">371</a>                     System.arraycopy(x, 1, x, 0, nbPoints);
+<a class="jxr_linenumber" name="L372" href="FieldBracketingNthOrderBrentSolver.html#L372">372</a>                     System.arraycopy(y, 1, y, 0, nbPoints);
+<a class="jxr_linenumber" name="L373" href="FieldBracketingNthOrderBrentSolver.html#L373">373</a>                     --signChangeIndex;
+<a class="jxr_linenumber" name="L374" href="FieldBracketingNthOrderBrentSolver.html#L374">374</a>                 }
+<a class="jxr_linenumber" name="L375" href="FieldBracketingNthOrderBrentSolver.html#L375">375</a> 
+<a class="jxr_linenumber" name="L376" href="FieldBracketingNthOrderBrentSolver.html#L376">376</a>             }
+<a class="jxr_linenumber" name="L377" href="FieldBracketingNthOrderBrentSolver.html#L377">377</a> 
+<a class="jxr_linenumber" name="L378" href="FieldBracketingNthOrderBrentSolver.html#L378">378</a>             <em class="jxr_comment">// insert the last computed point</em>
+<a class="jxr_linenumber" name="L379" href="FieldBracketingNthOrderBrentSolver.html#L379">379</a>             <em class="jxr_comment">//(by construction, we know it lies inside the tightest bracketing interval)</em>
+<a class="jxr_linenumber" name="L380" href="FieldBracketingNthOrderBrentSolver.html#L380">380</a>             System.arraycopy(x, signChangeIndex, x, signChangeIndex + 1, nbPoints - signChangeIndex);
+<a class="jxr_linenumber" name="L381" href="FieldBracketingNthOrderBrentSolver.html#L381">381</a>             x[signChangeIndex] = nextX;
+<a class="jxr_linenumber" name="L382" href="FieldBracketingNthOrderBrentSolver.html#L382">382</a>             System.arraycopy(y, signChangeIndex, y, signChangeIndex + 1, nbPoints - signChangeIndex);
+<a class="jxr_linenumber" name="L383" href="FieldBracketingNthOrderBrentSolver.html#L383">383</a>             y[signChangeIndex] = nextY;
+<a class="jxr_linenumber" name="L384" href="FieldBracketingNthOrderBrentSolver.html#L384">384</a>             ++nbPoints;
+<a class="jxr_linenumber" name="L385" href="FieldBracketingNthOrderBrentSolver.html#L385">385</a> 
+<a class="jxr_linenumber" name="L386" href="FieldBracketingNthOrderBrentSolver.html#L386">386</a>             <em class="jxr_comment">// update the bracketing interval</em>
+<a class="jxr_linenumber" name="L387" href="FieldBracketingNthOrderBrentSolver.html#L387">387</a>             <strong class="jxr_keyword">if</strong> (nextY.multiply(yA).getReal() &lt;= 0) {
+<a class="jxr_linenumber" name="L388" href="FieldBracketingNthOrderBrentSolver.html#L388">388</a>                 <em class="jxr_comment">// the sign change occurs before the inserted point</em>
+<a class="jxr_linenumber" name="L389" href="FieldBracketingNthOrderBrentSolver.html#L389">389</a>                 xB = nextX;
+<a class="jxr_linenumber" name="L390" href="FieldBracketingNthOrderBrentSolver.html#L390">390</a>                 yB = nextY;
+<a class="jxr_linenumber" name="L391" href="FieldBracketingNthOrderBrentSolver.html#L391">391</a>                 absYB = yB.abs();
+<a class="jxr_linenumber" name="L392" href="FieldBracketingNthOrderBrentSolver.html#L392">392</a>                 ++agingA;
+<a class="jxr_linenumber" name="L393" href="FieldBracketingNthOrderBrentSolver.html#L393">393</a>                 agingB = 0;
+<a class="jxr_linenumber" name="L394" href="FieldBracketingNthOrderBrentSolver.html#L394">394</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L395" href="FieldBracketingNthOrderBrentSolver.html#L395">395</a>                 <em class="jxr_comment">// the sign change occurs after the inserted point</em>
+<a class="jxr_linenumber" name="L396" href="FieldBracketingNthOrderBrentSolver.html#L396">396</a>                 xA = nextX;
+<a class="jxr_linenumber" name="L397" href="FieldBracketingNthOrderBrentSolver.html#L397">397</a>                 yA = nextY;
+<a class="jxr_linenumber" name="L398" href="FieldBracketingNthOrderBrentSolver.html#L398">398</a>                 absYA = yA.abs();
+<a class="jxr_linenumber" name="L399" href="FieldBracketingNthOrderBrentSolver.html#L399">399</a>                 agingA = 0;
+<a class="jxr_linenumber" name="L400" href="FieldBracketingNthOrderBrentSolver.html#L400">400</a>                 ++agingB;
+<a class="jxr_linenumber" name="L401" href="FieldBracketingNthOrderBrentSolver.html#L401">401</a> 
+<a class="jxr_linenumber" name="L402" href="FieldBracketingNthOrderBrentSolver.html#L402">402</a>                 <em class="jxr_comment">// update the sign change index</em>
+<a class="jxr_linenumber" name="L403" href="FieldBracketingNthOrderBrentSolver.html#L403">403</a>                 signChangeIndex++;
+<a class="jxr_linenumber" name="L404" href="FieldBracketingNthOrderBrentSolver.html#L404">404</a> 
+<a class="jxr_linenumber" name="L405" href="FieldBracketingNthOrderBrentSolver.html#L405">405</a>             }
+<a class="jxr_linenumber" name="L406" href="FieldBracketingNthOrderBrentSolver.html#L406">406</a> 
+<a class="jxr_linenumber" name="L407" href="FieldBracketingNthOrderBrentSolver.html#L407">407</a>         }
+<a class="jxr_linenumber" name="L408" href="FieldBracketingNthOrderBrentSolver.html#L408">408</a> 
+<a class="jxr_linenumber" name="L409" href="FieldBracketingNthOrderBrentSolver.html#L409">409</a>     }
+<a class="jxr_linenumber" name="L410" href="FieldBracketingNthOrderBrentSolver.html#L410">410</a> 
+<a class="jxr_linenumber" name="L411" href="FieldBracketingNthOrderBrentSolver.html#L411">411</a>     <em class="jxr_javadoccomment">/** Guess an x value by n&lt;sup&gt;th&lt;/sup&gt; order inverse polynomial interpolation.</em>
+<a class="jxr_linenumber" name="L412" href="FieldBracketingNthOrderBrentSolver.html#L412">412</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L413" href="FieldBracketingNthOrderBrentSolver.html#L413">413</a> <em class="jxr_javadoccomment">     * The x value is guessed by evaluating polynomial Q(y) at y = targetY, where Q</em>
+<a class="jxr_linenumber" name="L414" href="FieldBracketingNthOrderBrentSolver.html#L414">414</a> <em class="jxr_javadoccomment">     * is built such that for all considered points (x&lt;sub&gt;i&lt;/sub&gt;, y&lt;sub&gt;i&lt;/sub&gt;),</em>
+<a class="jxr_linenumber" name="L415" href="FieldBracketingNthOrderBrentSolver.html#L415">415</a> <em class="jxr_javadoccomment">     * Q(y&lt;sub&gt;i&lt;/sub&gt;) = x&lt;sub&gt;i&lt;/sub&gt;.</em>
+<a class="jxr_linenumber" name="L416" href="FieldBracketingNthOrderBrentSolver.html#L416">416</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L417" href="FieldBracketingNthOrderBrentSolver.html#L417">417</a> <em class="jxr_javadoccomment">     * @param targetY target value for y</em>
+<a class="jxr_linenumber" name="L418" href="FieldBracketingNthOrderBrentSolver.html#L418">418</a> <em class="jxr_javadoccomment">     * @param x reference points abscissas for interpolation,</em>
+<a class="jxr_linenumber" name="L419" href="FieldBracketingNthOrderBrentSolver.html#L419">419</a> <em class="jxr_javadoccomment">     * note that this array &lt;em&gt;is&lt;/em&gt; modified during computation</em>
+<a class="jxr_linenumber" name="L420" href="FieldBracketingNthOrderBrentSolver.html#L420">420</a> <em class="jxr_javadoccomment">     * @param y reference points ordinates for interpolation</em>
+<a class="jxr_linenumber" name="L421" href="FieldBracketingNthOrderBrentSolver.html#L421">421</a> <em class="jxr_javadoccomment">     * @param start start index of the points to consider (inclusive)</em>
+<a class="jxr_linenumber" name="L422" href="FieldBracketingNthOrderBrentSolver.html#L422">422</a> <em class="jxr_javadoccomment">     * @param end end index of the points to consider (exclusive)</em>
+<a class="jxr_linenumber" name="L423" href="FieldBracketingNthOrderBrentSolver.html#L423">423</a> <em class="jxr_javadoccomment">     * @return guessed root (will be a NaN if two points share the same y)</em>
+<a class="jxr_linenumber" name="L424" href="FieldBracketingNthOrderBrentSolver.html#L424">424</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L425" href="FieldBracketingNthOrderBrentSolver.html#L425">425</a>     <strong class="jxr_keyword">private</strong> T guessX(<strong class="jxr_keyword">final</strong> T targetY, <strong class="jxr_keyword">final</strong> T[] x, <strong class="jxr_keyword">final</strong> T[] y,
+<a class="jxr_linenumber" name="L426" href="FieldBracketingNthOrderBrentSolver.html#L426">426</a>                        <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> start, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> end) {
+<a class="jxr_linenumber" name="L427" href="FieldBracketingNthOrderBrentSolver.html#L427">427</a> 
+<a class="jxr_linenumber" name="L428" href="FieldBracketingNthOrderBrentSolver.html#L428">428</a>         <em class="jxr_comment">// compute Q Newton coefficients by divided differences</em>
+<a class="jxr_linenumber" name="L429" href="FieldBracketingNthOrderBrentSolver.html#L429">429</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = start; i &lt; end - 1; ++i) {
+<a class="jxr_linenumber" name="L430" href="FieldBracketingNthOrderBrentSolver.html#L430">430</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> delta = i + 1 - start;
+<a class="jxr_linenumber" name="L431" href="FieldBracketingNthOrderBrentSolver.html#L431">431</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = end - 1; j &gt; i; --j) {
+<a class="jxr_linenumber" name="L432" href="FieldBracketingNthOrderBrentSolver.html#L432">432</a>                 x[j] = x[j].subtract(x[j-1]).divide(y[j].subtract(y[j - delta]));
+<a class="jxr_linenumber" name="L433" href="FieldBracketingNthOrderBrentSolver.html#L433">433</a>             }
+<a class="jxr_linenumber" name="L434" href="FieldBracketingNthOrderBrentSolver.html#L434">434</a>         }
+<a class="jxr_linenumber" name="L435" href="FieldBracketingNthOrderBrentSolver.html#L435">435</a> 
+<a class="jxr_linenumber" name="L436" href="FieldBracketingNthOrderBrentSolver.html#L436">436</a>         <em class="jxr_comment">// evaluate Q(targetY)</em>
+<a class="jxr_linenumber" name="L437" href="FieldBracketingNthOrderBrentSolver.html#L437">437</a>         T x0 = field.getZero();
+<a class="jxr_linenumber" name="L438" href="FieldBracketingNthOrderBrentSolver.html#L438">438</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = end - 1; j &gt;= start; --j) {
+<a class="jxr_linenumber" name="L439" href="FieldBracketingNthOrderBrentSolver.html#L439">439</a>             x0 = x[j].add(x0.multiply(targetY.subtract(y[j])));
+<a class="jxr_linenumber" name="L440" href="FieldBracketingNthOrderBrentSolver.html#L440">440</a>         }
+<a class="jxr_linenumber" name="L441" href="FieldBracketingNthOrderBrentSolver.html#L441">441</a> 
+<a class="jxr_linenumber" name="L442" href="FieldBracketingNthOrderBrentSolver.html#L442">442</a>         <strong class="jxr_keyword">return</strong> x0;
+<a class="jxr_linenumber" name="L443" href="FieldBracketingNthOrderBrentSolver.html#L443">443</a> 
+<a class="jxr_linenumber" name="L444" href="FieldBracketingNthOrderBrentSolver.html#L444">444</a>     }
+<a class="jxr_linenumber" name="L445" href="FieldBracketingNthOrderBrentSolver.html#L445">445</a> 
+<a class="jxr_linenumber" name="L446" href="FieldBracketingNthOrderBrentSolver.html#L446">446</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

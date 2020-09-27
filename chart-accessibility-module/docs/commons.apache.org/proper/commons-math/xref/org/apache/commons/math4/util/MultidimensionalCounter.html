@@ -1,0 +1,321 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>MultidimensionalCounter xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/util/MultidimensionalCounter.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="MultidimensionalCounter.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="MultidimensionalCounter.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="MultidimensionalCounter.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="MultidimensionalCounter.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="MultidimensionalCounter.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="MultidimensionalCounter.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="MultidimensionalCounter.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="MultidimensionalCounter.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="MultidimensionalCounter.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="MultidimensionalCounter.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="MultidimensionalCounter.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="MultidimensionalCounter.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="MultidimensionalCounter.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="MultidimensionalCounter.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="MultidimensionalCounter.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="MultidimensionalCounter.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="MultidimensionalCounter.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="MultidimensionalCounter.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.util;
+<a class="jxr_linenumber" name="L19" href="MultidimensionalCounter.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="MultidimensionalCounter.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.NoSuchElementException;
+<a class="jxr_linenumber" name="L21" href="MultidimensionalCounter.html#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="MultidimensionalCounter.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L23" href="MultidimensionalCounter.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L24" href="MultidimensionalCounter.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L25" href="MultidimensionalCounter.html#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="MultidimensionalCounter.html#L26">26</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L27" href="MultidimensionalCounter.html#L27">27</a>  <em class="jxr_javadoccomment"> * Converter between unidimensional storage structure and multidimensional</em>
+<a class="jxr_linenumber" name="L28" href="MultidimensionalCounter.html#L28">28</a>  <em class="jxr_javadoccomment"> * conceptual structure.</em>
+<a class="jxr_linenumber" name="L29" href="MultidimensionalCounter.html#L29">29</a>  <em class="jxr_javadoccomment"> * This utility will convert from indices in a multidimensional structure</em>
+<a class="jxr_linenumber" name="L30" href="MultidimensionalCounter.html#L30">30</a>  <em class="jxr_javadoccomment"> * to the corresponding index in a one-dimensional array. For example,</em>
+<a class="jxr_linenumber" name="L31" href="MultidimensionalCounter.html#L31">31</a>  <em class="jxr_javadoccomment"> * assuming that the ranges (in 3 dimensions) of indices are 2, 4 and 3,</em>
+<a class="jxr_linenumber" name="L32" href="MultidimensionalCounter.html#L32">32</a>  <em class="jxr_javadoccomment"> * the following correspondences, between 3-tuples indices and unidimensional</em>
+<a class="jxr_linenumber" name="L33" href="MultidimensionalCounter.html#L33">33</a>  <em class="jxr_javadoccomment"> * indices, will hold:</em>
+<a class="jxr_linenumber" name="L34" href="MultidimensionalCounter.html#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L35" href="MultidimensionalCounter.html#L35">35</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;(0, 0, 0) corresponds to 0&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L36" href="MultidimensionalCounter.html#L36">36</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;(0, 0, 1) corresponds to 1&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L37" href="MultidimensionalCounter.html#L37">37</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;(0, 0, 2) corresponds to 2&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L38" href="MultidimensionalCounter.html#L38">38</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;(0, 1, 0) corresponds to 3&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L39" href="MultidimensionalCounter.html#L39">39</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;...&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L40" href="MultidimensionalCounter.html#L40">40</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;(1, 0, 0) corresponds to 12&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L41" href="MultidimensionalCounter.html#L41">41</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;...&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L42" href="MultidimensionalCounter.html#L42">42</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;(1, 3, 2) corresponds to 23&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L43" href="MultidimensionalCounter.html#L43">43</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L44" href="MultidimensionalCounter.html#L44">44</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L45" href="MultidimensionalCounter.html#L45">45</a>  <em class="jxr_javadoccomment"> * @since 2.2</em>
+<a class="jxr_linenumber" name="L46" href="MultidimensionalCounter.html#L46">46</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L47" href="MultidimensionalCounter.html#L47">47</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="MultidimensionalCounter.html">MultidimensionalCounter</a> <strong class="jxr_keyword">implements</strong> Iterable&lt;Integer&gt; {
+<a class="jxr_linenumber" name="L48" href="MultidimensionalCounter.html#L48">48</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L49" href="MultidimensionalCounter.html#L49">49</a>  <em class="jxr_javadoccomment">     * Number of dimensions.</em>
+<a class="jxr_linenumber" name="L50" href="MultidimensionalCounter.html#L50">50</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L51" href="MultidimensionalCounter.html#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> dimension;
+<a class="jxr_linenumber" name="L52" href="MultidimensionalCounter.html#L52">52</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L53" href="MultidimensionalCounter.html#L53">53</a>  <em class="jxr_javadoccomment">     * Offset for each dimension.</em>
+<a class="jxr_linenumber" name="L54" href="MultidimensionalCounter.html#L54">54</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L55" href="MultidimensionalCounter.html#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] uniCounterOffset;
+<a class="jxr_linenumber" name="L56" href="MultidimensionalCounter.html#L56">56</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L57" href="MultidimensionalCounter.html#L57">57</a>  <em class="jxr_javadoccomment">     * Counter sizes.</em>
+<a class="jxr_linenumber" name="L58" href="MultidimensionalCounter.html#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L59" href="MultidimensionalCounter.html#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] size;
+<a class="jxr_linenumber" name="L60" href="MultidimensionalCounter.html#L60">60</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L61" href="MultidimensionalCounter.html#L61">61</a>  <em class="jxr_javadoccomment">     * Total number of (one-dimensional) slots.</em>
+<a class="jxr_linenumber" name="L62" href="MultidimensionalCounter.html#L62">62</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L63" href="MultidimensionalCounter.html#L63">63</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> totalSize;
+<a class="jxr_linenumber" name="L64" href="MultidimensionalCounter.html#L64">64</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L65" href="MultidimensionalCounter.html#L65">65</a>  <em class="jxr_javadoccomment">     * Index of last dimension.</em>
+<a class="jxr_linenumber" name="L66" href="MultidimensionalCounter.html#L66">66</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L67" href="MultidimensionalCounter.html#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> last;
+<a class="jxr_linenumber" name="L68" href="MultidimensionalCounter.html#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="MultidimensionalCounter.html#L69">69</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L70" href="MultidimensionalCounter.html#L70">70</a>  <em class="jxr_javadoccomment">     * Perform iteration over the multidimensional counter.</em>
+<a class="jxr_linenumber" name="L71" href="MultidimensionalCounter.html#L71">71</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L72" href="MultidimensionalCounter.html#L72">72</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="OpenIntToDoubleHashMap.html">Iterator</a> <strong class="jxr_keyword">implements</strong> java.util.Iterator&lt;Integer&gt; {
+<a class="jxr_linenumber" name="L73" href="MultidimensionalCounter.html#L73">73</a>          <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L74" href="MultidimensionalCounter.html#L74">74</a>  <em class="jxr_javadoccomment">         * Multidimensional counter.</em>
+<a class="jxr_linenumber" name="L75" href="MultidimensionalCounter.html#L75">75</a>  <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L76" href="MultidimensionalCounter.html#L76">76</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] counter = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[dimension];
+<a class="jxr_linenumber" name="L77" href="MultidimensionalCounter.html#L77">77</a>          <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L78" href="MultidimensionalCounter.html#L78">78</a>  <em class="jxr_javadoccomment">         * Unidimensional counter.</em>
+<a class="jxr_linenumber" name="L79" href="MultidimensionalCounter.html#L79">79</a>  <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L80" href="MultidimensionalCounter.html#L80">80</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> count = -1;
+<a class="jxr_linenumber" name="L81" href="MultidimensionalCounter.html#L81">81</a>          <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L82" href="MultidimensionalCounter.html#L82">82</a>  <em class="jxr_javadoccomment">         * Maximum value for {@link #count}.</em>
+<a class="jxr_linenumber" name="L83" href="MultidimensionalCounter.html#L83">83</a>  <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L84" href="MultidimensionalCounter.html#L84">84</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxCount = totalSize - 1;
+<a class="jxr_linenumber" name="L85" href="MultidimensionalCounter.html#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="MultidimensionalCounter.html#L86">86</a>          <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L87" href="MultidimensionalCounter.html#L87">87</a>  <em class="jxr_javadoccomment">         * Create an iterator</em>
+<a class="jxr_linenumber" name="L88" href="MultidimensionalCounter.html#L88">88</a>  <em class="jxr_javadoccomment">         * @see #iterator()</em>
+<a class="jxr_linenumber" name="L89" href="MultidimensionalCounter.html#L89">89</a>  <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L90" href="MultidimensionalCounter.html#L90">90</a>          <a href="OpenIntToDoubleHashMap.html">Iterator</a>() {
+<a class="jxr_linenumber" name="L91" href="MultidimensionalCounter.html#L91">91</a>              counter[last] = -1;
+<a class="jxr_linenumber" name="L92" href="MultidimensionalCounter.html#L92">92</a>          }
+<a class="jxr_linenumber" name="L93" href="MultidimensionalCounter.html#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="MultidimensionalCounter.html#L94">94</a>          <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L95" href="MultidimensionalCounter.html#L95">95</a>  <em class="jxr_javadoccomment">         * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L96" href="MultidimensionalCounter.html#L96">96</a>  <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L97" href="MultidimensionalCounter.html#L97">97</a>          @Override
+<a class="jxr_linenumber" name="L98" href="MultidimensionalCounter.html#L98">98</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> hasNext() {
+<a class="jxr_linenumber" name="L99" href="MultidimensionalCounter.html#L99">99</a>              <strong class="jxr_keyword">return</strong> count &lt; maxCount;
+<a class="jxr_linenumber" name="L100" href="MultidimensionalCounter.html#L100">100</a>         }
+<a class="jxr_linenumber" name="L101" href="MultidimensionalCounter.html#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="MultidimensionalCounter.html#L102">102</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L103" href="MultidimensionalCounter.html#L103">103</a> <em class="jxr_javadoccomment">         * @return the unidimensional count after the counter has been</em>
+<a class="jxr_linenumber" name="L104" href="MultidimensionalCounter.html#L104">104</a> <em class="jxr_javadoccomment">         * incremented by {@code 1}.</em>
+<a class="jxr_linenumber" name="L105" href="MultidimensionalCounter.html#L105">105</a> <em class="jxr_javadoccomment">         * @throws NoSuchElementException if {@link #hasNext()} would have</em>
+<a class="jxr_linenumber" name="L106" href="MultidimensionalCounter.html#L106">106</a> <em class="jxr_javadoccomment">         * returned {@code false}.</em>
+<a class="jxr_linenumber" name="L107" href="MultidimensionalCounter.html#L107">107</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L108" href="MultidimensionalCounter.html#L108">108</a>         @Override
+<a class="jxr_linenumber" name="L109" href="MultidimensionalCounter.html#L109">109</a>         <strong class="jxr_keyword">public</strong> Integer next() {
+<a class="jxr_linenumber" name="L110" href="MultidimensionalCounter.html#L110">110</a>             <strong class="jxr_keyword">if</strong> (!hasNext()) {
+<a class="jxr_linenumber" name="L111" href="MultidimensionalCounter.html#L111">111</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> NoSuchElementException();
+<a class="jxr_linenumber" name="L112" href="MultidimensionalCounter.html#L112">112</a>             }
+<a class="jxr_linenumber" name="L113" href="MultidimensionalCounter.html#L113">113</a> 
+<a class="jxr_linenumber" name="L114" href="MultidimensionalCounter.html#L114">114</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = last; i &gt;= 0; i--) {
+<a class="jxr_linenumber" name="L115" href="MultidimensionalCounter.html#L115">115</a>                 <strong class="jxr_keyword">if</strong> (counter[i] == size[i] - 1) {
+<a class="jxr_linenumber" name="L116" href="MultidimensionalCounter.html#L116">116</a>                     counter[i] = 0;
+<a class="jxr_linenumber" name="L117" href="MultidimensionalCounter.html#L117">117</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L118" href="MultidimensionalCounter.html#L118">118</a>                     ++counter[i];
+<a class="jxr_linenumber" name="L119" href="MultidimensionalCounter.html#L119">119</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L120" href="MultidimensionalCounter.html#L120">120</a>                 }
+<a class="jxr_linenumber" name="L121" href="MultidimensionalCounter.html#L121">121</a>             }
+<a class="jxr_linenumber" name="L122" href="MultidimensionalCounter.html#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="MultidimensionalCounter.html#L123">123</a>             <strong class="jxr_keyword">return</strong> ++count;
+<a class="jxr_linenumber" name="L124" href="MultidimensionalCounter.html#L124">124</a>         }
+<a class="jxr_linenumber" name="L125" href="MultidimensionalCounter.html#L125">125</a> 
+<a class="jxr_linenumber" name="L126" href="MultidimensionalCounter.html#L126">126</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L127" href="MultidimensionalCounter.html#L127">127</a> <em class="jxr_javadoccomment">         * Get the current unidimensional counter slot.</em>
+<a class="jxr_linenumber" name="L128" href="MultidimensionalCounter.html#L128">128</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L129" href="MultidimensionalCounter.html#L129">129</a> <em class="jxr_javadoccomment">         * @return the index within the unidimensionl counter.</em>
+<a class="jxr_linenumber" name="L130" href="MultidimensionalCounter.html#L130">130</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L131" href="MultidimensionalCounter.html#L131">131</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getCount() {
+<a class="jxr_linenumber" name="L132" href="MultidimensionalCounter.html#L132">132</a>             <strong class="jxr_keyword">return</strong> count;
+<a class="jxr_linenumber" name="L133" href="MultidimensionalCounter.html#L133">133</a>         }
+<a class="jxr_linenumber" name="L134" href="MultidimensionalCounter.html#L134">134</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L135" href="MultidimensionalCounter.html#L135">135</a> <em class="jxr_javadoccomment">         * Get the current multidimensional counter slots.</em>
+<a class="jxr_linenumber" name="L136" href="MultidimensionalCounter.html#L136">136</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L137" href="MultidimensionalCounter.html#L137">137</a> <em class="jxr_javadoccomment">         * @return the indices within the multidimensional counter.</em>
+<a class="jxr_linenumber" name="L138" href="MultidimensionalCounter.html#L138">138</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L139" href="MultidimensionalCounter.html#L139">139</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong>[] getCounts() {
+<a class="jxr_linenumber" name="L140" href="MultidimensionalCounter.html#L140">140</a>             <strong class="jxr_keyword">return</strong> MathArrays.copyOf(counter);
+<a class="jxr_linenumber" name="L141" href="MultidimensionalCounter.html#L141">141</a>         }
+<a class="jxr_linenumber" name="L142" href="MultidimensionalCounter.html#L142">142</a> 
+<a class="jxr_linenumber" name="L143" href="MultidimensionalCounter.html#L143">143</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L144" href="MultidimensionalCounter.html#L144">144</a> <em class="jxr_javadoccomment">         * Get the current count in the selected dimension.</em>
+<a class="jxr_linenumber" name="L145" href="MultidimensionalCounter.html#L145">145</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L146" href="MultidimensionalCounter.html#L146">146</a> <em class="jxr_javadoccomment">         * @param dim Dimension index.</em>
+<a class="jxr_linenumber" name="L147" href="MultidimensionalCounter.html#L147">147</a> <em class="jxr_javadoccomment">         * @return the count at the corresponding index for the current state</em>
+<a class="jxr_linenumber" name="L148" href="MultidimensionalCounter.html#L148">148</a> <em class="jxr_javadoccomment">         * of the iterator.</em>
+<a class="jxr_linenumber" name="L149" href="MultidimensionalCounter.html#L149">149</a> <em class="jxr_javadoccomment">         * @throws IndexOutOfBoundsException if {@code index} is not in the</em>
+<a class="jxr_linenumber" name="L150" href="MultidimensionalCounter.html#L150">150</a> <em class="jxr_javadoccomment">         * correct interval (as defined by the length of the argument in the</em>
+<a class="jxr_linenumber" name="L151" href="MultidimensionalCounter.html#L151">151</a> <em class="jxr_javadoccomment">         * {@link MultidimensionalCounter#MultidimensionalCounter(int[])</em>
+<a class="jxr_linenumber" name="L152" href="MultidimensionalCounter.html#L152">152</a> <em class="jxr_javadoccomment">         * constructor of the enclosing class}).</em>
+<a class="jxr_linenumber" name="L153" href="MultidimensionalCounter.html#L153">153</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L154" href="MultidimensionalCounter.html#L154">154</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getCount(<strong class="jxr_keyword">int</strong> dim) {
+<a class="jxr_linenumber" name="L155" href="MultidimensionalCounter.html#L155">155</a>             <strong class="jxr_keyword">return</strong> counter[dim];
+<a class="jxr_linenumber" name="L156" href="MultidimensionalCounter.html#L156">156</a>         }
+<a class="jxr_linenumber" name="L157" href="MultidimensionalCounter.html#L157">157</a> 
+<a class="jxr_linenumber" name="L158" href="MultidimensionalCounter.html#L158">158</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L159" href="MultidimensionalCounter.html#L159">159</a> <em class="jxr_javadoccomment">         * @throws UnsupportedOperationException</em>
+<a class="jxr_linenumber" name="L160" href="MultidimensionalCounter.html#L160">160</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L161" href="MultidimensionalCounter.html#L161">161</a>         @Override
+<a class="jxr_linenumber" name="L162" href="MultidimensionalCounter.html#L162">162</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> remove() {
+<a class="jxr_linenumber" name="L163" href="MultidimensionalCounter.html#L163">163</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> UnsupportedOperationException();
+<a class="jxr_linenumber" name="L164" href="MultidimensionalCounter.html#L164">164</a>         }
+<a class="jxr_linenumber" name="L165" href="MultidimensionalCounter.html#L165">165</a>     }
+<a class="jxr_linenumber" name="L166" href="MultidimensionalCounter.html#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="MultidimensionalCounter.html#L167">167</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L168" href="MultidimensionalCounter.html#L168">168</a> <em class="jxr_javadoccomment">     * Create a counter.</em>
+<a class="jxr_linenumber" name="L169" href="MultidimensionalCounter.html#L169">169</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L170" href="MultidimensionalCounter.html#L170">170</a> <em class="jxr_javadoccomment">     * @param size Counter sizes (number of slots in each dimension).</em>
+<a class="jxr_linenumber" name="L171" href="MultidimensionalCounter.html#L171">171</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if one of the sizes is</em>
+<a class="jxr_linenumber" name="L172" href="MultidimensionalCounter.html#L172">172</a> <em class="jxr_javadoccomment">     * negative or zero.</em>
+<a class="jxr_linenumber" name="L173" href="MultidimensionalCounter.html#L173">173</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L174" href="MultidimensionalCounter.html#L174">174</a>     <strong class="jxr_keyword">public</strong> <a href="MultidimensionalCounter.html">MultidimensionalCounter</a>(<strong class="jxr_keyword">int</strong> ... size) <strong class="jxr_keyword">throws</strong> NotStrictlyPositiveException {
+<a class="jxr_linenumber" name="L175" href="MultidimensionalCounter.html#L175">175</a>         dimension = size.length;
+<a class="jxr_linenumber" name="L176" href="MultidimensionalCounter.html#L176">176</a>         <strong class="jxr_keyword">this</strong>.size = MathArrays.copyOf(size);
+<a class="jxr_linenumber" name="L177" href="MultidimensionalCounter.html#L177">177</a> 
+<a class="jxr_linenumber" name="L178" href="MultidimensionalCounter.html#L178">178</a>         uniCounterOffset = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[dimension];
+<a class="jxr_linenumber" name="L179" href="MultidimensionalCounter.html#L179">179</a> 
+<a class="jxr_linenumber" name="L180" href="MultidimensionalCounter.html#L180">180</a>         last = dimension - 1;
+<a class="jxr_linenumber" name="L181" href="MultidimensionalCounter.html#L181">181</a>         <strong class="jxr_keyword">int</strong> tS = size[last];
+<a class="jxr_linenumber" name="L182" href="MultidimensionalCounter.html#L182">182</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; last; i++) {
+<a class="jxr_linenumber" name="L183" href="MultidimensionalCounter.html#L183">183</a>             <strong class="jxr_keyword">int</strong> count = 1;
+<a class="jxr_linenumber" name="L184" href="MultidimensionalCounter.html#L184">184</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = i + 1; j &lt; dimension; j++) {
+<a class="jxr_linenumber" name="L185" href="MultidimensionalCounter.html#L185">185</a>                 count *= size[j];
+<a class="jxr_linenumber" name="L186" href="MultidimensionalCounter.html#L186">186</a>             }
+<a class="jxr_linenumber" name="L187" href="MultidimensionalCounter.html#L187">187</a>             uniCounterOffset[i] = count;
+<a class="jxr_linenumber" name="L188" href="MultidimensionalCounter.html#L188">188</a>             tS *= size[i];
+<a class="jxr_linenumber" name="L189" href="MultidimensionalCounter.html#L189">189</a>         }
+<a class="jxr_linenumber" name="L190" href="MultidimensionalCounter.html#L190">190</a>         uniCounterOffset[last] = 0;
+<a class="jxr_linenumber" name="L191" href="MultidimensionalCounter.html#L191">191</a> 
+<a class="jxr_linenumber" name="L192" href="MultidimensionalCounter.html#L192">192</a>         <strong class="jxr_keyword">if</strong> (tS &lt;= 0) {
+<a class="jxr_linenumber" name="L193" href="MultidimensionalCounter.html#L193">193</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(tS);
+<a class="jxr_linenumber" name="L194" href="MultidimensionalCounter.html#L194">194</a>         }
+<a class="jxr_linenumber" name="L195" href="MultidimensionalCounter.html#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="MultidimensionalCounter.html#L196">196</a>         totalSize = tS;
+<a class="jxr_linenumber" name="L197" href="MultidimensionalCounter.html#L197">197</a>     }
+<a class="jxr_linenumber" name="L198" href="MultidimensionalCounter.html#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="MultidimensionalCounter.html#L199">199</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L200" href="MultidimensionalCounter.html#L200">200</a> <em class="jxr_javadoccomment">     * Create an iterator over this counter.</em>
+<a class="jxr_linenumber" name="L201" href="MultidimensionalCounter.html#L201">201</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L202" href="MultidimensionalCounter.html#L202">202</a> <em class="jxr_javadoccomment">     * @return the iterator.</em>
+<a class="jxr_linenumber" name="L203" href="MultidimensionalCounter.html#L203">203</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L204" href="MultidimensionalCounter.html#L204">204</a>     @Override
+<a class="jxr_linenumber" name="L205" href="MultidimensionalCounter.html#L205">205</a>     <strong class="jxr_keyword">public</strong> <a href="OpenIntToDoubleHashMap.html">Iterator</a> iterator() {
+<a class="jxr_linenumber" name="L206" href="MultidimensionalCounter.html#L206">206</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="OpenIntToDoubleHashMap.html">Iterator</a>();
+<a class="jxr_linenumber" name="L207" href="MultidimensionalCounter.html#L207">207</a>     }
+<a class="jxr_linenumber" name="L208" href="MultidimensionalCounter.html#L208">208</a> 
+<a class="jxr_linenumber" name="L209" href="MultidimensionalCounter.html#L209">209</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L210" href="MultidimensionalCounter.html#L210">210</a> <em class="jxr_javadoccomment">     * Get the number of dimensions of the multidimensional counter.</em>
+<a class="jxr_linenumber" name="L211" href="MultidimensionalCounter.html#L211">211</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L212" href="MultidimensionalCounter.html#L212">212</a> <em class="jxr_javadoccomment">     * @return the number of dimensions.</em>
+<a class="jxr_linenumber" name="L213" href="MultidimensionalCounter.html#L213">213</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L214" href="MultidimensionalCounter.html#L214">214</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getDimension() {
+<a class="jxr_linenumber" name="L215" href="MultidimensionalCounter.html#L215">215</a>         <strong class="jxr_keyword">return</strong> dimension;
+<a class="jxr_linenumber" name="L216" href="MultidimensionalCounter.html#L216">216</a>     }
+<a class="jxr_linenumber" name="L217" href="MultidimensionalCounter.html#L217">217</a> 
+<a class="jxr_linenumber" name="L218" href="MultidimensionalCounter.html#L218">218</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L219" href="MultidimensionalCounter.html#L219">219</a> <em class="jxr_javadoccomment">     * Convert to multidimensional counter.</em>
+<a class="jxr_linenumber" name="L220" href="MultidimensionalCounter.html#L220">220</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L221" href="MultidimensionalCounter.html#L221">221</a> <em class="jxr_javadoccomment">     * @param index Index in unidimensional counter.</em>
+<a class="jxr_linenumber" name="L222" href="MultidimensionalCounter.html#L222">222</a> <em class="jxr_javadoccomment">     * @return the multidimensional counts.</em>
+<a class="jxr_linenumber" name="L223" href="MultidimensionalCounter.html#L223">223</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if {@code index} is not between</em>
+<a class="jxr_linenumber" name="L224" href="MultidimensionalCounter.html#L224">224</a> <em class="jxr_javadoccomment">     * {@code 0} and the value returned by {@link #getSize()} (excluded).</em>
+<a class="jxr_linenumber" name="L225" href="MultidimensionalCounter.html#L225">225</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L226" href="MultidimensionalCounter.html#L226">226</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong>[] getCounts(<strong class="jxr_keyword">int</strong> index) <strong class="jxr_keyword">throws</strong> OutOfRangeException {
+<a class="jxr_linenumber" name="L227" href="MultidimensionalCounter.html#L227">227</a>         <strong class="jxr_keyword">if</strong> (index &lt; 0 ||
+<a class="jxr_linenumber" name="L228" href="MultidimensionalCounter.html#L228">228</a>             index &gt;= totalSize) {
+<a class="jxr_linenumber" name="L229" href="MultidimensionalCounter.html#L229">229</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/OutOfRangeException.html">OutOfRangeException</a>(index, 0, totalSize);
+<a class="jxr_linenumber" name="L230" href="MultidimensionalCounter.html#L230">230</a>         }
+<a class="jxr_linenumber" name="L231" href="MultidimensionalCounter.html#L231">231</a> 
+<a class="jxr_linenumber" name="L232" href="MultidimensionalCounter.html#L232">232</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] indices = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[dimension];
+<a class="jxr_linenumber" name="L233" href="MultidimensionalCounter.html#L233">233</a> 
+<a class="jxr_linenumber" name="L234" href="MultidimensionalCounter.html#L234">234</a>         <strong class="jxr_keyword">int</strong> count = 0;
+<a class="jxr_linenumber" name="L235" href="MultidimensionalCounter.html#L235">235</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; last; i++) {
+<a class="jxr_linenumber" name="L236" href="MultidimensionalCounter.html#L236">236</a>             <strong class="jxr_keyword">int</strong> idx = 0;
+<a class="jxr_linenumber" name="L237" href="MultidimensionalCounter.html#L237">237</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> offset = uniCounterOffset[i];
+<a class="jxr_linenumber" name="L238" href="MultidimensionalCounter.html#L238">238</a>             <strong class="jxr_keyword">while</strong> (count &lt;= index) {
+<a class="jxr_linenumber" name="L239" href="MultidimensionalCounter.html#L239">239</a>                 count += offset;
+<a class="jxr_linenumber" name="L240" href="MultidimensionalCounter.html#L240">240</a>                 ++idx;
+<a class="jxr_linenumber" name="L241" href="MultidimensionalCounter.html#L241">241</a>             }
+<a class="jxr_linenumber" name="L242" href="MultidimensionalCounter.html#L242">242</a>             --idx;
+<a class="jxr_linenumber" name="L243" href="MultidimensionalCounter.html#L243">243</a>             count -= offset;
+<a class="jxr_linenumber" name="L244" href="MultidimensionalCounter.html#L244">244</a>             indices[i] = idx;
+<a class="jxr_linenumber" name="L245" href="MultidimensionalCounter.html#L245">245</a>         }
+<a class="jxr_linenumber" name="L246" href="MultidimensionalCounter.html#L246">246</a> 
+<a class="jxr_linenumber" name="L247" href="MultidimensionalCounter.html#L247">247</a>         indices[last] = index - count;
+<a class="jxr_linenumber" name="L248" href="MultidimensionalCounter.html#L248">248</a> 
+<a class="jxr_linenumber" name="L249" href="MultidimensionalCounter.html#L249">249</a>         <strong class="jxr_keyword">return</strong> indices;
+<a class="jxr_linenumber" name="L250" href="MultidimensionalCounter.html#L250">250</a>     }
+<a class="jxr_linenumber" name="L251" href="MultidimensionalCounter.html#L251">251</a> 
+<a class="jxr_linenumber" name="L252" href="MultidimensionalCounter.html#L252">252</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L253" href="MultidimensionalCounter.html#L253">253</a> <em class="jxr_javadoccomment">     * Convert to unidimensional counter.</em>
+<a class="jxr_linenumber" name="L254" href="MultidimensionalCounter.html#L254">254</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L255" href="MultidimensionalCounter.html#L255">255</a> <em class="jxr_javadoccomment">     * @param c Indices in multidimensional counter.</em>
+<a class="jxr_linenumber" name="L256" href="MultidimensionalCounter.html#L256">256</a> <em class="jxr_javadoccomment">     * @return the index within the unidimensionl counter.</em>
+<a class="jxr_linenumber" name="L257" href="MultidimensionalCounter.html#L257">257</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the size of {@code c}</em>
+<a class="jxr_linenumber" name="L258" href="MultidimensionalCounter.html#L258">258</a> <em class="jxr_javadoccomment">     * does not match the size of the array given in the constructor.</em>
+<a class="jxr_linenumber" name="L259" href="MultidimensionalCounter.html#L259">259</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if a value of {@code c} is not in</em>
+<a class="jxr_linenumber" name="L260" href="MultidimensionalCounter.html#L260">260</a> <em class="jxr_javadoccomment">     * the range of the corresponding dimension, as defined in the</em>
+<a class="jxr_linenumber" name="L261" href="MultidimensionalCounter.html#L261">261</a> <em class="jxr_javadoccomment">     * {@link MultidimensionalCounter#MultidimensionalCounter(int...) constructor}.</em>
+<a class="jxr_linenumber" name="L262" href="MultidimensionalCounter.html#L262">262</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L263" href="MultidimensionalCounter.html#L263">263</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getCount(<strong class="jxr_keyword">int</strong> ... c)
+<a class="jxr_linenumber" name="L264" href="MultidimensionalCounter.html#L264">264</a>         <strong class="jxr_keyword">throws</strong> OutOfRangeException, <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a> {
+<a class="jxr_linenumber" name="L265" href="MultidimensionalCounter.html#L265">265</a>         <strong class="jxr_keyword">if</strong> (c.length != dimension) {
+<a class="jxr_linenumber" name="L266" href="MultidimensionalCounter.html#L266">266</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a>(c.length, dimension);
+<a class="jxr_linenumber" name="L267" href="MultidimensionalCounter.html#L267">267</a>         }
+<a class="jxr_linenumber" name="L268" href="MultidimensionalCounter.html#L268">268</a>         <strong class="jxr_keyword">int</strong> count = 0;
+<a class="jxr_linenumber" name="L269" href="MultidimensionalCounter.html#L269">269</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; dimension; i++) {
+<a class="jxr_linenumber" name="L270" href="MultidimensionalCounter.html#L270">270</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> index = c[i];
+<a class="jxr_linenumber" name="L271" href="MultidimensionalCounter.html#L271">271</a>             <strong class="jxr_keyword">if</strong> (index &lt; 0 ||
+<a class="jxr_linenumber" name="L272" href="MultidimensionalCounter.html#L272">272</a>                 index &gt;= size[i]) {
+<a class="jxr_linenumber" name="L273" href="MultidimensionalCounter.html#L273">273</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/OutOfRangeException.html">OutOfRangeException</a>(index, 0, size[i] - 1);
+<a class="jxr_linenumber" name="L274" href="MultidimensionalCounter.html#L274">274</a>             }
+<a class="jxr_linenumber" name="L275" href="MultidimensionalCounter.html#L275">275</a>             count += uniCounterOffset[i] * c[i];
+<a class="jxr_linenumber" name="L276" href="MultidimensionalCounter.html#L276">276</a>         }
+<a class="jxr_linenumber" name="L277" href="MultidimensionalCounter.html#L277">277</a>         <strong class="jxr_keyword">return</strong> count + c[last];
+<a class="jxr_linenumber" name="L278" href="MultidimensionalCounter.html#L278">278</a>     }
+<a class="jxr_linenumber" name="L279" href="MultidimensionalCounter.html#L279">279</a> 
+<a class="jxr_linenumber" name="L280" href="MultidimensionalCounter.html#L280">280</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L281" href="MultidimensionalCounter.html#L281">281</a> <em class="jxr_javadoccomment">     * Get the total number of elements.</em>
+<a class="jxr_linenumber" name="L282" href="MultidimensionalCounter.html#L282">282</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L283" href="MultidimensionalCounter.html#L283">283</a> <em class="jxr_javadoccomment">     * @return the total size of the unidimensional counter.</em>
+<a class="jxr_linenumber" name="L284" href="MultidimensionalCounter.html#L284">284</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L285" href="MultidimensionalCounter.html#L285">285</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getSize() {
+<a class="jxr_linenumber" name="L286" href="MultidimensionalCounter.html#L286">286</a>         <strong class="jxr_keyword">return</strong> totalSize;
+<a class="jxr_linenumber" name="L287" href="MultidimensionalCounter.html#L287">287</a>     }
+<a class="jxr_linenumber" name="L288" href="MultidimensionalCounter.html#L288">288</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L289" href="MultidimensionalCounter.html#L289">289</a> <em class="jxr_javadoccomment">     * Get the number of multidimensional counter slots in each dimension.</em>
+<a class="jxr_linenumber" name="L290" href="MultidimensionalCounter.html#L290">290</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L291" href="MultidimensionalCounter.html#L291">291</a> <em class="jxr_javadoccomment">     * @return the sizes of the multidimensional counter in each dimension.</em>
+<a class="jxr_linenumber" name="L292" href="MultidimensionalCounter.html#L292">292</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L293" href="MultidimensionalCounter.html#L293">293</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong>[] getSizes() {
+<a class="jxr_linenumber" name="L294" href="MultidimensionalCounter.html#L294">294</a>         <strong class="jxr_keyword">return</strong> MathArrays.copyOf(size);
+<a class="jxr_linenumber" name="L295" href="MultidimensionalCounter.html#L295">295</a>     }
+<a class="jxr_linenumber" name="L296" href="MultidimensionalCounter.html#L296">296</a> 
+<a class="jxr_linenumber" name="L297" href="MultidimensionalCounter.html#L297">297</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L298" href="MultidimensionalCounter.html#L298">298</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L299" href="MultidimensionalCounter.html#L299">299</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L300" href="MultidimensionalCounter.html#L300">300</a>     @Override
+<a class="jxr_linenumber" name="L301" href="MultidimensionalCounter.html#L301">301</a>     <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L302" href="MultidimensionalCounter.html#L302">302</a>         <strong class="jxr_keyword">final</strong> StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder();
+<a class="jxr_linenumber" name="L303" href="MultidimensionalCounter.html#L303">303</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; dimension; i++) {
+<a class="jxr_linenumber" name="L304" href="MultidimensionalCounter.html#L304">304</a>             sb.append(<span class="jxr_string">"["</span>).append(getCount(i)).append(<span class="jxr_string">"]"</span>);
+<a class="jxr_linenumber" name="L305" href="MultidimensionalCounter.html#L305">305</a>         }
+<a class="jxr_linenumber" name="L306" href="MultidimensionalCounter.html#L306">306</a>         <strong class="jxr_keyword">return</strong> sb.toString();
+<a class="jxr_linenumber" name="L307" href="MultidimensionalCounter.html#L307">307</a>     }
+<a class="jxr_linenumber" name="L308" href="MultidimensionalCounter.html#L308">308</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

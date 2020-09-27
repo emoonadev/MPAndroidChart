@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>JDKRandomAdaptor xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/random/JDKRandomAdaptor.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="JDKRandomAdaptor.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="JDKRandomAdaptor.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="JDKRandomAdaptor.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="JDKRandomAdaptor.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="JDKRandomAdaptor.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="JDKRandomAdaptor.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="JDKRandomAdaptor.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="JDKRandomAdaptor.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="JDKRandomAdaptor.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="JDKRandomAdaptor.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="JDKRandomAdaptor.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="JDKRandomAdaptor.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="JDKRandomAdaptor.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="JDKRandomAdaptor.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="JDKRandomAdaptor.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="JDKRandomAdaptor.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="JDKRandomAdaptor.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.random;
+<a class="jxr_linenumber" name="L18" href="JDKRandomAdaptor.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="JDKRandomAdaptor.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.Random;
+<a class="jxr_linenumber" name="L20" href="JDKRandomAdaptor.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.io.ObjectOutputStream;
+<a class="jxr_linenumber" name="L21" href="JDKRandomAdaptor.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L22" href="JDKRandomAdaptor.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathInternalError;
+<a class="jxr_linenumber" name="L23" href="JDKRandomAdaptor.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathUnsupportedOperationException;
+<a class="jxr_linenumber" name="L24" href="JDKRandomAdaptor.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L25" href="JDKRandomAdaptor.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.distribution.RealDistribution;
+<a class="jxr_linenumber" name="L26" href="JDKRandomAdaptor.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.distribution.NormalDistribution;
+<a class="jxr_linenumber" name="L27" href="JDKRandomAdaptor.html#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="JDKRandomAdaptor.html#L28">28</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L29" href="JDKRandomAdaptor.html#L29">29</a>  <em class="jxr_javadoccomment"> * Extension of {@link java.util.Random} that delegates the number</em>
+<a class="jxr_linenumber" name="L30" href="JDKRandomAdaptor.html#L30">30</a>  <em class="jxr_javadoccomment"> * generation to a {@link UniformRandomProvider}.</em>
+<a class="jxr_linenumber" name="L31" href="JDKRandomAdaptor.html#L31">31</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L32" href="JDKRandomAdaptor.html#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L33" href="JDKRandomAdaptor.html#L33">33</a>  <em class="jxr_javadoccomment"> * This class allows usage of JDK utilities that take an instance</em>
+<a class="jxr_linenumber" name="L34" href="JDKRandomAdaptor.html#L34">34</a>  <em class="jxr_javadoccomment"> * of type {@code Random} as argument.</em>
+<a class="jxr_linenumber" name="L35" href="JDKRandomAdaptor.html#L35">35</a>  <em class="jxr_javadoccomment"> * &lt;br&gt;</em>
+<a class="jxr_linenumber" name="L36" href="JDKRandomAdaptor.html#L36">36</a>  <em class="jxr_javadoccomment"> * Other than for this specific purpose, usage of this class</em>
+<a class="jxr_linenumber" name="L37" href="JDKRandomAdaptor.html#L37">37</a>  <em class="jxr_javadoccomment"> * is best avoided; indeed, because of the following limitations:</em>
+<a class="jxr_linenumber" name="L38" href="JDKRandomAdaptor.html#L38">38</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L39" href="JDKRandomAdaptor.html#L39">39</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L40" href="JDKRandomAdaptor.html#L40">40</a>  <em class="jxr_javadoccomment"> *   {@code MathUnsupportedOperationException} will be raised if</em>
+<a class="jxr_linenumber" name="L41" href="JDKRandomAdaptor.html#L41">41</a>  <em class="jxr_javadoccomment"> *   serialization is attempted.</em>
+<a class="jxr_linenumber" name="L42" href="JDKRandomAdaptor.html#L42">42</a>  <em class="jxr_javadoccomment"> *  &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L43" href="JDKRandomAdaptor.html#L43">43</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L44" href="JDKRandomAdaptor.html#L44">44</a>  <em class="jxr_javadoccomment"> *   Reseeding is not supported.</em>
+<a class="jxr_linenumber" name="L45" href="JDKRandomAdaptor.html#L45">45</a>  <em class="jxr_javadoccomment"> *  &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L46" href="JDKRandomAdaptor.html#L46">46</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L47" href="JDKRandomAdaptor.html#L47">47</a>  <em class="jxr_javadoccomment"> * an instance of this class cannot be a substitute for an instance</em>
+<a class="jxr_linenumber" name="L48" href="JDKRandomAdaptor.html#L48">48</a>  <em class="jxr_javadoccomment"> * of the parent class if those functionalities are required.</em>
+<a class="jxr_linenumber" name="L49" href="JDKRandomAdaptor.html#L49">49</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L50" href="JDKRandomAdaptor.html#L50">50</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L51" href="JDKRandomAdaptor.html#L51">51</a>  <em class="jxr_javadoccomment"> * @since 4.0</em>
+<a class="jxr_linenumber" name="L52" href="JDKRandomAdaptor.html#L52">52</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L53" href="JDKRandomAdaptor.html#L53">53</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="JDKRandomAdaptor.html">JDKRandomAdaptor</a> <strong class="jxr_keyword">extends</strong> Random {
+<a class="jxr_linenumber" name="L54" href="JDKRandomAdaptor.html#L54">54</a>      <em class="jxr_javadoccomment">/** Serial version identifier. */</em>
+<a class="jxr_linenumber" name="L55" href="JDKRandomAdaptor.html#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 666L;
+<a class="jxr_linenumber" name="L56" href="JDKRandomAdaptor.html#L56">56</a>      <em class="jxr_javadoccomment">/** Delegate. */</em>
+<a class="jxr_linenumber" name="L57" href="JDKRandomAdaptor.html#L57">57</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">transient</strong> UniformRandomProvider rng;
+<a class="jxr_linenumber" name="L58" href="JDKRandomAdaptor.html#L58">58</a>      <em class="jxr_javadoccomment">/** Cf. "nextGaussian()" method. */</em>
+<a class="jxr_linenumber" name="L59" href="JDKRandomAdaptor.html#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">transient</strong> RealDistribution.Sampler gauss;
+<a class="jxr_linenumber" name="L60" href="JDKRandomAdaptor.html#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="JDKRandomAdaptor.html#L61">61</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L62" href="JDKRandomAdaptor.html#L62">62</a>  <em class="jxr_javadoccomment">     * Creates an adaptor.</em>
+<a class="jxr_linenumber" name="L63" href="JDKRandomAdaptor.html#L63">63</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L64" href="JDKRandomAdaptor.html#L64">64</a>  <em class="jxr_javadoccomment">     * @param rng Generator.</em>
+<a class="jxr_linenumber" name="L65" href="JDKRandomAdaptor.html#L65">65</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L66" href="JDKRandomAdaptor.html#L66">66</a>      <strong class="jxr_keyword">public</strong> <a href="JDKRandomAdaptor.html">JDKRandomAdaptor</a>(UniformRandomProvider rng) {
+<a class="jxr_linenumber" name="L67" href="JDKRandomAdaptor.html#L67">67</a>          <strong class="jxr_keyword">super</strong>(0L);
+<a class="jxr_linenumber" name="L68" href="JDKRandomAdaptor.html#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="JDKRandomAdaptor.html#L69">69</a>          <strong class="jxr_keyword">this</strong>.rng = rng;
+<a class="jxr_linenumber" name="L70" href="JDKRandomAdaptor.html#L70">70</a>          gauss = <strong class="jxr_keyword">new</strong> <a href="../distribution/NormalDistribution.html">NormalDistribution</a>().createSampler(rng);
+<a class="jxr_linenumber" name="L71" href="JDKRandomAdaptor.html#L71">71</a>      }
+<a class="jxr_linenumber" name="L72" href="JDKRandomAdaptor.html#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="JDKRandomAdaptor.html#L73">73</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L74" href="JDKRandomAdaptor.html#L74">74</a>      @Override
+<a class="jxr_linenumber" name="L75" href="JDKRandomAdaptor.html#L75">75</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> nextBoolean() {
+<a class="jxr_linenumber" name="L76" href="JDKRandomAdaptor.html#L76">76</a>          <strong class="jxr_keyword">return</strong> rng.nextBoolean();
+<a class="jxr_linenumber" name="L77" href="JDKRandomAdaptor.html#L77">77</a>      }
+<a class="jxr_linenumber" name="L78" href="JDKRandomAdaptor.html#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="JDKRandomAdaptor.html#L79">79</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L80" href="JDKRandomAdaptor.html#L80">80</a>      @Override
+<a class="jxr_linenumber" name="L81" href="JDKRandomAdaptor.html#L81">81</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> nextBytes(byte[] bytes) {
+<a class="jxr_linenumber" name="L82" href="JDKRandomAdaptor.html#L82">82</a>          rng.nextBytes(bytes);
+<a class="jxr_linenumber" name="L83" href="JDKRandomAdaptor.html#L83">83</a>      }
+<a class="jxr_linenumber" name="L84" href="JDKRandomAdaptor.html#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="JDKRandomAdaptor.html#L85">85</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L86" href="JDKRandomAdaptor.html#L86">86</a>      @Override
+<a class="jxr_linenumber" name="L87" href="JDKRandomAdaptor.html#L87">87</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> nextDouble() {
+<a class="jxr_linenumber" name="L88" href="JDKRandomAdaptor.html#L88">88</a>          <strong class="jxr_keyword">return</strong> rng.nextDouble();
+<a class="jxr_linenumber" name="L89" href="JDKRandomAdaptor.html#L89">89</a>      }
+<a class="jxr_linenumber" name="L90" href="JDKRandomAdaptor.html#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="JDKRandomAdaptor.html#L91">91</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L92" href="JDKRandomAdaptor.html#L92">92</a>      @Override
+<a class="jxr_linenumber" name="L93" href="JDKRandomAdaptor.html#L93">93</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">float</strong> nextFloat() {
+<a class="jxr_linenumber" name="L94" href="JDKRandomAdaptor.html#L94">94</a>          <strong class="jxr_keyword">return</strong> rng.nextFloat();
+<a class="jxr_linenumber" name="L95" href="JDKRandomAdaptor.html#L95">95</a>      }
+<a class="jxr_linenumber" name="L96" href="JDKRandomAdaptor.html#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="JDKRandomAdaptor.html#L97">97</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L98" href="JDKRandomAdaptor.html#L98">98</a>      @Override
+<a class="jxr_linenumber" name="L99" href="JDKRandomAdaptor.html#L99">99</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> nextGaussian() {
+<a class="jxr_linenumber" name="L100" href="JDKRandomAdaptor.html#L100">100</a>         <strong class="jxr_keyword">return</strong> gauss.sample();
+<a class="jxr_linenumber" name="L101" href="JDKRandomAdaptor.html#L101">101</a>     }
+<a class="jxr_linenumber" name="L102" href="JDKRandomAdaptor.html#L102">102</a> 
+<a class="jxr_linenumber" name="L103" href="JDKRandomAdaptor.html#L103">103</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L104" href="JDKRandomAdaptor.html#L104">104</a>     @Override
+<a class="jxr_linenumber" name="L105" href="JDKRandomAdaptor.html#L105">105</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> nextInt() {
+<a class="jxr_linenumber" name="L106" href="JDKRandomAdaptor.html#L106">106</a>         <strong class="jxr_keyword">return</strong> rng.nextInt();
+<a class="jxr_linenumber" name="L107" href="JDKRandomAdaptor.html#L107">107</a>     }
+<a class="jxr_linenumber" name="L108" href="JDKRandomAdaptor.html#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="JDKRandomAdaptor.html#L109">109</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L110" href="JDKRandomAdaptor.html#L110">110</a>     @Override
+<a class="jxr_linenumber" name="L111" href="JDKRandomAdaptor.html#L111">111</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> nextInt(<strong class="jxr_keyword">int</strong> n) {
+<a class="jxr_linenumber" name="L112" href="JDKRandomAdaptor.html#L112">112</a>         <strong class="jxr_keyword">return</strong> rng.nextInt(n);
+<a class="jxr_linenumber" name="L113" href="JDKRandomAdaptor.html#L113">113</a>     }
+<a class="jxr_linenumber" name="L114" href="JDKRandomAdaptor.html#L114">114</a> 
+<a class="jxr_linenumber" name="L115" href="JDKRandomAdaptor.html#L115">115</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L116" href="JDKRandomAdaptor.html#L116">116</a>     @Override
+<a class="jxr_linenumber" name="L117" href="JDKRandomAdaptor.html#L117">117</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> nextLong() {
+<a class="jxr_linenumber" name="L118" href="JDKRandomAdaptor.html#L118">118</a>         <strong class="jxr_keyword">return</strong> rng.nextLong();
+<a class="jxr_linenumber" name="L119" href="JDKRandomAdaptor.html#L119">119</a>     }
+<a class="jxr_linenumber" name="L120" href="JDKRandomAdaptor.html#L120">120</a> 
+<a class="jxr_linenumber" name="L121" href="JDKRandomAdaptor.html#L121">121</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L122" href="JDKRandomAdaptor.html#L122">122</a>     @Override
+<a class="jxr_linenumber" name="L123" href="JDKRandomAdaptor.html#L123">123</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">int</strong> next(<strong class="jxr_keyword">int</strong> bits) {
+<a class="jxr_linenumber" name="L124" href="JDKRandomAdaptor.html#L124">124</a>         <em class="jxr_comment">// Should never happen: it means that some methods were not overridden.</em>
+<a class="jxr_linenumber" name="L125" href="JDKRandomAdaptor.html#L125">125</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathInternalError.html">MathInternalError</a>();
+<a class="jxr_linenumber" name="L126" href="JDKRandomAdaptor.html#L126">126</a>     }
+<a class="jxr_linenumber" name="L127" href="JDKRandomAdaptor.html#L127">127</a> 
+<a class="jxr_linenumber" name="L128" href="JDKRandomAdaptor.html#L128">128</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L129" href="JDKRandomAdaptor.html#L129">129</a> <em class="jxr_javadoccomment">     * Seeding is not supported.</em>
+<a class="jxr_linenumber" name="L130" href="JDKRandomAdaptor.html#L130">130</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L131" href="JDKRandomAdaptor.html#L131">131</a> <em class="jxr_javadoccomment">     * @param seed Ignored.</em>
+<a class="jxr_linenumber" name="L132" href="JDKRandomAdaptor.html#L132">132</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L133" href="JDKRandomAdaptor.html#L133">133</a>     @Override
+<a class="jxr_linenumber" name="L134" href="JDKRandomAdaptor.html#L134">134</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setSeed(<strong class="jxr_keyword">long</strong> seed) {
+<a class="jxr_linenumber" name="L135" href="JDKRandomAdaptor.html#L135">135</a>         <em class="jxr_comment">// Cannot throw because the constructor of "Random" calls it.</em>
+<a class="jxr_linenumber" name="L136" href="JDKRandomAdaptor.html#L136">136</a>         <em class="jxr_comment">// throw new MathUnsupportedOperationException();</em>
+<a class="jxr_linenumber" name="L137" href="JDKRandomAdaptor.html#L137">137</a>     }
+<a class="jxr_linenumber" name="L138" href="JDKRandomAdaptor.html#L138">138</a> 
+<a class="jxr_linenumber" name="L139" href="JDKRandomAdaptor.html#L139">139</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L140" href="JDKRandomAdaptor.html#L140">140</a> <em class="jxr_javadoccomment">     * @param out Ignored.</em>
+<a class="jxr_linenumber" name="L141" href="JDKRandomAdaptor.html#L141">141</a> <em class="jxr_javadoccomment">     * @throws IOException Ignored.</em>
+<a class="jxr_linenumber" name="L142" href="JDKRandomAdaptor.html#L142">142</a> <em class="jxr_javadoccomment">     * @throws MathUnsupportedOperationException if called.</em>
+<a class="jxr_linenumber" name="L143" href="JDKRandomAdaptor.html#L143">143</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L144" href="JDKRandomAdaptor.html#L144">144</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> writeObject(ObjectOutputStream out)
+<a class="jxr_linenumber" name="L145" href="JDKRandomAdaptor.html#L145">145</a>         <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L146" href="JDKRandomAdaptor.html#L146">146</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathUnsupportedOperationException.html">MathUnsupportedOperationException</a>();
+<a class="jxr_linenumber" name="L147" href="JDKRandomAdaptor.html#L147">147</a>     }
+<a class="jxr_linenumber" name="L148" href="JDKRandomAdaptor.html#L148">148</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

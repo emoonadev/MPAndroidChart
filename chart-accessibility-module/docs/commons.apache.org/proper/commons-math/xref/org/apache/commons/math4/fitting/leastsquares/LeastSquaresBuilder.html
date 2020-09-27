@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>LeastSquaresBuilder xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/fitting/leastsquares/LeastSquaresBuilder.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="LeastSquaresBuilder.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="LeastSquaresBuilder.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="LeastSquaresBuilder.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="LeastSquaresBuilder.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="LeastSquaresBuilder.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="LeastSquaresBuilder.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="LeastSquaresBuilder.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="LeastSquaresBuilder.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="LeastSquaresBuilder.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="LeastSquaresBuilder.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="LeastSquaresBuilder.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="LeastSquaresBuilder.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="LeastSquaresBuilder.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="LeastSquaresBuilder.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="LeastSquaresBuilder.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="LeastSquaresBuilder.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="LeastSquaresBuilder.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.fitting.leastsquares;
+<a class="jxr_linenumber" name="L18" href="LeastSquaresBuilder.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="LeastSquaresBuilder.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.MultivariateMatrixFunction;
+<a class="jxr_linenumber" name="L20" href="LeastSquaresBuilder.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.MultivariateVectorFunction;
+<a class="jxr_linenumber" name="L21" href="LeastSquaresBuilder.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.fitting.leastsquares.LeastSquaresProblem.Evaluation;
+<a class="jxr_linenumber" name="L22" href="LeastSquaresBuilder.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.ArrayRealVector;
+<a class="jxr_linenumber" name="L23" href="LeastSquaresBuilder.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.RealMatrix;
+<a class="jxr_linenumber" name="L24" href="LeastSquaresBuilder.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.RealVector;
+<a class="jxr_linenumber" name="L25" href="LeastSquaresBuilder.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.optim.ConvergenceChecker;
+<a class="jxr_linenumber" name="L26" href="LeastSquaresBuilder.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.optim.PointVectorValuePair;
+<a class="jxr_linenumber" name="L27" href="LeastSquaresBuilder.html#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="LeastSquaresBuilder.html#L28">28</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L29" href="LeastSquaresBuilder.html#L29">29</a>  <em class="jxr_javadoccomment"> * A mutable builder for {@link LeastSquaresProblem}s.</em>
+<a class="jxr_linenumber" name="L30" href="LeastSquaresBuilder.html#L30">30</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L31" href="LeastSquaresBuilder.html#L31">31</a>  <em class="jxr_javadoccomment"> * @see LeastSquaresFactory</em>
+<a class="jxr_linenumber" name="L32" href="LeastSquaresBuilder.html#L32">32</a>  <em class="jxr_javadoccomment"> * @since 3.3</em>
+<a class="jxr_linenumber" name="L33" href="LeastSquaresBuilder.html#L33">33</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L34" href="LeastSquaresBuilder.html#L34">34</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="LeastSquaresBuilder.html">LeastSquaresBuilder</a> {
+<a class="jxr_linenumber" name="L35" href="LeastSquaresBuilder.html#L35">35</a>  
+<a class="jxr_linenumber" name="L36" href="LeastSquaresBuilder.html#L36">36</a>      <em class="jxr_javadoccomment">/** max evaluations */</em>
+<a class="jxr_linenumber" name="L37" href="LeastSquaresBuilder.html#L37">37</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> maxEvaluations;
+<a class="jxr_linenumber" name="L38" href="LeastSquaresBuilder.html#L38">38</a>      <em class="jxr_javadoccomment">/** max iterations */</em>
+<a class="jxr_linenumber" name="L39" href="LeastSquaresBuilder.html#L39">39</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> maxIterations;
+<a class="jxr_linenumber" name="L40" href="LeastSquaresBuilder.html#L40">40</a>      <em class="jxr_javadoccomment">/** convergence checker */</em>
+<a class="jxr_linenumber" name="L41" href="LeastSquaresBuilder.html#L41">41</a>      <strong class="jxr_keyword">private</strong> ConvergenceChecker&lt;Evaluation&gt; checker;
+<a class="jxr_linenumber" name="L42" href="LeastSquaresBuilder.html#L42">42</a>      <em class="jxr_javadoccomment">/** model function */</em>
+<a class="jxr_linenumber" name="L43" href="LeastSquaresBuilder.html#L43">43</a>      <strong class="jxr_keyword">private</strong> <a href="MultivariateJacobianFunction.html">MultivariateJacobianFunction</a> model;
+<a class="jxr_linenumber" name="L44" href="LeastSquaresBuilder.html#L44">44</a>      <em class="jxr_javadoccomment">/** observed values */</em>
+<a class="jxr_linenumber" name="L45" href="LeastSquaresBuilder.html#L45">45</a>      <strong class="jxr_keyword">private</strong> <a href="../../linear/RealVector.html">RealVector</a> target;
+<a class="jxr_linenumber" name="L46" href="LeastSquaresBuilder.html#L46">46</a>      <em class="jxr_javadoccomment">/** initial guess */</em>
+<a class="jxr_linenumber" name="L47" href="LeastSquaresBuilder.html#L47">47</a>      <strong class="jxr_keyword">private</strong> <a href="../../linear/RealVector.html">RealVector</a> start;
+<a class="jxr_linenumber" name="L48" href="LeastSquaresBuilder.html#L48">48</a>      <em class="jxr_javadoccomment">/** weight matrix */</em>
+<a class="jxr_linenumber" name="L49" href="LeastSquaresBuilder.html#L49">49</a>      <strong class="jxr_keyword">private</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> weight;
+<a class="jxr_linenumber" name="L50" href="LeastSquaresBuilder.html#L50">50</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L51" href="LeastSquaresBuilder.html#L51">51</a>  <em class="jxr_javadoccomment">     * Lazy evaluation.</em>
+<a class="jxr_linenumber" name="L52" href="LeastSquaresBuilder.html#L52">52</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L53" href="LeastSquaresBuilder.html#L53">53</a>  <em class="jxr_javadoccomment">     * @since 3.4</em>
+<a class="jxr_linenumber" name="L54" href="LeastSquaresBuilder.html#L54">54</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L55" href="LeastSquaresBuilder.html#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> lazyEvaluation;
+<a class="jxr_linenumber" name="L56" href="LeastSquaresBuilder.html#L56">56</a>      <em class="jxr_javadoccomment">/** Validator.</em>
+<a class="jxr_linenumber" name="L57" href="LeastSquaresBuilder.html#L57">57</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L58" href="LeastSquaresBuilder.html#L58">58</a>  <em class="jxr_javadoccomment">     * @since 3.4</em>
+<a class="jxr_linenumber" name="L59" href="LeastSquaresBuilder.html#L59">59</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L60" href="LeastSquaresBuilder.html#L60">60</a>      <strong class="jxr_keyword">private</strong> <a href="ParameterValidator.html">ParameterValidator</a> paramValidator;
+<a class="jxr_linenumber" name="L61" href="LeastSquaresBuilder.html#L61">61</a>  
+<a class="jxr_linenumber" name="L62" href="LeastSquaresBuilder.html#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="LeastSquaresBuilder.html#L63">63</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L64" href="LeastSquaresBuilder.html#L64">64</a>  <em class="jxr_javadoccomment">     * Construct a {@link LeastSquaresProblem} from the data in this builder.</em>
+<a class="jxr_linenumber" name="L65" href="LeastSquaresBuilder.html#L65">65</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L66" href="LeastSquaresBuilder.html#L66">66</a>  <em class="jxr_javadoccomment">     * @return a new {@link LeastSquaresProblem}.</em>
+<a class="jxr_linenumber" name="L67" href="LeastSquaresBuilder.html#L67">67</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L68" href="LeastSquaresBuilder.html#L68">68</a>      <strong class="jxr_keyword">public</strong> <a href="LeastSquaresProblem.html">LeastSquaresProblem</a> build() {
+<a class="jxr_linenumber" name="L69" href="LeastSquaresBuilder.html#L69">69</a>          <strong class="jxr_keyword">return</strong> LeastSquaresFactory.create(model,
+<a class="jxr_linenumber" name="L70" href="LeastSquaresBuilder.html#L70">70</a>                                            target,
+<a class="jxr_linenumber" name="L71" href="LeastSquaresBuilder.html#L71">71</a>                                            start,
+<a class="jxr_linenumber" name="L72" href="LeastSquaresBuilder.html#L72">72</a>                                            weight,
+<a class="jxr_linenumber" name="L73" href="LeastSquaresBuilder.html#L73">73</a>                                            checker,
+<a class="jxr_linenumber" name="L74" href="LeastSquaresBuilder.html#L74">74</a>                                            maxEvaluations,
+<a class="jxr_linenumber" name="L75" href="LeastSquaresBuilder.html#L75">75</a>                                            maxIterations,
+<a class="jxr_linenumber" name="L76" href="LeastSquaresBuilder.html#L76">76</a>                                            lazyEvaluation,
+<a class="jxr_linenumber" name="L77" href="LeastSquaresBuilder.html#L77">77</a>                                            paramValidator);
+<a class="jxr_linenumber" name="L78" href="LeastSquaresBuilder.html#L78">78</a>      }
+<a class="jxr_linenumber" name="L79" href="LeastSquaresBuilder.html#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="LeastSquaresBuilder.html#L80">80</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L81" href="LeastSquaresBuilder.html#L81">81</a>  <em class="jxr_javadoccomment">     * Configure the max evaluations.</em>
+<a class="jxr_linenumber" name="L82" href="LeastSquaresBuilder.html#L82">82</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L83" href="LeastSquaresBuilder.html#L83">83</a>  <em class="jxr_javadoccomment">     * @param newMaxEvaluations the maximum number of evaluations permitted.</em>
+<a class="jxr_linenumber" name="L84" href="LeastSquaresBuilder.html#L84">84</a>  <em class="jxr_javadoccomment">     * @return this</em>
+<a class="jxr_linenumber" name="L85" href="LeastSquaresBuilder.html#L85">85</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L86" href="LeastSquaresBuilder.html#L86">86</a>      <strong class="jxr_keyword">public</strong> <a href="LeastSquaresBuilder.html">LeastSquaresBuilder</a> maxEvaluations(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> newMaxEvaluations) {
+<a class="jxr_linenumber" name="L87" href="LeastSquaresBuilder.html#L87">87</a>          <strong class="jxr_keyword">this</strong>.maxEvaluations = newMaxEvaluations;
+<a class="jxr_linenumber" name="L88" href="LeastSquaresBuilder.html#L88">88</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L89" href="LeastSquaresBuilder.html#L89">89</a>      }
+<a class="jxr_linenumber" name="L90" href="LeastSquaresBuilder.html#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="LeastSquaresBuilder.html#L91">91</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L92" href="LeastSquaresBuilder.html#L92">92</a>  <em class="jxr_javadoccomment">     * Configure the max iterations.</em>
+<a class="jxr_linenumber" name="L93" href="LeastSquaresBuilder.html#L93">93</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L94" href="LeastSquaresBuilder.html#L94">94</a>  <em class="jxr_javadoccomment">     * @param newMaxIterations the maximum number of iterations permitted.</em>
+<a class="jxr_linenumber" name="L95" href="LeastSquaresBuilder.html#L95">95</a>  <em class="jxr_javadoccomment">     * @return this</em>
+<a class="jxr_linenumber" name="L96" href="LeastSquaresBuilder.html#L96">96</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L97" href="LeastSquaresBuilder.html#L97">97</a>      <strong class="jxr_keyword">public</strong> <a href="LeastSquaresBuilder.html">LeastSquaresBuilder</a> maxIterations(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> newMaxIterations) {
+<a class="jxr_linenumber" name="L98" href="LeastSquaresBuilder.html#L98">98</a>          <strong class="jxr_keyword">this</strong>.maxIterations = newMaxIterations;
+<a class="jxr_linenumber" name="L99" href="LeastSquaresBuilder.html#L99">99</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L100" href="LeastSquaresBuilder.html#L100">100</a>     }
+<a class="jxr_linenumber" name="L101" href="LeastSquaresBuilder.html#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="LeastSquaresBuilder.html#L102">102</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L103" href="LeastSquaresBuilder.html#L103">103</a> <em class="jxr_javadoccomment">     * Configure the convergence checker.</em>
+<a class="jxr_linenumber" name="L104" href="LeastSquaresBuilder.html#L104">104</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L105" href="LeastSquaresBuilder.html#L105">105</a> <em class="jxr_javadoccomment">     * @param newChecker the convergence checker.</em>
+<a class="jxr_linenumber" name="L106" href="LeastSquaresBuilder.html#L106">106</a> <em class="jxr_javadoccomment">     * @return this</em>
+<a class="jxr_linenumber" name="L107" href="LeastSquaresBuilder.html#L107">107</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L108" href="LeastSquaresBuilder.html#L108">108</a>     <strong class="jxr_keyword">public</strong> <a href="LeastSquaresBuilder.html">LeastSquaresBuilder</a> checker(<strong class="jxr_keyword">final</strong> ConvergenceChecker&lt;Evaluation&gt; newChecker) {
+<a class="jxr_linenumber" name="L109" href="LeastSquaresBuilder.html#L109">109</a>         <strong class="jxr_keyword">this</strong>.checker = newChecker;
+<a class="jxr_linenumber" name="L110" href="LeastSquaresBuilder.html#L110">110</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L111" href="LeastSquaresBuilder.html#L111">111</a>     }
+<a class="jxr_linenumber" name="L112" href="LeastSquaresBuilder.html#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="LeastSquaresBuilder.html#L113">113</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L114" href="LeastSquaresBuilder.html#L114">114</a> <em class="jxr_javadoccomment">     * Configure the convergence checker.</em>
+<a class="jxr_linenumber" name="L115" href="LeastSquaresBuilder.html#L115">115</a> <em class="jxr_javadoccomment">     * &lt;p/&gt;</em>
+<a class="jxr_linenumber" name="L116" href="LeastSquaresBuilder.html#L116">116</a> <em class="jxr_javadoccomment">     * This function is an overloaded version of {@link #checker(ConvergenceChecker)}.</em>
+<a class="jxr_linenumber" name="L117" href="LeastSquaresBuilder.html#L117">117</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L118" href="LeastSquaresBuilder.html#L118">118</a> <em class="jxr_javadoccomment">     * @param newChecker the convergence checker.</em>
+<a class="jxr_linenumber" name="L119" href="LeastSquaresBuilder.html#L119">119</a> <em class="jxr_javadoccomment">     * @return this</em>
+<a class="jxr_linenumber" name="L120" href="LeastSquaresBuilder.html#L120">120</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L121" href="LeastSquaresBuilder.html#L121">121</a>     <strong class="jxr_keyword">public</strong> <a href="LeastSquaresBuilder.html">LeastSquaresBuilder</a> checkerPair(<strong class="jxr_keyword">final</strong> ConvergenceChecker&lt;PointVectorValuePair&gt; newChecker) {
+<a class="jxr_linenumber" name="L122" href="LeastSquaresBuilder.html#L122">122</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.checker(LeastSquaresFactory.evaluationChecker(newChecker));
+<a class="jxr_linenumber" name="L123" href="LeastSquaresBuilder.html#L123">123</a>     }
+<a class="jxr_linenumber" name="L124" href="LeastSquaresBuilder.html#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="LeastSquaresBuilder.html#L125">125</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L126" href="LeastSquaresBuilder.html#L126">126</a> <em class="jxr_javadoccomment">     * Configure the model function.</em>
+<a class="jxr_linenumber" name="L127" href="LeastSquaresBuilder.html#L127">127</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L128" href="LeastSquaresBuilder.html#L128">128</a> <em class="jxr_javadoccomment">     * @param value the model function value</em>
+<a class="jxr_linenumber" name="L129" href="LeastSquaresBuilder.html#L129">129</a> <em class="jxr_javadoccomment">     * @param jacobian the Jacobian of {@code value}</em>
+<a class="jxr_linenumber" name="L130" href="LeastSquaresBuilder.html#L130">130</a> <em class="jxr_javadoccomment">     * @return this</em>
+<a class="jxr_linenumber" name="L131" href="LeastSquaresBuilder.html#L131">131</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L132" href="LeastSquaresBuilder.html#L132">132</a>     <strong class="jxr_keyword">public</strong> <a href="LeastSquaresBuilder.html">LeastSquaresBuilder</a> model(<strong class="jxr_keyword">final</strong> <a href="../../analysis/MultivariateVectorFunction.html">MultivariateVectorFunction</a> value,
+<a class="jxr_linenumber" name="L133" href="LeastSquaresBuilder.html#L133">133</a>                                      <strong class="jxr_keyword">final</strong> <a href="../../analysis/MultivariateMatrixFunction.html">MultivariateMatrixFunction</a> jacobian) {
+<a class="jxr_linenumber" name="L134" href="LeastSquaresBuilder.html#L134">134</a>         <strong class="jxr_keyword">return</strong> model(LeastSquaresFactory.model(value, jacobian));
+<a class="jxr_linenumber" name="L135" href="LeastSquaresBuilder.html#L135">135</a>     }
+<a class="jxr_linenumber" name="L136" href="LeastSquaresBuilder.html#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="LeastSquaresBuilder.html#L137">137</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L138" href="LeastSquaresBuilder.html#L138">138</a> <em class="jxr_javadoccomment">     * Configure the model function.</em>
+<a class="jxr_linenumber" name="L139" href="LeastSquaresBuilder.html#L139">139</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L140" href="LeastSquaresBuilder.html#L140">140</a> <em class="jxr_javadoccomment">     * @param newModel the model function value and Jacobian</em>
+<a class="jxr_linenumber" name="L141" href="LeastSquaresBuilder.html#L141">141</a> <em class="jxr_javadoccomment">     * @return this</em>
+<a class="jxr_linenumber" name="L142" href="LeastSquaresBuilder.html#L142">142</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L143" href="LeastSquaresBuilder.html#L143">143</a>     <strong class="jxr_keyword">public</strong> <a href="LeastSquaresBuilder.html">LeastSquaresBuilder</a> model(<strong class="jxr_keyword">final</strong> <a href="MultivariateJacobianFunction.html">MultivariateJacobianFunction</a> newModel) {
+<a class="jxr_linenumber" name="L144" href="LeastSquaresBuilder.html#L144">144</a>         <strong class="jxr_keyword">this</strong>.model = newModel;
+<a class="jxr_linenumber" name="L145" href="LeastSquaresBuilder.html#L145">145</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L146" href="LeastSquaresBuilder.html#L146">146</a>     }
+<a class="jxr_linenumber" name="L147" href="LeastSquaresBuilder.html#L147">147</a> 
+<a class="jxr_linenumber" name="L148" href="LeastSquaresBuilder.html#L148">148</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L149" href="LeastSquaresBuilder.html#L149">149</a> <em class="jxr_javadoccomment">     * Configure the observed data.</em>
+<a class="jxr_linenumber" name="L150" href="LeastSquaresBuilder.html#L150">150</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L151" href="LeastSquaresBuilder.html#L151">151</a> <em class="jxr_javadoccomment">     * @param newTarget the observed data.</em>
+<a class="jxr_linenumber" name="L152" href="LeastSquaresBuilder.html#L152">152</a> <em class="jxr_javadoccomment">     * @return this</em>
+<a class="jxr_linenumber" name="L153" href="LeastSquaresBuilder.html#L153">153</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L154" href="LeastSquaresBuilder.html#L154">154</a>     <strong class="jxr_keyword">public</strong> <a href="LeastSquaresBuilder.html">LeastSquaresBuilder</a> target(<strong class="jxr_keyword">final</strong> <a href="../../linear/RealVector.html">RealVector</a> newTarget) {
+<a class="jxr_linenumber" name="L155" href="LeastSquaresBuilder.html#L155">155</a>         <strong class="jxr_keyword">this</strong>.target = newTarget;
+<a class="jxr_linenumber" name="L156" href="LeastSquaresBuilder.html#L156">156</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L157" href="LeastSquaresBuilder.html#L157">157</a>     }
+<a class="jxr_linenumber" name="L158" href="LeastSquaresBuilder.html#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="LeastSquaresBuilder.html#L159">159</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L160" href="LeastSquaresBuilder.html#L160">160</a> <em class="jxr_javadoccomment">     * Configure the observed data.</em>
+<a class="jxr_linenumber" name="L161" href="LeastSquaresBuilder.html#L161">161</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L162" href="LeastSquaresBuilder.html#L162">162</a> <em class="jxr_javadoccomment">     * @param newTarget the observed data.</em>
+<a class="jxr_linenumber" name="L163" href="LeastSquaresBuilder.html#L163">163</a> <em class="jxr_javadoccomment">     * @return this</em>
+<a class="jxr_linenumber" name="L164" href="LeastSquaresBuilder.html#L164">164</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L165" href="LeastSquaresBuilder.html#L165">165</a>     <strong class="jxr_keyword">public</strong> <a href="LeastSquaresBuilder.html">LeastSquaresBuilder</a> target(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] newTarget) {
+<a class="jxr_linenumber" name="L166" href="LeastSquaresBuilder.html#L166">166</a>         <strong class="jxr_keyword">return</strong> target(<strong class="jxr_keyword">new</strong> <a href="../../linear/ArrayRealVector.html">ArrayRealVector</a>(newTarget, false));
+<a class="jxr_linenumber" name="L167" href="LeastSquaresBuilder.html#L167">167</a>     }
+<a class="jxr_linenumber" name="L168" href="LeastSquaresBuilder.html#L168">168</a> 
+<a class="jxr_linenumber" name="L169" href="LeastSquaresBuilder.html#L169">169</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L170" href="LeastSquaresBuilder.html#L170">170</a> <em class="jxr_javadoccomment">     * Configure the initial guess.</em>
+<a class="jxr_linenumber" name="L171" href="LeastSquaresBuilder.html#L171">171</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L172" href="LeastSquaresBuilder.html#L172">172</a> <em class="jxr_javadoccomment">     * @param newStart the initial guess.</em>
+<a class="jxr_linenumber" name="L173" href="LeastSquaresBuilder.html#L173">173</a> <em class="jxr_javadoccomment">     * @return this</em>
+<a class="jxr_linenumber" name="L174" href="LeastSquaresBuilder.html#L174">174</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L175" href="LeastSquaresBuilder.html#L175">175</a>     <strong class="jxr_keyword">public</strong> <a href="LeastSquaresBuilder.html">LeastSquaresBuilder</a> start(<strong class="jxr_keyword">final</strong> <a href="../../linear/RealVector.html">RealVector</a> newStart) {
+<a class="jxr_linenumber" name="L176" href="LeastSquaresBuilder.html#L176">176</a>         <strong class="jxr_keyword">this</strong>.start = newStart;
+<a class="jxr_linenumber" name="L177" href="LeastSquaresBuilder.html#L177">177</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L178" href="LeastSquaresBuilder.html#L178">178</a>     }
+<a class="jxr_linenumber" name="L179" href="LeastSquaresBuilder.html#L179">179</a> 
+<a class="jxr_linenumber" name="L180" href="LeastSquaresBuilder.html#L180">180</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L181" href="LeastSquaresBuilder.html#L181">181</a> <em class="jxr_javadoccomment">     * Configure the initial guess.</em>
+<a class="jxr_linenumber" name="L182" href="LeastSquaresBuilder.html#L182">182</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L183" href="LeastSquaresBuilder.html#L183">183</a> <em class="jxr_javadoccomment">     * @param newStart the initial guess.</em>
+<a class="jxr_linenumber" name="L184" href="LeastSquaresBuilder.html#L184">184</a> <em class="jxr_javadoccomment">     * @return this</em>
+<a class="jxr_linenumber" name="L185" href="LeastSquaresBuilder.html#L185">185</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L186" href="LeastSquaresBuilder.html#L186">186</a>     <strong class="jxr_keyword">public</strong> <a href="LeastSquaresBuilder.html">LeastSquaresBuilder</a> start(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] newStart) {
+<a class="jxr_linenumber" name="L187" href="LeastSquaresBuilder.html#L187">187</a>         <strong class="jxr_keyword">return</strong> start(<strong class="jxr_keyword">new</strong> <a href="../../linear/ArrayRealVector.html">ArrayRealVector</a>(newStart, false));
+<a class="jxr_linenumber" name="L188" href="LeastSquaresBuilder.html#L188">188</a>     }
+<a class="jxr_linenumber" name="L189" href="LeastSquaresBuilder.html#L189">189</a> 
+<a class="jxr_linenumber" name="L190" href="LeastSquaresBuilder.html#L190">190</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L191" href="LeastSquaresBuilder.html#L191">191</a> <em class="jxr_javadoccomment">     * Configure the weight matrix.</em>
+<a class="jxr_linenumber" name="L192" href="LeastSquaresBuilder.html#L192">192</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L193" href="LeastSquaresBuilder.html#L193">193</a> <em class="jxr_javadoccomment">     * @param newWeight the weight matrix</em>
+<a class="jxr_linenumber" name="L194" href="LeastSquaresBuilder.html#L194">194</a> <em class="jxr_javadoccomment">     * @return this</em>
+<a class="jxr_linenumber" name="L195" href="LeastSquaresBuilder.html#L195">195</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L196" href="LeastSquaresBuilder.html#L196">196</a>     <strong class="jxr_keyword">public</strong> <a href="LeastSquaresBuilder.html">LeastSquaresBuilder</a> weight(<strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> newWeight) {
+<a class="jxr_linenumber" name="L197" href="LeastSquaresBuilder.html#L197">197</a>         <strong class="jxr_keyword">this</strong>.weight = newWeight;
+<a class="jxr_linenumber" name="L198" href="LeastSquaresBuilder.html#L198">198</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L199" href="LeastSquaresBuilder.html#L199">199</a>     }
+<a class="jxr_linenumber" name="L200" href="LeastSquaresBuilder.html#L200">200</a> 
+<a class="jxr_linenumber" name="L201" href="LeastSquaresBuilder.html#L201">201</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L202" href="LeastSquaresBuilder.html#L202">202</a> <em class="jxr_javadoccomment">     * Configure whether evaluation will be lazy or not.</em>
+<a class="jxr_linenumber" name="L203" href="LeastSquaresBuilder.html#L203">203</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L204" href="LeastSquaresBuilder.html#L204">204</a> <em class="jxr_javadoccomment">     * @param newValue Whether to perform lazy evaluation.</em>
+<a class="jxr_linenumber" name="L205" href="LeastSquaresBuilder.html#L205">205</a> <em class="jxr_javadoccomment">     * @return this object.</em>
+<a class="jxr_linenumber" name="L206" href="LeastSquaresBuilder.html#L206">206</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L207" href="LeastSquaresBuilder.html#L207">207</a> <em class="jxr_javadoccomment">     * @since 3.4</em>
+<a class="jxr_linenumber" name="L208" href="LeastSquaresBuilder.html#L208">208</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L209" href="LeastSquaresBuilder.html#L209">209</a>     <strong class="jxr_keyword">public</strong> <a href="LeastSquaresBuilder.html">LeastSquaresBuilder</a> lazyEvaluation(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> newValue) {
+<a class="jxr_linenumber" name="L210" href="LeastSquaresBuilder.html#L210">210</a>         lazyEvaluation = newValue;
+<a class="jxr_linenumber" name="L211" href="LeastSquaresBuilder.html#L211">211</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L212" href="LeastSquaresBuilder.html#L212">212</a>     }
+<a class="jxr_linenumber" name="L213" href="LeastSquaresBuilder.html#L213">213</a> 
+<a class="jxr_linenumber" name="L214" href="LeastSquaresBuilder.html#L214">214</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L215" href="LeastSquaresBuilder.html#L215">215</a> <em class="jxr_javadoccomment">     * Configure the validator of the model parameters.</em>
+<a class="jxr_linenumber" name="L216" href="LeastSquaresBuilder.html#L216">216</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L217" href="LeastSquaresBuilder.html#L217">217</a> <em class="jxr_javadoccomment">     * @param newValidator Parameter validator.</em>
+<a class="jxr_linenumber" name="L218" href="LeastSquaresBuilder.html#L218">218</a> <em class="jxr_javadoccomment">     * @return this object.</em>
+<a class="jxr_linenumber" name="L219" href="LeastSquaresBuilder.html#L219">219</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L220" href="LeastSquaresBuilder.html#L220">220</a> <em class="jxr_javadoccomment">     * @since 3.4</em>
+<a class="jxr_linenumber" name="L221" href="LeastSquaresBuilder.html#L221">221</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L222" href="LeastSquaresBuilder.html#L222">222</a>     <strong class="jxr_keyword">public</strong> <a href="LeastSquaresBuilder.html">LeastSquaresBuilder</a> parameterValidator(<strong class="jxr_keyword">final</strong> <a href="ParameterValidator.html">ParameterValidator</a> newValidator) {
+<a class="jxr_linenumber" name="L223" href="LeastSquaresBuilder.html#L223">223</a>         paramValidator = newValidator;
+<a class="jxr_linenumber" name="L224" href="LeastSquaresBuilder.html#L224">224</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L225" href="LeastSquaresBuilder.html#L225">225</a>     }
+<a class="jxr_linenumber" name="L226" href="LeastSquaresBuilder.html#L226">226</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

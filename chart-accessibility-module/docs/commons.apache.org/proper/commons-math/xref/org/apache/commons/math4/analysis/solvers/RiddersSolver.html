@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>RiddersSolver xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/analysis/solvers/RiddersSolver.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="RiddersSolver.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="RiddersSolver.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="RiddersSolver.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="RiddersSolver.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="RiddersSolver.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="RiddersSolver.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="RiddersSolver.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="RiddersSolver.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="RiddersSolver.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="RiddersSolver.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="RiddersSolver.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="RiddersSolver.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="RiddersSolver.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="RiddersSolver.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="RiddersSolver.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="RiddersSolver.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="RiddersSolver.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.solvers;
+<a class="jxr_linenumber" name="L18" href="RiddersSolver.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="RiddersSolver.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoBracketingException;
+<a class="jxr_linenumber" name="L20" href="RiddersSolver.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.TooManyEvaluationsException;
+<a class="jxr_linenumber" name="L21" href="RiddersSolver.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L22" href="RiddersSolver.html#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="RiddersSolver.html#L23">23</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L24" href="RiddersSolver.html#L24">24</a>  <em class="jxr_javadoccomment"> * Implements the &lt;a href="<a href="http://mathworld.wolfram.com/RiddersMethod.html" target="alexandria_uri">http://mathworld.wolfram.com/RiddersMethod.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L25" href="RiddersSolver.html#L25">25</a>  <em class="jxr_javadoccomment"> * Ridders' Method&lt;/a&gt; for root finding of real univariate functions. For</em>
+<a class="jxr_linenumber" name="L26" href="RiddersSolver.html#L26">26</a>  <em class="jxr_javadoccomment"> * reference, see C. Ridders, &lt;i&gt;A new algorithm for computing a single root</em>
+<a class="jxr_linenumber" name="L27" href="RiddersSolver.html#L27">27</a>  <em class="jxr_javadoccomment"> * of a real continuous function &lt;/i&gt;, IEEE Transactions on Circuits and</em>
+<a class="jxr_linenumber" name="L28" href="RiddersSolver.html#L28">28</a>  <em class="jxr_javadoccomment"> * Systems, 26 (1979), 979 - 980.</em>
+<a class="jxr_linenumber" name="L29" href="RiddersSolver.html#L29">29</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L30" href="RiddersSolver.html#L30">30</a>  <em class="jxr_javadoccomment"> * The function should be continuous but not necessarily smooth.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L31" href="RiddersSolver.html#L31">31</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L32" href="RiddersSolver.html#L32">32</a>  <em class="jxr_javadoccomment"> * @since 1.2</em>
+<a class="jxr_linenumber" name="L33" href="RiddersSolver.html#L33">33</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L34" href="RiddersSolver.html#L34">34</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="RiddersSolver.html">RiddersSolver</a> <strong class="jxr_keyword">extends</strong> <a href="AbstractUnivariateSolver.html">AbstractUnivariateSolver</a> {
+<a class="jxr_linenumber" name="L35" href="RiddersSolver.html#L35">35</a>      <em class="jxr_javadoccomment">/** Default absolute accuracy. */</em>
+<a class="jxr_linenumber" name="L36" href="RiddersSolver.html#L36">36</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_ABSOLUTE_ACCURACY = 1e-6;
+<a class="jxr_linenumber" name="L37" href="RiddersSolver.html#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="RiddersSolver.html#L38">38</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L39" href="RiddersSolver.html#L39">39</a>  <em class="jxr_javadoccomment">     * Construct a solver with default accuracy (1e-6).</em>
+<a class="jxr_linenumber" name="L40" href="RiddersSolver.html#L40">40</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L41" href="RiddersSolver.html#L41">41</a>      <strong class="jxr_keyword">public</strong> <a href="RiddersSolver.html">RiddersSolver</a>() {
+<a class="jxr_linenumber" name="L42" href="RiddersSolver.html#L42">42</a>          <strong class="jxr_keyword">this</strong>(DEFAULT_ABSOLUTE_ACCURACY);
+<a class="jxr_linenumber" name="L43" href="RiddersSolver.html#L43">43</a>      }
+<a class="jxr_linenumber" name="L44" href="RiddersSolver.html#L44">44</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L45" href="RiddersSolver.html#L45">45</a>  <em class="jxr_javadoccomment">     * Construct a solver.</em>
+<a class="jxr_linenumber" name="L46" href="RiddersSolver.html#L46">46</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L47" href="RiddersSolver.html#L47">47</a>  <em class="jxr_javadoccomment">     * @param absoluteAccuracy Absolute accuracy.</em>
+<a class="jxr_linenumber" name="L48" href="RiddersSolver.html#L48">48</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L49" href="RiddersSolver.html#L49">49</a>      <strong class="jxr_keyword">public</strong> <a href="RiddersSolver.html">RiddersSolver</a>(<strong class="jxr_keyword">double</strong> absoluteAccuracy) {
+<a class="jxr_linenumber" name="L50" href="RiddersSolver.html#L50">50</a>          <strong class="jxr_keyword">super</strong>(absoluteAccuracy);
+<a class="jxr_linenumber" name="L51" href="RiddersSolver.html#L51">51</a>      }
+<a class="jxr_linenumber" name="L52" href="RiddersSolver.html#L52">52</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L53" href="RiddersSolver.html#L53">53</a>  <em class="jxr_javadoccomment">     * Construct a solver.</em>
+<a class="jxr_linenumber" name="L54" href="RiddersSolver.html#L54">54</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L55" href="RiddersSolver.html#L55">55</a>  <em class="jxr_javadoccomment">     * @param relativeAccuracy Relative accuracy.</em>
+<a class="jxr_linenumber" name="L56" href="RiddersSolver.html#L56">56</a>  <em class="jxr_javadoccomment">     * @param absoluteAccuracy Absolute accuracy.</em>
+<a class="jxr_linenumber" name="L57" href="RiddersSolver.html#L57">57</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L58" href="RiddersSolver.html#L58">58</a>      <strong class="jxr_keyword">public</strong> <a href="RiddersSolver.html">RiddersSolver</a>(<strong class="jxr_keyword">double</strong> relativeAccuracy,
+<a class="jxr_linenumber" name="L59" href="RiddersSolver.html#L59">59</a>                           <strong class="jxr_keyword">double</strong> absoluteAccuracy) {
+<a class="jxr_linenumber" name="L60" href="RiddersSolver.html#L60">60</a>          <strong class="jxr_keyword">super</strong>(relativeAccuracy, absoluteAccuracy);
+<a class="jxr_linenumber" name="L61" href="RiddersSolver.html#L61">61</a>      }
+<a class="jxr_linenumber" name="L62" href="RiddersSolver.html#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="RiddersSolver.html#L63">63</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L64" href="RiddersSolver.html#L64">64</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L65" href="RiddersSolver.html#L65">65</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L66" href="RiddersSolver.html#L66">66</a>      @Override
+<a class="jxr_linenumber" name="L67" href="RiddersSolver.html#L67">67</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> doSolve()
+<a class="jxr_linenumber" name="L68" href="RiddersSolver.html#L68">68</a>          <strong class="jxr_keyword">throws</strong> TooManyEvaluationsException,
+<a class="jxr_linenumber" name="L69" href="RiddersSolver.html#L69">69</a>                 <a href="../../exception/NoBracketingException.html">NoBracketingException</a> {
+<a class="jxr_linenumber" name="L70" href="RiddersSolver.html#L70">70</a>          <strong class="jxr_keyword">double</strong> min = getMin();
+<a class="jxr_linenumber" name="L71" href="RiddersSolver.html#L71">71</a>          <strong class="jxr_keyword">double</strong> max = getMax();
+<a class="jxr_linenumber" name="L72" href="RiddersSolver.html#L72">72</a>          <em class="jxr_comment">// [x1, x2] is the bracketing interval in each iteration</em>
+<a class="jxr_linenumber" name="L73" href="RiddersSolver.html#L73">73</a>          <em class="jxr_comment">// x3 is the midpoint of [x1, x2]</em>
+<a class="jxr_linenumber" name="L74" href="RiddersSolver.html#L74">74</a>          <em class="jxr_comment">// x is the new root approximation and an endpoint of the new interval</em>
+<a class="jxr_linenumber" name="L75" href="RiddersSolver.html#L75">75</a>          <strong class="jxr_keyword">double</strong> x1 = min;
+<a class="jxr_linenumber" name="L76" href="RiddersSolver.html#L76">76</a>          <strong class="jxr_keyword">double</strong> y1 = computeObjectiveValue(x1);
+<a class="jxr_linenumber" name="L77" href="RiddersSolver.html#L77">77</a>          <strong class="jxr_keyword">double</strong> x2 = max;
+<a class="jxr_linenumber" name="L78" href="RiddersSolver.html#L78">78</a>          <strong class="jxr_keyword">double</strong> y2 = computeObjectiveValue(x2);
+<a class="jxr_linenumber" name="L79" href="RiddersSolver.html#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="RiddersSolver.html#L80">80</a>          <em class="jxr_comment">// check for zeros before verifying bracketing</em>
+<a class="jxr_linenumber" name="L81" href="RiddersSolver.html#L81">81</a>          <strong class="jxr_keyword">if</strong> (y1 == 0) {
+<a class="jxr_linenumber" name="L82" href="RiddersSolver.html#L82">82</a>              <strong class="jxr_keyword">return</strong> min;
+<a class="jxr_linenumber" name="L83" href="RiddersSolver.html#L83">83</a>          }
+<a class="jxr_linenumber" name="L84" href="RiddersSolver.html#L84">84</a>          <strong class="jxr_keyword">if</strong> (y2 == 0) {
+<a class="jxr_linenumber" name="L85" href="RiddersSolver.html#L85">85</a>              <strong class="jxr_keyword">return</strong> max;
+<a class="jxr_linenumber" name="L86" href="RiddersSolver.html#L86">86</a>          }
+<a class="jxr_linenumber" name="L87" href="RiddersSolver.html#L87">87</a>          verifyBracketing(min, max);
+<a class="jxr_linenumber" name="L88" href="RiddersSolver.html#L88">88</a>  
+<a class="jxr_linenumber" name="L89" href="RiddersSolver.html#L89">89</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> absoluteAccuracy = getAbsoluteAccuracy();
+<a class="jxr_linenumber" name="L90" href="RiddersSolver.html#L90">90</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> functionValueAccuracy = getFunctionValueAccuracy();
+<a class="jxr_linenumber" name="L91" href="RiddersSolver.html#L91">91</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> relativeAccuracy = getRelativeAccuracy();
+<a class="jxr_linenumber" name="L92" href="RiddersSolver.html#L92">92</a>  
+<a class="jxr_linenumber" name="L93" href="RiddersSolver.html#L93">93</a>          <strong class="jxr_keyword">double</strong> oldx = Double.POSITIVE_INFINITY;
+<a class="jxr_linenumber" name="L94" href="RiddersSolver.html#L94">94</a>          <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
+<a class="jxr_linenumber" name="L95" href="RiddersSolver.html#L95">95</a>              <em class="jxr_comment">// calculate the new root approximation</em>
+<a class="jxr_linenumber" name="L96" href="RiddersSolver.html#L96">96</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x3 = 0.5 * (x1 + x2);
+<a class="jxr_linenumber" name="L97" href="RiddersSolver.html#L97">97</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y3 = computeObjectiveValue(x3);
+<a class="jxr_linenumber" name="L98" href="RiddersSolver.html#L98">98</a>              <strong class="jxr_keyword">if</strong> (FastMath.abs(y3) &lt;= functionValueAccuracy) {
+<a class="jxr_linenumber" name="L99" href="RiddersSolver.html#L99">99</a>                  <strong class="jxr_keyword">return</strong> x3;
+<a class="jxr_linenumber" name="L100" href="RiddersSolver.html#L100">100</a>             }
+<a class="jxr_linenumber" name="L101" href="RiddersSolver.html#L101">101</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> delta = 1 - (y1 * y2) / (y3 * y3);  <em class="jxr_comment">// delta &gt; 1 due to bracketing</em>
+<a class="jxr_linenumber" name="L102" href="RiddersSolver.html#L102">102</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> correction = (FastMath.signum(y2) * FastMath.signum(y3)) *
+<a class="jxr_linenumber" name="L103" href="RiddersSolver.html#L103">103</a>                                       (x3 - x1) / FastMath.sqrt(delta);
+<a class="jxr_linenumber" name="L104" href="RiddersSolver.html#L104">104</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x = x3 - correction;                <em class="jxr_comment">// correction != 0</em>
+<a class="jxr_linenumber" name="L105" href="RiddersSolver.html#L105">105</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y = computeObjectiveValue(x);
+<a class="jxr_linenumber" name="L106" href="RiddersSolver.html#L106">106</a> 
+<a class="jxr_linenumber" name="L107" href="RiddersSolver.html#L107">107</a>             <em class="jxr_comment">// check for convergence</em>
+<a class="jxr_linenumber" name="L108" href="RiddersSolver.html#L108">108</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tolerance = FastMath.max(relativeAccuracy * FastMath.abs(x), absoluteAccuracy);
+<a class="jxr_linenumber" name="L109" href="RiddersSolver.html#L109">109</a>             <strong class="jxr_keyword">if</strong> (FastMath.abs(x - oldx) &lt;= tolerance) {
+<a class="jxr_linenumber" name="L110" href="RiddersSolver.html#L110">110</a>                 <strong class="jxr_keyword">return</strong> x;
+<a class="jxr_linenumber" name="L111" href="RiddersSolver.html#L111">111</a>             }
+<a class="jxr_linenumber" name="L112" href="RiddersSolver.html#L112">112</a>             <strong class="jxr_keyword">if</strong> (FastMath.abs(y) &lt;= functionValueAccuracy) {
+<a class="jxr_linenumber" name="L113" href="RiddersSolver.html#L113">113</a>                 <strong class="jxr_keyword">return</strong> x;
+<a class="jxr_linenumber" name="L114" href="RiddersSolver.html#L114">114</a>             }
+<a class="jxr_linenumber" name="L115" href="RiddersSolver.html#L115">115</a> 
+<a class="jxr_linenumber" name="L116" href="RiddersSolver.html#L116">116</a>             <em class="jxr_comment">// prepare the new interval for next iteration</em>
+<a class="jxr_linenumber" name="L117" href="RiddersSolver.html#L117">117</a>             <em class="jxr_comment">// Ridders' method guarantees x1 &lt; x &lt; x2</em>
+<a class="jxr_linenumber" name="L118" href="RiddersSolver.html#L118">118</a>             <strong class="jxr_keyword">if</strong> (correction &gt; 0.0) {             <em class="jxr_comment">// x1 &lt; x &lt; x3</em>
+<a class="jxr_linenumber" name="L119" href="RiddersSolver.html#L119">119</a>                 <strong class="jxr_keyword">if</strong> (FastMath.signum(y1) + FastMath.signum(y) == 0.0) {
+<a class="jxr_linenumber" name="L120" href="RiddersSolver.html#L120">120</a>                     x2 = x;
+<a class="jxr_linenumber" name="L121" href="RiddersSolver.html#L121">121</a>                     y2 = y;
+<a class="jxr_linenumber" name="L122" href="RiddersSolver.html#L122">122</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L123" href="RiddersSolver.html#L123">123</a>                     x1 = x;
+<a class="jxr_linenumber" name="L124" href="RiddersSolver.html#L124">124</a>                     x2 = x3;
+<a class="jxr_linenumber" name="L125" href="RiddersSolver.html#L125">125</a>                     y1 = y;
+<a class="jxr_linenumber" name="L126" href="RiddersSolver.html#L126">126</a>                     y2 = y3;
+<a class="jxr_linenumber" name="L127" href="RiddersSolver.html#L127">127</a>                 }
+<a class="jxr_linenumber" name="L128" href="RiddersSolver.html#L128">128</a>             } <strong class="jxr_keyword">else</strong> {                            <em class="jxr_comment">// x3 &lt; x &lt; x2</em>
+<a class="jxr_linenumber" name="L129" href="RiddersSolver.html#L129">129</a>                 <strong class="jxr_keyword">if</strong> (FastMath.signum(y2) + FastMath.signum(y) == 0.0) {
+<a class="jxr_linenumber" name="L130" href="RiddersSolver.html#L130">130</a>                     x1 = x;
+<a class="jxr_linenumber" name="L131" href="RiddersSolver.html#L131">131</a>                     y1 = y;
+<a class="jxr_linenumber" name="L132" href="RiddersSolver.html#L132">132</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L133" href="RiddersSolver.html#L133">133</a>                     x1 = x3;
+<a class="jxr_linenumber" name="L134" href="RiddersSolver.html#L134">134</a>                     x2 = x;
+<a class="jxr_linenumber" name="L135" href="RiddersSolver.html#L135">135</a>                     y1 = y3;
+<a class="jxr_linenumber" name="L136" href="RiddersSolver.html#L136">136</a>                     y2 = y;
+<a class="jxr_linenumber" name="L137" href="RiddersSolver.html#L137">137</a>                 }
+<a class="jxr_linenumber" name="L138" href="RiddersSolver.html#L138">138</a>             }
+<a class="jxr_linenumber" name="L139" href="RiddersSolver.html#L139">139</a>             oldx = x;
+<a class="jxr_linenumber" name="L140" href="RiddersSolver.html#L140">140</a>         }
+<a class="jxr_linenumber" name="L141" href="RiddersSolver.html#L141">141</a>     }
+<a class="jxr_linenumber" name="L142" href="RiddersSolver.html#L142">142</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

@@ -1,0 +1,487 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>LoessInterpolator xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/analysis/interpolation/LoessInterpolator.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="LoessInterpolator.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="LoessInterpolator.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="LoessInterpolator.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="LoessInterpolator.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="LoessInterpolator.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="LoessInterpolator.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="LoessInterpolator.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="LoessInterpolator.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="LoessInterpolator.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="LoessInterpolator.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="LoessInterpolator.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="LoessInterpolator.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="LoessInterpolator.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="LoessInterpolator.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="LoessInterpolator.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="LoessInterpolator.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="LoessInterpolator.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.interpolation;
+<a class="jxr_linenumber" name="L18" href="LoessInterpolator.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="LoessInterpolator.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.io.Serializable;
+<a class="jxr_linenumber" name="L20" href="LoessInterpolator.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L21" href="LoessInterpolator.html#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="LoessInterpolator.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.polynomials.PolynomialSplineFunction;
+<a class="jxr_linenumber" name="L23" href="LoessInterpolator.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L24" href="LoessInterpolator.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoDataException;
+<a class="jxr_linenumber" name="L25" href="LoessInterpolator.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NonMonotonicSequenceException;
+<a class="jxr_linenumber" name="L26" href="LoessInterpolator.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotFiniteNumberException;
+<a class="jxr_linenumber" name="L27" href="LoessInterpolator.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotPositiveException;
+<a class="jxr_linenumber" name="L28" href="LoessInterpolator.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L29" href="LoessInterpolator.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L30" href="LoessInterpolator.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L31" href="LoessInterpolator.html#L31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L32" href="LoessInterpolator.html#L32">32</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L33" href="LoessInterpolator.html#L33">33</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathUtils;
+<a class="jxr_linenumber" name="L34" href="LoessInterpolator.html#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="LoessInterpolator.html#L35">35</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L36" href="LoessInterpolator.html#L36">36</a>  <em class="jxr_javadoccomment"> * Implements the &lt;a href="<a href="http://en.wikipedia.org/wiki/Local_regression" target="alexandria_uri">http://en.wikipedia.org/wiki/Local_regression</a>"&gt;</em>
+<a class="jxr_linenumber" name="L37" href="LoessInterpolator.html#L37">37</a>  <em class="jxr_javadoccomment"> * Local Regression Algorithm&lt;/a&gt; (also Loess, Lowess) for interpolation of</em>
+<a class="jxr_linenumber" name="L38" href="LoessInterpolator.html#L38">38</a>  <em class="jxr_javadoccomment"> * real univariate functions.</em>
+<a class="jxr_linenumber" name="L39" href="LoessInterpolator.html#L39">39</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L40" href="LoessInterpolator.html#L40">40</a>  <em class="jxr_javadoccomment"> * For reference, see</em>
+<a class="jxr_linenumber" name="L41" href="LoessInterpolator.html#L41">41</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://amstat.tandfonline.com/doi/abs/10.1080/01621459.1979.10481038" target="alexandria_uri">http://amstat.tandfonline.com/doi/abs/10.1080/01621459.1979.10481038</a>"&gt;</em>
+<a class="jxr_linenumber" name="L42" href="LoessInterpolator.html#L42">42</a>  <em class="jxr_javadoccomment"> * William S. Cleveland - Robust Locally Weighted Regression and Smoothing</em>
+<a class="jxr_linenumber" name="L43" href="LoessInterpolator.html#L43">43</a>  <em class="jxr_javadoccomment"> * Scatterplots&lt;/a&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L44" href="LoessInterpolator.html#L44">44</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L45" href="LoessInterpolator.html#L45">45</a>  <em class="jxr_javadoccomment"> * This class implements both the loess method and serves as an interpolation</em>
+<a class="jxr_linenumber" name="L46" href="LoessInterpolator.html#L46">46</a>  <em class="jxr_javadoccomment"> * adapter to it, allowing one to build a spline on the obtained loess fit.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L47" href="LoessInterpolator.html#L47">47</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L48" href="LoessInterpolator.html#L48">48</a>  <em class="jxr_javadoccomment"> * @since 2.0</em>
+<a class="jxr_linenumber" name="L49" href="LoessInterpolator.html#L49">49</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L50" href="LoessInterpolator.html#L50">50</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="LoessInterpolator.html">LoessInterpolator</a>
+<a class="jxr_linenumber" name="L51" href="LoessInterpolator.html#L51">51</a>      <strong class="jxr_keyword">implements</strong> UnivariateInterpolator, Serializable {
+<a class="jxr_linenumber" name="L52" href="LoessInterpolator.html#L52">52</a>      <em class="jxr_javadoccomment">/** Default value of the bandwidth parameter. */</em>
+<a class="jxr_linenumber" name="L53" href="LoessInterpolator.html#L53">53</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_BANDWIDTH = 0.3;
+<a class="jxr_linenumber" name="L54" href="LoessInterpolator.html#L54">54</a>      <em class="jxr_javadoccomment">/** Default value of the number of robustness iterations. */</em>
+<a class="jxr_linenumber" name="L55" href="LoessInterpolator.html#L55">55</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> DEFAULT_ROBUSTNESS_ITERS = 2;
+<a class="jxr_linenumber" name="L56" href="LoessInterpolator.html#L56">56</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L57" href="LoessInterpolator.html#L57">57</a>  <em class="jxr_javadoccomment">     * Default value for accuracy.</em>
+<a class="jxr_linenumber" name="L58" href="LoessInterpolator.html#L58">58</a>  <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L59" href="LoessInterpolator.html#L59">59</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L60" href="LoessInterpolator.html#L60">60</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_ACCURACY = 1e-12;
+<a class="jxr_linenumber" name="L61" href="LoessInterpolator.html#L61">61</a>      <em class="jxr_javadoccomment">/** serializable version identifier. */</em>
+<a class="jxr_linenumber" name="L62" href="LoessInterpolator.html#L62">62</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 5204927143605193821L;
+<a class="jxr_linenumber" name="L63" href="LoessInterpolator.html#L63">63</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L64" href="LoessInterpolator.html#L64">64</a>  <em class="jxr_javadoccomment">     * The bandwidth parameter: when computing the loess fit at</em>
+<a class="jxr_linenumber" name="L65" href="LoessInterpolator.html#L65">65</a>  <em class="jxr_javadoccomment">     * a particular point, this fraction of source points closest</em>
+<a class="jxr_linenumber" name="L66" href="LoessInterpolator.html#L66">66</a>  <em class="jxr_javadoccomment">     * to the current point is taken into account for computing</em>
+<a class="jxr_linenumber" name="L67" href="LoessInterpolator.html#L67">67</a>  <em class="jxr_javadoccomment">     * a least-squares regression.</em>
+<a class="jxr_linenumber" name="L68" href="LoessInterpolator.html#L68">68</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L69" href="LoessInterpolator.html#L69">69</a>  <em class="jxr_javadoccomment">     * A sensible value is usually 0.25 to 0.5.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L70" href="LoessInterpolator.html#L70">70</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L71" href="LoessInterpolator.html#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> bandwidth;
+<a class="jxr_linenumber" name="L72" href="LoessInterpolator.html#L72">72</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L73" href="LoessInterpolator.html#L73">73</a>  <em class="jxr_javadoccomment">     * The number of robustness iterations parameter: this many</em>
+<a class="jxr_linenumber" name="L74" href="LoessInterpolator.html#L74">74</a>  <em class="jxr_javadoccomment">     * robustness iterations are done.</em>
+<a class="jxr_linenumber" name="L75" href="LoessInterpolator.html#L75">75</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L76" href="LoessInterpolator.html#L76">76</a>  <em class="jxr_javadoccomment">     * A sensible value is usually 0 (just the initial fit without any</em>
+<a class="jxr_linenumber" name="L77" href="LoessInterpolator.html#L77">77</a>  <em class="jxr_javadoccomment">     * robustness iterations) to 4.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L78" href="LoessInterpolator.html#L78">78</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L79" href="LoessInterpolator.html#L79">79</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> robustnessIters;
+<a class="jxr_linenumber" name="L80" href="LoessInterpolator.html#L80">80</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L81" href="LoessInterpolator.html#L81">81</a>  <em class="jxr_javadoccomment">     * If the median residual at a certain robustness iteration</em>
+<a class="jxr_linenumber" name="L82" href="LoessInterpolator.html#L82">82</a>  <em class="jxr_javadoccomment">     * is less than this amount, no more iterations are done.</em>
+<a class="jxr_linenumber" name="L83" href="LoessInterpolator.html#L83">83</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L84" href="LoessInterpolator.html#L84">84</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> accuracy;
+<a class="jxr_linenumber" name="L85" href="LoessInterpolator.html#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="LoessInterpolator.html#L86">86</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L87" href="LoessInterpolator.html#L87">87</a>  <em class="jxr_javadoccomment">     * Constructs a new {@link LoessInterpolator}</em>
+<a class="jxr_linenumber" name="L88" href="LoessInterpolator.html#L88">88</a>  <em class="jxr_javadoccomment">     * with a bandwidth of {@link #DEFAULT_BANDWIDTH},</em>
+<a class="jxr_linenumber" name="L89" href="LoessInterpolator.html#L89">89</a>  <em class="jxr_javadoccomment">     * {@link #DEFAULT_ROBUSTNESS_ITERS} robustness iterations</em>
+<a class="jxr_linenumber" name="L90" href="LoessInterpolator.html#L90">90</a>  <em class="jxr_javadoccomment">     * and an accuracy of {#link #DEFAULT_ACCURACY}.</em>
+<a class="jxr_linenumber" name="L91" href="LoessInterpolator.html#L91">91</a>  <em class="jxr_javadoccomment">     * See {@link #LoessInterpolator(double, int, double)} for an explanation of</em>
+<a class="jxr_linenumber" name="L92" href="LoessInterpolator.html#L92">92</a>  <em class="jxr_javadoccomment">     * the parameters.</em>
+<a class="jxr_linenumber" name="L93" href="LoessInterpolator.html#L93">93</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L94" href="LoessInterpolator.html#L94">94</a>      <strong class="jxr_keyword">public</strong> <a href="LoessInterpolator.html">LoessInterpolator</a>() {
+<a class="jxr_linenumber" name="L95" href="LoessInterpolator.html#L95">95</a>          <strong class="jxr_keyword">this</strong>.bandwidth = DEFAULT_BANDWIDTH;
+<a class="jxr_linenumber" name="L96" href="LoessInterpolator.html#L96">96</a>          <strong class="jxr_keyword">this</strong>.robustnessIters = DEFAULT_ROBUSTNESS_ITERS;
+<a class="jxr_linenumber" name="L97" href="LoessInterpolator.html#L97">97</a>          <strong class="jxr_keyword">this</strong>.accuracy = DEFAULT_ACCURACY;
+<a class="jxr_linenumber" name="L98" href="LoessInterpolator.html#L98">98</a>      }
+<a class="jxr_linenumber" name="L99" href="LoessInterpolator.html#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="LoessInterpolator.html#L100">100</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L101" href="LoessInterpolator.html#L101">101</a> <em class="jxr_javadoccomment">     * Construct a new {@link LoessInterpolator}</em>
+<a class="jxr_linenumber" name="L102" href="LoessInterpolator.html#L102">102</a> <em class="jxr_javadoccomment">     * with given bandwidth and number of robustness iterations.</em>
+<a class="jxr_linenumber" name="L103" href="LoessInterpolator.html#L103">103</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L104" href="LoessInterpolator.html#L104">104</a> <em class="jxr_javadoccomment">     * Calling this constructor is equivalent to calling {link {@link</em>
+<a class="jxr_linenumber" name="L105" href="LoessInterpolator.html#L105">105</a> <em class="jxr_javadoccomment">     * #LoessInterpolator(double, int, double) LoessInterpolator(bandwidth,</em>
+<a class="jxr_linenumber" name="L106" href="LoessInterpolator.html#L106">106</a> <em class="jxr_javadoccomment">     * robustnessIters, LoessInterpolator.DEFAULT_ACCURACY)}</em>
+<a class="jxr_linenumber" name="L107" href="LoessInterpolator.html#L107">107</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L108" href="LoessInterpolator.html#L108">108</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L109" href="LoessInterpolator.html#L109">109</a> <em class="jxr_javadoccomment">     * @param bandwidth  when computing the loess fit at</em>
+<a class="jxr_linenumber" name="L110" href="LoessInterpolator.html#L110">110</a> <em class="jxr_javadoccomment">     * a particular point, this fraction of source points closest</em>
+<a class="jxr_linenumber" name="L111" href="LoessInterpolator.html#L111">111</a> <em class="jxr_javadoccomment">     * to the current point is taken into account for computing</em>
+<a class="jxr_linenumber" name="L112" href="LoessInterpolator.html#L112">112</a> <em class="jxr_javadoccomment">     * a least-squares regression.</em>
+<a class="jxr_linenumber" name="L113" href="LoessInterpolator.html#L113">113</a> <em class="jxr_javadoccomment">     * A sensible value is usually 0.25 to 0.5, the default value is</em>
+<a class="jxr_linenumber" name="L114" href="LoessInterpolator.html#L114">114</a> <em class="jxr_javadoccomment">     * {@link #DEFAULT_BANDWIDTH}.</em>
+<a class="jxr_linenumber" name="L115" href="LoessInterpolator.html#L115">115</a> <em class="jxr_javadoccomment">     * @param robustnessIters This many robustness iterations are done.</em>
+<a class="jxr_linenumber" name="L116" href="LoessInterpolator.html#L116">116</a> <em class="jxr_javadoccomment">     * A sensible value is usually 0 (just the initial fit without any</em>
+<a class="jxr_linenumber" name="L117" href="LoessInterpolator.html#L117">117</a> <em class="jxr_javadoccomment">     * robustness iterations) to 4, the default value is</em>
+<a class="jxr_linenumber" name="L118" href="LoessInterpolator.html#L118">118</a> <em class="jxr_javadoccomment">     * {@link #DEFAULT_ROBUSTNESS_ITERS}.</em>
+<a class="jxr_linenumber" name="L119" href="LoessInterpolator.html#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="LoessInterpolator.html#L120">120</a> <em class="jxr_javadoccomment">     * @see #LoessInterpolator(double, int, double)</em>
+<a class="jxr_linenumber" name="L121" href="LoessInterpolator.html#L121">121</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L122" href="LoessInterpolator.html#L122">122</a>     <strong class="jxr_keyword">public</strong> <a href="LoessInterpolator.html">LoessInterpolator</a>(<strong class="jxr_keyword">double</strong> bandwidth, <strong class="jxr_keyword">int</strong> robustnessIters) {
+<a class="jxr_linenumber" name="L123" href="LoessInterpolator.html#L123">123</a>         <strong class="jxr_keyword">this</strong>(bandwidth, robustnessIters, DEFAULT_ACCURACY);
+<a class="jxr_linenumber" name="L124" href="LoessInterpolator.html#L124">124</a>     }
+<a class="jxr_linenumber" name="L125" href="LoessInterpolator.html#L125">125</a> 
+<a class="jxr_linenumber" name="L126" href="LoessInterpolator.html#L126">126</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L127" href="LoessInterpolator.html#L127">127</a> <em class="jxr_javadoccomment">     * Construct a new {@link LoessInterpolator}</em>
+<a class="jxr_linenumber" name="L128" href="LoessInterpolator.html#L128">128</a> <em class="jxr_javadoccomment">     * with given bandwidth, number of robustness iterations and accuracy.</em>
+<a class="jxr_linenumber" name="L129" href="LoessInterpolator.html#L129">129</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L130" href="LoessInterpolator.html#L130">130</a> <em class="jxr_javadoccomment">     * @param bandwidth  when computing the loess fit at</em>
+<a class="jxr_linenumber" name="L131" href="LoessInterpolator.html#L131">131</a> <em class="jxr_javadoccomment">     * a particular point, this fraction of source points closest</em>
+<a class="jxr_linenumber" name="L132" href="LoessInterpolator.html#L132">132</a> <em class="jxr_javadoccomment">     * to the current point is taken into account for computing</em>
+<a class="jxr_linenumber" name="L133" href="LoessInterpolator.html#L133">133</a> <em class="jxr_javadoccomment">     * a least-squares regression.</em>
+<a class="jxr_linenumber" name="L134" href="LoessInterpolator.html#L134">134</a> <em class="jxr_javadoccomment">     * A sensible value is usually 0.25 to 0.5, the default value is</em>
+<a class="jxr_linenumber" name="L135" href="LoessInterpolator.html#L135">135</a> <em class="jxr_javadoccomment">     * {@link #DEFAULT_BANDWIDTH}.</em>
+<a class="jxr_linenumber" name="L136" href="LoessInterpolator.html#L136">136</a> <em class="jxr_javadoccomment">     * @param robustnessIters This many robustness iterations are done.</em>
+<a class="jxr_linenumber" name="L137" href="LoessInterpolator.html#L137">137</a> <em class="jxr_javadoccomment">     * A sensible value is usually 0 (just the initial fit without any</em>
+<a class="jxr_linenumber" name="L138" href="LoessInterpolator.html#L138">138</a> <em class="jxr_javadoccomment">     * robustness iterations) to 4, the default value is</em>
+<a class="jxr_linenumber" name="L139" href="LoessInterpolator.html#L139">139</a> <em class="jxr_javadoccomment">     * {@link #DEFAULT_ROBUSTNESS_ITERS}.</em>
+<a class="jxr_linenumber" name="L140" href="LoessInterpolator.html#L140">140</a> <em class="jxr_javadoccomment">     * @param accuracy If the median residual at a certain robustness iteration</em>
+<a class="jxr_linenumber" name="L141" href="LoessInterpolator.html#L141">141</a> <em class="jxr_javadoccomment">     * is less than this amount, no more iterations are done.</em>
+<a class="jxr_linenumber" name="L142" href="LoessInterpolator.html#L142">142</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if bandwidth does not lie in the interval [0,1].</em>
+<a class="jxr_linenumber" name="L143" href="LoessInterpolator.html#L143">143</a> <em class="jxr_javadoccomment">     * @throws NotPositiveException if {@code robustnessIters} is negative.</em>
+<a class="jxr_linenumber" name="L144" href="LoessInterpolator.html#L144">144</a> <em class="jxr_javadoccomment">     * @see #LoessInterpolator(double, int)</em>
+<a class="jxr_linenumber" name="L145" href="LoessInterpolator.html#L145">145</a> <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L146" href="LoessInterpolator.html#L146">146</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L147" href="LoessInterpolator.html#L147">147</a>     <strong class="jxr_keyword">public</strong> <a href="LoessInterpolator.html">LoessInterpolator</a>(<strong class="jxr_keyword">double</strong> bandwidth, <strong class="jxr_keyword">int</strong> robustnessIters, <strong class="jxr_keyword">double</strong> accuracy)
+<a class="jxr_linenumber" name="L148" href="LoessInterpolator.html#L148">148</a>         <strong class="jxr_keyword">throws</strong> OutOfRangeException,
+<a class="jxr_linenumber" name="L149" href="LoessInterpolator.html#L149">149</a>                <a href="../../exception/NotPositiveException.html">NotPositiveException</a> {
+<a class="jxr_linenumber" name="L150" href="LoessInterpolator.html#L150">150</a>         <strong class="jxr_keyword">if</strong> (bandwidth &lt; 0 ||
+<a class="jxr_linenumber" name="L151" href="LoessInterpolator.html#L151">151</a>             bandwidth &gt; 1) {
+<a class="jxr_linenumber" name="L152" href="LoessInterpolator.html#L152">152</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>(LocalizedFormats.BANDWIDTH, bandwidth, 0, 1);
+<a class="jxr_linenumber" name="L153" href="LoessInterpolator.html#L153">153</a>         }
+<a class="jxr_linenumber" name="L154" href="LoessInterpolator.html#L154">154</a>         <strong class="jxr_keyword">this</strong>.bandwidth = bandwidth;
+<a class="jxr_linenumber" name="L155" href="LoessInterpolator.html#L155">155</a>         <strong class="jxr_keyword">if</strong> (robustnessIters &lt; 0) {
+<a class="jxr_linenumber" name="L156" href="LoessInterpolator.html#L156">156</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotPositiveException.html">NotPositiveException</a>(LocalizedFormats.ROBUSTNESS_ITERATIONS, robustnessIters);
+<a class="jxr_linenumber" name="L157" href="LoessInterpolator.html#L157">157</a>         }
+<a class="jxr_linenumber" name="L158" href="LoessInterpolator.html#L158">158</a>         <strong class="jxr_keyword">this</strong>.robustnessIters = robustnessIters;
+<a class="jxr_linenumber" name="L159" href="LoessInterpolator.html#L159">159</a>         <strong class="jxr_keyword">this</strong>.accuracy = accuracy;
+<a class="jxr_linenumber" name="L160" href="LoessInterpolator.html#L160">160</a>     }
+<a class="jxr_linenumber" name="L161" href="LoessInterpolator.html#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="LoessInterpolator.html#L162">162</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L163" href="LoessInterpolator.html#L163">163</a> <em class="jxr_javadoccomment">     * Compute an interpolating function by performing a loess fit</em>
+<a class="jxr_linenumber" name="L164" href="LoessInterpolator.html#L164">164</a> <em class="jxr_javadoccomment">     * on the data at the original abscissae and then building a cubic spline</em>
+<a class="jxr_linenumber" name="L165" href="LoessInterpolator.html#L165">165</a> <em class="jxr_javadoccomment">     * with a</em>
+<a class="jxr_linenumber" name="L166" href="LoessInterpolator.html#L166">166</a> <em class="jxr_javadoccomment">     * {@link org.apache.commons.math4.analysis.interpolation.SplineInterpolator}</em>
+<a class="jxr_linenumber" name="L167" href="LoessInterpolator.html#L167">167</a> <em class="jxr_javadoccomment">     * on the resulting fit.</em>
+<a class="jxr_linenumber" name="L168" href="LoessInterpolator.html#L168">168</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L169" href="LoessInterpolator.html#L169">169</a> <em class="jxr_javadoccomment">     * @param xval the arguments for the interpolation points</em>
+<a class="jxr_linenumber" name="L170" href="LoessInterpolator.html#L170">170</a> <em class="jxr_javadoccomment">     * @param yval the values for the interpolation points</em>
+<a class="jxr_linenumber" name="L171" href="LoessInterpolator.html#L171">171</a> <em class="jxr_javadoccomment">     * @return A cubic spline built upon a loess fit to the data at the original abscissae</em>
+<a class="jxr_linenumber" name="L172" href="LoessInterpolator.html#L172">172</a> <em class="jxr_javadoccomment">     * @throws NonMonotonicSequenceException if {@code xval} not sorted in</em>
+<a class="jxr_linenumber" name="L173" href="LoessInterpolator.html#L173">173</a> <em class="jxr_javadoccomment">     * strictly increasing order.</em>
+<a class="jxr_linenumber" name="L174" href="LoessInterpolator.html#L174">174</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if {@code xval} and {@code yval} have</em>
+<a class="jxr_linenumber" name="L175" href="LoessInterpolator.html#L175">175</a> <em class="jxr_javadoccomment">     * different sizes.</em>
+<a class="jxr_linenumber" name="L176" href="LoessInterpolator.html#L176">176</a> <em class="jxr_javadoccomment">     * @throws NoDataException if {@code xval} or {@code yval} has zero size.</em>
+<a class="jxr_linenumber" name="L177" href="LoessInterpolator.html#L177">177</a> <em class="jxr_javadoccomment">     * @throws NotFiniteNumberException if any of the arguments and values are</em>
+<a class="jxr_linenumber" name="L178" href="LoessInterpolator.html#L178">178</a> <em class="jxr_javadoccomment">     * not finite real numbers.</em>
+<a class="jxr_linenumber" name="L179" href="LoessInterpolator.html#L179">179</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if the bandwidth is too small to</em>
+<a class="jxr_linenumber" name="L180" href="LoessInterpolator.html#L180">180</a> <em class="jxr_javadoccomment">     * accomodate the size of the input data (i.e. the bandwidth must be</em>
+<a class="jxr_linenumber" name="L181" href="LoessInterpolator.html#L181">181</a> <em class="jxr_javadoccomment">     * larger than 2/n).</em>
+<a class="jxr_linenumber" name="L182" href="LoessInterpolator.html#L182">182</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L183" href="LoessInterpolator.html#L183">183</a>     @Override
+<a class="jxr_linenumber" name="L184" href="LoessInterpolator.html#L184">184</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../polynomials/PolynomialSplineFunction.html">PolynomialSplineFunction</a> interpolate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xval,
+<a class="jxr_linenumber" name="L185" href="LoessInterpolator.html#L185">185</a>                                                       <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yval)
+<a class="jxr_linenumber" name="L186" href="LoessInterpolator.html#L186">186</a>         <strong class="jxr_keyword">throws</strong> NonMonotonicSequenceException,
+<a class="jxr_linenumber" name="L187" href="LoessInterpolator.html#L187">187</a>                DimensionMismatchException,
+<a class="jxr_linenumber" name="L188" href="LoessInterpolator.html#L188">188</a>                NoDataException,
+<a class="jxr_linenumber" name="L189" href="LoessInterpolator.html#L189">189</a>                NotFiniteNumberException,
+<a class="jxr_linenumber" name="L190" href="LoessInterpolator.html#L190">190</a>                <a href="../../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a> {
+<a class="jxr_linenumber" name="L191" href="LoessInterpolator.html#L191">191</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="SplineInterpolator.html">SplineInterpolator</a>().interpolate(xval, smooth(xval, yval));
+<a class="jxr_linenumber" name="L192" href="LoessInterpolator.html#L192">192</a>     }
+<a class="jxr_linenumber" name="L193" href="LoessInterpolator.html#L193">193</a> 
+<a class="jxr_linenumber" name="L194" href="LoessInterpolator.html#L194">194</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L195" href="LoessInterpolator.html#L195">195</a> <em class="jxr_javadoccomment">     * Compute a weighted loess fit on the data at the original abscissae.</em>
+<a class="jxr_linenumber" name="L196" href="LoessInterpolator.html#L196">196</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L197" href="LoessInterpolator.html#L197">197</a> <em class="jxr_javadoccomment">     * @param xval Arguments for the interpolation points.</em>
+<a class="jxr_linenumber" name="L198" href="LoessInterpolator.html#L198">198</a> <em class="jxr_javadoccomment">     * @param yval Values for the interpolation points.</em>
+<a class="jxr_linenumber" name="L199" href="LoessInterpolator.html#L199">199</a> <em class="jxr_javadoccomment">     * @param weights point weights: coefficients by which the robustness weight</em>
+<a class="jxr_linenumber" name="L200" href="LoessInterpolator.html#L200">200</a> <em class="jxr_javadoccomment">     * of a point is multiplied.</em>
+<a class="jxr_linenumber" name="L201" href="LoessInterpolator.html#L201">201</a> <em class="jxr_javadoccomment">     * @return the values of the loess fit at corresponding original abscissae.</em>
+<a class="jxr_linenumber" name="L202" href="LoessInterpolator.html#L202">202</a> <em class="jxr_javadoccomment">     * @throws NonMonotonicSequenceException if {@code xval} not sorted in</em>
+<a class="jxr_linenumber" name="L203" href="LoessInterpolator.html#L203">203</a> <em class="jxr_javadoccomment">     * strictly increasing order.</em>
+<a class="jxr_linenumber" name="L204" href="LoessInterpolator.html#L204">204</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if {@code xval} and {@code yval} have</em>
+<a class="jxr_linenumber" name="L205" href="LoessInterpolator.html#L205">205</a> <em class="jxr_javadoccomment">     * different sizes.</em>
+<a class="jxr_linenumber" name="L206" href="LoessInterpolator.html#L206">206</a> <em class="jxr_javadoccomment">     * @throws NoDataException if {@code xval} or {@code yval} has zero size.</em>
+<a class="jxr_linenumber" name="L207" href="LoessInterpolator.html#L207">207</a> <em class="jxr_javadoccomment">     * @throws NotFiniteNumberException if any of the arguments and values are</em>
+<a class="jxr_linenumber" name="L208" href="LoessInterpolator.html#L208">208</a> <em class="jxr_javadoccomment">     not finite real numbers.</em>
+<a class="jxr_linenumber" name="L209" href="LoessInterpolator.html#L209">209</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if the bandwidth is too small to</em>
+<a class="jxr_linenumber" name="L210" href="LoessInterpolator.html#L210">210</a> <em class="jxr_javadoccomment">     * accomodate the size of the input data (i.e. the bandwidth must be</em>
+<a class="jxr_linenumber" name="L211" href="LoessInterpolator.html#L211">211</a> <em class="jxr_javadoccomment">     * larger than 2/n).</em>
+<a class="jxr_linenumber" name="L212" href="LoessInterpolator.html#L212">212</a> <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L213" href="LoessInterpolator.html#L213">213</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L214" href="LoessInterpolator.html#L214">214</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] smooth(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xval, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yval,
+<a class="jxr_linenumber" name="L215" href="LoessInterpolator.html#L215">215</a>                                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] weights)
+<a class="jxr_linenumber" name="L216" href="LoessInterpolator.html#L216">216</a>         <strong class="jxr_keyword">throws</strong> NonMonotonicSequenceException,
+<a class="jxr_linenumber" name="L217" href="LoessInterpolator.html#L217">217</a>                DimensionMismatchException,
+<a class="jxr_linenumber" name="L218" href="LoessInterpolator.html#L218">218</a>                NoDataException,
+<a class="jxr_linenumber" name="L219" href="LoessInterpolator.html#L219">219</a>                NotFiniteNumberException,
+<a class="jxr_linenumber" name="L220" href="LoessInterpolator.html#L220">220</a>                <a href="../../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a> {
+<a class="jxr_linenumber" name="L221" href="LoessInterpolator.html#L221">221</a>         <strong class="jxr_keyword">if</strong> (xval.length != yval.length) {
+<a class="jxr_linenumber" name="L222" href="LoessInterpolator.html#L222">222</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(xval.length, yval.length);
+<a class="jxr_linenumber" name="L223" href="LoessInterpolator.html#L223">223</a>         }
+<a class="jxr_linenumber" name="L224" href="LoessInterpolator.html#L224">224</a> 
+<a class="jxr_linenumber" name="L225" href="LoessInterpolator.html#L225">225</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = xval.length;
+<a class="jxr_linenumber" name="L226" href="LoessInterpolator.html#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="LoessInterpolator.html#L227">227</a>         <strong class="jxr_keyword">if</strong> (n == 0) {
+<a class="jxr_linenumber" name="L228" href="LoessInterpolator.html#L228">228</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NoDataException.html">NoDataException</a>();
+<a class="jxr_linenumber" name="L229" href="LoessInterpolator.html#L229">229</a>         }
+<a class="jxr_linenumber" name="L230" href="LoessInterpolator.html#L230">230</a> 
+<a class="jxr_linenumber" name="L231" href="LoessInterpolator.html#L231">231</a>         checkAllFiniteReal(xval);
+<a class="jxr_linenumber" name="L232" href="LoessInterpolator.html#L232">232</a>         checkAllFiniteReal(yval);
+<a class="jxr_linenumber" name="L233" href="LoessInterpolator.html#L233">233</a>         checkAllFiniteReal(weights);
+<a class="jxr_linenumber" name="L234" href="LoessInterpolator.html#L234">234</a> 
+<a class="jxr_linenumber" name="L235" href="LoessInterpolator.html#L235">235</a>         MathArrays.checkOrder(xval);
+<a class="jxr_linenumber" name="L236" href="LoessInterpolator.html#L236">236</a> 
+<a class="jxr_linenumber" name="L237" href="LoessInterpolator.html#L237">237</a>         <strong class="jxr_keyword">if</strong> (n == 1) {
+<a class="jxr_linenumber" name="L238" href="LoessInterpolator.html#L238">238</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[]{yval[0]};
+<a class="jxr_linenumber" name="L239" href="LoessInterpolator.html#L239">239</a>         }
+<a class="jxr_linenumber" name="L240" href="LoessInterpolator.html#L240">240</a> 
+<a class="jxr_linenumber" name="L241" href="LoessInterpolator.html#L241">241</a>         <strong class="jxr_keyword">if</strong> (n == 2) {
+<a class="jxr_linenumber" name="L242" href="LoessInterpolator.html#L242">242</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[]{yval[0], yval[1]};
+<a class="jxr_linenumber" name="L243" href="LoessInterpolator.html#L243">243</a>         }
+<a class="jxr_linenumber" name="L244" href="LoessInterpolator.html#L244">244</a> 
+<a class="jxr_linenumber" name="L245" href="LoessInterpolator.html#L245">245</a>         <strong class="jxr_keyword">int</strong> bandwidthInPoints = (<strong class="jxr_keyword">int</strong>) (bandwidth * n);
+<a class="jxr_linenumber" name="L246" href="LoessInterpolator.html#L246">246</a> 
+<a class="jxr_linenumber" name="L247" href="LoessInterpolator.html#L247">247</a>         <strong class="jxr_keyword">if</strong> (bandwidthInPoints &lt; 2) {
+<a class="jxr_linenumber" name="L248" href="LoessInterpolator.html#L248">248</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(LocalizedFormats.BANDWIDTH,
+<a class="jxr_linenumber" name="L249" href="LoessInterpolator.html#L249">249</a>                                                 bandwidthInPoints, 2, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L250" href="LoessInterpolator.html#L250">250</a>         }
+<a class="jxr_linenumber" name="L251" href="LoessInterpolator.html#L251">251</a> 
+<a class="jxr_linenumber" name="L252" href="LoessInterpolator.html#L252">252</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] res = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n];
+<a class="jxr_linenumber" name="L253" href="LoessInterpolator.html#L253">253</a> 
+<a class="jxr_linenumber" name="L254" href="LoessInterpolator.html#L254">254</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] residuals = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n];
+<a class="jxr_linenumber" name="L255" href="LoessInterpolator.html#L255">255</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] sortedResiduals = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n];
+<a class="jxr_linenumber" name="L256" href="LoessInterpolator.html#L256">256</a> 
+<a class="jxr_linenumber" name="L257" href="LoessInterpolator.html#L257">257</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] robustnessWeights = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n];
+<a class="jxr_linenumber" name="L258" href="LoessInterpolator.html#L258">258</a> 
+<a class="jxr_linenumber" name="L259" href="LoessInterpolator.html#L259">259</a>         <em class="jxr_comment">// Do an initial fit and 'robustnessIters' robustness iterations.</em>
+<a class="jxr_linenumber" name="L260" href="LoessInterpolator.html#L260">260</a>         <em class="jxr_comment">// This is equivalent to doing 'robustnessIters+1' robustness iterations</em>
+<a class="jxr_linenumber" name="L261" href="LoessInterpolator.html#L261">261</a>         <em class="jxr_comment">// starting with all robustness weights set to 1.</em>
+<a class="jxr_linenumber" name="L262" href="LoessInterpolator.html#L262">262</a>         Arrays.fill(robustnessWeights, 1);
+<a class="jxr_linenumber" name="L263" href="LoessInterpolator.html#L263">263</a> 
+<a class="jxr_linenumber" name="L264" href="LoessInterpolator.html#L264">264</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> iter = 0; iter &lt;= robustnessIters; ++iter) {
+<a class="jxr_linenumber" name="L265" href="LoessInterpolator.html#L265">265</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] bandwidthInterval = {0, bandwidthInPoints - 1};
+<a class="jxr_linenumber" name="L266" href="LoessInterpolator.html#L266">266</a>             <em class="jxr_comment">// At each x, compute a local weighted linear regression</em>
+<a class="jxr_linenumber" name="L267" href="LoessInterpolator.html#L267">267</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; ++i) {
+<a class="jxr_linenumber" name="L268" href="LoessInterpolator.html#L268">268</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x = xval[i];
+<a class="jxr_linenumber" name="L269" href="LoessInterpolator.html#L269">269</a> 
+<a class="jxr_linenumber" name="L270" href="LoessInterpolator.html#L270">270</a>                 <em class="jxr_comment">// Find out the interval of source points on which</em>
+<a class="jxr_linenumber" name="L271" href="LoessInterpolator.html#L271">271</a>                 <em class="jxr_comment">// a regression is to be made.</em>
+<a class="jxr_linenumber" name="L272" href="LoessInterpolator.html#L272">272</a>                 <strong class="jxr_keyword">if</strong> (i &gt; 0) {
+<a class="jxr_linenumber" name="L273" href="LoessInterpolator.html#L273">273</a>                     updateBandwidthInterval(xval, weights, i, bandwidthInterval);
+<a class="jxr_linenumber" name="L274" href="LoessInterpolator.html#L274">274</a>                 }
+<a class="jxr_linenumber" name="L275" href="LoessInterpolator.html#L275">275</a> 
+<a class="jxr_linenumber" name="L276" href="LoessInterpolator.html#L276">276</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ileft = bandwidthInterval[0];
+<a class="jxr_linenumber" name="L277" href="LoessInterpolator.html#L277">277</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> iright = bandwidthInterval[1];
+<a class="jxr_linenumber" name="L278" href="LoessInterpolator.html#L278">278</a> 
+<a class="jxr_linenumber" name="L279" href="LoessInterpolator.html#L279">279</a>                 <em class="jxr_comment">// Compute the point of the bandwidth interval that is</em>
+<a class="jxr_linenumber" name="L280" href="LoessInterpolator.html#L280">280</a>                 <em class="jxr_comment">// farthest from x</em>
+<a class="jxr_linenumber" name="L281" href="LoessInterpolator.html#L281">281</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> edge;
+<a class="jxr_linenumber" name="L282" href="LoessInterpolator.html#L282">282</a>                 <strong class="jxr_keyword">if</strong> (xval[i] - xval[ileft] &gt; xval[iright] - xval[i]) {
+<a class="jxr_linenumber" name="L283" href="LoessInterpolator.html#L283">283</a>                     edge = ileft;
+<a class="jxr_linenumber" name="L284" href="LoessInterpolator.html#L284">284</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L285" href="LoessInterpolator.html#L285">285</a>                     edge = iright;
+<a class="jxr_linenumber" name="L286" href="LoessInterpolator.html#L286">286</a>                 }
+<a class="jxr_linenumber" name="L287" href="LoessInterpolator.html#L287">287</a> 
+<a class="jxr_linenumber" name="L288" href="LoessInterpolator.html#L288">288</a>                 <em class="jxr_comment">// Compute a least-squares linear fit weighted by</em>
+<a class="jxr_linenumber" name="L289" href="LoessInterpolator.html#L289">289</a>                 <em class="jxr_comment">// the product of robustness weights and the tricube</em>
+<a class="jxr_linenumber" name="L290" href="LoessInterpolator.html#L290">290</a>                 <em class="jxr_comment">// weight function.</em>
+<a class="jxr_linenumber" name="L291" href="LoessInterpolator.html#L291">291</a>                 <em class="jxr_comment">// See http://en.wikipedia.org/wiki/Linear_regression</em>
+<a class="jxr_linenumber" name="L292" href="LoessInterpolator.html#L292">292</a>                 <em class="jxr_comment">// (section "Univariate linear case")</em>
+<a class="jxr_linenumber" name="L293" href="LoessInterpolator.html#L293">293</a>                 <em class="jxr_comment">// and http://en.wikipedia.org/wiki/Weighted_least_squares</em>
+<a class="jxr_linenumber" name="L294" href="LoessInterpolator.html#L294">294</a>                 <em class="jxr_comment">// (section "Weighted least squares")</em>
+<a class="jxr_linenumber" name="L295" href="LoessInterpolator.html#L295">295</a>                 <strong class="jxr_keyword">double</strong> sumWeights = 0;
+<a class="jxr_linenumber" name="L296" href="LoessInterpolator.html#L296">296</a>                 <strong class="jxr_keyword">double</strong> sumX = 0;
+<a class="jxr_linenumber" name="L297" href="LoessInterpolator.html#L297">297</a>                 <strong class="jxr_keyword">double</strong> sumXSquared = 0;
+<a class="jxr_linenumber" name="L298" href="LoessInterpolator.html#L298">298</a>                 <strong class="jxr_keyword">double</strong> sumY = 0;
+<a class="jxr_linenumber" name="L299" href="LoessInterpolator.html#L299">299</a>                 <strong class="jxr_keyword">double</strong> sumXY = 0;
+<a class="jxr_linenumber" name="L300" href="LoessInterpolator.html#L300">300</a>                 <strong class="jxr_keyword">double</strong> denom = FastMath.abs(1.0 / (xval[edge] - x));
+<a class="jxr_linenumber" name="L301" href="LoessInterpolator.html#L301">301</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = ileft; k &lt;= iright; ++k) {
+<a class="jxr_linenumber" name="L302" href="LoessInterpolator.html#L302">302</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xk   = xval[k];
+<a class="jxr_linenumber" name="L303" href="LoessInterpolator.html#L303">303</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yk   = yval[k];
+<a class="jxr_linenumber" name="L304" href="LoessInterpolator.html#L304">304</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> dist = (k &lt; i) ? x - xk : xk - x;
+<a class="jxr_linenumber" name="L305" href="LoessInterpolator.html#L305">305</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> w    = tricube(dist * denom) * robustnessWeights[k] * weights[k];
+<a class="jxr_linenumber" name="L306" href="LoessInterpolator.html#L306">306</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xkw  = xk * w;
+<a class="jxr_linenumber" name="L307" href="LoessInterpolator.html#L307">307</a>                     sumWeights += w;
+<a class="jxr_linenumber" name="L308" href="LoessInterpolator.html#L308">308</a>                     sumX += xkw;
+<a class="jxr_linenumber" name="L309" href="LoessInterpolator.html#L309">309</a>                     sumXSquared += xk * xkw;
+<a class="jxr_linenumber" name="L310" href="LoessInterpolator.html#L310">310</a>                     sumY += yk * w;
+<a class="jxr_linenumber" name="L311" href="LoessInterpolator.html#L311">311</a>                     sumXY += yk * xkw;
+<a class="jxr_linenumber" name="L312" href="LoessInterpolator.html#L312">312</a>                 }
+<a class="jxr_linenumber" name="L313" href="LoessInterpolator.html#L313">313</a> 
+<a class="jxr_linenumber" name="L314" href="LoessInterpolator.html#L314">314</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> meanX = sumX / sumWeights;
+<a class="jxr_linenumber" name="L315" href="LoessInterpolator.html#L315">315</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> meanY = sumY / sumWeights;
+<a class="jxr_linenumber" name="L316" href="LoessInterpolator.html#L316">316</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> meanXY = sumXY / sumWeights;
+<a class="jxr_linenumber" name="L317" href="LoessInterpolator.html#L317">317</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> meanXSquared = sumXSquared / sumWeights;
+<a class="jxr_linenumber" name="L318" href="LoessInterpolator.html#L318">318</a> 
+<a class="jxr_linenumber" name="L319" href="LoessInterpolator.html#L319">319</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> beta;
+<a class="jxr_linenumber" name="L320" href="LoessInterpolator.html#L320">320</a>                 <strong class="jxr_keyword">if</strong> (FastMath.sqrt(FastMath.abs(meanXSquared - meanX * meanX)) &lt; accuracy) {
+<a class="jxr_linenumber" name="L321" href="LoessInterpolator.html#L321">321</a>                     beta = 0;
+<a class="jxr_linenumber" name="L322" href="LoessInterpolator.html#L322">322</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L323" href="LoessInterpolator.html#L323">323</a>                     beta = (meanXY - meanX * meanY) / (meanXSquared - meanX * meanX);
+<a class="jxr_linenumber" name="L324" href="LoessInterpolator.html#L324">324</a>                 }
+<a class="jxr_linenumber" name="L325" href="LoessInterpolator.html#L325">325</a> 
+<a class="jxr_linenumber" name="L326" href="LoessInterpolator.html#L326">326</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> alpha = meanY - beta * meanX;
+<a class="jxr_linenumber" name="L327" href="LoessInterpolator.html#L327">327</a> 
+<a class="jxr_linenumber" name="L328" href="LoessInterpolator.html#L328">328</a>                 res[i] = beta * x + alpha;
+<a class="jxr_linenumber" name="L329" href="LoessInterpolator.html#L329">329</a>                 residuals[i] = FastMath.abs(yval[i] - res[i]);
+<a class="jxr_linenumber" name="L330" href="LoessInterpolator.html#L330">330</a>             }
+<a class="jxr_linenumber" name="L331" href="LoessInterpolator.html#L331">331</a> 
+<a class="jxr_linenumber" name="L332" href="LoessInterpolator.html#L332">332</a>             <em class="jxr_comment">// No need to recompute the robustness weights at the last</em>
+<a class="jxr_linenumber" name="L333" href="LoessInterpolator.html#L333">333</a>             <em class="jxr_comment">// iteration, they won't be needed anymore</em>
+<a class="jxr_linenumber" name="L334" href="LoessInterpolator.html#L334">334</a>             <strong class="jxr_keyword">if</strong> (iter == robustnessIters) {
+<a class="jxr_linenumber" name="L335" href="LoessInterpolator.html#L335">335</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L336" href="LoessInterpolator.html#L336">336</a>             }
+<a class="jxr_linenumber" name="L337" href="LoessInterpolator.html#L337">337</a> 
+<a class="jxr_linenumber" name="L338" href="LoessInterpolator.html#L338">338</a>             <em class="jxr_comment">// Recompute the robustness weights.</em>
+<a class="jxr_linenumber" name="L339" href="LoessInterpolator.html#L339">339</a> 
+<a class="jxr_linenumber" name="L340" href="LoessInterpolator.html#L340">340</a>             <em class="jxr_comment">// Find the median residual.</em>
+<a class="jxr_linenumber" name="L341" href="LoessInterpolator.html#L341">341</a>             <em class="jxr_comment">// An arraycopy and a sort are completely tractable here,</em>
+<a class="jxr_linenumber" name="L342" href="LoessInterpolator.html#L342">342</a>             <em class="jxr_comment">// because the preceding loop is a lot more expensive</em>
+<a class="jxr_linenumber" name="L343" href="LoessInterpolator.html#L343">343</a>             System.arraycopy(residuals, 0, sortedResiduals, 0, n);
+<a class="jxr_linenumber" name="L344" href="LoessInterpolator.html#L344">344</a>             Arrays.sort(sortedResiduals);
+<a class="jxr_linenumber" name="L345" href="LoessInterpolator.html#L345">345</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> medianResidual = sortedResiduals[n / 2];
+<a class="jxr_linenumber" name="L346" href="LoessInterpolator.html#L346">346</a> 
+<a class="jxr_linenumber" name="L347" href="LoessInterpolator.html#L347">347</a>             <strong class="jxr_keyword">if</strong> (FastMath.abs(medianResidual) &lt; accuracy) {
+<a class="jxr_linenumber" name="L348" href="LoessInterpolator.html#L348">348</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L349" href="LoessInterpolator.html#L349">349</a>             }
+<a class="jxr_linenumber" name="L350" href="LoessInterpolator.html#L350">350</a> 
+<a class="jxr_linenumber" name="L351" href="LoessInterpolator.html#L351">351</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; ++i) {
+<a class="jxr_linenumber" name="L352" href="LoessInterpolator.html#L352">352</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> arg = residuals[i] / (6 * medianResidual);
+<a class="jxr_linenumber" name="L353" href="LoessInterpolator.html#L353">353</a>                 <strong class="jxr_keyword">if</strong> (arg &gt;= 1) {
+<a class="jxr_linenumber" name="L354" href="LoessInterpolator.html#L354">354</a>                     robustnessWeights[i] = 0;
+<a class="jxr_linenumber" name="L355" href="LoessInterpolator.html#L355">355</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L356" href="LoessInterpolator.html#L356">356</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> w = 1 - arg * arg;
+<a class="jxr_linenumber" name="L357" href="LoessInterpolator.html#L357">357</a>                     robustnessWeights[i] = w * w;
+<a class="jxr_linenumber" name="L358" href="LoessInterpolator.html#L358">358</a>                 }
+<a class="jxr_linenumber" name="L359" href="LoessInterpolator.html#L359">359</a>             }
+<a class="jxr_linenumber" name="L360" href="LoessInterpolator.html#L360">360</a>         }
+<a class="jxr_linenumber" name="L361" href="LoessInterpolator.html#L361">361</a> 
+<a class="jxr_linenumber" name="L362" href="LoessInterpolator.html#L362">362</a>         <strong class="jxr_keyword">return</strong> res;
+<a class="jxr_linenumber" name="L363" href="LoessInterpolator.html#L363">363</a>     }
+<a class="jxr_linenumber" name="L364" href="LoessInterpolator.html#L364">364</a> 
+<a class="jxr_linenumber" name="L365" href="LoessInterpolator.html#L365">365</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L366" href="LoessInterpolator.html#L366">366</a> <em class="jxr_javadoccomment">     * Compute a loess fit on the data at the original abscissae.</em>
+<a class="jxr_linenumber" name="L367" href="LoessInterpolator.html#L367">367</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L368" href="LoessInterpolator.html#L368">368</a> <em class="jxr_javadoccomment">     * @param xval the arguments for the interpolation points</em>
+<a class="jxr_linenumber" name="L369" href="LoessInterpolator.html#L369">369</a> <em class="jxr_javadoccomment">     * @param yval the values for the interpolation points</em>
+<a class="jxr_linenumber" name="L370" href="LoessInterpolator.html#L370">370</a> <em class="jxr_javadoccomment">     * @return values of the loess fit at corresponding original abscissae</em>
+<a class="jxr_linenumber" name="L371" href="LoessInterpolator.html#L371">371</a> <em class="jxr_javadoccomment">     * @throws NonMonotonicSequenceException if {@code xval} not sorted in</em>
+<a class="jxr_linenumber" name="L372" href="LoessInterpolator.html#L372">372</a> <em class="jxr_javadoccomment">     * strictly increasing order.</em>
+<a class="jxr_linenumber" name="L373" href="LoessInterpolator.html#L373">373</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if {@code xval} and {@code yval} have</em>
+<a class="jxr_linenumber" name="L374" href="LoessInterpolator.html#L374">374</a> <em class="jxr_javadoccomment">     * different sizes.</em>
+<a class="jxr_linenumber" name="L375" href="LoessInterpolator.html#L375">375</a> <em class="jxr_javadoccomment">     * @throws NoDataException if {@code xval} or {@code yval} has zero size.</em>
+<a class="jxr_linenumber" name="L376" href="LoessInterpolator.html#L376">376</a> <em class="jxr_javadoccomment">     * @throws NotFiniteNumberException if any of the arguments and values are</em>
+<a class="jxr_linenumber" name="L377" href="LoessInterpolator.html#L377">377</a> <em class="jxr_javadoccomment">     * not finite real numbers.</em>
+<a class="jxr_linenumber" name="L378" href="LoessInterpolator.html#L378">378</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if the bandwidth is too small to</em>
+<a class="jxr_linenumber" name="L379" href="LoessInterpolator.html#L379">379</a> <em class="jxr_javadoccomment">     * accomodate the size of the input data (i.e. the bandwidth must be</em>
+<a class="jxr_linenumber" name="L380" href="LoessInterpolator.html#L380">380</a> <em class="jxr_javadoccomment">     * larger than 2/n).</em>
+<a class="jxr_linenumber" name="L381" href="LoessInterpolator.html#L381">381</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L382" href="LoessInterpolator.html#L382">382</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] smooth(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xval, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yval)
+<a class="jxr_linenumber" name="L383" href="LoessInterpolator.html#L383">383</a>         <strong class="jxr_keyword">throws</strong> NonMonotonicSequenceException,
+<a class="jxr_linenumber" name="L384" href="LoessInterpolator.html#L384">384</a>                DimensionMismatchException,
+<a class="jxr_linenumber" name="L385" href="LoessInterpolator.html#L385">385</a>                NoDataException,
+<a class="jxr_linenumber" name="L386" href="LoessInterpolator.html#L386">386</a>                NotFiniteNumberException,
+<a class="jxr_linenumber" name="L387" href="LoessInterpolator.html#L387">387</a>                <a href="../../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a> {
+<a class="jxr_linenumber" name="L388" href="LoessInterpolator.html#L388">388</a>         <strong class="jxr_keyword">if</strong> (xval.length != yval.length) {
+<a class="jxr_linenumber" name="L389" href="LoessInterpolator.html#L389">389</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(xval.length, yval.length);
+<a class="jxr_linenumber" name="L390" href="LoessInterpolator.html#L390">390</a>         }
+<a class="jxr_linenumber" name="L391" href="LoessInterpolator.html#L391">391</a> 
+<a class="jxr_linenumber" name="L392" href="LoessInterpolator.html#L392">392</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] unitWeights = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[xval.length];
+<a class="jxr_linenumber" name="L393" href="LoessInterpolator.html#L393">393</a>         Arrays.fill(unitWeights, 1.0);
+<a class="jxr_linenumber" name="L394" href="LoessInterpolator.html#L394">394</a> 
+<a class="jxr_linenumber" name="L395" href="LoessInterpolator.html#L395">395</a>         <strong class="jxr_keyword">return</strong> smooth(xval, yval, unitWeights);
+<a class="jxr_linenumber" name="L396" href="LoessInterpolator.html#L396">396</a>     }
+<a class="jxr_linenumber" name="L397" href="LoessInterpolator.html#L397">397</a> 
+<a class="jxr_linenumber" name="L398" href="LoessInterpolator.html#L398">398</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L399" href="LoessInterpolator.html#L399">399</a> <em class="jxr_javadoccomment">     * Given an index interval into xval that embraces a certain number of</em>
+<a class="jxr_linenumber" name="L400" href="LoessInterpolator.html#L400">400</a> <em class="jxr_javadoccomment">     * points closest to {@code xval[i-1]}, update the interval so that it</em>
+<a class="jxr_linenumber" name="L401" href="LoessInterpolator.html#L401">401</a> <em class="jxr_javadoccomment">     * embraces the same number of points closest to {@code xval[i]},</em>
+<a class="jxr_linenumber" name="L402" href="LoessInterpolator.html#L402">402</a> <em class="jxr_javadoccomment">     * ignoring zero weights.</em>
+<a class="jxr_linenumber" name="L403" href="LoessInterpolator.html#L403">403</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L404" href="LoessInterpolator.html#L404">404</a> <em class="jxr_javadoccomment">     * @param xval Arguments array.</em>
+<a class="jxr_linenumber" name="L405" href="LoessInterpolator.html#L405">405</a> <em class="jxr_javadoccomment">     * @param weights Weights array.</em>
+<a class="jxr_linenumber" name="L406" href="LoessInterpolator.html#L406">406</a> <em class="jxr_javadoccomment">     * @param i Index around which the new interval should be computed.</em>
+<a class="jxr_linenumber" name="L407" href="LoessInterpolator.html#L407">407</a> <em class="jxr_javadoccomment">     * @param bandwidthInterval a two-element array {left, right} such that:</em>
+<a class="jxr_linenumber" name="L408" href="LoessInterpolator.html#L408">408</a> <em class="jxr_javadoccomment">     * {@code (left==0 or xval[i] - xval[left-1] &gt; xval[right] - xval[i])}</em>
+<a class="jxr_linenumber" name="L409" href="LoessInterpolator.html#L409">409</a> <em class="jxr_javadoccomment">     * and</em>
+<a class="jxr_linenumber" name="L410" href="LoessInterpolator.html#L410">410</a> <em class="jxr_javadoccomment">     * {@code (right==xval.length-1 or xval[right+1] - xval[i] &gt; xval[i] - xval[left])}.</em>
+<a class="jxr_linenumber" name="L411" href="LoessInterpolator.html#L411">411</a> <em class="jxr_javadoccomment">     * The array will be updated.</em>
+<a class="jxr_linenumber" name="L412" href="LoessInterpolator.html#L412">412</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L413" href="LoessInterpolator.html#L413">413</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> updateBandwidthInterval(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xval, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] weights,
+<a class="jxr_linenumber" name="L414" href="LoessInterpolator.html#L414">414</a>                                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i,
+<a class="jxr_linenumber" name="L415" href="LoessInterpolator.html#L415">415</a>                                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] bandwidthInterval) {
+<a class="jxr_linenumber" name="L416" href="LoessInterpolator.html#L416">416</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> left = bandwidthInterval[0];
+<a class="jxr_linenumber" name="L417" href="LoessInterpolator.html#L417">417</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> right = bandwidthInterval[1];
+<a class="jxr_linenumber" name="L418" href="LoessInterpolator.html#L418">418</a> 
+<a class="jxr_linenumber" name="L419" href="LoessInterpolator.html#L419">419</a>         <em class="jxr_comment">// The right edge should be adjusted if the next point to the right</em>
+<a class="jxr_linenumber" name="L420" href="LoessInterpolator.html#L420">420</a>         <em class="jxr_comment">// is closer to xval[i] than the leftmost point of the current interval</em>
+<a class="jxr_linenumber" name="L421" href="LoessInterpolator.html#L421">421</a>         <strong class="jxr_keyword">int</strong> nextRight = nextNonzero(weights, right);
+<a class="jxr_linenumber" name="L422" href="LoessInterpolator.html#L422">422</a>         <strong class="jxr_keyword">if</strong> (nextRight &lt; xval.length &amp;&amp; xval[nextRight] - xval[i] &lt; xval[i] - xval[left]) {
+<a class="jxr_linenumber" name="L423" href="LoessInterpolator.html#L423">423</a>             <strong class="jxr_keyword">int</strong> nextLeft = nextNonzero(weights, bandwidthInterval[0]);
+<a class="jxr_linenumber" name="L424" href="LoessInterpolator.html#L424">424</a>             bandwidthInterval[0] = nextLeft;
+<a class="jxr_linenumber" name="L425" href="LoessInterpolator.html#L425">425</a>             bandwidthInterval[1] = nextRight;
+<a class="jxr_linenumber" name="L426" href="LoessInterpolator.html#L426">426</a>         }
+<a class="jxr_linenumber" name="L427" href="LoessInterpolator.html#L427">427</a>     }
+<a class="jxr_linenumber" name="L428" href="LoessInterpolator.html#L428">428</a> 
+<a class="jxr_linenumber" name="L429" href="LoessInterpolator.html#L429">429</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L430" href="LoessInterpolator.html#L430">430</a> <em class="jxr_javadoccomment">     * Return the smallest index {@code j} such that</em>
+<a class="jxr_linenumber" name="L431" href="LoessInterpolator.html#L431">431</a> <em class="jxr_javadoccomment">     * {@code j &gt; i &amp;&amp; (j == weights.length || weights[j] != 0)}.</em>
+<a class="jxr_linenumber" name="L432" href="LoessInterpolator.html#L432">432</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L433" href="LoessInterpolator.html#L433">433</a> <em class="jxr_javadoccomment">     * @param weights Weights array.</em>
+<a class="jxr_linenumber" name="L434" href="LoessInterpolator.html#L434">434</a> <em class="jxr_javadoccomment">     * @param i Index from which to start search.</em>
+<a class="jxr_linenumber" name="L435" href="LoessInterpolator.html#L435">435</a> <em class="jxr_javadoccomment">     * @return the smallest compliant index.</em>
+<a class="jxr_linenumber" name="L436" href="LoessInterpolator.html#L436">436</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L437" href="LoessInterpolator.html#L437">437</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> nextNonzero(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] weights, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i) {
+<a class="jxr_linenumber" name="L438" href="LoessInterpolator.html#L438">438</a>         <strong class="jxr_keyword">int</strong> j = i + 1;
+<a class="jxr_linenumber" name="L439" href="LoessInterpolator.html#L439">439</a>         <strong class="jxr_keyword">while</strong>(j &lt; weights.length &amp;&amp; weights[j] == 0) {
+<a class="jxr_linenumber" name="L440" href="LoessInterpolator.html#L440">440</a>             ++j;
+<a class="jxr_linenumber" name="L441" href="LoessInterpolator.html#L441">441</a>         }
+<a class="jxr_linenumber" name="L442" href="LoessInterpolator.html#L442">442</a>         <strong class="jxr_keyword">return</strong> j;
+<a class="jxr_linenumber" name="L443" href="LoessInterpolator.html#L443">443</a>     }
+<a class="jxr_linenumber" name="L444" href="LoessInterpolator.html#L444">444</a> 
+<a class="jxr_linenumber" name="L445" href="LoessInterpolator.html#L445">445</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L446" href="LoessInterpolator.html#L446">446</a> <em class="jxr_javadoccomment">     * Compute the</em>
+<a class="jxr_linenumber" name="L447" href="LoessInterpolator.html#L447">447</a> <em class="jxr_javadoccomment">     * &lt;a href="<a href="http://en.wikipedia.org/wiki/Local_regression" target="alexandria_uri">http://en.wikipedia.org/wiki/Local_regression</a>#Weight_function"&gt;tricube&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L448" href="LoessInterpolator.html#L448">448</a> <em class="jxr_javadoccomment">     * weight function</em>
+<a class="jxr_linenumber" name="L449" href="LoessInterpolator.html#L449">449</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L450" href="LoessInterpolator.html#L450">450</a> <em class="jxr_javadoccomment">     * @param x Argument.</em>
+<a class="jxr_linenumber" name="L451" href="LoessInterpolator.html#L451">451</a> <em class="jxr_javadoccomment">     * @return &lt;code&gt;(1 - |x|&lt;sup&gt;3&lt;/sup&gt;)&lt;sup&gt;3&lt;/sup&gt;&lt;/code&gt; for |x| &amp;lt; 1, 0 otherwise.</em>
+<a class="jxr_linenumber" name="L452" href="LoessInterpolator.html#L452">452</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L453" href="LoessInterpolator.html#L453">453</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> tricube(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L454" href="LoessInterpolator.html#L454">454</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> absX = FastMath.abs(x);
+<a class="jxr_linenumber" name="L455" href="LoessInterpolator.html#L455">455</a>         <strong class="jxr_keyword">if</strong> (absX &gt;= 1.0) {
+<a class="jxr_linenumber" name="L456" href="LoessInterpolator.html#L456">456</a>             <strong class="jxr_keyword">return</strong> 0.0;
+<a class="jxr_linenumber" name="L457" href="LoessInterpolator.html#L457">457</a>         }
+<a class="jxr_linenumber" name="L458" href="LoessInterpolator.html#L458">458</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tmp = 1 - absX * absX * absX;
+<a class="jxr_linenumber" name="L459" href="LoessInterpolator.html#L459">459</a>         <strong class="jxr_keyword">return</strong> tmp * tmp * tmp;
+<a class="jxr_linenumber" name="L460" href="LoessInterpolator.html#L460">460</a>     }
+<a class="jxr_linenumber" name="L461" href="LoessInterpolator.html#L461">461</a> 
+<a class="jxr_linenumber" name="L462" href="LoessInterpolator.html#L462">462</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L463" href="LoessInterpolator.html#L463">463</a> <em class="jxr_javadoccomment">     * Check that all elements of an array are finite real numbers.</em>
+<a class="jxr_linenumber" name="L464" href="LoessInterpolator.html#L464">464</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L465" href="LoessInterpolator.html#L465">465</a> <em class="jxr_javadoccomment">     * @param values Values array.</em>
+<a class="jxr_linenumber" name="L466" href="LoessInterpolator.html#L466">466</a> <em class="jxr_javadoccomment">     * @throws org.apache.commons.math4.exception.NotFiniteNumberException</em>
+<a class="jxr_linenumber" name="L467" href="LoessInterpolator.html#L467">467</a> <em class="jxr_javadoccomment">     * if one of the values is not a finite real number.</em>
+<a class="jxr_linenumber" name="L468" href="LoessInterpolator.html#L468">468</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L469" href="LoessInterpolator.html#L469">469</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> checkAllFiniteReal(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values) {
+<a class="jxr_linenumber" name="L470" href="LoessInterpolator.html#L470">470</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; values.length; i++) {
+<a class="jxr_linenumber" name="L471" href="LoessInterpolator.html#L471">471</a>             MathUtils.checkFinite(values[i]);
+<a class="jxr_linenumber" name="L472" href="LoessInterpolator.html#L472">472</a>         }
+<a class="jxr_linenumber" name="L473" href="LoessInterpolator.html#L473">473</a>     }
+<a class="jxr_linenumber" name="L474" href="LoessInterpolator.html#L474">474</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

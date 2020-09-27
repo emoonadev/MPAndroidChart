@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>IntervalUtils xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/stat/interval/IntervalUtils.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="IntervalUtils.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="IntervalUtils.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="IntervalUtils.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="IntervalUtils.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="IntervalUtils.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="IntervalUtils.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="IntervalUtils.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="IntervalUtils.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="IntervalUtils.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="IntervalUtils.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="IntervalUtils.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="IntervalUtils.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="IntervalUtils.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="IntervalUtils.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="IntervalUtils.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="IntervalUtils.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="IntervalUtils.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.stat.interval;
+<a class="jxr_linenumber" name="L18" href="IntervalUtils.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="IntervalUtils.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotPositiveException;
+<a class="jxr_linenumber" name="L20" href="IntervalUtils.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L21" href="IntervalUtils.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooLargeException;
+<a class="jxr_linenumber" name="L22" href="IntervalUtils.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L23" href="IntervalUtils.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L24" href="IntervalUtils.html#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="IntervalUtils.html#L25">25</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L26" href="IntervalUtils.html#L26">26</a>  <em class="jxr_javadoccomment"> * Factory methods to generate confidence intervals for a binomial proportion.</em>
+<a class="jxr_linenumber" name="L27" href="IntervalUtils.html#L27">27</a>  <em class="jxr_javadoccomment"> * The supported methods are:</em>
+<a class="jxr_linenumber" name="L28" href="IntervalUtils.html#L28">28</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L29" href="IntervalUtils.html#L29">29</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;Agresti-Coull interval&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L30" href="IntervalUtils.html#L30">30</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;Clopper-Pearson method (exact method)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L31" href="IntervalUtils.html#L31">31</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;Normal approximation (based on central limit theorem)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L32" href="IntervalUtils.html#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;Wilson score interval&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L33" href="IntervalUtils.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L34" href="IntervalUtils.html#L34">34</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L35" href="IntervalUtils.html#L35">35</a>  <em class="jxr_javadoccomment"> * @since 3.3</em>
+<a class="jxr_linenumber" name="L36" href="IntervalUtils.html#L36">36</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L37" href="IntervalUtils.html#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="IntervalUtils.html">IntervalUtils</a> {
+<a class="jxr_linenumber" name="L38" href="IntervalUtils.html#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="IntervalUtils.html#L39">39</a>      <em class="jxr_javadoccomment">/** Singleton Agresti-Coull instance. */</em>
+<a class="jxr_linenumber" name="L40" href="IntervalUtils.html#L40">40</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="BinomialConfidenceInterval.html">BinomialConfidenceInterval</a> AGRESTI_COULL = <strong class="jxr_keyword">new</strong> <a href="AgrestiCoullInterval.html">AgrestiCoullInterval</a>();
+<a class="jxr_linenumber" name="L41" href="IntervalUtils.html#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="IntervalUtils.html#L42">42</a>      <em class="jxr_javadoccomment">/** Singleton Clopper-Pearson instance. */</em>
+<a class="jxr_linenumber" name="L43" href="IntervalUtils.html#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="BinomialConfidenceInterval.html">BinomialConfidenceInterval</a> CLOPPER_PEARSON = <strong class="jxr_keyword">new</strong> <a href="ClopperPearsonInterval.html">ClopperPearsonInterval</a>();
+<a class="jxr_linenumber" name="L44" href="IntervalUtils.html#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="IntervalUtils.html#L45">45</a>      <em class="jxr_javadoccomment">/** Singleton NormalApproximation instance. */</em>
+<a class="jxr_linenumber" name="L46" href="IntervalUtils.html#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="BinomialConfidenceInterval.html">BinomialConfidenceInterval</a> NORMAL_APPROXIMATION = <strong class="jxr_keyword">new</strong> <a href="NormalApproximationInterval.html">NormalApproximationInterval</a>();
+<a class="jxr_linenumber" name="L47" href="IntervalUtils.html#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="IntervalUtils.html#L48">48</a>      <em class="jxr_javadoccomment">/** Singleton Wilson score instance. */</em>
+<a class="jxr_linenumber" name="L49" href="IntervalUtils.html#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="BinomialConfidenceInterval.html">BinomialConfidenceInterval</a> WILSON_SCORE = <strong class="jxr_keyword">new</strong> <a href="WilsonScoreInterval.html">WilsonScoreInterval</a>();
+<a class="jxr_linenumber" name="L50" href="IntervalUtils.html#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="IntervalUtils.html#L51">51</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L52" href="IntervalUtils.html#L52">52</a>  <em class="jxr_javadoccomment">     * Prevent instantiation.</em>
+<a class="jxr_linenumber" name="L53" href="IntervalUtils.html#L53">53</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L54" href="IntervalUtils.html#L54">54</a>      <strong class="jxr_keyword">private</strong> <a href="IntervalUtils.html">IntervalUtils</a>() {
+<a class="jxr_linenumber" name="L55" href="IntervalUtils.html#L55">55</a>      }
+<a class="jxr_linenumber" name="L56" href="IntervalUtils.html#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="IntervalUtils.html#L57">57</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L58" href="IntervalUtils.html#L58">58</a>  <em class="jxr_javadoccomment">     * Create an Agresti-Coull binomial confidence interval for the true</em>
+<a class="jxr_linenumber" name="L59" href="IntervalUtils.html#L59">59</a>  <em class="jxr_javadoccomment">     * probability of success of an unknown binomial distribution with the given</em>
+<a class="jxr_linenumber" name="L60" href="IntervalUtils.html#L60">60</a>  <em class="jxr_javadoccomment">     * observed number of trials, successes and confidence level.</em>
+<a class="jxr_linenumber" name="L61" href="IntervalUtils.html#L61">61</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L62" href="IntervalUtils.html#L62">62</a>  <em class="jxr_javadoccomment">     * @param numberOfTrials number of trials</em>
+<a class="jxr_linenumber" name="L63" href="IntervalUtils.html#L63">63</a>  <em class="jxr_javadoccomment">     * @param numberOfSuccesses number of successes</em>
+<a class="jxr_linenumber" name="L64" href="IntervalUtils.html#L64">64</a>  <em class="jxr_javadoccomment">     * @param confidenceLevel desired probability that the true probability of</em>
+<a class="jxr_linenumber" name="L65" href="IntervalUtils.html#L65">65</a>  <em class="jxr_javadoccomment">     *        success falls within the returned interval</em>
+<a class="jxr_linenumber" name="L66" href="IntervalUtils.html#L66">66</a>  <em class="jxr_javadoccomment">     * @return Confidence interval containing the probability of success with</em>
+<a class="jxr_linenumber" name="L67" href="IntervalUtils.html#L67">67</a>  <em class="jxr_javadoccomment">     *         probability {@code confidenceLevel}</em>
+<a class="jxr_linenumber" name="L68" href="IntervalUtils.html#L68">68</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code numberOfTrials &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L69" href="IntervalUtils.html#L69">69</a>  <em class="jxr_javadoccomment">     * @throws NotPositiveException if {@code numberOfSuccesses &lt; 0}.</em>
+<a class="jxr_linenumber" name="L70" href="IntervalUtils.html#L70">70</a>  <em class="jxr_javadoccomment">     * @throws NumberIsTooLargeException if {@code numberOfSuccesses &gt; numberOfTrials}.</em>
+<a class="jxr_linenumber" name="L71" href="IntervalUtils.html#L71">71</a>  <em class="jxr_javadoccomment">     * @throws OutOfRangeException if {@code confidenceLevel} is not in the interval {@code (0, 1)}.</em>
+<a class="jxr_linenumber" name="L72" href="IntervalUtils.html#L72">72</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L73" href="IntervalUtils.html#L73">73</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="ConfidenceInterval.html">ConfidenceInterval</a> getAgrestiCoullInterval(<strong class="jxr_keyword">int</strong> numberOfTrials, <strong class="jxr_keyword">int</strong> numberOfSuccesses,
+<a class="jxr_linenumber" name="L74" href="IntervalUtils.html#L74">74</a>                                                               <strong class="jxr_keyword">double</strong> confidenceLevel) {
+<a class="jxr_linenumber" name="L75" href="IntervalUtils.html#L75">75</a>          <strong class="jxr_keyword">return</strong> AGRESTI_COULL.createInterval(numberOfTrials, numberOfSuccesses, confidenceLevel);
+<a class="jxr_linenumber" name="L76" href="IntervalUtils.html#L76">76</a>      }
+<a class="jxr_linenumber" name="L77" href="IntervalUtils.html#L77">77</a>  
+<a class="jxr_linenumber" name="L78" href="IntervalUtils.html#L78">78</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L79" href="IntervalUtils.html#L79">79</a>  <em class="jxr_javadoccomment">     * Create a Clopper-Pearson binomial confidence interval for the true</em>
+<a class="jxr_linenumber" name="L80" href="IntervalUtils.html#L80">80</a>  <em class="jxr_javadoccomment">     * probability of success of an unknown binomial distribution with the given</em>
+<a class="jxr_linenumber" name="L81" href="IntervalUtils.html#L81">81</a>  <em class="jxr_javadoccomment">     * observed number of trials, successes and confidence level.</em>
+<a class="jxr_linenumber" name="L82" href="IntervalUtils.html#L82">82</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L83" href="IntervalUtils.html#L83">83</a>  <em class="jxr_javadoccomment">     * Preconditions:</em>
+<a class="jxr_linenumber" name="L84" href="IntervalUtils.html#L84">84</a>  <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L85" href="IntervalUtils.html#L85">85</a>  <em class="jxr_javadoccomment">     * &lt;li&gt;{@code numberOfTrials} must be positive&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L86" href="IntervalUtils.html#L86">86</a>  <em class="jxr_javadoccomment">     * &lt;li&gt;{@code numberOfSuccesses} may not exceed {@code numberOfTrials}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L87" href="IntervalUtils.html#L87">87</a>  <em class="jxr_javadoccomment">     * &lt;li&gt;{@code confidenceLevel} must be strictly between 0 and 1 (exclusive)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L88" href="IntervalUtils.html#L88">88</a>  <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L89" href="IntervalUtils.html#L89">89</a>  <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L90" href="IntervalUtils.html#L90">90</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L91" href="IntervalUtils.html#L91">91</a>  <em class="jxr_javadoccomment">     * @param numberOfTrials number of trials</em>
+<a class="jxr_linenumber" name="L92" href="IntervalUtils.html#L92">92</a>  <em class="jxr_javadoccomment">     * @param numberOfSuccesses number of successes</em>
+<a class="jxr_linenumber" name="L93" href="IntervalUtils.html#L93">93</a>  <em class="jxr_javadoccomment">     * @param confidenceLevel desired probability that the true probability of</em>
+<a class="jxr_linenumber" name="L94" href="IntervalUtils.html#L94">94</a>  <em class="jxr_javadoccomment">     *        success falls within the returned interval</em>
+<a class="jxr_linenumber" name="L95" href="IntervalUtils.html#L95">95</a>  <em class="jxr_javadoccomment">     * @return Confidence interval containing the probability of success with</em>
+<a class="jxr_linenumber" name="L96" href="IntervalUtils.html#L96">96</a>  <em class="jxr_javadoccomment">     *         probability {@code confidenceLevel}</em>
+<a class="jxr_linenumber" name="L97" href="IntervalUtils.html#L97">97</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code numberOfTrials &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L98" href="IntervalUtils.html#L98">98</a>  <em class="jxr_javadoccomment">     * @throws NotPositiveException if {@code numberOfSuccesses &lt; 0}.</em>
+<a class="jxr_linenumber" name="L99" href="IntervalUtils.html#L99">99</a>  <em class="jxr_javadoccomment">     * @throws NumberIsTooLargeException if {@code numberOfSuccesses &gt; numberOfTrials}.</em>
+<a class="jxr_linenumber" name="L100" href="IntervalUtils.html#L100">100</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if {@code confidenceLevel} is not in the interval {@code (0, 1)}.</em>
+<a class="jxr_linenumber" name="L101" href="IntervalUtils.html#L101">101</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L102" href="IntervalUtils.html#L102">102</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="ConfidenceInterval.html">ConfidenceInterval</a> getClopperPearsonInterval(<strong class="jxr_keyword">int</strong> numberOfTrials, <strong class="jxr_keyword">int</strong> numberOfSuccesses,
+<a class="jxr_linenumber" name="L103" href="IntervalUtils.html#L103">103</a>                                                                <strong class="jxr_keyword">double</strong> confidenceLevel) {
+<a class="jxr_linenumber" name="L104" href="IntervalUtils.html#L104">104</a>         <strong class="jxr_keyword">return</strong> CLOPPER_PEARSON.createInterval(numberOfTrials, numberOfSuccesses, confidenceLevel);
+<a class="jxr_linenumber" name="L105" href="IntervalUtils.html#L105">105</a>     }
+<a class="jxr_linenumber" name="L106" href="IntervalUtils.html#L106">106</a> 
+<a class="jxr_linenumber" name="L107" href="IntervalUtils.html#L107">107</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L108" href="IntervalUtils.html#L108">108</a> <em class="jxr_javadoccomment">     * Create a binomial confidence interval for the true probability of success</em>
+<a class="jxr_linenumber" name="L109" href="IntervalUtils.html#L109">109</a> <em class="jxr_javadoccomment">     * of an unknown binomial distribution with the given observed number of</em>
+<a class="jxr_linenumber" name="L110" href="IntervalUtils.html#L110">110</a> <em class="jxr_javadoccomment">     * trials, successes and confidence level using the Normal approximation to</em>
+<a class="jxr_linenumber" name="L111" href="IntervalUtils.html#L111">111</a> <em class="jxr_javadoccomment">     * the binomial distribution.</em>
+<a class="jxr_linenumber" name="L112" href="IntervalUtils.html#L112">112</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L113" href="IntervalUtils.html#L113">113</a> <em class="jxr_javadoccomment">     * @param numberOfTrials number of trials</em>
+<a class="jxr_linenumber" name="L114" href="IntervalUtils.html#L114">114</a> <em class="jxr_javadoccomment">     * @param numberOfSuccesses number of successes</em>
+<a class="jxr_linenumber" name="L115" href="IntervalUtils.html#L115">115</a> <em class="jxr_javadoccomment">     * @param confidenceLevel desired probability that the true probability of</em>
+<a class="jxr_linenumber" name="L116" href="IntervalUtils.html#L116">116</a> <em class="jxr_javadoccomment">     *        success falls within the interval</em>
+<a class="jxr_linenumber" name="L117" href="IntervalUtils.html#L117">117</a> <em class="jxr_javadoccomment">     * @return Confidence interval containing the probability of success with</em>
+<a class="jxr_linenumber" name="L118" href="IntervalUtils.html#L118">118</a> <em class="jxr_javadoccomment">     *         probability {@code confidenceLevel}</em>
+<a class="jxr_linenumber" name="L119" href="IntervalUtils.html#L119">119</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L120" href="IntervalUtils.html#L120">120</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="ConfidenceInterval.html">ConfidenceInterval</a> getNormalApproximationInterval(<strong class="jxr_keyword">int</strong> numberOfTrials, <strong class="jxr_keyword">int</strong> numberOfSuccesses,
+<a class="jxr_linenumber" name="L121" href="IntervalUtils.html#L121">121</a>                                                                     <strong class="jxr_keyword">double</strong> confidenceLevel) {
+<a class="jxr_linenumber" name="L122" href="IntervalUtils.html#L122">122</a>         <strong class="jxr_keyword">return</strong> NORMAL_APPROXIMATION.createInterval(numberOfTrials, numberOfSuccesses, confidenceLevel);
+<a class="jxr_linenumber" name="L123" href="IntervalUtils.html#L123">123</a>     }
+<a class="jxr_linenumber" name="L124" href="IntervalUtils.html#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="IntervalUtils.html#L125">125</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L126" href="IntervalUtils.html#L126">126</a> <em class="jxr_javadoccomment">     * Create a Wilson score binomial confidence interval for the true</em>
+<a class="jxr_linenumber" name="L127" href="IntervalUtils.html#L127">127</a> <em class="jxr_javadoccomment">     * probability of success of an unknown binomial distribution with the given</em>
+<a class="jxr_linenumber" name="L128" href="IntervalUtils.html#L128">128</a> <em class="jxr_javadoccomment">     * observed number of trials, successes and confidence level.</em>
+<a class="jxr_linenumber" name="L129" href="IntervalUtils.html#L129">129</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L130" href="IntervalUtils.html#L130">130</a> <em class="jxr_javadoccomment">     * @param numberOfTrials number of trials</em>
+<a class="jxr_linenumber" name="L131" href="IntervalUtils.html#L131">131</a> <em class="jxr_javadoccomment">     * @param numberOfSuccesses number of successes</em>
+<a class="jxr_linenumber" name="L132" href="IntervalUtils.html#L132">132</a> <em class="jxr_javadoccomment">     * @param confidenceLevel desired probability that the true probability of</em>
+<a class="jxr_linenumber" name="L133" href="IntervalUtils.html#L133">133</a> <em class="jxr_javadoccomment">     *        success falls within the returned interval</em>
+<a class="jxr_linenumber" name="L134" href="IntervalUtils.html#L134">134</a> <em class="jxr_javadoccomment">     * @return Confidence interval containing the probability of success with</em>
+<a class="jxr_linenumber" name="L135" href="IntervalUtils.html#L135">135</a> <em class="jxr_javadoccomment">     *         probability {@code confidenceLevel}</em>
+<a class="jxr_linenumber" name="L136" href="IntervalUtils.html#L136">136</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code numberOfTrials &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L137" href="IntervalUtils.html#L137">137</a> <em class="jxr_javadoccomment">     * @throws NotPositiveException if {@code numberOfSuccesses &lt; 0}.</em>
+<a class="jxr_linenumber" name="L138" href="IntervalUtils.html#L138">138</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooLargeException if {@code numberOfSuccesses &gt; numberOfTrials}.</em>
+<a class="jxr_linenumber" name="L139" href="IntervalUtils.html#L139">139</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if {@code confidenceLevel} is not in the interval {@code (0, 1)}.</em>
+<a class="jxr_linenumber" name="L140" href="IntervalUtils.html#L140">140</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L141" href="IntervalUtils.html#L141">141</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="ConfidenceInterval.html">ConfidenceInterval</a> getWilsonScoreInterval(<strong class="jxr_keyword">int</strong> numberOfTrials, <strong class="jxr_keyword">int</strong> numberOfSuccesses,
+<a class="jxr_linenumber" name="L142" href="IntervalUtils.html#L142">142</a>                                                             <strong class="jxr_keyword">double</strong> confidenceLevel) {
+<a class="jxr_linenumber" name="L143" href="IntervalUtils.html#L143">143</a>         <strong class="jxr_keyword">return</strong> WILSON_SCORE.createInterval(numberOfTrials, numberOfSuccesses, confidenceLevel);
+<a class="jxr_linenumber" name="L144" href="IntervalUtils.html#L144">144</a>     }
+<a class="jxr_linenumber" name="L145" href="IntervalUtils.html#L145">145</a> 
+<a class="jxr_linenumber" name="L146" href="IntervalUtils.html#L146">146</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L147" href="IntervalUtils.html#L147">147</a> <em class="jxr_javadoccomment">     * Verifies that parameters satisfy preconditions.</em>
+<a class="jxr_linenumber" name="L148" href="IntervalUtils.html#L148">148</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L149" href="IntervalUtils.html#L149">149</a> <em class="jxr_javadoccomment">     * @param numberOfTrials number of trials (must be positive)</em>
+<a class="jxr_linenumber" name="L150" href="IntervalUtils.html#L150">150</a> <em class="jxr_javadoccomment">     * @param numberOfSuccesses number of successes (must not exceed numberOfTrials)</em>
+<a class="jxr_linenumber" name="L151" href="IntervalUtils.html#L151">151</a> <em class="jxr_javadoccomment">     * @param confidenceLevel confidence level (must be strictly between 0 and 1)</em>
+<a class="jxr_linenumber" name="L152" href="IntervalUtils.html#L152">152</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code numberOfTrials &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L153" href="IntervalUtils.html#L153">153</a> <em class="jxr_javadoccomment">     * @throws NotPositiveException if {@code numberOfSuccesses &lt; 0}.</em>
+<a class="jxr_linenumber" name="L154" href="IntervalUtils.html#L154">154</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooLargeException if {@code numberOfSuccesses &gt; numberOfTrials}.</em>
+<a class="jxr_linenumber" name="L155" href="IntervalUtils.html#L155">155</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if {@code confidenceLevel} is not in the interval {@code (0, 1)}.</em>
+<a class="jxr_linenumber" name="L156" href="IntervalUtils.html#L156">156</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L157" href="IntervalUtils.html#L157">157</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> checkParameters(<strong class="jxr_keyword">int</strong> numberOfTrials, <strong class="jxr_keyword">int</strong> numberOfSuccesses, <strong class="jxr_keyword">double</strong> confidenceLevel) {
+<a class="jxr_linenumber" name="L158" href="IntervalUtils.html#L158">158</a>         <strong class="jxr_keyword">if</strong> (numberOfTrials &lt;= 0) {
+<a class="jxr_linenumber" name="L159" href="IntervalUtils.html#L159">159</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(LocalizedFormats.NUMBER_OF_TRIALS, numberOfTrials);
+<a class="jxr_linenumber" name="L160" href="IntervalUtils.html#L160">160</a>         }
+<a class="jxr_linenumber" name="L161" href="IntervalUtils.html#L161">161</a>         <strong class="jxr_keyword">if</strong> (numberOfSuccesses &lt; 0) {
+<a class="jxr_linenumber" name="L162" href="IntervalUtils.html#L162">162</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotPositiveException.html">NotPositiveException</a>(LocalizedFormats.NEGATIVE_NUMBER_OF_SUCCESSES, numberOfSuccesses);
+<a class="jxr_linenumber" name="L163" href="IntervalUtils.html#L163">163</a>         }
+<a class="jxr_linenumber" name="L164" href="IntervalUtils.html#L164">164</a>         <strong class="jxr_keyword">if</strong> (numberOfSuccesses &gt; numberOfTrials) {
+<a class="jxr_linenumber" name="L165" href="IntervalUtils.html#L165">165</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a>(LocalizedFormats.NUMBER_OF_SUCCESS_LARGER_THAN_POPULATION_SIZE,
+<a class="jxr_linenumber" name="L166" href="IntervalUtils.html#L166">166</a>                                                 numberOfSuccesses, numberOfTrials, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L167" href="IntervalUtils.html#L167">167</a>         }
+<a class="jxr_linenumber" name="L168" href="IntervalUtils.html#L168">168</a>         <strong class="jxr_keyword">if</strong> (confidenceLevel &lt;= 0 || confidenceLevel &gt;= 1) {
+<a class="jxr_linenumber" name="L169" href="IntervalUtils.html#L169">169</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>(LocalizedFormats.OUT_OF_BOUNDS_CONFIDENCE_LEVEL,
+<a class="jxr_linenumber" name="L170" href="IntervalUtils.html#L170">170</a>                                           confidenceLevel, 0, 1);
+<a class="jxr_linenumber" name="L171" href="IntervalUtils.html#L171">171</a>         }
+<a class="jxr_linenumber" name="L172" href="IntervalUtils.html#L172">172</a>     }
+<a class="jxr_linenumber" name="L173" href="IntervalUtils.html#L173">173</a> 
+<a class="jxr_linenumber" name="L174" href="IntervalUtils.html#L174">174</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

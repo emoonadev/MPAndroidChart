@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/report.css" type="text/css"/><link rel="shortcut icon" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/report.gif" type="image/gif"/><title>RngAdaptor.java</title><link rel="stylesheet" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/prettify.css" type="text/css"/><script type="text/javascript" src="https://commons.apache.org/proper/commons-math/jacoco/.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="https://commons.apache.org/proper/commons-math/jacoco/.sessions.html" class="el_session">Sessions</a></span><a href="https://commons.apache.org/proper/commons-math/jacoco/index.html" class="el_report">Apache Commons Math</a> &gt; <a href="https://commons.apache.org/proper/commons-math/jacoco/org.apache.commons.math4.random/index.source.html" class="el_package">org.apache.commons.math4.random</a> &gt; <span class="el_source">RngAdaptor.java</span></div><h1>RngAdaptor.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math4.random;
+
+import java.io.Serializable;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import org.apache.commons.math4.util.FastMath;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.RandomSource;
+
+/**
+ * Adaptor that delegates to a {@link UniformRandomProvider} instance.
+ * &lt;p&gt;
+ * It is provided for users who wish to test the new RNG implementations
+ * the &lt;i&gt;current&lt;/i&gt; generators (up to version 3.6 of Commons Math) in
+ * codes that require the {@code RandomGenerator} interface.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * Applications should upgrade to use the new generators ASAP.
+ * If problems are found that jeopardize the upgrade, please report them
+ * on the project's
+ * &lt;a href=&quot;https://issues.apache.org/jira/browse/MATH&quot;&gt;
+ *  issue tracking system&lt;/a&gt;.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;b&gt;Notes:&lt;/b&gt;
+ * &lt;ul&gt;
+ *  &lt;li&gt;
+ *   The
+ *   {@link RandomGenerator#setSeed(int) setSeed(int)},
+ *   {@link RandomGenerator#setSeed(int[]) setSeed(int[])} and
+ *   {@link RandomGenerator#setSeed(long) setSeed(long)}
+ *   methods of the {@link RandomGenerator} are not part of the
+ *   {@link UniformRandomProvider new API}.
+ *  &lt;/li&gt;
+ *  &lt;li&gt;
+ *   The new RNG implementations are not {@code Serializable}.
+ *   Use {@link RandomSource#saveState(UniformRandomProvider)}
+ *   instead.
+ *  &lt;/li&gt;
+ *  &lt;li&gt;
+ *   {@link RandomGenerator#nextGaussian() nextGaussian()} is not
+ *   part of the {@link UniformRandomProvider new API} as it defines
+ *   a &quot;post-processing&quot; of the output of a &lt;i&gt;uniform&lt;/i&gt; RNG in
+ *   order to follow a different distribution.
+ *  &lt;/li&gt;
+ * &lt;/p&gt;
+ *
+ * @since 4.0
+ *
+ * @deprecated As of 4.0. This class is made available for testing
+ * the {@link RandomSource new RNG implementations} in existing
+ * applications.
+ * It will be removed in the next major release.
+ */
+@Deprecated
+public final class RngAdaptor
+    implements RandomGenerator,
+               Serializable {
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 12345L;
+    /** Source. */
+    private final RandomSource source;
+    /** Delegate. */
+    private transient UniformRandomProvider delegate;
+    /** Next gaussian. */
+<span class="fc" id="L84">    private double nextGaussian = Double.NaN;</span>
+
+    /**
+     * Creates a new instance.
+     *
+     * @param source Source of randomness.
+     */
+    public RngAdaptor(RandomSource source) {
+<span class="fc" id="L92">        this(source, null);</span>
+<span class="fc" id="L93">    }</span>
+
+    /**
+     * Creates a new instance.
+     *
+     * @param source Source of randomness.
+     * @param seed Seed.  Can be {@code null}.
+     */
+    public RngAdaptor(RandomSource source,
+<span class="fc" id="L102">                      Object seed) {</span>
+<span class="fc" id="L103">        this.source = source;</span>
+<span class="fc" id="L104">        delegate = RandomSource.create(source, seed);</span>
+<span class="fc" id="L105">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public void setSeed(int seed) {
+<span class="nc" id="L110">        delegate = RandomSource.create(source, seed);</span>
+<span class="nc" id="L111">        clear();</span>
+<span class="nc" id="L112">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public void setSeed(int[] seed) {
+<span class="nc" id="L117">        delegate = RandomSource.create(source, seed);</span>
+<span class="nc" id="L118">        clear();</span>
+<span class="nc" id="L119">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public void setSeed(long seed) {
+<span class="nc" id="L124">        delegate = RandomSource.create(source, seed);</span>
+<span class="nc" id="L125">        clear();</span>
+<span class="nc" id="L126">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean nextBoolean() {
+<span class="fc" id="L131">        return delegate.nextBoolean();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void nextBytes(byte[] bytes) {
+<span class="fc" id="L137">        delegate.nextBytes(bytes);</span>
+<span class="fc" id="L138">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public double nextDouble() {
+<span class="fc" id="L143">        return delegate.nextDouble();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public float nextFloat() {
+<span class="fc" id="L149">        return delegate.nextFloat();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double nextGaussian() {
+        final double random;
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        if (Double.isNaN(nextGaussian)) {</span>
+            // generate a new pair of gaussian numbers
+<span class="fc" id="L158">            final double x = nextDouble();</span>
+<span class="fc" id="L159">            final double y = nextDouble();</span>
+<span class="fc" id="L160">            final double alpha = 2 * FastMath.PI * x;</span>
+<span class="fc" id="L161">            final double r = FastMath.sqrt(-2 * FastMath.log(y));</span>
+<span class="fc" id="L162">            random = r * FastMath.cos(alpha);</span>
+<span class="fc" id="L163">            nextGaussian = r * FastMath.sin(alpha);</span>
+<span class="fc" id="L164">        } else {</span>
+            // use the second element of the pair already generated
+<span class="fc" id="L166">            random = nextGaussian;</span>
+<span class="fc" id="L167">            nextGaussian = Double.NaN;</span>
+        }
+
+<span class="fc" id="L170">        return random;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int nextInt() {
+<span class="fc" id="L176">        return delegate.nextInt();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int nextInt(int n) {
+<span class="fc" id="L182">        return delegate.nextInt(n);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public long nextLong() {
+<span class="fc" id="L188">        return delegate.nextLong();</span>
+    }
+
+    /**
+     * Clears the cache used by the default implementation of
+     * {@link #nextGaussian}.
+     */
+    private void clear() {
+<span class="nc" id="L196">        nextGaussian = Double.NaN;</span>
+<span class="nc" id="L197">    }</span>
+
+    /**
+     * @param out Output stream.
+     * @throws IOException if an error occurs.
+     */
+    private void writeObject(ObjectOutputStream out)
+        throws IOException {
+        // Write non-transient fields.
+<span class="nc" id="L206">        out.defaultWriteObject();</span>
+
+        // Save current state.
+<span class="nc" id="L209">        out.writeObject(RandomSource.saveState(delegate).getState());</span>
+<span class="nc" id="L210">   }</span>
+
+    /**
+     * @param in Input stream.
+     * @throws IOException if an error occurs.
+     * @throws ClassNotFoundException if an error occurs.
+     */
+    private void readObject(ObjectInputStream in)
+        throws IOException,
+               ClassNotFoundException {
+        // Read non-transient fields.
+<span class="nc" id="L221">        in.defaultReadObject();</span>
+
+        // Recreate the &quot;delegate&quot; from serialized info.
+<span class="nc" id="L224">        delegate = RandomSource.create(source);</span>
+        // And restore its state.
+<span class="nc" id="L226">        final RandomSource.State state = new RandomSource.State((byte[]) in.readObject());</span>
+<span class="nc" id="L227">        RandomSource.restoreState(delegate, state);</span>
+<span class="nc" id="L228">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

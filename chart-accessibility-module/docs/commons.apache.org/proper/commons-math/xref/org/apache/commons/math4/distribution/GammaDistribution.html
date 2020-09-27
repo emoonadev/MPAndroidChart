@@ -1,0 +1,465 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>GammaDistribution xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/distribution/GammaDistribution.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="GammaDistribution.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="GammaDistribution.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="GammaDistribution.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="GammaDistribution.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="GammaDistribution.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="GammaDistribution.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="GammaDistribution.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="GammaDistribution.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="GammaDistribution.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="GammaDistribution.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="GammaDistribution.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="GammaDistribution.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="GammaDistribution.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="GammaDistribution.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="GammaDistribution.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="GammaDistribution.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="GammaDistribution.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.distribution;
+<a class="jxr_linenumber" name="L18" href="GammaDistribution.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="GammaDistribution.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L20" href="GammaDistribution.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L21" href="GammaDistribution.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L22" href="GammaDistribution.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.special.Gamma;
+<a class="jxr_linenumber" name="L23" href="GammaDistribution.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L24" href="GammaDistribution.html#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="GammaDistribution.html#L25">25</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L26" href="GammaDistribution.html#L26">26</a>  <em class="jxr_javadoccomment"> * Implementation of the Gamma distribution.</em>
+<a class="jxr_linenumber" name="L27" href="GammaDistribution.html#L27">27</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L28" href="GammaDistribution.html#L28">28</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/Gamma_distribution" target="alexandria_uri">http://en.wikipedia.org/wiki/Gamma_distribution</a>"&gt;Gamma distribution (Wikipedia)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L29" href="GammaDistribution.html#L29">29</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://mathworld.wolfram.com/GammaDistribution.html" target="alexandria_uri">http://mathworld.wolfram.com/GammaDistribution.html</a>"&gt;Gamma distribution (MathWorld)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L30" href="GammaDistribution.html#L30">30</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L31" href="GammaDistribution.html#L31">31</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="GammaDistribution.html">GammaDistribution</a> <strong class="jxr_keyword">extends</strong> <a href="AbstractRealDistribution.html">AbstractRealDistribution</a> {
+<a class="jxr_linenumber" name="L32" href="GammaDistribution.html#L32">32</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L33" href="GammaDistribution.html#L33">33</a>  <em class="jxr_javadoccomment">     * Default inverse cumulative probability accuracy.</em>
+<a class="jxr_linenumber" name="L34" href="GammaDistribution.html#L34">34</a>  <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L35" href="GammaDistribution.html#L35">35</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L36" href="GammaDistribution.html#L36">36</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_INVERSE_ABSOLUTE_ACCURACY = 1e-9;
+<a class="jxr_linenumber" name="L37" href="GammaDistribution.html#L37">37</a>      <em class="jxr_javadoccomment">/** Serializable version identifier. */</em>
+<a class="jxr_linenumber" name="L38" href="GammaDistribution.html#L38">38</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20160311L;
+<a class="jxr_linenumber" name="L39" href="GammaDistribution.html#L39">39</a>      <em class="jxr_javadoccomment">/** The shape parameter. */</em>
+<a class="jxr_linenumber" name="L40" href="GammaDistribution.html#L40">40</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> shape;
+<a class="jxr_linenumber" name="L41" href="GammaDistribution.html#L41">41</a>      <em class="jxr_javadoccomment">/** The scale parameter. */</em>
+<a class="jxr_linenumber" name="L42" href="GammaDistribution.html#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> scale;
+<a class="jxr_linenumber" name="L43" href="GammaDistribution.html#L43">43</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L44" href="GammaDistribution.html#L44">44</a>  <em class="jxr_javadoccomment">     * The constant value of {@code shape + g + 0.5}, where {@code g} is the</em>
+<a class="jxr_linenumber" name="L45" href="GammaDistribution.html#L45">45</a>  <em class="jxr_javadoccomment">     * Lanczos constant {@link Gamma#LANCZOS_G}.</em>
+<a class="jxr_linenumber" name="L46" href="GammaDistribution.html#L46">46</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L47" href="GammaDistribution.html#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> shiftedShape;
+<a class="jxr_linenumber" name="L48" href="GammaDistribution.html#L48">48</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L49" href="GammaDistribution.html#L49">49</a>  <em class="jxr_javadoccomment">     * The constant value of</em>
+<a class="jxr_linenumber" name="L50" href="GammaDistribution.html#L50">50</a>  <em class="jxr_javadoccomment">     * {@code shape / scale * sqrt(e / (2 * pi * (shape + g + 0.5))) / L(shape)},</em>
+<a class="jxr_linenumber" name="L51" href="GammaDistribution.html#L51">51</a>  <em class="jxr_javadoccomment">     * where {@code L(shape)} is the Lanczos approximation returned by</em>
+<a class="jxr_linenumber" name="L52" href="GammaDistribution.html#L52">52</a>  <em class="jxr_javadoccomment">     * {@link Gamma#lanczos(double)}. This prefactor is used in</em>
+<a class="jxr_linenumber" name="L53" href="GammaDistribution.html#L53">53</a>  <em class="jxr_javadoccomment">     * {@link #density(double)}, when no overflow occurs with the natural</em>
+<a class="jxr_linenumber" name="L54" href="GammaDistribution.html#L54">54</a>  <em class="jxr_javadoccomment">     * calculation.</em>
+<a class="jxr_linenumber" name="L55" href="GammaDistribution.html#L55">55</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L56" href="GammaDistribution.html#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> densityPrefactor1;
+<a class="jxr_linenumber" name="L57" href="GammaDistribution.html#L57">57</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L58" href="GammaDistribution.html#L58">58</a>  <em class="jxr_javadoccomment">     * The constant value of</em>
+<a class="jxr_linenumber" name="L59" href="GammaDistribution.html#L59">59</a>  <em class="jxr_javadoccomment">     * {@code log(shape / scale * sqrt(e / (2 * pi * (shape + g + 0.5))) / L(shape))},</em>
+<a class="jxr_linenumber" name="L60" href="GammaDistribution.html#L60">60</a>  <em class="jxr_javadoccomment">     * where {@code L(shape)} is the Lanczos approximation returned by</em>
+<a class="jxr_linenumber" name="L61" href="GammaDistribution.html#L61">61</a>  <em class="jxr_javadoccomment">     * {@link Gamma#lanczos(double)}. This prefactor is used in</em>
+<a class="jxr_linenumber" name="L62" href="GammaDistribution.html#L62">62</a>  <em class="jxr_javadoccomment">     * {@link #logDensity(double)}, when no overflow occurs with the natural</em>
+<a class="jxr_linenumber" name="L63" href="GammaDistribution.html#L63">63</a>  <em class="jxr_javadoccomment">     * calculation.</em>
+<a class="jxr_linenumber" name="L64" href="GammaDistribution.html#L64">64</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L65" href="GammaDistribution.html#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> logDensityPrefactor1;
+<a class="jxr_linenumber" name="L66" href="GammaDistribution.html#L66">66</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L67" href="GammaDistribution.html#L67">67</a>  <em class="jxr_javadoccomment">     * The constant value of</em>
+<a class="jxr_linenumber" name="L68" href="GammaDistribution.html#L68">68</a>  <em class="jxr_javadoccomment">     * {@code shape * sqrt(e / (2 * pi * (shape + g + 0.5))) / L(shape)},</em>
+<a class="jxr_linenumber" name="L69" href="GammaDistribution.html#L69">69</a>  <em class="jxr_javadoccomment">     * where {@code L(shape)} is the Lanczos approximation returned by</em>
+<a class="jxr_linenumber" name="L70" href="GammaDistribution.html#L70">70</a>  <em class="jxr_javadoccomment">     * {@link Gamma#lanczos(double)}. This prefactor is used in</em>
+<a class="jxr_linenumber" name="L71" href="GammaDistribution.html#L71">71</a>  <em class="jxr_javadoccomment">     * {@link #density(double)}, when overflow occurs with the natural</em>
+<a class="jxr_linenumber" name="L72" href="GammaDistribution.html#L72">72</a>  <em class="jxr_javadoccomment">     * calculation.</em>
+<a class="jxr_linenumber" name="L73" href="GammaDistribution.html#L73">73</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L74" href="GammaDistribution.html#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> densityPrefactor2;
+<a class="jxr_linenumber" name="L75" href="GammaDistribution.html#L75">75</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L76" href="GammaDistribution.html#L76">76</a>  <em class="jxr_javadoccomment">     * The constant value of</em>
+<a class="jxr_linenumber" name="L77" href="GammaDistribution.html#L77">77</a>  <em class="jxr_javadoccomment">     * {@code log(shape * sqrt(e / (2 * pi * (shape + g + 0.5))) / L(shape))},</em>
+<a class="jxr_linenumber" name="L78" href="GammaDistribution.html#L78">78</a>  <em class="jxr_javadoccomment">     * where {@code L(shape)} is the Lanczos approximation returned by</em>
+<a class="jxr_linenumber" name="L79" href="GammaDistribution.html#L79">79</a>  <em class="jxr_javadoccomment">     * {@link Gamma#lanczos(double)}. This prefactor is used in</em>
+<a class="jxr_linenumber" name="L80" href="GammaDistribution.html#L80">80</a>  <em class="jxr_javadoccomment">     * {@link #logDensity(double)}, when overflow occurs with the natural</em>
+<a class="jxr_linenumber" name="L81" href="GammaDistribution.html#L81">81</a>  <em class="jxr_javadoccomment">     * calculation.</em>
+<a class="jxr_linenumber" name="L82" href="GammaDistribution.html#L82">82</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L83" href="GammaDistribution.html#L83">83</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> logDensityPrefactor2;
+<a class="jxr_linenumber" name="L84" href="GammaDistribution.html#L84">84</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L85" href="GammaDistribution.html#L85">85</a>  <em class="jxr_javadoccomment">     * Lower bound on {@code y = x / scale} for the selection of the computation</em>
+<a class="jxr_linenumber" name="L86" href="GammaDistribution.html#L86">86</a>  <em class="jxr_javadoccomment">     * method in {@link #density(double)}. For {@code y &lt;= minY}, the natural</em>
+<a class="jxr_linenumber" name="L87" href="GammaDistribution.html#L87">87</a>  <em class="jxr_javadoccomment">     * calculation overflows.</em>
+<a class="jxr_linenumber" name="L88" href="GammaDistribution.html#L88">88</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L89" href="GammaDistribution.html#L89">89</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> minY;
+<a class="jxr_linenumber" name="L90" href="GammaDistribution.html#L90">90</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L91" href="GammaDistribution.html#L91">91</a>  <em class="jxr_javadoccomment">     * Upper bound on {@code log(y)} ({@code y = x / scale}) for the selection</em>
+<a class="jxr_linenumber" name="L92" href="GammaDistribution.html#L92">92</a>  <em class="jxr_javadoccomment">     * of the computation method in {@link #density(double)}. For</em>
+<a class="jxr_linenumber" name="L93" href="GammaDistribution.html#L93">93</a>  <em class="jxr_javadoccomment">     * {@code log(y) &gt;= maxLogY}, the natural calculation overflows.</em>
+<a class="jxr_linenumber" name="L94" href="GammaDistribution.html#L94">94</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L95" href="GammaDistribution.html#L95">95</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxLogY;
+<a class="jxr_linenumber" name="L96" href="GammaDistribution.html#L96">96</a>      <em class="jxr_javadoccomment">/** Inverse cumulative probability accuracy. */</em>
+<a class="jxr_linenumber" name="L97" href="GammaDistribution.html#L97">97</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> solverAbsoluteAccuracy;
+<a class="jxr_linenumber" name="L98" href="GammaDistribution.html#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="GammaDistribution.html#L99">99</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L100" href="GammaDistribution.html#L100">100</a> <em class="jxr_javadoccomment">     * Creates a distribution.</em>
+<a class="jxr_linenumber" name="L101" href="GammaDistribution.html#L101">101</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L102" href="GammaDistribution.html#L102">102</a> <em class="jxr_javadoccomment">     * @param shape the shape parameter</em>
+<a class="jxr_linenumber" name="L103" href="GammaDistribution.html#L103">103</a> <em class="jxr_javadoccomment">     * @param scale the scale parameter</em>
+<a class="jxr_linenumber" name="L104" href="GammaDistribution.html#L104">104</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code shape &lt;= 0} or</em>
+<a class="jxr_linenumber" name="L105" href="GammaDistribution.html#L105">105</a> <em class="jxr_javadoccomment">     * {@code scale &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L106" href="GammaDistribution.html#L106">106</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L107" href="GammaDistribution.html#L107">107</a>     <strong class="jxr_keyword">public</strong> <a href="GammaDistribution.html">GammaDistribution</a>(<strong class="jxr_keyword">double</strong> shape, <strong class="jxr_keyword">double</strong> scale)
+<a class="jxr_linenumber" name="L108" href="GammaDistribution.html#L108">108</a>         <strong class="jxr_keyword">throws</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L109" href="GammaDistribution.html#L109">109</a>         <strong class="jxr_keyword">this</strong>(shape, scale, DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
+<a class="jxr_linenumber" name="L110" href="GammaDistribution.html#L110">110</a>     }
+<a class="jxr_linenumber" name="L111" href="GammaDistribution.html#L111">111</a> 
+<a class="jxr_linenumber" name="L112" href="GammaDistribution.html#L112">112</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L113" href="GammaDistribution.html#L113">113</a> <em class="jxr_javadoccomment">     * Creates a distribution.</em>
+<a class="jxr_linenumber" name="L114" href="GammaDistribution.html#L114">114</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L115" href="GammaDistribution.html#L115">115</a> <em class="jxr_javadoccomment">     * @param shape the shape parameter</em>
+<a class="jxr_linenumber" name="L116" href="GammaDistribution.html#L116">116</a> <em class="jxr_javadoccomment">     * @param scale the scale parameter</em>
+<a class="jxr_linenumber" name="L117" href="GammaDistribution.html#L117">117</a> <em class="jxr_javadoccomment">     * @param inverseCumAccuracy the maximum absolute error in inverse</em>
+<a class="jxr_linenumber" name="L118" href="GammaDistribution.html#L118">118</a> <em class="jxr_javadoccomment">     * cumulative probability estimates (defaults to</em>
+<a class="jxr_linenumber" name="L119" href="GammaDistribution.html#L119">119</a> <em class="jxr_javadoccomment">     * {@link #DEFAULT_INVERSE_ABSOLUTE_ACCURACY}).</em>
+<a class="jxr_linenumber" name="L120" href="GammaDistribution.html#L120">120</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code shape &lt;= 0} or</em>
+<a class="jxr_linenumber" name="L121" href="GammaDistribution.html#L121">121</a> <em class="jxr_javadoccomment">     * {@code scale &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L122" href="GammaDistribution.html#L122">122</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L123" href="GammaDistribution.html#L123">123</a>     <strong class="jxr_keyword">public</strong> <a href="GammaDistribution.html">GammaDistribution</a>(<strong class="jxr_keyword">double</strong> shape,
+<a class="jxr_linenumber" name="L124" href="GammaDistribution.html#L124">124</a>                              <strong class="jxr_keyword">double</strong> scale,
+<a class="jxr_linenumber" name="L125" href="GammaDistribution.html#L125">125</a>                              <strong class="jxr_keyword">double</strong> inverseCumAccuracy)
+<a class="jxr_linenumber" name="L126" href="GammaDistribution.html#L126">126</a>         <strong class="jxr_keyword">throws</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L127" href="GammaDistribution.html#L127">127</a>         <strong class="jxr_keyword">if</strong> (shape &lt;= 0) {
+<a class="jxr_linenumber" name="L128" href="GammaDistribution.html#L128">128</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(LocalizedFormats.SHAPE, shape);
+<a class="jxr_linenumber" name="L129" href="GammaDistribution.html#L129">129</a>         }
+<a class="jxr_linenumber" name="L130" href="GammaDistribution.html#L130">130</a>         <strong class="jxr_keyword">if</strong> (scale &lt;= 0) {
+<a class="jxr_linenumber" name="L131" href="GammaDistribution.html#L131">131</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(LocalizedFormats.SCALE, scale);
+<a class="jxr_linenumber" name="L132" href="GammaDistribution.html#L132">132</a>         }
+<a class="jxr_linenumber" name="L133" href="GammaDistribution.html#L133">133</a> 
+<a class="jxr_linenumber" name="L134" href="GammaDistribution.html#L134">134</a>         <strong class="jxr_keyword">this</strong>.shape = shape;
+<a class="jxr_linenumber" name="L135" href="GammaDistribution.html#L135">135</a>         <strong class="jxr_keyword">this</strong>.scale = scale;
+<a class="jxr_linenumber" name="L136" href="GammaDistribution.html#L136">136</a>         <strong class="jxr_keyword">this</strong>.solverAbsoluteAccuracy = inverseCumAccuracy;
+<a class="jxr_linenumber" name="L137" href="GammaDistribution.html#L137">137</a>         <strong class="jxr_keyword">this</strong>.shiftedShape = shape + Gamma.LANCZOS_G + 0.5;
+<a class="jxr_linenumber" name="L138" href="GammaDistribution.html#L138">138</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> aux = FastMath.E / (2.0 * FastMath.PI * shiftedShape);
+<a class="jxr_linenumber" name="L139" href="GammaDistribution.html#L139">139</a>         <strong class="jxr_keyword">this</strong>.densityPrefactor2 = shape * FastMath.sqrt(aux) / Gamma.lanczos(shape);
+<a class="jxr_linenumber" name="L140" href="GammaDistribution.html#L140">140</a>         <strong class="jxr_keyword">this</strong>.logDensityPrefactor2 = FastMath.log(shape) + 0.5 * FastMath.log(aux) -
+<a class="jxr_linenumber" name="L141" href="GammaDistribution.html#L141">141</a>                                     FastMath.log(Gamma.lanczos(shape));
+<a class="jxr_linenumber" name="L142" href="GammaDistribution.html#L142">142</a>         <strong class="jxr_keyword">this</strong>.densityPrefactor1 = <strong class="jxr_keyword">this</strong>.densityPrefactor2 / scale *
+<a class="jxr_linenumber" name="L143" href="GammaDistribution.html#L143">143</a>                 FastMath.pow(shiftedShape, -shape) *
+<a class="jxr_linenumber" name="L144" href="GammaDistribution.html#L144">144</a>                 FastMath.exp(shape + Gamma.LANCZOS_G);
+<a class="jxr_linenumber" name="L145" href="GammaDistribution.html#L145">145</a>         <strong class="jxr_keyword">this</strong>.logDensityPrefactor1 = <strong class="jxr_keyword">this</strong>.logDensityPrefactor2 - FastMath.log(scale) -
+<a class="jxr_linenumber" name="L146" href="GammaDistribution.html#L146">146</a>                 FastMath.log(shiftedShape) * shape +
+<a class="jxr_linenumber" name="L147" href="GammaDistribution.html#L147">147</a>                 shape + Gamma.LANCZOS_G;
+<a class="jxr_linenumber" name="L148" href="GammaDistribution.html#L148">148</a>         <strong class="jxr_keyword">this</strong>.minY = shape + Gamma.LANCZOS_G - FastMath.log(Double.MAX_VALUE);
+<a class="jxr_linenumber" name="L149" href="GammaDistribution.html#L149">149</a>         <strong class="jxr_keyword">this</strong>.maxLogY = FastMath.log(Double.MAX_VALUE) / (shape - 1.0);
+<a class="jxr_linenumber" name="L150" href="GammaDistribution.html#L150">150</a>     }
+<a class="jxr_linenumber" name="L151" href="GammaDistribution.html#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="GammaDistribution.html#L152">152</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L153" href="GammaDistribution.html#L153">153</a> <em class="jxr_javadoccomment">     * Returns the shape parameter of {@code this} distribution.</em>
+<a class="jxr_linenumber" name="L154" href="GammaDistribution.html#L154">154</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L155" href="GammaDistribution.html#L155">155</a> <em class="jxr_javadoccomment">     * @return the shape parameter</em>
+<a class="jxr_linenumber" name="L156" href="GammaDistribution.html#L156">156</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L157" href="GammaDistribution.html#L157">157</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L158" href="GammaDistribution.html#L158">158</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getShape() {
+<a class="jxr_linenumber" name="L159" href="GammaDistribution.html#L159">159</a>         <strong class="jxr_keyword">return</strong> shape;
+<a class="jxr_linenumber" name="L160" href="GammaDistribution.html#L160">160</a>     }
+<a class="jxr_linenumber" name="L161" href="GammaDistribution.html#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="GammaDistribution.html#L162">162</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L163" href="GammaDistribution.html#L163">163</a> <em class="jxr_javadoccomment">     * Returns the scale parameter of {@code this} distribution.</em>
+<a class="jxr_linenumber" name="L164" href="GammaDistribution.html#L164">164</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L165" href="GammaDistribution.html#L165">165</a> <em class="jxr_javadoccomment">     * @return the scale parameter</em>
+<a class="jxr_linenumber" name="L166" href="GammaDistribution.html#L166">166</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L167" href="GammaDistribution.html#L167">167</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L168" href="GammaDistribution.html#L168">168</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getScale() {
+<a class="jxr_linenumber" name="L169" href="GammaDistribution.html#L169">169</a>         <strong class="jxr_keyword">return</strong> scale;
+<a class="jxr_linenumber" name="L170" href="GammaDistribution.html#L170">170</a>     }
+<a class="jxr_linenumber" name="L171" href="GammaDistribution.html#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="GammaDistribution.html#L172">172</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L173" href="GammaDistribution.html#L173">173</a>     @Override
+<a class="jxr_linenumber" name="L174" href="GammaDistribution.html#L174">174</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> density(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L175" href="GammaDistribution.html#L175">175</a>        <em class="jxr_comment">/* The present method must return the value of</em>
+<a class="jxr_linenumber" name="L176" href="GammaDistribution.html#L176">176</a> <em class="jxr_comment">        *</em>
+<a class="jxr_linenumber" name="L177" href="GammaDistribution.html#L177">177</a> <em class="jxr_comment">        *     1       x a     - x</em>
+<a class="jxr_linenumber" name="L178" href="GammaDistribution.html#L178">178</a> <em class="jxr_comment">        * ---------- (-)  exp(---)</em>
+<a class="jxr_linenumber" name="L179" href="GammaDistribution.html#L179">179</a> <em class="jxr_comment">        * x Gamma(a)  b        b</em>
+<a class="jxr_linenumber" name="L180" href="GammaDistribution.html#L180">180</a> <em class="jxr_comment">        *</em>
+<a class="jxr_linenumber" name="L181" href="GammaDistribution.html#L181">181</a> <em class="jxr_comment">        * where a is the shape parameter, and b the scale parameter.</em>
+<a class="jxr_linenumber" name="L182" href="GammaDistribution.html#L182">182</a> <em class="jxr_comment">        * Substituting the Lanczos approximation of Gamma(a) leads to the</em>
+<a class="jxr_linenumber" name="L183" href="GammaDistribution.html#L183">183</a> <em class="jxr_comment">        * following expression of the density</em>
+<a class="jxr_linenumber" name="L184" href="GammaDistribution.html#L184">184</a> <em class="jxr_comment">        *</em>
+<a class="jxr_linenumber" name="L185" href="GammaDistribution.html#L185">185</a> <em class="jxr_comment">        * a              e            1         y      a</em>
+<a class="jxr_linenumber" name="L186" href="GammaDistribution.html#L186">186</a> <em class="jxr_comment">        * - sqrt(------------------) ---- (-----------)  exp(a - y + g),</em>
+<a class="jxr_linenumber" name="L187" href="GammaDistribution.html#L187">187</a> <em class="jxr_comment">        * x      2 pi (a + g + 0.5)  L(a)  a + g + 0.5</em>
+<a class="jxr_linenumber" name="L188" href="GammaDistribution.html#L188">188</a> <em class="jxr_comment">        *</em>
+<a class="jxr_linenumber" name="L189" href="GammaDistribution.html#L189">189</a> <em class="jxr_comment">        * where y = x / b. The above formula is the "natural" computation, which</em>
+<a class="jxr_linenumber" name="L190" href="GammaDistribution.html#L190">190</a> <em class="jxr_comment">        * is implemented when no overflow is likely to occur. If overflow occurs</em>
+<a class="jxr_linenumber" name="L191" href="GammaDistribution.html#L191">191</a> <em class="jxr_comment">        * with the natural computation, the following identity is used. It is</em>
+<a class="jxr_linenumber" name="L192" href="GammaDistribution.html#L192">192</a> <em class="jxr_comment">        * based on the BOOST library</em>
+<a class="jxr_linenumber" name="L193" href="GammaDistribution.html#L193">193</a> <em class="jxr_comment">        * <a href="http://www.boost.org/doc/libs/1_35_0/libs/math/doc/sf_and_dist/html/math_toolkit/special/sf_gamma/igamma.htm" target="alexandria_uri">http://www.boost.org/doc/libs/1_35_0/libs/math/doc/sf_and_dist/html/math_toolkit/special/sf_gamma/igamma.htm</a>l</em>
+<a class="jxr_linenumber" name="L194" href="GammaDistribution.html#L194">194</a> <em class="jxr_comment">        * Formula (15) needs adaptations, which are detailed below.</em>
+<a class="jxr_linenumber" name="L195" href="GammaDistribution.html#L195">195</a> <em class="jxr_comment">        *</em>
+<a class="jxr_linenumber" name="L196" href="GammaDistribution.html#L196">196</a> <em class="jxr_comment">        *       y      a</em>
+<a class="jxr_linenumber" name="L197" href="GammaDistribution.html#L197">197</a> <em class="jxr_comment">        * (-----------)  exp(a - y + g)</em>
+<a class="jxr_linenumber" name="L198" href="GammaDistribution.html#L198">198</a> <em class="jxr_comment">        *  a + g + 0.5</em>
+<a class="jxr_linenumber" name="L199" href="GammaDistribution.html#L199">199</a> <em class="jxr_comment">        *                              y - a - g - 0.5    y (g + 0.5)</em>
+<a class="jxr_linenumber" name="L200" href="GammaDistribution.html#L200">200</a> <em class="jxr_comment">        *               = exp(a log1pm(---------------) - ----------- + g),</em>
+<a class="jxr_linenumber" name="L201" href="GammaDistribution.html#L201">201</a> <em class="jxr_comment">        *                                a + g + 0.5      a + g + 0.5</em>
+<a class="jxr_linenumber" name="L202" href="GammaDistribution.html#L202">202</a> <em class="jxr_comment">        *</em>
+<a class="jxr_linenumber" name="L203" href="GammaDistribution.html#L203">203</a> <em class="jxr_comment">        *  where log1pm(z) = log(1 + z) - z. Therefore, the value to be</em>
+<a class="jxr_linenumber" name="L204" href="GammaDistribution.html#L204">204</a> <em class="jxr_comment">        *  returned is</em>
+<a class="jxr_linenumber" name="L205" href="GammaDistribution.html#L205">205</a> <em class="jxr_comment">        *</em>
+<a class="jxr_linenumber" name="L206" href="GammaDistribution.html#L206">206</a> <em class="jxr_comment">        * a              e            1</em>
+<a class="jxr_linenumber" name="L207" href="GammaDistribution.html#L207">207</a> <em class="jxr_comment">        * - sqrt(------------------) ----</em>
+<a class="jxr_linenumber" name="L208" href="GammaDistribution.html#L208">208</a> <em class="jxr_comment">        * x      2 pi (a + g + 0.5)  L(a)</em>
+<a class="jxr_linenumber" name="L209" href="GammaDistribution.html#L209">209</a> <em class="jxr_comment">        *                              y - a - g - 0.5    y (g + 0.5)</em>
+<a class="jxr_linenumber" name="L210" href="GammaDistribution.html#L210">210</a> <em class="jxr_comment">        *               * exp(a log1pm(---------------) - ----------- + g).</em>
+<a class="jxr_linenumber" name="L211" href="GammaDistribution.html#L211">211</a> <em class="jxr_comment">        *                                a + g + 0.5      a + g + 0.5</em>
+<a class="jxr_linenumber" name="L212" href="GammaDistribution.html#L212">212</a> <em class="jxr_comment">        */</em>
+<a class="jxr_linenumber" name="L213" href="GammaDistribution.html#L213">213</a>         <strong class="jxr_keyword">if</strong> (x &lt; 0) {
+<a class="jxr_linenumber" name="L214" href="GammaDistribution.html#L214">214</a>             <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L215" href="GammaDistribution.html#L215">215</a>         }
+<a class="jxr_linenumber" name="L216" href="GammaDistribution.html#L216">216</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y = x / scale;
+<a class="jxr_linenumber" name="L217" href="GammaDistribution.html#L217">217</a>         <strong class="jxr_keyword">if</strong> ((y &lt;= minY) || (FastMath.log(y) &gt;= maxLogY)) {
+<a class="jxr_linenumber" name="L218" href="GammaDistribution.html#L218">218</a>             <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L219" href="GammaDistribution.html#L219">219</a> <em class="jxr_comment">             * Overflow.</em>
+<a class="jxr_linenumber" name="L220" href="GammaDistribution.html#L220">220</a> <em class="jxr_comment">             */</em>
+<a class="jxr_linenumber" name="L221" href="GammaDistribution.html#L221">221</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> aux1 = (y - shiftedShape) / shiftedShape;
+<a class="jxr_linenumber" name="L222" href="GammaDistribution.html#L222">222</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> aux2 = shape * (FastMath.log1p(aux1) - aux1);
+<a class="jxr_linenumber" name="L223" href="GammaDistribution.html#L223">223</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> aux3 = -y * (Gamma.LANCZOS_G + 0.5) / shiftedShape +
+<a class="jxr_linenumber" name="L224" href="GammaDistribution.html#L224">224</a>                     Gamma.LANCZOS_G + aux2;
+<a class="jxr_linenumber" name="L225" href="GammaDistribution.html#L225">225</a>             <strong class="jxr_keyword">return</strong> densityPrefactor2 / x * FastMath.exp(aux3);
+<a class="jxr_linenumber" name="L226" href="GammaDistribution.html#L226">226</a>         }
+<a class="jxr_linenumber" name="L227" href="GammaDistribution.html#L227">227</a>         <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L228" href="GammaDistribution.html#L228">228</a> <em class="jxr_comment">         * Natural calculation.</em>
+<a class="jxr_linenumber" name="L229" href="GammaDistribution.html#L229">229</a> <em class="jxr_comment">         */</em>
+<a class="jxr_linenumber" name="L230" href="GammaDistribution.html#L230">230</a>         <strong class="jxr_keyword">return</strong> densityPrefactor1 * FastMath.exp(-y) * FastMath.pow(y, shape - 1);
+<a class="jxr_linenumber" name="L231" href="GammaDistribution.html#L231">231</a>     }
+<a class="jxr_linenumber" name="L232" href="GammaDistribution.html#L232">232</a> 
+<a class="jxr_linenumber" name="L233" href="GammaDistribution.html#L233">233</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} **/</em>
+<a class="jxr_linenumber" name="L234" href="GammaDistribution.html#L234">234</a>     @Override
+<a class="jxr_linenumber" name="L235" href="GammaDistribution.html#L235">235</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> logDensity(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L236" href="GammaDistribution.html#L236">236</a>         <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L237" href="GammaDistribution.html#L237">237</a> <em class="jxr_comment">         * see the comment in {@link #density(double)} for computation details</em>
+<a class="jxr_linenumber" name="L238" href="GammaDistribution.html#L238">238</a> <em class="jxr_comment">         */</em>
+<a class="jxr_linenumber" name="L239" href="GammaDistribution.html#L239">239</a>         <strong class="jxr_keyword">if</strong> (x &lt; 0) {
+<a class="jxr_linenumber" name="L240" href="GammaDistribution.html#L240">240</a>             <strong class="jxr_keyword">return</strong> Double.NEGATIVE_INFINITY;
+<a class="jxr_linenumber" name="L241" href="GammaDistribution.html#L241">241</a>         }
+<a class="jxr_linenumber" name="L242" href="GammaDistribution.html#L242">242</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y = x / scale;
+<a class="jxr_linenumber" name="L243" href="GammaDistribution.html#L243">243</a>         <strong class="jxr_keyword">if</strong> ((y &lt;= minY) || (FastMath.log(y) &gt;= maxLogY)) {
+<a class="jxr_linenumber" name="L244" href="GammaDistribution.html#L244">244</a>             <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L245" href="GammaDistribution.html#L245">245</a> <em class="jxr_comment">             * Overflow.</em>
+<a class="jxr_linenumber" name="L246" href="GammaDistribution.html#L246">246</a> <em class="jxr_comment">             */</em>
+<a class="jxr_linenumber" name="L247" href="GammaDistribution.html#L247">247</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> aux1 = (y - shiftedShape) / shiftedShape;
+<a class="jxr_linenumber" name="L248" href="GammaDistribution.html#L248">248</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> aux2 = shape * (FastMath.log1p(aux1) - aux1);
+<a class="jxr_linenumber" name="L249" href="GammaDistribution.html#L249">249</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> aux3 = -y * (Gamma.LANCZOS_G + 0.5) / shiftedShape +
+<a class="jxr_linenumber" name="L250" href="GammaDistribution.html#L250">250</a>                     Gamma.LANCZOS_G + aux2;
+<a class="jxr_linenumber" name="L251" href="GammaDistribution.html#L251">251</a>             <strong class="jxr_keyword">return</strong> logDensityPrefactor2 - FastMath.log(x) + aux3;
+<a class="jxr_linenumber" name="L252" href="GammaDistribution.html#L252">252</a>         }
+<a class="jxr_linenumber" name="L253" href="GammaDistribution.html#L253">253</a>         <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L254" href="GammaDistribution.html#L254">254</a> <em class="jxr_comment">         * Natural calculation.</em>
+<a class="jxr_linenumber" name="L255" href="GammaDistribution.html#L255">255</a> <em class="jxr_comment">         */</em>
+<a class="jxr_linenumber" name="L256" href="GammaDistribution.html#L256">256</a>         <strong class="jxr_keyword">return</strong> logDensityPrefactor1 - y + FastMath.log(y) * (shape - 1);
+<a class="jxr_linenumber" name="L257" href="GammaDistribution.html#L257">257</a>     }
+<a class="jxr_linenumber" name="L258" href="GammaDistribution.html#L258">258</a> 
+<a class="jxr_linenumber" name="L259" href="GammaDistribution.html#L259">259</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L260" href="GammaDistribution.html#L260">260</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L261" href="GammaDistribution.html#L261">261</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L262" href="GammaDistribution.html#L262">262</a> <em class="jxr_javadoccomment">     * The implementation of this method is based on:</em>
+<a class="jxr_linenumber" name="L263" href="GammaDistribution.html#L263">263</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L264" href="GammaDistribution.html#L264">264</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L265" href="GammaDistribution.html#L265">265</a> <em class="jxr_javadoccomment">     *   &lt;a href="<a href="http://mathworld.wolfram.com/Chi-SquaredDistribution.html" target="alexandria_uri">http://mathworld.wolfram.com/Chi-SquaredDistribution.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L266" href="GammaDistribution.html#L266">266</a> <em class="jxr_javadoccomment">     *    Chi-Squared Distribution&lt;/a&gt;, equation (9).</em>
+<a class="jxr_linenumber" name="L267" href="GammaDistribution.html#L267">267</a> <em class="jxr_javadoccomment">     *  &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L268" href="GammaDistribution.html#L268">268</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;Casella, G., &amp; Berger, R. (1990). &lt;i&gt;Statistical Inference&lt;/i&gt;.</em>
+<a class="jxr_linenumber" name="L269" href="GammaDistribution.html#L269">269</a> <em class="jxr_javadoccomment">     *    Belmont, CA: Duxbury Press.</em>
+<a class="jxr_linenumber" name="L270" href="GammaDistribution.html#L270">270</a> <em class="jxr_javadoccomment">     *  &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L271" href="GammaDistribution.html#L271">271</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L272" href="GammaDistribution.html#L272">272</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L273" href="GammaDistribution.html#L273">273</a>     @Override
+<a class="jxr_linenumber" name="L274" href="GammaDistribution.html#L274">274</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> cumulativeProbability(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L275" href="GammaDistribution.html#L275">275</a>         <strong class="jxr_keyword">double</strong> ret;
+<a class="jxr_linenumber" name="L276" href="GammaDistribution.html#L276">276</a> 
+<a class="jxr_linenumber" name="L277" href="GammaDistribution.html#L277">277</a>         <strong class="jxr_keyword">if</strong> (x &lt;= 0) {
+<a class="jxr_linenumber" name="L278" href="GammaDistribution.html#L278">278</a>             ret = 0;
+<a class="jxr_linenumber" name="L279" href="GammaDistribution.html#L279">279</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L280" href="GammaDistribution.html#L280">280</a>             ret = Gamma.regularizedGammaP(shape, x / scale);
+<a class="jxr_linenumber" name="L281" href="GammaDistribution.html#L281">281</a>         }
+<a class="jxr_linenumber" name="L282" href="GammaDistribution.html#L282">282</a> 
+<a class="jxr_linenumber" name="L283" href="GammaDistribution.html#L283">283</a>         <strong class="jxr_keyword">return</strong> ret;
+<a class="jxr_linenumber" name="L284" href="GammaDistribution.html#L284">284</a>     }
+<a class="jxr_linenumber" name="L285" href="GammaDistribution.html#L285">285</a> 
+<a class="jxr_linenumber" name="L286" href="GammaDistribution.html#L286">286</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L287" href="GammaDistribution.html#L287">287</a>     @Override
+<a class="jxr_linenumber" name="L288" href="GammaDistribution.html#L288">288</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> getSolverAbsoluteAccuracy() {
+<a class="jxr_linenumber" name="L289" href="GammaDistribution.html#L289">289</a>         <strong class="jxr_keyword">return</strong> solverAbsoluteAccuracy;
+<a class="jxr_linenumber" name="L290" href="GammaDistribution.html#L290">290</a>     }
+<a class="jxr_linenumber" name="L291" href="GammaDistribution.html#L291">291</a> 
+<a class="jxr_linenumber" name="L292" href="GammaDistribution.html#L292">292</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L293" href="GammaDistribution.html#L293">293</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L294" href="GammaDistribution.html#L294">294</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L295" href="GammaDistribution.html#L295">295</a> <em class="jxr_javadoccomment">     * For shape parameter {@code alpha} and scale parameter {@code beta}, the</em>
+<a class="jxr_linenumber" name="L296" href="GammaDistribution.html#L296">296</a> <em class="jxr_javadoccomment">     * mean is {@code alpha * beta}.</em>
+<a class="jxr_linenumber" name="L297" href="GammaDistribution.html#L297">297</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L298" href="GammaDistribution.html#L298">298</a>     @Override
+<a class="jxr_linenumber" name="L299" href="GammaDistribution.html#L299">299</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalMean() {
+<a class="jxr_linenumber" name="L300" href="GammaDistribution.html#L300">300</a>         <strong class="jxr_keyword">return</strong> shape * scale;
+<a class="jxr_linenumber" name="L301" href="GammaDistribution.html#L301">301</a>     }
+<a class="jxr_linenumber" name="L302" href="GammaDistribution.html#L302">302</a> 
+<a class="jxr_linenumber" name="L303" href="GammaDistribution.html#L303">303</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L304" href="GammaDistribution.html#L304">304</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L305" href="GammaDistribution.html#L305">305</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L306" href="GammaDistribution.html#L306">306</a> <em class="jxr_javadoccomment">     * For shape parameter {@code alpha} and scale parameter {@code beta}, the</em>
+<a class="jxr_linenumber" name="L307" href="GammaDistribution.html#L307">307</a> <em class="jxr_javadoccomment">     * variance is {@code alpha * beta^2}.</em>
+<a class="jxr_linenumber" name="L308" href="GammaDistribution.html#L308">308</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L309" href="GammaDistribution.html#L309">309</a> <em class="jxr_javadoccomment">     * @return {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L310" href="GammaDistribution.html#L310">310</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L311" href="GammaDistribution.html#L311">311</a>     @Override
+<a class="jxr_linenumber" name="L312" href="GammaDistribution.html#L312">312</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalVariance() {
+<a class="jxr_linenumber" name="L313" href="GammaDistribution.html#L313">313</a>         <strong class="jxr_keyword">return</strong> shape * scale * scale;
+<a class="jxr_linenumber" name="L314" href="GammaDistribution.html#L314">314</a>     }
+<a class="jxr_linenumber" name="L315" href="GammaDistribution.html#L315">315</a> 
+<a class="jxr_linenumber" name="L316" href="GammaDistribution.html#L316">316</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L317" href="GammaDistribution.html#L317">317</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L318" href="GammaDistribution.html#L318">318</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L319" href="GammaDistribution.html#L319">319</a> <em class="jxr_javadoccomment">     * The lower bound of the support is always 0 no matter the parameters.</em>
+<a class="jxr_linenumber" name="L320" href="GammaDistribution.html#L320">320</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L321" href="GammaDistribution.html#L321">321</a> <em class="jxr_javadoccomment">     * @return lower bound of the support (always 0)</em>
+<a class="jxr_linenumber" name="L322" href="GammaDistribution.html#L322">322</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L323" href="GammaDistribution.html#L323">323</a>     @Override
+<a class="jxr_linenumber" name="L324" href="GammaDistribution.html#L324">324</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSupportLowerBound() {
+<a class="jxr_linenumber" name="L325" href="GammaDistribution.html#L325">325</a>         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L326" href="GammaDistribution.html#L326">326</a>     }
+<a class="jxr_linenumber" name="L327" href="GammaDistribution.html#L327">327</a> 
+<a class="jxr_linenumber" name="L328" href="GammaDistribution.html#L328">328</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L329" href="GammaDistribution.html#L329">329</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L330" href="GammaDistribution.html#L330">330</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L331" href="GammaDistribution.html#L331">331</a> <em class="jxr_javadoccomment">     * The upper bound of the support is always positive infinity</em>
+<a class="jxr_linenumber" name="L332" href="GammaDistribution.html#L332">332</a> <em class="jxr_javadoccomment">     * no matter the parameters.</em>
+<a class="jxr_linenumber" name="L333" href="GammaDistribution.html#L333">333</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L334" href="GammaDistribution.html#L334">334</a> <em class="jxr_javadoccomment">     * @return upper bound of the support (always Double.POSITIVE_INFINITY)</em>
+<a class="jxr_linenumber" name="L335" href="GammaDistribution.html#L335">335</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L336" href="GammaDistribution.html#L336">336</a>     @Override
+<a class="jxr_linenumber" name="L337" href="GammaDistribution.html#L337">337</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSupportUpperBound() {
+<a class="jxr_linenumber" name="L338" href="GammaDistribution.html#L338">338</a>         <strong class="jxr_keyword">return</strong> Double.POSITIVE_INFINITY;
+<a class="jxr_linenumber" name="L339" href="GammaDistribution.html#L339">339</a>     }
+<a class="jxr_linenumber" name="L340" href="GammaDistribution.html#L340">340</a> 
+<a class="jxr_linenumber" name="L341" href="GammaDistribution.html#L341">341</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L342" href="GammaDistribution.html#L342">342</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L343" href="GammaDistribution.html#L343">343</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L344" href="GammaDistribution.html#L344">344</a> <em class="jxr_javadoccomment">     * The support of this distribution is connected.</em>
+<a class="jxr_linenumber" name="L345" href="GammaDistribution.html#L345">345</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L346" href="GammaDistribution.html#L346">346</a> <em class="jxr_javadoccomment">     * @return {@code true}</em>
+<a class="jxr_linenumber" name="L347" href="GammaDistribution.html#L347">347</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L348" href="GammaDistribution.html#L348">348</a>     @Override
+<a class="jxr_linenumber" name="L349" href="GammaDistribution.html#L349">349</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isSupportConnected() {
+<a class="jxr_linenumber" name="L350" href="GammaDistribution.html#L350">350</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L351" href="GammaDistribution.html#L351">351</a>     }
+<a class="jxr_linenumber" name="L352" href="GammaDistribution.html#L352">352</a> 
+<a class="jxr_linenumber" name="L353" href="GammaDistribution.html#L353">353</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L354" href="GammaDistribution.html#L354">354</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L355" href="GammaDistribution.html#L355">355</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L356" href="GammaDistribution.html#L356">356</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L357" href="GammaDistribution.html#L357">357</a> <em class="jxr_javadoccomment">     * Sampling algorithms:</em>
+<a class="jxr_linenumber" name="L358" href="GammaDistribution.html#L358">358</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L359" href="GammaDistribution.html#L359">359</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L360" href="GammaDistribution.html#L360">360</a> <em class="jxr_javadoccomment">     *   For {@code 0 &lt; shape &lt; 1}:</em>
+<a class="jxr_linenumber" name="L361" href="GammaDistribution.html#L361">361</a> <em class="jxr_javadoccomment">     *   &lt;blockquote&gt;</em>
+<a class="jxr_linenumber" name="L362" href="GammaDistribution.html#L362">362</a> <em class="jxr_javadoccomment">     *    Ahrens, J. H. and Dieter, U.,</em>
+<a class="jxr_linenumber" name="L363" href="GammaDistribution.html#L363">363</a> <em class="jxr_javadoccomment">     *    &lt;i&gt;Computer methods for sampling from gamma, beta, Poisson and binomial distributions,&lt;/i&gt;</em>
+<a class="jxr_linenumber" name="L364" href="GammaDistribution.html#L364">364</a> <em class="jxr_javadoccomment">     *    Computing, 12, 223-246, 1974.</em>
+<a class="jxr_linenumber" name="L365" href="GammaDistribution.html#L365">365</a> <em class="jxr_javadoccomment">     *   &lt;/blockquote&gt;</em>
+<a class="jxr_linenumber" name="L366" href="GammaDistribution.html#L366">366</a> <em class="jxr_javadoccomment">     *  &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L367" href="GammaDistribution.html#L367">367</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L368" href="GammaDistribution.html#L368">368</a> <em class="jxr_javadoccomment">     *  For {@code shape &gt;= 1}:</em>
+<a class="jxr_linenumber" name="L369" href="GammaDistribution.html#L369">369</a> <em class="jxr_javadoccomment">     *   &lt;blockquote&gt;</em>
+<a class="jxr_linenumber" name="L370" href="GammaDistribution.html#L370">370</a> <em class="jxr_javadoccomment">     *   Marsaglia and Tsang, &lt;i&gt;A Simple Method for Generating</em>
+<a class="jxr_linenumber" name="L371" href="GammaDistribution.html#L371">371</a> <em class="jxr_javadoccomment">     *   Gamma Variables.&lt;/i&gt; ACM Transactions on Mathematical Software,</em>
+<a class="jxr_linenumber" name="L372" href="GammaDistribution.html#L372">372</a> <em class="jxr_javadoccomment">     *   Volume 26 Issue 3, September, 2000.</em>
+<a class="jxr_linenumber" name="L373" href="GammaDistribution.html#L373">373</a> <em class="jxr_javadoccomment">     *   &lt;/blockquote&gt;</em>
+<a class="jxr_linenumber" name="L374" href="GammaDistribution.html#L374">374</a> <em class="jxr_javadoccomment">     *  &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L375" href="GammaDistribution.html#L375">375</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L376" href="GammaDistribution.html#L376">376</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L377" href="GammaDistribution.html#L377">377</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L378" href="GammaDistribution.html#L378">378</a>     @Override
+<a class="jxr_linenumber" name="L379" href="GammaDistribution.html#L379">379</a>     <strong class="jxr_keyword">public</strong> RealDistribution.Sampler createSampler(<strong class="jxr_keyword">final</strong> UniformRandomProvider rng) {
+<a class="jxr_linenumber" name="L380" href="GammaDistribution.html#L380">380</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> RealDistribution.Sampler() {
+<a class="jxr_linenumber" name="L381" href="GammaDistribution.html#L381">381</a>             <em class="jxr_javadoccomment">/** Gaussian sampling. */</em>
+<a class="jxr_linenumber" name="L382" href="GammaDistribution.html#L382">382</a>             <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> RealDistribution.Sampler gaussian = <strong class="jxr_keyword">new</strong> <a href="NormalDistribution.html">NormalDistribution</a>().createSampler(rng);
+<a class="jxr_linenumber" name="L383" href="GammaDistribution.html#L383">383</a> 
+<a class="jxr_linenumber" name="L384" href="GammaDistribution.html#L384">384</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L385" href="GammaDistribution.html#L385">385</a>             @Override
+<a class="jxr_linenumber" name="L386" href="GammaDistribution.html#L386">386</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> sample() {
+<a class="jxr_linenumber" name="L387" href="GammaDistribution.html#L387">387</a>                 <strong class="jxr_keyword">if</strong> (shape &lt; 1) {
+<a class="jxr_linenumber" name="L388" href="GammaDistribution.html#L388">388</a>                     <em class="jxr_comment">// [1]: p. 228, Algorithm GS</em>
+<a class="jxr_linenumber" name="L389" href="GammaDistribution.html#L389">389</a> 
+<a class="jxr_linenumber" name="L390" href="GammaDistribution.html#L390">390</a>                     <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
+<a class="jxr_linenumber" name="L391" href="GammaDistribution.html#L391">391</a>                         <em class="jxr_comment">// Step 1:</em>
+<a class="jxr_linenumber" name="L392" href="GammaDistribution.html#L392">392</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> u = rng.nextDouble();
+<a class="jxr_linenumber" name="L393" href="GammaDistribution.html#L393">393</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> bGS = 1 + shape / FastMath.E;
+<a class="jxr_linenumber" name="L394" href="GammaDistribution.html#L394">394</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p = bGS * u;
+<a class="jxr_linenumber" name="L395" href="GammaDistribution.html#L395">395</a> 
+<a class="jxr_linenumber" name="L396" href="GammaDistribution.html#L396">396</a>                         <strong class="jxr_keyword">if</strong> (p &lt;= 1) {
+<a class="jxr_linenumber" name="L397" href="GammaDistribution.html#L397">397</a>                             <em class="jxr_comment">// Step 2:</em>
+<a class="jxr_linenumber" name="L398" href="GammaDistribution.html#L398">398</a> 
+<a class="jxr_linenumber" name="L399" href="GammaDistribution.html#L399">399</a>                             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x = FastMath.pow(p, 1 / shape);
+<a class="jxr_linenumber" name="L400" href="GammaDistribution.html#L400">400</a>                             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> u2 = rng.nextDouble();
+<a class="jxr_linenumber" name="L401" href="GammaDistribution.html#L401">401</a> 
+<a class="jxr_linenumber" name="L402" href="GammaDistribution.html#L402">402</a>                             <strong class="jxr_keyword">if</strong> (u2 &gt; FastMath.exp(-x)) {
+<a class="jxr_linenumber" name="L403" href="GammaDistribution.html#L403">403</a>                                 <em class="jxr_comment">// Reject</em>
+<a class="jxr_linenumber" name="L404" href="GammaDistribution.html#L404">404</a>                                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L405" href="GammaDistribution.html#L405">405</a>                             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L406" href="GammaDistribution.html#L406">406</a>                                 <strong class="jxr_keyword">return</strong> scale * x;
+<a class="jxr_linenumber" name="L407" href="GammaDistribution.html#L407">407</a>                             }
+<a class="jxr_linenumber" name="L408" href="GammaDistribution.html#L408">408</a>                         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L409" href="GammaDistribution.html#L409">409</a>                             <em class="jxr_comment">// Step 3:</em>
+<a class="jxr_linenumber" name="L410" href="GammaDistribution.html#L410">410</a> 
+<a class="jxr_linenumber" name="L411" href="GammaDistribution.html#L411">411</a>                             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x = -1 * FastMath.log((bGS - p) / shape);
+<a class="jxr_linenumber" name="L412" href="GammaDistribution.html#L412">412</a>                             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> u2 = rng.nextDouble();
+<a class="jxr_linenumber" name="L413" href="GammaDistribution.html#L413">413</a> 
+<a class="jxr_linenumber" name="L414" href="GammaDistribution.html#L414">414</a>                             <strong class="jxr_keyword">if</strong> (u2 &gt; FastMath.pow(x, shape - 1)) {
+<a class="jxr_linenumber" name="L415" href="GammaDistribution.html#L415">415</a>                                 <em class="jxr_comment">// Reject</em>
+<a class="jxr_linenumber" name="L416" href="GammaDistribution.html#L416">416</a>                                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L417" href="GammaDistribution.html#L417">417</a>                             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L418" href="GammaDistribution.html#L418">418</a>                                 <strong class="jxr_keyword">return</strong> scale * x;
+<a class="jxr_linenumber" name="L419" href="GammaDistribution.html#L419">419</a>                             }
+<a class="jxr_linenumber" name="L420" href="GammaDistribution.html#L420">420</a>                         }
+<a class="jxr_linenumber" name="L421" href="GammaDistribution.html#L421">421</a>                     }
+<a class="jxr_linenumber" name="L422" href="GammaDistribution.html#L422">422</a>                 }
+<a class="jxr_linenumber" name="L423" href="GammaDistribution.html#L423">423</a> 
+<a class="jxr_linenumber" name="L424" href="GammaDistribution.html#L424">424</a>                 <em class="jxr_comment">// Now shape &gt;= 1</em>
+<a class="jxr_linenumber" name="L425" href="GammaDistribution.html#L425">425</a> 
+<a class="jxr_linenumber" name="L426" href="GammaDistribution.html#L426">426</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> d = shape - 0.333333333333333333;
+<a class="jxr_linenumber" name="L427" href="GammaDistribution.html#L427">427</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> c = 1 / (3 * FastMath.sqrt(d));
+<a class="jxr_linenumber" name="L428" href="GammaDistribution.html#L428">428</a> 
+<a class="jxr_linenumber" name="L429" href="GammaDistribution.html#L429">429</a>                 <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
+<a class="jxr_linenumber" name="L430" href="GammaDistribution.html#L430">430</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x = gaussian.sample();
+<a class="jxr_linenumber" name="L431" href="GammaDistribution.html#L431">431</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> v = (1 + c * x) * (1 + c * x) * (1 + c * x);
+<a class="jxr_linenumber" name="L432" href="GammaDistribution.html#L432">432</a> 
+<a class="jxr_linenumber" name="L433" href="GammaDistribution.html#L433">433</a>                     <strong class="jxr_keyword">if</strong> (v &lt;= 0) {
+<a class="jxr_linenumber" name="L434" href="GammaDistribution.html#L434">434</a>                         <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L435" href="GammaDistribution.html#L435">435</a>                     }
+<a class="jxr_linenumber" name="L436" href="GammaDistribution.html#L436">436</a> 
+<a class="jxr_linenumber" name="L437" href="GammaDistribution.html#L437">437</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x2 = x * x;
+<a class="jxr_linenumber" name="L438" href="GammaDistribution.html#L438">438</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> u = rng.nextDouble();
+<a class="jxr_linenumber" name="L439" href="GammaDistribution.html#L439">439</a> 
+<a class="jxr_linenumber" name="L440" href="GammaDistribution.html#L440">440</a>                     <em class="jxr_comment">// Squeeze</em>
+<a class="jxr_linenumber" name="L441" href="GammaDistribution.html#L441">441</a>                     <strong class="jxr_keyword">if</strong> (u &lt; 1 - 0.0331 * x2 * x2) {
+<a class="jxr_linenumber" name="L442" href="GammaDistribution.html#L442">442</a>                         <strong class="jxr_keyword">return</strong> scale * d * v;
+<a class="jxr_linenumber" name="L443" href="GammaDistribution.html#L443">443</a>                     }
+<a class="jxr_linenumber" name="L444" href="GammaDistribution.html#L444">444</a> 
+<a class="jxr_linenumber" name="L445" href="GammaDistribution.html#L445">445</a>                     <strong class="jxr_keyword">if</strong> (FastMath.log(u) &lt; 0.5 * x2 + d * (1 - v + FastMath.log(v))) {
+<a class="jxr_linenumber" name="L446" href="GammaDistribution.html#L446">446</a>                         <strong class="jxr_keyword">return</strong> scale * d * v;
+<a class="jxr_linenumber" name="L447" href="GammaDistribution.html#L447">447</a>                     }
+<a class="jxr_linenumber" name="L448" href="GammaDistribution.html#L448">448</a>                 }
+<a class="jxr_linenumber" name="L449" href="GammaDistribution.html#L449">449</a>             }
+<a class="jxr_linenumber" name="L450" href="GammaDistribution.html#L450">450</a>         };
+<a class="jxr_linenumber" name="L451" href="GammaDistribution.html#L451">451</a>     }
+<a class="jxr_linenumber" name="L452" href="GammaDistribution.html#L452">452</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/report.css" type="text/css"/><link rel="shortcut icon" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/report.gif" type="image/gif"/><title>GammaDistribution.java</title><link rel="stylesheet" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/prettify.css" type="text/css"/><script type="text/javascript" src="https://commons.apache.org/proper/commons-math/jacoco/.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="https://commons.apache.org/proper/commons-math/jacoco/.sessions.html" class="el_session">Sessions</a></span><a href="https://commons.apache.org/proper/commons-math/jacoco/index.html" class="el_report">Apache Commons Math</a> &gt; <a href="https://commons.apache.org/proper/commons-math/jacoco/org.apache.commons.math4.distribution/index.source.html" class="el_package">org.apache.commons.math4.distribution</a> &gt; <span class="el_source">GammaDistribution.java</span></div><h1>GammaDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math4.distribution;
+
+import org.apache.commons.math4.exception.NotStrictlyPositiveException;
+import org.apache.commons.math4.exception.util.LocalizedFormats;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.math4.special.Gamma;
+import org.apache.commons.math4.util.FastMath;
+
+/**
+ * Implementation of the Gamma distribution.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Gamma_distribution&quot;&gt;Gamma distribution (Wikipedia)&lt;/a&gt;
+ * @see &lt;a href=&quot;http://mathworld.wolfram.com/GammaDistribution.html&quot;&gt;Gamma distribution (MathWorld)&lt;/a&gt;
+ */
+public class GammaDistribution extends AbstractRealDistribution {
+    /**
+     * Default inverse cumulative probability accuracy.
+     * @since 2.1
+     */
+    public static final double DEFAULT_INVERSE_ABSOLUTE_ACCURACY = 1e-9;
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 20160311L;
+    /** The shape parameter. */
+    private final double shape;
+    /** The scale parameter. */
+    private final double scale;
+    /**
+     * The constant value of {@code shape + g + 0.5}, where {@code g} is the
+     * Lanczos constant {@link Gamma#LANCZOS_G}.
+     */
+    private final double shiftedShape;
+    /**
+     * The constant value of
+     * {@code shape / scale * sqrt(e / (2 * pi * (shape + g + 0.5))) / L(shape)},
+     * where {@code L(shape)} is the Lanczos approximation returned by
+     * {@link Gamma#lanczos(double)}. This prefactor is used in
+     * {@link #density(double)}, when no overflow occurs with the natural
+     * calculation.
+     */
+    private final double densityPrefactor1;
+    /**
+     * The constant value of
+     * {@code log(shape / scale * sqrt(e / (2 * pi * (shape + g + 0.5))) / L(shape))},
+     * where {@code L(shape)} is the Lanczos approximation returned by
+     * {@link Gamma#lanczos(double)}. This prefactor is used in
+     * {@link #logDensity(double)}, when no overflow occurs with the natural
+     * calculation.
+     */
+    private final double logDensityPrefactor1;
+    /**
+     * The constant value of
+     * {@code shape * sqrt(e / (2 * pi * (shape + g + 0.5))) / L(shape)},
+     * where {@code L(shape)} is the Lanczos approximation returned by
+     * {@link Gamma#lanczos(double)}. This prefactor is used in
+     * {@link #density(double)}, when overflow occurs with the natural
+     * calculation.
+     */
+    private final double densityPrefactor2;
+    /**
+     * The constant value of
+     * {@code log(shape * sqrt(e / (2 * pi * (shape + g + 0.5))) / L(shape))},
+     * where {@code L(shape)} is the Lanczos approximation returned by
+     * {@link Gamma#lanczos(double)}. This prefactor is used in
+     * {@link #logDensity(double)}, when overflow occurs with the natural
+     * calculation.
+     */
+    private final double logDensityPrefactor2;
+    /**
+     * Lower bound on {@code y = x / scale} for the selection of the computation
+     * method in {@link #density(double)}. For {@code y &lt;= minY}, the natural
+     * calculation overflows.
+     */
+    private final double minY;
+    /**
+     * Upper bound on {@code log(y)} ({@code y = x / scale}) for the selection
+     * of the computation method in {@link #density(double)}. For
+     * {@code log(y) &gt;= maxLogY}, the natural calculation overflows.
+     */
+    private final double maxLogY;
+    /** Inverse cumulative probability accuracy. */
+    private final double solverAbsoluteAccuracy;
+
+    /**
+     * Creates a distribution.
+     *
+     * @param shape the shape parameter
+     * @param scale the scale parameter
+     * @throws NotStrictlyPositiveException if {@code shape &lt;= 0} or
+     * {@code scale &lt;= 0}.
+     */
+    public GammaDistribution(double shape, double scale)
+        throws NotStrictlyPositiveException {
+<span class="fc" id="L109">        this(shape, scale, DEFAULT_INVERSE_ABSOLUTE_ACCURACY);</span>
+<span class="fc" id="L110">    }</span>
+
+    /**
+     * Creates a distribution.
+     *
+     * @param shape the shape parameter
+     * @param scale the scale parameter
+     * @param inverseCumAccuracy the maximum absolute error in inverse
+     * cumulative probability estimates (defaults to
+     * {@link #DEFAULT_INVERSE_ABSOLUTE_ACCURACY}).
+     * @throws NotStrictlyPositiveException if {@code shape &lt;= 0} or
+     * {@code scale &lt;= 0}.
+     */
+    public GammaDistribution(double shape,
+                             double scale,
+                             double inverseCumAccuracy)
+<span class="fc" id="L126">        throws NotStrictlyPositiveException {</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        if (shape &lt;= 0) {</span>
+<span class="fc" id="L128">            throw new NotStrictlyPositiveException(LocalizedFormats.SHAPE, shape);</span>
+        }
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        if (scale &lt;= 0) {</span>
+<span class="fc" id="L131">            throw new NotStrictlyPositiveException(LocalizedFormats.SCALE, scale);</span>
+        }
+
+<span class="fc" id="L134">        this.shape = shape;</span>
+<span class="fc" id="L135">        this.scale = scale;</span>
+<span class="fc" id="L136">        this.solverAbsoluteAccuracy = inverseCumAccuracy;</span>
+<span class="fc" id="L137">        this.shiftedShape = shape + Gamma.LANCZOS_G + 0.5;</span>
+<span class="fc" id="L138">        final double aux = FastMath.E / (2.0 * FastMath.PI * shiftedShape);</span>
+<span class="fc" id="L139">        this.densityPrefactor2 = shape * FastMath.sqrt(aux) / Gamma.lanczos(shape);</span>
+<span class="fc" id="L140">        this.logDensityPrefactor2 = FastMath.log(shape) + 0.5 * FastMath.log(aux) -</span>
+<span class="fc" id="L141">                                    FastMath.log(Gamma.lanczos(shape));</span>
+<span class="fc" id="L142">        this.densityPrefactor1 = this.densityPrefactor2 / scale *</span>
+<span class="fc" id="L143">                FastMath.pow(shiftedShape, -shape) *</span>
+<span class="fc" id="L144">                FastMath.exp(shape + Gamma.LANCZOS_G);</span>
+<span class="fc" id="L145">        this.logDensityPrefactor1 = this.logDensityPrefactor2 - FastMath.log(scale) -</span>
+<span class="fc" id="L146">                FastMath.log(shiftedShape) * shape +</span>
+                shape + Gamma.LANCZOS_G;
+<span class="fc" id="L148">        this.minY = shape + Gamma.LANCZOS_G - FastMath.log(Double.MAX_VALUE);</span>
+<span class="fc" id="L149">        this.maxLogY = FastMath.log(Double.MAX_VALUE) / (shape - 1.0);</span>
+<span class="fc" id="L150">    }</span>
+
+    /**
+     * Returns the shape parameter of {@code this} distribution.
+     *
+     * @return the shape parameter
+     * @since 3.1
+     */
+    public double getShape() {
+<span class="fc" id="L159">        return shape;</span>
+    }
+
+    /**
+     * Returns the scale parameter of {@code this} distribution.
+     *
+     * @return the scale parameter
+     * @since 3.1
+     */
+    public double getScale() {
+<span class="fc" id="L169">        return scale;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double density(double x) {
+       /* The present method must return the value of
+        *
+        *     1       x a     - x
+        * ---------- (-)  exp(---)
+        * x Gamma(a)  b        b
+        *
+        * where a is the shape parameter, and b the scale parameter.
+        * Substituting the Lanczos approximation of Gamma(a) leads to the
+        * following expression of the density
+        *
+        * a              e            1         y      a
+        * - sqrt(------------------) ---- (-----------)  exp(a - y + g),
+        * x      2 pi (a + g + 0.5)  L(a)  a + g + 0.5
+        *
+        * where y = x / b. The above formula is the &quot;natural&quot; computation, which
+        * is implemented when no overflow is likely to occur. If overflow occurs
+        * with the natural computation, the following identity is used. It is
+        * based on the BOOST library
+        * http://www.boost.org/doc/libs/1_35_0/libs/math/doc/sf_and_dist/html/math_toolkit/special/sf_gamma/igamma.html
+        * Formula (15) needs adaptations, which are detailed below.
+        *
+        *       y      a
+        * (-----------)  exp(a - y + g)
+        *  a + g + 0.5
+        *                              y - a - g - 0.5    y (g + 0.5)
+        *               = exp(a log1pm(---------------) - ----------- + g),
+        *                                a + g + 0.5      a + g + 0.5
+        *
+        *  where log1pm(z) = log(1 + z) - z. Therefore, the value to be
+        *  returned is
+        *
+        * a              e            1
+        * - sqrt(------------------) ----
+        * x      2 pi (a + g + 0.5)  L(a)
+        *                              y - a - g - 0.5    y (g + 0.5)
+        *               * exp(a log1pm(---------------) - ----------- + g).
+        *                                a + g + 0.5      a + g + 0.5
+        */
+<span class="fc bfc" id="L213" title="All 2 branches covered.">        if (x &lt; 0) {</span>
+<span class="fc" id="L214">            return 0;</span>
+        }
+<span class="fc" id="L216">        final double y = x / scale;</span>
+<span class="fc bfc" id="L217" title="All 4 branches covered.">        if ((y &lt;= minY) || (FastMath.log(y) &gt;= maxLogY)) {</span>
+            /*
+             * Overflow.
+             */
+<span class="fc" id="L221">            final double aux1 = (y - shiftedShape) / shiftedShape;</span>
+<span class="fc" id="L222">            final double aux2 = shape * (FastMath.log1p(aux1) - aux1);</span>
+<span class="fc" id="L223">            final double aux3 = -y * (Gamma.LANCZOS_G + 0.5) / shiftedShape +</span>
+                    Gamma.LANCZOS_G + aux2;
+<span class="fc" id="L225">            return densityPrefactor2 / x * FastMath.exp(aux3);</span>
+        }
+        /*
+         * Natural calculation.
+         */
+<span class="fc" id="L230">        return densityPrefactor1 * FastMath.exp(-y) * FastMath.pow(y, shape - 1);</span>
+    }
+
+    /** {@inheritDoc} **/
+    @Override
+    public double logDensity(double x) {
+        /*
+         * see the comment in {@link #density(double)} for computation details
+         */
+<span class="pc bpc" id="L239" title="1 of 2 branches missed.">        if (x &lt; 0) {</span>
+<span class="nc" id="L240">            return Double.NEGATIVE_INFINITY;</span>
+        }
+<span class="fc" id="L242">        final double y = x / scale;</span>
+<span class="pc bpc" id="L243" title="2 of 4 branches missed.">        if ((y &lt;= minY) || (FastMath.log(y) &gt;= maxLogY)) {</span>
+            /*
+             * Overflow.
+             */
+<span class="nc" id="L247">            final double aux1 = (y - shiftedShape) / shiftedShape;</span>
+<span class="nc" id="L248">            final double aux2 = shape * (FastMath.log1p(aux1) - aux1);</span>
+<span class="nc" id="L249">            final double aux3 = -y * (Gamma.LANCZOS_G + 0.5) / shiftedShape +</span>
+                    Gamma.LANCZOS_G + aux2;
+<span class="nc" id="L251">            return logDensityPrefactor2 - FastMath.log(x) + aux3;</span>
+        }
+        /*
+         * Natural calculation.
+         */
+<span class="fc" id="L256">        return logDensityPrefactor1 - y + FastMath.log(y) * (shape - 1);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The implementation of this method is based on:
+     * &lt;ul&gt;
+     *  &lt;li&gt;
+     *   &lt;a href=&quot;http://mathworld.wolfram.com/Chi-SquaredDistribution.html&quot;&gt;
+     *    Chi-Squared Distribution&lt;/a&gt;, equation (9).
+     *  &lt;/li&gt;
+     *  &lt;li&gt;Casella, G., &amp; Berger, R. (1990). &lt;i&gt;Statistical Inference&lt;/i&gt;.
+     *    Belmont, CA: Duxbury Press.
+     *  &lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    @Override
+    public double cumulativeProbability(double x) {
+        double ret;
+
+<span class="fc bfc" id="L277" title="All 2 branches covered.">        if (x &lt;= 0) {</span>
+<span class="fc" id="L278">            ret = 0;</span>
+        } else {
+<span class="fc" id="L280">            ret = Gamma.regularizedGammaP(shape, x / scale);</span>
+        }
+
+<span class="fc" id="L283">        return ret;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected double getSolverAbsoluteAccuracy() {
+<span class="fc" id="L289">        return solverAbsoluteAccuracy;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For shape parameter {@code alpha} and scale parameter {@code beta}, the
+     * mean is {@code alpha * beta}.
+     */
+    @Override
+    public double getNumericalMean() {
+<span class="fc" id="L300">        return shape * scale;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For shape parameter {@code alpha} and scale parameter {@code beta}, the
+     * variance is {@code alpha * beta^2}.
+     *
+     * @return {@inheritDoc}
+     */
+    @Override
+    public double getNumericalVariance() {
+<span class="fc" id="L313">        return shape * scale * scale;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The lower bound of the support is always 0 no matter the parameters.
+     *
+     * @return lower bound of the support (always 0)
+     */
+    @Override
+    public double getSupportLowerBound() {
+<span class="fc" id="L325">        return 0;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The upper bound of the support is always positive infinity
+     * no matter the parameters.
+     *
+     * @return upper bound of the support (always Double.POSITIVE_INFINITY)
+     */
+    @Override
+    public double getSupportUpperBound() {
+<span class="fc" id="L338">        return Double.POSITIVE_INFINITY;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The support of this distribution is connected.
+     *
+     * @return {@code true}
+     */
+    @Override
+    public boolean isSupportConnected() {
+<span class="fc" id="L350">        return true;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * &lt;p&gt;
+     * Sampling algorithms:
+     * &lt;ul&gt;
+     *  &lt;li&gt;
+     *   For {@code 0 &lt; shape &lt; 1}:
+     *   &lt;blockquote&gt;
+     *    Ahrens, J. H. and Dieter, U.,
+     *    &lt;i&gt;Computer methods for sampling from gamma, beta, Poisson and binomial distributions,&lt;/i&gt;
+     *    Computing, 12, 223-246, 1974.
+     *   &lt;/blockquote&gt;
+     *  &lt;/li&gt;
+     *  &lt;li&gt;
+     *  For {@code shape &gt;= 1}:
+     *   &lt;blockquote&gt;
+     *   Marsaglia and Tsang, &lt;i&gt;A Simple Method for Generating
+     *   Gamma Variables.&lt;/i&gt; ACM Transactions on Mathematical Software,
+     *   Volume 26 Issue 3, September, 2000.
+     *   &lt;/blockquote&gt;
+     *  &lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;
+     */
+    @Override
+    public RealDistribution.Sampler createSampler(final UniformRandomProvider rng) {
+<span class="fc" id="L380">        return new RealDistribution.Sampler() {</span>
+            /** Gaussian sampling. */
+<span class="fc" id="L382">            private final RealDistribution.Sampler gaussian = new NormalDistribution().createSampler(rng);</span>
+
+            /** {@inheritDoc} */
+            @Override
+            public double sample() {
+<span class="pc bpc" id="L387" title="1 of 2 branches missed.">                if (shape &lt; 1) {</span>
+                    // [1]: p. 228, Algorithm GS
+
+                    while (true) {
+                        // Step 1:
+<span class="nc" id="L392">                        final double u = rng.nextDouble();</span>
+<span class="nc" id="L393">                        final double bGS = 1 + shape / FastMath.E;</span>
+<span class="nc" id="L394">                        final double p = bGS * u;</span>
+
+<span class="nc bnc" id="L396" title="All 2 branches missed.">                        if (p &lt;= 1) {</span>
+                            // Step 2:
+
+<span class="nc" id="L399">                            final double x = FastMath.pow(p, 1 / shape);</span>
+<span class="nc" id="L400">                            final double u2 = rng.nextDouble();</span>
+
+<span class="nc bnc" id="L402" title="All 2 branches missed.">                            if (u2 &gt; FastMath.exp(-x)) {</span>
+                                // Reject
+<span class="nc" id="L404">                                continue;</span>
+                            } else {
+<span class="nc" id="L406">                                return scale * x;</span>
+                            }
+                        } else {
+                            // Step 3:
+
+<span class="nc" id="L411">                            final double x = -1 * FastMath.log((bGS - p) / shape);</span>
+<span class="nc" id="L412">                            final double u2 = rng.nextDouble();</span>
+
+<span class="nc bnc" id="L414" title="All 2 branches missed.">                            if (u2 &gt; FastMath.pow(x, shape - 1)) {</span>
+                                // Reject
+<span class="nc" id="L416">                                continue;</span>
+                            } else {
+<span class="nc" id="L418">                                return scale * x;</span>
+                            }
+                        }
+                    }
+                }
+
+                // Now shape &gt;= 1
+
+<span class="fc" id="L426">                final double d = shape - 0.333333333333333333;</span>
+<span class="fc" id="L427">                final double c = 1 / (3 * FastMath.sqrt(d));</span>
+
+                while (true) {
+<span class="fc" id="L430">                    final double x = gaussian.sample();</span>
+<span class="fc" id="L431">                    final double v = (1 + c * x) * (1 + c * x) * (1 + c * x);</span>
+
+<span class="pc bpc" id="L433" title="1 of 2 branches missed.">                    if (v &lt;= 0) {</span>
+<span class="nc" id="L434">                        continue;</span>
+                    }
+
+<span class="fc" id="L437">                    final double x2 = x * x;</span>
+<span class="fc" id="L438">                    final double u = rng.nextDouble();</span>
+
+                    // Squeeze
+<span class="fc bfc" id="L441" title="All 2 branches covered.">                    if (u &lt; 1 - 0.0331 * x2 * x2) {</span>
+<span class="fc" id="L442">                        return scale * d * v;</span>
+                    }
+
+<span class="fc bfc" id="L445" title="All 2 branches covered.">                    if (FastMath.log(u) &lt; 0.5 * x2 + d * (1 - v + FastMath.log(v))) {</span>
+<span class="fc" id="L446">                        return scale * d * v;</span>
+                    }
+<span class="fc" id="L448">                }</span>
+            }
+        };
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

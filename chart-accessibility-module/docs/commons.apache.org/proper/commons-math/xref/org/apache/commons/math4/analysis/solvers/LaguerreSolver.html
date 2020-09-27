@@ -1,0 +1,397 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>LaguerreSolver xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/analysis/solvers/LaguerreSolver.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="LaguerreSolver.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="LaguerreSolver.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="LaguerreSolver.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="LaguerreSolver.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="LaguerreSolver.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="LaguerreSolver.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="LaguerreSolver.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="LaguerreSolver.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="LaguerreSolver.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="LaguerreSolver.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="LaguerreSolver.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="LaguerreSolver.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="LaguerreSolver.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="LaguerreSolver.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="LaguerreSolver.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="LaguerreSolver.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="LaguerreSolver.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.solvers;
+<a class="jxr_linenumber" name="L18" href="LaguerreSolver.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="LaguerreSolver.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.polynomials.PolynomialFunction;
+<a class="jxr_linenumber" name="L20" href="LaguerreSolver.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.complex.Complex;
+<a class="jxr_linenumber" name="L21" href="LaguerreSolver.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.complex.ComplexUtils;
+<a class="jxr_linenumber" name="L22" href="LaguerreSolver.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoBracketingException;
+<a class="jxr_linenumber" name="L23" href="LaguerreSolver.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoDataException;
+<a class="jxr_linenumber" name="L24" href="LaguerreSolver.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NullArgumentException;
+<a class="jxr_linenumber" name="L25" href="LaguerreSolver.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooLargeException;
+<a class="jxr_linenumber" name="L26" href="LaguerreSolver.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.TooManyEvaluationsException;
+<a class="jxr_linenumber" name="L27" href="LaguerreSolver.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L28" href="LaguerreSolver.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L29" href="LaguerreSolver.html#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="LaguerreSolver.html#L30">30</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L31" href="LaguerreSolver.html#L31">31</a>  <em class="jxr_javadoccomment"> * Implements the &lt;a href="<a href="http://mathworld.wolfram.com/LaguerresMethod.html" target="alexandria_uri">http://mathworld.wolfram.com/LaguerresMethod.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L32" href="LaguerreSolver.html#L32">32</a>  <em class="jxr_javadoccomment"> * Laguerre's Method&lt;/a&gt; for root finding of real coefficient polynomials.</em>
+<a class="jxr_linenumber" name="L33" href="LaguerreSolver.html#L33">33</a>  <em class="jxr_javadoccomment"> * For reference, see</em>
+<a class="jxr_linenumber" name="L34" href="LaguerreSolver.html#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;blockquote&gt;</em>
+<a class="jxr_linenumber" name="L35" href="LaguerreSolver.html#L35">35</a>  <em class="jxr_javadoccomment"> *  &lt;b&gt;A First Course in Numerical Analysis&lt;/b&gt;,</em>
+<a class="jxr_linenumber" name="L36" href="LaguerreSolver.html#L36">36</a>  <em class="jxr_javadoccomment"> *  ISBN 048641454X, chapter 8.</em>
+<a class="jxr_linenumber" name="L37" href="LaguerreSolver.html#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;/blockquote&gt;</em>
+<a class="jxr_linenumber" name="L38" href="LaguerreSolver.html#L38">38</a>  <em class="jxr_javadoccomment"> * Laguerre's method is global in the sense that it can start with any initial</em>
+<a class="jxr_linenumber" name="L39" href="LaguerreSolver.html#L39">39</a>  <em class="jxr_javadoccomment"> * approximation and be able to solve all roots from that point.</em>
+<a class="jxr_linenumber" name="L40" href="LaguerreSolver.html#L40">40</a>  <em class="jxr_javadoccomment"> * The algorithm requires a bracketing condition.</em>
+<a class="jxr_linenumber" name="L41" href="LaguerreSolver.html#L41">41</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L42" href="LaguerreSolver.html#L42">42</a>  <em class="jxr_javadoccomment"> * @since 1.2</em>
+<a class="jxr_linenumber" name="L43" href="LaguerreSolver.html#L43">43</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L44" href="LaguerreSolver.html#L44">44</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="LaguerreSolver.html">LaguerreSolver</a> <strong class="jxr_keyword">extends</strong> <a href="AbstractPolynomialSolver.html">AbstractPolynomialSolver</a> {
+<a class="jxr_linenumber" name="L45" href="LaguerreSolver.html#L45">45</a>      <em class="jxr_javadoccomment">/** Default absolute accuracy. */</em>
+<a class="jxr_linenumber" name="L46" href="LaguerreSolver.html#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_ABSOLUTE_ACCURACY = 1e-6;
+<a class="jxr_linenumber" name="L47" href="LaguerreSolver.html#L47">47</a>      <em class="jxr_javadoccomment">/** Complex solver. */</em>
+<a class="jxr_linenumber" name="L48" href="LaguerreSolver.html#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="LaguerreSolver.html">ComplexSolver</a> complexSolver = <strong class="jxr_keyword">new</strong> <a href="LaguerreSolver.html">ComplexSolver</a>();
+<a class="jxr_linenumber" name="L49" href="LaguerreSolver.html#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="LaguerreSolver.html#L50">50</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L51" href="LaguerreSolver.html#L51">51</a>  <em class="jxr_javadoccomment">     * Construct a solver with default accuracy (1e-6).</em>
+<a class="jxr_linenumber" name="L52" href="LaguerreSolver.html#L52">52</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L53" href="LaguerreSolver.html#L53">53</a>      <strong class="jxr_keyword">public</strong> <a href="LaguerreSolver.html">LaguerreSolver</a>() {
+<a class="jxr_linenumber" name="L54" href="LaguerreSolver.html#L54">54</a>          <strong class="jxr_keyword">this</strong>(DEFAULT_ABSOLUTE_ACCURACY);
+<a class="jxr_linenumber" name="L55" href="LaguerreSolver.html#L55">55</a>      }
+<a class="jxr_linenumber" name="L56" href="LaguerreSolver.html#L56">56</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L57" href="LaguerreSolver.html#L57">57</a>  <em class="jxr_javadoccomment">     * Construct a solver.</em>
+<a class="jxr_linenumber" name="L58" href="LaguerreSolver.html#L58">58</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L59" href="LaguerreSolver.html#L59">59</a>  <em class="jxr_javadoccomment">     * @param absoluteAccuracy Absolute accuracy.</em>
+<a class="jxr_linenumber" name="L60" href="LaguerreSolver.html#L60">60</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L61" href="LaguerreSolver.html#L61">61</a>      <strong class="jxr_keyword">public</strong> <a href="LaguerreSolver.html">LaguerreSolver</a>(<strong class="jxr_keyword">double</strong> absoluteAccuracy) {
+<a class="jxr_linenumber" name="L62" href="LaguerreSolver.html#L62">62</a>          <strong class="jxr_keyword">super</strong>(absoluteAccuracy);
+<a class="jxr_linenumber" name="L63" href="LaguerreSolver.html#L63">63</a>      }
+<a class="jxr_linenumber" name="L64" href="LaguerreSolver.html#L64">64</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L65" href="LaguerreSolver.html#L65">65</a>  <em class="jxr_javadoccomment">     * Construct a solver.</em>
+<a class="jxr_linenumber" name="L66" href="LaguerreSolver.html#L66">66</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L67" href="LaguerreSolver.html#L67">67</a>  <em class="jxr_javadoccomment">     * @param relativeAccuracy Relative accuracy.</em>
+<a class="jxr_linenumber" name="L68" href="LaguerreSolver.html#L68">68</a>  <em class="jxr_javadoccomment">     * @param absoluteAccuracy Absolute accuracy.</em>
+<a class="jxr_linenumber" name="L69" href="LaguerreSolver.html#L69">69</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L70" href="LaguerreSolver.html#L70">70</a>      <strong class="jxr_keyword">public</strong> <a href="LaguerreSolver.html">LaguerreSolver</a>(<strong class="jxr_keyword">double</strong> relativeAccuracy,
+<a class="jxr_linenumber" name="L71" href="LaguerreSolver.html#L71">71</a>                            <strong class="jxr_keyword">double</strong> absoluteAccuracy) {
+<a class="jxr_linenumber" name="L72" href="LaguerreSolver.html#L72">72</a>          <strong class="jxr_keyword">super</strong>(relativeAccuracy, absoluteAccuracy);
+<a class="jxr_linenumber" name="L73" href="LaguerreSolver.html#L73">73</a>      }
+<a class="jxr_linenumber" name="L74" href="LaguerreSolver.html#L74">74</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L75" href="LaguerreSolver.html#L75">75</a>  <em class="jxr_javadoccomment">     * Construct a solver.</em>
+<a class="jxr_linenumber" name="L76" href="LaguerreSolver.html#L76">76</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L77" href="LaguerreSolver.html#L77">77</a>  <em class="jxr_javadoccomment">     * @param relativeAccuracy Relative accuracy.</em>
+<a class="jxr_linenumber" name="L78" href="LaguerreSolver.html#L78">78</a>  <em class="jxr_javadoccomment">     * @param absoluteAccuracy Absolute accuracy.</em>
+<a class="jxr_linenumber" name="L79" href="LaguerreSolver.html#L79">79</a>  <em class="jxr_javadoccomment">     * @param functionValueAccuracy Function value accuracy.</em>
+<a class="jxr_linenumber" name="L80" href="LaguerreSolver.html#L80">80</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L81" href="LaguerreSolver.html#L81">81</a>      <strong class="jxr_keyword">public</strong> <a href="LaguerreSolver.html">LaguerreSolver</a>(<strong class="jxr_keyword">double</strong> relativeAccuracy,
+<a class="jxr_linenumber" name="L82" href="LaguerreSolver.html#L82">82</a>                            <strong class="jxr_keyword">double</strong> absoluteAccuracy,
+<a class="jxr_linenumber" name="L83" href="LaguerreSolver.html#L83">83</a>                            <strong class="jxr_keyword">double</strong> functionValueAccuracy) {
+<a class="jxr_linenumber" name="L84" href="LaguerreSolver.html#L84">84</a>          <strong class="jxr_keyword">super</strong>(relativeAccuracy, absoluteAccuracy, functionValueAccuracy);
+<a class="jxr_linenumber" name="L85" href="LaguerreSolver.html#L85">85</a>      }
+<a class="jxr_linenumber" name="L86" href="LaguerreSolver.html#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="LaguerreSolver.html#L87">87</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L88" href="LaguerreSolver.html#L88">88</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L89" href="LaguerreSolver.html#L89">89</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L90" href="LaguerreSolver.html#L90">90</a>      @Override
+<a class="jxr_linenumber" name="L91" href="LaguerreSolver.html#L91">91</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> doSolve()
+<a class="jxr_linenumber" name="L92" href="LaguerreSolver.html#L92">92</a>          <strong class="jxr_keyword">throws</strong> TooManyEvaluationsException,
+<a class="jxr_linenumber" name="L93" href="LaguerreSolver.html#L93">93</a>                 NumberIsTooLargeException,
+<a class="jxr_linenumber" name="L94" href="LaguerreSolver.html#L94">94</a>                 <a href="../../exception/NoBracketingException.html">NoBracketingException</a> {
+<a class="jxr_linenumber" name="L95" href="LaguerreSolver.html#L95">95</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> min = getMin();
+<a class="jxr_linenumber" name="L96" href="LaguerreSolver.html#L96">96</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> max = getMax();
+<a class="jxr_linenumber" name="L97" href="LaguerreSolver.html#L97">97</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> initial = getStartValue();
+<a class="jxr_linenumber" name="L98" href="LaguerreSolver.html#L98">98</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> functionValueAccuracy = getFunctionValueAccuracy();
+<a class="jxr_linenumber" name="L99" href="LaguerreSolver.html#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="LaguerreSolver.html#L100">100</a>         verifySequence(min, initial, max);
+<a class="jxr_linenumber" name="L101" href="LaguerreSolver.html#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="LaguerreSolver.html#L102">102</a>         <em class="jxr_comment">// Return the initial guess if it is good enough.</em>
+<a class="jxr_linenumber" name="L103" href="LaguerreSolver.html#L103">103</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yInitial = computeObjectiveValue(initial);
+<a class="jxr_linenumber" name="L104" href="LaguerreSolver.html#L104">104</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(yInitial) &lt;= functionValueAccuracy) {
+<a class="jxr_linenumber" name="L105" href="LaguerreSolver.html#L105">105</a>             <strong class="jxr_keyword">return</strong> initial;
+<a class="jxr_linenumber" name="L106" href="LaguerreSolver.html#L106">106</a>         }
+<a class="jxr_linenumber" name="L107" href="LaguerreSolver.html#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="LaguerreSolver.html#L108">108</a>         <em class="jxr_comment">// Return the first endpoint if it is good enough.</em>
+<a class="jxr_linenumber" name="L109" href="LaguerreSolver.html#L109">109</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yMin = computeObjectiveValue(min);
+<a class="jxr_linenumber" name="L110" href="LaguerreSolver.html#L110">110</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(yMin) &lt;= functionValueAccuracy) {
+<a class="jxr_linenumber" name="L111" href="LaguerreSolver.html#L111">111</a>             <strong class="jxr_keyword">return</strong> min;
+<a class="jxr_linenumber" name="L112" href="LaguerreSolver.html#L112">112</a>         }
+<a class="jxr_linenumber" name="L113" href="LaguerreSolver.html#L113">113</a> 
+<a class="jxr_linenumber" name="L114" href="LaguerreSolver.html#L114">114</a>         <em class="jxr_comment">// Reduce interval if min and initial bracket the root.</em>
+<a class="jxr_linenumber" name="L115" href="LaguerreSolver.html#L115">115</a>         <strong class="jxr_keyword">if</strong> (yInitial * yMin &lt; 0) {
+<a class="jxr_linenumber" name="L116" href="LaguerreSolver.html#L116">116</a>             <strong class="jxr_keyword">return</strong> laguerre(min, initial);
+<a class="jxr_linenumber" name="L117" href="LaguerreSolver.html#L117">117</a>         }
+<a class="jxr_linenumber" name="L118" href="LaguerreSolver.html#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="LaguerreSolver.html#L119">119</a>         <em class="jxr_comment">// Return the second endpoint if it is good enough.</em>
+<a class="jxr_linenumber" name="L120" href="LaguerreSolver.html#L120">120</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yMax = computeObjectiveValue(max);
+<a class="jxr_linenumber" name="L121" href="LaguerreSolver.html#L121">121</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(yMax) &lt;= functionValueAccuracy) {
+<a class="jxr_linenumber" name="L122" href="LaguerreSolver.html#L122">122</a>             <strong class="jxr_keyword">return</strong> max;
+<a class="jxr_linenumber" name="L123" href="LaguerreSolver.html#L123">123</a>         }
+<a class="jxr_linenumber" name="L124" href="LaguerreSolver.html#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="LaguerreSolver.html#L125">125</a>         <em class="jxr_comment">// Reduce interval if initial and max bracket the root.</em>
+<a class="jxr_linenumber" name="L126" href="LaguerreSolver.html#L126">126</a>         <strong class="jxr_keyword">if</strong> (yInitial * yMax &lt; 0) {
+<a class="jxr_linenumber" name="L127" href="LaguerreSolver.html#L127">127</a>             <strong class="jxr_keyword">return</strong> laguerre(initial, max);
+<a class="jxr_linenumber" name="L128" href="LaguerreSolver.html#L128">128</a>         }
+<a class="jxr_linenumber" name="L129" href="LaguerreSolver.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="LaguerreSolver.html#L130">130</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NoBracketingException.html">NoBracketingException</a>(min, max, yMin, yMax);
+<a class="jxr_linenumber" name="L131" href="LaguerreSolver.html#L131">131</a>     }
+<a class="jxr_linenumber" name="L132" href="LaguerreSolver.html#L132">132</a> 
+<a class="jxr_linenumber" name="L133" href="LaguerreSolver.html#L133">133</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L134" href="LaguerreSolver.html#L134">134</a> <em class="jxr_javadoccomment">     * Find a real root in the given interval.</em>
+<a class="jxr_linenumber" name="L135" href="LaguerreSolver.html#L135">135</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L136" href="LaguerreSolver.html#L136">136</a> <em class="jxr_javadoccomment">     * Despite the bracketing condition, the root returned by</em>
+<a class="jxr_linenumber" name="L137" href="LaguerreSolver.html#L137">137</a> <em class="jxr_javadoccomment">     * {@link LaguerreSolver.ComplexSolver#solve(Complex[],Complex)} may</em>
+<a class="jxr_linenumber" name="L138" href="LaguerreSolver.html#L138">138</a> <em class="jxr_javadoccomment">     * not be a real zero inside {@code [min, max]}.</em>
+<a class="jxr_linenumber" name="L139" href="LaguerreSolver.html#L139">139</a> <em class="jxr_javadoccomment">     * For example, &lt;code&gt; p(x) = x&lt;sup&gt;3&lt;/sup&gt; + 1, &lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L140" href="LaguerreSolver.html#L140">140</a> <em class="jxr_javadoccomment">     * with {@code min = -2}, {@code max = 2}, {@code initial = 0}.</em>
+<a class="jxr_linenumber" name="L141" href="LaguerreSolver.html#L141">141</a> <em class="jxr_javadoccomment">     * When it occurs, this code calls</em>
+<a class="jxr_linenumber" name="L142" href="LaguerreSolver.html#L142">142</a> <em class="jxr_javadoccomment">     * {@link LaguerreSolver.ComplexSolver#solveAll(Complex[],Complex)}</em>
+<a class="jxr_linenumber" name="L143" href="LaguerreSolver.html#L143">143</a> <em class="jxr_javadoccomment">     * in order to obtain all roots and picks up one real root.</em>
+<a class="jxr_linenumber" name="L144" href="LaguerreSolver.html#L144">144</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L145" href="LaguerreSolver.html#L145">145</a> <em class="jxr_javadoccomment">     * @param lo Lower bound of the search interval.</em>
+<a class="jxr_linenumber" name="L146" href="LaguerreSolver.html#L146">146</a> <em class="jxr_javadoccomment">     * @param hi Higher bound of the search interval.</em>
+<a class="jxr_linenumber" name="L147" href="LaguerreSolver.html#L147">147</a> <em class="jxr_javadoccomment">     * @return the point at which the function value is zero.</em>
+<a class="jxr_linenumber" name="L148" href="LaguerreSolver.html#L148">148</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L149" href="LaguerreSolver.html#L149">149</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> laguerre(<strong class="jxr_keyword">double</strong> lo, <strong class="jxr_keyword">double</strong> hi) {
+<a class="jxr_linenumber" name="L150" href="LaguerreSolver.html#L150">150</a>         <strong class="jxr_keyword">final</strong> <a href="../../complex/Complex.html">Complex</a> c[] = ComplexUtils.real2Complex(getCoefficients());
+<a class="jxr_linenumber" name="L151" href="LaguerreSolver.html#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="LaguerreSolver.html#L152">152</a>         <strong class="jxr_keyword">final</strong> <a href="../../complex/Complex.html">Complex</a> initial = <strong class="jxr_keyword">new</strong> <a href="../../complex/Complex.html">Complex</a>(0.5 * (lo + hi), 0);
+<a class="jxr_linenumber" name="L153" href="LaguerreSolver.html#L153">153</a>         <strong class="jxr_keyword">final</strong> <a href="../../complex/Complex.html">Complex</a> z = complexSolver.solve(c, initial);
+<a class="jxr_linenumber" name="L154" href="LaguerreSolver.html#L154">154</a>         <strong class="jxr_keyword">if</strong> (complexSolver.isRoot(lo, hi, z)) {
+<a class="jxr_linenumber" name="L155" href="LaguerreSolver.html#L155">155</a>             <strong class="jxr_keyword">return</strong> z.getReal();
+<a class="jxr_linenumber" name="L156" href="LaguerreSolver.html#L156">156</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L157" href="LaguerreSolver.html#L157">157</a>             <strong class="jxr_keyword">double</strong> r = Double.NaN;
+<a class="jxr_linenumber" name="L158" href="LaguerreSolver.html#L158">158</a>             <em class="jxr_comment">// Solve all roots and select the one we are seeking.</em>
+<a class="jxr_linenumber" name="L159" href="LaguerreSolver.html#L159">159</a>             <a href="../../complex/Complex.html">Complex</a>[] root = complexSolver.solveAll(c, initial);
+<a class="jxr_linenumber" name="L160" href="LaguerreSolver.html#L160">160</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; root.length; i++) {
+<a class="jxr_linenumber" name="L161" href="LaguerreSolver.html#L161">161</a>                 <strong class="jxr_keyword">if</strong> (complexSolver.isRoot(lo, hi, root[i])) {
+<a class="jxr_linenumber" name="L162" href="LaguerreSolver.html#L162">162</a>                     r = root[i].getReal();
+<a class="jxr_linenumber" name="L163" href="LaguerreSolver.html#L163">163</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L164" href="LaguerreSolver.html#L164">164</a>                 }
+<a class="jxr_linenumber" name="L165" href="LaguerreSolver.html#L165">165</a>             }
+<a class="jxr_linenumber" name="L166" href="LaguerreSolver.html#L166">166</a>             <strong class="jxr_keyword">return</strong> r;
+<a class="jxr_linenumber" name="L167" href="LaguerreSolver.html#L167">167</a>         }
+<a class="jxr_linenumber" name="L168" href="LaguerreSolver.html#L168">168</a>     }
+<a class="jxr_linenumber" name="L169" href="LaguerreSolver.html#L169">169</a> 
+<a class="jxr_linenumber" name="L170" href="LaguerreSolver.html#L170">170</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L171" href="LaguerreSolver.html#L171">171</a> <em class="jxr_javadoccomment">     * Find all complex roots for the polynomial with the given</em>
+<a class="jxr_linenumber" name="L172" href="LaguerreSolver.html#L172">172</a> <em class="jxr_javadoccomment">     * coefficients, starting from the given initial value.</em>
+<a class="jxr_linenumber" name="L173" href="LaguerreSolver.html#L173">173</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L174" href="LaguerreSolver.html#L174">174</a> <em class="jxr_javadoccomment">     * Note: This method is not part of the API of {@link BaseUnivariateSolver}.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L175" href="LaguerreSolver.html#L175">175</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L176" href="LaguerreSolver.html#L176">176</a> <em class="jxr_javadoccomment">     * @param coefficients Polynomial coefficients.</em>
+<a class="jxr_linenumber" name="L177" href="LaguerreSolver.html#L177">177</a> <em class="jxr_javadoccomment">     * @param initial Start value.</em>
+<a class="jxr_linenumber" name="L178" href="LaguerreSolver.html#L178">178</a> <em class="jxr_javadoccomment">     * @return the point at which the function value is zero.</em>
+<a class="jxr_linenumber" name="L179" href="LaguerreSolver.html#L179">179</a> <em class="jxr_javadoccomment">     * @throws org.apache.commons.math4.exception.TooManyEvaluationsException</em>
+<a class="jxr_linenumber" name="L180" href="LaguerreSolver.html#L180">180</a> <em class="jxr_javadoccomment">     * if the maximum number of evaluations is exceeded.</em>
+<a class="jxr_linenumber" name="L181" href="LaguerreSolver.html#L181">181</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if the {@code coefficients} is</em>
+<a class="jxr_linenumber" name="L182" href="LaguerreSolver.html#L182">182</a> <em class="jxr_javadoccomment">     * {@code null}.</em>
+<a class="jxr_linenumber" name="L183" href="LaguerreSolver.html#L183">183</a> <em class="jxr_javadoccomment">     * @throws NoDataException if the {@code coefficients} array is empty.</em>
+<a class="jxr_linenumber" name="L184" href="LaguerreSolver.html#L184">184</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L185" href="LaguerreSolver.html#L185">185</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L186" href="LaguerreSolver.html#L186">186</a>     <strong class="jxr_keyword">public</strong> <a href="../../complex/Complex.html">Complex</a>[] solveAllComplex(<strong class="jxr_keyword">double</strong>[] coefficients,
+<a class="jxr_linenumber" name="L187" href="LaguerreSolver.html#L187">187</a>                                      <strong class="jxr_keyword">double</strong> initial)
+<a class="jxr_linenumber" name="L188" href="LaguerreSolver.html#L188">188</a>         <strong class="jxr_keyword">throws</strong> NullArgumentException,
+<a class="jxr_linenumber" name="L189" href="LaguerreSolver.html#L189">189</a>                NoDataException,
+<a class="jxr_linenumber" name="L190" href="LaguerreSolver.html#L190">190</a>                <a href="../../exception/TooManyEvaluationsException.html">TooManyEvaluationsException</a> {
+<a class="jxr_linenumber" name="L191" href="LaguerreSolver.html#L191">191</a>         setup(Integer.MAX_VALUE,
+<a class="jxr_linenumber" name="L192" href="LaguerreSolver.html#L192">192</a>               <strong class="jxr_keyword">new</strong> <a href="../polynomials/PolynomialFunction.html">PolynomialFunction</a>(coefficients),
+<a class="jxr_linenumber" name="L193" href="LaguerreSolver.html#L193">193</a>               Double.NEGATIVE_INFINITY,
+<a class="jxr_linenumber" name="L194" href="LaguerreSolver.html#L194">194</a>               Double.POSITIVE_INFINITY,
+<a class="jxr_linenumber" name="L195" href="LaguerreSolver.html#L195">195</a>               initial);
+<a class="jxr_linenumber" name="L196" href="LaguerreSolver.html#L196">196</a>         <strong class="jxr_keyword">return</strong> complexSolver.solveAll(ComplexUtils.real2Complex(coefficients),
+<a class="jxr_linenumber" name="L197" href="LaguerreSolver.html#L197">197</a>                                       <strong class="jxr_keyword">new</strong> <a href="../../complex/Complex.html">Complex</a>(initial, 0d));
+<a class="jxr_linenumber" name="L198" href="LaguerreSolver.html#L198">198</a>     }
+<a class="jxr_linenumber" name="L199" href="LaguerreSolver.html#L199">199</a> 
+<a class="jxr_linenumber" name="L200" href="LaguerreSolver.html#L200">200</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L201" href="LaguerreSolver.html#L201">201</a> <em class="jxr_javadoccomment">     * Find a complex root for the polynomial with the given coefficients,</em>
+<a class="jxr_linenumber" name="L202" href="LaguerreSolver.html#L202">202</a> <em class="jxr_javadoccomment">     * starting from the given initial value.</em>
+<a class="jxr_linenumber" name="L203" href="LaguerreSolver.html#L203">203</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L204" href="LaguerreSolver.html#L204">204</a> <em class="jxr_javadoccomment">     * Note: This method is not part of the API of {@link BaseUnivariateSolver}.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L205" href="LaguerreSolver.html#L205">205</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L206" href="LaguerreSolver.html#L206">206</a> <em class="jxr_javadoccomment">     * @param coefficients Polynomial coefficients.</em>
+<a class="jxr_linenumber" name="L207" href="LaguerreSolver.html#L207">207</a> <em class="jxr_javadoccomment">     * @param initial Start value.</em>
+<a class="jxr_linenumber" name="L208" href="LaguerreSolver.html#L208">208</a> <em class="jxr_javadoccomment">     * @return the point at which the function value is zero.</em>
+<a class="jxr_linenumber" name="L209" href="LaguerreSolver.html#L209">209</a> <em class="jxr_javadoccomment">     * @throws org.apache.commons.math4.exception.TooManyEvaluationsException</em>
+<a class="jxr_linenumber" name="L210" href="LaguerreSolver.html#L210">210</a> <em class="jxr_javadoccomment">     * if the maximum number of evaluations is exceeded.</em>
+<a class="jxr_linenumber" name="L211" href="LaguerreSolver.html#L211">211</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if the {@code coefficients} is</em>
+<a class="jxr_linenumber" name="L212" href="LaguerreSolver.html#L212">212</a> <em class="jxr_javadoccomment">     * {@code null}.</em>
+<a class="jxr_linenumber" name="L213" href="LaguerreSolver.html#L213">213</a> <em class="jxr_javadoccomment">     * @throws NoDataException if the {@code coefficients} array is empty.</em>
+<a class="jxr_linenumber" name="L214" href="LaguerreSolver.html#L214">214</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L215" href="LaguerreSolver.html#L215">215</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L216" href="LaguerreSolver.html#L216">216</a>     <strong class="jxr_keyword">public</strong> <a href="../../complex/Complex.html">Complex</a> solveComplex(<strong class="jxr_keyword">double</strong>[] coefficients,
+<a class="jxr_linenumber" name="L217" href="LaguerreSolver.html#L217">217</a>                                 <strong class="jxr_keyword">double</strong> initial)
+<a class="jxr_linenumber" name="L218" href="LaguerreSolver.html#L218">218</a>         <strong class="jxr_keyword">throws</strong> NullArgumentException,
+<a class="jxr_linenumber" name="L219" href="LaguerreSolver.html#L219">219</a>                NoDataException,
+<a class="jxr_linenumber" name="L220" href="LaguerreSolver.html#L220">220</a>                <a href="../../exception/TooManyEvaluationsException.html">TooManyEvaluationsException</a> {
+<a class="jxr_linenumber" name="L221" href="LaguerreSolver.html#L221">221</a>         setup(Integer.MAX_VALUE,
+<a class="jxr_linenumber" name="L222" href="LaguerreSolver.html#L222">222</a>               <strong class="jxr_keyword">new</strong> <a href="../polynomials/PolynomialFunction.html">PolynomialFunction</a>(coefficients),
+<a class="jxr_linenumber" name="L223" href="LaguerreSolver.html#L223">223</a>               Double.NEGATIVE_INFINITY,
+<a class="jxr_linenumber" name="L224" href="LaguerreSolver.html#L224">224</a>               Double.POSITIVE_INFINITY,
+<a class="jxr_linenumber" name="L225" href="LaguerreSolver.html#L225">225</a>               initial);
+<a class="jxr_linenumber" name="L226" href="LaguerreSolver.html#L226">226</a>         <strong class="jxr_keyword">return</strong> complexSolver.solve(ComplexUtils.real2Complex(coefficients),
+<a class="jxr_linenumber" name="L227" href="LaguerreSolver.html#L227">227</a>                                    <strong class="jxr_keyword">new</strong> <a href="../../complex/Complex.html">Complex</a>(initial, 0d));
+<a class="jxr_linenumber" name="L228" href="LaguerreSolver.html#L228">228</a>     }
+<a class="jxr_linenumber" name="L229" href="LaguerreSolver.html#L229">229</a> 
+<a class="jxr_linenumber" name="L230" href="LaguerreSolver.html#L230">230</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L231" href="LaguerreSolver.html#L231">231</a> <em class="jxr_javadoccomment">     * Class for searching all (complex) roots.</em>
+<a class="jxr_linenumber" name="L232" href="LaguerreSolver.html#L232">232</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L233" href="LaguerreSolver.html#L233">233</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="LaguerreSolver.html">ComplexSolver</a> {
+<a class="jxr_linenumber" name="L234" href="LaguerreSolver.html#L234">234</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L235" href="LaguerreSolver.html#L235">235</a> <em class="jxr_javadoccomment">         * Check whether the given complex root is actually a real zero</em>
+<a class="jxr_linenumber" name="L236" href="LaguerreSolver.html#L236">236</a> <em class="jxr_javadoccomment">         * in the given interval, within the solver tolerance level.</em>
+<a class="jxr_linenumber" name="L237" href="LaguerreSolver.html#L237">237</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L238" href="LaguerreSolver.html#L238">238</a> <em class="jxr_javadoccomment">         * @param min Lower bound for the interval.</em>
+<a class="jxr_linenumber" name="L239" href="LaguerreSolver.html#L239">239</a> <em class="jxr_javadoccomment">         * @param max Upper bound for the interval.</em>
+<a class="jxr_linenumber" name="L240" href="LaguerreSolver.html#L240">240</a> <em class="jxr_javadoccomment">         * @param z Complex root.</em>
+<a class="jxr_linenumber" name="L241" href="LaguerreSolver.html#L241">241</a> <em class="jxr_javadoccomment">         * @return {@code true} if z is a real zero.</em>
+<a class="jxr_linenumber" name="L242" href="LaguerreSolver.html#L242">242</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L243" href="LaguerreSolver.html#L243">243</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isRoot(<strong class="jxr_keyword">double</strong> min, <strong class="jxr_keyword">double</strong> max, <a href="../../complex/Complex.html">Complex</a> z) {
+<a class="jxr_linenumber" name="L244" href="LaguerreSolver.html#L244">244</a>             <strong class="jxr_keyword">if</strong> (isSequence(min, z.getReal(), max)) {
+<a class="jxr_linenumber" name="L245" href="LaguerreSolver.html#L245">245</a>                 <strong class="jxr_keyword">double</strong> tolerance = FastMath.max(getRelativeAccuracy() * z.abs(), getAbsoluteAccuracy());
+<a class="jxr_linenumber" name="L246" href="LaguerreSolver.html#L246">246</a>                 <strong class="jxr_keyword">return</strong> (FastMath.abs(z.getImaginary()) &lt;= tolerance) ||
+<a class="jxr_linenumber" name="L247" href="LaguerreSolver.html#L247">247</a>                      (z.abs() &lt;= getFunctionValueAccuracy());
+<a class="jxr_linenumber" name="L248" href="LaguerreSolver.html#L248">248</a>             }
+<a class="jxr_linenumber" name="L249" href="LaguerreSolver.html#L249">249</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L250" href="LaguerreSolver.html#L250">250</a>         }
+<a class="jxr_linenumber" name="L251" href="LaguerreSolver.html#L251">251</a> 
+<a class="jxr_linenumber" name="L252" href="LaguerreSolver.html#L252">252</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L253" href="LaguerreSolver.html#L253">253</a> <em class="jxr_javadoccomment">         * Find all complex roots for the polynomial with the given</em>
+<a class="jxr_linenumber" name="L254" href="LaguerreSolver.html#L254">254</a> <em class="jxr_javadoccomment">         * coefficients, starting from the given initial value.</em>
+<a class="jxr_linenumber" name="L255" href="LaguerreSolver.html#L255">255</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L256" href="LaguerreSolver.html#L256">256</a> <em class="jxr_javadoccomment">         * @param coefficients Polynomial coefficients.</em>
+<a class="jxr_linenumber" name="L257" href="LaguerreSolver.html#L257">257</a> <em class="jxr_javadoccomment">         * @param initial Start value.</em>
+<a class="jxr_linenumber" name="L258" href="LaguerreSolver.html#L258">258</a> <em class="jxr_javadoccomment">         * @return the point at which the function value is zero.</em>
+<a class="jxr_linenumber" name="L259" href="LaguerreSolver.html#L259">259</a> <em class="jxr_javadoccomment">         * @throws org.apache.commons.math4.exception.TooManyEvaluationsException</em>
+<a class="jxr_linenumber" name="L260" href="LaguerreSolver.html#L260">260</a> <em class="jxr_javadoccomment">         * if the maximum number of evaluations is exceeded.</em>
+<a class="jxr_linenumber" name="L261" href="LaguerreSolver.html#L261">261</a> <em class="jxr_javadoccomment">         * @throws NullArgumentException if the {@code coefficients} is</em>
+<a class="jxr_linenumber" name="L262" href="LaguerreSolver.html#L262">262</a> <em class="jxr_javadoccomment">         * {@code null}.</em>
+<a class="jxr_linenumber" name="L263" href="LaguerreSolver.html#L263">263</a> <em class="jxr_javadoccomment">         * @throws NoDataException if the {@code coefficients} array is empty.</em>
+<a class="jxr_linenumber" name="L264" href="LaguerreSolver.html#L264">264</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L265" href="LaguerreSolver.html#L265">265</a>         <strong class="jxr_keyword">public</strong> <a href="../../complex/Complex.html">Complex</a>[] solveAll(<a href="../../complex/Complex.html">Complex</a> coefficients[], <a href="../../complex/Complex.html">Complex</a> initial)
+<a class="jxr_linenumber" name="L266" href="LaguerreSolver.html#L266">266</a>             <strong class="jxr_keyword">throws</strong> NullArgumentException,
+<a class="jxr_linenumber" name="L267" href="LaguerreSolver.html#L267">267</a>                    NoDataException,
+<a class="jxr_linenumber" name="L268" href="LaguerreSolver.html#L268">268</a>                    <a href="../../exception/TooManyEvaluationsException.html">TooManyEvaluationsException</a> {
+<a class="jxr_linenumber" name="L269" href="LaguerreSolver.html#L269">269</a>             <strong class="jxr_keyword">if</strong> (coefficients == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L270" href="LaguerreSolver.html#L270">270</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NullArgumentException.html">NullArgumentException</a>();
+<a class="jxr_linenumber" name="L271" href="LaguerreSolver.html#L271">271</a>             }
+<a class="jxr_linenumber" name="L272" href="LaguerreSolver.html#L272">272</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = coefficients.length - 1;
+<a class="jxr_linenumber" name="L273" href="LaguerreSolver.html#L273">273</a>             <strong class="jxr_keyword">if</strong> (n == 0) {
+<a class="jxr_linenumber" name="L274" href="LaguerreSolver.html#L274">274</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NoDataException.html">NoDataException</a>(LocalizedFormats.POLYNOMIAL);
+<a class="jxr_linenumber" name="L275" href="LaguerreSolver.html#L275">275</a>             }
+<a class="jxr_linenumber" name="L276" href="LaguerreSolver.html#L276">276</a>             <em class="jxr_comment">// Coefficients for deflated polynomial.</em>
+<a class="jxr_linenumber" name="L277" href="LaguerreSolver.html#L277">277</a>             <strong class="jxr_keyword">final</strong> <a href="../../complex/Complex.html">Complex</a> c[] = <strong class="jxr_keyword">new</strong> <a href="../../complex/Complex.html">Complex</a>[n + 1];
+<a class="jxr_linenumber" name="L278" href="LaguerreSolver.html#L278">278</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt;= n; i++) {
+<a class="jxr_linenumber" name="L279" href="LaguerreSolver.html#L279">279</a>                 c[i] = coefficients[i];
+<a class="jxr_linenumber" name="L280" href="LaguerreSolver.html#L280">280</a>             }
+<a class="jxr_linenumber" name="L281" href="LaguerreSolver.html#L281">281</a> 
+<a class="jxr_linenumber" name="L282" href="LaguerreSolver.html#L282">282</a>             <em class="jxr_comment">// Solve individual roots successively.</em>
+<a class="jxr_linenumber" name="L283" href="LaguerreSolver.html#L283">283</a>             <strong class="jxr_keyword">final</strong> <a href="../../complex/Complex.html">Complex</a> root[] = <strong class="jxr_keyword">new</strong> <a href="../../complex/Complex.html">Complex</a>[n];
+<a class="jxr_linenumber" name="L284" href="LaguerreSolver.html#L284">284</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L285" href="LaguerreSolver.html#L285">285</a>                 <strong class="jxr_keyword">final</strong> <a href="../../complex/Complex.html">Complex</a> subarray[] = <strong class="jxr_keyword">new</strong> <a href="../../complex/Complex.html">Complex</a>[n - i + 1];
+<a class="jxr_linenumber" name="L286" href="LaguerreSolver.html#L286">286</a>                 System.arraycopy(c, 0, subarray, 0, subarray.length);
+<a class="jxr_linenumber" name="L287" href="LaguerreSolver.html#L287">287</a>                 root[i] = solve(subarray, initial);
+<a class="jxr_linenumber" name="L288" href="LaguerreSolver.html#L288">288</a>                 <em class="jxr_comment">// Polynomial deflation using synthetic division.</em>
+<a class="jxr_linenumber" name="L289" href="LaguerreSolver.html#L289">289</a>                 <a href="../../complex/Complex.html">Complex</a> newc = c[n - i];
+<a class="jxr_linenumber" name="L290" href="LaguerreSolver.html#L290">290</a>                 <a href="../../complex/Complex.html">Complex</a> oldc = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L291" href="LaguerreSolver.html#L291">291</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = n - i - 1; j &gt;= 0; j--) {
+<a class="jxr_linenumber" name="L292" href="LaguerreSolver.html#L292">292</a>                     oldc = c[j];
+<a class="jxr_linenumber" name="L293" href="LaguerreSolver.html#L293">293</a>                     c[j] = newc;
+<a class="jxr_linenumber" name="L294" href="LaguerreSolver.html#L294">294</a>                     newc = oldc.add(newc.multiply(root[i]));
+<a class="jxr_linenumber" name="L295" href="LaguerreSolver.html#L295">295</a>                 }
+<a class="jxr_linenumber" name="L296" href="LaguerreSolver.html#L296">296</a>             }
+<a class="jxr_linenumber" name="L297" href="LaguerreSolver.html#L297">297</a> 
+<a class="jxr_linenumber" name="L298" href="LaguerreSolver.html#L298">298</a>             <strong class="jxr_keyword">return</strong> root;
+<a class="jxr_linenumber" name="L299" href="LaguerreSolver.html#L299">299</a>         }
+<a class="jxr_linenumber" name="L300" href="LaguerreSolver.html#L300">300</a> 
+<a class="jxr_linenumber" name="L301" href="LaguerreSolver.html#L301">301</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L302" href="LaguerreSolver.html#L302">302</a> <em class="jxr_javadoccomment">         * Find a complex root for the polynomial with the given coefficients,</em>
+<a class="jxr_linenumber" name="L303" href="LaguerreSolver.html#L303">303</a> <em class="jxr_javadoccomment">         * starting from the given initial value.</em>
+<a class="jxr_linenumber" name="L304" href="LaguerreSolver.html#L304">304</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L305" href="LaguerreSolver.html#L305">305</a> <em class="jxr_javadoccomment">         * @param coefficients Polynomial coefficients.</em>
+<a class="jxr_linenumber" name="L306" href="LaguerreSolver.html#L306">306</a> <em class="jxr_javadoccomment">         * @param initial Start value.</em>
+<a class="jxr_linenumber" name="L307" href="LaguerreSolver.html#L307">307</a> <em class="jxr_javadoccomment">         * @return the point at which the function value is zero.</em>
+<a class="jxr_linenumber" name="L308" href="LaguerreSolver.html#L308">308</a> <em class="jxr_javadoccomment">         * @throws org.apache.commons.math4.exception.TooManyEvaluationsException</em>
+<a class="jxr_linenumber" name="L309" href="LaguerreSolver.html#L309">309</a> <em class="jxr_javadoccomment">         * if the maximum number of evaluations is exceeded.</em>
+<a class="jxr_linenumber" name="L310" href="LaguerreSolver.html#L310">310</a> <em class="jxr_javadoccomment">         * @throws NullArgumentException if the {@code coefficients} is</em>
+<a class="jxr_linenumber" name="L311" href="LaguerreSolver.html#L311">311</a> <em class="jxr_javadoccomment">         * {@code null}.</em>
+<a class="jxr_linenumber" name="L312" href="LaguerreSolver.html#L312">312</a> <em class="jxr_javadoccomment">         * @throws NoDataException if the {@code coefficients} array is empty.</em>
+<a class="jxr_linenumber" name="L313" href="LaguerreSolver.html#L313">313</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L314" href="LaguerreSolver.html#L314">314</a>         <strong class="jxr_keyword">public</strong> <a href="../../complex/Complex.html">Complex</a> solve(<a href="../../complex/Complex.html">Complex</a> coefficients[], <a href="../../complex/Complex.html">Complex</a> initial)
+<a class="jxr_linenumber" name="L315" href="LaguerreSolver.html#L315">315</a>             <strong class="jxr_keyword">throws</strong> NullArgumentException,
+<a class="jxr_linenumber" name="L316" href="LaguerreSolver.html#L316">316</a>                    NoDataException,
+<a class="jxr_linenumber" name="L317" href="LaguerreSolver.html#L317">317</a>                    <a href="../../exception/TooManyEvaluationsException.html">TooManyEvaluationsException</a> {
+<a class="jxr_linenumber" name="L318" href="LaguerreSolver.html#L318">318</a>             <strong class="jxr_keyword">if</strong> (coefficients == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L319" href="LaguerreSolver.html#L319">319</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NullArgumentException.html">NullArgumentException</a>();
+<a class="jxr_linenumber" name="L320" href="LaguerreSolver.html#L320">320</a>             }
+<a class="jxr_linenumber" name="L321" href="LaguerreSolver.html#L321">321</a> 
+<a class="jxr_linenumber" name="L322" href="LaguerreSolver.html#L322">322</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = coefficients.length - 1;
+<a class="jxr_linenumber" name="L323" href="LaguerreSolver.html#L323">323</a>             <strong class="jxr_keyword">if</strong> (n == 0) {
+<a class="jxr_linenumber" name="L324" href="LaguerreSolver.html#L324">324</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NoDataException.html">NoDataException</a>(LocalizedFormats.POLYNOMIAL);
+<a class="jxr_linenumber" name="L325" href="LaguerreSolver.html#L325">325</a>             }
+<a class="jxr_linenumber" name="L326" href="LaguerreSolver.html#L326">326</a> 
+<a class="jxr_linenumber" name="L327" href="LaguerreSolver.html#L327">327</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> absoluteAccuracy = getAbsoluteAccuracy();
+<a class="jxr_linenumber" name="L328" href="LaguerreSolver.html#L328">328</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> relativeAccuracy = getRelativeAccuracy();
+<a class="jxr_linenumber" name="L329" href="LaguerreSolver.html#L329">329</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> functionValueAccuracy = getFunctionValueAccuracy();
+<a class="jxr_linenumber" name="L330" href="LaguerreSolver.html#L330">330</a> 
+<a class="jxr_linenumber" name="L331" href="LaguerreSolver.html#L331">331</a>             <strong class="jxr_keyword">final</strong> <a href="../../complex/Complex.html">Complex</a> nC  = <strong class="jxr_keyword">new</strong> Complex(n, 0);
+<a class="jxr_linenumber" name="L332" href="LaguerreSolver.html#L332">332</a>             <strong class="jxr_keyword">final</strong> <a href="../../complex/Complex.html">Complex</a> n1C = <strong class="jxr_keyword">new</strong> <a href="../../complex/Complex.html">Complex</a>(n - 1, 0);
+<a class="jxr_linenumber" name="L333" href="LaguerreSolver.html#L333">333</a> 
+<a class="jxr_linenumber" name="L334" href="LaguerreSolver.html#L334">334</a>             <a href="../../complex/Complex.html">Complex</a> z = initial;
+<a class="jxr_linenumber" name="L335" href="LaguerreSolver.html#L335">335</a>             <a href="../../complex/Complex.html">Complex</a> oldz = <strong class="jxr_keyword">new</strong> <a href="../../complex/Complex.html">Complex</a>(Double.POSITIVE_INFINITY,
+<a class="jxr_linenumber" name="L336" href="LaguerreSolver.html#L336">336</a>                                        Double.POSITIVE_INFINITY);
+<a class="jxr_linenumber" name="L337" href="LaguerreSolver.html#L337">337</a>             <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
+<a class="jxr_linenumber" name="L338" href="LaguerreSolver.html#L338">338</a>                 <em class="jxr_comment">// Compute pv (polynomial value), dv (derivative value), and</em>
+<a class="jxr_linenumber" name="L339" href="LaguerreSolver.html#L339">339</a>                 <em class="jxr_comment">// d2v (second derivative value) simultaneously.</em>
+<a class="jxr_linenumber" name="L340" href="LaguerreSolver.html#L340">340</a>                 <a href="../../complex/Complex.html">Complex</a> pv = coefficients[n];
+<a class="jxr_linenumber" name="L341" href="LaguerreSolver.html#L341">341</a>                 <a href="../../complex/Complex.html">Complex</a> dv = Complex.ZERO;
+<a class="jxr_linenumber" name="L342" href="LaguerreSolver.html#L342">342</a>                 <a href="../../complex/Complex.html">Complex</a> d2v = Complex.ZERO;
+<a class="jxr_linenumber" name="L343" href="LaguerreSolver.html#L343">343</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = n-1; j &gt;= 0; j--) {
+<a class="jxr_linenumber" name="L344" href="LaguerreSolver.html#L344">344</a>                     d2v = dv.add(z.multiply(d2v));
+<a class="jxr_linenumber" name="L345" href="LaguerreSolver.html#L345">345</a>                     dv = pv.add(z.multiply(dv));
+<a class="jxr_linenumber" name="L346" href="LaguerreSolver.html#L346">346</a>                     pv = coefficients[j].add(z.multiply(pv));
+<a class="jxr_linenumber" name="L347" href="LaguerreSolver.html#L347">347</a>                 }
+<a class="jxr_linenumber" name="L348" href="LaguerreSolver.html#L348">348</a>                 d2v = d2v.multiply(<strong class="jxr_keyword">new</strong> <a href="../../complex/Complex.html">Complex</a>(2.0, 0.0));
+<a class="jxr_linenumber" name="L349" href="LaguerreSolver.html#L349">349</a> 
+<a class="jxr_linenumber" name="L350" href="LaguerreSolver.html#L350">350</a>                 <em class="jxr_comment">// Check for convergence.</em>
+<a class="jxr_linenumber" name="L351" href="LaguerreSolver.html#L351">351</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tolerance = FastMath.max(relativeAccuracy * z.abs(),
+<a class="jxr_linenumber" name="L352" href="LaguerreSolver.html#L352">352</a>                                                       absoluteAccuracy);
+<a class="jxr_linenumber" name="L353" href="LaguerreSolver.html#L353">353</a>                 <strong class="jxr_keyword">if</strong> ((z.subtract(oldz)).abs() &lt;= tolerance) {
+<a class="jxr_linenumber" name="L354" href="LaguerreSolver.html#L354">354</a>                     <strong class="jxr_keyword">return</strong> z;
+<a class="jxr_linenumber" name="L355" href="LaguerreSolver.html#L355">355</a>                 }
+<a class="jxr_linenumber" name="L356" href="LaguerreSolver.html#L356">356</a>                 <strong class="jxr_keyword">if</strong> (pv.abs() &lt;= functionValueAccuracy) {
+<a class="jxr_linenumber" name="L357" href="LaguerreSolver.html#L357">357</a>                     <strong class="jxr_keyword">return</strong> z;
+<a class="jxr_linenumber" name="L358" href="LaguerreSolver.html#L358">358</a>                 }
+<a class="jxr_linenumber" name="L359" href="LaguerreSolver.html#L359">359</a> 
+<a class="jxr_linenumber" name="L360" href="LaguerreSolver.html#L360">360</a>                 <em class="jxr_comment">// Now pv != 0, calculate the new approximation.</em>
+<a class="jxr_linenumber" name="L361" href="LaguerreSolver.html#L361">361</a>                 <strong class="jxr_keyword">final</strong> <a href="../../complex/Complex.html">Complex</a> G = dv.divide(pv);
+<a class="jxr_linenumber" name="L362" href="LaguerreSolver.html#L362">362</a>                 <strong class="jxr_keyword">final</strong> <a href="../../complex/Complex.html">Complex</a> G2 = G.multiply(G);
+<a class="jxr_linenumber" name="L363" href="LaguerreSolver.html#L363">363</a>                 <strong class="jxr_keyword">final</strong> <a href="../../complex/Complex.html">Complex</a> H = G2.subtract(d2v.divide(pv));
+<a class="jxr_linenumber" name="L364" href="LaguerreSolver.html#L364">364</a>                 <strong class="jxr_keyword">final</strong> <a href="../../complex/Complex.html">Complex</a> delta = n1C.multiply((nC.multiply(H)).subtract(G2));
+<a class="jxr_linenumber" name="L365" href="LaguerreSolver.html#L365">365</a>                 <em class="jxr_comment">// Choose a denominator larger in magnitude.</em>
+<a class="jxr_linenumber" name="L366" href="LaguerreSolver.html#L366">366</a>                 <strong class="jxr_keyword">final</strong> <a href="../../complex/Complex.html">Complex</a> deltaSqrt = delta.sqrt();
+<a class="jxr_linenumber" name="L367" href="LaguerreSolver.html#L367">367</a>                 <strong class="jxr_keyword">final</strong> <a href="../../complex/Complex.html">Complex</a> dplus = G.add(deltaSqrt);
+<a class="jxr_linenumber" name="L368" href="LaguerreSolver.html#L368">368</a>                 <strong class="jxr_keyword">final</strong> <a href="../../complex/Complex.html">Complex</a> dminus = G.subtract(deltaSqrt);
+<a class="jxr_linenumber" name="L369" href="LaguerreSolver.html#L369">369</a>                 <strong class="jxr_keyword">final</strong> <a href="../../complex/Complex.html">Complex</a> denominator = dplus.abs() &gt; dminus.abs() ? dplus : dminus;
+<a class="jxr_linenumber" name="L370" href="LaguerreSolver.html#L370">370</a>                 <em class="jxr_comment">// Perturb z if denominator is zero, for instance,</em>
+<a class="jxr_linenumber" name="L371" href="LaguerreSolver.html#L371">371</a>                 <em class="jxr_comment">// p(x) = x^3 + 1, z = 0.</em>
+<a class="jxr_linenumber" name="L372" href="LaguerreSolver.html#L372">372</a>                 <strong class="jxr_keyword">if</strong> (denominator.equals(<strong class="jxr_keyword">new</strong> Complex(0.0, 0.0))) {
+<a class="jxr_linenumber" name="L373" href="LaguerreSolver.html#L373">373</a>                     z = z.add(<strong class="jxr_keyword">new</strong> <a href="../../complex/Complex.html">Complex</a>(absoluteAccuracy, absoluteAccuracy));
+<a class="jxr_linenumber" name="L374" href="LaguerreSolver.html#L374">374</a>                     oldz = <strong class="jxr_keyword">new</strong> <a href="../../complex/Complex.html">Complex</a>(Double.POSITIVE_INFINITY,
+<a class="jxr_linenumber" name="L375" href="LaguerreSolver.html#L375">375</a>                                        Double.POSITIVE_INFINITY);
+<a class="jxr_linenumber" name="L376" href="LaguerreSolver.html#L376">376</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L377" href="LaguerreSolver.html#L377">377</a>                     oldz = z;
+<a class="jxr_linenumber" name="L378" href="LaguerreSolver.html#L378">378</a>                     z = z.subtract(nC.divide(denominator));
+<a class="jxr_linenumber" name="L379" href="LaguerreSolver.html#L379">379</a>                 }
+<a class="jxr_linenumber" name="L380" href="LaguerreSolver.html#L380">380</a>                 incrementEvaluationCount();
+<a class="jxr_linenumber" name="L381" href="LaguerreSolver.html#L381">381</a>             }
+<a class="jxr_linenumber" name="L382" href="LaguerreSolver.html#L382">382</a>         }
+<a class="jxr_linenumber" name="L383" href="LaguerreSolver.html#L383">383</a>     }
+<a class="jxr_linenumber" name="L384" href="LaguerreSolver.html#L384">384</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

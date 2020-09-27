@@ -1,0 +1,384 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>StatisticalReferenceDataset xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="http://commons.apache.org/proper/commons-math/testapidocs/org/apache/commons/math4/fitting/leastsquares/StatisticalReferenceDataset.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="StatisticalReferenceDataset.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="StatisticalReferenceDataset.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="StatisticalReferenceDataset.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="StatisticalReferenceDataset.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="StatisticalReferenceDataset.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="StatisticalReferenceDataset.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="StatisticalReferenceDataset.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="StatisticalReferenceDataset.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="StatisticalReferenceDataset.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="StatisticalReferenceDataset.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="StatisticalReferenceDataset.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="StatisticalReferenceDataset.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="StatisticalReferenceDataset.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="StatisticalReferenceDataset.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="StatisticalReferenceDataset.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="StatisticalReferenceDataset.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="StatisticalReferenceDataset.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.fitting.leastsquares;
+<a class="jxr_linenumber" name="L18" href="StatisticalReferenceDataset.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="StatisticalReferenceDataset.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.io.BufferedReader;
+<a class="jxr_linenumber" name="L20" href="StatisticalReferenceDataset.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L21" href="StatisticalReferenceDataset.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L22" href="StatisticalReferenceDataset.html#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="StatisticalReferenceDataset.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.MultivariateMatrixFunction;
+<a class="jxr_linenumber" name="L24" href="StatisticalReferenceDataset.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.MultivariateVectorFunction;
+<a class="jxr_linenumber" name="L25" href="StatisticalReferenceDataset.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L26" href="StatisticalReferenceDataset.html#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="StatisticalReferenceDataset.html#L27">27</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L28" href="StatisticalReferenceDataset.html#L28">28</a>  <em class="jxr_javadoccomment"> * This class gives access to the statistical reference datasets provided by the</em>
+<a class="jxr_linenumber" name="L29" href="StatisticalReferenceDataset.html#L29">29</a>  <em class="jxr_javadoccomment"> * NIST (available</em>
+<a class="jxr_linenumber" name="L30" href="StatisticalReferenceDataset.html#L30">30</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://www.itl.nist.gov/div898/strd/general/dataarchive.html" target="alexandria_uri">http://www.itl.nist.gov/div898/strd/general/dataarchive.html</a>"&gt;here&lt;/a&gt;).</em>
+<a class="jxr_linenumber" name="L31" href="StatisticalReferenceDataset.html#L31">31</a>  <em class="jxr_javadoccomment"> * Instances of this class can be created by invocation of the</em>
+<a class="jxr_linenumber" name="L32" href="StatisticalReferenceDataset.html#L32">32</a>  <em class="jxr_javadoccomment"> * {@link StatisticalReferenceDatasetFactory}.</em>
+<a class="jxr_linenumber" name="L33" href="StatisticalReferenceDataset.html#L33">33</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L34" href="StatisticalReferenceDataset.html#L34">34</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="StatisticalReferenceDataset.html">StatisticalReferenceDataset</a> {
+<a class="jxr_linenumber" name="L35" href="StatisticalReferenceDataset.html#L35">35</a>      <em class="jxr_javadoccomment">/** The name of this dataset. */</em>
+<a class="jxr_linenumber" name="L36" href="StatisticalReferenceDataset.html#L36">36</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String name;
+<a class="jxr_linenumber" name="L37" href="StatisticalReferenceDataset.html#L37">37</a>      <em class="jxr_javadoccomment">/** The total number of observations (data points). */</em>
+<a class="jxr_linenumber" name="L38" href="StatisticalReferenceDataset.html#L38">38</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numObservations;
+<a class="jxr_linenumber" name="L39" href="StatisticalReferenceDataset.html#L39">39</a>      <em class="jxr_javadoccomment">/** The total number of parameters. */</em>
+<a class="jxr_linenumber" name="L40" href="StatisticalReferenceDataset.html#L40">40</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numParameters;
+<a class="jxr_linenumber" name="L41" href="StatisticalReferenceDataset.html#L41">41</a>      <em class="jxr_javadoccomment">/** The total number of starting points for the optimizations. */</em>
+<a class="jxr_linenumber" name="L42" href="StatisticalReferenceDataset.html#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numStartingPoints;
+<a class="jxr_linenumber" name="L43" href="StatisticalReferenceDataset.html#L43">43</a>      <em class="jxr_javadoccomment">/** The values of the predictor. */</em>
+<a class="jxr_linenumber" name="L44" href="StatisticalReferenceDataset.html#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] x;
+<a class="jxr_linenumber" name="L45" href="StatisticalReferenceDataset.html#L45">45</a>      <em class="jxr_javadoccomment">/** The values of the response. */</em>
+<a class="jxr_linenumber" name="L46" href="StatisticalReferenceDataset.html#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] y;
+<a class="jxr_linenumber" name="L47" href="StatisticalReferenceDataset.html#L47">47</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L48" href="StatisticalReferenceDataset.html#L48">48</a>  <em class="jxr_javadoccomment">     * The starting values. {@code startingValues[j][i]} is the value of the</em>
+<a class="jxr_linenumber" name="L49" href="StatisticalReferenceDataset.html#L49">49</a>  <em class="jxr_javadoccomment">     * {@code i}-th parameter in the {@code j}-th set of starting values.</em>
+<a class="jxr_linenumber" name="L50" href="StatisticalReferenceDataset.html#L50">50</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L51" href="StatisticalReferenceDataset.html#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] startingValues;
+<a class="jxr_linenumber" name="L52" href="StatisticalReferenceDataset.html#L52">52</a>      <em class="jxr_javadoccomment">/** The certified values of the parameters. */</em>
+<a class="jxr_linenumber" name="L53" href="StatisticalReferenceDataset.html#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] a;
+<a class="jxr_linenumber" name="L54" href="StatisticalReferenceDataset.html#L54">54</a>      <em class="jxr_javadoccomment">/** The certified values of the standard deviation of the parameters. */</em>
+<a class="jxr_linenumber" name="L55" href="StatisticalReferenceDataset.html#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] sigA;
+<a class="jxr_linenumber" name="L56" href="StatisticalReferenceDataset.html#L56">56</a>      <em class="jxr_javadoccomment">/** The certified value of the residual sum of squares. */</em>
+<a class="jxr_linenumber" name="L57" href="StatisticalReferenceDataset.html#L57">57</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> residualSumOfSquares;
+<a class="jxr_linenumber" name="L58" href="StatisticalReferenceDataset.html#L58">58</a>      <em class="jxr_javadoccomment">/** The least-squares problem. */</em>
+<a class="jxr_linenumber" name="L59" href="StatisticalReferenceDataset.html#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="StatisticalReferenceDataset.html">LeastSquaresProblem</a> problem;
+<a class="jxr_linenumber" name="L60" href="StatisticalReferenceDataset.html#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="StatisticalReferenceDataset.html#L61">61</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L62" href="StatisticalReferenceDataset.html#L62">62</a>  <em class="jxr_javadoccomment">     * Creates a new instance of this class from the specified data file. The</em>
+<a class="jxr_linenumber" name="L63" href="StatisticalReferenceDataset.html#L63">63</a>  <em class="jxr_javadoccomment">     * file must follow the StRD format.</em>
+<a class="jxr_linenumber" name="L64" href="StatisticalReferenceDataset.html#L64">64</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L65" href="StatisticalReferenceDataset.html#L65">65</a>  <em class="jxr_javadoccomment">     * @param in the data file</em>
+<a class="jxr_linenumber" name="L66" href="StatisticalReferenceDataset.html#L66">66</a>  <em class="jxr_javadoccomment">     * @throws IOException if an I/O error occurs</em>
+<a class="jxr_linenumber" name="L67" href="StatisticalReferenceDataset.html#L67">67</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L68" href="StatisticalReferenceDataset.html#L68">68</a>      <strong class="jxr_keyword">public</strong> <a href="StatisticalReferenceDataset.html">StatisticalReferenceDataset</a>(<strong class="jxr_keyword">final</strong> BufferedReader in)
+<a class="jxr_linenumber" name="L69" href="StatisticalReferenceDataset.html#L69">69</a>          <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L70" href="StatisticalReferenceDataset.html#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="StatisticalReferenceDataset.html#L71">71</a>          <strong class="jxr_keyword">final</strong> ArrayList&lt;String&gt; lines = <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;();
+<a class="jxr_linenumber" name="L72" href="StatisticalReferenceDataset.html#L72">72</a>          <strong class="jxr_keyword">for</strong> (String line = in.readLine(); line != <strong class="jxr_keyword">null</strong>; line = in.readLine()) {
+<a class="jxr_linenumber" name="L73" href="StatisticalReferenceDataset.html#L73">73</a>              lines.add(line);
+<a class="jxr_linenumber" name="L74" href="StatisticalReferenceDataset.html#L74">74</a>          }
+<a class="jxr_linenumber" name="L75" href="StatisticalReferenceDataset.html#L75">75</a>          <strong class="jxr_keyword">int</strong>[] index = findLineNumbers(<span class="jxr_string">"Data"</span>, lines);
+<a class="jxr_linenumber" name="L76" href="StatisticalReferenceDataset.html#L76">76</a>          <strong class="jxr_keyword">if</strong> (index == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L77" href="StatisticalReferenceDataset.html#L77">77</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> AssertionError(<span class="jxr_string">"could not find line indices for data"</span>);
+<a class="jxr_linenumber" name="L78" href="StatisticalReferenceDataset.html#L78">78</a>          }
+<a class="jxr_linenumber" name="L79" href="StatisticalReferenceDataset.html#L79">79</a>          <strong class="jxr_keyword">this</strong>.numObservations = index[1] - index[0] + 1;
+<a class="jxr_linenumber" name="L80" href="StatisticalReferenceDataset.html#L80">80</a>          <strong class="jxr_keyword">this</strong>.x = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[<strong class="jxr_keyword">this</strong>.numObservations];
+<a class="jxr_linenumber" name="L81" href="StatisticalReferenceDataset.html#L81">81</a>          <strong class="jxr_keyword">this</strong>.y = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[<strong class="jxr_keyword">this</strong>.numObservations];
+<a class="jxr_linenumber" name="L82" href="StatisticalReferenceDataset.html#L82">82</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; <strong class="jxr_keyword">this</strong>.numObservations; i++) {
+<a class="jxr_linenumber" name="L83" href="StatisticalReferenceDataset.html#L83">83</a>              <strong class="jxr_keyword">final</strong> String line = lines.get(index[0] + i - 1);
+<a class="jxr_linenumber" name="L84" href="StatisticalReferenceDataset.html#L84">84</a>              <strong class="jxr_keyword">final</strong> String[] tokens = line.trim().split(<span class="jxr_string">" ++"</span>);
+<a class="jxr_linenumber" name="L85" href="StatisticalReferenceDataset.html#L85">85</a>              <em class="jxr_comment">// Data columns are in reverse order!!!</em>
+<a class="jxr_linenumber" name="L86" href="StatisticalReferenceDataset.html#L86">86</a>              <strong class="jxr_keyword">this</strong>.y[i] = Double.parseDouble(tokens[0]);
+<a class="jxr_linenumber" name="L87" href="StatisticalReferenceDataset.html#L87">87</a>              <strong class="jxr_keyword">this</strong>.x[i] = Double.parseDouble(tokens[1]);
+<a class="jxr_linenumber" name="L88" href="StatisticalReferenceDataset.html#L88">88</a>          }
+<a class="jxr_linenumber" name="L89" href="StatisticalReferenceDataset.html#L89">89</a>  
+<a class="jxr_linenumber" name="L90" href="StatisticalReferenceDataset.html#L90">90</a>          index = findLineNumbers(<span class="jxr_string">"Starting Values"</span>, lines);
+<a class="jxr_linenumber" name="L91" href="StatisticalReferenceDataset.html#L91">91</a>          <strong class="jxr_keyword">if</strong> (index == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L92" href="StatisticalReferenceDataset.html#L92">92</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> AssertionError(
+<a class="jxr_linenumber" name="L93" href="StatisticalReferenceDataset.html#L93">93</a>                                       <span class="jxr_string">"could not find line indices for starting values"</span>);
+<a class="jxr_linenumber" name="L94" href="StatisticalReferenceDataset.html#L94">94</a>          }
+<a class="jxr_linenumber" name="L95" href="StatisticalReferenceDataset.html#L95">95</a>          <strong class="jxr_keyword">this</strong>.numParameters = index[1] - index[0] + 1;
+<a class="jxr_linenumber" name="L96" href="StatisticalReferenceDataset.html#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="StatisticalReferenceDataset.html#L97">97</a>          <strong class="jxr_keyword">double</strong>[][] start = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L98" href="StatisticalReferenceDataset.html#L98">98</a>          <strong class="jxr_keyword">this</strong>.a = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[numParameters];
+<a class="jxr_linenumber" name="L99" href="StatisticalReferenceDataset.html#L99">99</a>          <strong class="jxr_keyword">this</strong>.sigA = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[numParameters];
+<a class="jxr_linenumber" name="L100" href="StatisticalReferenceDataset.html#L100">100</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; numParameters; i++) {
+<a class="jxr_linenumber" name="L101" href="StatisticalReferenceDataset.html#L101">101</a>             <strong class="jxr_keyword">final</strong> String line = lines.get(index[0] + i - 1);
+<a class="jxr_linenumber" name="L102" href="StatisticalReferenceDataset.html#L102">102</a>             <strong class="jxr_keyword">final</strong> String[] tokens = line.trim().split(<span class="jxr_string">" ++"</span>);
+<a class="jxr_linenumber" name="L103" href="StatisticalReferenceDataset.html#L103">103</a>             <strong class="jxr_keyword">if</strong> (start == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L104" href="StatisticalReferenceDataset.html#L104">104</a>                 start = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[tokens.length - 4][numParameters];
+<a class="jxr_linenumber" name="L105" href="StatisticalReferenceDataset.html#L105">105</a>             }
+<a class="jxr_linenumber" name="L106" href="StatisticalReferenceDataset.html#L106">106</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 2; j &lt; tokens.length - 2; j++) {
+<a class="jxr_linenumber" name="L107" href="StatisticalReferenceDataset.html#L107">107</a>                 start[j - 2][i] = Double.parseDouble(tokens[j]);
+<a class="jxr_linenumber" name="L108" href="StatisticalReferenceDataset.html#L108">108</a>             }
+<a class="jxr_linenumber" name="L109" href="StatisticalReferenceDataset.html#L109">109</a>             <strong class="jxr_keyword">this</strong>.a[i] = Double.parseDouble(tokens[tokens.length - 2]);
+<a class="jxr_linenumber" name="L110" href="StatisticalReferenceDataset.html#L110">110</a>             <strong class="jxr_keyword">this</strong>.sigA[i] = Double.parseDouble(tokens[tokens.length - 1]);
+<a class="jxr_linenumber" name="L111" href="StatisticalReferenceDataset.html#L111">111</a>         }
+<a class="jxr_linenumber" name="L112" href="StatisticalReferenceDataset.html#L112">112</a>         <strong class="jxr_keyword">if</strong> (start == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L113" href="StatisticalReferenceDataset.html#L113">113</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException(<span class="jxr_string">"could not find starting values"</span>);
+<a class="jxr_linenumber" name="L114" href="StatisticalReferenceDataset.html#L114">114</a>         }
+<a class="jxr_linenumber" name="L115" href="StatisticalReferenceDataset.html#L115">115</a>         <strong class="jxr_keyword">this</strong>.numStartingPoints = start.length;
+<a class="jxr_linenumber" name="L116" href="StatisticalReferenceDataset.html#L116">116</a>         <strong class="jxr_keyword">this</strong>.startingValues = start;
+<a class="jxr_linenumber" name="L117" href="StatisticalReferenceDataset.html#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="StatisticalReferenceDataset.html#L118">118</a>         <strong class="jxr_keyword">double</strong> dummyDouble = Double.NaN;
+<a class="jxr_linenumber" name="L119" href="StatisticalReferenceDataset.html#L119">119</a>         String dummyString = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L120" href="StatisticalReferenceDataset.html#L120">120</a>         <strong class="jxr_keyword">for</strong> (String line : lines) {
+<a class="jxr_linenumber" name="L121" href="StatisticalReferenceDataset.html#L121">121</a>             <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"Dataset Name:"</span>)) {
+<a class="jxr_linenumber" name="L122" href="StatisticalReferenceDataset.html#L122">122</a>                 dummyString = line
+<a class="jxr_linenumber" name="L123" href="StatisticalReferenceDataset.html#L123">123</a>                     .substring(line.indexOf(<span class="jxr_string">"Dataset Name:"</span>) + 13,
+<a class="jxr_linenumber" name="L124" href="StatisticalReferenceDataset.html#L124">124</a>                                line.indexOf(<span class="jxr_string">"("</span>)).trim();
+<a class="jxr_linenumber" name="L125" href="StatisticalReferenceDataset.html#L125">125</a>             }
+<a class="jxr_linenumber" name="L126" href="StatisticalReferenceDataset.html#L126">126</a>             <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"Residual Sum of Squares"</span>)) {
+<a class="jxr_linenumber" name="L127" href="StatisticalReferenceDataset.html#L127">127</a>                 <strong class="jxr_keyword">final</strong> String[] tokens = line.split(<span class="jxr_string">" ++"</span>);
+<a class="jxr_linenumber" name="L128" href="StatisticalReferenceDataset.html#L128">128</a>                 dummyDouble = Double.parseDouble(tokens[4].trim());
+<a class="jxr_linenumber" name="L129" href="StatisticalReferenceDataset.html#L129">129</a>             }
+<a class="jxr_linenumber" name="L130" href="StatisticalReferenceDataset.html#L130">130</a>         }
+<a class="jxr_linenumber" name="L131" href="StatisticalReferenceDataset.html#L131">131</a>         <strong class="jxr_keyword">if</strong> (Double.isNaN(dummyDouble)) {
+<a class="jxr_linenumber" name="L132" href="StatisticalReferenceDataset.html#L132">132</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException(
+<a class="jxr_linenumber" name="L133" href="StatisticalReferenceDataset.html#L133">133</a>                                   <span class="jxr_string">"could not find certified value of residual sum of squares"</span>);
+<a class="jxr_linenumber" name="L134" href="StatisticalReferenceDataset.html#L134">134</a>         }
+<a class="jxr_linenumber" name="L135" href="StatisticalReferenceDataset.html#L135">135</a>         <strong class="jxr_keyword">this</strong>.residualSumOfSquares = dummyDouble;
+<a class="jxr_linenumber" name="L136" href="StatisticalReferenceDataset.html#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="StatisticalReferenceDataset.html#L137">137</a>         <strong class="jxr_keyword">if</strong> (dummyString == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L138" href="StatisticalReferenceDataset.html#L138">138</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException(<span class="jxr_string">"could not find dataset name"</span>);
+<a class="jxr_linenumber" name="L139" href="StatisticalReferenceDataset.html#L139">139</a>         }
+<a class="jxr_linenumber" name="L140" href="StatisticalReferenceDataset.html#L140">140</a>         <strong class="jxr_keyword">this</strong>.name = dummyString;
+<a class="jxr_linenumber" name="L141" href="StatisticalReferenceDataset.html#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="StatisticalReferenceDataset.html#L142">142</a>         <strong class="jxr_keyword">this</strong>.problem = <strong class="jxr_keyword">new</strong> <a href="StatisticalReferenceDataset.html">LeastSquaresProblem</a>();
+<a class="jxr_linenumber" name="L143" href="StatisticalReferenceDataset.html#L143">143</a>     }
+<a class="jxr_linenumber" name="L144" href="StatisticalReferenceDataset.html#L144">144</a> 
+<a class="jxr_linenumber" name="L145" href="StatisticalReferenceDataset.html#L145">145</a>     <strong class="jxr_keyword">class</strong> <a href="StatisticalReferenceDataset.html">LeastSquaresProblem</a> {
+<a class="jxr_linenumber" name="L146" href="StatisticalReferenceDataset.html#L146">146</a>         <strong class="jxr_keyword">public</strong> MultivariateVectorFunction getModelFunction() {
+<a class="jxr_linenumber" name="L147" href="StatisticalReferenceDataset.html#L147">147</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> MultivariateVectorFunction() {
+<a class="jxr_linenumber" name="L148" href="StatisticalReferenceDataset.html#L148">148</a>                 <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] value(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] a) {
+<a class="jxr_linenumber" name="L149" href="StatisticalReferenceDataset.html#L149">149</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = getNumObservations();
+<a class="jxr_linenumber" name="L150" href="StatisticalReferenceDataset.html#L150">150</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yhat = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n];
+<a class="jxr_linenumber" name="L151" href="StatisticalReferenceDataset.html#L151">151</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L152" href="StatisticalReferenceDataset.html#L152">152</a>                         yhat[i] = getModelValue(getX(i), a);
+<a class="jxr_linenumber" name="L153" href="StatisticalReferenceDataset.html#L153">153</a>                     }
+<a class="jxr_linenumber" name="L154" href="StatisticalReferenceDataset.html#L154">154</a>                     <strong class="jxr_keyword">return</strong> yhat;
+<a class="jxr_linenumber" name="L155" href="StatisticalReferenceDataset.html#L155">155</a>                 }
+<a class="jxr_linenumber" name="L156" href="StatisticalReferenceDataset.html#L156">156</a>             };
+<a class="jxr_linenumber" name="L157" href="StatisticalReferenceDataset.html#L157">157</a>         }
+<a class="jxr_linenumber" name="L158" href="StatisticalReferenceDataset.html#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="StatisticalReferenceDataset.html#L159">159</a>         <strong class="jxr_keyword">public</strong> MultivariateMatrixFunction getModelFunctionJacobian() {
+<a class="jxr_linenumber" name="L160" href="StatisticalReferenceDataset.html#L160">160</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> MultivariateMatrixFunction() {
+<a class="jxr_linenumber" name="L161" href="StatisticalReferenceDataset.html#L161">161</a>                 <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[][] value(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] a)
+<a class="jxr_linenumber" name="L162" href="StatisticalReferenceDataset.html#L162">162</a>                     <strong class="jxr_keyword">throws</strong> IllegalArgumentException {
+<a class="jxr_linenumber" name="L163" href="StatisticalReferenceDataset.html#L163">163</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = getNumObservations();
+<a class="jxr_linenumber" name="L164" href="StatisticalReferenceDataset.html#L164">164</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] j = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n][];
+<a class="jxr_linenumber" name="L165" href="StatisticalReferenceDataset.html#L165">165</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L166" href="StatisticalReferenceDataset.html#L166">166</a>                         j[i] = getModelDerivatives(getX(i), a);
+<a class="jxr_linenumber" name="L167" href="StatisticalReferenceDataset.html#L167">167</a>                     }
+<a class="jxr_linenumber" name="L168" href="StatisticalReferenceDataset.html#L168">168</a>                     <strong class="jxr_keyword">return</strong> j;
+<a class="jxr_linenumber" name="L169" href="StatisticalReferenceDataset.html#L169">169</a>                 }
+<a class="jxr_linenumber" name="L170" href="StatisticalReferenceDataset.html#L170">170</a>             };
+<a class="jxr_linenumber" name="L171" href="StatisticalReferenceDataset.html#L171">171</a>         }
+<a class="jxr_linenumber" name="L172" href="StatisticalReferenceDataset.html#L172">172</a>     }
+<a class="jxr_linenumber" name="L173" href="StatisticalReferenceDataset.html#L173">173</a> 
+<a class="jxr_linenumber" name="L174" href="StatisticalReferenceDataset.html#L174">174</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L175" href="StatisticalReferenceDataset.html#L175">175</a> <em class="jxr_javadoccomment">     * Returns the name of this dataset.</em>
+<a class="jxr_linenumber" name="L176" href="StatisticalReferenceDataset.html#L176">176</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L177" href="StatisticalReferenceDataset.html#L177">177</a> <em class="jxr_javadoccomment">     * @return the name of the dataset</em>
+<a class="jxr_linenumber" name="L178" href="StatisticalReferenceDataset.html#L178">178</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L179" href="StatisticalReferenceDataset.html#L179">179</a>     <strong class="jxr_keyword">public</strong> String getName() {
+<a class="jxr_linenumber" name="L180" href="StatisticalReferenceDataset.html#L180">180</a>         <strong class="jxr_keyword">return</strong> name;
+<a class="jxr_linenumber" name="L181" href="StatisticalReferenceDataset.html#L181">181</a>     }
+<a class="jxr_linenumber" name="L182" href="StatisticalReferenceDataset.html#L182">182</a> 
+<a class="jxr_linenumber" name="L183" href="StatisticalReferenceDataset.html#L183">183</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L184" href="StatisticalReferenceDataset.html#L184">184</a> <em class="jxr_javadoccomment">     * Returns the total number of observations (data points).</em>
+<a class="jxr_linenumber" name="L185" href="StatisticalReferenceDataset.html#L185">185</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L186" href="StatisticalReferenceDataset.html#L186">186</a> <em class="jxr_javadoccomment">     * @return the number of observations</em>
+<a class="jxr_linenumber" name="L187" href="StatisticalReferenceDataset.html#L187">187</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L188" href="StatisticalReferenceDataset.html#L188">188</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getNumObservations() {
+<a class="jxr_linenumber" name="L189" href="StatisticalReferenceDataset.html#L189">189</a>         <strong class="jxr_keyword">return</strong> numObservations;
+<a class="jxr_linenumber" name="L190" href="StatisticalReferenceDataset.html#L190">190</a>     }
+<a class="jxr_linenumber" name="L191" href="StatisticalReferenceDataset.html#L191">191</a> 
+<a class="jxr_linenumber" name="L192" href="StatisticalReferenceDataset.html#L192">192</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L193" href="StatisticalReferenceDataset.html#L193">193</a> <em class="jxr_javadoccomment">     * Returns a copy of the data arrays. The data is laid out as follows &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L194" href="StatisticalReferenceDataset.html#L194">194</a> <em class="jxr_javadoccomment">     * {@code data[0][i] = x[i]},&lt;/li&gt; &lt;li&gt;{@code data[1][i] = y[i]},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L195" href="StatisticalReferenceDataset.html#L195">195</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L196" href="StatisticalReferenceDataset.html#L196">196</a> <em class="jxr_javadoccomment">     * @return the array of data points.</em>
+<a class="jxr_linenumber" name="L197" href="StatisticalReferenceDataset.html#L197">197</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L198" href="StatisticalReferenceDataset.html#L198">198</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[][] getData() {
+<a class="jxr_linenumber" name="L199" href="StatisticalReferenceDataset.html#L199">199</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L200" href="StatisticalReferenceDataset.html#L200">200</a>             MathArrays.copyOf(x), MathArrays.copyOf(y)
+<a class="jxr_linenumber" name="L201" href="StatisticalReferenceDataset.html#L201">201</a>         };
+<a class="jxr_linenumber" name="L202" href="StatisticalReferenceDataset.html#L202">202</a>     }
+<a class="jxr_linenumber" name="L203" href="StatisticalReferenceDataset.html#L203">203</a> 
+<a class="jxr_linenumber" name="L204" href="StatisticalReferenceDataset.html#L204">204</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L205" href="StatisticalReferenceDataset.html#L205">205</a> <em class="jxr_javadoccomment">     * Returns the x-value of the {@code i}-th data point.</em>
+<a class="jxr_linenumber" name="L206" href="StatisticalReferenceDataset.html#L206">206</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L207" href="StatisticalReferenceDataset.html#L207">207</a> <em class="jxr_javadoccomment">     * @param i the index of the data point</em>
+<a class="jxr_linenumber" name="L208" href="StatisticalReferenceDataset.html#L208">208</a> <em class="jxr_javadoccomment">     * @return the x-value</em>
+<a class="jxr_linenumber" name="L209" href="StatisticalReferenceDataset.html#L209">209</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L210" href="StatisticalReferenceDataset.html#L210">210</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getX(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i) {
+<a class="jxr_linenumber" name="L211" href="StatisticalReferenceDataset.html#L211">211</a>         <strong class="jxr_keyword">return</strong> x[i];
+<a class="jxr_linenumber" name="L212" href="StatisticalReferenceDataset.html#L212">212</a>     }
+<a class="jxr_linenumber" name="L213" href="StatisticalReferenceDataset.html#L213">213</a> 
+<a class="jxr_linenumber" name="L214" href="StatisticalReferenceDataset.html#L214">214</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L215" href="StatisticalReferenceDataset.html#L215">215</a> <em class="jxr_javadoccomment">     * Returns the y-value of the {@code i}-th data point.</em>
+<a class="jxr_linenumber" name="L216" href="StatisticalReferenceDataset.html#L216">216</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L217" href="StatisticalReferenceDataset.html#L217">217</a> <em class="jxr_javadoccomment">     * @param i the index of the data point</em>
+<a class="jxr_linenumber" name="L218" href="StatisticalReferenceDataset.html#L218">218</a> <em class="jxr_javadoccomment">     * @return the y-value</em>
+<a class="jxr_linenumber" name="L219" href="StatisticalReferenceDataset.html#L219">219</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L220" href="StatisticalReferenceDataset.html#L220">220</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getY(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i) {
+<a class="jxr_linenumber" name="L221" href="StatisticalReferenceDataset.html#L221">221</a>         <strong class="jxr_keyword">return</strong> y[i];
+<a class="jxr_linenumber" name="L222" href="StatisticalReferenceDataset.html#L222">222</a>     }
+<a class="jxr_linenumber" name="L223" href="StatisticalReferenceDataset.html#L223">223</a> 
+<a class="jxr_linenumber" name="L224" href="StatisticalReferenceDataset.html#L224">224</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L225" href="StatisticalReferenceDataset.html#L225">225</a> <em class="jxr_javadoccomment">     * Returns the total number of parameters.</em>
+<a class="jxr_linenumber" name="L226" href="StatisticalReferenceDataset.html#L226">226</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L227" href="StatisticalReferenceDataset.html#L227">227</a> <em class="jxr_javadoccomment">     * @return the number of parameters</em>
+<a class="jxr_linenumber" name="L228" href="StatisticalReferenceDataset.html#L228">228</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L229" href="StatisticalReferenceDataset.html#L229">229</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getNumParameters() {
+<a class="jxr_linenumber" name="L230" href="StatisticalReferenceDataset.html#L230">230</a>         <strong class="jxr_keyword">return</strong> numParameters;
+<a class="jxr_linenumber" name="L231" href="StatisticalReferenceDataset.html#L231">231</a>     }
+<a class="jxr_linenumber" name="L232" href="StatisticalReferenceDataset.html#L232">232</a> 
+<a class="jxr_linenumber" name="L233" href="StatisticalReferenceDataset.html#L233">233</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L234" href="StatisticalReferenceDataset.html#L234">234</a> <em class="jxr_javadoccomment">     * Returns the certified values of the paramters.</em>
+<a class="jxr_linenumber" name="L235" href="StatisticalReferenceDataset.html#L235">235</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L236" href="StatisticalReferenceDataset.html#L236">236</a> <em class="jxr_javadoccomment">     * @return the values of the parameters</em>
+<a class="jxr_linenumber" name="L237" href="StatisticalReferenceDataset.html#L237">237</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L238" href="StatisticalReferenceDataset.html#L238">238</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getParameters() {
+<a class="jxr_linenumber" name="L239" href="StatisticalReferenceDataset.html#L239">239</a>         <strong class="jxr_keyword">return</strong> MathArrays.copyOf(a);
+<a class="jxr_linenumber" name="L240" href="StatisticalReferenceDataset.html#L240">240</a>     }
+<a class="jxr_linenumber" name="L241" href="StatisticalReferenceDataset.html#L241">241</a> 
+<a class="jxr_linenumber" name="L242" href="StatisticalReferenceDataset.html#L242">242</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L243" href="StatisticalReferenceDataset.html#L243">243</a> <em class="jxr_javadoccomment">     * Returns the certified value of the {@code i}-th parameter.</em>
+<a class="jxr_linenumber" name="L244" href="StatisticalReferenceDataset.html#L244">244</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L245" href="StatisticalReferenceDataset.html#L245">245</a> <em class="jxr_javadoccomment">     * @param i the index of the parameter</em>
+<a class="jxr_linenumber" name="L246" href="StatisticalReferenceDataset.html#L246">246</a> <em class="jxr_javadoccomment">     * @return the value of the parameter</em>
+<a class="jxr_linenumber" name="L247" href="StatisticalReferenceDataset.html#L247">247</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L248" href="StatisticalReferenceDataset.html#L248">248</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getParameter(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i) {
+<a class="jxr_linenumber" name="L249" href="StatisticalReferenceDataset.html#L249">249</a>         <strong class="jxr_keyword">return</strong> a[i];
+<a class="jxr_linenumber" name="L250" href="StatisticalReferenceDataset.html#L250">250</a>     }
+<a class="jxr_linenumber" name="L251" href="StatisticalReferenceDataset.html#L251">251</a> 
+<a class="jxr_linenumber" name="L252" href="StatisticalReferenceDataset.html#L252">252</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L253" href="StatisticalReferenceDataset.html#L253">253</a> <em class="jxr_javadoccomment">     * Reurns the certified values of the standard deviations of the parameters.</em>
+<a class="jxr_linenumber" name="L254" href="StatisticalReferenceDataset.html#L254">254</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L255" href="StatisticalReferenceDataset.html#L255">255</a> <em class="jxr_javadoccomment">     * @return the standard deviations of the parameters</em>
+<a class="jxr_linenumber" name="L256" href="StatisticalReferenceDataset.html#L256">256</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L257" href="StatisticalReferenceDataset.html#L257">257</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getParametersStandardDeviations() {
+<a class="jxr_linenumber" name="L258" href="StatisticalReferenceDataset.html#L258">258</a>         <strong class="jxr_keyword">return</strong> MathArrays.copyOf(sigA);
+<a class="jxr_linenumber" name="L259" href="StatisticalReferenceDataset.html#L259">259</a>     }
+<a class="jxr_linenumber" name="L260" href="StatisticalReferenceDataset.html#L260">260</a> 
+<a class="jxr_linenumber" name="L261" href="StatisticalReferenceDataset.html#L261">261</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L262" href="StatisticalReferenceDataset.html#L262">262</a> <em class="jxr_javadoccomment">     * Returns the certified value of the standard deviation of the {@code i}-th</em>
+<a class="jxr_linenumber" name="L263" href="StatisticalReferenceDataset.html#L263">263</a> <em class="jxr_javadoccomment">     * parameter.</em>
+<a class="jxr_linenumber" name="L264" href="StatisticalReferenceDataset.html#L264">264</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L265" href="StatisticalReferenceDataset.html#L265">265</a> <em class="jxr_javadoccomment">     * @param i the index of the parameter</em>
+<a class="jxr_linenumber" name="L266" href="StatisticalReferenceDataset.html#L266">266</a> <em class="jxr_javadoccomment">     * @return the standard deviation of the parameter</em>
+<a class="jxr_linenumber" name="L267" href="StatisticalReferenceDataset.html#L267">267</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L268" href="StatisticalReferenceDataset.html#L268">268</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getParameterStandardDeviation(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i) {
+<a class="jxr_linenumber" name="L269" href="StatisticalReferenceDataset.html#L269">269</a>         <strong class="jxr_keyword">return</strong> sigA[i];
+<a class="jxr_linenumber" name="L270" href="StatisticalReferenceDataset.html#L270">270</a>     }
+<a class="jxr_linenumber" name="L271" href="StatisticalReferenceDataset.html#L271">271</a> 
+<a class="jxr_linenumber" name="L272" href="StatisticalReferenceDataset.html#L272">272</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L273" href="StatisticalReferenceDataset.html#L273">273</a> <em class="jxr_javadoccomment">     * Returns the certified value of the residual sum of squares.</em>
+<a class="jxr_linenumber" name="L274" href="StatisticalReferenceDataset.html#L274">274</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L275" href="StatisticalReferenceDataset.html#L275">275</a> <em class="jxr_javadoccomment">     * @return the residual sum of squares</em>
+<a class="jxr_linenumber" name="L276" href="StatisticalReferenceDataset.html#L276">276</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L277" href="StatisticalReferenceDataset.html#L277">277</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getResidualSumOfSquares() {
+<a class="jxr_linenumber" name="L278" href="StatisticalReferenceDataset.html#L278">278</a>         <strong class="jxr_keyword">return</strong> residualSumOfSquares;
+<a class="jxr_linenumber" name="L279" href="StatisticalReferenceDataset.html#L279">279</a>     }
+<a class="jxr_linenumber" name="L280" href="StatisticalReferenceDataset.html#L280">280</a> 
+<a class="jxr_linenumber" name="L281" href="StatisticalReferenceDataset.html#L281">281</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L282" href="StatisticalReferenceDataset.html#L282">282</a> <em class="jxr_javadoccomment">     * Returns the total number of starting points (initial guesses for the</em>
+<a class="jxr_linenumber" name="L283" href="StatisticalReferenceDataset.html#L283">283</a> <em class="jxr_javadoccomment">     * optimization process).</em>
+<a class="jxr_linenumber" name="L284" href="StatisticalReferenceDataset.html#L284">284</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L285" href="StatisticalReferenceDataset.html#L285">285</a> <em class="jxr_javadoccomment">     * @return the number of starting points</em>
+<a class="jxr_linenumber" name="L286" href="StatisticalReferenceDataset.html#L286">286</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L287" href="StatisticalReferenceDataset.html#L287">287</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getNumStartingPoints() {
+<a class="jxr_linenumber" name="L288" href="StatisticalReferenceDataset.html#L288">288</a>         <strong class="jxr_keyword">return</strong> numStartingPoints;
+<a class="jxr_linenumber" name="L289" href="StatisticalReferenceDataset.html#L289">289</a>     }
+<a class="jxr_linenumber" name="L290" href="StatisticalReferenceDataset.html#L290">290</a> 
+<a class="jxr_linenumber" name="L291" href="StatisticalReferenceDataset.html#L291">291</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L292" href="StatisticalReferenceDataset.html#L292">292</a> <em class="jxr_javadoccomment">     * Returns the {@code i}-th set of initial values of the parameters.</em>
+<a class="jxr_linenumber" name="L293" href="StatisticalReferenceDataset.html#L293">293</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L294" href="StatisticalReferenceDataset.html#L294">294</a> <em class="jxr_javadoccomment">     * @param i the index of the starting point</em>
+<a class="jxr_linenumber" name="L295" href="StatisticalReferenceDataset.html#L295">295</a> <em class="jxr_javadoccomment">     * @return the starting point</em>
+<a class="jxr_linenumber" name="L296" href="StatisticalReferenceDataset.html#L296">296</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L297" href="StatisticalReferenceDataset.html#L297">297</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getStartingPoint(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i) {
+<a class="jxr_linenumber" name="L298" href="StatisticalReferenceDataset.html#L298">298</a>         <strong class="jxr_keyword">return</strong> MathArrays.copyOf(startingValues[i]);
+<a class="jxr_linenumber" name="L299" href="StatisticalReferenceDataset.html#L299">299</a>     }
+<a class="jxr_linenumber" name="L300" href="StatisticalReferenceDataset.html#L300">300</a> 
+<a class="jxr_linenumber" name="L301" href="StatisticalReferenceDataset.html#L301">301</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L302" href="StatisticalReferenceDataset.html#L302">302</a> <em class="jxr_javadoccomment">     * Returns the least-squares problem corresponding to fitting the model to</em>
+<a class="jxr_linenumber" name="L303" href="StatisticalReferenceDataset.html#L303">303</a> <em class="jxr_javadoccomment">     * the specified data.</em>
+<a class="jxr_linenumber" name="L304" href="StatisticalReferenceDataset.html#L304">304</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L305" href="StatisticalReferenceDataset.html#L305">305</a> <em class="jxr_javadoccomment">     * @return the least-squares problem</em>
+<a class="jxr_linenumber" name="L306" href="StatisticalReferenceDataset.html#L306">306</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L307" href="StatisticalReferenceDataset.html#L307">307</a>     <strong class="jxr_keyword">public</strong> <a href="StatisticalReferenceDataset.html">LeastSquaresProblem</a> getLeastSquaresProblem() {
+<a class="jxr_linenumber" name="L308" href="StatisticalReferenceDataset.html#L308">308</a>         <strong class="jxr_keyword">return</strong> problem;
+<a class="jxr_linenumber" name="L309" href="StatisticalReferenceDataset.html#L309">309</a>     }
+<a class="jxr_linenumber" name="L310" href="StatisticalReferenceDataset.html#L310">310</a> 
+<a class="jxr_linenumber" name="L311" href="StatisticalReferenceDataset.html#L311">311</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L312" href="StatisticalReferenceDataset.html#L312">312</a> <em class="jxr_javadoccomment">     * Returns the value of the model for the specified values of the predictor</em>
+<a class="jxr_linenumber" name="L313" href="StatisticalReferenceDataset.html#L313">313</a> <em class="jxr_javadoccomment">     * variable and the parameters.</em>
+<a class="jxr_linenumber" name="L314" href="StatisticalReferenceDataset.html#L314">314</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L315" href="StatisticalReferenceDataset.html#L315">315</a> <em class="jxr_javadoccomment">     * @param x the predictor variable</em>
+<a class="jxr_linenumber" name="L316" href="StatisticalReferenceDataset.html#L316">316</a> <em class="jxr_javadoccomment">     * @param a the parameters</em>
+<a class="jxr_linenumber" name="L317" href="StatisticalReferenceDataset.html#L317">317</a> <em class="jxr_javadoccomment">     * @return the value of the model</em>
+<a class="jxr_linenumber" name="L318" href="StatisticalReferenceDataset.html#L318">318</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L319" href="StatisticalReferenceDataset.html#L319">319</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">double</strong> getModelValue(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] a);
+<a class="jxr_linenumber" name="L320" href="StatisticalReferenceDataset.html#L320">320</a> 
+<a class="jxr_linenumber" name="L321" href="StatisticalReferenceDataset.html#L321">321</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L322" href="StatisticalReferenceDataset.html#L322">322</a> <em class="jxr_javadoccomment">     * Returns the values of the partial derivatives of the model with respect</em>
+<a class="jxr_linenumber" name="L323" href="StatisticalReferenceDataset.html#L323">323</a> <em class="jxr_javadoccomment">     * to the parameters.</em>
+<a class="jxr_linenumber" name="L324" href="StatisticalReferenceDataset.html#L324">324</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L325" href="StatisticalReferenceDataset.html#L325">325</a> <em class="jxr_javadoccomment">     * @param x the predictor variable</em>
+<a class="jxr_linenumber" name="L326" href="StatisticalReferenceDataset.html#L326">326</a> <em class="jxr_javadoccomment">     * @param a the parameters</em>
+<a class="jxr_linenumber" name="L327" href="StatisticalReferenceDataset.html#L327">327</a> <em class="jxr_javadoccomment">     * @return the partial derivatives</em>
+<a class="jxr_linenumber" name="L328" href="StatisticalReferenceDataset.html#L328">328</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L329" href="StatisticalReferenceDataset.html#L329">329</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">double</strong>[] getModelDerivatives(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x,
+<a class="jxr_linenumber" name="L330" href="StatisticalReferenceDataset.html#L330">330</a>                                                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] a);
+<a class="jxr_linenumber" name="L331" href="StatisticalReferenceDataset.html#L331">331</a> 
+<a class="jxr_linenumber" name="L332" href="StatisticalReferenceDataset.html#L332">332</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L333" href="StatisticalReferenceDataset.html#L333">333</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L334" href="StatisticalReferenceDataset.html#L334">334</a> <em class="jxr_javadoccomment">     * Parses the specified text lines, and extracts the indices of the first</em>
+<a class="jxr_linenumber" name="L335" href="StatisticalReferenceDataset.html#L335">335</a> <em class="jxr_javadoccomment">     * and last lines of the data defined by the specified {@code key}. This key</em>
+<a class="jxr_linenumber" name="L336" href="StatisticalReferenceDataset.html#L336">336</a> <em class="jxr_javadoccomment">     * must be one of</em>
+<a class="jxr_linenumber" name="L337" href="StatisticalReferenceDataset.html#L337">337</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L338" href="StatisticalReferenceDataset.html#L338">338</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L339" href="StatisticalReferenceDataset.html#L339">339</a> <em class="jxr_javadoccomment">     * &lt;li&gt;{@code "Starting Values"},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L340" href="StatisticalReferenceDataset.html#L340">340</a> <em class="jxr_javadoccomment">     * &lt;li&gt;{@code "Certified Values"},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L341" href="StatisticalReferenceDataset.html#L341">341</a> <em class="jxr_javadoccomment">     * &lt;li&gt;{@code "Data"}.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L342" href="StatisticalReferenceDataset.html#L342">342</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L343" href="StatisticalReferenceDataset.html#L343">343</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L344" href="StatisticalReferenceDataset.html#L344">344</a> <em class="jxr_javadoccomment">     * In the NIST data files, the line indices are separated by the keywords</em>
+<a class="jxr_linenumber" name="L345" href="StatisticalReferenceDataset.html#L345">345</a> <em class="jxr_javadoccomment">     * {@code "lines"} and {@code "to"}.</em>
+<a class="jxr_linenumber" name="L346" href="StatisticalReferenceDataset.html#L346">346</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L347" href="StatisticalReferenceDataset.html#L347">347</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L348" href="StatisticalReferenceDataset.html#L348">348</a> <em class="jxr_javadoccomment">     * @param lines the line of text to be parsed</em>
+<a class="jxr_linenumber" name="L349" href="StatisticalReferenceDataset.html#L349">349</a> <em class="jxr_javadoccomment">     * @return an array of two {@code int}s. First value is the index of the</em>
+<a class="jxr_linenumber" name="L350" href="StatisticalReferenceDataset.html#L350">350</a> <em class="jxr_javadoccomment">     *         first line, second value is the index of the last line.</em>
+<a class="jxr_linenumber" name="L351" href="StatisticalReferenceDataset.html#L351">351</a> <em class="jxr_javadoccomment">     *         {@code null} if the line could not be parsed.</em>
+<a class="jxr_linenumber" name="L352" href="StatisticalReferenceDataset.html#L352">352</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L353" href="StatisticalReferenceDataset.html#L353">353</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong>[] findLineNumbers(<strong class="jxr_keyword">final</strong> String key,
+<a class="jxr_linenumber" name="L354" href="StatisticalReferenceDataset.html#L354">354</a>                                          <strong class="jxr_keyword">final</strong> Iterable&lt;String&gt; lines) {
+<a class="jxr_linenumber" name="L355" href="StatisticalReferenceDataset.html#L355">355</a>         <strong class="jxr_keyword">for</strong> (String text : lines) {
+<a class="jxr_linenumber" name="L356" href="StatisticalReferenceDataset.html#L356">356</a>             <strong class="jxr_keyword">boolean</strong> flag = text.contains(key) &amp;&amp; text.contains(<span class="jxr_string">"lines"</span>) &amp;&amp;
+<a class="jxr_linenumber" name="L357" href="StatisticalReferenceDataset.html#L357">357</a>                            text.contains(<span class="jxr_string">"to"</span>) &amp;&amp; text.contains(<span class="jxr_string">")"</span>);
+<a class="jxr_linenumber" name="L358" href="StatisticalReferenceDataset.html#L358">358</a>             <strong class="jxr_keyword">if</strong> (flag) {
+<a class="jxr_linenumber" name="L359" href="StatisticalReferenceDataset.html#L359">359</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] numbers = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[2];
+<a class="jxr_linenumber" name="L360" href="StatisticalReferenceDataset.html#L360">360</a>                 <strong class="jxr_keyword">final</strong> String from = text.substring(text.indexOf(<span class="jxr_string">"lines"</span>) + 5,
+<a class="jxr_linenumber" name="L361" href="StatisticalReferenceDataset.html#L361">361</a>                                                    text.indexOf(<span class="jxr_string">"to"</span>));
+<a class="jxr_linenumber" name="L362" href="StatisticalReferenceDataset.html#L362">362</a>                 numbers[0] = Integer.parseInt(from.trim());
+<a class="jxr_linenumber" name="L363" href="StatisticalReferenceDataset.html#L363">363</a>                 <strong class="jxr_keyword">final</strong> String to = text.substring(text.indexOf(<span class="jxr_string">"to"</span>) + 2,
+<a class="jxr_linenumber" name="L364" href="StatisticalReferenceDataset.html#L364">364</a>                                                  text.indexOf(<span class="jxr_string">")"</span>));
+<a class="jxr_linenumber" name="L365" href="StatisticalReferenceDataset.html#L365">365</a>                 numbers[1] = Integer.parseInt(to.trim());
+<a class="jxr_linenumber" name="L366" href="StatisticalReferenceDataset.html#L366">366</a>                 <strong class="jxr_keyword">return</strong> numbers;
+<a class="jxr_linenumber" name="L367" href="StatisticalReferenceDataset.html#L367">367</a>             }
+<a class="jxr_linenumber" name="L368" href="StatisticalReferenceDataset.html#L368">368</a>         }
+<a class="jxr_linenumber" name="L369" href="StatisticalReferenceDataset.html#L369">369</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L370" href="StatisticalReferenceDataset.html#L370">370</a>     }
+<a class="jxr_linenumber" name="L371" href="StatisticalReferenceDataset.html#L371">371</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

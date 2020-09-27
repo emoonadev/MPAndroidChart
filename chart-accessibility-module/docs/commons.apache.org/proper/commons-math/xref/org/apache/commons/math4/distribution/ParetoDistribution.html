@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>ParetoDistribution xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/distribution/ParetoDistribution.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="ParetoDistribution.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="ParetoDistribution.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="ParetoDistribution.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="ParetoDistribution.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="ParetoDistribution.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="ParetoDistribution.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="ParetoDistribution.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="ParetoDistribution.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="ParetoDistribution.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="ParetoDistribution.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="ParetoDistribution.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="ParetoDistribution.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="ParetoDistribution.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="ParetoDistribution.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="ParetoDistribution.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="ParetoDistribution.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="ParetoDistribution.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="ParetoDistribution.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.distribution;
+<a class="jxr_linenumber" name="L19" href="ParetoDistribution.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="ParetoDistribution.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L21" href="ParetoDistribution.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L22" href="ParetoDistribution.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L23" href="ParetoDistribution.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L24" href="ParetoDistribution.html#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="ParetoDistribution.html#L25">25</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L26" href="ParetoDistribution.html#L26">26</a>  <em class="jxr_javadoccomment"> * Implementation of the Pareto distribution.</em>
+<a class="jxr_linenumber" name="L27" href="ParetoDistribution.html#L27">27</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L28" href="ParetoDistribution.html#L28">28</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L29" href="ParetoDistribution.html#L29">29</a>  <em class="jxr_javadoccomment"> * &lt;strong&gt;Parameters:&lt;/strong&gt;</em>
+<a class="jxr_linenumber" name="L30" href="ParetoDistribution.html#L30">30</a>  <em class="jxr_javadoccomment"> * The probability distribution function of {@code X} is given by (for {@code x &gt;= k}):</em>
+<a class="jxr_linenumber" name="L31" href="ParetoDistribution.html#L31">31</a>  <em class="jxr_javadoccomment"> * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L32" href="ParetoDistribution.html#L32">32</a>  <em class="jxr_javadoccomment"> *  α * k^α / x^(α + 1)</em>
+<a class="jxr_linenumber" name="L33" href="ParetoDistribution.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L34" href="ParetoDistribution.html#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L35" href="ParetoDistribution.html#L35">35</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L36" href="ParetoDistribution.html#L36">36</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;{@code k} is the &lt;em&gt;scale&lt;/em&gt; parameter: this is the minimum possible value of {@code X},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L37" href="ParetoDistribution.html#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;{@code α} is the &lt;em&gt;shape&lt;/em&gt; parameter: this is the Pareto index&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L38" href="ParetoDistribution.html#L38">38</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L39" href="ParetoDistribution.html#L39">39</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L40" href="ParetoDistribution.html#L40">40</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/Pareto_distribution" target="alexandria_uri">http://en.wikipedia.org/wiki/Pareto_distribution</a>"&gt;</em>
+<a class="jxr_linenumber" name="L41" href="ParetoDistribution.html#L41">41</a>  <em class="jxr_javadoccomment"> * Pareto distribution (Wikipedia)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L42" href="ParetoDistribution.html#L42">42</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://mathworld.wolfram.com/ParetoDistribution.html" target="alexandria_uri">http://mathworld.wolfram.com/ParetoDistribution.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L43" href="ParetoDistribution.html#L43">43</a>  <em class="jxr_javadoccomment"> * Pareto distribution (MathWorld)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L44" href="ParetoDistribution.html#L44">44</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L45" href="ParetoDistribution.html#L45">45</a>  <em class="jxr_javadoccomment"> * @since 3.3</em>
+<a class="jxr_linenumber" name="L46" href="ParetoDistribution.html#L46">46</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L47" href="ParetoDistribution.html#L47">47</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="ParetoDistribution.html">ParetoDistribution</a> <strong class="jxr_keyword">extends</strong> <a href="AbstractRealDistribution.html">AbstractRealDistribution</a> {
+<a class="jxr_linenumber" name="L48" href="ParetoDistribution.html#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="ParetoDistribution.html#L49">49</a>      <em class="jxr_javadoccomment">/** Default inverse cumulative probability accuracy. */</em>
+<a class="jxr_linenumber" name="L50" href="ParetoDistribution.html#L50">50</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_INVERSE_ABSOLUTE_ACCURACY = 1e-9;
+<a class="jxr_linenumber" name="L51" href="ParetoDistribution.html#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="ParetoDistribution.html#L52">52</a>      <em class="jxr_javadoccomment">/** Serializable version identifier. */</em>
+<a class="jxr_linenumber" name="L53" href="ParetoDistribution.html#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20160311L;
+<a class="jxr_linenumber" name="L54" href="ParetoDistribution.html#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="ParetoDistribution.html#L55">55</a>      <em class="jxr_javadoccomment">/** The scale parameter of this distribution. */</em>
+<a class="jxr_linenumber" name="L56" href="ParetoDistribution.html#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> scale;
+<a class="jxr_linenumber" name="L57" href="ParetoDistribution.html#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="ParetoDistribution.html#L58">58</a>      <em class="jxr_javadoccomment">/** The shape parameter of this distribution. */</em>
+<a class="jxr_linenumber" name="L59" href="ParetoDistribution.html#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> shape;
+<a class="jxr_linenumber" name="L60" href="ParetoDistribution.html#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="ParetoDistribution.html#L61">61</a>      <em class="jxr_javadoccomment">/** Inverse cumulative probability accuracy. */</em>
+<a class="jxr_linenumber" name="L62" href="ParetoDistribution.html#L62">62</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> solverAbsoluteAccuracy;
+<a class="jxr_linenumber" name="L63" href="ParetoDistribution.html#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="ParetoDistribution.html#L64">64</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L65" href="ParetoDistribution.html#L65">65</a>  <em class="jxr_javadoccomment">     * Creates a Pareto distribution with a scale of {@code 1} and a shape of {@code 1}.</em>
+<a class="jxr_linenumber" name="L66" href="ParetoDistribution.html#L66">66</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L67" href="ParetoDistribution.html#L67">67</a>      <strong class="jxr_keyword">public</strong> <a href="ParetoDistribution.html">ParetoDistribution</a>() {
+<a class="jxr_linenumber" name="L68" href="ParetoDistribution.html#L68">68</a>          <strong class="jxr_keyword">this</strong>(1, 1);
+<a class="jxr_linenumber" name="L69" href="ParetoDistribution.html#L69">69</a>      }
+<a class="jxr_linenumber" name="L70" href="ParetoDistribution.html#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="ParetoDistribution.html#L71">71</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L72" href="ParetoDistribution.html#L72">72</a>  <em class="jxr_javadoccomment">     * Creates a Pareto distribution.</em>
+<a class="jxr_linenumber" name="L73" href="ParetoDistribution.html#L73">73</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L74" href="ParetoDistribution.html#L74">74</a>  <em class="jxr_javadoccomment">     * @param scale the scale parameter of this distribution</em>
+<a class="jxr_linenumber" name="L75" href="ParetoDistribution.html#L75">75</a>  <em class="jxr_javadoccomment">     * @param shape the shape parameter of this distribution</em>
+<a class="jxr_linenumber" name="L76" href="ParetoDistribution.html#L76">76</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code scale &lt;= 0} or {@code shape &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L77" href="ParetoDistribution.html#L77">77</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L78" href="ParetoDistribution.html#L78">78</a>      <strong class="jxr_keyword">public</strong> <a href="ParetoDistribution.html">ParetoDistribution</a>(<strong class="jxr_keyword">double</strong> scale,
+<a class="jxr_linenumber" name="L79" href="ParetoDistribution.html#L79">79</a>                                <strong class="jxr_keyword">double</strong> shape)
+<a class="jxr_linenumber" name="L80" href="ParetoDistribution.html#L80">80</a>          <strong class="jxr_keyword">throws</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L81" href="ParetoDistribution.html#L81">81</a>          <strong class="jxr_keyword">this</strong>(scale, shape, DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
+<a class="jxr_linenumber" name="L82" href="ParetoDistribution.html#L82">82</a>      }
+<a class="jxr_linenumber" name="L83" href="ParetoDistribution.html#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="ParetoDistribution.html#L84">84</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L85" href="ParetoDistribution.html#L85">85</a>  <em class="jxr_javadoccomment">     * Creates a Pareto distribution.</em>
+<a class="jxr_linenumber" name="L86" href="ParetoDistribution.html#L86">86</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L87" href="ParetoDistribution.html#L87">87</a>  <em class="jxr_javadoccomment">     * @param scale Scale parameter of this distribution.</em>
+<a class="jxr_linenumber" name="L88" href="ParetoDistribution.html#L88">88</a>  <em class="jxr_javadoccomment">     * @param shape Shape parameter of this distribution.</em>
+<a class="jxr_linenumber" name="L89" href="ParetoDistribution.html#L89">89</a>  <em class="jxr_javadoccomment">     * @param inverseCumAccuracy Inverse cumulative probability accuracy.</em>
+<a class="jxr_linenumber" name="L90" href="ParetoDistribution.html#L90">90</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code scale &lt;= 0} or {@code shape &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L91" href="ParetoDistribution.html#L91">91</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L92" href="ParetoDistribution.html#L92">92</a>      <strong class="jxr_keyword">public</strong> <a href="ParetoDistribution.html">ParetoDistribution</a>(<strong class="jxr_keyword">double</strong> scale,
+<a class="jxr_linenumber" name="L93" href="ParetoDistribution.html#L93">93</a>                                <strong class="jxr_keyword">double</strong> shape,
+<a class="jxr_linenumber" name="L94" href="ParetoDistribution.html#L94">94</a>                                <strong class="jxr_keyword">double</strong> inverseCumAccuracy)
+<a class="jxr_linenumber" name="L95" href="ParetoDistribution.html#L95">95</a>          <strong class="jxr_keyword">throws</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L96" href="ParetoDistribution.html#L96">96</a>          <strong class="jxr_keyword">if</strong> (scale &lt;= 0) {
+<a class="jxr_linenumber" name="L97" href="ParetoDistribution.html#L97">97</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(LocalizedFormats.SCALE, scale);
+<a class="jxr_linenumber" name="L98" href="ParetoDistribution.html#L98">98</a>          }
+<a class="jxr_linenumber" name="L99" href="ParetoDistribution.html#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="ParetoDistribution.html#L100">100</a>         <strong class="jxr_keyword">if</strong> (shape &lt;= 0) {
+<a class="jxr_linenumber" name="L101" href="ParetoDistribution.html#L101">101</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(LocalizedFormats.SHAPE, shape);
+<a class="jxr_linenumber" name="L102" href="ParetoDistribution.html#L102">102</a>         }
+<a class="jxr_linenumber" name="L103" href="ParetoDistribution.html#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="ParetoDistribution.html#L104">104</a>         <strong class="jxr_keyword">this</strong>.scale = scale;
+<a class="jxr_linenumber" name="L105" href="ParetoDistribution.html#L105">105</a>         <strong class="jxr_keyword">this</strong>.shape = shape;
+<a class="jxr_linenumber" name="L106" href="ParetoDistribution.html#L106">106</a>         <strong class="jxr_keyword">this</strong>.solverAbsoluteAccuracy = inverseCumAccuracy;
+<a class="jxr_linenumber" name="L107" href="ParetoDistribution.html#L107">107</a>     }
+<a class="jxr_linenumber" name="L108" href="ParetoDistribution.html#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="ParetoDistribution.html#L109">109</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L110" href="ParetoDistribution.html#L110">110</a> <em class="jxr_javadoccomment">     * Returns the scale parameter of this distribution.</em>
+<a class="jxr_linenumber" name="L111" href="ParetoDistribution.html#L111">111</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L112" href="ParetoDistribution.html#L112">112</a> <em class="jxr_javadoccomment">     * @return the scale parameter</em>
+<a class="jxr_linenumber" name="L113" href="ParetoDistribution.html#L113">113</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L114" href="ParetoDistribution.html#L114">114</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getScale() {
+<a class="jxr_linenumber" name="L115" href="ParetoDistribution.html#L115">115</a>         <strong class="jxr_keyword">return</strong> scale;
+<a class="jxr_linenumber" name="L116" href="ParetoDistribution.html#L116">116</a>     }
+<a class="jxr_linenumber" name="L117" href="ParetoDistribution.html#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="ParetoDistribution.html#L118">118</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L119" href="ParetoDistribution.html#L119">119</a> <em class="jxr_javadoccomment">     * Returns the shape parameter of this distribution.</em>
+<a class="jxr_linenumber" name="L120" href="ParetoDistribution.html#L120">120</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L121" href="ParetoDistribution.html#L121">121</a> <em class="jxr_javadoccomment">     * @return the shape parameter</em>
+<a class="jxr_linenumber" name="L122" href="ParetoDistribution.html#L122">122</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L123" href="ParetoDistribution.html#L123">123</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getShape() {
+<a class="jxr_linenumber" name="L124" href="ParetoDistribution.html#L124">124</a>         <strong class="jxr_keyword">return</strong> shape;
+<a class="jxr_linenumber" name="L125" href="ParetoDistribution.html#L125">125</a>     }
+<a class="jxr_linenumber" name="L126" href="ParetoDistribution.html#L126">126</a> 
+<a class="jxr_linenumber" name="L127" href="ParetoDistribution.html#L127">127</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L128" href="ParetoDistribution.html#L128">128</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L129" href="ParetoDistribution.html#L129">129</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L130" href="ParetoDistribution.html#L130">130</a> <em class="jxr_javadoccomment">     * For scale {@code k}, and shape {@code α} of this distribution, the PDF</em>
+<a class="jxr_linenumber" name="L131" href="ParetoDistribution.html#L131">131</a> <em class="jxr_javadoccomment">     * is given by</em>
+<a class="jxr_linenumber" name="L132" href="ParetoDistribution.html#L132">132</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L133" href="ParetoDistribution.html#L133">133</a> <em class="jxr_javadoccomment">     * &lt;li&gt;{@code 0} if {@code x &lt; k},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L134" href="ParetoDistribution.html#L134">134</a> <em class="jxr_javadoccomment">     * &lt;li&gt;{@code α * k^α / x^(α + 1)} otherwise.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L135" href="ParetoDistribution.html#L135">135</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L136" href="ParetoDistribution.html#L136">136</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L137" href="ParetoDistribution.html#L137">137</a>     @Override
+<a class="jxr_linenumber" name="L138" href="ParetoDistribution.html#L138">138</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> density(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L139" href="ParetoDistribution.html#L139">139</a>         <strong class="jxr_keyword">if</strong> (x &lt; scale) {
+<a class="jxr_linenumber" name="L140" href="ParetoDistribution.html#L140">140</a>             <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L141" href="ParetoDistribution.html#L141">141</a>         }
+<a class="jxr_linenumber" name="L142" href="ParetoDistribution.html#L142">142</a>         <strong class="jxr_keyword">return</strong> FastMath.pow(scale, shape) / FastMath.pow(x, shape + 1) * shape;
+<a class="jxr_linenumber" name="L143" href="ParetoDistribution.html#L143">143</a>     }
+<a class="jxr_linenumber" name="L144" href="ParetoDistribution.html#L144">144</a> 
+<a class="jxr_linenumber" name="L145" href="ParetoDistribution.html#L145">145</a>     <em class="jxr_javadoccomment">/** {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L146" href="ParetoDistribution.html#L146">146</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L147" href="ParetoDistribution.html#L147">147</a> <em class="jxr_javadoccomment">     * See documentation of {@link #density(double)} for computation details.</em>
+<a class="jxr_linenumber" name="L148" href="ParetoDistribution.html#L148">148</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L149" href="ParetoDistribution.html#L149">149</a>     @Override
+<a class="jxr_linenumber" name="L150" href="ParetoDistribution.html#L150">150</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> logDensity(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L151" href="ParetoDistribution.html#L151">151</a>         <strong class="jxr_keyword">if</strong> (x &lt; scale) {
+<a class="jxr_linenumber" name="L152" href="ParetoDistribution.html#L152">152</a>             <strong class="jxr_keyword">return</strong> Double.NEGATIVE_INFINITY;
+<a class="jxr_linenumber" name="L153" href="ParetoDistribution.html#L153">153</a>         }
+<a class="jxr_linenumber" name="L154" href="ParetoDistribution.html#L154">154</a>         <strong class="jxr_keyword">return</strong> FastMath.log(scale) * shape - FastMath.log(x) * (shape + 1) + FastMath.log(shape);
+<a class="jxr_linenumber" name="L155" href="ParetoDistribution.html#L155">155</a>     }
+<a class="jxr_linenumber" name="L156" href="ParetoDistribution.html#L156">156</a> 
+<a class="jxr_linenumber" name="L157" href="ParetoDistribution.html#L157">157</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L158" href="ParetoDistribution.html#L158">158</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L159" href="ParetoDistribution.html#L159">159</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L160" href="ParetoDistribution.html#L160">160</a> <em class="jxr_javadoccomment">     * For scale {@code k}, and shape {@code α} of this distribution, the CDF is given by</em>
+<a class="jxr_linenumber" name="L161" href="ParetoDistribution.html#L161">161</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L162" href="ParetoDistribution.html#L162">162</a> <em class="jxr_javadoccomment">     * &lt;li&gt;{@code 0} if {@code x &lt; k},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L163" href="ParetoDistribution.html#L163">163</a> <em class="jxr_javadoccomment">     * &lt;li&gt;{@code 1 - (k / x)^α} otherwise.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L164" href="ParetoDistribution.html#L164">164</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L165" href="ParetoDistribution.html#L165">165</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L166" href="ParetoDistribution.html#L166">166</a>     @Override
+<a class="jxr_linenumber" name="L167" href="ParetoDistribution.html#L167">167</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> cumulativeProbability(<strong class="jxr_keyword">double</strong> x)  {
+<a class="jxr_linenumber" name="L168" href="ParetoDistribution.html#L168">168</a>         <strong class="jxr_keyword">if</strong> (x &lt;= scale) {
+<a class="jxr_linenumber" name="L169" href="ParetoDistribution.html#L169">169</a>             <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L170" href="ParetoDistribution.html#L170">170</a>         }
+<a class="jxr_linenumber" name="L171" href="ParetoDistribution.html#L171">171</a>         <strong class="jxr_keyword">return</strong> 1 - FastMath.pow(scale / x, shape);
+<a class="jxr_linenumber" name="L172" href="ParetoDistribution.html#L172">172</a>     }
+<a class="jxr_linenumber" name="L173" href="ParetoDistribution.html#L173">173</a> 
+<a class="jxr_linenumber" name="L174" href="ParetoDistribution.html#L174">174</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L175" href="ParetoDistribution.html#L175">175</a>     @Override
+<a class="jxr_linenumber" name="L176" href="ParetoDistribution.html#L176">176</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> getSolverAbsoluteAccuracy() {
+<a class="jxr_linenumber" name="L177" href="ParetoDistribution.html#L177">177</a>         <strong class="jxr_keyword">return</strong> solverAbsoluteAccuracy;
+<a class="jxr_linenumber" name="L178" href="ParetoDistribution.html#L178">178</a>     }
+<a class="jxr_linenumber" name="L179" href="ParetoDistribution.html#L179">179</a> 
+<a class="jxr_linenumber" name="L180" href="ParetoDistribution.html#L180">180</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L181" href="ParetoDistribution.html#L181">181</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L182" href="ParetoDistribution.html#L182">182</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L183" href="ParetoDistribution.html#L183">183</a> <em class="jxr_javadoccomment">     * For scale {@code k} and shape {@code α}, the mean is given by</em>
+<a class="jxr_linenumber" name="L184" href="ParetoDistribution.html#L184">184</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L185" href="ParetoDistribution.html#L185">185</a> <em class="jxr_javadoccomment">     * &lt;li&gt;{@code ∞} if {@code α &lt;= 1},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L186" href="ParetoDistribution.html#L186">186</a> <em class="jxr_javadoccomment">     * &lt;li&gt;{@code α * k / (α - 1)} otherwise.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L187" href="ParetoDistribution.html#L187">187</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L188" href="ParetoDistribution.html#L188">188</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L189" href="ParetoDistribution.html#L189">189</a>     @Override
+<a class="jxr_linenumber" name="L190" href="ParetoDistribution.html#L190">190</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalMean() {
+<a class="jxr_linenumber" name="L191" href="ParetoDistribution.html#L191">191</a>         <strong class="jxr_keyword">if</strong> (shape &lt;= 1) {
+<a class="jxr_linenumber" name="L192" href="ParetoDistribution.html#L192">192</a>             <strong class="jxr_keyword">return</strong> Double.POSITIVE_INFINITY;
+<a class="jxr_linenumber" name="L193" href="ParetoDistribution.html#L193">193</a>         }
+<a class="jxr_linenumber" name="L194" href="ParetoDistribution.html#L194">194</a>         <strong class="jxr_keyword">return</strong> shape * scale / (shape - 1);
+<a class="jxr_linenumber" name="L195" href="ParetoDistribution.html#L195">195</a>     }
+<a class="jxr_linenumber" name="L196" href="ParetoDistribution.html#L196">196</a> 
+<a class="jxr_linenumber" name="L197" href="ParetoDistribution.html#L197">197</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L198" href="ParetoDistribution.html#L198">198</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L199" href="ParetoDistribution.html#L199">199</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L200" href="ParetoDistribution.html#L200">200</a> <em class="jxr_javadoccomment">     * For scale {@code k} and shape {@code α}, the variance is given by</em>
+<a class="jxr_linenumber" name="L201" href="ParetoDistribution.html#L201">201</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L202" href="ParetoDistribution.html#L202">202</a> <em class="jxr_javadoccomment">     * &lt;li&gt;{@code ∞} if {@code 1 &lt; α &lt;= 2},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L203" href="ParetoDistribution.html#L203">203</a> <em class="jxr_javadoccomment">     * &lt;li&gt;{@code k^2 * α / ((α - 1)^2 * (α - 2))} otherwise.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L204" href="ParetoDistribution.html#L204">204</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L205" href="ParetoDistribution.html#L205">205</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L206" href="ParetoDistribution.html#L206">206</a>     @Override
+<a class="jxr_linenumber" name="L207" href="ParetoDistribution.html#L207">207</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalVariance() {
+<a class="jxr_linenumber" name="L208" href="ParetoDistribution.html#L208">208</a>         <strong class="jxr_keyword">if</strong> (shape &lt;= 2) {
+<a class="jxr_linenumber" name="L209" href="ParetoDistribution.html#L209">209</a>             <strong class="jxr_keyword">return</strong> Double.POSITIVE_INFINITY;
+<a class="jxr_linenumber" name="L210" href="ParetoDistribution.html#L210">210</a>         }
+<a class="jxr_linenumber" name="L211" href="ParetoDistribution.html#L211">211</a>         <strong class="jxr_keyword">double</strong> s = shape - 1;
+<a class="jxr_linenumber" name="L212" href="ParetoDistribution.html#L212">212</a>         <strong class="jxr_keyword">return</strong> scale * scale * shape / (s * s) / (shape - 2);
+<a class="jxr_linenumber" name="L213" href="ParetoDistribution.html#L213">213</a>     }
+<a class="jxr_linenumber" name="L214" href="ParetoDistribution.html#L214">214</a> 
+<a class="jxr_linenumber" name="L215" href="ParetoDistribution.html#L215">215</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L216" href="ParetoDistribution.html#L216">216</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L217" href="ParetoDistribution.html#L217">217</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L218" href="ParetoDistribution.html#L218">218</a> <em class="jxr_javadoccomment">     * The lower bound of the support is equal to the scale parameter {@code k}.</em>
+<a class="jxr_linenumber" name="L219" href="ParetoDistribution.html#L219">219</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L220" href="ParetoDistribution.html#L220">220</a> <em class="jxr_javadoccomment">     * @return lower bound of the support</em>
+<a class="jxr_linenumber" name="L221" href="ParetoDistribution.html#L221">221</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L222" href="ParetoDistribution.html#L222">222</a>     @Override
+<a class="jxr_linenumber" name="L223" href="ParetoDistribution.html#L223">223</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSupportLowerBound() {
+<a class="jxr_linenumber" name="L224" href="ParetoDistribution.html#L224">224</a>         <strong class="jxr_keyword">return</strong> scale;
+<a class="jxr_linenumber" name="L225" href="ParetoDistribution.html#L225">225</a>     }
+<a class="jxr_linenumber" name="L226" href="ParetoDistribution.html#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="ParetoDistribution.html#L227">227</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L228" href="ParetoDistribution.html#L228">228</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L229" href="ParetoDistribution.html#L229">229</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L230" href="ParetoDistribution.html#L230">230</a> <em class="jxr_javadoccomment">     * The upper bound of the support is always positive infinity no matter the parameters.</em>
+<a class="jxr_linenumber" name="L231" href="ParetoDistribution.html#L231">231</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L232" href="ParetoDistribution.html#L232">232</a> <em class="jxr_javadoccomment">     * @return upper bound of the support (always {@code Double.POSITIVE_INFINITY})</em>
+<a class="jxr_linenumber" name="L233" href="ParetoDistribution.html#L233">233</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L234" href="ParetoDistribution.html#L234">234</a>     @Override
+<a class="jxr_linenumber" name="L235" href="ParetoDistribution.html#L235">235</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSupportUpperBound() {
+<a class="jxr_linenumber" name="L236" href="ParetoDistribution.html#L236">236</a>         <strong class="jxr_keyword">return</strong> Double.POSITIVE_INFINITY;
+<a class="jxr_linenumber" name="L237" href="ParetoDistribution.html#L237">237</a>     }
+<a class="jxr_linenumber" name="L238" href="ParetoDistribution.html#L238">238</a> 
+<a class="jxr_linenumber" name="L239" href="ParetoDistribution.html#L239">239</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L240" href="ParetoDistribution.html#L240">240</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L241" href="ParetoDistribution.html#L241">241</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L242" href="ParetoDistribution.html#L242">242</a> <em class="jxr_javadoccomment">     * The support of this distribution is connected.</em>
+<a class="jxr_linenumber" name="L243" href="ParetoDistribution.html#L243">243</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L244" href="ParetoDistribution.html#L244">244</a> <em class="jxr_javadoccomment">     * @return {@code true}</em>
+<a class="jxr_linenumber" name="L245" href="ParetoDistribution.html#L245">245</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L246" href="ParetoDistribution.html#L246">246</a>     @Override
+<a class="jxr_linenumber" name="L247" href="ParetoDistribution.html#L247">247</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isSupportConnected() {
+<a class="jxr_linenumber" name="L248" href="ParetoDistribution.html#L248">248</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L249" href="ParetoDistribution.html#L249">249</a>     }
+<a class="jxr_linenumber" name="L250" href="ParetoDistribution.html#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="ParetoDistribution.html#L251">251</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L252" href="ParetoDistribution.html#L252">252</a>     @Override
+<a class="jxr_linenumber" name="L253" href="ParetoDistribution.html#L253">253</a>     <strong class="jxr_keyword">public</strong> RealDistribution.Sampler createSampler(<strong class="jxr_keyword">final</strong> UniformRandomProvider rng) {
+<a class="jxr_linenumber" name="L254" href="ParetoDistribution.html#L254">254</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> RealDistribution.Sampler() {
+<a class="jxr_linenumber" name="L255" href="ParetoDistribution.html#L255">255</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L256" href="ParetoDistribution.html#L256">256</a>             @Override
+<a class="jxr_linenumber" name="L257" href="ParetoDistribution.html#L257">257</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> sample() {
+<a class="jxr_linenumber" name="L258" href="ParetoDistribution.html#L258">258</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> n = rng.nextDouble();
+<a class="jxr_linenumber" name="L259" href="ParetoDistribution.html#L259">259</a>                 <strong class="jxr_keyword">return</strong> scale / FastMath.pow(n, 1 / shape);
+<a class="jxr_linenumber" name="L260" href="ParetoDistribution.html#L260">260</a>             }
+<a class="jxr_linenumber" name="L261" href="ParetoDistribution.html#L261">261</a>         };
+<a class="jxr_linenumber" name="L262" href="ParetoDistribution.html#L262">262</a>     }
+<a class="jxr_linenumber" name="L263" href="ParetoDistribution.html#L263">263</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

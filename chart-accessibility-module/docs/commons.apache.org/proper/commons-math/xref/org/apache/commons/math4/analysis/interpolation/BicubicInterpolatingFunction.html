@@ -1,0 +1,341 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>BicubicInterpolatingFunction xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/analysis/interpolation/BicubicInterpolatingFunction.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="BicubicInterpolatingFunction.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="BicubicInterpolatingFunction.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="BicubicInterpolatingFunction.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="BicubicInterpolatingFunction.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="BicubicInterpolatingFunction.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="BicubicInterpolatingFunction.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="BicubicInterpolatingFunction.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="BicubicInterpolatingFunction.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="BicubicInterpolatingFunction.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="BicubicInterpolatingFunction.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="BicubicInterpolatingFunction.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="BicubicInterpolatingFunction.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="BicubicInterpolatingFunction.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="BicubicInterpolatingFunction.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="BicubicInterpolatingFunction.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="BicubicInterpolatingFunction.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="BicubicInterpolatingFunction.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.interpolation;
+<a class="jxr_linenumber" name="L18" href="BicubicInterpolatingFunction.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="BicubicInterpolatingFunction.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L20" href="BicubicInterpolatingFunction.html#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="BicubicInterpolatingFunction.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.BivariateFunction;
+<a class="jxr_linenumber" name="L22" href="BicubicInterpolatingFunction.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L23" href="BicubicInterpolatingFunction.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoDataException;
+<a class="jxr_linenumber" name="L24" href="BicubicInterpolatingFunction.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NonMonotonicSequenceException;
+<a class="jxr_linenumber" name="L25" href="BicubicInterpolatingFunction.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L26" href="BicubicInterpolatingFunction.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L27" href="BicubicInterpolatingFunction.html#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="BicubicInterpolatingFunction.html#L28">28</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L29" href="BicubicInterpolatingFunction.html#L29">29</a>  <em class="jxr_javadoccomment"> * Function that implements the</em>
+<a class="jxr_linenumber" name="L30" href="BicubicInterpolatingFunction.html#L30">30</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://en.wikipedia.org/wiki/Bicubic_interpolation" target="alexandria_uri">http://en.wikipedia.org/wiki/Bicubic_interpolation</a>"&gt;</em>
+<a class="jxr_linenumber" name="L31" href="BicubicInterpolatingFunction.html#L31">31</a>  <em class="jxr_javadoccomment"> * bicubic spline interpolation&lt;/a&gt;.</em>
+<a class="jxr_linenumber" name="L32" href="BicubicInterpolatingFunction.html#L32">32</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L33" href="BicubicInterpolatingFunction.html#L33">33</a>  <em class="jxr_javadoccomment"> * @since 3.4</em>
+<a class="jxr_linenumber" name="L34" href="BicubicInterpolatingFunction.html#L34">34</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L35" href="BicubicInterpolatingFunction.html#L35">35</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="BicubicInterpolatingFunction.html">BicubicInterpolatingFunction</a>
+<a class="jxr_linenumber" name="L36" href="BicubicInterpolatingFunction.html#L36">36</a>      <strong class="jxr_keyword">implements</strong> <a href="../BivariateFunction.html">BivariateFunction</a> {
+<a class="jxr_linenumber" name="L37" href="BicubicInterpolatingFunction.html#L37">37</a>      <em class="jxr_javadoccomment">/** Number of coefficients. */</em>
+<a class="jxr_linenumber" name="L38" href="BicubicInterpolatingFunction.html#L38">38</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> NUM_COEFF = 16;
+<a class="jxr_linenumber" name="L39" href="BicubicInterpolatingFunction.html#L39">39</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L40" href="BicubicInterpolatingFunction.html#L40">40</a>  <em class="jxr_javadoccomment">     * Matrix to compute the spline coefficients from the function values</em>
+<a class="jxr_linenumber" name="L41" href="BicubicInterpolatingFunction.html#L41">41</a>  <em class="jxr_javadoccomment">     * and function derivatives values</em>
+<a class="jxr_linenumber" name="L42" href="BicubicInterpolatingFunction.html#L42">42</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L43" href="BicubicInterpolatingFunction.html#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] AINV = {
+<a class="jxr_linenumber" name="L44" href="BicubicInterpolatingFunction.html#L44">44</a>          { 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L45" href="BicubicInterpolatingFunction.html#L45">45</a>          { 0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L46" href="BicubicInterpolatingFunction.html#L46">46</a>          { -3,3,0,0,-2,-1,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L47" href="BicubicInterpolatingFunction.html#L47">47</a>          { 2,-2,0,0,1,1,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L48" href="BicubicInterpolatingFunction.html#L48">48</a>          { 0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L49" href="BicubicInterpolatingFunction.html#L49">49</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0 },
+<a class="jxr_linenumber" name="L50" href="BicubicInterpolatingFunction.html#L50">50</a>          { 0,0,0,0,0,0,0,0,-3,3,0,0,-2,-1,0,0 },
+<a class="jxr_linenumber" name="L51" href="BicubicInterpolatingFunction.html#L51">51</a>          { 0,0,0,0,0,0,0,0,2,-2,0,0,1,1,0,0 },
+<a class="jxr_linenumber" name="L52" href="BicubicInterpolatingFunction.html#L52">52</a>          { -3,0,3,0,0,0,0,0,-2,0,-1,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L53" href="BicubicInterpolatingFunction.html#L53">53</a>          { 0,0,0,0,-3,0,3,0,0,0,0,0,-2,0,-1,0 },
+<a class="jxr_linenumber" name="L54" href="BicubicInterpolatingFunction.html#L54">54</a>          { 9,-9,-9,9,6,3,-6,-3,6,-6,3,-3,4,2,2,1 },
+<a class="jxr_linenumber" name="L55" href="BicubicInterpolatingFunction.html#L55">55</a>          { -6,6,6,-6,-3,-3,3,3,-4,4,-2,2,-2,-2,-1,-1 },
+<a class="jxr_linenumber" name="L56" href="BicubicInterpolatingFunction.html#L56">56</a>          { 2,0,-2,0,0,0,0,0,1,0,1,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L57" href="BicubicInterpolatingFunction.html#L57">57</a>          { 0,0,0,0,2,0,-2,0,0,0,0,0,1,0,1,0 },
+<a class="jxr_linenumber" name="L58" href="BicubicInterpolatingFunction.html#L58">58</a>          { -6,6,6,-6,-4,-2,4,2,-3,3,-3,3,-2,-1,-2,-1 },
+<a class="jxr_linenumber" name="L59" href="BicubicInterpolatingFunction.html#L59">59</a>          { 4,-4,-4,4,2,2,-2,-2,2,-2,2,-2,1,1,1,1 }
+<a class="jxr_linenumber" name="L60" href="BicubicInterpolatingFunction.html#L60">60</a>      };
+<a class="jxr_linenumber" name="L61" href="BicubicInterpolatingFunction.html#L61">61</a>  
+<a class="jxr_linenumber" name="L62" href="BicubicInterpolatingFunction.html#L62">62</a>      <em class="jxr_javadoccomment">/** Samples x-coordinates */</em>
+<a class="jxr_linenumber" name="L63" href="BicubicInterpolatingFunction.html#L63">63</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xval;
+<a class="jxr_linenumber" name="L64" href="BicubicInterpolatingFunction.html#L64">64</a>      <em class="jxr_javadoccomment">/** Samples y-coordinates */</em>
+<a class="jxr_linenumber" name="L65" href="BicubicInterpolatingFunction.html#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yval;
+<a class="jxr_linenumber" name="L66" href="BicubicInterpolatingFunction.html#L66">66</a>      <em class="jxr_javadoccomment">/** Set of cubic splines patching the whole data grid */</em>
+<a class="jxr_linenumber" name="L67" href="BicubicInterpolatingFunction.html#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="BicubicInterpolatingFunction.html">BicubicFunction</a>[][] splines;
+<a class="jxr_linenumber" name="L68" href="BicubicInterpolatingFunction.html#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="BicubicInterpolatingFunction.html#L69">69</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L70" href="BicubicInterpolatingFunction.html#L70">70</a>  <em class="jxr_javadoccomment">     * @param x Sample values of the x-coordinate, in increasing order.</em>
+<a class="jxr_linenumber" name="L71" href="BicubicInterpolatingFunction.html#L71">71</a>  <em class="jxr_javadoccomment">     * @param y Sample values of the y-coordinate, in increasing order.</em>
+<a class="jxr_linenumber" name="L72" href="BicubicInterpolatingFunction.html#L72">72</a>  <em class="jxr_javadoccomment">     * @param f Values of the function on every grid point.</em>
+<a class="jxr_linenumber" name="L73" href="BicubicInterpolatingFunction.html#L73">73</a>  <em class="jxr_javadoccomment">     * @param dFdX Values of the partial derivative of function with respect</em>
+<a class="jxr_linenumber" name="L74" href="BicubicInterpolatingFunction.html#L74">74</a>  <em class="jxr_javadoccomment">     * to x on every grid point.</em>
+<a class="jxr_linenumber" name="L75" href="BicubicInterpolatingFunction.html#L75">75</a>  <em class="jxr_javadoccomment">     * @param dFdY Values of the partial derivative of function with respect</em>
+<a class="jxr_linenumber" name="L76" href="BicubicInterpolatingFunction.html#L76">76</a>  <em class="jxr_javadoccomment">     * to y on every grid point.</em>
+<a class="jxr_linenumber" name="L77" href="BicubicInterpolatingFunction.html#L77">77</a>  <em class="jxr_javadoccomment">     * @param d2FdXdY Values of the cross partial derivative of function on</em>
+<a class="jxr_linenumber" name="L78" href="BicubicInterpolatingFunction.html#L78">78</a>  <em class="jxr_javadoccomment">     * every grid point.</em>
+<a class="jxr_linenumber" name="L79" href="BicubicInterpolatingFunction.html#L79">79</a>  <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the various arrays do not contain</em>
+<a class="jxr_linenumber" name="L80" href="BicubicInterpolatingFunction.html#L80">80</a>  <em class="jxr_javadoccomment">     * the expected number of elements.</em>
+<a class="jxr_linenumber" name="L81" href="BicubicInterpolatingFunction.html#L81">81</a>  <em class="jxr_javadoccomment">     * @throws NonMonotonicSequenceException if {@code x} or {@code y} are</em>
+<a class="jxr_linenumber" name="L82" href="BicubicInterpolatingFunction.html#L82">82</a>  <em class="jxr_javadoccomment">     * not strictly increasing.</em>
+<a class="jxr_linenumber" name="L83" href="BicubicInterpolatingFunction.html#L83">83</a>  <em class="jxr_javadoccomment">     * @throws NoDataException if any of the arrays has zero length.</em>
+<a class="jxr_linenumber" name="L84" href="BicubicInterpolatingFunction.html#L84">84</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L85" href="BicubicInterpolatingFunction.html#L85">85</a>      <strong class="jxr_keyword">public</strong> <a href="BicubicInterpolatingFunction.html">BicubicInterpolatingFunction</a>(<strong class="jxr_keyword">double</strong>[] x,
+<a class="jxr_linenumber" name="L86" href="BicubicInterpolatingFunction.html#L86">86</a>                                          <strong class="jxr_keyword">double</strong>[] y,
+<a class="jxr_linenumber" name="L87" href="BicubicInterpolatingFunction.html#L87">87</a>                                          <strong class="jxr_keyword">double</strong>[][] f,
+<a class="jxr_linenumber" name="L88" href="BicubicInterpolatingFunction.html#L88">88</a>                                          <strong class="jxr_keyword">double</strong>[][] dFdX,
+<a class="jxr_linenumber" name="L89" href="BicubicInterpolatingFunction.html#L89">89</a>                                          <strong class="jxr_keyword">double</strong>[][] dFdY,
+<a class="jxr_linenumber" name="L90" href="BicubicInterpolatingFunction.html#L90">90</a>                                          <strong class="jxr_keyword">double</strong>[][] d2FdXdY)
+<a class="jxr_linenumber" name="L91" href="BicubicInterpolatingFunction.html#L91">91</a>          <strong class="jxr_keyword">throws</strong> DimensionMismatchException,
+<a class="jxr_linenumber" name="L92" href="BicubicInterpolatingFunction.html#L92">92</a>                 NoDataException,
+<a class="jxr_linenumber" name="L93" href="BicubicInterpolatingFunction.html#L93">93</a>                 <a href="../../exception/NonMonotonicSequenceException.html">NonMonotonicSequenceException</a> {
+<a class="jxr_linenumber" name="L94" href="BicubicInterpolatingFunction.html#L94">94</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> xLen = x.length;
+<a class="jxr_linenumber" name="L95" href="BicubicInterpolatingFunction.html#L95">95</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> yLen = y.length;
+<a class="jxr_linenumber" name="L96" href="BicubicInterpolatingFunction.html#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="BicubicInterpolatingFunction.html#L97">97</a>          <strong class="jxr_keyword">if</strong> (xLen == 0 || yLen == 0 || f.length == 0 || f[0].length == 0) {
+<a class="jxr_linenumber" name="L98" href="BicubicInterpolatingFunction.html#L98">98</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NoDataException.html">NoDataException</a>();
+<a class="jxr_linenumber" name="L99" href="BicubicInterpolatingFunction.html#L99">99</a>          }
+<a class="jxr_linenumber" name="L100" href="BicubicInterpolatingFunction.html#L100">100</a>         <strong class="jxr_keyword">if</strong> (xLen != f.length) {
+<a class="jxr_linenumber" name="L101" href="BicubicInterpolatingFunction.html#L101">101</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(xLen, f.length);
+<a class="jxr_linenumber" name="L102" href="BicubicInterpolatingFunction.html#L102">102</a>         }
+<a class="jxr_linenumber" name="L103" href="BicubicInterpolatingFunction.html#L103">103</a>         <strong class="jxr_keyword">if</strong> (xLen != dFdX.length) {
+<a class="jxr_linenumber" name="L104" href="BicubicInterpolatingFunction.html#L104">104</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(xLen, dFdX.length);
+<a class="jxr_linenumber" name="L105" href="BicubicInterpolatingFunction.html#L105">105</a>         }
+<a class="jxr_linenumber" name="L106" href="BicubicInterpolatingFunction.html#L106">106</a>         <strong class="jxr_keyword">if</strong> (xLen != dFdY.length) {
+<a class="jxr_linenumber" name="L107" href="BicubicInterpolatingFunction.html#L107">107</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(xLen, dFdY.length);
+<a class="jxr_linenumber" name="L108" href="BicubicInterpolatingFunction.html#L108">108</a>         }
+<a class="jxr_linenumber" name="L109" href="BicubicInterpolatingFunction.html#L109">109</a>         <strong class="jxr_keyword">if</strong> (xLen != d2FdXdY.length) {
+<a class="jxr_linenumber" name="L110" href="BicubicInterpolatingFunction.html#L110">110</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(xLen, d2FdXdY.length);
+<a class="jxr_linenumber" name="L111" href="BicubicInterpolatingFunction.html#L111">111</a>         }
+<a class="jxr_linenumber" name="L112" href="BicubicInterpolatingFunction.html#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="BicubicInterpolatingFunction.html#L113">113</a>         MathArrays.checkOrder(x);
+<a class="jxr_linenumber" name="L114" href="BicubicInterpolatingFunction.html#L114">114</a>         MathArrays.checkOrder(y);
+<a class="jxr_linenumber" name="L115" href="BicubicInterpolatingFunction.html#L115">115</a> 
+<a class="jxr_linenumber" name="L116" href="BicubicInterpolatingFunction.html#L116">116</a>         xval = x.clone();
+<a class="jxr_linenumber" name="L117" href="BicubicInterpolatingFunction.html#L117">117</a>         yval = y.clone();
+<a class="jxr_linenumber" name="L118" href="BicubicInterpolatingFunction.html#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="BicubicInterpolatingFunction.html#L119">119</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> lastI = xLen - 1;
+<a class="jxr_linenumber" name="L120" href="BicubicInterpolatingFunction.html#L120">120</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> lastJ = yLen - 1;
+<a class="jxr_linenumber" name="L121" href="BicubicInterpolatingFunction.html#L121">121</a>         splines = <strong class="jxr_keyword">new</strong> <a href="BicubicInterpolatingFunction.html">BicubicFunction</a>[lastI][lastJ];
+<a class="jxr_linenumber" name="L122" href="BicubicInterpolatingFunction.html#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="BicubicInterpolatingFunction.html#L123">123</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; lastI; i++) {
+<a class="jxr_linenumber" name="L124" href="BicubicInterpolatingFunction.html#L124">124</a>             <strong class="jxr_keyword">if</strong> (f[i].length != yLen) {
+<a class="jxr_linenumber" name="L125" href="BicubicInterpolatingFunction.html#L125">125</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(f[i].length, yLen);
+<a class="jxr_linenumber" name="L126" href="BicubicInterpolatingFunction.html#L126">126</a>             }
+<a class="jxr_linenumber" name="L127" href="BicubicInterpolatingFunction.html#L127">127</a>             <strong class="jxr_keyword">if</strong> (dFdX[i].length != yLen) {
+<a class="jxr_linenumber" name="L128" href="BicubicInterpolatingFunction.html#L128">128</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(dFdX[i].length, yLen);
+<a class="jxr_linenumber" name="L129" href="BicubicInterpolatingFunction.html#L129">129</a>             }
+<a class="jxr_linenumber" name="L130" href="BicubicInterpolatingFunction.html#L130">130</a>             <strong class="jxr_keyword">if</strong> (dFdY[i].length != yLen) {
+<a class="jxr_linenumber" name="L131" href="BicubicInterpolatingFunction.html#L131">131</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(dFdY[i].length, yLen);
+<a class="jxr_linenumber" name="L132" href="BicubicInterpolatingFunction.html#L132">132</a>             }
+<a class="jxr_linenumber" name="L133" href="BicubicInterpolatingFunction.html#L133">133</a>             <strong class="jxr_keyword">if</strong> (d2FdXdY[i].length != yLen) {
+<a class="jxr_linenumber" name="L134" href="BicubicInterpolatingFunction.html#L134">134</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(d2FdXdY[i].length, yLen);
+<a class="jxr_linenumber" name="L135" href="BicubicInterpolatingFunction.html#L135">135</a>             }
+<a class="jxr_linenumber" name="L136" href="BicubicInterpolatingFunction.html#L136">136</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ip1 = i + 1;
+<a class="jxr_linenumber" name="L137" href="BicubicInterpolatingFunction.html#L137">137</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xR = xval[ip1] - xval[i];
+<a class="jxr_linenumber" name="L138" href="BicubicInterpolatingFunction.html#L138">138</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; lastJ; j++) {
+<a class="jxr_linenumber" name="L139" href="BicubicInterpolatingFunction.html#L139">139</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> jp1 = j + 1;
+<a class="jxr_linenumber" name="L140" href="BicubicInterpolatingFunction.html#L140">140</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yR = yval[jp1] - yval[j];
+<a class="jxr_linenumber" name="L141" href="BicubicInterpolatingFunction.html#L141">141</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xRyR = xR * yR;
+<a class="jxr_linenumber" name="L142" href="BicubicInterpolatingFunction.html#L142">142</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] beta = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {
+<a class="jxr_linenumber" name="L143" href="BicubicInterpolatingFunction.html#L143">143</a>                     f[i][j], f[ip1][j], f[i][jp1], f[ip1][jp1],
+<a class="jxr_linenumber" name="L144" href="BicubicInterpolatingFunction.html#L144">144</a>                     dFdX[i][j] * xR, dFdX[ip1][j] * xR, dFdX[i][jp1] * xR, dFdX[ip1][jp1] * xR,
+<a class="jxr_linenumber" name="L145" href="BicubicInterpolatingFunction.html#L145">145</a>                     dFdY[i][j] * yR, dFdY[ip1][j] * yR, dFdY[i][jp1] * yR, dFdY[ip1][jp1] * yR,
+<a class="jxr_linenumber" name="L146" href="BicubicInterpolatingFunction.html#L146">146</a>                     d2FdXdY[i][j] * xRyR, d2FdXdY[ip1][j] * xRyR, d2FdXdY[i][jp1] * xRyR, d2FdXdY[ip1][jp1] * xRyR
+<a class="jxr_linenumber" name="L147" href="BicubicInterpolatingFunction.html#L147">147</a>                 };
+<a class="jxr_linenumber" name="L148" href="BicubicInterpolatingFunction.html#L148">148</a> 
+<a class="jxr_linenumber" name="L149" href="BicubicInterpolatingFunction.html#L149">149</a>                 splines[i][j] = <strong class="jxr_keyword">new</strong> <a href="BicubicInterpolatingFunction.html">BicubicFunction</a>(computeSplineCoefficients(beta));
+<a class="jxr_linenumber" name="L150" href="BicubicInterpolatingFunction.html#L150">150</a>             }
+<a class="jxr_linenumber" name="L151" href="BicubicInterpolatingFunction.html#L151">151</a>         }
+<a class="jxr_linenumber" name="L152" href="BicubicInterpolatingFunction.html#L152">152</a>     }
+<a class="jxr_linenumber" name="L153" href="BicubicInterpolatingFunction.html#L153">153</a> 
+<a class="jxr_linenumber" name="L154" href="BicubicInterpolatingFunction.html#L154">154</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L155" href="BicubicInterpolatingFunction.html#L155">155</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L156" href="BicubicInterpolatingFunction.html#L156">156</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L157" href="BicubicInterpolatingFunction.html#L157">157</a>     @Override
+<a class="jxr_linenumber" name="L158" href="BicubicInterpolatingFunction.html#L158">158</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> y)
+<a class="jxr_linenumber" name="L159" href="BicubicInterpolatingFunction.html#L159">159</a>         <strong class="jxr_keyword">throws</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a> {
+<a class="jxr_linenumber" name="L160" href="BicubicInterpolatingFunction.html#L160">160</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i = searchIndex(x, xval);
+<a class="jxr_linenumber" name="L161" href="BicubicInterpolatingFunction.html#L161">161</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> j = searchIndex(y, yval);
+<a class="jxr_linenumber" name="L162" href="BicubicInterpolatingFunction.html#L162">162</a> 
+<a class="jxr_linenumber" name="L163" href="BicubicInterpolatingFunction.html#L163">163</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xN = (x - xval[i]) / (xval[i + 1] - xval[i]);
+<a class="jxr_linenumber" name="L164" href="BicubicInterpolatingFunction.html#L164">164</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yN = (y - yval[j]) / (yval[j + 1] - yval[j]);
+<a class="jxr_linenumber" name="L165" href="BicubicInterpolatingFunction.html#L165">165</a> 
+<a class="jxr_linenumber" name="L166" href="BicubicInterpolatingFunction.html#L166">166</a>         <strong class="jxr_keyword">return</strong> splines[i][j].value(xN, yN);
+<a class="jxr_linenumber" name="L167" href="BicubicInterpolatingFunction.html#L167">167</a>     }
+<a class="jxr_linenumber" name="L168" href="BicubicInterpolatingFunction.html#L168">168</a> 
+<a class="jxr_linenumber" name="L169" href="BicubicInterpolatingFunction.html#L169">169</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L170" href="BicubicInterpolatingFunction.html#L170">170</a> <em class="jxr_javadoccomment">     * Indicates whether a point is within the interpolation range.</em>
+<a class="jxr_linenumber" name="L171" href="BicubicInterpolatingFunction.html#L171">171</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L172" href="BicubicInterpolatingFunction.html#L172">172</a> <em class="jxr_javadoccomment">     * @param x First coordinate.</em>
+<a class="jxr_linenumber" name="L173" href="BicubicInterpolatingFunction.html#L173">173</a> <em class="jxr_javadoccomment">     * @param y Second coordinate.</em>
+<a class="jxr_linenumber" name="L174" href="BicubicInterpolatingFunction.html#L174">174</a> <em class="jxr_javadoccomment">     * @return {@code true} if (x, y) is a valid point.</em>
+<a class="jxr_linenumber" name="L175" href="BicubicInterpolatingFunction.html#L175">175</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L176" href="BicubicInterpolatingFunction.html#L176">176</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isValidPoint(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> y) {
+<a class="jxr_linenumber" name="L177" href="BicubicInterpolatingFunction.html#L177">177</a>         <strong class="jxr_keyword">if</strong> (x &lt; xval[0] ||
+<a class="jxr_linenumber" name="L178" href="BicubicInterpolatingFunction.html#L178">178</a>             x &gt; xval[xval.length - 1] ||
+<a class="jxr_linenumber" name="L179" href="BicubicInterpolatingFunction.html#L179">179</a>             y &lt; yval[0] ||
+<a class="jxr_linenumber" name="L180" href="BicubicInterpolatingFunction.html#L180">180</a>             y &gt; yval[yval.length - 1]) {
+<a class="jxr_linenumber" name="L181" href="BicubicInterpolatingFunction.html#L181">181</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L182" href="BicubicInterpolatingFunction.html#L182">182</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L183" href="BicubicInterpolatingFunction.html#L183">183</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L184" href="BicubicInterpolatingFunction.html#L184">184</a>         }
+<a class="jxr_linenumber" name="L185" href="BicubicInterpolatingFunction.html#L185">185</a>     }
+<a class="jxr_linenumber" name="L186" href="BicubicInterpolatingFunction.html#L186">186</a> 
+<a class="jxr_linenumber" name="L187" href="BicubicInterpolatingFunction.html#L187">187</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L188" href="BicubicInterpolatingFunction.html#L188">188</a> <em class="jxr_javadoccomment">     * @param c Coordinate.</em>
+<a class="jxr_linenumber" name="L189" href="BicubicInterpolatingFunction.html#L189">189</a> <em class="jxr_javadoccomment">     * @param val Coordinate samples.</em>
+<a class="jxr_linenumber" name="L190" href="BicubicInterpolatingFunction.html#L190">190</a> <em class="jxr_javadoccomment">     * @return the index in {@code val} corresponding to the interval</em>
+<a class="jxr_linenumber" name="L191" href="BicubicInterpolatingFunction.html#L191">191</a> <em class="jxr_javadoccomment">     * containing {@code c}.</em>
+<a class="jxr_linenumber" name="L192" href="BicubicInterpolatingFunction.html#L192">192</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if {@code c} is out of the</em>
+<a class="jxr_linenumber" name="L193" href="BicubicInterpolatingFunction.html#L193">193</a> <em class="jxr_javadoccomment">     * range defined by the boundary values of {@code val}.</em>
+<a class="jxr_linenumber" name="L194" href="BicubicInterpolatingFunction.html#L194">194</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L195" href="BicubicInterpolatingFunction.html#L195">195</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> searchIndex(<strong class="jxr_keyword">double</strong> c, <strong class="jxr_keyword">double</strong>[] val) {
+<a class="jxr_linenumber" name="L196" href="BicubicInterpolatingFunction.html#L196">196</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> r = Arrays.binarySearch(val, c);
+<a class="jxr_linenumber" name="L197" href="BicubicInterpolatingFunction.html#L197">197</a> 
+<a class="jxr_linenumber" name="L198" href="BicubicInterpolatingFunction.html#L198">198</a>         <strong class="jxr_keyword">if</strong> (r == -1 ||
+<a class="jxr_linenumber" name="L199" href="BicubicInterpolatingFunction.html#L199">199</a>             r == -val.length - 1) {
+<a class="jxr_linenumber" name="L200" href="BicubicInterpolatingFunction.html#L200">200</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>(c, val[0], val[val.length - 1]);
+<a class="jxr_linenumber" name="L201" href="BicubicInterpolatingFunction.html#L201">201</a>         }
+<a class="jxr_linenumber" name="L202" href="BicubicInterpolatingFunction.html#L202">202</a> 
+<a class="jxr_linenumber" name="L203" href="BicubicInterpolatingFunction.html#L203">203</a>         <strong class="jxr_keyword">if</strong> (r &lt; 0) {
+<a class="jxr_linenumber" name="L204" href="BicubicInterpolatingFunction.html#L204">204</a>             <em class="jxr_comment">// "c" in within an interpolation sub-interval: Return the</em>
+<a class="jxr_linenumber" name="L205" href="BicubicInterpolatingFunction.html#L205">205</a>             <em class="jxr_comment">// index of the sample at the lower end of the sub-interval.</em>
+<a class="jxr_linenumber" name="L206" href="BicubicInterpolatingFunction.html#L206">206</a>             <strong class="jxr_keyword">return</strong> -r - 2;
+<a class="jxr_linenumber" name="L207" href="BicubicInterpolatingFunction.html#L207">207</a>         }
+<a class="jxr_linenumber" name="L208" href="BicubicInterpolatingFunction.html#L208">208</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> last = val.length - 1;
+<a class="jxr_linenumber" name="L209" href="BicubicInterpolatingFunction.html#L209">209</a>         <strong class="jxr_keyword">if</strong> (r == last) {
+<a class="jxr_linenumber" name="L210" href="BicubicInterpolatingFunction.html#L210">210</a>             <em class="jxr_comment">// "c" is the last sample of the range: Return the index</em>
+<a class="jxr_linenumber" name="L211" href="BicubicInterpolatingFunction.html#L211">211</a>             <em class="jxr_comment">// of the sample at the lower end of the last sub-interval.</em>
+<a class="jxr_linenumber" name="L212" href="BicubicInterpolatingFunction.html#L212">212</a>             <strong class="jxr_keyword">return</strong> last - 1;
+<a class="jxr_linenumber" name="L213" href="BicubicInterpolatingFunction.html#L213">213</a>         }
+<a class="jxr_linenumber" name="L214" href="BicubicInterpolatingFunction.html#L214">214</a> 
+<a class="jxr_linenumber" name="L215" href="BicubicInterpolatingFunction.html#L215">215</a>         <em class="jxr_comment">// "c" is another sample point.</em>
+<a class="jxr_linenumber" name="L216" href="BicubicInterpolatingFunction.html#L216">216</a>         <strong class="jxr_keyword">return</strong> r;
+<a class="jxr_linenumber" name="L217" href="BicubicInterpolatingFunction.html#L217">217</a>     }
+<a class="jxr_linenumber" name="L218" href="BicubicInterpolatingFunction.html#L218">218</a> 
+<a class="jxr_linenumber" name="L219" href="BicubicInterpolatingFunction.html#L219">219</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L220" href="BicubicInterpolatingFunction.html#L220">220</a> <em class="jxr_javadoccomment">     * Compute the spline coefficients from the list of function values and</em>
+<a class="jxr_linenumber" name="L221" href="BicubicInterpolatingFunction.html#L221">221</a> <em class="jxr_javadoccomment">     * function partial derivatives values at the four corners of a grid</em>
+<a class="jxr_linenumber" name="L222" href="BicubicInterpolatingFunction.html#L222">222</a> <em class="jxr_javadoccomment">     * element. They must be specified in the following order:</em>
+<a class="jxr_linenumber" name="L223" href="BicubicInterpolatingFunction.html#L223">223</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L224" href="BicubicInterpolatingFunction.html#L224">224</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f(0,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L225" href="BicubicInterpolatingFunction.html#L225">225</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f(1,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L226" href="BicubicInterpolatingFunction.html#L226">226</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f(0,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L227" href="BicubicInterpolatingFunction.html#L227">227</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f(1,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L228" href="BicubicInterpolatingFunction.html#L228">228</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;x&lt;/sub&gt;(0,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L229" href="BicubicInterpolatingFunction.html#L229">229</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;x&lt;/sub&gt;(1,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L230" href="BicubicInterpolatingFunction.html#L230">230</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;x&lt;/sub&gt;(0,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L231" href="BicubicInterpolatingFunction.html#L231">231</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;x&lt;/sub&gt;(1,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L232" href="BicubicInterpolatingFunction.html#L232">232</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;y&lt;/sub&gt;(0,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L233" href="BicubicInterpolatingFunction.html#L233">233</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;y&lt;/sub&gt;(1,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L234" href="BicubicInterpolatingFunction.html#L234">234</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;y&lt;/sub&gt;(0,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L235" href="BicubicInterpolatingFunction.html#L235">235</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;y&lt;/sub&gt;(1,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L236" href="BicubicInterpolatingFunction.html#L236">236</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;xy&lt;/sub&gt;(0,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L237" href="BicubicInterpolatingFunction.html#L237">237</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;xy&lt;/sub&gt;(1,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L238" href="BicubicInterpolatingFunction.html#L238">238</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;xy&lt;/sub&gt;(0,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L239" href="BicubicInterpolatingFunction.html#L239">239</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;xy&lt;/sub&gt;(1,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L240" href="BicubicInterpolatingFunction.html#L240">240</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L241" href="BicubicInterpolatingFunction.html#L241">241</a> <em class="jxr_javadoccomment">     * where the subscripts indicate the partial derivative with respect to</em>
+<a class="jxr_linenumber" name="L242" href="BicubicInterpolatingFunction.html#L242">242</a> <em class="jxr_javadoccomment">     * the corresponding variable(s).</em>
+<a class="jxr_linenumber" name="L243" href="BicubicInterpolatingFunction.html#L243">243</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L244" href="BicubicInterpolatingFunction.html#L244">244</a> <em class="jxr_javadoccomment">     * @param beta List of function values and function partial derivatives</em>
+<a class="jxr_linenumber" name="L245" href="BicubicInterpolatingFunction.html#L245">245</a> <em class="jxr_javadoccomment">     * values.</em>
+<a class="jxr_linenumber" name="L246" href="BicubicInterpolatingFunction.html#L246">246</a> <em class="jxr_javadoccomment">     * @return the spline coefficients.</em>
+<a class="jxr_linenumber" name="L247" href="BicubicInterpolatingFunction.html#L247">247</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L248" href="BicubicInterpolatingFunction.html#L248">248</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[] computeSplineCoefficients(<strong class="jxr_keyword">double</strong>[] beta) {
+<a class="jxr_linenumber" name="L249" href="BicubicInterpolatingFunction.html#L249">249</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] a = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[NUM_COEFF];
+<a class="jxr_linenumber" name="L250" href="BicubicInterpolatingFunction.html#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="BicubicInterpolatingFunction.html#L251">251</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; NUM_COEFF; i++) {
+<a class="jxr_linenumber" name="L252" href="BicubicInterpolatingFunction.html#L252">252</a>             <strong class="jxr_keyword">double</strong> result = 0;
+<a class="jxr_linenumber" name="L253" href="BicubicInterpolatingFunction.html#L253">253</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] row = AINV[i];
+<a class="jxr_linenumber" name="L254" href="BicubicInterpolatingFunction.html#L254">254</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; NUM_COEFF; j++) {
+<a class="jxr_linenumber" name="L255" href="BicubicInterpolatingFunction.html#L255">255</a>                 result += row[j] * beta[j];
+<a class="jxr_linenumber" name="L256" href="BicubicInterpolatingFunction.html#L256">256</a>             }
+<a class="jxr_linenumber" name="L257" href="BicubicInterpolatingFunction.html#L257">257</a>             a[i] = result;
+<a class="jxr_linenumber" name="L258" href="BicubicInterpolatingFunction.html#L258">258</a>         }
+<a class="jxr_linenumber" name="L259" href="BicubicInterpolatingFunction.html#L259">259</a> 
+<a class="jxr_linenumber" name="L260" href="BicubicInterpolatingFunction.html#L260">260</a>         <strong class="jxr_keyword">return</strong> a;
+<a class="jxr_linenumber" name="L261" href="BicubicInterpolatingFunction.html#L261">261</a>     }
+<a class="jxr_linenumber" name="L262" href="BicubicInterpolatingFunction.html#L262">262</a> }
+<a class="jxr_linenumber" name="L263" href="BicubicInterpolatingFunction.html#L263">263</a> 
+<a class="jxr_linenumber" name="L264" href="BicubicInterpolatingFunction.html#L264">264</a> <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L265" href="BicubicInterpolatingFunction.html#L265">265</a> <em class="jxr_javadoccomment"> * Bicubic function.</em>
+<a class="jxr_linenumber" name="L266" href="BicubicInterpolatingFunction.html#L266">266</a> <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L267" href="BicubicInterpolatingFunction.html#L267">267</a> <strong class="jxr_keyword">class</strong> <a href="BicubicInterpolatingFunction.html">BicubicFunction</a> <strong class="jxr_keyword">implements</strong> <a href="../BivariateFunction.html">BivariateFunction</a> {
+<a class="jxr_linenumber" name="L268" href="BicubicInterpolatingFunction.html#L268">268</a>     <em class="jxr_javadoccomment">/** Number of points. */</em>
+<a class="jxr_linenumber" name="L269" href="BicubicInterpolatingFunction.html#L269">269</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">short</strong> N = 4;
+<a class="jxr_linenumber" name="L270" href="BicubicInterpolatingFunction.html#L270">270</a>     <em class="jxr_javadoccomment">/** Coefficients */</em>
+<a class="jxr_linenumber" name="L271" href="BicubicInterpolatingFunction.html#L271">271</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] a;
+<a class="jxr_linenumber" name="L272" href="BicubicInterpolatingFunction.html#L272">272</a> 
+<a class="jxr_linenumber" name="L273" href="BicubicInterpolatingFunction.html#L273">273</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L274" href="BicubicInterpolatingFunction.html#L274">274</a> <em class="jxr_javadoccomment">     * Simple constructor.</em>
+<a class="jxr_linenumber" name="L275" href="BicubicInterpolatingFunction.html#L275">275</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L276" href="BicubicInterpolatingFunction.html#L276">276</a> <em class="jxr_javadoccomment">     * @param coeff Spline coefficients.</em>
+<a class="jxr_linenumber" name="L277" href="BicubicInterpolatingFunction.html#L277">277</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L278" href="BicubicInterpolatingFunction.html#L278">278</a>     <a href="BicubicInterpolatingFunction.html">BicubicFunction</a>(<strong class="jxr_keyword">double</strong>[] coeff) {
+<a class="jxr_linenumber" name="L279" href="BicubicInterpolatingFunction.html#L279">279</a>         a = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[N][N];
+<a class="jxr_linenumber" name="L280" href="BicubicInterpolatingFunction.html#L280">280</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; N; j++) {
+<a class="jxr_linenumber" name="L281" href="BicubicInterpolatingFunction.html#L281">281</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] aJ = a[j];
+<a class="jxr_linenumber" name="L282" href="BicubicInterpolatingFunction.html#L282">282</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; N; i++) {
+<a class="jxr_linenumber" name="L283" href="BicubicInterpolatingFunction.html#L283">283</a>                 aJ[i] = coeff[i * N + j];
+<a class="jxr_linenumber" name="L284" href="BicubicInterpolatingFunction.html#L284">284</a>             }
+<a class="jxr_linenumber" name="L285" href="BicubicInterpolatingFunction.html#L285">285</a>         }
+<a class="jxr_linenumber" name="L286" href="BicubicInterpolatingFunction.html#L286">286</a>     }
+<a class="jxr_linenumber" name="L287" href="BicubicInterpolatingFunction.html#L287">287</a> 
+<a class="jxr_linenumber" name="L288" href="BicubicInterpolatingFunction.html#L288">288</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L289" href="BicubicInterpolatingFunction.html#L289">289</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L290" href="BicubicInterpolatingFunction.html#L290">290</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L291" href="BicubicInterpolatingFunction.html#L291">291</a>     @Override
+<a class="jxr_linenumber" name="L292" href="BicubicInterpolatingFunction.html#L292">292</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> y) {
+<a class="jxr_linenumber" name="L293" href="BicubicInterpolatingFunction.html#L293">293</a>         <strong class="jxr_keyword">if</strong> (x &lt; 0 || x &gt; 1) {
+<a class="jxr_linenumber" name="L294" href="BicubicInterpolatingFunction.html#L294">294</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>(x, 0, 1);
+<a class="jxr_linenumber" name="L295" href="BicubicInterpolatingFunction.html#L295">295</a>         }
+<a class="jxr_linenumber" name="L296" href="BicubicInterpolatingFunction.html#L296">296</a>         <strong class="jxr_keyword">if</strong> (y &lt; 0 || y &gt; 1) {
+<a class="jxr_linenumber" name="L297" href="BicubicInterpolatingFunction.html#L297">297</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>(y, 0, 1);
+<a class="jxr_linenumber" name="L298" href="BicubicInterpolatingFunction.html#L298">298</a>         }
+<a class="jxr_linenumber" name="L299" href="BicubicInterpolatingFunction.html#L299">299</a> 
+<a class="jxr_linenumber" name="L300" href="BicubicInterpolatingFunction.html#L300">300</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x2 = x * x;
+<a class="jxr_linenumber" name="L301" href="BicubicInterpolatingFunction.html#L301">301</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x3 = x2 * x;
+<a class="jxr_linenumber" name="L302" href="BicubicInterpolatingFunction.html#L302">302</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] pX = {1, x, x2, x3};
+<a class="jxr_linenumber" name="L303" href="BicubicInterpolatingFunction.html#L303">303</a> 
+<a class="jxr_linenumber" name="L304" href="BicubicInterpolatingFunction.html#L304">304</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y2 = y * y;
+<a class="jxr_linenumber" name="L305" href="BicubicInterpolatingFunction.html#L305">305</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y3 = y2 * y;
+<a class="jxr_linenumber" name="L306" href="BicubicInterpolatingFunction.html#L306">306</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] pY = {1, y, y2, y3};
+<a class="jxr_linenumber" name="L307" href="BicubicInterpolatingFunction.html#L307">307</a> 
+<a class="jxr_linenumber" name="L308" href="BicubicInterpolatingFunction.html#L308">308</a>         <strong class="jxr_keyword">return</strong> apply(pX, pY, a);
+<a class="jxr_linenumber" name="L309" href="BicubicInterpolatingFunction.html#L309">309</a>     }
+<a class="jxr_linenumber" name="L310" href="BicubicInterpolatingFunction.html#L310">310</a> 
+<a class="jxr_linenumber" name="L311" href="BicubicInterpolatingFunction.html#L311">311</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L312" href="BicubicInterpolatingFunction.html#L312">312</a> <em class="jxr_javadoccomment">     * Compute the value of the bicubic polynomial.</em>
+<a class="jxr_linenumber" name="L313" href="BicubicInterpolatingFunction.html#L313">313</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L314" href="BicubicInterpolatingFunction.html#L314">314</a> <em class="jxr_javadoccomment">     * @param pX Powers of the x-coordinate.</em>
+<a class="jxr_linenumber" name="L315" href="BicubicInterpolatingFunction.html#L315">315</a> <em class="jxr_javadoccomment">     * @param pY Powers of the y-coordinate.</em>
+<a class="jxr_linenumber" name="L316" href="BicubicInterpolatingFunction.html#L316">316</a> <em class="jxr_javadoccomment">     * @param coeff Spline coefficients.</em>
+<a class="jxr_linenumber" name="L317" href="BicubicInterpolatingFunction.html#L317">317</a> <em class="jxr_javadoccomment">     * @return the interpolated value.</em>
+<a class="jxr_linenumber" name="L318" href="BicubicInterpolatingFunction.html#L318">318</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L319" href="BicubicInterpolatingFunction.html#L319">319</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> apply(<strong class="jxr_keyword">double</strong>[] pX, <strong class="jxr_keyword">double</strong>[] pY, <strong class="jxr_keyword">double</strong>[][] coeff) {
+<a class="jxr_linenumber" name="L320" href="BicubicInterpolatingFunction.html#L320">320</a>         <strong class="jxr_keyword">double</strong> result = 0;
+<a class="jxr_linenumber" name="L321" href="BicubicInterpolatingFunction.html#L321">321</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; N; i++) {
+<a class="jxr_linenumber" name="L322" href="BicubicInterpolatingFunction.html#L322">322</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> r = MathArrays.linearCombination(coeff[i], pY);
+<a class="jxr_linenumber" name="L323" href="BicubicInterpolatingFunction.html#L323">323</a>             result += r * pX[i];
+<a class="jxr_linenumber" name="L324" href="BicubicInterpolatingFunction.html#L324">324</a>         }
+<a class="jxr_linenumber" name="L325" href="BicubicInterpolatingFunction.html#L325">325</a> 
+<a class="jxr_linenumber" name="L326" href="BicubicInterpolatingFunction.html#L326">326</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L327" href="BicubicInterpolatingFunction.html#L327">327</a>     }
+<a class="jxr_linenumber" name="L328" href="BicubicInterpolatingFunction.html#L328">328</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

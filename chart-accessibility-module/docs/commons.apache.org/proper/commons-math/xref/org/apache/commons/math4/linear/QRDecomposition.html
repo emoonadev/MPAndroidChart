@@ -1,0 +1,517 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>QRDecomposition xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/linear/QRDecomposition.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="QRDecomposition.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="QRDecomposition.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="QRDecomposition.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="QRDecomposition.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="QRDecomposition.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="QRDecomposition.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="QRDecomposition.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="QRDecomposition.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="QRDecomposition.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="QRDecomposition.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="QRDecomposition.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="QRDecomposition.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="QRDecomposition.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="QRDecomposition.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="QRDecomposition.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="QRDecomposition.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="QRDecomposition.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="QRDecomposition.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.linear;
+<a class="jxr_linenumber" name="L19" href="QRDecomposition.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="QRDecomposition.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L21" href="QRDecomposition.html#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="QRDecomposition.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L23" href="QRDecomposition.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L24" href="QRDecomposition.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L25" href="QRDecomposition.html#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="QRDecomposition.html#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="QRDecomposition.html#L27">27</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L28" href="QRDecomposition.html#L28">28</a>  <em class="jxr_javadoccomment"> * Calculates the QR-decomposition of a matrix.</em>
+<a class="jxr_linenumber" name="L29" href="QRDecomposition.html#L29">29</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;The QR-decomposition of a matrix A consists of two matrices Q and R</em>
+<a class="jxr_linenumber" name="L30" href="QRDecomposition.html#L30">30</a>  <em class="jxr_javadoccomment"> * that satisfy: A = QR, Q is orthogonal (Q&lt;sup&gt;T&lt;/sup&gt;Q = I), and R is</em>
+<a class="jxr_linenumber" name="L31" href="QRDecomposition.html#L31">31</a>  <em class="jxr_javadoccomment"> * upper triangular. If A is m&amp;times;n, Q is m&amp;times;m and R m&amp;times;n.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L32" href="QRDecomposition.html#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This class compute the decomposition using Householder reflectors.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L33" href="QRDecomposition.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;For efficiency purposes, the decomposition in packed form is transposed.</em>
+<a class="jxr_linenumber" name="L34" href="QRDecomposition.html#L34">34</a>  <em class="jxr_javadoccomment"> * This allows inner loop to iterate inside rows, which is much more cache-efficient</em>
+<a class="jxr_linenumber" name="L35" href="QRDecomposition.html#L35">35</a>  <em class="jxr_javadoccomment"> * in Java.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L36" href="QRDecomposition.html#L36">36</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This class is based on the class with similar name from the</em>
+<a class="jxr_linenumber" name="L37" href="QRDecomposition.html#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://math.nist.gov/javanumerics/jama/" target="alexandria_uri">http://math.nist.gov/javanumerics/jama/</a>"&gt;JAMA&lt;/a&gt; library, with the</em>
+<a class="jxr_linenumber" name="L38" href="QRDecomposition.html#L38">38</a>  <em class="jxr_javadoccomment"> * following changes:&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L39" href="QRDecomposition.html#L39">39</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L40" href="QRDecomposition.html#L40">40</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;a {@link #getQT() getQT} method has been added,&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L41" href="QRDecomposition.html#L41">41</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;the {@code solve} and {@code isFullRank} methods have been replaced</em>
+<a class="jxr_linenumber" name="L42" href="QRDecomposition.html#L42">42</a>  <em class="jxr_javadoccomment"> *   by a {@link #getSolver() getSolver} method and the equivalent methods</em>
+<a class="jxr_linenumber" name="L43" href="QRDecomposition.html#L43">43</a>  <em class="jxr_javadoccomment"> *   provided by the returned {@link DecompositionSolver}.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L44" href="QRDecomposition.html#L44">44</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L45" href="QRDecomposition.html#L45">45</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L46" href="QRDecomposition.html#L46">46</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://mathworld.wolfram.com/QRDecomposition.html" target="alexandria_uri">http://mathworld.wolfram.com/QRDecomposition.html</a>"&gt;MathWorld&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L47" href="QRDecomposition.html#L47">47</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/QR_decomposition" target="alexandria_uri">http://en.wikipedia.org/wiki/QR_decomposition</a>"&gt;Wikipedia&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L48" href="QRDecomposition.html#L48">48</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L49" href="QRDecomposition.html#L49">49</a>  <em class="jxr_javadoccomment"> * @since 1.2 (changed to concrete class in 3.0)</em>
+<a class="jxr_linenumber" name="L50" href="QRDecomposition.html#L50">50</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L51" href="QRDecomposition.html#L51">51</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="QRDecomposition.html">QRDecomposition</a> {
+<a class="jxr_linenumber" name="L52" href="QRDecomposition.html#L52">52</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L53" href="QRDecomposition.html#L53">53</a>  <em class="jxr_javadoccomment">     * A packed TRANSPOSED representation of the QR decomposition.</em>
+<a class="jxr_linenumber" name="L54" href="QRDecomposition.html#L54">54</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;The elements BELOW the diagonal are the elements of the UPPER triangular</em>
+<a class="jxr_linenumber" name="L55" href="QRDecomposition.html#L55">55</a>  <em class="jxr_javadoccomment">     * matrix R, and the rows ABOVE the diagonal are the Householder reflector vectors</em>
+<a class="jxr_linenumber" name="L56" href="QRDecomposition.html#L56">56</a>  <em class="jxr_javadoccomment">     * from which an explicit form of Q can be recomputed if desired.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L57" href="QRDecomposition.html#L57">57</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L58" href="QRDecomposition.html#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[][] qrt;
+<a class="jxr_linenumber" name="L59" href="QRDecomposition.html#L59">59</a>      <em class="jxr_javadoccomment">/** The diagonal elements of R. */</em>
+<a class="jxr_linenumber" name="L60" href="QRDecomposition.html#L60">60</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[] rDiag;
+<a class="jxr_linenumber" name="L61" href="QRDecomposition.html#L61">61</a>      <em class="jxr_javadoccomment">/** Cached value of Q. */</em>
+<a class="jxr_linenumber" name="L62" href="QRDecomposition.html#L62">62</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedQ;
+<a class="jxr_linenumber" name="L63" href="QRDecomposition.html#L63">63</a>      <em class="jxr_javadoccomment">/** Cached value of QT. */</em>
+<a class="jxr_linenumber" name="L64" href="QRDecomposition.html#L64">64</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedQT;
+<a class="jxr_linenumber" name="L65" href="QRDecomposition.html#L65">65</a>      <em class="jxr_javadoccomment">/** Cached value of R. */</em>
+<a class="jxr_linenumber" name="L66" href="QRDecomposition.html#L66">66</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedR;
+<a class="jxr_linenumber" name="L67" href="QRDecomposition.html#L67">67</a>      <em class="jxr_javadoccomment">/** Cached value of H. */</em>
+<a class="jxr_linenumber" name="L68" href="QRDecomposition.html#L68">68</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedH;
+<a class="jxr_linenumber" name="L69" href="QRDecomposition.html#L69">69</a>      <em class="jxr_javadoccomment">/** Singularity threshold. */</em>
+<a class="jxr_linenumber" name="L70" href="QRDecomposition.html#L70">70</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> threshold;
+<a class="jxr_linenumber" name="L71" href="QRDecomposition.html#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="QRDecomposition.html#L72">72</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L73" href="QRDecomposition.html#L73">73</a>  <em class="jxr_javadoccomment">     * Calculates the QR-decomposition of the given matrix.</em>
+<a class="jxr_linenumber" name="L74" href="QRDecomposition.html#L74">74</a>  <em class="jxr_javadoccomment">     * The singularity threshold defaults to zero.</em>
+<a class="jxr_linenumber" name="L75" href="QRDecomposition.html#L75">75</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L76" href="QRDecomposition.html#L76">76</a>  <em class="jxr_javadoccomment">     * @param matrix The matrix to decompose.</em>
+<a class="jxr_linenumber" name="L77" href="QRDecomposition.html#L77">77</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L78" href="QRDecomposition.html#L78">78</a>  <em class="jxr_javadoccomment">     * @see #QRDecomposition(RealMatrix,double)</em>
+<a class="jxr_linenumber" name="L79" href="QRDecomposition.html#L79">79</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L80" href="QRDecomposition.html#L80">80</a>      <strong class="jxr_keyword">public</strong> <a href="QRDecomposition.html">QRDecomposition</a>(<a href="RealMatrix.html">RealMatrix</a> matrix) {
+<a class="jxr_linenumber" name="L81" href="QRDecomposition.html#L81">81</a>          <strong class="jxr_keyword">this</strong>(matrix, 0d);
+<a class="jxr_linenumber" name="L82" href="QRDecomposition.html#L82">82</a>      }
+<a class="jxr_linenumber" name="L83" href="QRDecomposition.html#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="QRDecomposition.html#L84">84</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L85" href="QRDecomposition.html#L85">85</a>  <em class="jxr_javadoccomment">     * Calculates the QR-decomposition of the given matrix.</em>
+<a class="jxr_linenumber" name="L86" href="QRDecomposition.html#L86">86</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L87" href="QRDecomposition.html#L87">87</a>  <em class="jxr_javadoccomment">     * @param matrix The matrix to decompose.</em>
+<a class="jxr_linenumber" name="L88" href="QRDecomposition.html#L88">88</a>  <em class="jxr_javadoccomment">     * @param threshold Singularity threshold.</em>
+<a class="jxr_linenumber" name="L89" href="QRDecomposition.html#L89">89</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L90" href="QRDecomposition.html#L90">90</a>      <strong class="jxr_keyword">public</strong> <a href="QRDecomposition.html">QRDecomposition</a>(<a href="RealMatrix.html">RealMatrix</a> matrix,
+<a class="jxr_linenumber" name="L91" href="QRDecomposition.html#L91">91</a>                             <strong class="jxr_keyword">double</strong> threshold) {
+<a class="jxr_linenumber" name="L92" href="QRDecomposition.html#L92">92</a>          <strong class="jxr_keyword">this</strong>.threshold = threshold;
+<a class="jxr_linenumber" name="L93" href="QRDecomposition.html#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="QRDecomposition.html#L94">94</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = matrix.getRowDimension();
+<a class="jxr_linenumber" name="L95" href="QRDecomposition.html#L95">95</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = matrix.getColumnDimension();
+<a class="jxr_linenumber" name="L96" href="QRDecomposition.html#L96">96</a>          qrt = matrix.transpose().getData();
+<a class="jxr_linenumber" name="L97" href="QRDecomposition.html#L97">97</a>          rDiag = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[FastMath.min(m, n)];
+<a class="jxr_linenumber" name="L98" href="QRDecomposition.html#L98">98</a>          cachedQ  = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L99" href="QRDecomposition.html#L99">99</a>          cachedQT = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L100" href="QRDecomposition.html#L100">100</a>         cachedR  = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L101" href="QRDecomposition.html#L101">101</a>         cachedH  = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L102" href="QRDecomposition.html#L102">102</a> 
+<a class="jxr_linenumber" name="L103" href="QRDecomposition.html#L103">103</a>         decompose(qrt);
+<a class="jxr_linenumber" name="L104" href="QRDecomposition.html#L104">104</a> 
+<a class="jxr_linenumber" name="L105" href="QRDecomposition.html#L105">105</a>     }
+<a class="jxr_linenumber" name="L106" href="QRDecomposition.html#L106">106</a> 
+<a class="jxr_linenumber" name="L107" href="QRDecomposition.html#L107">107</a>     <em class="jxr_javadoccomment">/** Decompose matrix.</em>
+<a class="jxr_linenumber" name="L108" href="QRDecomposition.html#L108">108</a> <em class="jxr_javadoccomment">     * @param matrix transposed matrix</em>
+<a class="jxr_linenumber" name="L109" href="QRDecomposition.html#L109">109</a> <em class="jxr_javadoccomment">     * @since 3.2</em>
+<a class="jxr_linenumber" name="L110" href="QRDecomposition.html#L110">110</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L111" href="QRDecomposition.html#L111">111</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> decompose(<strong class="jxr_keyword">double</strong>[][] matrix) {
+<a class="jxr_linenumber" name="L112" href="QRDecomposition.html#L112">112</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> minor = 0; minor &lt; FastMath.min(matrix.length, matrix[0].length); minor++) {
+<a class="jxr_linenumber" name="L113" href="QRDecomposition.html#L113">113</a>             performHouseholderReflection(minor, matrix);
+<a class="jxr_linenumber" name="L114" href="QRDecomposition.html#L114">114</a>         }
+<a class="jxr_linenumber" name="L115" href="QRDecomposition.html#L115">115</a>     }
+<a class="jxr_linenumber" name="L116" href="QRDecomposition.html#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="QRDecomposition.html#L117">117</a>     <em class="jxr_javadoccomment">/** Perform Householder reflection for a minor A(minor, minor) of A.</em>
+<a class="jxr_linenumber" name="L118" href="QRDecomposition.html#L118">118</a> <em class="jxr_javadoccomment">     * @param minor minor index</em>
+<a class="jxr_linenumber" name="L119" href="QRDecomposition.html#L119">119</a> <em class="jxr_javadoccomment">     * @param matrix transposed matrix</em>
+<a class="jxr_linenumber" name="L120" href="QRDecomposition.html#L120">120</a> <em class="jxr_javadoccomment">     * @since 3.2</em>
+<a class="jxr_linenumber" name="L121" href="QRDecomposition.html#L121">121</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L122" href="QRDecomposition.html#L122">122</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> performHouseholderReflection(<strong class="jxr_keyword">int</strong> minor, <strong class="jxr_keyword">double</strong>[][] matrix) {
+<a class="jxr_linenumber" name="L123" href="QRDecomposition.html#L123">123</a> 
+<a class="jxr_linenumber" name="L124" href="QRDecomposition.html#L124">124</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] qrtMinor = matrix[minor];
+<a class="jxr_linenumber" name="L125" href="QRDecomposition.html#L125">125</a> 
+<a class="jxr_linenumber" name="L126" href="QRDecomposition.html#L126">126</a>         <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L127" href="QRDecomposition.html#L127">127</a> <em class="jxr_comment">         * Let x be the first column of the minor, and a^2 = |x|^2.</em>
+<a class="jxr_linenumber" name="L128" href="QRDecomposition.html#L128">128</a> <em class="jxr_comment">         * x will be in the positions qr[minor][minor] through qr[m][minor].</em>
+<a class="jxr_linenumber" name="L129" href="QRDecomposition.html#L129">129</a> <em class="jxr_comment">         * The first column of the transformed minor will be (a,0,0,..)'</em>
+<a class="jxr_linenumber" name="L130" href="QRDecomposition.html#L130">130</a> <em class="jxr_comment">         * The sign of a is chosen to be opposite to the sign of the first</em>
+<a class="jxr_linenumber" name="L131" href="QRDecomposition.html#L131">131</a> <em class="jxr_comment">         * component of x. Let's find a:</em>
+<a class="jxr_linenumber" name="L132" href="QRDecomposition.html#L132">132</a> <em class="jxr_comment">         */</em>
+<a class="jxr_linenumber" name="L133" href="QRDecomposition.html#L133">133</a>         <strong class="jxr_keyword">double</strong> xNormSqr = 0;
+<a class="jxr_linenumber" name="L134" href="QRDecomposition.html#L134">134</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = minor; row &lt; qrtMinor.length; row++) {
+<a class="jxr_linenumber" name="L135" href="QRDecomposition.html#L135">135</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> c = qrtMinor[row];
+<a class="jxr_linenumber" name="L136" href="QRDecomposition.html#L136">136</a>             xNormSqr += c * c;
+<a class="jxr_linenumber" name="L137" href="QRDecomposition.html#L137">137</a>         }
+<a class="jxr_linenumber" name="L138" href="QRDecomposition.html#L138">138</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> a = (qrtMinor[minor] &gt; 0) ? -FastMath.sqrt(xNormSqr) : FastMath.sqrt(xNormSqr);
+<a class="jxr_linenumber" name="L139" href="QRDecomposition.html#L139">139</a>         rDiag[minor] = a;
+<a class="jxr_linenumber" name="L140" href="QRDecomposition.html#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="QRDecomposition.html#L141">141</a>         <strong class="jxr_keyword">if</strong> (a != 0.0) {
+<a class="jxr_linenumber" name="L142" href="QRDecomposition.html#L142">142</a> 
+<a class="jxr_linenumber" name="L143" href="QRDecomposition.html#L143">143</a>             <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L144" href="QRDecomposition.html#L144">144</a> <em class="jxr_comment">             * Calculate the normalized reflection vector v and transform</em>
+<a class="jxr_linenumber" name="L145" href="QRDecomposition.html#L145">145</a> <em class="jxr_comment">             * the first column. We know the norm of v beforehand: v = x-ae</em>
+<a class="jxr_linenumber" name="L146" href="QRDecomposition.html#L146">146</a> <em class="jxr_comment">             * so |v|^2 = &lt;x-ae,x-ae&gt; = &lt;x,x&gt;-2a&lt;x,e&gt;+a^2&lt;e,e&gt; =</em>
+<a class="jxr_linenumber" name="L147" href="QRDecomposition.html#L147">147</a> <em class="jxr_comment">             * a^2+a^2-2a&lt;x,e&gt; = 2a*(a - &lt;x,e&gt;).</em>
+<a class="jxr_linenumber" name="L148" href="QRDecomposition.html#L148">148</a> <em class="jxr_comment">             * Here &lt;x, e&gt; is now qr[minor][minor].</em>
+<a class="jxr_linenumber" name="L149" href="QRDecomposition.html#L149">149</a> <em class="jxr_comment">             * v = x-ae is stored in the column at qr:</em>
+<a class="jxr_linenumber" name="L150" href="QRDecomposition.html#L150">150</a> <em class="jxr_comment">             */</em>
+<a class="jxr_linenumber" name="L151" href="QRDecomposition.html#L151">151</a>             qrtMinor[minor] -= a; <em class="jxr_comment">// now |v|^2 = -2a*(qr[minor][minor])</em>
+<a class="jxr_linenumber" name="L152" href="QRDecomposition.html#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="QRDecomposition.html#L153">153</a>             <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L154" href="QRDecomposition.html#L154">154</a> <em class="jxr_comment">             * Transform the rest of the columns of the minor:</em>
+<a class="jxr_linenumber" name="L155" href="QRDecomposition.html#L155">155</a> <em class="jxr_comment">             * They will be transformed by the matrix H = I-2vv'/|v|^2.</em>
+<a class="jxr_linenumber" name="L156" href="QRDecomposition.html#L156">156</a> <em class="jxr_comment">             * If x is a column vector of the minor, then</em>
+<a class="jxr_linenumber" name="L157" href="QRDecomposition.html#L157">157</a> <em class="jxr_comment">             * Hx = (I-2vv'/|v|^2)x = x-2vv'x/|v|^2 = x - 2&lt;x,v&gt;/|v|^2 v.</em>
+<a class="jxr_linenumber" name="L158" href="QRDecomposition.html#L158">158</a> <em class="jxr_comment">             * Therefore the transformation is easily calculated by</em>
+<a class="jxr_linenumber" name="L159" href="QRDecomposition.html#L159">159</a> <em class="jxr_comment">             * subtracting the column vector (2&lt;x,v&gt;/|v|^2)v from x.</em>
+<a class="jxr_linenumber" name="L160" href="QRDecomposition.html#L160">160</a> <em class="jxr_comment">             *</em>
+<a class="jxr_linenumber" name="L161" href="QRDecomposition.html#L161">161</a> <em class="jxr_comment">             * Let 2&lt;x,v&gt;/|v|^2 = alpha. From above we have</em>
+<a class="jxr_linenumber" name="L162" href="QRDecomposition.html#L162">162</a> <em class="jxr_comment">             * |v|^2 = -2a*(qr[minor][minor]), so</em>
+<a class="jxr_linenumber" name="L163" href="QRDecomposition.html#L163">163</a> <em class="jxr_comment">             * alpha = -&lt;x,v&gt;/(a*qr[minor][minor])</em>
+<a class="jxr_linenumber" name="L164" href="QRDecomposition.html#L164">164</a> <em class="jxr_comment">             */</em>
+<a class="jxr_linenumber" name="L165" href="QRDecomposition.html#L165">165</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = minor+1; col &lt; matrix.length; col++) {
+<a class="jxr_linenumber" name="L166" href="QRDecomposition.html#L166">166</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] qrtCol = matrix[col];
+<a class="jxr_linenumber" name="L167" href="QRDecomposition.html#L167">167</a>                 <strong class="jxr_keyword">double</strong> alpha = 0;
+<a class="jxr_linenumber" name="L168" href="QRDecomposition.html#L168">168</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = minor; row &lt; qrtCol.length; row++) {
+<a class="jxr_linenumber" name="L169" href="QRDecomposition.html#L169">169</a>                     alpha -= qrtCol[row] * qrtMinor[row];
+<a class="jxr_linenumber" name="L170" href="QRDecomposition.html#L170">170</a>                 }
+<a class="jxr_linenumber" name="L171" href="QRDecomposition.html#L171">171</a>                 alpha /= a * qrtMinor[minor];
+<a class="jxr_linenumber" name="L172" href="QRDecomposition.html#L172">172</a> 
+<a class="jxr_linenumber" name="L173" href="QRDecomposition.html#L173">173</a>                 <em class="jxr_comment">// Subtract the column vector alpha*v from x.</em>
+<a class="jxr_linenumber" name="L174" href="QRDecomposition.html#L174">174</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = minor; row &lt; qrtCol.length; row++) {
+<a class="jxr_linenumber" name="L175" href="QRDecomposition.html#L175">175</a>                     qrtCol[row] -= alpha * qrtMinor[row];
+<a class="jxr_linenumber" name="L176" href="QRDecomposition.html#L176">176</a>                 }
+<a class="jxr_linenumber" name="L177" href="QRDecomposition.html#L177">177</a>             }
+<a class="jxr_linenumber" name="L178" href="QRDecomposition.html#L178">178</a>         }
+<a class="jxr_linenumber" name="L179" href="QRDecomposition.html#L179">179</a>     }
+<a class="jxr_linenumber" name="L180" href="QRDecomposition.html#L180">180</a> 
+<a class="jxr_linenumber" name="L181" href="QRDecomposition.html#L181">181</a> 
+<a class="jxr_linenumber" name="L182" href="QRDecomposition.html#L182">182</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L183" href="QRDecomposition.html#L183">183</a> <em class="jxr_javadoccomment">     * Returns the matrix R of the decomposition.</em>
+<a class="jxr_linenumber" name="L184" href="QRDecomposition.html#L184">184</a> <em class="jxr_javadoccomment">     * &lt;p&gt;R is an upper-triangular matrix&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L185" href="QRDecomposition.html#L185">185</a> <em class="jxr_javadoccomment">     * @return the R matrix</em>
+<a class="jxr_linenumber" name="L186" href="QRDecomposition.html#L186">186</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L187" href="QRDecomposition.html#L187">187</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getR() {
+<a class="jxr_linenumber" name="L188" href="QRDecomposition.html#L188">188</a> 
+<a class="jxr_linenumber" name="L189" href="QRDecomposition.html#L189">189</a>         <strong class="jxr_keyword">if</strong> (cachedR == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L190" href="QRDecomposition.html#L190">190</a> 
+<a class="jxr_linenumber" name="L191" href="QRDecomposition.html#L191">191</a>             <em class="jxr_comment">// R is supposed to be m x n</em>
+<a class="jxr_linenumber" name="L192" href="QRDecomposition.html#L192">192</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = qrt.length;
+<a class="jxr_linenumber" name="L193" href="QRDecomposition.html#L193">193</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = qrt[0].length;
+<a class="jxr_linenumber" name="L194" href="QRDecomposition.html#L194">194</a>             <strong class="jxr_keyword">double</strong>[][] ra = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[m][n];
+<a class="jxr_linenumber" name="L195" href="QRDecomposition.html#L195">195</a>             <em class="jxr_comment">// copy the diagonal from rDiag and the upper triangle of qr</em>
+<a class="jxr_linenumber" name="L196" href="QRDecomposition.html#L196">196</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = FastMath.min(m, n) - 1; row &gt;= 0; row--) {
+<a class="jxr_linenumber" name="L197" href="QRDecomposition.html#L197">197</a>                 ra[row][row] = rDiag[row];
+<a class="jxr_linenumber" name="L198" href="QRDecomposition.html#L198">198</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = row + 1; col &lt; n; col++) {
+<a class="jxr_linenumber" name="L199" href="QRDecomposition.html#L199">199</a>                     ra[row][col] = qrt[col][row];
+<a class="jxr_linenumber" name="L200" href="QRDecomposition.html#L200">200</a>                 }
+<a class="jxr_linenumber" name="L201" href="QRDecomposition.html#L201">201</a>             }
+<a class="jxr_linenumber" name="L202" href="QRDecomposition.html#L202">202</a>             cachedR = MatrixUtils.createRealMatrix(ra);
+<a class="jxr_linenumber" name="L203" href="QRDecomposition.html#L203">203</a>         }
+<a class="jxr_linenumber" name="L204" href="QRDecomposition.html#L204">204</a> 
+<a class="jxr_linenumber" name="L205" href="QRDecomposition.html#L205">205</a>         <em class="jxr_comment">// return the cached matrix</em>
+<a class="jxr_linenumber" name="L206" href="QRDecomposition.html#L206">206</a>         <strong class="jxr_keyword">return</strong> cachedR;
+<a class="jxr_linenumber" name="L207" href="QRDecomposition.html#L207">207</a>     }
+<a class="jxr_linenumber" name="L208" href="QRDecomposition.html#L208">208</a> 
+<a class="jxr_linenumber" name="L209" href="QRDecomposition.html#L209">209</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L210" href="QRDecomposition.html#L210">210</a> <em class="jxr_javadoccomment">     * Returns the matrix Q of the decomposition.</em>
+<a class="jxr_linenumber" name="L211" href="QRDecomposition.html#L211">211</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Q is an orthogonal matrix&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L212" href="QRDecomposition.html#L212">212</a> <em class="jxr_javadoccomment">     * @return the Q matrix</em>
+<a class="jxr_linenumber" name="L213" href="QRDecomposition.html#L213">213</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L214" href="QRDecomposition.html#L214">214</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getQ() {
+<a class="jxr_linenumber" name="L215" href="QRDecomposition.html#L215">215</a>         <strong class="jxr_keyword">if</strong> (cachedQ == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L216" href="QRDecomposition.html#L216">216</a>             cachedQ = getQT().transpose();
+<a class="jxr_linenumber" name="L217" href="QRDecomposition.html#L217">217</a>         }
+<a class="jxr_linenumber" name="L218" href="QRDecomposition.html#L218">218</a>         <strong class="jxr_keyword">return</strong> cachedQ;
+<a class="jxr_linenumber" name="L219" href="QRDecomposition.html#L219">219</a>     }
+<a class="jxr_linenumber" name="L220" href="QRDecomposition.html#L220">220</a> 
+<a class="jxr_linenumber" name="L221" href="QRDecomposition.html#L221">221</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L222" href="QRDecomposition.html#L222">222</a> <em class="jxr_javadoccomment">     * Returns the transpose of the matrix Q of the decomposition.</em>
+<a class="jxr_linenumber" name="L223" href="QRDecomposition.html#L223">223</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Q is an orthogonal matrix&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L224" href="QRDecomposition.html#L224">224</a> <em class="jxr_javadoccomment">     * @return the transpose of the Q matrix, Q&lt;sup&gt;T&lt;/sup&gt;</em>
+<a class="jxr_linenumber" name="L225" href="QRDecomposition.html#L225">225</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L226" href="QRDecomposition.html#L226">226</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getQT() {
+<a class="jxr_linenumber" name="L227" href="QRDecomposition.html#L227">227</a>         <strong class="jxr_keyword">if</strong> (cachedQT == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L228" href="QRDecomposition.html#L228">228</a> 
+<a class="jxr_linenumber" name="L229" href="QRDecomposition.html#L229">229</a>             <em class="jxr_comment">// QT is supposed to be m x m</em>
+<a class="jxr_linenumber" name="L230" href="QRDecomposition.html#L230">230</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = qrt.length;
+<a class="jxr_linenumber" name="L231" href="QRDecomposition.html#L231">231</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = qrt[0].length;
+<a class="jxr_linenumber" name="L232" href="QRDecomposition.html#L232">232</a>             <strong class="jxr_keyword">double</strong>[][] qta = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[m][m];
+<a class="jxr_linenumber" name="L233" href="QRDecomposition.html#L233">233</a> 
+<a class="jxr_linenumber" name="L234" href="QRDecomposition.html#L234">234</a>             <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L235" href="QRDecomposition.html#L235">235</a> <em class="jxr_comment">             * Q = Q1 Q2 ... Q_m, so Q is formed by first constructing Q_m and then</em>
+<a class="jxr_linenumber" name="L236" href="QRDecomposition.html#L236">236</a> <em class="jxr_comment">             * applying the Householder transformations Q_(m-1),Q_(m-2),...,Q1 in</em>
+<a class="jxr_linenumber" name="L237" href="QRDecomposition.html#L237">237</a> <em class="jxr_comment">             * succession to the result</em>
+<a class="jxr_linenumber" name="L238" href="QRDecomposition.html#L238">238</a> <em class="jxr_comment">             */</em>
+<a class="jxr_linenumber" name="L239" href="QRDecomposition.html#L239">239</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> minor = m - 1; minor &gt;= FastMath.min(m, n); minor--) {
+<a class="jxr_linenumber" name="L240" href="QRDecomposition.html#L240">240</a>                 qta[minor][minor] = 1.0d;
+<a class="jxr_linenumber" name="L241" href="QRDecomposition.html#L241">241</a>             }
+<a class="jxr_linenumber" name="L242" href="QRDecomposition.html#L242">242</a> 
+<a class="jxr_linenumber" name="L243" href="QRDecomposition.html#L243">243</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> minor = FastMath.min(m, n)-1; minor &gt;= 0; minor--){
+<a class="jxr_linenumber" name="L244" href="QRDecomposition.html#L244">244</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] qrtMinor = qrt[minor];
+<a class="jxr_linenumber" name="L245" href="QRDecomposition.html#L245">245</a>                 qta[minor][minor] = 1.0d;
+<a class="jxr_linenumber" name="L246" href="QRDecomposition.html#L246">246</a>                 <strong class="jxr_keyword">if</strong> (qrtMinor[minor] != 0.0) {
+<a class="jxr_linenumber" name="L247" href="QRDecomposition.html#L247">247</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = minor; col &lt; m; col++) {
+<a class="jxr_linenumber" name="L248" href="QRDecomposition.html#L248">248</a>                         <strong class="jxr_keyword">double</strong> alpha = 0;
+<a class="jxr_linenumber" name="L249" href="QRDecomposition.html#L249">249</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = minor; row &lt; m; row++) {
+<a class="jxr_linenumber" name="L250" href="QRDecomposition.html#L250">250</a>                             alpha -= qta[col][row] * qrtMinor[row];
+<a class="jxr_linenumber" name="L251" href="QRDecomposition.html#L251">251</a>                         }
+<a class="jxr_linenumber" name="L252" href="QRDecomposition.html#L252">252</a>                         alpha /= rDiag[minor] * qrtMinor[minor];
+<a class="jxr_linenumber" name="L253" href="QRDecomposition.html#L253">253</a> 
+<a class="jxr_linenumber" name="L254" href="QRDecomposition.html#L254">254</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = minor; row &lt; m; row++) {
+<a class="jxr_linenumber" name="L255" href="QRDecomposition.html#L255">255</a>                             qta[col][row] += -alpha * qrtMinor[row];
+<a class="jxr_linenumber" name="L256" href="QRDecomposition.html#L256">256</a>                         }
+<a class="jxr_linenumber" name="L257" href="QRDecomposition.html#L257">257</a>                     }
+<a class="jxr_linenumber" name="L258" href="QRDecomposition.html#L258">258</a>                 }
+<a class="jxr_linenumber" name="L259" href="QRDecomposition.html#L259">259</a>             }
+<a class="jxr_linenumber" name="L260" href="QRDecomposition.html#L260">260</a>             cachedQT = MatrixUtils.createRealMatrix(qta);
+<a class="jxr_linenumber" name="L261" href="QRDecomposition.html#L261">261</a>         }
+<a class="jxr_linenumber" name="L262" href="QRDecomposition.html#L262">262</a> 
+<a class="jxr_linenumber" name="L263" href="QRDecomposition.html#L263">263</a>         <em class="jxr_comment">// return the cached matrix</em>
+<a class="jxr_linenumber" name="L264" href="QRDecomposition.html#L264">264</a>         <strong class="jxr_keyword">return</strong> cachedQT;
+<a class="jxr_linenumber" name="L265" href="QRDecomposition.html#L265">265</a>     }
+<a class="jxr_linenumber" name="L266" href="QRDecomposition.html#L266">266</a> 
+<a class="jxr_linenumber" name="L267" href="QRDecomposition.html#L267">267</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L268" href="QRDecomposition.html#L268">268</a> <em class="jxr_javadoccomment">     * Returns the Householder reflector vectors.</em>
+<a class="jxr_linenumber" name="L269" href="QRDecomposition.html#L269">269</a> <em class="jxr_javadoccomment">     * &lt;p&gt;H is a lower trapezoidal matrix whose columns represent</em>
+<a class="jxr_linenumber" name="L270" href="QRDecomposition.html#L270">270</a> <em class="jxr_javadoccomment">     * each successive Householder reflector vector. This matrix is used</em>
+<a class="jxr_linenumber" name="L271" href="QRDecomposition.html#L271">271</a> <em class="jxr_javadoccomment">     * to compute Q.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L272" href="QRDecomposition.html#L272">272</a> <em class="jxr_javadoccomment">     * @return a matrix containing the Householder reflector vectors</em>
+<a class="jxr_linenumber" name="L273" href="QRDecomposition.html#L273">273</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L274" href="QRDecomposition.html#L274">274</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getH() {
+<a class="jxr_linenumber" name="L275" href="QRDecomposition.html#L275">275</a>         <strong class="jxr_keyword">if</strong> (cachedH == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L276" href="QRDecomposition.html#L276">276</a> 
+<a class="jxr_linenumber" name="L277" href="QRDecomposition.html#L277">277</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = qrt.length;
+<a class="jxr_linenumber" name="L278" href="QRDecomposition.html#L278">278</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = qrt[0].length;
+<a class="jxr_linenumber" name="L279" href="QRDecomposition.html#L279">279</a>             <strong class="jxr_keyword">double</strong>[][] ha = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[m][n];
+<a class="jxr_linenumber" name="L280" href="QRDecomposition.html#L280">280</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; m; ++i) {
+<a class="jxr_linenumber" name="L281" href="QRDecomposition.html#L281">281</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; FastMath.min(i + 1, n); ++j) {
+<a class="jxr_linenumber" name="L282" href="QRDecomposition.html#L282">282</a>                     ha[i][j] = qrt[j][i] / -rDiag[j];
+<a class="jxr_linenumber" name="L283" href="QRDecomposition.html#L283">283</a>                 }
+<a class="jxr_linenumber" name="L284" href="QRDecomposition.html#L284">284</a>             }
+<a class="jxr_linenumber" name="L285" href="QRDecomposition.html#L285">285</a>             cachedH = MatrixUtils.createRealMatrix(ha);
+<a class="jxr_linenumber" name="L286" href="QRDecomposition.html#L286">286</a>         }
+<a class="jxr_linenumber" name="L287" href="QRDecomposition.html#L287">287</a> 
+<a class="jxr_linenumber" name="L288" href="QRDecomposition.html#L288">288</a>         <em class="jxr_comment">// return the cached matrix</em>
+<a class="jxr_linenumber" name="L289" href="QRDecomposition.html#L289">289</a>         <strong class="jxr_keyword">return</strong> cachedH;
+<a class="jxr_linenumber" name="L290" href="QRDecomposition.html#L290">290</a>     }
+<a class="jxr_linenumber" name="L291" href="QRDecomposition.html#L291">291</a> 
+<a class="jxr_linenumber" name="L292" href="QRDecomposition.html#L292">292</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L293" href="QRDecomposition.html#L293">293</a> <em class="jxr_javadoccomment">     * Get a solver for finding the A &amp;times; X = B solution in least square sense.</em>
+<a class="jxr_linenumber" name="L294" href="QRDecomposition.html#L294">294</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L295" href="QRDecomposition.html#L295">295</a> <em class="jxr_javadoccomment">     * Least Square sense means a solver can be computed for an overdetermined system,</em>
+<a class="jxr_linenumber" name="L296" href="QRDecomposition.html#L296">296</a> <em class="jxr_javadoccomment">     * (i.e. a system with more equations than unknowns, which corresponds to a tall A</em>
+<a class="jxr_linenumber" name="L297" href="QRDecomposition.html#L297">297</a> <em class="jxr_javadoccomment">     * matrix with more rows than columns). In any case, if the matrix is singular</em>
+<a class="jxr_linenumber" name="L298" href="QRDecomposition.html#L298">298</a> <em class="jxr_javadoccomment">     * within the tolerance set at {@link QRDecomposition#QRDecomposition(RealMatrix,</em>
+<a class="jxr_linenumber" name="L299" href="QRDecomposition.html#L299">299</a> <em class="jxr_javadoccomment">     * double) construction}, an error will be triggered when</em>
+<a class="jxr_linenumber" name="L300" href="QRDecomposition.html#L300">300</a> <em class="jxr_javadoccomment">     * the {@link DecompositionSolver#solve(RealVector) solve} method will be called.</em>
+<a class="jxr_linenumber" name="L301" href="QRDecomposition.html#L301">301</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L302" href="QRDecomposition.html#L302">302</a> <em class="jxr_javadoccomment">     * @return a solver</em>
+<a class="jxr_linenumber" name="L303" href="QRDecomposition.html#L303">303</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L304" href="QRDecomposition.html#L304">304</a>     <strong class="jxr_keyword">public</strong> <a href="DecompositionSolver.html">DecompositionSolver</a> getSolver() {
+<a class="jxr_linenumber" name="L305" href="QRDecomposition.html#L305">305</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="RRQRDecomposition.html">Solver</a>(qrt, rDiag, threshold);
+<a class="jxr_linenumber" name="L306" href="QRDecomposition.html#L306">306</a>     }
+<a class="jxr_linenumber" name="L307" href="QRDecomposition.html#L307">307</a> 
+<a class="jxr_linenumber" name="L308" href="QRDecomposition.html#L308">308</a>     <em class="jxr_javadoccomment">/** Specialized solver. */</em>
+<a class="jxr_linenumber" name="L309" href="QRDecomposition.html#L309">309</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="RRQRDecomposition.html">Solver</a> <strong class="jxr_keyword">implements</strong> <a href="DecompositionSolver.html">DecompositionSolver</a> {
+<a class="jxr_linenumber" name="L310" href="QRDecomposition.html#L310">310</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L311" href="QRDecomposition.html#L311">311</a> <em class="jxr_javadoccomment">         * A packed TRANSPOSED representation of the QR decomposition.</em>
+<a class="jxr_linenumber" name="L312" href="QRDecomposition.html#L312">312</a> <em class="jxr_javadoccomment">         * &lt;p&gt;The elements BELOW the diagonal are the elements of the UPPER triangular</em>
+<a class="jxr_linenumber" name="L313" href="QRDecomposition.html#L313">313</a> <em class="jxr_javadoccomment">         * matrix R, and the rows ABOVE the diagonal are the Householder reflector vectors</em>
+<a class="jxr_linenumber" name="L314" href="QRDecomposition.html#L314">314</a> <em class="jxr_javadoccomment">         * from which an explicit form of Q can be recomputed if desired.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L315" href="QRDecomposition.html#L315">315</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L316" href="QRDecomposition.html#L316">316</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] qrt;
+<a class="jxr_linenumber" name="L317" href="QRDecomposition.html#L317">317</a>         <em class="jxr_javadoccomment">/** The diagonal elements of R. */</em>
+<a class="jxr_linenumber" name="L318" href="QRDecomposition.html#L318">318</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] rDiag;
+<a class="jxr_linenumber" name="L319" href="QRDecomposition.html#L319">319</a>         <em class="jxr_javadoccomment">/** Singularity threshold. */</em>
+<a class="jxr_linenumber" name="L320" href="QRDecomposition.html#L320">320</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> threshold;
+<a class="jxr_linenumber" name="L321" href="QRDecomposition.html#L321">321</a> 
+<a class="jxr_linenumber" name="L322" href="QRDecomposition.html#L322">322</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L323" href="QRDecomposition.html#L323">323</a> <em class="jxr_javadoccomment">         * Build a solver from decomposed matrix.</em>
+<a class="jxr_linenumber" name="L324" href="QRDecomposition.html#L324">324</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L325" href="QRDecomposition.html#L325">325</a> <em class="jxr_javadoccomment">         * @param qrt Packed TRANSPOSED representation of the QR decomposition.</em>
+<a class="jxr_linenumber" name="L326" href="QRDecomposition.html#L326">326</a> <em class="jxr_javadoccomment">         * @param rDiag Diagonal elements of R.</em>
+<a class="jxr_linenumber" name="L327" href="QRDecomposition.html#L327">327</a> <em class="jxr_javadoccomment">         * @param threshold Singularity threshold.</em>
+<a class="jxr_linenumber" name="L328" href="QRDecomposition.html#L328">328</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L329" href="QRDecomposition.html#L329">329</a>         <strong class="jxr_keyword">private</strong> <a href="RRQRDecomposition.html">Solver</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] qrt,
+<a class="jxr_linenumber" name="L330" href="QRDecomposition.html#L330">330</a>                        <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] rDiag,
+<a class="jxr_linenumber" name="L331" href="QRDecomposition.html#L331">331</a>                        <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> threshold) {
+<a class="jxr_linenumber" name="L332" href="QRDecomposition.html#L332">332</a>             <strong class="jxr_keyword">this</strong>.qrt   = qrt;
+<a class="jxr_linenumber" name="L333" href="QRDecomposition.html#L333">333</a>             <strong class="jxr_keyword">this</strong>.rDiag = rDiag;
+<a class="jxr_linenumber" name="L334" href="QRDecomposition.html#L334">334</a>             <strong class="jxr_keyword">this</strong>.threshold = threshold;
+<a class="jxr_linenumber" name="L335" href="QRDecomposition.html#L335">335</a>         }
+<a class="jxr_linenumber" name="L336" href="QRDecomposition.html#L336">336</a> 
+<a class="jxr_linenumber" name="L337" href="QRDecomposition.html#L337">337</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L338" href="QRDecomposition.html#L338">338</a>         @Override
+<a class="jxr_linenumber" name="L339" href="QRDecomposition.html#L339">339</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isNonSingular() {
+<a class="jxr_linenumber" name="L340" href="QRDecomposition.html#L340">340</a>             <strong class="jxr_keyword">return</strong> !checkSingular(rDiag, threshold, false);
+<a class="jxr_linenumber" name="L341" href="QRDecomposition.html#L341">341</a>         }
+<a class="jxr_linenumber" name="L342" href="QRDecomposition.html#L342">342</a> 
+<a class="jxr_linenumber" name="L343" href="QRDecomposition.html#L343">343</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L344" href="QRDecomposition.html#L344">344</a>         @Override
+<a class="jxr_linenumber" name="L345" href="QRDecomposition.html#L345">345</a>         <strong class="jxr_keyword">public</strong> <a href="RealVector.html">RealVector</a> solve(<a href="RealVector.html">RealVector</a> b) {
+<a class="jxr_linenumber" name="L346" href="QRDecomposition.html#L346">346</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = qrt.length;
+<a class="jxr_linenumber" name="L347" href="QRDecomposition.html#L347">347</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = qrt[0].length;
+<a class="jxr_linenumber" name="L348" href="QRDecomposition.html#L348">348</a>             <strong class="jxr_keyword">if</strong> (b.getDimension() != m) {
+<a class="jxr_linenumber" name="L349" href="QRDecomposition.html#L349">349</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a>(b.getDimension(), m);
+<a class="jxr_linenumber" name="L350" href="QRDecomposition.html#L350">350</a>             }
+<a class="jxr_linenumber" name="L351" href="QRDecomposition.html#L351">351</a>             checkSingular(rDiag, threshold, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L352" href="QRDecomposition.html#L352">352</a> 
+<a class="jxr_linenumber" name="L353" href="QRDecomposition.html#L353">353</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] x = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n];
+<a class="jxr_linenumber" name="L354" href="QRDecomposition.html#L354">354</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] y = b.toArray();
+<a class="jxr_linenumber" name="L355" href="QRDecomposition.html#L355">355</a> 
+<a class="jxr_linenumber" name="L356" href="QRDecomposition.html#L356">356</a>             <em class="jxr_comment">// apply Householder transforms to solve Q.y = b</em>
+<a class="jxr_linenumber" name="L357" href="QRDecomposition.html#L357">357</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> minor = 0; minor &lt; FastMath.min(m, n); minor++) {
+<a class="jxr_linenumber" name="L358" href="QRDecomposition.html#L358">358</a> 
+<a class="jxr_linenumber" name="L359" href="QRDecomposition.html#L359">359</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] qrtMinor = qrt[minor];
+<a class="jxr_linenumber" name="L360" href="QRDecomposition.html#L360">360</a>                 <strong class="jxr_keyword">double</strong> dotProduct = 0;
+<a class="jxr_linenumber" name="L361" href="QRDecomposition.html#L361">361</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = minor; row &lt; m; row++) {
+<a class="jxr_linenumber" name="L362" href="QRDecomposition.html#L362">362</a>                     dotProduct += y[row] * qrtMinor[row];
+<a class="jxr_linenumber" name="L363" href="QRDecomposition.html#L363">363</a>                 }
+<a class="jxr_linenumber" name="L364" href="QRDecomposition.html#L364">364</a>                 dotProduct /= rDiag[minor] * qrtMinor[minor];
+<a class="jxr_linenumber" name="L365" href="QRDecomposition.html#L365">365</a> 
+<a class="jxr_linenumber" name="L366" href="QRDecomposition.html#L366">366</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = minor; row &lt; m; row++) {
+<a class="jxr_linenumber" name="L367" href="QRDecomposition.html#L367">367</a>                     y[row] += dotProduct * qrtMinor[row];
+<a class="jxr_linenumber" name="L368" href="QRDecomposition.html#L368">368</a>                 }
+<a class="jxr_linenumber" name="L369" href="QRDecomposition.html#L369">369</a>             }
+<a class="jxr_linenumber" name="L370" href="QRDecomposition.html#L370">370</a> 
+<a class="jxr_linenumber" name="L371" href="QRDecomposition.html#L371">371</a>             <em class="jxr_comment">// solve triangular system R.x = y</em>
+<a class="jxr_linenumber" name="L372" href="QRDecomposition.html#L372">372</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = rDiag.length - 1; row &gt;= 0; --row) {
+<a class="jxr_linenumber" name="L373" href="QRDecomposition.html#L373">373</a>                 y[row] /= rDiag[row];
+<a class="jxr_linenumber" name="L374" href="QRDecomposition.html#L374">374</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yRow = y[row];
+<a class="jxr_linenumber" name="L375" href="QRDecomposition.html#L375">375</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] qrtRow = qrt[row];
+<a class="jxr_linenumber" name="L376" href="QRDecomposition.html#L376">376</a>                 x[row] = yRow;
+<a class="jxr_linenumber" name="L377" href="QRDecomposition.html#L377">377</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; row; i++) {
+<a class="jxr_linenumber" name="L378" href="QRDecomposition.html#L378">378</a>                     y[i] -= yRow * qrtRow[i];
+<a class="jxr_linenumber" name="L379" href="QRDecomposition.html#L379">379</a>                 }
+<a class="jxr_linenumber" name="L380" href="QRDecomposition.html#L380">380</a>             }
+<a class="jxr_linenumber" name="L381" href="QRDecomposition.html#L381">381</a> 
+<a class="jxr_linenumber" name="L382" href="QRDecomposition.html#L382">382</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="ArrayRealVector.html">ArrayRealVector</a>(x, false);
+<a class="jxr_linenumber" name="L383" href="QRDecomposition.html#L383">383</a>         }
+<a class="jxr_linenumber" name="L384" href="QRDecomposition.html#L384">384</a> 
+<a class="jxr_linenumber" name="L385" href="QRDecomposition.html#L385">385</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L386" href="QRDecomposition.html#L386">386</a>         @Override
+<a class="jxr_linenumber" name="L387" href="QRDecomposition.html#L387">387</a>         <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> solve(<a href="RealMatrix.html">RealMatrix</a> b) {
+<a class="jxr_linenumber" name="L388" href="QRDecomposition.html#L388">388</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = qrt.length;
+<a class="jxr_linenumber" name="L389" href="QRDecomposition.html#L389">389</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = qrt[0].length;
+<a class="jxr_linenumber" name="L390" href="QRDecomposition.html#L390">390</a>             <strong class="jxr_keyword">if</strong> (b.getRowDimension() != m) {
+<a class="jxr_linenumber" name="L391" href="QRDecomposition.html#L391">391</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a>(b.getRowDimension(), m);
+<a class="jxr_linenumber" name="L392" href="QRDecomposition.html#L392">392</a>             }
+<a class="jxr_linenumber" name="L393" href="QRDecomposition.html#L393">393</a>             checkSingular(rDiag, threshold, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L394" href="QRDecomposition.html#L394">394</a> 
+<a class="jxr_linenumber" name="L395" href="QRDecomposition.html#L395">395</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> columns        = b.getColumnDimension();
+<a class="jxr_linenumber" name="L396" href="QRDecomposition.html#L396">396</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> blockSize      = BlockRealMatrix.BLOCK_SIZE;
+<a class="jxr_linenumber" name="L397" href="QRDecomposition.html#L397">397</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> cBlocks        = (columns + blockSize - 1) / blockSize;
+<a class="jxr_linenumber" name="L398" href="QRDecomposition.html#L398">398</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] xBlocks = BlockRealMatrix.createBlocksLayout(n, columns);
+<a class="jxr_linenumber" name="L399" href="QRDecomposition.html#L399">399</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] y       = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[b.getRowDimension()][blockSize];
+<a class="jxr_linenumber" name="L400" href="QRDecomposition.html#L400">400</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[]   alpha   = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[blockSize];
+<a class="jxr_linenumber" name="L401" href="QRDecomposition.html#L401">401</a> 
+<a class="jxr_linenumber" name="L402" href="QRDecomposition.html#L402">402</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> kBlock = 0; kBlock &lt; cBlocks; ++kBlock) {
+<a class="jxr_linenumber" name="L403" href="QRDecomposition.html#L403">403</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> kStart = kBlock * blockSize;
+<a class="jxr_linenumber" name="L404" href="QRDecomposition.html#L404">404</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> kEnd   = FastMath.min(kStart + blockSize, columns);
+<a class="jxr_linenumber" name="L405" href="QRDecomposition.html#L405">405</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> kWidth = kEnd - kStart;
+<a class="jxr_linenumber" name="L406" href="QRDecomposition.html#L406">406</a> 
+<a class="jxr_linenumber" name="L407" href="QRDecomposition.html#L407">407</a>                 <em class="jxr_comment">// get the right hand side vector</em>
+<a class="jxr_linenumber" name="L408" href="QRDecomposition.html#L408">408</a>                 b.copySubMatrix(0, m - 1, kStart, kEnd - 1, y);
+<a class="jxr_linenumber" name="L409" href="QRDecomposition.html#L409">409</a> 
+<a class="jxr_linenumber" name="L410" href="QRDecomposition.html#L410">410</a>                 <em class="jxr_comment">// apply Householder transforms to solve Q.y = b</em>
+<a class="jxr_linenumber" name="L411" href="QRDecomposition.html#L411">411</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> minor = 0; minor &lt; FastMath.min(m, n); minor++) {
+<a class="jxr_linenumber" name="L412" href="QRDecomposition.html#L412">412</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] qrtMinor = qrt[minor];
+<a class="jxr_linenumber" name="L413" href="QRDecomposition.html#L413">413</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> factor     = 1.0 / (rDiag[minor] * qrtMinor[minor]);
+<a class="jxr_linenumber" name="L414" href="QRDecomposition.html#L414">414</a> 
+<a class="jxr_linenumber" name="L415" href="QRDecomposition.html#L415">415</a>                     Arrays.fill(alpha, 0, kWidth, 0.0);
+<a class="jxr_linenumber" name="L416" href="QRDecomposition.html#L416">416</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = minor; row &lt; m; ++row) {
+<a class="jxr_linenumber" name="L417" href="QRDecomposition.html#L417">417</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>   d    = qrtMinor[row];
+<a class="jxr_linenumber" name="L418" href="QRDecomposition.html#L418">418</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yRow = y[row];
+<a class="jxr_linenumber" name="L419" href="QRDecomposition.html#L419">419</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; kWidth; ++k) {
+<a class="jxr_linenumber" name="L420" href="QRDecomposition.html#L420">420</a>                             alpha[k] += d * yRow[k];
+<a class="jxr_linenumber" name="L421" href="QRDecomposition.html#L421">421</a>                         }
+<a class="jxr_linenumber" name="L422" href="QRDecomposition.html#L422">422</a>                     }
+<a class="jxr_linenumber" name="L423" href="QRDecomposition.html#L423">423</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; kWidth; ++k) {
+<a class="jxr_linenumber" name="L424" href="QRDecomposition.html#L424">424</a>                         alpha[k] *= factor;
+<a class="jxr_linenumber" name="L425" href="QRDecomposition.html#L425">425</a>                     }
+<a class="jxr_linenumber" name="L426" href="QRDecomposition.html#L426">426</a> 
+<a class="jxr_linenumber" name="L427" href="QRDecomposition.html#L427">427</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = minor; row &lt; m; ++row) {
+<a class="jxr_linenumber" name="L428" href="QRDecomposition.html#L428">428</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>   d    = qrtMinor[row];
+<a class="jxr_linenumber" name="L429" href="QRDecomposition.html#L429">429</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yRow = y[row];
+<a class="jxr_linenumber" name="L430" href="QRDecomposition.html#L430">430</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; kWidth; ++k) {
+<a class="jxr_linenumber" name="L431" href="QRDecomposition.html#L431">431</a>                             yRow[k] += alpha[k] * d;
+<a class="jxr_linenumber" name="L432" href="QRDecomposition.html#L432">432</a>                         }
+<a class="jxr_linenumber" name="L433" href="QRDecomposition.html#L433">433</a>                     }
+<a class="jxr_linenumber" name="L434" href="QRDecomposition.html#L434">434</a>                 }
+<a class="jxr_linenumber" name="L435" href="QRDecomposition.html#L435">435</a> 
+<a class="jxr_linenumber" name="L436" href="QRDecomposition.html#L436">436</a>                 <em class="jxr_comment">// solve triangular system R.x = y</em>
+<a class="jxr_linenumber" name="L437" href="QRDecomposition.html#L437">437</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = rDiag.length - 1; j &gt;= 0; --j) {
+<a class="jxr_linenumber" name="L438" href="QRDecomposition.html#L438">438</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>      jBlock = j / blockSize;
+<a class="jxr_linenumber" name="L439" href="QRDecomposition.html#L439">439</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>      jStart = jBlock * blockSize;
+<a class="jxr_linenumber" name="L440" href="QRDecomposition.html#L440">440</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>   factor = 1.0 / rDiag[j];
+<a class="jxr_linenumber" name="L441" href="QRDecomposition.html#L441">441</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yJ     = y[j];
+<a class="jxr_linenumber" name="L442" href="QRDecomposition.html#L442">442</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xBlock = xBlocks[jBlock * cBlocks + kBlock];
+<a class="jxr_linenumber" name="L443" href="QRDecomposition.html#L443">443</a>                     <strong class="jxr_keyword">int</strong> index = (j - jStart) * kWidth;
+<a class="jxr_linenumber" name="L444" href="QRDecomposition.html#L444">444</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; kWidth; ++k) {
+<a class="jxr_linenumber" name="L445" href="QRDecomposition.html#L445">445</a>                         yJ[k]          *= factor;
+<a class="jxr_linenumber" name="L446" href="QRDecomposition.html#L446">446</a>                         xBlock[index++] = yJ[k];
+<a class="jxr_linenumber" name="L447" href="QRDecomposition.html#L447">447</a>                     }
+<a class="jxr_linenumber" name="L448" href="QRDecomposition.html#L448">448</a> 
+<a class="jxr_linenumber" name="L449" href="QRDecomposition.html#L449">449</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] qrtJ = qrt[j];
+<a class="jxr_linenumber" name="L450" href="QRDecomposition.html#L450">450</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; j; ++i) {
+<a class="jxr_linenumber" name="L451" href="QRDecomposition.html#L451">451</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> rIJ  = qrtJ[i];
+<a class="jxr_linenumber" name="L452" href="QRDecomposition.html#L452">452</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yI = y[i];
+<a class="jxr_linenumber" name="L453" href="QRDecomposition.html#L453">453</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; kWidth; ++k) {
+<a class="jxr_linenumber" name="L454" href="QRDecomposition.html#L454">454</a>                             yI[k] -= yJ[k] * rIJ;
+<a class="jxr_linenumber" name="L455" href="QRDecomposition.html#L455">455</a>                         }
+<a class="jxr_linenumber" name="L456" href="QRDecomposition.html#L456">456</a>                     }
+<a class="jxr_linenumber" name="L457" href="QRDecomposition.html#L457">457</a>                 }
+<a class="jxr_linenumber" name="L458" href="QRDecomposition.html#L458">458</a>             }
+<a class="jxr_linenumber" name="L459" href="QRDecomposition.html#L459">459</a> 
+<a class="jxr_linenumber" name="L460" href="QRDecomposition.html#L460">460</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="BlockRealMatrix.html">BlockRealMatrix</a>(n, columns, xBlocks, false);
+<a class="jxr_linenumber" name="L461" href="QRDecomposition.html#L461">461</a>         }
+<a class="jxr_linenumber" name="L462" href="QRDecomposition.html#L462">462</a> 
+<a class="jxr_linenumber" name="L463" href="QRDecomposition.html#L463">463</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L464" href="QRDecomposition.html#L464">464</a> <em class="jxr_javadoccomment">         * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L465" href="QRDecomposition.html#L465">465</a> <em class="jxr_javadoccomment">         * @throws SingularMatrixException if the decomposed matrix is singular.</em>
+<a class="jxr_linenumber" name="L466" href="QRDecomposition.html#L466">466</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L467" href="QRDecomposition.html#L467">467</a>         @Override
+<a class="jxr_linenumber" name="L468" href="QRDecomposition.html#L468">468</a>         <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getInverse() {
+<a class="jxr_linenumber" name="L469" href="QRDecomposition.html#L469">469</a>             <strong class="jxr_keyword">return</strong> solve(MatrixUtils.createRealIdentityMatrix(qrt[0].length));
+<a class="jxr_linenumber" name="L470" href="QRDecomposition.html#L470">470</a>         }
+<a class="jxr_linenumber" name="L471" href="QRDecomposition.html#L471">471</a> 
+<a class="jxr_linenumber" name="L472" href="QRDecomposition.html#L472">472</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L473" href="QRDecomposition.html#L473">473</a> <em class="jxr_javadoccomment">         * Check singularity.</em>
+<a class="jxr_linenumber" name="L474" href="QRDecomposition.html#L474">474</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L475" href="QRDecomposition.html#L475">475</a> <em class="jxr_javadoccomment">         * @param diag Diagonal elements of the R matrix.</em>
+<a class="jxr_linenumber" name="L476" href="QRDecomposition.html#L476">476</a> <em class="jxr_javadoccomment">         * @param min Singularity threshold.</em>
+<a class="jxr_linenumber" name="L477" href="QRDecomposition.html#L477">477</a> <em class="jxr_javadoccomment">         * @param raise Whether to raise a {@link SingularMatrixException}</em>
+<a class="jxr_linenumber" name="L478" href="QRDecomposition.html#L478">478</a> <em class="jxr_javadoccomment">         * if any element of the diagonal fails the check.</em>
+<a class="jxr_linenumber" name="L479" href="QRDecomposition.html#L479">479</a> <em class="jxr_javadoccomment">         * @return {@code true} if any element of the diagonal is smaller</em>
+<a class="jxr_linenumber" name="L480" href="QRDecomposition.html#L480">480</a> <em class="jxr_javadoccomment">         * or equal to {@code min}.</em>
+<a class="jxr_linenumber" name="L481" href="QRDecomposition.html#L481">481</a> <em class="jxr_javadoccomment">         * @throws SingularMatrixException if the matrix is singular and</em>
+<a class="jxr_linenumber" name="L482" href="QRDecomposition.html#L482">482</a> <em class="jxr_javadoccomment">         * {@code raise} is {@code true}.</em>
+<a class="jxr_linenumber" name="L483" href="QRDecomposition.html#L483">483</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L484" href="QRDecomposition.html#L484">484</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> checkSingular(<strong class="jxr_keyword">double</strong>[] diag,
+<a class="jxr_linenumber" name="L485" href="QRDecomposition.html#L485">485</a>                                              <strong class="jxr_keyword">double</strong> min,
+<a class="jxr_linenumber" name="L486" href="QRDecomposition.html#L486">486</a>                                              <strong class="jxr_keyword">boolean</strong> raise) {
+<a class="jxr_linenumber" name="L487" href="QRDecomposition.html#L487">487</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> len = diag.length;
+<a class="jxr_linenumber" name="L488" href="QRDecomposition.html#L488">488</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; len; i++) {
+<a class="jxr_linenumber" name="L489" href="QRDecomposition.html#L489">489</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> d = diag[i];
+<a class="jxr_linenumber" name="L490" href="QRDecomposition.html#L490">490</a>                 <strong class="jxr_keyword">if</strong> (FastMath.abs(d) &lt;= min) {
+<a class="jxr_linenumber" name="L491" href="QRDecomposition.html#L491">491</a>                     <strong class="jxr_keyword">if</strong> (raise) {
+<a class="jxr_linenumber" name="L492" href="QRDecomposition.html#L492">492</a>                         <strong class="jxr_keyword">final</strong> <a href="SingularMatrixException.html">SingularMatrixException</a> e = <strong class="jxr_keyword">new</strong> <a href="SingularMatrixException.html">SingularMatrixException</a>();
+<a class="jxr_linenumber" name="L493" href="QRDecomposition.html#L493">493</a>                         e.getContext().addMessage(LocalizedFormats.NUMBER_TOO_SMALL, d, min);
+<a class="jxr_linenumber" name="L494" href="QRDecomposition.html#L494">494</a>                         e.getContext().addMessage(LocalizedFormats.INDEX, i);
+<a class="jxr_linenumber" name="L495" href="QRDecomposition.html#L495">495</a>                         <strong class="jxr_keyword">throw</strong> e;
+<a class="jxr_linenumber" name="L496" href="QRDecomposition.html#L496">496</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L497" href="QRDecomposition.html#L497">497</a>                         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L498" href="QRDecomposition.html#L498">498</a>                     }
+<a class="jxr_linenumber" name="L499" href="QRDecomposition.html#L499">499</a>                 }
+<a class="jxr_linenumber" name="L500" href="QRDecomposition.html#L500">500</a>             }
+<a class="jxr_linenumber" name="L501" href="QRDecomposition.html#L501">501</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L502" href="QRDecomposition.html#L502">502</a>         }
+<a class="jxr_linenumber" name="L503" href="QRDecomposition.html#L503">503</a>     }
+<a class="jxr_linenumber" name="L504" href="QRDecomposition.html#L504">504</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

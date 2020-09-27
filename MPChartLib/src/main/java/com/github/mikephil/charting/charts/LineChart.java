@@ -7,9 +7,13 @@ import android.util.AttributeSet;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.renderer.LineChartRenderer;
 
+import java.util.ArrayList;
 import java.util.Locale;
+
+import me.ishanjoshi.chart_accessibility_module.LineChartDescriptor;
 
 /**
  * Chart that draws lines, surfaces, circles, ...
@@ -51,12 +55,45 @@ public class LineChart extends BarLineChartBase<LineData> implements LineDataPro
         super.onDetachedFromWindow();
     }
 
+    private ArrayList<Float> xs(LineData data) {
+        ArrayList<Float> out = new ArrayList();
+        int dsCount = data.getDataSetCount();
+
+        for (int d=0; d < dsCount; d++) {
+            ILineDataSet ds = data.getDataSetByIndex(d);
+            int entries = ds.getEntryCount();
+            for (int e=0; e < entries; e++) {
+                out.add(ds.getEntryForIndex(e).getX());
+            }
+        }
+
+        return out;
+    }
+
+    private ArrayList<Float> ys(LineData data) {
+        ArrayList<Float> out = new ArrayList();
+        int dsCount = data.getDataSetCount();
+
+        for (int d=0; d < dsCount; d++) {
+            ILineDataSet ds = data.getDataSetByIndex(d);
+            int entries = ds.getEntryCount();
+            for (int e=0; e < entries; e++) {
+                out.add(ds.getEntryForIndex(e).getY());
+            }
+        }
+
+        return out;
+    }
+
+
     @Override
     public String getAccessibilityDescription() {
 
         LineData lineData = getLineData();
 
         int numberOfPoints = lineData.getEntryCount();
+
+
 
         // Min and max values...
         ValueFormatter yAxisValueFormmater = getAxisLeft().getValueFormatter();
@@ -75,7 +112,17 @@ public class LineChart extends BarLineChartBase<LineData> implements LineDataPro
                         "Data ranges from %s to %s.",
                 numberOfPoints, entries, minVal, maxVal, minRange, maxRange);
 
+        LineChartDescriptor descriptor = new LineChartDescriptor();
 
-        return description;
+        String generatedDescription = descriptor.getDescription(
+                "LinechartActivity1",
+                xs(lineData),
+                ys(lineData),
+                "index",
+                "Money"
+        );
+
+
+        return generatedDescription;
     }
 }

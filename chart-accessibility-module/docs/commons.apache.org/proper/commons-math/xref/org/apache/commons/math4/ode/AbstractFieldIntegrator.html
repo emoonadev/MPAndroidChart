@@ -1,0 +1,480 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>AbstractFieldIntegrator xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/ode/AbstractFieldIntegrator.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="AbstractFieldIntegrator.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="AbstractFieldIntegrator.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="AbstractFieldIntegrator.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="AbstractFieldIntegrator.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="AbstractFieldIntegrator.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="AbstractFieldIntegrator.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="AbstractFieldIntegrator.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="AbstractFieldIntegrator.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="AbstractFieldIntegrator.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="AbstractFieldIntegrator.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="AbstractFieldIntegrator.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="AbstractFieldIntegrator.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="AbstractFieldIntegrator.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="AbstractFieldIntegrator.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="AbstractFieldIntegrator.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="AbstractFieldIntegrator.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="AbstractFieldIntegrator.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="AbstractFieldIntegrator.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.ode;
+<a class="jxr_linenumber" name="L19" href="AbstractFieldIntegrator.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="AbstractFieldIntegrator.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L21" href="AbstractFieldIntegrator.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.Collection;
+<a class="jxr_linenumber" name="L22" href="AbstractFieldIntegrator.html#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L23" href="AbstractFieldIntegrator.html#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.Comparator;
+<a class="jxr_linenumber" name="L24" href="AbstractFieldIntegrator.html#L24">24</a>  <strong class="jxr_keyword">import</strong> java.util.Iterator;
+<a class="jxr_linenumber" name="L25" href="AbstractFieldIntegrator.html#L25">25</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L26" href="AbstractFieldIntegrator.html#L26">26</a>  <strong class="jxr_keyword">import</strong> java.util.SortedSet;
+<a class="jxr_linenumber" name="L27" href="AbstractFieldIntegrator.html#L27">27</a>  <strong class="jxr_keyword">import</strong> java.util.TreeSet;
+<a class="jxr_linenumber" name="L28" href="AbstractFieldIntegrator.html#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="AbstractFieldIntegrator.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.Field;
+<a class="jxr_linenumber" name="L30" href="AbstractFieldIntegrator.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.RealFieldElement;
+<a class="jxr_linenumber" name="L31" href="AbstractFieldIntegrator.html#L31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.solvers.BracketedRealFieldUnivariateSolver;
+<a class="jxr_linenumber" name="L32" href="AbstractFieldIntegrator.html#L32">32</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.solvers.FieldBracketingNthOrderBrentSolver;
+<a class="jxr_linenumber" name="L33" href="AbstractFieldIntegrator.html#L33">33</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L34" href="AbstractFieldIntegrator.html#L34">34</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MaxCountExceededException;
+<a class="jxr_linenumber" name="L35" href="AbstractFieldIntegrator.html#L35">35</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoBracketingException;
+<a class="jxr_linenumber" name="L36" href="AbstractFieldIntegrator.html#L36">36</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L37" href="AbstractFieldIntegrator.html#L37">37</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L38" href="AbstractFieldIntegrator.html#L38">38</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.events.FieldEventHandler;
+<a class="jxr_linenumber" name="L39" href="AbstractFieldIntegrator.html#L39">39</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.events.FieldEventState;
+<a class="jxr_linenumber" name="L40" href="AbstractFieldIntegrator.html#L40">40</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.sampling.AbstractFieldStepInterpolator;
+<a class="jxr_linenumber" name="L41" href="AbstractFieldIntegrator.html#L41">41</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.sampling.FieldStepHandler;
+<a class="jxr_linenumber" name="L42" href="AbstractFieldIntegrator.html#L42">42</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L43" href="AbstractFieldIntegrator.html#L43">43</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.IntegerSequence;
+<a class="jxr_linenumber" name="L44" href="AbstractFieldIntegrator.html#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="AbstractFieldIntegrator.html#L45">45</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L46" href="AbstractFieldIntegrator.html#L46">46</a>  <em class="jxr_javadoccomment"> * Base class managing common boilerplate for all integrators.</em>
+<a class="jxr_linenumber" name="L47" href="AbstractFieldIntegrator.html#L47">47</a>  <em class="jxr_javadoccomment"> * @param &lt;T&gt; the type of the field elements</em>
+<a class="jxr_linenumber" name="L48" href="AbstractFieldIntegrator.html#L48">48</a>  <em class="jxr_javadoccomment"> * @since 3.6</em>
+<a class="jxr_linenumber" name="L49" href="AbstractFieldIntegrator.html#L49">49</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L50" href="AbstractFieldIntegrator.html#L50">50</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> AbstractFieldIntegrator&lt;T <strong class="jxr_keyword">extends</strong> RealFieldElement&lt;T&gt;&gt; <strong class="jxr_keyword">implements</strong> FirstOrderFieldIntegrator&lt;T&gt; {
+<a class="jxr_linenumber" name="L51" href="AbstractFieldIntegrator.html#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="AbstractFieldIntegrator.html#L52">52</a>      <em class="jxr_javadoccomment">/** Default relative accuracy. */</em>
+<a class="jxr_linenumber" name="L53" href="AbstractFieldIntegrator.html#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_RELATIVE_ACCURACY = 1e-14;
+<a class="jxr_linenumber" name="L54" href="AbstractFieldIntegrator.html#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="AbstractFieldIntegrator.html#L55">55</a>      <em class="jxr_javadoccomment">/** Default function value accuracy. */</em>
+<a class="jxr_linenumber" name="L56" href="AbstractFieldIntegrator.html#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_FUNCTION_VALUE_ACCURACY = 1e-15;
+<a class="jxr_linenumber" name="L57" href="AbstractFieldIntegrator.html#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="AbstractFieldIntegrator.html#L58">58</a>      <em class="jxr_javadoccomment">/** Step handler. */</em>
+<a class="jxr_linenumber" name="L59" href="AbstractFieldIntegrator.html#L59">59</a>      <strong class="jxr_keyword">private</strong> Collection&lt;FieldStepHandler&lt;T&gt;&gt; stepHandlers;
+<a class="jxr_linenumber" name="L60" href="AbstractFieldIntegrator.html#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="AbstractFieldIntegrator.html#L61">61</a>      <em class="jxr_javadoccomment">/** Current step start. */</em>
+<a class="jxr_linenumber" name="L62" href="AbstractFieldIntegrator.html#L62">62</a>      <strong class="jxr_keyword">private</strong> FieldODEStateAndDerivative&lt;T&gt; stepStart;
+<a class="jxr_linenumber" name="L63" href="AbstractFieldIntegrator.html#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="AbstractFieldIntegrator.html#L64">64</a>      <em class="jxr_javadoccomment">/** Current stepsize. */</em>
+<a class="jxr_linenumber" name="L65" href="AbstractFieldIntegrator.html#L65">65</a>      <strong class="jxr_keyword">private</strong> T stepSize;
+<a class="jxr_linenumber" name="L66" href="AbstractFieldIntegrator.html#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="AbstractFieldIntegrator.html#L67">67</a>      <em class="jxr_javadoccomment">/** Indicator for last step. */</em>
+<a class="jxr_linenumber" name="L68" href="AbstractFieldIntegrator.html#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isLastStep;
+<a class="jxr_linenumber" name="L69" href="AbstractFieldIntegrator.html#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="AbstractFieldIntegrator.html#L70">70</a>      <em class="jxr_javadoccomment">/** Indicator that a state or derivative reset was triggered by some event. */</em>
+<a class="jxr_linenumber" name="L71" href="AbstractFieldIntegrator.html#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> resetOccurred;
+<a class="jxr_linenumber" name="L72" href="AbstractFieldIntegrator.html#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="AbstractFieldIntegrator.html#L73">73</a>      <em class="jxr_javadoccomment">/** Field to which the time and state vector elements belong. */</em>
+<a class="jxr_linenumber" name="L74" href="AbstractFieldIntegrator.html#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Field&lt;T&gt; field;
+<a class="jxr_linenumber" name="L75" href="AbstractFieldIntegrator.html#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="AbstractFieldIntegrator.html#L76">76</a>      <em class="jxr_javadoccomment">/** Events states. */</em>
+<a class="jxr_linenumber" name="L77" href="AbstractFieldIntegrator.html#L77">77</a>      <strong class="jxr_keyword">private</strong> Collection&lt;FieldEventState&lt;T&gt;&gt; eventsStates;
+<a class="jxr_linenumber" name="L78" href="AbstractFieldIntegrator.html#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="AbstractFieldIntegrator.html#L79">79</a>      <em class="jxr_javadoccomment">/** Initialization indicator of events states. */</em>
+<a class="jxr_linenumber" name="L80" href="AbstractFieldIntegrator.html#L80">80</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> statesInitialized;
+<a class="jxr_linenumber" name="L81" href="AbstractFieldIntegrator.html#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="AbstractFieldIntegrator.html#L82">82</a>      <em class="jxr_javadoccomment">/** Name of the method. */</em>
+<a class="jxr_linenumber" name="L83" href="AbstractFieldIntegrator.html#L83">83</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String name;
+<a class="jxr_linenumber" name="L84" href="AbstractFieldIntegrator.html#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="AbstractFieldIntegrator.html#L85">85</a>      <em class="jxr_javadoccomment">/** Counter for number of evaluations. */</em>
+<a class="jxr_linenumber" name="L86" href="AbstractFieldIntegrator.html#L86">86</a>      <strong class="jxr_keyword">private</strong> IntegerSequence.Incrementor evaluations;
+<a class="jxr_linenumber" name="L87" href="AbstractFieldIntegrator.html#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="AbstractFieldIntegrator.html#L88">88</a>      <em class="jxr_javadoccomment">/** Differential equations to integrate. */</em>
+<a class="jxr_linenumber" name="L89" href="AbstractFieldIntegrator.html#L89">89</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> FieldExpandableODE&lt;T&gt; equations;
+<a class="jxr_linenumber" name="L90" href="AbstractFieldIntegrator.html#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="AbstractFieldIntegrator.html#L91">91</a>      <em class="jxr_javadoccomment">/** Build an instance.</em>
+<a class="jxr_linenumber" name="L92" href="AbstractFieldIntegrator.html#L92">92</a>  <em class="jxr_javadoccomment">     * @param field field to which the time and state vector elements belong</em>
+<a class="jxr_linenumber" name="L93" href="AbstractFieldIntegrator.html#L93">93</a>  <em class="jxr_javadoccomment">     * @param name name of the method</em>
+<a class="jxr_linenumber" name="L94" href="AbstractFieldIntegrator.html#L94">94</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L95" href="AbstractFieldIntegrator.html#L95">95</a>      <strong class="jxr_keyword">protected</strong> <a href="AbstractFieldIntegrator.html">AbstractFieldIntegrator</a>(<strong class="jxr_keyword">final</strong> Field&lt;T&gt; field, <strong class="jxr_keyword">final</strong> String name) {
+<a class="jxr_linenumber" name="L96" href="AbstractFieldIntegrator.html#L96">96</a>          <strong class="jxr_keyword">this</strong>.field        = field;
+<a class="jxr_linenumber" name="L97" href="AbstractFieldIntegrator.html#L97">97</a>          <strong class="jxr_keyword">this</strong>.name         = name;
+<a class="jxr_linenumber" name="L98" href="AbstractFieldIntegrator.html#L98">98</a>          stepHandlers      = <strong class="jxr_keyword">new</strong> ArrayList&lt;FieldStepHandler&lt;T&gt;&gt;();
+<a class="jxr_linenumber" name="L99" href="AbstractFieldIntegrator.html#L99">99</a>          stepStart         = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L100" href="AbstractFieldIntegrator.html#L100">100</a>         stepSize          = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L101" href="AbstractFieldIntegrator.html#L101">101</a>         eventsStates      = <strong class="jxr_keyword">new</strong> ArrayList&lt;FieldEventState&lt;T&gt;&gt;();
+<a class="jxr_linenumber" name="L102" href="AbstractFieldIntegrator.html#L102">102</a>         statesInitialized = false;
+<a class="jxr_linenumber" name="L103" href="AbstractFieldIntegrator.html#L103">103</a>         evaluations       = IntegerSequence.Incrementor.create().withMaximalCount(Integer.MAX_VALUE);
+<a class="jxr_linenumber" name="L104" href="AbstractFieldIntegrator.html#L104">104</a>     }
+<a class="jxr_linenumber" name="L105" href="AbstractFieldIntegrator.html#L105">105</a> 
+<a class="jxr_linenumber" name="L106" href="AbstractFieldIntegrator.html#L106">106</a>     <em class="jxr_javadoccomment">/** Get the field to which state vector elements belong.</em>
+<a class="jxr_linenumber" name="L107" href="AbstractFieldIntegrator.html#L107">107</a> <em class="jxr_javadoccomment">     * @return field to which state vector elements belong</em>
+<a class="jxr_linenumber" name="L108" href="AbstractFieldIntegrator.html#L108">108</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L109" href="AbstractFieldIntegrator.html#L109">109</a>     <strong class="jxr_keyword">public</strong> Field&lt;T&gt; getField() {
+<a class="jxr_linenumber" name="L110" href="AbstractFieldIntegrator.html#L110">110</a>         <strong class="jxr_keyword">return</strong> field;
+<a class="jxr_linenumber" name="L111" href="AbstractFieldIntegrator.html#L111">111</a>     }
+<a class="jxr_linenumber" name="L112" href="AbstractFieldIntegrator.html#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="AbstractFieldIntegrator.html#L113">113</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L114" href="AbstractFieldIntegrator.html#L114">114</a>     @Override
+<a class="jxr_linenumber" name="L115" href="AbstractFieldIntegrator.html#L115">115</a>     <strong class="jxr_keyword">public</strong> String getName() {
+<a class="jxr_linenumber" name="L116" href="AbstractFieldIntegrator.html#L116">116</a>         <strong class="jxr_keyword">return</strong> name;
+<a class="jxr_linenumber" name="L117" href="AbstractFieldIntegrator.html#L117">117</a>     }
+<a class="jxr_linenumber" name="L118" href="AbstractFieldIntegrator.html#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="AbstractFieldIntegrator.html#L119">119</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L120" href="AbstractFieldIntegrator.html#L120">120</a>     @Override
+<a class="jxr_linenumber" name="L121" href="AbstractFieldIntegrator.html#L121">121</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addStepHandler(<strong class="jxr_keyword">final</strong> FieldStepHandler&lt;T&gt; handler) {
+<a class="jxr_linenumber" name="L122" href="AbstractFieldIntegrator.html#L122">122</a>         stepHandlers.add(handler);
+<a class="jxr_linenumber" name="L123" href="AbstractFieldIntegrator.html#L123">123</a>     }
+<a class="jxr_linenumber" name="L124" href="AbstractFieldIntegrator.html#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="AbstractFieldIntegrator.html#L125">125</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L126" href="AbstractFieldIntegrator.html#L126">126</a>     @Override
+<a class="jxr_linenumber" name="L127" href="AbstractFieldIntegrator.html#L127">127</a>     <strong class="jxr_keyword">public</strong> Collection&lt;FieldStepHandler&lt;T&gt;&gt; getStepHandlers() {
+<a class="jxr_linenumber" name="L128" href="AbstractFieldIntegrator.html#L128">128</a>         <strong class="jxr_keyword">return</strong> Collections.unmodifiableCollection(stepHandlers);
+<a class="jxr_linenumber" name="L129" href="AbstractFieldIntegrator.html#L129">129</a>     }
+<a class="jxr_linenumber" name="L130" href="AbstractFieldIntegrator.html#L130">130</a> 
+<a class="jxr_linenumber" name="L131" href="AbstractFieldIntegrator.html#L131">131</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L132" href="AbstractFieldIntegrator.html#L132">132</a>     @Override
+<a class="jxr_linenumber" name="L133" href="AbstractFieldIntegrator.html#L133">133</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> clearStepHandlers() {
+<a class="jxr_linenumber" name="L134" href="AbstractFieldIntegrator.html#L134">134</a>         stepHandlers.clear();
+<a class="jxr_linenumber" name="L135" href="AbstractFieldIntegrator.html#L135">135</a>     }
+<a class="jxr_linenumber" name="L136" href="AbstractFieldIntegrator.html#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="AbstractFieldIntegrator.html#L137">137</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L138" href="AbstractFieldIntegrator.html#L138">138</a>     @Override
+<a class="jxr_linenumber" name="L139" href="AbstractFieldIntegrator.html#L139">139</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addEventHandler(<strong class="jxr_keyword">final</strong> FieldEventHandler&lt;T&gt; handler,
+<a class="jxr_linenumber" name="L140" href="AbstractFieldIntegrator.html#L140">140</a>                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxCheckInterval,
+<a class="jxr_linenumber" name="L141" href="AbstractFieldIntegrator.html#L141">141</a>                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> convergence,
+<a class="jxr_linenumber" name="L142" href="AbstractFieldIntegrator.html#L142">142</a>                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIterationCount) {
+<a class="jxr_linenumber" name="L143" href="AbstractFieldIntegrator.html#L143">143</a>         addEventHandler(handler, maxCheckInterval, convergence,
+<a class="jxr_linenumber" name="L144" href="AbstractFieldIntegrator.html#L144">144</a>                         maxIterationCount,
+<a class="jxr_linenumber" name="L145" href="AbstractFieldIntegrator.html#L145">145</a>                         <strong class="jxr_keyword">new</strong> FieldBracketingNthOrderBrentSolver&lt;T&gt;(field.getZero().add(DEFAULT_RELATIVE_ACCURACY),
+<a class="jxr_linenumber" name="L146" href="AbstractFieldIntegrator.html#L146">146</a>                                                                   field.getZero().add(convergence),
+<a class="jxr_linenumber" name="L147" href="AbstractFieldIntegrator.html#L147">147</a>                                                                   field.getZero().add(DEFAULT_FUNCTION_VALUE_ACCURACY),
+<a class="jxr_linenumber" name="L148" href="AbstractFieldIntegrator.html#L148">148</a>                                                                   5));
+<a class="jxr_linenumber" name="L149" href="AbstractFieldIntegrator.html#L149">149</a>     }
+<a class="jxr_linenumber" name="L150" href="AbstractFieldIntegrator.html#L150">150</a> 
+<a class="jxr_linenumber" name="L151" href="AbstractFieldIntegrator.html#L151">151</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L152" href="AbstractFieldIntegrator.html#L152">152</a>     @Override
+<a class="jxr_linenumber" name="L153" href="AbstractFieldIntegrator.html#L153">153</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addEventHandler(<strong class="jxr_keyword">final</strong> FieldEventHandler&lt;T&gt; handler,
+<a class="jxr_linenumber" name="L154" href="AbstractFieldIntegrator.html#L154">154</a>                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxCheckInterval,
+<a class="jxr_linenumber" name="L155" href="AbstractFieldIntegrator.html#L155">155</a>                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> convergence,
+<a class="jxr_linenumber" name="L156" href="AbstractFieldIntegrator.html#L156">156</a>                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIterationCount,
+<a class="jxr_linenumber" name="L157" href="AbstractFieldIntegrator.html#L157">157</a>                                 <strong class="jxr_keyword">final</strong> BracketedRealFieldUnivariateSolver&lt;T&gt; solver) {
+<a class="jxr_linenumber" name="L158" href="AbstractFieldIntegrator.html#L158">158</a>         eventsStates.add(<strong class="jxr_keyword">new</strong> FieldEventState&lt;T&gt;(handler, maxCheckInterval, field.getZero().add(convergence),
+<a class="jxr_linenumber" name="L159" href="AbstractFieldIntegrator.html#L159">159</a>                                                 maxIterationCount, solver));
+<a class="jxr_linenumber" name="L160" href="AbstractFieldIntegrator.html#L160">160</a>     }
+<a class="jxr_linenumber" name="L161" href="AbstractFieldIntegrator.html#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="AbstractFieldIntegrator.html#L162">162</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L163" href="AbstractFieldIntegrator.html#L163">163</a>     @Override
+<a class="jxr_linenumber" name="L164" href="AbstractFieldIntegrator.html#L164">164</a>     <strong class="jxr_keyword">public</strong> Collection&lt;FieldEventHandler&lt;T&gt;&gt; getEventHandlers() {
+<a class="jxr_linenumber" name="L165" href="AbstractFieldIntegrator.html#L165">165</a>         <strong class="jxr_keyword">final</strong> List&lt;FieldEventHandler&lt;T&gt;&gt; list = <strong class="jxr_keyword">new</strong> ArrayList&lt;FieldEventHandler&lt;T&gt;&gt;(eventsStates.size());
+<a class="jxr_linenumber" name="L166" href="AbstractFieldIntegrator.html#L166">166</a>         <strong class="jxr_keyword">for</strong> (FieldEventState&lt;T&gt; state : eventsStates) {
+<a class="jxr_linenumber" name="L167" href="AbstractFieldIntegrator.html#L167">167</a>             list.add(state.getEventHandler());
+<a class="jxr_linenumber" name="L168" href="AbstractFieldIntegrator.html#L168">168</a>         }
+<a class="jxr_linenumber" name="L169" href="AbstractFieldIntegrator.html#L169">169</a>         <strong class="jxr_keyword">return</strong> Collections.unmodifiableCollection(list);
+<a class="jxr_linenumber" name="L170" href="AbstractFieldIntegrator.html#L170">170</a>     }
+<a class="jxr_linenumber" name="L171" href="AbstractFieldIntegrator.html#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="AbstractFieldIntegrator.html#L172">172</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L173" href="AbstractFieldIntegrator.html#L173">173</a>     @Override
+<a class="jxr_linenumber" name="L174" href="AbstractFieldIntegrator.html#L174">174</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> clearEventHandlers() {
+<a class="jxr_linenumber" name="L175" href="AbstractFieldIntegrator.html#L175">175</a>         eventsStates.clear();
+<a class="jxr_linenumber" name="L176" href="AbstractFieldIntegrator.html#L176">176</a>     }
+<a class="jxr_linenumber" name="L177" href="AbstractFieldIntegrator.html#L177">177</a> 
+<a class="jxr_linenumber" name="L178" href="AbstractFieldIntegrator.html#L178">178</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L179" href="AbstractFieldIntegrator.html#L179">179</a>     @Override
+<a class="jxr_linenumber" name="L180" href="AbstractFieldIntegrator.html#L180">180</a>     <strong class="jxr_keyword">public</strong> FieldODEStateAndDerivative&lt;T&gt; getCurrentStepStart() {
+<a class="jxr_linenumber" name="L181" href="AbstractFieldIntegrator.html#L181">181</a>         <strong class="jxr_keyword">return</strong> stepStart;
+<a class="jxr_linenumber" name="L182" href="AbstractFieldIntegrator.html#L182">182</a>     }
+<a class="jxr_linenumber" name="L183" href="AbstractFieldIntegrator.html#L183">183</a> 
+<a class="jxr_linenumber" name="L184" href="AbstractFieldIntegrator.html#L184">184</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L185" href="AbstractFieldIntegrator.html#L185">185</a>     @Override
+<a class="jxr_linenumber" name="L186" href="AbstractFieldIntegrator.html#L186">186</a>     <strong class="jxr_keyword">public</strong> T getCurrentSignedStepsize() {
+<a class="jxr_linenumber" name="L187" href="AbstractFieldIntegrator.html#L187">187</a>         <strong class="jxr_keyword">return</strong> stepSize;
+<a class="jxr_linenumber" name="L188" href="AbstractFieldIntegrator.html#L188">188</a>     }
+<a class="jxr_linenumber" name="L189" href="AbstractFieldIntegrator.html#L189">189</a> 
+<a class="jxr_linenumber" name="L190" href="AbstractFieldIntegrator.html#L190">190</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L191" href="AbstractFieldIntegrator.html#L191">191</a>     @Override
+<a class="jxr_linenumber" name="L192" href="AbstractFieldIntegrator.html#L192">192</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setMaxEvaluations(<strong class="jxr_keyword">int</strong> maxEvaluations) {
+<a class="jxr_linenumber" name="L193" href="AbstractFieldIntegrator.html#L193">193</a>         evaluations = evaluations.withMaximalCount((maxEvaluations &lt; 0) ? Integer.MAX_VALUE : maxEvaluations);
+<a class="jxr_linenumber" name="L194" href="AbstractFieldIntegrator.html#L194">194</a>     }
+<a class="jxr_linenumber" name="L195" href="AbstractFieldIntegrator.html#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="AbstractFieldIntegrator.html#L196">196</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L197" href="AbstractFieldIntegrator.html#L197">197</a>     @Override
+<a class="jxr_linenumber" name="L198" href="AbstractFieldIntegrator.html#L198">198</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getMaxEvaluations() {
+<a class="jxr_linenumber" name="L199" href="AbstractFieldIntegrator.html#L199">199</a>         <strong class="jxr_keyword">return</strong> evaluations.getMaximalCount();
+<a class="jxr_linenumber" name="L200" href="AbstractFieldIntegrator.html#L200">200</a>     }
+<a class="jxr_linenumber" name="L201" href="AbstractFieldIntegrator.html#L201">201</a> 
+<a class="jxr_linenumber" name="L202" href="AbstractFieldIntegrator.html#L202">202</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L203" href="AbstractFieldIntegrator.html#L203">203</a>     @Override
+<a class="jxr_linenumber" name="L204" href="AbstractFieldIntegrator.html#L204">204</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getEvaluations() {
+<a class="jxr_linenumber" name="L205" href="AbstractFieldIntegrator.html#L205">205</a>         <strong class="jxr_keyword">return</strong> evaluations.getCount();
+<a class="jxr_linenumber" name="L206" href="AbstractFieldIntegrator.html#L206">206</a>     }
+<a class="jxr_linenumber" name="L207" href="AbstractFieldIntegrator.html#L207">207</a> 
+<a class="jxr_linenumber" name="L208" href="AbstractFieldIntegrator.html#L208">208</a>     <em class="jxr_javadoccomment">/** Prepare the start of an integration.</em>
+<a class="jxr_linenumber" name="L209" href="AbstractFieldIntegrator.html#L209">209</a> <em class="jxr_javadoccomment">     * @param eqn equations to integrate</em>
+<a class="jxr_linenumber" name="L210" href="AbstractFieldIntegrator.html#L210">210</a> <em class="jxr_javadoccomment">     * @param t0 start value of the independent &lt;i&gt;time&lt;/i&gt; variable</em>
+<a class="jxr_linenumber" name="L211" href="AbstractFieldIntegrator.html#L211">211</a> <em class="jxr_javadoccomment">     * @param y0 array containing the start value of the state vector</em>
+<a class="jxr_linenumber" name="L212" href="AbstractFieldIntegrator.html#L212">212</a> <em class="jxr_javadoccomment">     * @param t target time for the integration</em>
+<a class="jxr_linenumber" name="L213" href="AbstractFieldIntegrator.html#L213">213</a> <em class="jxr_javadoccomment">     * @return initial state with derivatives added</em>
+<a class="jxr_linenumber" name="L214" href="AbstractFieldIntegrator.html#L214">214</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L215" href="AbstractFieldIntegrator.html#L215">215</a>     <strong class="jxr_keyword">protected</strong> FieldODEStateAndDerivative&lt;T&gt; initIntegration(<strong class="jxr_keyword">final</strong> FieldExpandableODE&lt;T&gt; eqn,
+<a class="jxr_linenumber" name="L216" href="AbstractFieldIntegrator.html#L216">216</a>                                                             <strong class="jxr_keyword">final</strong> T t0, <strong class="jxr_keyword">final</strong> T[] y0, <strong class="jxr_keyword">final</strong> T t) {
+<a class="jxr_linenumber" name="L217" href="AbstractFieldIntegrator.html#L217">217</a> 
+<a class="jxr_linenumber" name="L218" href="AbstractFieldIntegrator.html#L218">218</a>         <strong class="jxr_keyword">this</strong>.equations = eqn;
+<a class="jxr_linenumber" name="L219" href="AbstractFieldIntegrator.html#L219">219</a>         evaluations    = evaluations.withStart(0);
+<a class="jxr_linenumber" name="L220" href="AbstractFieldIntegrator.html#L220">220</a> 
+<a class="jxr_linenumber" name="L221" href="AbstractFieldIntegrator.html#L221">221</a>         <em class="jxr_comment">// initialize ODE</em>
+<a class="jxr_linenumber" name="L222" href="AbstractFieldIntegrator.html#L222">222</a>         eqn.init(t0, y0, t);
+<a class="jxr_linenumber" name="L223" href="AbstractFieldIntegrator.html#L223">223</a> 
+<a class="jxr_linenumber" name="L224" href="AbstractFieldIntegrator.html#L224">224</a>         <em class="jxr_comment">// set up derivatives of initial state</em>
+<a class="jxr_linenumber" name="L225" href="AbstractFieldIntegrator.html#L225">225</a>         <strong class="jxr_keyword">final</strong> T[] y0Dot = computeDerivatives(t0, y0);
+<a class="jxr_linenumber" name="L226" href="AbstractFieldIntegrator.html#L226">226</a>         <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; state0 = <strong class="jxr_keyword">new</strong> FieldODEStateAndDerivative&lt;T&gt;(t0, y0, y0Dot);
+<a class="jxr_linenumber" name="L227" href="AbstractFieldIntegrator.html#L227">227</a> 
+<a class="jxr_linenumber" name="L228" href="AbstractFieldIntegrator.html#L228">228</a>         <em class="jxr_comment">// initialize event handlers</em>
+<a class="jxr_linenumber" name="L229" href="AbstractFieldIntegrator.html#L229">229</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> FieldEventState&lt;T&gt; state : eventsStates) {
+<a class="jxr_linenumber" name="L230" href="AbstractFieldIntegrator.html#L230">230</a>             state.getEventHandler().init(state0, t);
+<a class="jxr_linenumber" name="L231" href="AbstractFieldIntegrator.html#L231">231</a>         }
+<a class="jxr_linenumber" name="L232" href="AbstractFieldIntegrator.html#L232">232</a> 
+<a class="jxr_linenumber" name="L233" href="AbstractFieldIntegrator.html#L233">233</a>         <em class="jxr_comment">// initialize step handlers</em>
+<a class="jxr_linenumber" name="L234" href="AbstractFieldIntegrator.html#L234">234</a>         <strong class="jxr_keyword">for</strong> (FieldStepHandler&lt;T&gt; handler : stepHandlers) {
+<a class="jxr_linenumber" name="L235" href="AbstractFieldIntegrator.html#L235">235</a>             handler.init(state0, t);
+<a class="jxr_linenumber" name="L236" href="AbstractFieldIntegrator.html#L236">236</a>         }
+<a class="jxr_linenumber" name="L237" href="AbstractFieldIntegrator.html#L237">237</a> 
+<a class="jxr_linenumber" name="L238" href="AbstractFieldIntegrator.html#L238">238</a>         setStateInitialized(false);
+<a class="jxr_linenumber" name="L239" href="AbstractFieldIntegrator.html#L239">239</a> 
+<a class="jxr_linenumber" name="L240" href="AbstractFieldIntegrator.html#L240">240</a>         <strong class="jxr_keyword">return</strong> state0;
+<a class="jxr_linenumber" name="L241" href="AbstractFieldIntegrator.html#L241">241</a> 
+<a class="jxr_linenumber" name="L242" href="AbstractFieldIntegrator.html#L242">242</a>     }
+<a class="jxr_linenumber" name="L243" href="AbstractFieldIntegrator.html#L243">243</a> 
+<a class="jxr_linenumber" name="L244" href="AbstractFieldIntegrator.html#L244">244</a>     <em class="jxr_javadoccomment">/** Get the differential equations to integrate.</em>
+<a class="jxr_linenumber" name="L245" href="AbstractFieldIntegrator.html#L245">245</a> <em class="jxr_javadoccomment">     * @return differential equations to integrate</em>
+<a class="jxr_linenumber" name="L246" href="AbstractFieldIntegrator.html#L246">246</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L247" href="AbstractFieldIntegrator.html#L247">247</a>     <strong class="jxr_keyword">protected</strong> FieldExpandableODE&lt;T&gt; getEquations() {
+<a class="jxr_linenumber" name="L248" href="AbstractFieldIntegrator.html#L248">248</a>         <strong class="jxr_keyword">return</strong> equations;
+<a class="jxr_linenumber" name="L249" href="AbstractFieldIntegrator.html#L249">249</a>     }
+<a class="jxr_linenumber" name="L250" href="AbstractFieldIntegrator.html#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="AbstractFieldIntegrator.html#L251">251</a>     <em class="jxr_javadoccomment">/** Get the evaluations counter.</em>
+<a class="jxr_linenumber" name="L252" href="AbstractFieldIntegrator.html#L252">252</a> <em class="jxr_javadoccomment">     * @return evaluations counter</em>
+<a class="jxr_linenumber" name="L253" href="AbstractFieldIntegrator.html#L253">253</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L254" href="AbstractFieldIntegrator.html#L254">254</a>     <strong class="jxr_keyword">protected</strong> IntegerSequence.Incrementor getEvaluationsCounter() {
+<a class="jxr_linenumber" name="L255" href="AbstractFieldIntegrator.html#L255">255</a>         <strong class="jxr_keyword">return</strong> evaluations;
+<a class="jxr_linenumber" name="L256" href="AbstractFieldIntegrator.html#L256">256</a>     }
+<a class="jxr_linenumber" name="L257" href="AbstractFieldIntegrator.html#L257">257</a> 
+<a class="jxr_linenumber" name="L258" href="AbstractFieldIntegrator.html#L258">258</a>     <em class="jxr_javadoccomment">/** Compute the derivatives and check the number of evaluations.</em>
+<a class="jxr_linenumber" name="L259" href="AbstractFieldIntegrator.html#L259">259</a> <em class="jxr_javadoccomment">     * @param t current value of the independent &lt;I&gt;time&lt;/I&gt; variable</em>
+<a class="jxr_linenumber" name="L260" href="AbstractFieldIntegrator.html#L260">260</a> <em class="jxr_javadoccomment">     * @param y array containing the current value of the state vector</em>
+<a class="jxr_linenumber" name="L261" href="AbstractFieldIntegrator.html#L261">261</a> <em class="jxr_javadoccomment">     * @return state completed with derivatives</em>
+<a class="jxr_linenumber" name="L262" href="AbstractFieldIntegrator.html#L262">262</a> <em class="jxr_javadoccomment">     * @exception DimensionMismatchException if arrays dimensions do not match equations settings</em>
+<a class="jxr_linenumber" name="L263" href="AbstractFieldIntegrator.html#L263">263</a> <em class="jxr_javadoccomment">     * @exception MaxCountExceededException if the number of functions evaluations is exceeded</em>
+<a class="jxr_linenumber" name="L264" href="AbstractFieldIntegrator.html#L264">264</a> <em class="jxr_javadoccomment">     * @exception NullPointerException if the ODE equations have not been set (i.e. if this method</em>
+<a class="jxr_linenumber" name="L265" href="AbstractFieldIntegrator.html#L265">265</a> <em class="jxr_javadoccomment">     * is called outside of a call to {@link #integrate(FieldExpandableODE, FieldODEState,</em>
+<a class="jxr_linenumber" name="L266" href="AbstractFieldIntegrator.html#L266">266</a> <em class="jxr_javadoccomment">     * RealFieldElement) integrate}</em>
+<a class="jxr_linenumber" name="L267" href="AbstractFieldIntegrator.html#L267">267</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L268" href="AbstractFieldIntegrator.html#L268">268</a>     <strong class="jxr_keyword">public</strong> T[] computeDerivatives(<strong class="jxr_keyword">final</strong> T t, <strong class="jxr_keyword">final</strong> T[] y)
+<a class="jxr_linenumber" name="L269" href="AbstractFieldIntegrator.html#L269">269</a>         <strong class="jxr_keyword">throws</strong> DimensionMismatchException, MaxCountExceededException, NullPointerException {
+<a class="jxr_linenumber" name="L270" href="AbstractFieldIntegrator.html#L270">270</a>         evaluations.increment();
+<a class="jxr_linenumber" name="L271" href="AbstractFieldIntegrator.html#L271">271</a>         <strong class="jxr_keyword">return</strong> equations.computeDerivatives(t, y);
+<a class="jxr_linenumber" name="L272" href="AbstractFieldIntegrator.html#L272">272</a>     }
+<a class="jxr_linenumber" name="L273" href="AbstractFieldIntegrator.html#L273">273</a> 
+<a class="jxr_linenumber" name="L274" href="AbstractFieldIntegrator.html#L274">274</a>     <em class="jxr_javadoccomment">/** Set the stateInitialized flag.</em>
+<a class="jxr_linenumber" name="L275" href="AbstractFieldIntegrator.html#L275">275</a> <em class="jxr_javadoccomment">     * &lt;p&gt;This method must be called by integrators with the value</em>
+<a class="jxr_linenumber" name="L276" href="AbstractFieldIntegrator.html#L276">276</a> <em class="jxr_javadoccomment">     * {@code false} before they start integration, so a proper lazy</em>
+<a class="jxr_linenumber" name="L277" href="AbstractFieldIntegrator.html#L277">277</a> <em class="jxr_javadoccomment">     * initialization is done automatically on the first step.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L278" href="AbstractFieldIntegrator.html#L278">278</a> <em class="jxr_javadoccomment">     * @param stateInitialized new value for the flag</em>
+<a class="jxr_linenumber" name="L279" href="AbstractFieldIntegrator.html#L279">279</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L280" href="AbstractFieldIntegrator.html#L280">280</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> setStateInitialized(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> stateInitialized) {
+<a class="jxr_linenumber" name="L281" href="AbstractFieldIntegrator.html#L281">281</a>         <strong class="jxr_keyword">this</strong>.statesInitialized = stateInitialized;
+<a class="jxr_linenumber" name="L282" href="AbstractFieldIntegrator.html#L282">282</a>     }
+<a class="jxr_linenumber" name="L283" href="AbstractFieldIntegrator.html#L283">283</a> 
+<a class="jxr_linenumber" name="L284" href="AbstractFieldIntegrator.html#L284">284</a>     <em class="jxr_javadoccomment">/** Accept a step, triggering events and step handlers.</em>
+<a class="jxr_linenumber" name="L285" href="AbstractFieldIntegrator.html#L285">285</a> <em class="jxr_javadoccomment">     * @param interpolator step interpolator</em>
+<a class="jxr_linenumber" name="L286" href="AbstractFieldIntegrator.html#L286">286</a> <em class="jxr_javadoccomment">     * @param tEnd final integration time</em>
+<a class="jxr_linenumber" name="L287" href="AbstractFieldIntegrator.html#L287">287</a> <em class="jxr_javadoccomment">     * @return state at end of step</em>
+<a class="jxr_linenumber" name="L288" href="AbstractFieldIntegrator.html#L288">288</a> <em class="jxr_javadoccomment">     * @exception MaxCountExceededException if the interpolator throws one because</em>
+<a class="jxr_linenumber" name="L289" href="AbstractFieldIntegrator.html#L289">289</a> <em class="jxr_javadoccomment">     * the number of functions evaluations is exceeded</em>
+<a class="jxr_linenumber" name="L290" href="AbstractFieldIntegrator.html#L290">290</a> <em class="jxr_javadoccomment">     * @exception NoBracketingException if the location of an event cannot be bracketed</em>
+<a class="jxr_linenumber" name="L291" href="AbstractFieldIntegrator.html#L291">291</a> <em class="jxr_javadoccomment">     * @exception DimensionMismatchException if arrays dimensions do not match equations settings</em>
+<a class="jxr_linenumber" name="L292" href="AbstractFieldIntegrator.html#L292">292</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L293" href="AbstractFieldIntegrator.html#L293">293</a>     <strong class="jxr_keyword">protected</strong> FieldODEStateAndDerivative&lt;T&gt; acceptStep(<strong class="jxr_keyword">final</strong> AbstractFieldStepInterpolator&lt;T&gt; interpolator,
+<a class="jxr_linenumber" name="L294" href="AbstractFieldIntegrator.html#L294">294</a>                                                        <strong class="jxr_keyword">final</strong> T tEnd)
+<a class="jxr_linenumber" name="L295" href="AbstractFieldIntegrator.html#L295">295</a>         <strong class="jxr_keyword">throws</strong> MaxCountExceededException, DimensionMismatchException, <a href="../exception/NoBracketingException.html">NoBracketingException</a> {
+<a class="jxr_linenumber" name="L296" href="AbstractFieldIntegrator.html#L296">296</a> 
+<a class="jxr_linenumber" name="L297" href="AbstractFieldIntegrator.html#L297">297</a>             FieldODEStateAndDerivative&lt;T&gt; previousState = interpolator.getGlobalPreviousState();
+<a class="jxr_linenumber" name="L298" href="AbstractFieldIntegrator.html#L298">298</a>             <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; currentState = interpolator.getGlobalCurrentState();
+<a class="jxr_linenumber" name="L299" href="AbstractFieldIntegrator.html#L299">299</a> 
+<a class="jxr_linenumber" name="L300" href="AbstractFieldIntegrator.html#L300">300</a>             <em class="jxr_comment">// initialize the events states if needed</em>
+<a class="jxr_linenumber" name="L301" href="AbstractFieldIntegrator.html#L301">301</a>             <strong class="jxr_keyword">if</strong> (! statesInitialized) {
+<a class="jxr_linenumber" name="L302" href="AbstractFieldIntegrator.html#L302">302</a>                 <strong class="jxr_keyword">for</strong> (FieldEventState&lt;T&gt; state : eventsStates) {
+<a class="jxr_linenumber" name="L303" href="AbstractFieldIntegrator.html#L303">303</a>                     state.reinitializeBegin(interpolator);
+<a class="jxr_linenumber" name="L304" href="AbstractFieldIntegrator.html#L304">304</a>                 }
+<a class="jxr_linenumber" name="L305" href="AbstractFieldIntegrator.html#L305">305</a>                 statesInitialized = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L306" href="AbstractFieldIntegrator.html#L306">306</a>             }
+<a class="jxr_linenumber" name="L307" href="AbstractFieldIntegrator.html#L307">307</a> 
+<a class="jxr_linenumber" name="L308" href="AbstractFieldIntegrator.html#L308">308</a>             <em class="jxr_comment">// search for next events that may occur during the step</em>
+<a class="jxr_linenumber" name="L309" href="AbstractFieldIntegrator.html#L309">309</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> orderingSign = interpolator.isForward() ? +1 : -1;
+<a class="jxr_linenumber" name="L310" href="AbstractFieldIntegrator.html#L310">310</a>             SortedSet&lt;FieldEventState&lt;T&gt;&gt; occurringEvents = <strong class="jxr_keyword">new</strong> TreeSet&lt;FieldEventState&lt;T&gt;&gt;(<strong class="jxr_keyword">new</strong> Comparator&lt;FieldEventState&lt;T&gt;&gt;() {
+<a class="jxr_linenumber" name="L311" href="AbstractFieldIntegrator.html#L311">311</a> 
+<a class="jxr_linenumber" name="L312" href="AbstractFieldIntegrator.html#L312">312</a>                 <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L313" href="AbstractFieldIntegrator.html#L313">313</a>                 @Override
+<a class="jxr_linenumber" name="L314" href="AbstractFieldIntegrator.html#L314">314</a>                 <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compare(FieldEventState&lt;T&gt; es0, FieldEventState&lt;T&gt; es1) {
+<a class="jxr_linenumber" name="L315" href="AbstractFieldIntegrator.html#L315">315</a>                     <strong class="jxr_keyword">return</strong> orderingSign * Double.compare(es0.getEventTime().getReal(), es1.getEventTime().getReal());
+<a class="jxr_linenumber" name="L316" href="AbstractFieldIntegrator.html#L316">316</a>                 }
+<a class="jxr_linenumber" name="L317" href="AbstractFieldIntegrator.html#L317">317</a> 
+<a class="jxr_linenumber" name="L318" href="AbstractFieldIntegrator.html#L318">318</a>             });
+<a class="jxr_linenumber" name="L319" href="AbstractFieldIntegrator.html#L319">319</a> 
+<a class="jxr_linenumber" name="L320" href="AbstractFieldIntegrator.html#L320">320</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> FieldEventState&lt;T&gt; state : eventsStates) {
+<a class="jxr_linenumber" name="L321" href="AbstractFieldIntegrator.html#L321">321</a>                 <strong class="jxr_keyword">if</strong> (state.evaluateStep(interpolator)) {
+<a class="jxr_linenumber" name="L322" href="AbstractFieldIntegrator.html#L322">322</a>                     <em class="jxr_comment">// the event occurs during the current step</em>
+<a class="jxr_linenumber" name="L323" href="AbstractFieldIntegrator.html#L323">323</a>                     occurringEvents.add(state);
+<a class="jxr_linenumber" name="L324" href="AbstractFieldIntegrator.html#L324">324</a>                 }
+<a class="jxr_linenumber" name="L325" href="AbstractFieldIntegrator.html#L325">325</a>             }
+<a class="jxr_linenumber" name="L326" href="AbstractFieldIntegrator.html#L326">326</a> 
+<a class="jxr_linenumber" name="L327" href="AbstractFieldIntegrator.html#L327">327</a>             AbstractFieldStepInterpolator&lt;T&gt; restricted = interpolator;
+<a class="jxr_linenumber" name="L328" href="AbstractFieldIntegrator.html#L328">328</a>             <strong class="jxr_keyword">while</strong> (!occurringEvents.isEmpty()) {
+<a class="jxr_linenumber" name="L329" href="AbstractFieldIntegrator.html#L329">329</a> 
+<a class="jxr_linenumber" name="L330" href="AbstractFieldIntegrator.html#L330">330</a>                 <em class="jxr_comment">// handle the chronologically first event</em>
+<a class="jxr_linenumber" name="L331" href="AbstractFieldIntegrator.html#L331">331</a>                 <strong class="jxr_keyword">final</strong> Iterator&lt;FieldEventState&lt;T&gt;&gt; iterator = occurringEvents.iterator();
+<a class="jxr_linenumber" name="L332" href="AbstractFieldIntegrator.html#L332">332</a>                 <strong class="jxr_keyword">final</strong> FieldEventState&lt;T&gt; currentEvent = iterator.next();
+<a class="jxr_linenumber" name="L333" href="AbstractFieldIntegrator.html#L333">333</a>                 iterator.remove();
+<a class="jxr_linenumber" name="L334" href="AbstractFieldIntegrator.html#L334">334</a> 
+<a class="jxr_linenumber" name="L335" href="AbstractFieldIntegrator.html#L335">335</a>                 <em class="jxr_comment">// get state at event time</em>
+<a class="jxr_linenumber" name="L336" href="AbstractFieldIntegrator.html#L336">336</a>                 <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; eventState = restricted.getInterpolatedState(currentEvent.getEventTime());
+<a class="jxr_linenumber" name="L337" href="AbstractFieldIntegrator.html#L337">337</a> 
+<a class="jxr_linenumber" name="L338" href="AbstractFieldIntegrator.html#L338">338</a>                 <em class="jxr_comment">// restrict the interpolator to the first part of the step, up to the event</em>
+<a class="jxr_linenumber" name="L339" href="AbstractFieldIntegrator.html#L339">339</a>                 restricted = restricted.restrictStep(previousState, eventState);
+<a class="jxr_linenumber" name="L340" href="AbstractFieldIntegrator.html#L340">340</a> 
+<a class="jxr_linenumber" name="L341" href="AbstractFieldIntegrator.html#L341">341</a>                 <em class="jxr_comment">// advance all event states to current time</em>
+<a class="jxr_linenumber" name="L342" href="AbstractFieldIntegrator.html#L342">342</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> FieldEventState&lt;T&gt; state : eventsStates) {
+<a class="jxr_linenumber" name="L343" href="AbstractFieldIntegrator.html#L343">343</a>                     state.stepAccepted(eventState);
+<a class="jxr_linenumber" name="L344" href="AbstractFieldIntegrator.html#L344">344</a>                     isLastStep = isLastStep || state.stop();
+<a class="jxr_linenumber" name="L345" href="AbstractFieldIntegrator.html#L345">345</a>                 }
+<a class="jxr_linenumber" name="L346" href="AbstractFieldIntegrator.html#L346">346</a> 
+<a class="jxr_linenumber" name="L347" href="AbstractFieldIntegrator.html#L347">347</a>                 <em class="jxr_comment">// handle the first part of the step, up to the event</em>
+<a class="jxr_linenumber" name="L348" href="AbstractFieldIntegrator.html#L348">348</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> FieldStepHandler&lt;T&gt; handler : stepHandlers) {
+<a class="jxr_linenumber" name="L349" href="AbstractFieldIntegrator.html#L349">349</a>                     handler.handleStep(restricted, isLastStep);
+<a class="jxr_linenumber" name="L350" href="AbstractFieldIntegrator.html#L350">350</a>                 }
+<a class="jxr_linenumber" name="L351" href="AbstractFieldIntegrator.html#L351">351</a> 
+<a class="jxr_linenumber" name="L352" href="AbstractFieldIntegrator.html#L352">352</a>                 <strong class="jxr_keyword">if</strong> (isLastStep) {
+<a class="jxr_linenumber" name="L353" href="AbstractFieldIntegrator.html#L353">353</a>                     <em class="jxr_comment">// the event asked to stop integration</em>
+<a class="jxr_linenumber" name="L354" href="AbstractFieldIntegrator.html#L354">354</a>                     <strong class="jxr_keyword">return</strong> eventState;
+<a class="jxr_linenumber" name="L355" href="AbstractFieldIntegrator.html#L355">355</a>                 }
+<a class="jxr_linenumber" name="L356" href="AbstractFieldIntegrator.html#L356">356</a> 
+<a class="jxr_linenumber" name="L357" href="AbstractFieldIntegrator.html#L357">357</a>                 FieldODEState&lt;T&gt; newState = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L358" href="AbstractFieldIntegrator.html#L358">358</a>                 resetOccurred = false;
+<a class="jxr_linenumber" name="L359" href="AbstractFieldIntegrator.html#L359">359</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> FieldEventState&lt;T&gt; state : eventsStates) {
+<a class="jxr_linenumber" name="L360" href="AbstractFieldIntegrator.html#L360">360</a>                     newState = state.reset(eventState);
+<a class="jxr_linenumber" name="L361" href="AbstractFieldIntegrator.html#L361">361</a>                     <strong class="jxr_keyword">if</strong> (newState != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L362" href="AbstractFieldIntegrator.html#L362">362</a>                         <em class="jxr_comment">// some event handler has triggered changes that</em>
+<a class="jxr_linenumber" name="L363" href="AbstractFieldIntegrator.html#L363">363</a>                         <em class="jxr_comment">// invalidate the derivatives, we need to recompute them</em>
+<a class="jxr_linenumber" name="L364" href="AbstractFieldIntegrator.html#L364">364</a>                         <strong class="jxr_keyword">final</strong> T[] y    = equations.getMapper().mapState(newState);
+<a class="jxr_linenumber" name="L365" href="AbstractFieldIntegrator.html#L365">365</a>                         <strong class="jxr_keyword">final</strong> T[] yDot = computeDerivatives(newState.getTime(), y);
+<a class="jxr_linenumber" name="L366" href="AbstractFieldIntegrator.html#L366">366</a>                         resetOccurred = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L367" href="AbstractFieldIntegrator.html#L367">367</a>                         <strong class="jxr_keyword">return</strong> equations.getMapper().mapStateAndDerivative(newState.getTime(), y, yDot);
+<a class="jxr_linenumber" name="L368" href="AbstractFieldIntegrator.html#L368">368</a>                     }
+<a class="jxr_linenumber" name="L369" href="AbstractFieldIntegrator.html#L369">369</a>                 }
+<a class="jxr_linenumber" name="L370" href="AbstractFieldIntegrator.html#L370">370</a> 
+<a class="jxr_linenumber" name="L371" href="AbstractFieldIntegrator.html#L371">371</a>                 <em class="jxr_comment">// prepare handling of the remaining part of the step</em>
+<a class="jxr_linenumber" name="L372" href="AbstractFieldIntegrator.html#L372">372</a>                 previousState = eventState;
+<a class="jxr_linenumber" name="L373" href="AbstractFieldIntegrator.html#L373">373</a>                 restricted = restricted.restrictStep(eventState, currentState);
+<a class="jxr_linenumber" name="L374" href="AbstractFieldIntegrator.html#L374">374</a> 
+<a class="jxr_linenumber" name="L375" href="AbstractFieldIntegrator.html#L375">375</a>                 <em class="jxr_comment">// check if the same event occurs again in the remaining part of the step</em>
+<a class="jxr_linenumber" name="L376" href="AbstractFieldIntegrator.html#L376">376</a>                 <strong class="jxr_keyword">if</strong> (currentEvent.evaluateStep(restricted)) {
+<a class="jxr_linenumber" name="L377" href="AbstractFieldIntegrator.html#L377">377</a>                     <em class="jxr_comment">// the event occurs during the current step</em>
+<a class="jxr_linenumber" name="L378" href="AbstractFieldIntegrator.html#L378">378</a>                     occurringEvents.add(currentEvent);
+<a class="jxr_linenumber" name="L379" href="AbstractFieldIntegrator.html#L379">379</a>                 }
+<a class="jxr_linenumber" name="L380" href="AbstractFieldIntegrator.html#L380">380</a> 
+<a class="jxr_linenumber" name="L381" href="AbstractFieldIntegrator.html#L381">381</a>             }
+<a class="jxr_linenumber" name="L382" href="AbstractFieldIntegrator.html#L382">382</a> 
+<a class="jxr_linenumber" name="L383" href="AbstractFieldIntegrator.html#L383">383</a>             <em class="jxr_comment">// last part of the step, after the last event</em>
+<a class="jxr_linenumber" name="L384" href="AbstractFieldIntegrator.html#L384">384</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> FieldEventState&lt;T&gt; state : eventsStates) {
+<a class="jxr_linenumber" name="L385" href="AbstractFieldIntegrator.html#L385">385</a>                 state.stepAccepted(currentState);
+<a class="jxr_linenumber" name="L386" href="AbstractFieldIntegrator.html#L386">386</a>                 isLastStep = isLastStep || state.stop();
+<a class="jxr_linenumber" name="L387" href="AbstractFieldIntegrator.html#L387">387</a>             }
+<a class="jxr_linenumber" name="L388" href="AbstractFieldIntegrator.html#L388">388</a>             isLastStep = isLastStep || currentState.getTime().subtract(tEnd).abs().getReal() &lt;= FastMath.ulp(tEnd.getReal());
+<a class="jxr_linenumber" name="L389" href="AbstractFieldIntegrator.html#L389">389</a> 
+<a class="jxr_linenumber" name="L390" href="AbstractFieldIntegrator.html#L390">390</a>             <em class="jxr_comment">// handle the remaining part of the step, after all events if any</em>
+<a class="jxr_linenumber" name="L391" href="AbstractFieldIntegrator.html#L391">391</a>             <strong class="jxr_keyword">for</strong> (FieldStepHandler&lt;T&gt; handler : stepHandlers) {
+<a class="jxr_linenumber" name="L392" href="AbstractFieldIntegrator.html#L392">392</a>                 handler.handleStep(restricted, isLastStep);
+<a class="jxr_linenumber" name="L393" href="AbstractFieldIntegrator.html#L393">393</a>             }
+<a class="jxr_linenumber" name="L394" href="AbstractFieldIntegrator.html#L394">394</a> 
+<a class="jxr_linenumber" name="L395" href="AbstractFieldIntegrator.html#L395">395</a>             <strong class="jxr_keyword">return</strong> currentState;
+<a class="jxr_linenumber" name="L396" href="AbstractFieldIntegrator.html#L396">396</a> 
+<a class="jxr_linenumber" name="L397" href="AbstractFieldIntegrator.html#L397">397</a>     }
+<a class="jxr_linenumber" name="L398" href="AbstractFieldIntegrator.html#L398">398</a> 
+<a class="jxr_linenumber" name="L399" href="AbstractFieldIntegrator.html#L399">399</a>     <em class="jxr_javadoccomment">/** Check the integration span.</em>
+<a class="jxr_linenumber" name="L400" href="AbstractFieldIntegrator.html#L400">400</a> <em class="jxr_javadoccomment">     * @param eqn set of differential equations</em>
+<a class="jxr_linenumber" name="L401" href="AbstractFieldIntegrator.html#L401">401</a> <em class="jxr_javadoccomment">     * @param t target time for the integration</em>
+<a class="jxr_linenumber" name="L402" href="AbstractFieldIntegrator.html#L402">402</a> <em class="jxr_javadoccomment">     * @exception NumberIsTooSmallException if integration span is too small</em>
+<a class="jxr_linenumber" name="L403" href="AbstractFieldIntegrator.html#L403">403</a> <em class="jxr_javadoccomment">     * @exception DimensionMismatchException if adaptive step size integrators</em>
+<a class="jxr_linenumber" name="L404" href="AbstractFieldIntegrator.html#L404">404</a> <em class="jxr_javadoccomment">     * tolerance arrays dimensions are not compatible with equations settings</em>
+<a class="jxr_linenumber" name="L405" href="AbstractFieldIntegrator.html#L405">405</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L406" href="AbstractFieldIntegrator.html#L406">406</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> sanityChecks(<strong class="jxr_keyword">final</strong> FieldODEState&lt;T&gt; eqn, <strong class="jxr_keyword">final</strong> T t)
+<a class="jxr_linenumber" name="L407" href="AbstractFieldIntegrator.html#L407">407</a>         <strong class="jxr_keyword">throws</strong> NumberIsTooSmallException, <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a> {
+<a class="jxr_linenumber" name="L408" href="AbstractFieldIntegrator.html#L408">408</a> 
+<a class="jxr_linenumber" name="L409" href="AbstractFieldIntegrator.html#L409">409</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> threshold = 1000 * FastMath.ulp(FastMath.max(FastMath.abs(eqn.getTime().getReal()),
+<a class="jxr_linenumber" name="L410" href="AbstractFieldIntegrator.html#L410">410</a>                                                                   FastMath.abs(t.getReal())));
+<a class="jxr_linenumber" name="L411" href="AbstractFieldIntegrator.html#L411">411</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> dt = eqn.getTime().subtract(t).abs().getReal();
+<a class="jxr_linenumber" name="L412" href="AbstractFieldIntegrator.html#L412">412</a>         <strong class="jxr_keyword">if</strong> (dt &lt;= threshold) {
+<a class="jxr_linenumber" name="L413" href="AbstractFieldIntegrator.html#L413">413</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(LocalizedFormats.TOO_SMALL_INTEGRATION_INTERVAL,
+<a class="jxr_linenumber" name="L414" href="AbstractFieldIntegrator.html#L414">414</a>                                                 dt, threshold, false);
+<a class="jxr_linenumber" name="L415" href="AbstractFieldIntegrator.html#L415">415</a>         }
+<a class="jxr_linenumber" name="L416" href="AbstractFieldIntegrator.html#L416">416</a> 
+<a class="jxr_linenumber" name="L417" href="AbstractFieldIntegrator.html#L417">417</a>     }
+<a class="jxr_linenumber" name="L418" href="AbstractFieldIntegrator.html#L418">418</a> 
+<a class="jxr_linenumber" name="L419" href="AbstractFieldIntegrator.html#L419">419</a>     <em class="jxr_javadoccomment">/** Check if a reset occurred while last step was accepted.</em>
+<a class="jxr_linenumber" name="L420" href="AbstractFieldIntegrator.html#L420">420</a> <em class="jxr_javadoccomment">     * @return true if a reset occurred while last step was accepted</em>
+<a class="jxr_linenumber" name="L421" href="AbstractFieldIntegrator.html#L421">421</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L422" href="AbstractFieldIntegrator.html#L422">422</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">boolean</strong> resetOccurred() {
+<a class="jxr_linenumber" name="L423" href="AbstractFieldIntegrator.html#L423">423</a>         <strong class="jxr_keyword">return</strong> resetOccurred;
+<a class="jxr_linenumber" name="L424" href="AbstractFieldIntegrator.html#L424">424</a>     }
+<a class="jxr_linenumber" name="L425" href="AbstractFieldIntegrator.html#L425">425</a> 
+<a class="jxr_linenumber" name="L426" href="AbstractFieldIntegrator.html#L426">426</a>     <em class="jxr_javadoccomment">/** Set the current step size.</em>
+<a class="jxr_linenumber" name="L427" href="AbstractFieldIntegrator.html#L427">427</a> <em class="jxr_javadoccomment">     * @param stepSize step size to set</em>
+<a class="jxr_linenumber" name="L428" href="AbstractFieldIntegrator.html#L428">428</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L429" href="AbstractFieldIntegrator.html#L429">429</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> setStepSize(<strong class="jxr_keyword">final</strong> T stepSize) {
+<a class="jxr_linenumber" name="L430" href="AbstractFieldIntegrator.html#L430">430</a>         <strong class="jxr_keyword">this</strong>.stepSize = stepSize;
+<a class="jxr_linenumber" name="L431" href="AbstractFieldIntegrator.html#L431">431</a>     }
+<a class="jxr_linenumber" name="L432" href="AbstractFieldIntegrator.html#L432">432</a> 
+<a class="jxr_linenumber" name="L433" href="AbstractFieldIntegrator.html#L433">433</a>     <em class="jxr_javadoccomment">/** Get the current step size.</em>
+<a class="jxr_linenumber" name="L434" href="AbstractFieldIntegrator.html#L434">434</a> <em class="jxr_javadoccomment">     * @return current step size</em>
+<a class="jxr_linenumber" name="L435" href="AbstractFieldIntegrator.html#L435">435</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L436" href="AbstractFieldIntegrator.html#L436">436</a>     <strong class="jxr_keyword">protected</strong> T getStepSize() {
+<a class="jxr_linenumber" name="L437" href="AbstractFieldIntegrator.html#L437">437</a>         <strong class="jxr_keyword">return</strong> stepSize;
+<a class="jxr_linenumber" name="L438" href="AbstractFieldIntegrator.html#L438">438</a>     }
+<a class="jxr_linenumber" name="L439" href="AbstractFieldIntegrator.html#L439">439</a>     <em class="jxr_javadoccomment">/** Set current step start.</em>
+<a class="jxr_linenumber" name="L440" href="AbstractFieldIntegrator.html#L440">440</a> <em class="jxr_javadoccomment">     * @param stepStart step start</em>
+<a class="jxr_linenumber" name="L441" href="AbstractFieldIntegrator.html#L441">441</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L442" href="AbstractFieldIntegrator.html#L442">442</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> setStepStart(<strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; stepStart) {
+<a class="jxr_linenumber" name="L443" href="AbstractFieldIntegrator.html#L443">443</a>         <strong class="jxr_keyword">this</strong>.stepStart = stepStart;
+<a class="jxr_linenumber" name="L444" href="AbstractFieldIntegrator.html#L444">444</a>     }
+<a class="jxr_linenumber" name="L445" href="AbstractFieldIntegrator.html#L445">445</a> 
+<a class="jxr_linenumber" name="L446" href="AbstractFieldIntegrator.html#L446">446</a>     <em class="jxr_javadoccomment">/** Getcurrent step start.</em>
+<a class="jxr_linenumber" name="L447" href="AbstractFieldIntegrator.html#L447">447</a> <em class="jxr_javadoccomment">     * @return current step start</em>
+<a class="jxr_linenumber" name="L448" href="AbstractFieldIntegrator.html#L448">448</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L449" href="AbstractFieldIntegrator.html#L449">449</a>     <strong class="jxr_keyword">protected</strong> FieldODEStateAndDerivative&lt;T&gt; getStepStart() {
+<a class="jxr_linenumber" name="L450" href="AbstractFieldIntegrator.html#L450">450</a>         <strong class="jxr_keyword">return</strong> stepStart;
+<a class="jxr_linenumber" name="L451" href="AbstractFieldIntegrator.html#L451">451</a>     }
+<a class="jxr_linenumber" name="L452" href="AbstractFieldIntegrator.html#L452">452</a> 
+<a class="jxr_linenumber" name="L453" href="AbstractFieldIntegrator.html#L453">453</a>     <em class="jxr_javadoccomment">/** Set the last state flag.</em>
+<a class="jxr_linenumber" name="L454" href="AbstractFieldIntegrator.html#L454">454</a> <em class="jxr_javadoccomment">     * @param isLastStep if true, this step is the last one</em>
+<a class="jxr_linenumber" name="L455" href="AbstractFieldIntegrator.html#L455">455</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L456" href="AbstractFieldIntegrator.html#L456">456</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> setIsLastStep(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isLastStep) {
+<a class="jxr_linenumber" name="L457" href="AbstractFieldIntegrator.html#L457">457</a>         <strong class="jxr_keyword">this</strong>.isLastStep = isLastStep;
+<a class="jxr_linenumber" name="L458" href="AbstractFieldIntegrator.html#L458">458</a>     }
+<a class="jxr_linenumber" name="L459" href="AbstractFieldIntegrator.html#L459">459</a> 
+<a class="jxr_linenumber" name="L460" href="AbstractFieldIntegrator.html#L460">460</a>     <em class="jxr_javadoccomment">/** Check if this step is the last one.</em>
+<a class="jxr_linenumber" name="L461" href="AbstractFieldIntegrator.html#L461">461</a> <em class="jxr_javadoccomment">     * @return true if this step is the last one</em>
+<a class="jxr_linenumber" name="L462" href="AbstractFieldIntegrator.html#L462">462</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L463" href="AbstractFieldIntegrator.html#L463">463</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">boolean</strong> isLastStep() {
+<a class="jxr_linenumber" name="L464" href="AbstractFieldIntegrator.html#L464">464</a>         <strong class="jxr_keyword">return</strong> isLastStep;
+<a class="jxr_linenumber" name="L465" href="AbstractFieldIntegrator.html#L465">465</a>     }
+<a class="jxr_linenumber" name="L466" href="AbstractFieldIntegrator.html#L466">466</a> 
+<a class="jxr_linenumber" name="L467" href="AbstractFieldIntegrator.html#L467">467</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

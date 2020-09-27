@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>RombergIntegrator xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/analysis/integration/RombergIntegrator.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="RombergIntegrator.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="RombergIntegrator.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="RombergIntegrator.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="RombergIntegrator.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="RombergIntegrator.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="RombergIntegrator.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="RombergIntegrator.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="RombergIntegrator.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="RombergIntegrator.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="RombergIntegrator.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="RombergIntegrator.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="RombergIntegrator.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="RombergIntegrator.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="RombergIntegrator.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="RombergIntegrator.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="RombergIntegrator.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="RombergIntegrator.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.integration;
+<a class="jxr_linenumber" name="L18" href="RombergIntegrator.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="RombergIntegrator.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MaxCountExceededException;
+<a class="jxr_linenumber" name="L20" href="RombergIntegrator.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L21" href="RombergIntegrator.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooLargeException;
+<a class="jxr_linenumber" name="L22" href="RombergIntegrator.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L23" href="RombergIntegrator.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.TooManyEvaluationsException;
+<a class="jxr_linenumber" name="L24" href="RombergIntegrator.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L25" href="RombergIntegrator.html#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="RombergIntegrator.html#L26">26</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L27" href="RombergIntegrator.html#L27">27</a>  <em class="jxr_javadoccomment"> * Implements the &lt;a href="<a href="http://mathworld.wolfram.com/RombergIntegration.html" target="alexandria_uri">http://mathworld.wolfram.com/RombergIntegration.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L28" href="RombergIntegrator.html#L28">28</a>  <em class="jxr_javadoccomment"> * Romberg Algorithm&lt;/a&gt; for integration of real univariate functions. For</em>
+<a class="jxr_linenumber" name="L29" href="RombergIntegrator.html#L29">29</a>  <em class="jxr_javadoccomment"> * reference, see &lt;b&gt;Introduction to Numerical Analysis&lt;/b&gt;, ISBN 038795452X,</em>
+<a class="jxr_linenumber" name="L30" href="RombergIntegrator.html#L30">30</a>  <em class="jxr_javadoccomment"> * chapter 3.</em>
+<a class="jxr_linenumber" name="L31" href="RombergIntegrator.html#L31">31</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L32" href="RombergIntegrator.html#L32">32</a>  <em class="jxr_javadoccomment"> * Romberg integration employs k successive refinements of the trapezoid</em>
+<a class="jxr_linenumber" name="L33" href="RombergIntegrator.html#L33">33</a>  <em class="jxr_javadoccomment"> * rule to remove error terms less than order O(N^(-2k)). Simpson's rule</em>
+<a class="jxr_linenumber" name="L34" href="RombergIntegrator.html#L34">34</a>  <em class="jxr_javadoccomment"> * is a special case of k = 2.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L35" href="RombergIntegrator.html#L35">35</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L36" href="RombergIntegrator.html#L36">36</a>  <em class="jxr_javadoccomment"> * @since 1.2</em>
+<a class="jxr_linenumber" name="L37" href="RombergIntegrator.html#L37">37</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L38" href="RombergIntegrator.html#L38">38</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="RombergIntegrator.html">RombergIntegrator</a> <strong class="jxr_keyword">extends</strong> <a href="BaseAbstractUnivariateIntegrator.html">BaseAbstractUnivariateIntegrator</a> {
+<a class="jxr_linenumber" name="L39" href="RombergIntegrator.html#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="RombergIntegrator.html#L40">40</a>      <em class="jxr_javadoccomment">/** Maximal number of iterations for Romberg. */</em>
+<a class="jxr_linenumber" name="L41" href="RombergIntegrator.html#L41">41</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ROMBERG_MAX_ITERATIONS_COUNT = 32;
+<a class="jxr_linenumber" name="L42" href="RombergIntegrator.html#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="RombergIntegrator.html#L43">43</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L44" href="RombergIntegrator.html#L44">44</a>  <em class="jxr_javadoccomment">     * Build a Romberg integrator with given accuracies and iterations counts.</em>
+<a class="jxr_linenumber" name="L45" href="RombergIntegrator.html#L45">45</a>  <em class="jxr_javadoccomment">     * @param relativeAccuracy relative accuracy of the result</em>
+<a class="jxr_linenumber" name="L46" href="RombergIntegrator.html#L46">46</a>  <em class="jxr_javadoccomment">     * @param absoluteAccuracy absolute accuracy of the result</em>
+<a class="jxr_linenumber" name="L47" href="RombergIntegrator.html#L47">47</a>  <em class="jxr_javadoccomment">     * @param minimalIterationCount minimum number of iterations</em>
+<a class="jxr_linenumber" name="L48" href="RombergIntegrator.html#L48">48</a>  <em class="jxr_javadoccomment">     * @param maximalIterationCount maximum number of iterations</em>
+<a class="jxr_linenumber" name="L49" href="RombergIntegrator.html#L49">49</a>  <em class="jxr_javadoccomment">     * (must be less than or equal to {@link #ROMBERG_MAX_ITERATIONS_COUNT})</em>
+<a class="jxr_linenumber" name="L50" href="RombergIntegrator.html#L50">50</a>  <em class="jxr_javadoccomment">     * @exception NotStrictlyPositiveException if minimal number of iterations</em>
+<a class="jxr_linenumber" name="L51" href="RombergIntegrator.html#L51">51</a>  <em class="jxr_javadoccomment">     * is not strictly positive</em>
+<a class="jxr_linenumber" name="L52" href="RombergIntegrator.html#L52">52</a>  <em class="jxr_javadoccomment">     * @exception NumberIsTooSmallException if maximal number of iterations</em>
+<a class="jxr_linenumber" name="L53" href="RombergIntegrator.html#L53">53</a>  <em class="jxr_javadoccomment">     * is lesser than or equal to the minimal number of iterations</em>
+<a class="jxr_linenumber" name="L54" href="RombergIntegrator.html#L54">54</a>  <em class="jxr_javadoccomment">     * @exception NumberIsTooLargeException if maximal number of iterations</em>
+<a class="jxr_linenumber" name="L55" href="RombergIntegrator.html#L55">55</a>  <em class="jxr_javadoccomment">     * is greater than {@link #ROMBERG_MAX_ITERATIONS_COUNT}</em>
+<a class="jxr_linenumber" name="L56" href="RombergIntegrator.html#L56">56</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L57" href="RombergIntegrator.html#L57">57</a>      <strong class="jxr_keyword">public</strong> <a href="RombergIntegrator.html">RombergIntegrator</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> relativeAccuracy,
+<a class="jxr_linenumber" name="L58" href="RombergIntegrator.html#L58">58</a>                               <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> absoluteAccuracy,
+<a class="jxr_linenumber" name="L59" href="RombergIntegrator.html#L59">59</a>                               <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> minimalIterationCount,
+<a class="jxr_linenumber" name="L60" href="RombergIntegrator.html#L60">60</a>                               <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maximalIterationCount)
+<a class="jxr_linenumber" name="L61" href="RombergIntegrator.html#L61">61</a>          <strong class="jxr_keyword">throws</strong> NotStrictlyPositiveException, NumberIsTooSmallException, <a href="../../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a> {
+<a class="jxr_linenumber" name="L62" href="RombergIntegrator.html#L62">62</a>          <strong class="jxr_keyword">super</strong>(relativeAccuracy, absoluteAccuracy, minimalIterationCount, maximalIterationCount);
+<a class="jxr_linenumber" name="L63" href="RombergIntegrator.html#L63">63</a>          <strong class="jxr_keyword">if</strong> (maximalIterationCount &gt; ROMBERG_MAX_ITERATIONS_COUNT) {
+<a class="jxr_linenumber" name="L64" href="RombergIntegrator.html#L64">64</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a>(maximalIterationCount,
+<a class="jxr_linenumber" name="L65" href="RombergIntegrator.html#L65">65</a>                                                  ROMBERG_MAX_ITERATIONS_COUNT, false);
+<a class="jxr_linenumber" name="L66" href="RombergIntegrator.html#L66">66</a>          }
+<a class="jxr_linenumber" name="L67" href="RombergIntegrator.html#L67">67</a>      }
+<a class="jxr_linenumber" name="L68" href="RombergIntegrator.html#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="RombergIntegrator.html#L69">69</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L70" href="RombergIntegrator.html#L70">70</a>  <em class="jxr_javadoccomment">     * Build a Romberg integrator with given iteration counts.</em>
+<a class="jxr_linenumber" name="L71" href="RombergIntegrator.html#L71">71</a>  <em class="jxr_javadoccomment">     * @param minimalIterationCount minimum number of iterations</em>
+<a class="jxr_linenumber" name="L72" href="RombergIntegrator.html#L72">72</a>  <em class="jxr_javadoccomment">     * @param maximalIterationCount maximum number of iterations</em>
+<a class="jxr_linenumber" name="L73" href="RombergIntegrator.html#L73">73</a>  <em class="jxr_javadoccomment">     * (must be less than or equal to {@link #ROMBERG_MAX_ITERATIONS_COUNT})</em>
+<a class="jxr_linenumber" name="L74" href="RombergIntegrator.html#L74">74</a>  <em class="jxr_javadoccomment">     * @exception NotStrictlyPositiveException if minimal number of iterations</em>
+<a class="jxr_linenumber" name="L75" href="RombergIntegrator.html#L75">75</a>  <em class="jxr_javadoccomment">     * is not strictly positive</em>
+<a class="jxr_linenumber" name="L76" href="RombergIntegrator.html#L76">76</a>  <em class="jxr_javadoccomment">     * @exception NumberIsTooSmallException if maximal number of iterations</em>
+<a class="jxr_linenumber" name="L77" href="RombergIntegrator.html#L77">77</a>  <em class="jxr_javadoccomment">     * is lesser than or equal to the minimal number of iterations</em>
+<a class="jxr_linenumber" name="L78" href="RombergIntegrator.html#L78">78</a>  <em class="jxr_javadoccomment">     * @exception NumberIsTooLargeException if maximal number of iterations</em>
+<a class="jxr_linenumber" name="L79" href="RombergIntegrator.html#L79">79</a>  <em class="jxr_javadoccomment">     * is greater than {@link #ROMBERG_MAX_ITERATIONS_COUNT}</em>
+<a class="jxr_linenumber" name="L80" href="RombergIntegrator.html#L80">80</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L81" href="RombergIntegrator.html#L81">81</a>      <strong class="jxr_keyword">public</strong> <a href="RombergIntegrator.html">RombergIntegrator</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> minimalIterationCount,
+<a class="jxr_linenumber" name="L82" href="RombergIntegrator.html#L82">82</a>                               <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maximalIterationCount)
+<a class="jxr_linenumber" name="L83" href="RombergIntegrator.html#L83">83</a>          <strong class="jxr_keyword">throws</strong> NotStrictlyPositiveException, NumberIsTooSmallException, <a href="../../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a> {
+<a class="jxr_linenumber" name="L84" href="RombergIntegrator.html#L84">84</a>          <strong class="jxr_keyword">super</strong>(minimalIterationCount, maximalIterationCount);
+<a class="jxr_linenumber" name="L85" href="RombergIntegrator.html#L85">85</a>          <strong class="jxr_keyword">if</strong> (maximalIterationCount &gt; ROMBERG_MAX_ITERATIONS_COUNT) {
+<a class="jxr_linenumber" name="L86" href="RombergIntegrator.html#L86">86</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a>(maximalIterationCount,
+<a class="jxr_linenumber" name="L87" href="RombergIntegrator.html#L87">87</a>                                                  ROMBERG_MAX_ITERATIONS_COUNT, false);
+<a class="jxr_linenumber" name="L88" href="RombergIntegrator.html#L88">88</a>          }
+<a class="jxr_linenumber" name="L89" href="RombergIntegrator.html#L89">89</a>      }
+<a class="jxr_linenumber" name="L90" href="RombergIntegrator.html#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="RombergIntegrator.html#L91">91</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L92" href="RombergIntegrator.html#L92">92</a>  <em class="jxr_javadoccomment">     * Construct a Romberg integrator with default settings</em>
+<a class="jxr_linenumber" name="L93" href="RombergIntegrator.html#L93">93</a>  <em class="jxr_javadoccomment">     * (max iteration count set to {@link #ROMBERG_MAX_ITERATIONS_COUNT})</em>
+<a class="jxr_linenumber" name="L94" href="RombergIntegrator.html#L94">94</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L95" href="RombergIntegrator.html#L95">95</a>      <strong class="jxr_keyword">public</strong> <a href="RombergIntegrator.html">RombergIntegrator</a>() {
+<a class="jxr_linenumber" name="L96" href="RombergIntegrator.html#L96">96</a>          <strong class="jxr_keyword">super</strong>(DEFAULT_MIN_ITERATIONS_COUNT, ROMBERG_MAX_ITERATIONS_COUNT);
+<a class="jxr_linenumber" name="L97" href="RombergIntegrator.html#L97">97</a>      }
+<a class="jxr_linenumber" name="L98" href="RombergIntegrator.html#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="RombergIntegrator.html#L99">99</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L100" href="RombergIntegrator.html#L100">100</a>     @Override
+<a class="jxr_linenumber" name="L101" href="RombergIntegrator.html#L101">101</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> doIntegrate()
+<a class="jxr_linenumber" name="L102" href="RombergIntegrator.html#L102">102</a>         <strong class="jxr_keyword">throws</strong> TooManyEvaluationsException, <a href="../../exception/MaxCountExceededException.html">MaxCountExceededException</a> {
+<a class="jxr_linenumber" name="L103" href="RombergIntegrator.html#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="RombergIntegrator.html#L104">104</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = iterations.getMaximalCount() + 1;
+<a class="jxr_linenumber" name="L105" href="RombergIntegrator.html#L105">105</a>         <strong class="jxr_keyword">double</strong> previousRow[] = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[m];
+<a class="jxr_linenumber" name="L106" href="RombergIntegrator.html#L106">106</a>         <strong class="jxr_keyword">double</strong> currentRow[]  = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[m];
+<a class="jxr_linenumber" name="L107" href="RombergIntegrator.html#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="RombergIntegrator.html#L108">108</a>         <a href="TrapezoidIntegrator.html">TrapezoidIntegrator</a> qtrap = <strong class="jxr_keyword">new</strong> <a href="TrapezoidIntegrator.html">TrapezoidIntegrator</a>();
+<a class="jxr_linenumber" name="L109" href="RombergIntegrator.html#L109">109</a>         currentRow[0] = qtrap.stage(<strong class="jxr_keyword">this</strong>, 0);
+<a class="jxr_linenumber" name="L110" href="RombergIntegrator.html#L110">110</a>         iterations.incrementCount();
+<a class="jxr_linenumber" name="L111" href="RombergIntegrator.html#L111">111</a>         <strong class="jxr_keyword">double</strong> olds = currentRow[0];
+<a class="jxr_linenumber" name="L112" href="RombergIntegrator.html#L112">112</a>         <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
+<a class="jxr_linenumber" name="L113" href="RombergIntegrator.html#L113">113</a> 
+<a class="jxr_linenumber" name="L114" href="RombergIntegrator.html#L114">114</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i = iterations.getCount();
+<a class="jxr_linenumber" name="L115" href="RombergIntegrator.html#L115">115</a> 
+<a class="jxr_linenumber" name="L116" href="RombergIntegrator.html#L116">116</a>             <em class="jxr_comment">// switch rows</em>
+<a class="jxr_linenumber" name="L117" href="RombergIntegrator.html#L117">117</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] tmpRow = previousRow;
+<a class="jxr_linenumber" name="L118" href="RombergIntegrator.html#L118">118</a>             previousRow = currentRow;
+<a class="jxr_linenumber" name="L119" href="RombergIntegrator.html#L119">119</a>             currentRow = tmpRow;
+<a class="jxr_linenumber" name="L120" href="RombergIntegrator.html#L120">120</a> 
+<a class="jxr_linenumber" name="L121" href="RombergIntegrator.html#L121">121</a>             currentRow[0] = qtrap.stage(<strong class="jxr_keyword">this</strong>, i);
+<a class="jxr_linenumber" name="L122" href="RombergIntegrator.html#L122">122</a>             iterations.incrementCount();
+<a class="jxr_linenumber" name="L123" href="RombergIntegrator.html#L123">123</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 1; j &lt;= i; j++) {
+<a class="jxr_linenumber" name="L124" href="RombergIntegrator.html#L124">124</a>                 <em class="jxr_comment">// Richardson extrapolation coefficient</em>
+<a class="jxr_linenumber" name="L125" href="RombergIntegrator.html#L125">125</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> r = (1L &lt;&lt; (2 * j)) - 1;
+<a class="jxr_linenumber" name="L126" href="RombergIntegrator.html#L126">126</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tIJm1 = currentRow[j - 1];
+<a class="jxr_linenumber" name="L127" href="RombergIntegrator.html#L127">127</a>                 currentRow[j] = tIJm1 + (tIJm1 - previousRow[j - 1]) / r;
+<a class="jxr_linenumber" name="L128" href="RombergIntegrator.html#L128">128</a>             }
+<a class="jxr_linenumber" name="L129" href="RombergIntegrator.html#L129">129</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> s = currentRow[i];
+<a class="jxr_linenumber" name="L130" href="RombergIntegrator.html#L130">130</a>             <strong class="jxr_keyword">if</strong> (i &gt;= getMinimalIterationCount()) {
+<a class="jxr_linenumber" name="L131" href="RombergIntegrator.html#L131">131</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> delta  = FastMath.abs(s - olds);
+<a class="jxr_linenumber" name="L132" href="RombergIntegrator.html#L132">132</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> rLimit = getRelativeAccuracy() * (FastMath.abs(olds) + FastMath.abs(s)) * 0.5;
+<a class="jxr_linenumber" name="L133" href="RombergIntegrator.html#L133">133</a>                 <strong class="jxr_keyword">if</strong> ((delta &lt;= rLimit) || (delta &lt;= getAbsoluteAccuracy())) {
+<a class="jxr_linenumber" name="L134" href="RombergIntegrator.html#L134">134</a>                     <strong class="jxr_keyword">return</strong> s;
+<a class="jxr_linenumber" name="L135" href="RombergIntegrator.html#L135">135</a>                 }
+<a class="jxr_linenumber" name="L136" href="RombergIntegrator.html#L136">136</a>             }
+<a class="jxr_linenumber" name="L137" href="RombergIntegrator.html#L137">137</a>             olds = s;
+<a class="jxr_linenumber" name="L138" href="RombergIntegrator.html#L138">138</a>         }
+<a class="jxr_linenumber" name="L139" href="RombergIntegrator.html#L139">139</a> 
+<a class="jxr_linenumber" name="L140" href="RombergIntegrator.html#L140">140</a>     }
+<a class="jxr_linenumber" name="L141" href="RombergIntegrator.html#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="RombergIntegrator.html#L142">142</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

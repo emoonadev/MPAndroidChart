@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>FDistribution xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/distribution/FDistribution.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="FDistribution.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="FDistribution.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="FDistribution.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="FDistribution.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="FDistribution.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="FDistribution.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="FDistribution.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="FDistribution.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="FDistribution.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="FDistribution.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="FDistribution.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="FDistribution.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="FDistribution.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="FDistribution.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="FDistribution.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="FDistribution.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="FDistribution.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="FDistribution.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.distribution;
+<a class="jxr_linenumber" name="L19" href="FDistribution.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="FDistribution.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L21" href="FDistribution.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L22" href="FDistribution.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.special.Beta;
+<a class="jxr_linenumber" name="L23" href="FDistribution.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L24" href="FDistribution.html#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="FDistribution.html#L25">25</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L26" href="FDistribution.html#L26">26</a>  <em class="jxr_javadoccomment"> * Implementation of the F-distribution.</em>
+<a class="jxr_linenumber" name="L27" href="FDistribution.html#L27">27</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L28" href="FDistribution.html#L28">28</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/F-distribution" target="alexandria_uri">http://en.wikipedia.org/wiki/F-distribution</a>"&gt;F-distribution (Wikipedia)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L29" href="FDistribution.html#L29">29</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://mathworld.wolfram.com/F-Distribution.html" target="alexandria_uri">http://mathworld.wolfram.com/F-Distribution.html</a>"&gt;F-distribution (MathWorld)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L30" href="FDistribution.html#L30">30</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L31" href="FDistribution.html#L31">31</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="FDistribution.html">FDistribution</a> <strong class="jxr_keyword">extends</strong> <a href="AbstractRealDistribution.html">AbstractRealDistribution</a> {
+<a class="jxr_linenumber" name="L32" href="FDistribution.html#L32">32</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L33" href="FDistribution.html#L33">33</a>  <em class="jxr_javadoccomment">     * Default inverse cumulative probability accuracy.</em>
+<a class="jxr_linenumber" name="L34" href="FDistribution.html#L34">34</a>  <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L35" href="FDistribution.html#L35">35</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L36" href="FDistribution.html#L36">36</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_INVERSE_ABSOLUTE_ACCURACY = 1e-9;
+<a class="jxr_linenumber" name="L37" href="FDistribution.html#L37">37</a>      <em class="jxr_javadoccomment">/** Serializable version identifier. */</em>
+<a class="jxr_linenumber" name="L38" href="FDistribution.html#L38">38</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = -8516354193418641566L;
+<a class="jxr_linenumber" name="L39" href="FDistribution.html#L39">39</a>      <em class="jxr_javadoccomment">/** The numerator degrees of freedom. */</em>
+<a class="jxr_linenumber" name="L40" href="FDistribution.html#L40">40</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> numeratorDegreesOfFreedom;
+<a class="jxr_linenumber" name="L41" href="FDistribution.html#L41">41</a>      <em class="jxr_javadoccomment">/** The numerator degrees of freedom. */</em>
+<a class="jxr_linenumber" name="L42" href="FDistribution.html#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> denominatorDegreesOfFreedom;
+<a class="jxr_linenumber" name="L43" href="FDistribution.html#L43">43</a>      <em class="jxr_javadoccomment">/** Inverse cumulative probability accuracy. */</em>
+<a class="jxr_linenumber" name="L44" href="FDistribution.html#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> solverAbsoluteAccuracy;
+<a class="jxr_linenumber" name="L45" href="FDistribution.html#L45">45</a>      <em class="jxr_javadoccomment">/** Cached numerical variance */</em>
+<a class="jxr_linenumber" name="L46" href="FDistribution.html#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> numericalVariance = Double.NaN;
+<a class="jxr_linenumber" name="L47" href="FDistribution.html#L47">47</a>      <em class="jxr_javadoccomment">/** Whether or not the numerical variance has been calculated */</em>
+<a class="jxr_linenumber" name="L48" href="FDistribution.html#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> numericalVarianceIsCalculated = false;
+<a class="jxr_linenumber" name="L49" href="FDistribution.html#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="FDistribution.html#L50">50</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L51" href="FDistribution.html#L51">51</a>  <em class="jxr_javadoccomment">     * Creates a using the given degrees of freedom.</em>
+<a class="jxr_linenumber" name="L52" href="FDistribution.html#L52">52</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L53" href="FDistribution.html#L53">53</a>  <em class="jxr_javadoccomment">     * @param numeratorDegreesOfFreedom Numerator degrees of freedom.</em>
+<a class="jxr_linenumber" name="L54" href="FDistribution.html#L54">54</a>  <em class="jxr_javadoccomment">     * @param denominatorDegreesOfFreedom Denominator degrees of freedom.</em>
+<a class="jxr_linenumber" name="L55" href="FDistribution.html#L55">55</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if</em>
+<a class="jxr_linenumber" name="L56" href="FDistribution.html#L56">56</a>  <em class="jxr_javadoccomment">     * {@code numeratorDegreesOfFreedom &lt;= 0} or</em>
+<a class="jxr_linenumber" name="L57" href="FDistribution.html#L57">57</a>  <em class="jxr_javadoccomment">     * {@code denominatorDegreesOfFreedom &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L58" href="FDistribution.html#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L59" href="FDistribution.html#L59">59</a>      <strong class="jxr_keyword">public</strong> <a href="FDistribution.html">FDistribution</a>(<strong class="jxr_keyword">double</strong> numeratorDegreesOfFreedom,
+<a class="jxr_linenumber" name="L60" href="FDistribution.html#L60">60</a>                           <strong class="jxr_keyword">double</strong> denominatorDegreesOfFreedom)
+<a class="jxr_linenumber" name="L61" href="FDistribution.html#L61">61</a>          <strong class="jxr_keyword">throws</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L62" href="FDistribution.html#L62">62</a>          <strong class="jxr_keyword">this</strong>(numeratorDegreesOfFreedom, denominatorDegreesOfFreedom,
+<a class="jxr_linenumber" name="L63" href="FDistribution.html#L63">63</a>               DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
+<a class="jxr_linenumber" name="L64" href="FDistribution.html#L64">64</a>      }
+<a class="jxr_linenumber" name="L65" href="FDistribution.html#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="FDistribution.html#L66">66</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L67" href="FDistribution.html#L67">67</a>  <em class="jxr_javadoccomment">     * Creates a distribution.</em>
+<a class="jxr_linenumber" name="L68" href="FDistribution.html#L68">68</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L69" href="FDistribution.html#L69">69</a>  <em class="jxr_javadoccomment">     * @param numeratorDegreesOfFreedom Numerator degrees of freedom.</em>
+<a class="jxr_linenumber" name="L70" href="FDistribution.html#L70">70</a>  <em class="jxr_javadoccomment">     * @param denominatorDegreesOfFreedom Denominator degrees of freedom.</em>
+<a class="jxr_linenumber" name="L71" href="FDistribution.html#L71">71</a>  <em class="jxr_javadoccomment">     * @param inverseCumAccuracy the maximum absolute error in inverse</em>
+<a class="jxr_linenumber" name="L72" href="FDistribution.html#L72">72</a>  <em class="jxr_javadoccomment">     * cumulative probability estimates.</em>
+<a class="jxr_linenumber" name="L73" href="FDistribution.html#L73">73</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code numeratorDegreesOfFreedom &lt;= 0} or</em>
+<a class="jxr_linenumber" name="L74" href="FDistribution.html#L74">74</a>  <em class="jxr_javadoccomment">     * {@code denominatorDegreesOfFreedom &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L75" href="FDistribution.html#L75">75</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L76" href="FDistribution.html#L76">76</a>      <strong class="jxr_keyword">public</strong> <a href="FDistribution.html">FDistribution</a>(<strong class="jxr_keyword">double</strong> numeratorDegreesOfFreedom,
+<a class="jxr_linenumber" name="L77" href="FDistribution.html#L77">77</a>                           <strong class="jxr_keyword">double</strong> denominatorDegreesOfFreedom,
+<a class="jxr_linenumber" name="L78" href="FDistribution.html#L78">78</a>                           <strong class="jxr_keyword">double</strong> inverseCumAccuracy)
+<a class="jxr_linenumber" name="L79" href="FDistribution.html#L79">79</a>          <strong class="jxr_keyword">throws</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L80" href="FDistribution.html#L80">80</a>          <strong class="jxr_keyword">if</strong> (numeratorDegreesOfFreedom &lt;= 0) {
+<a class="jxr_linenumber" name="L81" href="FDistribution.html#L81">81</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(LocalizedFormats.DEGREES_OF_FREEDOM,
+<a class="jxr_linenumber" name="L82" href="FDistribution.html#L82">82</a>                                                     numeratorDegreesOfFreedom);
+<a class="jxr_linenumber" name="L83" href="FDistribution.html#L83">83</a>          }
+<a class="jxr_linenumber" name="L84" href="FDistribution.html#L84">84</a>          <strong class="jxr_keyword">if</strong> (denominatorDegreesOfFreedom &lt;= 0) {
+<a class="jxr_linenumber" name="L85" href="FDistribution.html#L85">85</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(LocalizedFormats.DEGREES_OF_FREEDOM,
+<a class="jxr_linenumber" name="L86" href="FDistribution.html#L86">86</a>                                                     denominatorDegreesOfFreedom);
+<a class="jxr_linenumber" name="L87" href="FDistribution.html#L87">87</a>          }
+<a class="jxr_linenumber" name="L88" href="FDistribution.html#L88">88</a>          <strong class="jxr_keyword">this</strong>.numeratorDegreesOfFreedom = numeratorDegreesOfFreedom;
+<a class="jxr_linenumber" name="L89" href="FDistribution.html#L89">89</a>          <strong class="jxr_keyword">this</strong>.denominatorDegreesOfFreedom = denominatorDegreesOfFreedom;
+<a class="jxr_linenumber" name="L90" href="FDistribution.html#L90">90</a>          solverAbsoluteAccuracy = inverseCumAccuracy;
+<a class="jxr_linenumber" name="L91" href="FDistribution.html#L91">91</a>      }
+<a class="jxr_linenumber" name="L92" href="FDistribution.html#L92">92</a>  
+<a class="jxr_linenumber" name="L93" href="FDistribution.html#L93">93</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L94" href="FDistribution.html#L94">94</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L95" href="FDistribution.html#L95">95</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L96" href="FDistribution.html#L96">96</a>  <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L97" href="FDistribution.html#L97">97</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L98" href="FDistribution.html#L98">98</a>      @Override
+<a class="jxr_linenumber" name="L99" href="FDistribution.html#L99">99</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> density(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L100" href="FDistribution.html#L100">100</a>         <strong class="jxr_keyword">return</strong> FastMath.exp(logDensity(x));
+<a class="jxr_linenumber" name="L101" href="FDistribution.html#L101">101</a>     }
+<a class="jxr_linenumber" name="L102" href="FDistribution.html#L102">102</a> 
+<a class="jxr_linenumber" name="L103" href="FDistribution.html#L103">103</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} **/</em>
+<a class="jxr_linenumber" name="L104" href="FDistribution.html#L104">104</a>     @Override
+<a class="jxr_linenumber" name="L105" href="FDistribution.html#L105">105</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> logDensity(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L106" href="FDistribution.html#L106">106</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> nhalf = numeratorDegreesOfFreedom / 2;
+<a class="jxr_linenumber" name="L107" href="FDistribution.html#L107">107</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> mhalf = denominatorDegreesOfFreedom / 2;
+<a class="jxr_linenumber" name="L108" href="FDistribution.html#L108">108</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> logx = FastMath.log(x);
+<a class="jxr_linenumber" name="L109" href="FDistribution.html#L109">109</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> logn = FastMath.log(numeratorDegreesOfFreedom);
+<a class="jxr_linenumber" name="L110" href="FDistribution.html#L110">110</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> logm = FastMath.log(denominatorDegreesOfFreedom);
+<a class="jxr_linenumber" name="L111" href="FDistribution.html#L111">111</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lognxm = FastMath.log(numeratorDegreesOfFreedom * x +
+<a class="jxr_linenumber" name="L112" href="FDistribution.html#L112">112</a>                 denominatorDegreesOfFreedom);
+<a class="jxr_linenumber" name="L113" href="FDistribution.html#L113">113</a>         <strong class="jxr_keyword">return</strong> nhalf * logn + nhalf * logx - logx +
+<a class="jxr_linenumber" name="L114" href="FDistribution.html#L114">114</a>                mhalf * logm - nhalf * lognxm - mhalf * lognxm -
+<a class="jxr_linenumber" name="L115" href="FDistribution.html#L115">115</a>                Beta.logBeta(nhalf, mhalf);
+<a class="jxr_linenumber" name="L116" href="FDistribution.html#L116">116</a>     }
+<a class="jxr_linenumber" name="L117" href="FDistribution.html#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="FDistribution.html#L118">118</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L119" href="FDistribution.html#L119">119</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L120" href="FDistribution.html#L120">120</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L121" href="FDistribution.html#L121">121</a> <em class="jxr_javadoccomment">     * The implementation of this method is based on</em>
+<a class="jxr_linenumber" name="L122" href="FDistribution.html#L122">122</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L123" href="FDistribution.html#L123">123</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L124" href="FDistribution.html#L124">124</a> <em class="jxr_javadoccomment">     *   &lt;a href="<a href="http://mathworld.wolfram.com/F-Distribution.html" target="alexandria_uri">http://mathworld.wolfram.com/F-Distribution.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L125" href="FDistribution.html#L125">125</a> <em class="jxr_javadoccomment">     *   F-Distribution&lt;/a&gt;, equation (4).</em>
+<a class="jxr_linenumber" name="L126" href="FDistribution.html#L126">126</a> <em class="jxr_javadoccomment">     *  &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L127" href="FDistribution.html#L127">127</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L128" href="FDistribution.html#L128">128</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L129" href="FDistribution.html#L129">129</a>     @Override
+<a class="jxr_linenumber" name="L130" href="FDistribution.html#L130">130</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> cumulativeProbability(<strong class="jxr_keyword">double</strong> x)  {
+<a class="jxr_linenumber" name="L131" href="FDistribution.html#L131">131</a>         <strong class="jxr_keyword">double</strong> ret;
+<a class="jxr_linenumber" name="L132" href="FDistribution.html#L132">132</a>         <strong class="jxr_keyword">if</strong> (x &lt;= 0) {
+<a class="jxr_linenumber" name="L133" href="FDistribution.html#L133">133</a>             ret = 0;
+<a class="jxr_linenumber" name="L134" href="FDistribution.html#L134">134</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L135" href="FDistribution.html#L135">135</a>             <strong class="jxr_keyword">double</strong> n = numeratorDegreesOfFreedom;
+<a class="jxr_linenumber" name="L136" href="FDistribution.html#L136">136</a>             <strong class="jxr_keyword">double</strong> m = denominatorDegreesOfFreedom;
+<a class="jxr_linenumber" name="L137" href="FDistribution.html#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="FDistribution.html#L138">138</a>             ret = Beta.regularizedBeta((n * x) / (m + n * x),
+<a class="jxr_linenumber" name="L139" href="FDistribution.html#L139">139</a>                 0.5 * n,
+<a class="jxr_linenumber" name="L140" href="FDistribution.html#L140">140</a>                 0.5 * m);
+<a class="jxr_linenumber" name="L141" href="FDistribution.html#L141">141</a>         }
+<a class="jxr_linenumber" name="L142" href="FDistribution.html#L142">142</a>         <strong class="jxr_keyword">return</strong> ret;
+<a class="jxr_linenumber" name="L143" href="FDistribution.html#L143">143</a>     }
+<a class="jxr_linenumber" name="L144" href="FDistribution.html#L144">144</a> 
+<a class="jxr_linenumber" name="L145" href="FDistribution.html#L145">145</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L146" href="FDistribution.html#L146">146</a> <em class="jxr_javadoccomment">     * Access the numerator degrees of freedom.</em>
+<a class="jxr_linenumber" name="L147" href="FDistribution.html#L147">147</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L148" href="FDistribution.html#L148">148</a> <em class="jxr_javadoccomment">     * @return the numerator degrees of freedom.</em>
+<a class="jxr_linenumber" name="L149" href="FDistribution.html#L149">149</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L150" href="FDistribution.html#L150">150</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumeratorDegreesOfFreedom() {
+<a class="jxr_linenumber" name="L151" href="FDistribution.html#L151">151</a>         <strong class="jxr_keyword">return</strong> numeratorDegreesOfFreedom;
+<a class="jxr_linenumber" name="L152" href="FDistribution.html#L152">152</a>     }
+<a class="jxr_linenumber" name="L153" href="FDistribution.html#L153">153</a> 
+<a class="jxr_linenumber" name="L154" href="FDistribution.html#L154">154</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L155" href="FDistribution.html#L155">155</a> <em class="jxr_javadoccomment">     * Access the denominator degrees of freedom.</em>
+<a class="jxr_linenumber" name="L156" href="FDistribution.html#L156">156</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L157" href="FDistribution.html#L157">157</a> <em class="jxr_javadoccomment">     * @return the denominator degrees of freedom.</em>
+<a class="jxr_linenumber" name="L158" href="FDistribution.html#L158">158</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L159" href="FDistribution.html#L159">159</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getDenominatorDegreesOfFreedom() {
+<a class="jxr_linenumber" name="L160" href="FDistribution.html#L160">160</a>         <strong class="jxr_keyword">return</strong> denominatorDegreesOfFreedom;
+<a class="jxr_linenumber" name="L161" href="FDistribution.html#L161">161</a>     }
+<a class="jxr_linenumber" name="L162" href="FDistribution.html#L162">162</a> 
+<a class="jxr_linenumber" name="L163" href="FDistribution.html#L163">163</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L164" href="FDistribution.html#L164">164</a>     @Override
+<a class="jxr_linenumber" name="L165" href="FDistribution.html#L165">165</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> getSolverAbsoluteAccuracy() {
+<a class="jxr_linenumber" name="L166" href="FDistribution.html#L166">166</a>         <strong class="jxr_keyword">return</strong> solverAbsoluteAccuracy;
+<a class="jxr_linenumber" name="L167" href="FDistribution.html#L167">167</a>     }
+<a class="jxr_linenumber" name="L168" href="FDistribution.html#L168">168</a> 
+<a class="jxr_linenumber" name="L169" href="FDistribution.html#L169">169</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L170" href="FDistribution.html#L170">170</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L171" href="FDistribution.html#L171">171</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L172" href="FDistribution.html#L172">172</a> <em class="jxr_javadoccomment">     * For denominator degrees of freedom parameter {@code b}, the mean is</em>
+<a class="jxr_linenumber" name="L173" href="FDistribution.html#L173">173</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L174" href="FDistribution.html#L174">174</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;if {@code b &gt; 2} then {@code b / (b - 2)},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L175" href="FDistribution.html#L175">175</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;else undefined ({@code Double.NaN}).</em>
+<a class="jxr_linenumber" name="L176" href="FDistribution.html#L176">176</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L177" href="FDistribution.html#L177">177</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L178" href="FDistribution.html#L178">178</a>     @Override
+<a class="jxr_linenumber" name="L179" href="FDistribution.html#L179">179</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalMean() {
+<a class="jxr_linenumber" name="L180" href="FDistribution.html#L180">180</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> denominatorDF = getDenominatorDegreesOfFreedom();
+<a class="jxr_linenumber" name="L181" href="FDistribution.html#L181">181</a> 
+<a class="jxr_linenumber" name="L182" href="FDistribution.html#L182">182</a>         <strong class="jxr_keyword">if</strong> (denominatorDF &gt; 2) {
+<a class="jxr_linenumber" name="L183" href="FDistribution.html#L183">183</a>             <strong class="jxr_keyword">return</strong> denominatorDF / (denominatorDF - 2);
+<a class="jxr_linenumber" name="L184" href="FDistribution.html#L184">184</a>         }
+<a class="jxr_linenumber" name="L185" href="FDistribution.html#L185">185</a> 
+<a class="jxr_linenumber" name="L186" href="FDistribution.html#L186">186</a>         <strong class="jxr_keyword">return</strong> Double.NaN;
+<a class="jxr_linenumber" name="L187" href="FDistribution.html#L187">187</a>     }
+<a class="jxr_linenumber" name="L188" href="FDistribution.html#L188">188</a> 
+<a class="jxr_linenumber" name="L189" href="FDistribution.html#L189">189</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L190" href="FDistribution.html#L190">190</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L191" href="FDistribution.html#L191">191</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L192" href="FDistribution.html#L192">192</a> <em class="jxr_javadoccomment">     * For numerator degrees of freedom parameter {@code a} and denominator</em>
+<a class="jxr_linenumber" name="L193" href="FDistribution.html#L193">193</a> <em class="jxr_javadoccomment">     * degrees of freedom parameter {@code b}, the variance is</em>
+<a class="jxr_linenumber" name="L194" href="FDistribution.html#L194">194</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L195" href="FDistribution.html#L195">195</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L196" href="FDistribution.html#L196">196</a> <em class="jxr_javadoccomment">     *    if {@code b &gt; 4} then</em>
+<a class="jxr_linenumber" name="L197" href="FDistribution.html#L197">197</a> <em class="jxr_javadoccomment">     *    {@code [2 * b^2 * (a + b - 2)] / [a * (b - 2)^2 * (b - 4)]},</em>
+<a class="jxr_linenumber" name="L198" href="FDistribution.html#L198">198</a> <em class="jxr_javadoccomment">     *  &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L199" href="FDistribution.html#L199">199</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;else undefined ({@code Double.NaN}).</em>
+<a class="jxr_linenumber" name="L200" href="FDistribution.html#L200">200</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L201" href="FDistribution.html#L201">201</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L202" href="FDistribution.html#L202">202</a>     @Override
+<a class="jxr_linenumber" name="L203" href="FDistribution.html#L203">203</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalVariance() {
+<a class="jxr_linenumber" name="L204" href="FDistribution.html#L204">204</a>         <strong class="jxr_keyword">if</strong> (!numericalVarianceIsCalculated) {
+<a class="jxr_linenumber" name="L205" href="FDistribution.html#L205">205</a>             numericalVariance = calculateNumericalVariance();
+<a class="jxr_linenumber" name="L206" href="FDistribution.html#L206">206</a>             numericalVarianceIsCalculated = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L207" href="FDistribution.html#L207">207</a>         }
+<a class="jxr_linenumber" name="L208" href="FDistribution.html#L208">208</a>         <strong class="jxr_keyword">return</strong> numericalVariance;
+<a class="jxr_linenumber" name="L209" href="FDistribution.html#L209">209</a>     }
+<a class="jxr_linenumber" name="L210" href="FDistribution.html#L210">210</a> 
+<a class="jxr_linenumber" name="L211" href="FDistribution.html#L211">211</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L212" href="FDistribution.html#L212">212</a> <em class="jxr_javadoccomment">     * used by {@link #getNumericalVariance()}</em>
+<a class="jxr_linenumber" name="L213" href="FDistribution.html#L213">213</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L214" href="FDistribution.html#L214">214</a> <em class="jxr_javadoccomment">     * @return the variance of this distribution</em>
+<a class="jxr_linenumber" name="L215" href="FDistribution.html#L215">215</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L216" href="FDistribution.html#L216">216</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> calculateNumericalVariance() {
+<a class="jxr_linenumber" name="L217" href="FDistribution.html#L217">217</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> denominatorDF = getDenominatorDegreesOfFreedom();
+<a class="jxr_linenumber" name="L218" href="FDistribution.html#L218">218</a> 
+<a class="jxr_linenumber" name="L219" href="FDistribution.html#L219">219</a>         <strong class="jxr_keyword">if</strong> (denominatorDF &gt; 4) {
+<a class="jxr_linenumber" name="L220" href="FDistribution.html#L220">220</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> numeratorDF = getNumeratorDegreesOfFreedom();
+<a class="jxr_linenumber" name="L221" href="FDistribution.html#L221">221</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> denomDFMinusTwo = denominatorDF - 2;
+<a class="jxr_linenumber" name="L222" href="FDistribution.html#L222">222</a> 
+<a class="jxr_linenumber" name="L223" href="FDistribution.html#L223">223</a>             <strong class="jxr_keyword">return</strong> ( 2 * (denominatorDF * denominatorDF) * (numeratorDF + denominatorDF - 2) ) /
+<a class="jxr_linenumber" name="L224" href="FDistribution.html#L224">224</a>                    ( (numeratorDF * (denomDFMinusTwo * denomDFMinusTwo) * (denominatorDF - 4)) );
+<a class="jxr_linenumber" name="L225" href="FDistribution.html#L225">225</a>         }
+<a class="jxr_linenumber" name="L226" href="FDistribution.html#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="FDistribution.html#L227">227</a>         <strong class="jxr_keyword">return</strong> Double.NaN;
+<a class="jxr_linenumber" name="L228" href="FDistribution.html#L228">228</a>     }
+<a class="jxr_linenumber" name="L229" href="FDistribution.html#L229">229</a> 
+<a class="jxr_linenumber" name="L230" href="FDistribution.html#L230">230</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L231" href="FDistribution.html#L231">231</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L232" href="FDistribution.html#L232">232</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L233" href="FDistribution.html#L233">233</a> <em class="jxr_javadoccomment">     * The lower bound of the support is always 0 no matter the parameters.</em>
+<a class="jxr_linenumber" name="L234" href="FDistribution.html#L234">234</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L235" href="FDistribution.html#L235">235</a> <em class="jxr_javadoccomment">     * @return lower bound of the support (always 0)</em>
+<a class="jxr_linenumber" name="L236" href="FDistribution.html#L236">236</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L237" href="FDistribution.html#L237">237</a>     @Override
+<a class="jxr_linenumber" name="L238" href="FDistribution.html#L238">238</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSupportLowerBound() {
+<a class="jxr_linenumber" name="L239" href="FDistribution.html#L239">239</a>         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L240" href="FDistribution.html#L240">240</a>     }
+<a class="jxr_linenumber" name="L241" href="FDistribution.html#L241">241</a> 
+<a class="jxr_linenumber" name="L242" href="FDistribution.html#L242">242</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L243" href="FDistribution.html#L243">243</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L244" href="FDistribution.html#L244">244</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L245" href="FDistribution.html#L245">245</a> <em class="jxr_javadoccomment">     * The upper bound of the support is always positive infinity</em>
+<a class="jxr_linenumber" name="L246" href="FDistribution.html#L246">246</a> <em class="jxr_javadoccomment">     * no matter the parameters.</em>
+<a class="jxr_linenumber" name="L247" href="FDistribution.html#L247">247</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L248" href="FDistribution.html#L248">248</a> <em class="jxr_javadoccomment">     * @return upper bound of the support (always Double.POSITIVE_INFINITY)</em>
+<a class="jxr_linenumber" name="L249" href="FDistribution.html#L249">249</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L250" href="FDistribution.html#L250">250</a>     @Override
+<a class="jxr_linenumber" name="L251" href="FDistribution.html#L251">251</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSupportUpperBound() {
+<a class="jxr_linenumber" name="L252" href="FDistribution.html#L252">252</a>         <strong class="jxr_keyword">return</strong> Double.POSITIVE_INFINITY;
+<a class="jxr_linenumber" name="L253" href="FDistribution.html#L253">253</a>     }
+<a class="jxr_linenumber" name="L254" href="FDistribution.html#L254">254</a> 
+<a class="jxr_linenumber" name="L255" href="FDistribution.html#L255">255</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L256" href="FDistribution.html#L256">256</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L257" href="FDistribution.html#L257">257</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L258" href="FDistribution.html#L258">258</a> <em class="jxr_javadoccomment">     * The support of this distribution is connected.</em>
+<a class="jxr_linenumber" name="L259" href="FDistribution.html#L259">259</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L260" href="FDistribution.html#L260">260</a> <em class="jxr_javadoccomment">     * @return {@code true}</em>
+<a class="jxr_linenumber" name="L261" href="FDistribution.html#L261">261</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L262" href="FDistribution.html#L262">262</a>     @Override
+<a class="jxr_linenumber" name="L263" href="FDistribution.html#L263">263</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isSupportConnected() {
+<a class="jxr_linenumber" name="L264" href="FDistribution.html#L264">264</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L265" href="FDistribution.html#L265">265</a>     }
+<a class="jxr_linenumber" name="L266" href="FDistribution.html#L266">266</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

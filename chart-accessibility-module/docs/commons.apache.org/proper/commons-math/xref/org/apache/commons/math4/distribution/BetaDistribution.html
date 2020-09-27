@@ -1,0 +1,389 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>BetaDistribution xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/distribution/BetaDistribution.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="BetaDistribution.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="BetaDistribution.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="BetaDistribution.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="BetaDistribution.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="BetaDistribution.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="BetaDistribution.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="BetaDistribution.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="BetaDistribution.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="BetaDistribution.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="BetaDistribution.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="BetaDistribution.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="BetaDistribution.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="BetaDistribution.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="BetaDistribution.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="BetaDistribution.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="BetaDistribution.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="BetaDistribution.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.distribution;
+<a class="jxr_linenumber" name="L18" href="BetaDistribution.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="BetaDistribution.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L20" href="BetaDistribution.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L21" href="BetaDistribution.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L22" href="BetaDistribution.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.special.Beta;
+<a class="jxr_linenumber" name="L23" href="BetaDistribution.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.special.Gamma;
+<a class="jxr_linenumber" name="L24" href="BetaDistribution.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L25" href="BetaDistribution.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Precision;
+<a class="jxr_linenumber" name="L26" href="BetaDistribution.html#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="BetaDistribution.html#L27">27</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L28" href="BetaDistribution.html#L28">28</a>  <em class="jxr_javadoccomment"> * Implements the Beta distribution.</em>
+<a class="jxr_linenumber" name="L29" href="BetaDistribution.html#L29">29</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L30" href="BetaDistribution.html#L30">30</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/Beta_distribution" target="alexandria_uri">http://en.wikipedia.org/wiki/Beta_distribution</a>"&gt;Beta distribution&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L31" href="BetaDistribution.html#L31">31</a>  <em class="jxr_javadoccomment"> * @since 2.0 (changed to concrete class in 3.0)</em>
+<a class="jxr_linenumber" name="L32" href="BetaDistribution.html#L32">32</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L33" href="BetaDistribution.html#L33">33</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="BetaDistribution.html">BetaDistribution</a> <strong class="jxr_keyword">extends</strong> <a href="AbstractRealDistribution.html">AbstractRealDistribution</a> {
+<a class="jxr_linenumber" name="L34" href="BetaDistribution.html#L34">34</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L35" href="BetaDistribution.html#L35">35</a>  <em class="jxr_javadoccomment">     * Default inverse cumulative probability accuracy.</em>
+<a class="jxr_linenumber" name="L36" href="BetaDistribution.html#L36">36</a>  <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L37" href="BetaDistribution.html#L37">37</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L38" href="BetaDistribution.html#L38">38</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_INVERSE_ABSOLUTE_ACCURACY = 1e-9;
+<a class="jxr_linenumber" name="L39" href="BetaDistribution.html#L39">39</a>      <em class="jxr_javadoccomment">/** Serializable version identifier. */</em>
+<a class="jxr_linenumber" name="L40" href="BetaDistribution.html#L40">40</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20160311L;
+<a class="jxr_linenumber" name="L41" href="BetaDistribution.html#L41">41</a>      <em class="jxr_javadoccomment">/** First shape parameter. */</em>
+<a class="jxr_linenumber" name="L42" href="BetaDistribution.html#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> alpha;
+<a class="jxr_linenumber" name="L43" href="BetaDistribution.html#L43">43</a>      <em class="jxr_javadoccomment">/** Second shape parameter. */</em>
+<a class="jxr_linenumber" name="L44" href="BetaDistribution.html#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> beta;
+<a class="jxr_linenumber" name="L45" href="BetaDistribution.html#L45">45</a>      <em class="jxr_javadoccomment">/** Normalizing factor used in density computations.*/</em>
+<a class="jxr_linenumber" name="L46" href="BetaDistribution.html#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> z;
+<a class="jxr_linenumber" name="L47" href="BetaDistribution.html#L47">47</a>      <em class="jxr_javadoccomment">/** Inverse cumulative probability accuracy. */</em>
+<a class="jxr_linenumber" name="L48" href="BetaDistribution.html#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> solverAbsoluteAccuracy;
+<a class="jxr_linenumber" name="L49" href="BetaDistribution.html#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="BetaDistribution.html#L50">50</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L51" href="BetaDistribution.html#L51">51</a>  <em class="jxr_javadoccomment">     * Creates a new instance.</em>
+<a class="jxr_linenumber" name="L52" href="BetaDistribution.html#L52">52</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L53" href="BetaDistribution.html#L53">53</a>  <em class="jxr_javadoccomment">     * @param alpha First shape parameter (must be positive).</em>
+<a class="jxr_linenumber" name="L54" href="BetaDistribution.html#L54">54</a>  <em class="jxr_javadoccomment">     * @param beta Second shape parameter (must be positive).</em>
+<a class="jxr_linenumber" name="L55" href="BetaDistribution.html#L55">55</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L56" href="BetaDistribution.html#L56">56</a>      <strong class="jxr_keyword">public</strong> <a href="BetaDistribution.html">BetaDistribution</a>(<strong class="jxr_keyword">double</strong> alpha, <strong class="jxr_keyword">double</strong> beta) {
+<a class="jxr_linenumber" name="L57" href="BetaDistribution.html#L57">57</a>          <strong class="jxr_keyword">this</strong>(alpha, beta, DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
+<a class="jxr_linenumber" name="L58" href="BetaDistribution.html#L58">58</a>      }
+<a class="jxr_linenumber" name="L59" href="BetaDistribution.html#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="BetaDistribution.html#L60">60</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L61" href="BetaDistribution.html#L61">61</a>  <em class="jxr_javadoccomment">     * Creates a new instance.</em>
+<a class="jxr_linenumber" name="L62" href="BetaDistribution.html#L62">62</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L63" href="BetaDistribution.html#L63">63</a>  <em class="jxr_javadoccomment">     * @param alpha First shape parameter (must be positive).</em>
+<a class="jxr_linenumber" name="L64" href="BetaDistribution.html#L64">64</a>  <em class="jxr_javadoccomment">     * @param beta Second shape parameter (must be positive).</em>
+<a class="jxr_linenumber" name="L65" href="BetaDistribution.html#L65">65</a>  <em class="jxr_javadoccomment">     * @param inverseCumAccuracy Maximum absolute error in inverse</em>
+<a class="jxr_linenumber" name="L66" href="BetaDistribution.html#L66">66</a>  <em class="jxr_javadoccomment">     * cumulative probability estimates (defaults to</em>
+<a class="jxr_linenumber" name="L67" href="BetaDistribution.html#L67">67</a>  <em class="jxr_javadoccomment">     * {@link #DEFAULT_INVERSE_ABSOLUTE_ACCURACY}).</em>
+<a class="jxr_linenumber" name="L68" href="BetaDistribution.html#L68">68</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L69" href="BetaDistribution.html#L69">69</a>  <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L70" href="BetaDistribution.html#L70">70</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L71" href="BetaDistribution.html#L71">71</a>      <strong class="jxr_keyword">public</strong> <a href="BetaDistribution.html">BetaDistribution</a>(<strong class="jxr_keyword">double</strong> alpha,
+<a class="jxr_linenumber" name="L72" href="BetaDistribution.html#L72">72</a>                              <strong class="jxr_keyword">double</strong> beta,
+<a class="jxr_linenumber" name="L73" href="BetaDistribution.html#L73">73</a>                              <strong class="jxr_keyword">double</strong> inverseCumAccuracy) {
+<a class="jxr_linenumber" name="L74" href="BetaDistribution.html#L74">74</a>          <strong class="jxr_keyword">this</strong>.alpha = alpha;
+<a class="jxr_linenumber" name="L75" href="BetaDistribution.html#L75">75</a>          <strong class="jxr_keyword">this</strong>.beta = beta;
+<a class="jxr_linenumber" name="L76" href="BetaDistribution.html#L76">76</a>          z = Gamma.logGamma(alpha) + Gamma.logGamma(beta) - Gamma.logGamma(alpha + beta);
+<a class="jxr_linenumber" name="L77" href="BetaDistribution.html#L77">77</a>          solverAbsoluteAccuracy = inverseCumAccuracy;
+<a class="jxr_linenumber" name="L78" href="BetaDistribution.html#L78">78</a>      }
+<a class="jxr_linenumber" name="L79" href="BetaDistribution.html#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="BetaDistribution.html#L80">80</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L81" href="BetaDistribution.html#L81">81</a>  <em class="jxr_javadoccomment">     * Access the first shape parameter, {@code alpha}.</em>
+<a class="jxr_linenumber" name="L82" href="BetaDistribution.html#L82">82</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L83" href="BetaDistribution.html#L83">83</a>  <em class="jxr_javadoccomment">     * @return the first shape parameter.</em>
+<a class="jxr_linenumber" name="L84" href="BetaDistribution.html#L84">84</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L85" href="BetaDistribution.html#L85">85</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getAlpha() {
+<a class="jxr_linenumber" name="L86" href="BetaDistribution.html#L86">86</a>          <strong class="jxr_keyword">return</strong> alpha;
+<a class="jxr_linenumber" name="L87" href="BetaDistribution.html#L87">87</a>      }
+<a class="jxr_linenumber" name="L88" href="BetaDistribution.html#L88">88</a>  
+<a class="jxr_linenumber" name="L89" href="BetaDistribution.html#L89">89</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L90" href="BetaDistribution.html#L90">90</a>  <em class="jxr_javadoccomment">     * Access the second shape parameter, {@code beta}.</em>
+<a class="jxr_linenumber" name="L91" href="BetaDistribution.html#L91">91</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L92" href="BetaDistribution.html#L92">92</a>  <em class="jxr_javadoccomment">     * @return the second shape parameter.</em>
+<a class="jxr_linenumber" name="L93" href="BetaDistribution.html#L93">93</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L94" href="BetaDistribution.html#L94">94</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getBeta() {
+<a class="jxr_linenumber" name="L95" href="BetaDistribution.html#L95">95</a>          <strong class="jxr_keyword">return</strong> beta;
+<a class="jxr_linenumber" name="L96" href="BetaDistribution.html#L96">96</a>      }
+<a class="jxr_linenumber" name="L97" href="BetaDistribution.html#L97">97</a>  
+<a class="jxr_linenumber" name="L98" href="BetaDistribution.html#L98">98</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L99" href="BetaDistribution.html#L99">99</a>      @Override
+<a class="jxr_linenumber" name="L100" href="BetaDistribution.html#L100">100</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> density(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L101" href="BetaDistribution.html#L101">101</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> logDensity = logDensity(x);
+<a class="jxr_linenumber" name="L102" href="BetaDistribution.html#L102">102</a>         <strong class="jxr_keyword">return</strong> logDensity == Double.NEGATIVE_INFINITY ? 0 : FastMath.exp(logDensity);
+<a class="jxr_linenumber" name="L103" href="BetaDistribution.html#L103">103</a>     }
+<a class="jxr_linenumber" name="L104" href="BetaDistribution.html#L104">104</a> 
+<a class="jxr_linenumber" name="L105" href="BetaDistribution.html#L105">105</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} **/</em>
+<a class="jxr_linenumber" name="L106" href="BetaDistribution.html#L106">106</a>     @Override
+<a class="jxr_linenumber" name="L107" href="BetaDistribution.html#L107">107</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> logDensity(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L108" href="BetaDistribution.html#L108">108</a>         <strong class="jxr_keyword">if</strong> (x &lt; 0 || x &gt; 1) {
+<a class="jxr_linenumber" name="L109" href="BetaDistribution.html#L109">109</a>             <strong class="jxr_keyword">return</strong> Double.NEGATIVE_INFINITY;
+<a class="jxr_linenumber" name="L110" href="BetaDistribution.html#L110">110</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (x == 0) {
+<a class="jxr_linenumber" name="L111" href="BetaDistribution.html#L111">111</a>             <strong class="jxr_keyword">if</strong> (alpha &lt; 1) {
+<a class="jxr_linenumber" name="L112" href="BetaDistribution.html#L112">112</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(LocalizedFormats.CANNOT_COMPUTE_BETA_DENSITY_AT_0_FOR_SOME_ALPHA,
+<a class="jxr_linenumber" name="L113" href="BetaDistribution.html#L113">113</a>                                                     alpha, 1, false);
+<a class="jxr_linenumber" name="L114" href="BetaDistribution.html#L114">114</a>             }
+<a class="jxr_linenumber" name="L115" href="BetaDistribution.html#L115">115</a>             <strong class="jxr_keyword">return</strong> Double.NEGATIVE_INFINITY;
+<a class="jxr_linenumber" name="L116" href="BetaDistribution.html#L116">116</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (x == 1) {
+<a class="jxr_linenumber" name="L117" href="BetaDistribution.html#L117">117</a>             <strong class="jxr_keyword">if</strong> (beta &lt; 1) {
+<a class="jxr_linenumber" name="L118" href="BetaDistribution.html#L118">118</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(LocalizedFormats.CANNOT_COMPUTE_BETA_DENSITY_AT_1_FOR_SOME_BETA,
+<a class="jxr_linenumber" name="L119" href="BetaDistribution.html#L119">119</a>                                                     beta, 1, false);
+<a class="jxr_linenumber" name="L120" href="BetaDistribution.html#L120">120</a>             }
+<a class="jxr_linenumber" name="L121" href="BetaDistribution.html#L121">121</a>             <strong class="jxr_keyword">return</strong> Double.NEGATIVE_INFINITY;
+<a class="jxr_linenumber" name="L122" href="BetaDistribution.html#L122">122</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L123" href="BetaDistribution.html#L123">123</a>             <strong class="jxr_keyword">double</strong> logX = FastMath.log(x);
+<a class="jxr_linenumber" name="L124" href="BetaDistribution.html#L124">124</a>             <strong class="jxr_keyword">double</strong> log1mX = FastMath.log1p(-x);
+<a class="jxr_linenumber" name="L125" href="BetaDistribution.html#L125">125</a>             <strong class="jxr_keyword">return</strong> (alpha - 1) * logX + (beta - 1) * log1mX - z;
+<a class="jxr_linenumber" name="L126" href="BetaDistribution.html#L126">126</a>         }
+<a class="jxr_linenumber" name="L127" href="BetaDistribution.html#L127">127</a>     }
+<a class="jxr_linenumber" name="L128" href="BetaDistribution.html#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="BetaDistribution.html#L129">129</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L130" href="BetaDistribution.html#L130">130</a>     @Override
+<a class="jxr_linenumber" name="L131" href="BetaDistribution.html#L131">131</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> cumulativeProbability(<strong class="jxr_keyword">double</strong> x)  {
+<a class="jxr_linenumber" name="L132" href="BetaDistribution.html#L132">132</a>         <strong class="jxr_keyword">if</strong> (x &lt;= 0) {
+<a class="jxr_linenumber" name="L133" href="BetaDistribution.html#L133">133</a>             <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L134" href="BetaDistribution.html#L134">134</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (x &gt;= 1) {
+<a class="jxr_linenumber" name="L135" href="BetaDistribution.html#L135">135</a>             <strong class="jxr_keyword">return</strong> 1;
+<a class="jxr_linenumber" name="L136" href="BetaDistribution.html#L136">136</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L137" href="BetaDistribution.html#L137">137</a>             <strong class="jxr_keyword">return</strong> Beta.regularizedBeta(x, alpha, beta);
+<a class="jxr_linenumber" name="L138" href="BetaDistribution.html#L138">138</a>         }
+<a class="jxr_linenumber" name="L139" href="BetaDistribution.html#L139">139</a>     }
+<a class="jxr_linenumber" name="L140" href="BetaDistribution.html#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="BetaDistribution.html#L141">141</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L142" href="BetaDistribution.html#L142">142</a> <em class="jxr_javadoccomment">     * Return the absolute accuracy setting of the solver used to estimate</em>
+<a class="jxr_linenumber" name="L143" href="BetaDistribution.html#L143">143</a> <em class="jxr_javadoccomment">     * inverse cumulative probabilities.</em>
+<a class="jxr_linenumber" name="L144" href="BetaDistribution.html#L144">144</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L145" href="BetaDistribution.html#L145">145</a> <em class="jxr_javadoccomment">     * @return the solver absolute accuracy.</em>
+<a class="jxr_linenumber" name="L146" href="BetaDistribution.html#L146">146</a> <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L147" href="BetaDistribution.html#L147">147</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L148" href="BetaDistribution.html#L148">148</a>     @Override
+<a class="jxr_linenumber" name="L149" href="BetaDistribution.html#L149">149</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> getSolverAbsoluteAccuracy() {
+<a class="jxr_linenumber" name="L150" href="BetaDistribution.html#L150">150</a>         <strong class="jxr_keyword">return</strong> solverAbsoluteAccuracy;
+<a class="jxr_linenumber" name="L151" href="BetaDistribution.html#L151">151</a>     }
+<a class="jxr_linenumber" name="L152" href="BetaDistribution.html#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="BetaDistribution.html#L153">153</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L154" href="BetaDistribution.html#L154">154</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L155" href="BetaDistribution.html#L155">155</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L156" href="BetaDistribution.html#L156">156</a> <em class="jxr_javadoccomment">     * For first shape parameter {@code alpha} and second shape parameter</em>
+<a class="jxr_linenumber" name="L157" href="BetaDistribution.html#L157">157</a> <em class="jxr_javadoccomment">     * {@code beta}, the mean is {@code alpha / (alpha + beta)}.</em>
+<a class="jxr_linenumber" name="L158" href="BetaDistribution.html#L158">158</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L159" href="BetaDistribution.html#L159">159</a>     @Override
+<a class="jxr_linenumber" name="L160" href="BetaDistribution.html#L160">160</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalMean() {
+<a class="jxr_linenumber" name="L161" href="BetaDistribution.html#L161">161</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> a = getAlpha();
+<a class="jxr_linenumber" name="L162" href="BetaDistribution.html#L162">162</a>         <strong class="jxr_keyword">return</strong> a / (a + getBeta());
+<a class="jxr_linenumber" name="L163" href="BetaDistribution.html#L163">163</a>     }
+<a class="jxr_linenumber" name="L164" href="BetaDistribution.html#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="BetaDistribution.html#L165">165</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L166" href="BetaDistribution.html#L166">166</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L167" href="BetaDistribution.html#L167">167</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L168" href="BetaDistribution.html#L168">168</a> <em class="jxr_javadoccomment">     * For first shape parameter {@code alpha} and second shape parameter</em>
+<a class="jxr_linenumber" name="L169" href="BetaDistribution.html#L169">169</a> <em class="jxr_javadoccomment">     * {@code beta}, the variance is</em>
+<a class="jxr_linenumber" name="L170" href="BetaDistribution.html#L170">170</a> <em class="jxr_javadoccomment">     * {@code (alpha * beta) / [(alpha + beta)^2 * (alpha + beta + 1)]}.</em>
+<a class="jxr_linenumber" name="L171" href="BetaDistribution.html#L171">171</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L172" href="BetaDistribution.html#L172">172</a>     @Override
+<a class="jxr_linenumber" name="L173" href="BetaDistribution.html#L173">173</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalVariance() {
+<a class="jxr_linenumber" name="L174" href="BetaDistribution.html#L174">174</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> a = getAlpha();
+<a class="jxr_linenumber" name="L175" href="BetaDistribution.html#L175">175</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> b = getBeta();
+<a class="jxr_linenumber" name="L176" href="BetaDistribution.html#L176">176</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> alphabetasum = a + b;
+<a class="jxr_linenumber" name="L177" href="BetaDistribution.html#L177">177</a>         <strong class="jxr_keyword">return</strong> (a * b) / ((alphabetasum * alphabetasum) * (alphabetasum + 1));
+<a class="jxr_linenumber" name="L178" href="BetaDistribution.html#L178">178</a>     }
+<a class="jxr_linenumber" name="L179" href="BetaDistribution.html#L179">179</a> 
+<a class="jxr_linenumber" name="L180" href="BetaDistribution.html#L180">180</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L181" href="BetaDistribution.html#L181">181</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L182" href="BetaDistribution.html#L182">182</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L183" href="BetaDistribution.html#L183">183</a> <em class="jxr_javadoccomment">     * The lower bound of the support is always 0 no matter the parameters.</em>
+<a class="jxr_linenumber" name="L184" href="BetaDistribution.html#L184">184</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L185" href="BetaDistribution.html#L185">185</a> <em class="jxr_javadoccomment">     * @return lower bound of the support (always 0)</em>
+<a class="jxr_linenumber" name="L186" href="BetaDistribution.html#L186">186</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L187" href="BetaDistribution.html#L187">187</a>     @Override
+<a class="jxr_linenumber" name="L188" href="BetaDistribution.html#L188">188</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSupportLowerBound() {
+<a class="jxr_linenumber" name="L189" href="BetaDistribution.html#L189">189</a>         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L190" href="BetaDistribution.html#L190">190</a>     }
+<a class="jxr_linenumber" name="L191" href="BetaDistribution.html#L191">191</a> 
+<a class="jxr_linenumber" name="L192" href="BetaDistribution.html#L192">192</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L193" href="BetaDistribution.html#L193">193</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L194" href="BetaDistribution.html#L194">194</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L195" href="BetaDistribution.html#L195">195</a> <em class="jxr_javadoccomment">     * The upper bound of the support is always 1 no matter the parameters.</em>
+<a class="jxr_linenumber" name="L196" href="BetaDistribution.html#L196">196</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L197" href="BetaDistribution.html#L197">197</a> <em class="jxr_javadoccomment">     * @return upper bound of the support (always 1)</em>
+<a class="jxr_linenumber" name="L198" href="BetaDistribution.html#L198">198</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L199" href="BetaDistribution.html#L199">199</a>     @Override
+<a class="jxr_linenumber" name="L200" href="BetaDistribution.html#L200">200</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSupportUpperBound() {
+<a class="jxr_linenumber" name="L201" href="BetaDistribution.html#L201">201</a>         <strong class="jxr_keyword">return</strong> 1;
+<a class="jxr_linenumber" name="L202" href="BetaDistribution.html#L202">202</a>     }
+<a class="jxr_linenumber" name="L203" href="BetaDistribution.html#L203">203</a> 
+<a class="jxr_linenumber" name="L204" href="BetaDistribution.html#L204">204</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L205" href="BetaDistribution.html#L205">205</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L206" href="BetaDistribution.html#L206">206</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L207" href="BetaDistribution.html#L207">207</a> <em class="jxr_javadoccomment">     * The support of this distribution is connected.</em>
+<a class="jxr_linenumber" name="L208" href="BetaDistribution.html#L208">208</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L209" href="BetaDistribution.html#L209">209</a> <em class="jxr_javadoccomment">     * @return {@code true}</em>
+<a class="jxr_linenumber" name="L210" href="BetaDistribution.html#L210">210</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L211" href="BetaDistribution.html#L211">211</a>     @Override
+<a class="jxr_linenumber" name="L212" href="BetaDistribution.html#L212">212</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isSupportConnected() {
+<a class="jxr_linenumber" name="L213" href="BetaDistribution.html#L213">213</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L214" href="BetaDistribution.html#L214">214</a>     }
+<a class="jxr_linenumber" name="L215" href="BetaDistribution.html#L215">215</a> 
+<a class="jxr_linenumber" name="L216" href="BetaDistribution.html#L216">216</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L217" href="BetaDistribution.html#L217">217</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L218" href="BetaDistribution.html#L218">218</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L219" href="BetaDistribution.html#L219">219</a> <em class="jxr_javadoccomment">     * Sampling is performed using Cheng's algorithm:</em>
+<a class="jxr_linenumber" name="L220" href="BetaDistribution.html#L220">220</a> <em class="jxr_javadoccomment">     * &lt;blockquote&gt;</em>
+<a class="jxr_linenumber" name="L221" href="BetaDistribution.html#L221">221</a> <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L222" href="BetaDistribution.html#L222">222</a> <em class="jxr_javadoccomment">     * R. C. H. Cheng,</em>
+<a class="jxr_linenumber" name="L223" href="BetaDistribution.html#L223">223</a> <em class="jxr_javadoccomment">     * "Generating beta variates with nonintegral shape parameters",</em>
+<a class="jxr_linenumber" name="L224" href="BetaDistribution.html#L224">224</a> <em class="jxr_javadoccomment">     * Communications of the ACM, 21, 317-322, 1978.</em>
+<a class="jxr_linenumber" name="L225" href="BetaDistribution.html#L225">225</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L226" href="BetaDistribution.html#L226">226</a> <em class="jxr_javadoccomment">     * &lt;/blockquote&gt;</em>
+<a class="jxr_linenumber" name="L227" href="BetaDistribution.html#L227">227</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L228" href="BetaDistribution.html#L228">228</a>     @Override
+<a class="jxr_linenumber" name="L229" href="BetaDistribution.html#L229">229</a>     <strong class="jxr_keyword">public</strong> RealDistribution.Sampler createSampler(<strong class="jxr_keyword">final</strong> UniformRandomProvider rng) {
+<a class="jxr_linenumber" name="L230" href="BetaDistribution.html#L230">230</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="BetaDistribution.html">ChengBetaSampler</a>(rng, alpha, beta);
+<a class="jxr_linenumber" name="L231" href="BetaDistribution.html#L231">231</a>     }
+<a class="jxr_linenumber" name="L232" href="BetaDistribution.html#L232">232</a> 
+<a class="jxr_linenumber" name="L233" href="BetaDistribution.html#L233">233</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L234" href="BetaDistribution.html#L234">234</a> <em class="jxr_javadoccomment">     * Utility class implementing Cheng's algorithms for beta distribution sampling.</em>
+<a class="jxr_linenumber" name="L235" href="BetaDistribution.html#L235">235</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L236" href="BetaDistribution.html#L236">236</a> <em class="jxr_javadoccomment">     * &lt;blockquote&gt;</em>
+<a class="jxr_linenumber" name="L237" href="BetaDistribution.html#L237">237</a> <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L238" href="BetaDistribution.html#L238">238</a> <em class="jxr_javadoccomment">     * R. C. H. Cheng,</em>
+<a class="jxr_linenumber" name="L239" href="BetaDistribution.html#L239">239</a> <em class="jxr_javadoccomment">     * "Generating beta variates with nonintegral shape parameters",</em>
+<a class="jxr_linenumber" name="L240" href="BetaDistribution.html#L240">240</a> <em class="jxr_javadoccomment">     * Communications of the ACM, 21, 317-322, 1978.</em>
+<a class="jxr_linenumber" name="L241" href="BetaDistribution.html#L241">241</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L242" href="BetaDistribution.html#L242">242</a> <em class="jxr_javadoccomment">     * &lt;/blockquote&gt;</em>
+<a class="jxr_linenumber" name="L243" href="BetaDistribution.html#L243">243</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L244" href="BetaDistribution.html#L244">244</a> <em class="jxr_javadoccomment">     * @since 3.6</em>
+<a class="jxr_linenumber" name="L245" href="BetaDistribution.html#L245">245</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L246" href="BetaDistribution.html#L246">246</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="BetaDistribution.html">ChengBetaSampler</a> <strong class="jxr_keyword">implements</strong> RealDistribution.Sampler {
+<a class="jxr_linenumber" name="L247" href="BetaDistribution.html#L247">247</a>         <em class="jxr_javadoccomment">/** RNG (uniform distribution). */</em>
+<a class="jxr_linenumber" name="L248" href="BetaDistribution.html#L248">248</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> UniformRandomProvider rng;
+<a class="jxr_linenumber" name="L249" href="BetaDistribution.html#L249">249</a>         <em class="jxr_javadoccomment">/** First shape parameter. */</em>
+<a class="jxr_linenumber" name="L250" href="BetaDistribution.html#L250">250</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> alphaShape;
+<a class="jxr_linenumber" name="L251" href="BetaDistribution.html#L251">251</a>         <em class="jxr_javadoccomment">/** Second shape parameter. */</em>
+<a class="jxr_linenumber" name="L252" href="BetaDistribution.html#L252">252</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> betaShape;
+<a class="jxr_linenumber" name="L253" href="BetaDistribution.html#L253">253</a> 
+<a class="jxr_linenumber" name="L254" href="BetaDistribution.html#L254">254</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L255" href="BetaDistribution.html#L255">255</a> <em class="jxr_javadoccomment">         * Creates a sampler instance.</em>
+<a class="jxr_linenumber" name="L256" href="BetaDistribution.html#L256">256</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L257" href="BetaDistribution.html#L257">257</a> <em class="jxr_javadoccomment">         * @param generator RNG.</em>
+<a class="jxr_linenumber" name="L258" href="BetaDistribution.html#L258">258</a> <em class="jxr_javadoccomment">         * @param alpha Distribution first shape parameter.</em>
+<a class="jxr_linenumber" name="L259" href="BetaDistribution.html#L259">259</a> <em class="jxr_javadoccomment">         * @param beta Distribution second shape parameter.</em>
+<a class="jxr_linenumber" name="L260" href="BetaDistribution.html#L260">260</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L261" href="BetaDistribution.html#L261">261</a>         <a href="BetaDistribution.html">ChengBetaSampler</a>(UniformRandomProvider generator,
+<a class="jxr_linenumber" name="L262" href="BetaDistribution.html#L262">262</a>                          <strong class="jxr_keyword">double</strong> alpha,
+<a class="jxr_linenumber" name="L263" href="BetaDistribution.html#L263">263</a>                          <strong class="jxr_keyword">double</strong> beta) {
+<a class="jxr_linenumber" name="L264" href="BetaDistribution.html#L264">264</a>             rng = generator;
+<a class="jxr_linenumber" name="L265" href="BetaDistribution.html#L265">265</a>             alphaShape = alpha;
+<a class="jxr_linenumber" name="L266" href="BetaDistribution.html#L266">266</a>             betaShape = beta;
+<a class="jxr_linenumber" name="L267" href="BetaDistribution.html#L267">267</a>         }
+<a class="jxr_linenumber" name="L268" href="BetaDistribution.html#L268">268</a> 
+<a class="jxr_linenumber" name="L269" href="BetaDistribution.html#L269">269</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L270" href="BetaDistribution.html#L270">270</a>         @Override
+<a class="jxr_linenumber" name="L271" href="BetaDistribution.html#L271">271</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> sample() {
+<a class="jxr_linenumber" name="L272" href="BetaDistribution.html#L272">272</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> a = FastMath.min(alphaShape, betaShape);
+<a class="jxr_linenumber" name="L273" href="BetaDistribution.html#L273">273</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> b = FastMath.max(alphaShape, betaShape);
+<a class="jxr_linenumber" name="L274" href="BetaDistribution.html#L274">274</a> 
+<a class="jxr_linenumber" name="L275" href="BetaDistribution.html#L275">275</a>             <strong class="jxr_keyword">if</strong> (a &gt; 1) {
+<a class="jxr_linenumber" name="L276" href="BetaDistribution.html#L276">276</a>                 <strong class="jxr_keyword">return</strong> algorithmBB(alphaShape, a, b);
+<a class="jxr_linenumber" name="L277" href="BetaDistribution.html#L277">277</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L278" href="BetaDistribution.html#L278">278</a>                 <strong class="jxr_keyword">return</strong> algorithmBC(alphaShape, b, a);
+<a class="jxr_linenumber" name="L279" href="BetaDistribution.html#L279">279</a>             }
+<a class="jxr_linenumber" name="L280" href="BetaDistribution.html#L280">280</a>         }
+<a class="jxr_linenumber" name="L281" href="BetaDistribution.html#L281">281</a> 
+<a class="jxr_linenumber" name="L282" href="BetaDistribution.html#L282">282</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L283" href="BetaDistribution.html#L283">283</a> <em class="jxr_javadoccomment">         * Computes one sample using Cheng's BB algorithm, when &amp;alpha; and</em>
+<a class="jxr_linenumber" name="L284" href="BetaDistribution.html#L284">284</a> <em class="jxr_javadoccomment">         * &amp;beta; are both larger than 1.</em>
+<a class="jxr_linenumber" name="L285" href="BetaDistribution.html#L285">285</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L286" href="BetaDistribution.html#L286">286</a> <em class="jxr_javadoccomment">         * @param a0 First shape parameter (&amp;alpha;).</em>
+<a class="jxr_linenumber" name="L287" href="BetaDistribution.html#L287">287</a> <em class="jxr_javadoccomment">         * @param a Min(&amp;alpha;, &amp;beta;) where &amp;alpha;, &amp;beta; are the shape parameters.</em>
+<a class="jxr_linenumber" name="L288" href="BetaDistribution.html#L288">288</a> <em class="jxr_javadoccomment">         * @param b Max(&amp;alpha;, &amp;beta;) where &amp;alpha;, &amp;beta; are the shape parameters.</em>
+<a class="jxr_linenumber" name="L289" href="BetaDistribution.html#L289">289</a> <em class="jxr_javadoccomment">         * @return a random sample.</em>
+<a class="jxr_linenumber" name="L290" href="BetaDistribution.html#L290">290</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L291" href="BetaDistribution.html#L291">291</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> algorithmBB(<strong class="jxr_keyword">double</strong> a0,
+<a class="jxr_linenumber" name="L292" href="BetaDistribution.html#L292">292</a>                                    <strong class="jxr_keyword">double</strong> a,
+<a class="jxr_linenumber" name="L293" href="BetaDistribution.html#L293">293</a>                                    <strong class="jxr_keyword">double</strong> b) {
+<a class="jxr_linenumber" name="L294" href="BetaDistribution.html#L294">294</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> alpha = a + b;
+<a class="jxr_linenumber" name="L295" href="BetaDistribution.html#L295">295</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> beta = FastMath.sqrt((alpha - 2) / (2 * a * b - alpha));
+<a class="jxr_linenumber" name="L296" href="BetaDistribution.html#L296">296</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> gamma = a + 1 / beta;
+<a class="jxr_linenumber" name="L297" href="BetaDistribution.html#L297">297</a> 
+<a class="jxr_linenumber" name="L298" href="BetaDistribution.html#L298">298</a>             <strong class="jxr_keyword">double</strong> r;
+<a class="jxr_linenumber" name="L299" href="BetaDistribution.html#L299">299</a>             <strong class="jxr_keyword">double</strong> w;
+<a class="jxr_linenumber" name="L300" href="BetaDistribution.html#L300">300</a>             <strong class="jxr_keyword">double</strong> t;
+<a class="jxr_linenumber" name="L301" href="BetaDistribution.html#L301">301</a>             <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L302" href="BetaDistribution.html#L302">302</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> u1 = rng.nextDouble();
+<a class="jxr_linenumber" name="L303" href="BetaDistribution.html#L303">303</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> u2 = rng.nextDouble();
+<a class="jxr_linenumber" name="L304" href="BetaDistribution.html#L304">304</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> v = beta * (FastMath.log(u1) - FastMath.log1p(-u1));
+<a class="jxr_linenumber" name="L305" href="BetaDistribution.html#L305">305</a>                 w = a * FastMath.exp(v);
+<a class="jxr_linenumber" name="L306" href="BetaDistribution.html#L306">306</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> z = u1 * u1 * u2;
+<a class="jxr_linenumber" name="L307" href="BetaDistribution.html#L307">307</a>                 r = gamma * v - 1.3862944;
+<a class="jxr_linenumber" name="L308" href="BetaDistribution.html#L308">308</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> s = a + r - w;
+<a class="jxr_linenumber" name="L309" href="BetaDistribution.html#L309">309</a>                 <strong class="jxr_keyword">if</strong> (s + 2.609438 &gt;= 5 * z) {
+<a class="jxr_linenumber" name="L310" href="BetaDistribution.html#L310">310</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L311" href="BetaDistribution.html#L311">311</a>                 }
+<a class="jxr_linenumber" name="L312" href="BetaDistribution.html#L312">312</a> 
+<a class="jxr_linenumber" name="L313" href="BetaDistribution.html#L313">313</a>                 t = FastMath.log(z);
+<a class="jxr_linenumber" name="L314" href="BetaDistribution.html#L314">314</a>                 <strong class="jxr_keyword">if</strong> (s &gt;= t) {
+<a class="jxr_linenumber" name="L315" href="BetaDistribution.html#L315">315</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L316" href="BetaDistribution.html#L316">316</a>                 }
+<a class="jxr_linenumber" name="L317" href="BetaDistribution.html#L317">317</a>             } <strong class="jxr_keyword">while</strong> (r + alpha * (FastMath.log(alpha) - FastMath.log(b + w)) &lt; t);
+<a class="jxr_linenumber" name="L318" href="BetaDistribution.html#L318">318</a> 
+<a class="jxr_linenumber" name="L319" href="BetaDistribution.html#L319">319</a>             w = FastMath.min(w, Double.MAX_VALUE);
+<a class="jxr_linenumber" name="L320" href="BetaDistribution.html#L320">320</a> 
+<a class="jxr_linenumber" name="L321" href="BetaDistribution.html#L321">321</a>             <strong class="jxr_keyword">return</strong> Precision.equals(a, a0) ? w / (b + w) : b / (b + w);
+<a class="jxr_linenumber" name="L322" href="BetaDistribution.html#L322">322</a>         }
+<a class="jxr_linenumber" name="L323" href="BetaDistribution.html#L323">323</a> 
+<a class="jxr_linenumber" name="L324" href="BetaDistribution.html#L324">324</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L325" href="BetaDistribution.html#L325">325</a> <em class="jxr_javadoccomment">         * Computes one sample using Cheng's BC algorithm, when at least one</em>
+<a class="jxr_linenumber" name="L326" href="BetaDistribution.html#L326">326</a> <em class="jxr_javadoccomment">         * of &amp;alpha; and &amp;beta; is smaller than 1.</em>
+<a class="jxr_linenumber" name="L327" href="BetaDistribution.html#L327">327</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L328" href="BetaDistribution.html#L328">328</a> <em class="jxr_javadoccomment">         * @param a0 First shape parameter (&amp;alpha;).</em>
+<a class="jxr_linenumber" name="L329" href="BetaDistribution.html#L329">329</a> <em class="jxr_javadoccomment">         * @param a Max(&amp;alpha;, &amp;beta;) where &amp;alpha;, &amp;beta; are the shape parameters.</em>
+<a class="jxr_linenumber" name="L330" href="BetaDistribution.html#L330">330</a> <em class="jxr_javadoccomment">         * @param b min(&amp;alpha;, &amp;beta;) where &amp;alpha;, &amp;beta; are the shape parameters.</em>
+<a class="jxr_linenumber" name="L331" href="BetaDistribution.html#L331">331</a> <em class="jxr_javadoccomment">         * @return a random sample.</em>
+<a class="jxr_linenumber" name="L332" href="BetaDistribution.html#L332">332</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L333" href="BetaDistribution.html#L333">333</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> algorithmBC(<strong class="jxr_keyword">double</strong> a0,
+<a class="jxr_linenumber" name="L334" href="BetaDistribution.html#L334">334</a>                                    <strong class="jxr_keyword">double</strong> a,
+<a class="jxr_linenumber" name="L335" href="BetaDistribution.html#L335">335</a>                                    <strong class="jxr_keyword">double</strong> b) {
+<a class="jxr_linenumber" name="L336" href="BetaDistribution.html#L336">336</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> alpha = a + b;
+<a class="jxr_linenumber" name="L337" href="BetaDistribution.html#L337">337</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> beta = 1 / b;
+<a class="jxr_linenumber" name="L338" href="BetaDistribution.html#L338">338</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> delta = 1 + a - b;
+<a class="jxr_linenumber" name="L339" href="BetaDistribution.html#L339">339</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> k1 = delta * (0.0138889 + 0.0416667 * b) / (a * beta - 0.777778);
+<a class="jxr_linenumber" name="L340" href="BetaDistribution.html#L340">340</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> k2 = 0.25 + (0.5 + 0.25 / delta) * b;
+<a class="jxr_linenumber" name="L341" href="BetaDistribution.html#L341">341</a> 
+<a class="jxr_linenumber" name="L342" href="BetaDistribution.html#L342">342</a>             <strong class="jxr_keyword">double</strong> w;
+<a class="jxr_linenumber" name="L343" href="BetaDistribution.html#L343">343</a>             <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
+<a class="jxr_linenumber" name="L344" href="BetaDistribution.html#L344">344</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> u1 = rng.nextDouble();
+<a class="jxr_linenumber" name="L345" href="BetaDistribution.html#L345">345</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> u2 = rng.nextDouble();
+<a class="jxr_linenumber" name="L346" href="BetaDistribution.html#L346">346</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y = u1 * u2;
+<a class="jxr_linenumber" name="L347" href="BetaDistribution.html#L347">347</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> z = u1 * y;
+<a class="jxr_linenumber" name="L348" href="BetaDistribution.html#L348">348</a>                 <strong class="jxr_keyword">if</strong> (u1 &lt; 0.5) {
+<a class="jxr_linenumber" name="L349" href="BetaDistribution.html#L349">349</a>                     <strong class="jxr_keyword">if</strong> (0.25 * u2 + z - y &gt;= k1) {
+<a class="jxr_linenumber" name="L350" href="BetaDistribution.html#L350">350</a>                         <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L351" href="BetaDistribution.html#L351">351</a>                     }
+<a class="jxr_linenumber" name="L352" href="BetaDistribution.html#L352">352</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L353" href="BetaDistribution.html#L353">353</a>                     <strong class="jxr_keyword">if</strong> (z &lt;= 0.25) {
+<a class="jxr_linenumber" name="L354" href="BetaDistribution.html#L354">354</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> v = beta * (FastMath.log(u1) - FastMath.log1p(-u1));
+<a class="jxr_linenumber" name="L355" href="BetaDistribution.html#L355">355</a>                         w = a * FastMath.exp(v);
+<a class="jxr_linenumber" name="L356" href="BetaDistribution.html#L356">356</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L357" href="BetaDistribution.html#L357">357</a>                     }
+<a class="jxr_linenumber" name="L358" href="BetaDistribution.html#L358">358</a> 
+<a class="jxr_linenumber" name="L359" href="BetaDistribution.html#L359">359</a>                     <strong class="jxr_keyword">if</strong> (z &gt;= k2) {
+<a class="jxr_linenumber" name="L360" href="BetaDistribution.html#L360">360</a>                         <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L361" href="BetaDistribution.html#L361">361</a>                     }
+<a class="jxr_linenumber" name="L362" href="BetaDistribution.html#L362">362</a>                 }
+<a class="jxr_linenumber" name="L363" href="BetaDistribution.html#L363">363</a> 
+<a class="jxr_linenumber" name="L364" href="BetaDistribution.html#L364">364</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> v = beta * (FastMath.log(u1) - FastMath.log1p(-u1));
+<a class="jxr_linenumber" name="L365" href="BetaDistribution.html#L365">365</a>                 w = a * FastMath.exp(v);
+<a class="jxr_linenumber" name="L366" href="BetaDistribution.html#L366">366</a>                 <strong class="jxr_keyword">if</strong> (alpha * (FastMath.log(alpha) - FastMath.log(b + w) + v) - 1.3862944 &gt;= FastMath.log(z)) {
+<a class="jxr_linenumber" name="L367" href="BetaDistribution.html#L367">367</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L368" href="BetaDistribution.html#L368">368</a>                 }
+<a class="jxr_linenumber" name="L369" href="BetaDistribution.html#L369">369</a>             }
+<a class="jxr_linenumber" name="L370" href="BetaDistribution.html#L370">370</a> 
+<a class="jxr_linenumber" name="L371" href="BetaDistribution.html#L371">371</a>             w = FastMath.min(w, Double.MAX_VALUE);
+<a class="jxr_linenumber" name="L372" href="BetaDistribution.html#L372">372</a> 
+<a class="jxr_linenumber" name="L373" href="BetaDistribution.html#L373">373</a>             <strong class="jxr_keyword">return</strong> Precision.equals(a, a0) ? w / (b + w) : b / (b + w);
+<a class="jxr_linenumber" name="L374" href="BetaDistribution.html#L374">374</a>         }
+<a class="jxr_linenumber" name="L375" href="BetaDistribution.html#L375">375</a>     }
+<a class="jxr_linenumber" name="L376" href="BetaDistribution.html#L376">376</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

@@ -1,0 +1,640 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Variance xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../../apidocs/org/apache/commons/math4/stat/descriptive/moment/Variance.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="Variance.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="Variance.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="Variance.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="Variance.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="Variance.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="Variance.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="Variance.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="Variance.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="Variance.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="Variance.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="Variance.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="Variance.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="Variance.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="Variance.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="Variance.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="Variance.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="Variance.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.stat.descriptive.moment;
+<a class="jxr_linenumber" name="L18" href="Variance.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="Variance.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.io.Serializable;
+<a class="jxr_linenumber" name="L20" href="Variance.html#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="Variance.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L22" href="Variance.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NullArgumentException;
+<a class="jxr_linenumber" name="L23" href="Variance.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L24" href="Variance.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.descriptive.AbstractStorelessUnivariateStatistic;
+<a class="jxr_linenumber" name="L25" href="Variance.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.descriptive.WeightedEvaluation;
+<a class="jxr_linenumber" name="L26" href="Variance.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L27" href="Variance.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathUtils;
+<a class="jxr_linenumber" name="L28" href="Variance.html#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="Variance.html#L29">29</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L30" href="Variance.html#L30">30</a>  <em class="jxr_javadoccomment"> * Computes the variance of the available values.  By default, the unbiased</em>
+<a class="jxr_linenumber" name="L31" href="Variance.html#L31">31</a>  <em class="jxr_javadoccomment"> * "sample variance" definitional formula is used:</em>
+<a class="jxr_linenumber" name="L32" href="Variance.html#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L33" href="Variance.html#L33">33</a>  <em class="jxr_javadoccomment"> * variance = sum((x_i - mean)^2) / (n - 1) &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L34" href="Variance.html#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L35" href="Variance.html#L35">35</a>  <em class="jxr_javadoccomment"> * where mean is the {@link Mean} and &lt;code&gt;n&lt;/code&gt; is the number</em>
+<a class="jxr_linenumber" name="L36" href="Variance.html#L36">36</a>  <em class="jxr_javadoccomment"> * of sample observations.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L37" href="Variance.html#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L38" href="Variance.html#L38">38</a>  <em class="jxr_javadoccomment"> * The definitional formula does not have good numerical properties, so</em>
+<a class="jxr_linenumber" name="L39" href="Variance.html#L39">39</a>  <em class="jxr_javadoccomment"> * this implementation does not compute the statistic using the definitional</em>
+<a class="jxr_linenumber" name="L40" href="Variance.html#L40">40</a>  <em class="jxr_javadoccomment"> * formula. &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L41" href="Variance.html#L41">41</a>  <em class="jxr_javadoccomment"> * &lt;li&gt; The &lt;code&gt;getResult&lt;/code&gt; method computes the variance using</em>
+<a class="jxr_linenumber" name="L42" href="Variance.html#L42">42</a>  <em class="jxr_javadoccomment"> * updating formulas based on West's algorithm, as described in</em>
+<a class="jxr_linenumber" name="L43" href="Variance.html#L43">43</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://doi.acm.org/10.1145/359146.359152" target="alexandria_uri">http://doi.acm.org/10.1145/359146.359152</a>"&gt; Chan, T. F. and</em>
+<a class="jxr_linenumber" name="L44" href="Variance.html#L44">44</a>  <em class="jxr_javadoccomment"> * J. G. Lewis 1979, &lt;i&gt;Communications of the ACM&lt;/i&gt;,</em>
+<a class="jxr_linenumber" name="L45" href="Variance.html#L45">45</a>  <em class="jxr_javadoccomment"> * vol. 22 no. 9, pp. 526-531.&lt;/a&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L46" href="Variance.html#L46">46</a>  <em class="jxr_javadoccomment"> * &lt;li&gt; The &lt;code&gt;evaluate&lt;/code&gt; methods leverage the fact that they have the</em>
+<a class="jxr_linenumber" name="L47" href="Variance.html#L47">47</a>  <em class="jxr_javadoccomment"> * full array of values in memory to execute a two-pass algorithm.</em>
+<a class="jxr_linenumber" name="L48" href="Variance.html#L48">48</a>  <em class="jxr_javadoccomment"> * Specifically, these methods use the "corrected two-pass algorithm" from</em>
+<a class="jxr_linenumber" name="L49" href="Variance.html#L49">49</a>  <em class="jxr_javadoccomment"> * Chan, Golub, Levesque, &lt;i&gt;Algorithms for Computing the Sample Variance&lt;/i&gt;,</em>
+<a class="jxr_linenumber" name="L50" href="Variance.html#L50">50</a>  <em class="jxr_javadoccomment"> * American Statistician, vol. 37, no. 3 (1983) pp. 242-247.&lt;/li&gt;&lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L51" href="Variance.html#L51">51</a>  <em class="jxr_javadoccomment"> * Note that adding values using &lt;code&gt;increment&lt;/code&gt; or</em>
+<a class="jxr_linenumber" name="L52" href="Variance.html#L52">52</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;incrementAll&lt;/code&gt; and then executing &lt;code&gt;getResult&lt;/code&gt; will</em>
+<a class="jxr_linenumber" name="L53" href="Variance.html#L53">53</a>  <em class="jxr_javadoccomment"> * sometimes give a different, less accurate, result than executing</em>
+<a class="jxr_linenumber" name="L54" href="Variance.html#L54">54</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;evaluate&lt;/code&gt; with the full array of values. The former approach</em>
+<a class="jxr_linenumber" name="L55" href="Variance.html#L55">55</a>  <em class="jxr_javadoccomment"> * should only be used when the full array of values is not available.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L56" href="Variance.html#L56">56</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L57" href="Variance.html#L57">57</a>  <em class="jxr_javadoccomment"> * The "population variance"  ( sum((x_i - mean)^2) / n ) can also</em>
+<a class="jxr_linenumber" name="L58" href="Variance.html#L58">58</a>  <em class="jxr_javadoccomment"> * be computed using this statistic.  The &lt;code&gt;isBiasCorrected&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L59" href="Variance.html#L59">59</a>  <em class="jxr_javadoccomment"> * property determines whether the "population" or "sample" value is</em>
+<a class="jxr_linenumber" name="L60" href="Variance.html#L60">60</a>  <em class="jxr_javadoccomment"> * returned by the &lt;code&gt;evaluate&lt;/code&gt; and &lt;code&gt;getResult&lt;/code&gt; methods.</em>
+<a class="jxr_linenumber" name="L61" href="Variance.html#L61">61</a>  <em class="jxr_javadoccomment"> * To compute population variances, set this property to &lt;code&gt;false.&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L62" href="Variance.html#L62">62</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L63" href="Variance.html#L63">63</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L64" href="Variance.html#L64">64</a>  <em class="jxr_javadoccomment"> * &lt;strong&gt;Note that this implementation is not synchronized.&lt;/strong&gt; If</em>
+<a class="jxr_linenumber" name="L65" href="Variance.html#L65">65</a>  <em class="jxr_javadoccomment"> * multiple threads access an instance of this class concurrently, and at least</em>
+<a class="jxr_linenumber" name="L66" href="Variance.html#L66">66</a>  <em class="jxr_javadoccomment"> * one of the threads invokes the &lt;code&gt;increment()&lt;/code&gt; or</em>
+<a class="jxr_linenumber" name="L67" href="Variance.html#L67">67</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;clear()&lt;/code&gt; method, it must be synchronized externally.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L68" href="Variance.html#L68">68</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L69" href="Variance.html#L69">69</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="Variance.html">Variance</a> <strong class="jxr_keyword">extends</strong> <a href="../AbstractStorelessUnivariateStatistic.html">AbstractStorelessUnivariateStatistic</a> <strong class="jxr_keyword">implements</strong> Serializable, <a href="../WeightedEvaluation.html">WeightedEvaluation</a> {
+<a class="jxr_linenumber" name="L70" href="Variance.html#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="Variance.html#L71">71</a>      <em class="jxr_javadoccomment">/** Serializable version identifier */</em>
+<a class="jxr_linenumber" name="L72" href="Variance.html#L72">72</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20150412L;
+<a class="jxr_linenumber" name="L73" href="Variance.html#L73">73</a>  
+<a class="jxr_linenumber" name="L74" href="Variance.html#L74">74</a>      <em class="jxr_javadoccomment">/** SecondMoment is used in incremental calculation of Variance*/</em>
+<a class="jxr_linenumber" name="L75" href="Variance.html#L75">75</a>      <strong class="jxr_keyword">protected</strong> <a href="SecondMoment.html">SecondMoment</a> moment = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L76" href="Variance.html#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="Variance.html#L77">77</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L78" href="Variance.html#L78">78</a>  <em class="jxr_javadoccomment">     * Whether or not {@link #increment(double)} should increment</em>
+<a class="jxr_linenumber" name="L79" href="Variance.html#L79">79</a>  <em class="jxr_javadoccomment">     * the internal second moment. When a Variance is constructed with an</em>
+<a class="jxr_linenumber" name="L80" href="Variance.html#L80">80</a>  <em class="jxr_javadoccomment">     * external SecondMoment as a constructor parameter, this property is</em>
+<a class="jxr_linenumber" name="L81" href="Variance.html#L81">81</a>  <em class="jxr_javadoccomment">     * set to false and increments must be applied to the second moment</em>
+<a class="jxr_linenumber" name="L82" href="Variance.html#L82">82</a>  <em class="jxr_javadoccomment">     * directly.</em>
+<a class="jxr_linenumber" name="L83" href="Variance.html#L83">83</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L84" href="Variance.html#L84">84</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">boolean</strong> incMoment = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L85" href="Variance.html#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="Variance.html#L86">86</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L87" href="Variance.html#L87">87</a>  <em class="jxr_javadoccomment">     * Whether or not bias correction is applied when computing the</em>
+<a class="jxr_linenumber" name="L88" href="Variance.html#L88">88</a>  <em class="jxr_javadoccomment">     * value of the statistic. True means that bias is corrected.  See</em>
+<a class="jxr_linenumber" name="L89" href="Variance.html#L89">89</a>  <em class="jxr_javadoccomment">     * {@link Variance} for details on the formula.</em>
+<a class="jxr_linenumber" name="L90" href="Variance.html#L90">90</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L91" href="Variance.html#L91">91</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isBiasCorrected = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L92" href="Variance.html#L92">92</a>  
+<a class="jxr_linenumber" name="L93" href="Variance.html#L93">93</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L94" href="Variance.html#L94">94</a>  <em class="jxr_javadoccomment">     * Constructs a Variance with default (true) &lt;code&gt;isBiasCorrected&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L95" href="Variance.html#L95">95</a>  <em class="jxr_javadoccomment">     * property.</em>
+<a class="jxr_linenumber" name="L96" href="Variance.html#L96">96</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L97" href="Variance.html#L97">97</a>      <strong class="jxr_keyword">public</strong> <a href="Variance.html">Variance</a>() {
+<a class="jxr_linenumber" name="L98" href="Variance.html#L98">98</a>          moment = <strong class="jxr_keyword">new</strong> <a href="SecondMoment.html">SecondMoment</a>();
+<a class="jxr_linenumber" name="L99" href="Variance.html#L99">99</a>      }
+<a class="jxr_linenumber" name="L100" href="Variance.html#L100">100</a> 
+<a class="jxr_linenumber" name="L101" href="Variance.html#L101">101</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L102" href="Variance.html#L102">102</a> <em class="jxr_javadoccomment">     * Constructs a Variance based on an external second moment.</em>
+<a class="jxr_linenumber" name="L103" href="Variance.html#L103">103</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L104" href="Variance.html#L104">104</a> <em class="jxr_javadoccomment">     * When this constructor is used, the statistic may only be</em>
+<a class="jxr_linenumber" name="L105" href="Variance.html#L105">105</a> <em class="jxr_javadoccomment">     * incremented via the moment, i.e., {@link #increment(double)}</em>
+<a class="jxr_linenumber" name="L106" href="Variance.html#L106">106</a> <em class="jxr_javadoccomment">     * does nothing; whereas {@code m2.increment(value)} increments</em>
+<a class="jxr_linenumber" name="L107" href="Variance.html#L107">107</a> <em class="jxr_javadoccomment">     * both {@code m2} and the Variance instance constructed from it.</em>
+<a class="jxr_linenumber" name="L108" href="Variance.html#L108">108</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L109" href="Variance.html#L109">109</a> <em class="jxr_javadoccomment">     * @param m2 the SecondMoment (Third or Fourth moments work here as well.)</em>
+<a class="jxr_linenumber" name="L110" href="Variance.html#L110">110</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L111" href="Variance.html#L111">111</a>     <strong class="jxr_keyword">public</strong> <a href="Variance.html">Variance</a>(<strong class="jxr_keyword">final</strong> <a href="SecondMoment.html">SecondMoment</a> m2) {
+<a class="jxr_linenumber" name="L112" href="Variance.html#L112">112</a>         incMoment = false;
+<a class="jxr_linenumber" name="L113" href="Variance.html#L113">113</a>         <strong class="jxr_keyword">this</strong>.moment = m2;
+<a class="jxr_linenumber" name="L114" href="Variance.html#L114">114</a>     }
+<a class="jxr_linenumber" name="L115" href="Variance.html#L115">115</a> 
+<a class="jxr_linenumber" name="L116" href="Variance.html#L116">116</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L117" href="Variance.html#L117">117</a> <em class="jxr_javadoccomment">     * Constructs a Variance with the specified &lt;code&gt;isBiasCorrected&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L118" href="Variance.html#L118">118</a> <em class="jxr_javadoccomment">     * property.</em>
+<a class="jxr_linenumber" name="L119" href="Variance.html#L119">119</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L120" href="Variance.html#L120">120</a> <em class="jxr_javadoccomment">     * @param isBiasCorrected  setting for bias correction - true means</em>
+<a class="jxr_linenumber" name="L121" href="Variance.html#L121">121</a> <em class="jxr_javadoccomment">     * bias will be corrected and is equivalent to using the argumentless</em>
+<a class="jxr_linenumber" name="L122" href="Variance.html#L122">122</a> <em class="jxr_javadoccomment">     * constructor</em>
+<a class="jxr_linenumber" name="L123" href="Variance.html#L123">123</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L124" href="Variance.html#L124">124</a>     <strong class="jxr_keyword">public</strong> <a href="Variance.html">Variance</a>(<strong class="jxr_keyword">boolean</strong> isBiasCorrected) {
+<a class="jxr_linenumber" name="L125" href="Variance.html#L125">125</a>         moment = <strong class="jxr_keyword">new</strong> <a href="SecondMoment.html">SecondMoment</a>();
+<a class="jxr_linenumber" name="L126" href="Variance.html#L126">126</a>         <strong class="jxr_keyword">this</strong>.isBiasCorrected = isBiasCorrected;
+<a class="jxr_linenumber" name="L127" href="Variance.html#L127">127</a>     }
+<a class="jxr_linenumber" name="L128" href="Variance.html#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="Variance.html#L129">129</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L130" href="Variance.html#L130">130</a> <em class="jxr_javadoccomment">     * Constructs a Variance with the specified &lt;code&gt;isBiasCorrected&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L131" href="Variance.html#L131">131</a> <em class="jxr_javadoccomment">     * property and the supplied external second moment.</em>
+<a class="jxr_linenumber" name="L132" href="Variance.html#L132">132</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L133" href="Variance.html#L133">133</a> <em class="jxr_javadoccomment">     * @param isBiasCorrected  setting for bias correction - true means</em>
+<a class="jxr_linenumber" name="L134" href="Variance.html#L134">134</a> <em class="jxr_javadoccomment">     * bias will be corrected</em>
+<a class="jxr_linenumber" name="L135" href="Variance.html#L135">135</a> <em class="jxr_javadoccomment">     * @param m2 the SecondMoment (Third or Fourth moments work</em>
+<a class="jxr_linenumber" name="L136" href="Variance.html#L136">136</a> <em class="jxr_javadoccomment">     * here as well.)</em>
+<a class="jxr_linenumber" name="L137" href="Variance.html#L137">137</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L138" href="Variance.html#L138">138</a>     <strong class="jxr_keyword">public</strong> <a href="Variance.html">Variance</a>(<strong class="jxr_keyword">boolean</strong> isBiasCorrected, <a href="SecondMoment.html">SecondMoment</a> m2) {
+<a class="jxr_linenumber" name="L139" href="Variance.html#L139">139</a>         incMoment = false;
+<a class="jxr_linenumber" name="L140" href="Variance.html#L140">140</a>         <strong class="jxr_keyword">this</strong>.moment = m2;
+<a class="jxr_linenumber" name="L141" href="Variance.html#L141">141</a>         <strong class="jxr_keyword">this</strong>.isBiasCorrected = isBiasCorrected;
+<a class="jxr_linenumber" name="L142" href="Variance.html#L142">142</a>     }
+<a class="jxr_linenumber" name="L143" href="Variance.html#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="Variance.html#L144">144</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L145" href="Variance.html#L145">145</a> <em class="jxr_javadoccomment">     * Copy constructor, creates a new {@code Variance} identical</em>
+<a class="jxr_linenumber" name="L146" href="Variance.html#L146">146</a> <em class="jxr_javadoccomment">     * to the {@code original}.</em>
+<a class="jxr_linenumber" name="L147" href="Variance.html#L147">147</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L148" href="Variance.html#L148">148</a> <em class="jxr_javadoccomment">     * @param original the {@code Variance} instance to copy</em>
+<a class="jxr_linenumber" name="L149" href="Variance.html#L149">149</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if original is null</em>
+<a class="jxr_linenumber" name="L150" href="Variance.html#L150">150</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L151" href="Variance.html#L151">151</a>     <strong class="jxr_keyword">public</strong> <a href="Variance.html">Variance</a>(<a href="Variance.html">Variance</a> original) <strong class="jxr_keyword">throws</strong> NullArgumentException {
+<a class="jxr_linenumber" name="L152" href="Variance.html#L152">152</a>         copy(original, <strong class="jxr_keyword">this</strong>);
+<a class="jxr_linenumber" name="L153" href="Variance.html#L153">153</a>     }
+<a class="jxr_linenumber" name="L154" href="Variance.html#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="Variance.html#L155">155</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L156" href="Variance.html#L156">156</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L157" href="Variance.html#L157">157</a> <em class="jxr_javadoccomment">     * &lt;p&gt;If all values are available, it is more accurate to use</em>
+<a class="jxr_linenumber" name="L158" href="Variance.html#L158">158</a> <em class="jxr_javadoccomment">     * {@link #evaluate(double[])} rather than adding values one at a time</em>
+<a class="jxr_linenumber" name="L159" href="Variance.html#L159">159</a> <em class="jxr_javadoccomment">     * using this method and then executing {@link #getResult}, since</em>
+<a class="jxr_linenumber" name="L160" href="Variance.html#L160">160</a> <em class="jxr_javadoccomment">     * &lt;code&gt;evaluate&lt;/code&gt; leverages the fact that is has the full</em>
+<a class="jxr_linenumber" name="L161" href="Variance.html#L161">161</a> <em class="jxr_javadoccomment">     * list of values together to execute a two-pass algorithm.</em>
+<a class="jxr_linenumber" name="L162" href="Variance.html#L162">162</a> <em class="jxr_javadoccomment">     * See {@link Variance}.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L163" href="Variance.html#L163">163</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L164" href="Variance.html#L164">164</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Note also that when {@link #Variance(SecondMoment)} is used to</em>
+<a class="jxr_linenumber" name="L165" href="Variance.html#L165">165</a> <em class="jxr_javadoccomment">     * create a Variance, this method does nothing. In that case, the</em>
+<a class="jxr_linenumber" name="L166" href="Variance.html#L166">166</a> <em class="jxr_javadoccomment">     * SecondMoment should be incremented directly.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L167" href="Variance.html#L167">167</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L168" href="Variance.html#L168">168</a>     @Override
+<a class="jxr_linenumber" name="L169" href="Variance.html#L169">169</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> increment(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> d) {
+<a class="jxr_linenumber" name="L170" href="Variance.html#L170">170</a>         <strong class="jxr_keyword">if</strong> (incMoment) {
+<a class="jxr_linenumber" name="L171" href="Variance.html#L171">171</a>             moment.increment(d);
+<a class="jxr_linenumber" name="L172" href="Variance.html#L172">172</a>         }
+<a class="jxr_linenumber" name="L173" href="Variance.html#L173">173</a>     }
+<a class="jxr_linenumber" name="L174" href="Variance.html#L174">174</a> 
+<a class="jxr_linenumber" name="L175" href="Variance.html#L175">175</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L176" href="Variance.html#L176">176</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L177" href="Variance.html#L177">177</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L178" href="Variance.html#L178">178</a>     @Override
+<a class="jxr_linenumber" name="L179" href="Variance.html#L179">179</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getResult() {
+<a class="jxr_linenumber" name="L180" href="Variance.html#L180">180</a>         <strong class="jxr_keyword">if</strong> (moment.n == 0) {
+<a class="jxr_linenumber" name="L181" href="Variance.html#L181">181</a>             <strong class="jxr_keyword">return</strong> Double.NaN;
+<a class="jxr_linenumber" name="L182" href="Variance.html#L182">182</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (moment.n == 1) {
+<a class="jxr_linenumber" name="L183" href="Variance.html#L183">183</a>             <strong class="jxr_keyword">return</strong> 0d;
+<a class="jxr_linenumber" name="L184" href="Variance.html#L184">184</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L185" href="Variance.html#L185">185</a>             <strong class="jxr_keyword">if</strong> (isBiasCorrected) {
+<a class="jxr_linenumber" name="L186" href="Variance.html#L186">186</a>                 <strong class="jxr_keyword">return</strong> moment.m2 / (moment.n - 1d);
+<a class="jxr_linenumber" name="L187" href="Variance.html#L187">187</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L188" href="Variance.html#L188">188</a>                 <strong class="jxr_keyword">return</strong> moment.m2 / (moment.n);
+<a class="jxr_linenumber" name="L189" href="Variance.html#L189">189</a>             }
+<a class="jxr_linenumber" name="L190" href="Variance.html#L190">190</a>         }
+<a class="jxr_linenumber" name="L191" href="Variance.html#L191">191</a>     }
+<a class="jxr_linenumber" name="L192" href="Variance.html#L192">192</a> 
+<a class="jxr_linenumber" name="L193" href="Variance.html#L193">193</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L194" href="Variance.html#L194">194</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L195" href="Variance.html#L195">195</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L196" href="Variance.html#L196">196</a>     @Override
+<a class="jxr_linenumber" name="L197" href="Variance.html#L197">197</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getN() {
+<a class="jxr_linenumber" name="L198" href="Variance.html#L198">198</a>         <strong class="jxr_keyword">return</strong> moment.getN();
+<a class="jxr_linenumber" name="L199" href="Variance.html#L199">199</a>     }
+<a class="jxr_linenumber" name="L200" href="Variance.html#L200">200</a> 
+<a class="jxr_linenumber" name="L201" href="Variance.html#L201">201</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L202" href="Variance.html#L202">202</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L203" href="Variance.html#L203">203</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L204" href="Variance.html#L204">204</a>     @Override
+<a class="jxr_linenumber" name="L205" href="Variance.html#L205">205</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> clear() {
+<a class="jxr_linenumber" name="L206" href="Variance.html#L206">206</a>         <strong class="jxr_keyword">if</strong> (incMoment) {
+<a class="jxr_linenumber" name="L207" href="Variance.html#L207">207</a>             moment.clear();
+<a class="jxr_linenumber" name="L208" href="Variance.html#L208">208</a>         }
+<a class="jxr_linenumber" name="L209" href="Variance.html#L209">209</a>     }
+<a class="jxr_linenumber" name="L210" href="Variance.html#L210">210</a> 
+<a class="jxr_linenumber" name="L211" href="Variance.html#L211">211</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L212" href="Variance.html#L212">212</a> <em class="jxr_javadoccomment">     * Returns the variance of the entries in the input array, or</em>
+<a class="jxr_linenumber" name="L213" href="Variance.html#L213">213</a> <em class="jxr_javadoccomment">     * &lt;code&gt;Double.NaN&lt;/code&gt; if the array is empty.</em>
+<a class="jxr_linenumber" name="L214" href="Variance.html#L214">214</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L215" href="Variance.html#L215">215</a> <em class="jxr_javadoccomment">     * See {@link Variance} for details on the computing algorithm.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L216" href="Variance.html#L216">216</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L217" href="Variance.html#L217">217</a> <em class="jxr_javadoccomment">     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L218" href="Variance.html#L218">218</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L219" href="Variance.html#L219">219</a> <em class="jxr_javadoccomment">     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L220" href="Variance.html#L220">220</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L221" href="Variance.html#L221">221</a> <em class="jxr_javadoccomment">     * Does not change the internal state of the statistic.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L222" href="Variance.html#L222">222</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L223" href="Variance.html#L223">223</a> <em class="jxr_javadoccomment">     * @param values the input array</em>
+<a class="jxr_linenumber" name="L224" href="Variance.html#L224">224</a> <em class="jxr_javadoccomment">     * @return the variance of the values or Double.NaN if length = 0</em>
+<a class="jxr_linenumber" name="L225" href="Variance.html#L225">225</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the array is null</em>
+<a class="jxr_linenumber" name="L226" href="Variance.html#L226">226</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L227" href="Variance.html#L227">227</a>     @Override
+<a class="jxr_linenumber" name="L228" href="Variance.html#L228">228</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L229" href="Variance.html#L229">229</a>         <strong class="jxr_keyword">if</strong> (values == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L230" href="Variance.html#L230">230</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../exception/NullArgumentException.html">NullArgumentException</a>(LocalizedFormats.INPUT_ARRAY);
+<a class="jxr_linenumber" name="L231" href="Variance.html#L231">231</a>         }
+<a class="jxr_linenumber" name="L232" href="Variance.html#L232">232</a>         <strong class="jxr_keyword">return</strong> evaluate(values, 0, values.length);
+<a class="jxr_linenumber" name="L233" href="Variance.html#L233">233</a>     }
+<a class="jxr_linenumber" name="L234" href="Variance.html#L234">234</a> 
+<a class="jxr_linenumber" name="L235" href="Variance.html#L235">235</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L236" href="Variance.html#L236">236</a> <em class="jxr_javadoccomment">     * Returns the variance of the entries in the specified portion of</em>
+<a class="jxr_linenumber" name="L237" href="Variance.html#L237">237</a> <em class="jxr_javadoccomment">     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray</em>
+<a class="jxr_linenumber" name="L238" href="Variance.html#L238">238</a> <em class="jxr_javadoccomment">     * is empty.  Note that Double.NaN may also be returned if the input</em>
+<a class="jxr_linenumber" name="L239" href="Variance.html#L239">239</a> <em class="jxr_javadoccomment">     * includes NaN and / or infinite values.</em>
+<a class="jxr_linenumber" name="L240" href="Variance.html#L240">240</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L241" href="Variance.html#L241">241</a> <em class="jxr_javadoccomment">     * See {@link Variance} for details on the computing algorithm.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L242" href="Variance.html#L242">242</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L243" href="Variance.html#L243">243</a> <em class="jxr_javadoccomment">     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L244" href="Variance.html#L244">244</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L245" href="Variance.html#L245">245</a> <em class="jxr_javadoccomment">     * Does not change the internal state of the statistic.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L246" href="Variance.html#L246">246</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L247" href="Variance.html#L247">247</a> <em class="jxr_javadoccomment">     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L248" href="Variance.html#L248">248</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L249" href="Variance.html#L249">249</a> <em class="jxr_javadoccomment">     * @param values the input array</em>
+<a class="jxr_linenumber" name="L250" href="Variance.html#L250">250</a> <em class="jxr_javadoccomment">     * @param begin index of the first array element to include</em>
+<a class="jxr_linenumber" name="L251" href="Variance.html#L251">251</a> <em class="jxr_javadoccomment">     * @param length the number of elements to include</em>
+<a class="jxr_linenumber" name="L252" href="Variance.html#L252">252</a> <em class="jxr_javadoccomment">     * @return the variance of the values or Double.NaN if length = 0</em>
+<a class="jxr_linenumber" name="L253" href="Variance.html#L253">253</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the array is null or the array index</em>
+<a class="jxr_linenumber" name="L254" href="Variance.html#L254">254</a> <em class="jxr_javadoccomment">     *  parameters are not valid</em>
+<a class="jxr_linenumber" name="L255" href="Variance.html#L255">255</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L256" href="Variance.html#L256">256</a>     @Override
+<a class="jxr_linenumber" name="L257" href="Variance.html#L257">257</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> begin, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length)
+<a class="jxr_linenumber" name="L258" href="Variance.html#L258">258</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L259" href="Variance.html#L259">259</a> 
+<a class="jxr_linenumber" name="L260" href="Variance.html#L260">260</a>         <strong class="jxr_keyword">double</strong> <strong class="jxr_keyword">var</strong> = Double.NaN;
+<a class="jxr_linenumber" name="L261" href="Variance.html#L261">261</a> 
+<a class="jxr_linenumber" name="L262" href="Variance.html#L262">262</a>         <strong class="jxr_keyword">if</strong> (MathArrays.verifyValues(values, begin, length)) {
+<a class="jxr_linenumber" name="L263" href="Variance.html#L263">263</a>             <strong class="jxr_keyword">if</strong> (length == 1) {
+<a class="jxr_linenumber" name="L264" href="Variance.html#L264">264</a>                 <strong class="jxr_keyword">var</strong> = 0.0;
+<a class="jxr_linenumber" name="L265" href="Variance.html#L265">265</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (length &gt; 1) {
+<a class="jxr_linenumber" name="L266" href="Variance.html#L266">266</a>                 <a href="Mean.html">Mean</a> mean = <strong class="jxr_keyword">new</strong> <a href="Mean.html">Mean</a>();
+<a class="jxr_linenumber" name="L267" href="Variance.html#L267">267</a>                 <strong class="jxr_keyword">double</strong> m = mean.evaluate(values, begin, length);
+<a class="jxr_linenumber" name="L268" href="Variance.html#L268">268</a>                 <strong class="jxr_keyword">var</strong> = evaluate(values, m, begin, length);
+<a class="jxr_linenumber" name="L269" href="Variance.html#L269">269</a>             }
+<a class="jxr_linenumber" name="L270" href="Variance.html#L270">270</a>         }
+<a class="jxr_linenumber" name="L271" href="Variance.html#L271">271</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">var</strong>;
+<a class="jxr_linenumber" name="L272" href="Variance.html#L272">272</a>     }
+<a class="jxr_linenumber" name="L273" href="Variance.html#L273">273</a> 
+<a class="jxr_linenumber" name="L274" href="Variance.html#L274">274</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L275" href="Variance.html#L275">275</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Returns the weighted variance of the entries in the specified portion of</em>
+<a class="jxr_linenumber" name="L276" href="Variance.html#L276">276</a> <em class="jxr_javadoccomment">     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray</em>
+<a class="jxr_linenumber" name="L277" href="Variance.html#L277">277</a> <em class="jxr_javadoccomment">     * is empty.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L278" href="Variance.html#L278">278</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L279" href="Variance.html#L279">279</a> <em class="jxr_javadoccomment">     * Uses the formula &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L280" href="Variance.html#L280">280</a> <em class="jxr_javadoccomment">     *   &amp;Sigma;(weights[i]*(values[i] - weightedMean)&lt;sup&gt;2&lt;/sup&gt;)/(&amp;Sigma;(weights[i]) - 1)</em>
+<a class="jxr_linenumber" name="L281" href="Variance.html#L281">281</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L282" href="Variance.html#L282">282</a> <em class="jxr_javadoccomment">     * where weightedMean is the weighted mean&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L283" href="Variance.html#L283">283</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L284" href="Variance.html#L284">284</a> <em class="jxr_javadoccomment">     * This formula will not return the same result as the unweighted variance when all</em>
+<a class="jxr_linenumber" name="L285" href="Variance.html#L285">285</a> <em class="jxr_javadoccomment">     * weights are equal, unless all weights are equal to 1. The formula assumes that</em>
+<a class="jxr_linenumber" name="L286" href="Variance.html#L286">286</a> <em class="jxr_javadoccomment">     * weights are to be treated as "expansion values," as will be the case if for example</em>
+<a class="jxr_linenumber" name="L287" href="Variance.html#L287">287</a> <em class="jxr_javadoccomment">     * the weights represent frequency counts. To normalize weights so that the denominator</em>
+<a class="jxr_linenumber" name="L288" href="Variance.html#L288">288</a> <em class="jxr_javadoccomment">     * in the variance computation equals the length of the input vector minus one, use &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L289" href="Variance.html#L289">289</a> <em class="jxr_javadoccomment">     *   &lt;code&gt;evaluate(values, MathArrays.normalizeArray(weights, values.length)); &lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L290" href="Variance.html#L290">290</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L291" href="Variance.html#L291">291</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L292" href="Variance.html#L292">292</a> <em class="jxr_javadoccomment">     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L293" href="Variance.html#L293">293</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L294" href="Variance.html#L294">294</a> <em class="jxr_javadoccomment">     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if any of the following are true:</em>
+<a class="jxr_linenumber" name="L295" href="Variance.html#L295">295</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;&lt;li&gt;the values array is null&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L296" href="Variance.html#L296">296</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array is null&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L297" href="Variance.html#L297">297</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array does not have the same length as the values array&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L298" href="Variance.html#L298">298</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array contains one or more infinite values&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L299" href="Variance.html#L299">299</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array contains one or more NaN values&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L300" href="Variance.html#L300">300</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array contains negative values&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L301" href="Variance.html#L301">301</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the start and length arguments do not determine a valid array&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L302" href="Variance.html#L302">302</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L303" href="Variance.html#L303">303</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L304" href="Variance.html#L304">304</a> <em class="jxr_javadoccomment">     * Does not change the internal state of the statistic.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L305" href="Variance.html#L305">305</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L306" href="Variance.html#L306">306</a> <em class="jxr_javadoccomment">     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if either array is null.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L307" href="Variance.html#L307">307</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L308" href="Variance.html#L308">308</a> <em class="jxr_javadoccomment">     * @param values the input array</em>
+<a class="jxr_linenumber" name="L309" href="Variance.html#L309">309</a> <em class="jxr_javadoccomment">     * @param weights the weights array</em>
+<a class="jxr_linenumber" name="L310" href="Variance.html#L310">310</a> <em class="jxr_javadoccomment">     * @param begin index of the first array element to include</em>
+<a class="jxr_linenumber" name="L311" href="Variance.html#L311">311</a> <em class="jxr_javadoccomment">     * @param length the number of elements to include</em>
+<a class="jxr_linenumber" name="L312" href="Variance.html#L312">312</a> <em class="jxr_javadoccomment">     * @return the weighted variance of the values or Double.NaN if length = 0</em>
+<a class="jxr_linenumber" name="L313" href="Variance.html#L313">313</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the parameters are not valid</em>
+<a class="jxr_linenumber" name="L314" href="Variance.html#L314">314</a> <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L315" href="Variance.html#L315">315</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L316" href="Variance.html#L316">316</a>     @Override
+<a class="jxr_linenumber" name="L317" href="Variance.html#L317">317</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] weights,
+<a class="jxr_linenumber" name="L318" href="Variance.html#L318">318</a>                            <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> begin, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L319" href="Variance.html#L319">319</a> 
+<a class="jxr_linenumber" name="L320" href="Variance.html#L320">320</a>         <strong class="jxr_keyword">double</strong> <strong class="jxr_keyword">var</strong> = Double.NaN;
+<a class="jxr_linenumber" name="L321" href="Variance.html#L321">321</a> 
+<a class="jxr_linenumber" name="L322" href="Variance.html#L322">322</a>         <strong class="jxr_keyword">if</strong> (MathArrays.verifyValues(values, weights,begin, length)) {
+<a class="jxr_linenumber" name="L323" href="Variance.html#L323">323</a>             <strong class="jxr_keyword">if</strong> (length == 1) {
+<a class="jxr_linenumber" name="L324" href="Variance.html#L324">324</a>                 <strong class="jxr_keyword">var</strong> = 0.0;
+<a class="jxr_linenumber" name="L325" href="Variance.html#L325">325</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (length &gt; 1) {
+<a class="jxr_linenumber" name="L326" href="Variance.html#L326">326</a>                 <a href="Mean.html">Mean</a> mean = <strong class="jxr_keyword">new</strong> <a href="Mean.html">Mean</a>();
+<a class="jxr_linenumber" name="L327" href="Variance.html#L327">327</a>                 <strong class="jxr_keyword">double</strong> m = mean.evaluate(values, weights, begin, length);
+<a class="jxr_linenumber" name="L328" href="Variance.html#L328">328</a>                 <strong class="jxr_keyword">var</strong> = evaluate(values, weights, m, begin, length);
+<a class="jxr_linenumber" name="L329" href="Variance.html#L329">329</a>             }
+<a class="jxr_linenumber" name="L330" href="Variance.html#L330">330</a>         }
+<a class="jxr_linenumber" name="L331" href="Variance.html#L331">331</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">var</strong>;
+<a class="jxr_linenumber" name="L332" href="Variance.html#L332">332</a>     }
+<a class="jxr_linenumber" name="L333" href="Variance.html#L333">333</a> 
+<a class="jxr_linenumber" name="L334" href="Variance.html#L334">334</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L335" href="Variance.html#L335">335</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L336" href="Variance.html#L336">336</a> <em class="jxr_javadoccomment">     * Returns the weighted variance of the entries in the the input array.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L337" href="Variance.html#L337">337</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L338" href="Variance.html#L338">338</a> <em class="jxr_javadoccomment">     * Uses the formula &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L339" href="Variance.html#L339">339</a> <em class="jxr_javadoccomment">     *   &amp;Sigma;(weights[i]*(values[i] - weightedMean)&lt;sup&gt;2&lt;/sup&gt;)/(&amp;Sigma;(weights[i]) - 1)</em>
+<a class="jxr_linenumber" name="L340" href="Variance.html#L340">340</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L341" href="Variance.html#L341">341</a> <em class="jxr_javadoccomment">     * where weightedMean is the weighted mean&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L342" href="Variance.html#L342">342</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L343" href="Variance.html#L343">343</a> <em class="jxr_javadoccomment">     * This formula will not return the same result as the unweighted variance when all</em>
+<a class="jxr_linenumber" name="L344" href="Variance.html#L344">344</a> <em class="jxr_javadoccomment">     * weights are equal, unless all weights are equal to 1. The formula assumes that</em>
+<a class="jxr_linenumber" name="L345" href="Variance.html#L345">345</a> <em class="jxr_javadoccomment">     * weights are to be treated as "expansion values," as will be the case if for example</em>
+<a class="jxr_linenumber" name="L346" href="Variance.html#L346">346</a> <em class="jxr_javadoccomment">     * the weights represent frequency counts. To normalize weights so that the denominator</em>
+<a class="jxr_linenumber" name="L347" href="Variance.html#L347">347</a> <em class="jxr_javadoccomment">     * in the variance computation equals the length of the input vector minus one, use &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L348" href="Variance.html#L348">348</a> <em class="jxr_javadoccomment">     *   &lt;code&gt;evaluate(values, MathArrays.normalizeArray(weights, values.length)); &lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L349" href="Variance.html#L349">349</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L350" href="Variance.html#L350">350</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L351" href="Variance.html#L351">351</a> <em class="jxr_javadoccomment">     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L352" href="Variance.html#L352">352</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L353" href="Variance.html#L353">353</a> <em class="jxr_javadoccomment">     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if any of the following are true:</em>
+<a class="jxr_linenumber" name="L354" href="Variance.html#L354">354</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;&lt;li&gt;the values array is null&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L355" href="Variance.html#L355">355</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array is null&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L356" href="Variance.html#L356">356</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array does not have the same length as the values array&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L357" href="Variance.html#L357">357</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array contains one or more infinite values&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L358" href="Variance.html#L358">358</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array contains one or more NaN values&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L359" href="Variance.html#L359">359</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array contains negative values&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L360" href="Variance.html#L360">360</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L361" href="Variance.html#L361">361</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L362" href="Variance.html#L362">362</a> <em class="jxr_javadoccomment">     * Does not change the internal state of the statistic.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L363" href="Variance.html#L363">363</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L364" href="Variance.html#L364">364</a> <em class="jxr_javadoccomment">     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if either array is null.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L365" href="Variance.html#L365">365</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L366" href="Variance.html#L366">366</a> <em class="jxr_javadoccomment">     * @param values the input array</em>
+<a class="jxr_linenumber" name="L367" href="Variance.html#L367">367</a> <em class="jxr_javadoccomment">     * @param weights the weights array</em>
+<a class="jxr_linenumber" name="L368" href="Variance.html#L368">368</a> <em class="jxr_javadoccomment">     * @return the weighted variance of the values</em>
+<a class="jxr_linenumber" name="L369" href="Variance.html#L369">369</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the parameters are not valid</em>
+<a class="jxr_linenumber" name="L370" href="Variance.html#L370">370</a> <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L371" href="Variance.html#L371">371</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L372" href="Variance.html#L372">372</a>     @Override
+<a class="jxr_linenumber" name="L373" href="Variance.html#L373">373</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] weights)
+<a class="jxr_linenumber" name="L374" href="Variance.html#L374">374</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L375" href="Variance.html#L375">375</a>         <strong class="jxr_keyword">return</strong> evaluate(values, weights, 0, values.length);
+<a class="jxr_linenumber" name="L376" href="Variance.html#L376">376</a>     }
+<a class="jxr_linenumber" name="L377" href="Variance.html#L377">377</a> 
+<a class="jxr_linenumber" name="L378" href="Variance.html#L378">378</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L379" href="Variance.html#L379">379</a> <em class="jxr_javadoccomment">     * Returns the variance of the entries in the specified portion of</em>
+<a class="jxr_linenumber" name="L380" href="Variance.html#L380">380</a> <em class="jxr_javadoccomment">     * the input array, using the precomputed mean value.  Returns</em>
+<a class="jxr_linenumber" name="L381" href="Variance.html#L381">381</a> <em class="jxr_javadoccomment">     * &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray is empty.</em>
+<a class="jxr_linenumber" name="L382" href="Variance.html#L382">382</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L383" href="Variance.html#L383">383</a> <em class="jxr_javadoccomment">     * See {@link Variance} for details on the computing algorithm.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L384" href="Variance.html#L384">384</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L385" href="Variance.html#L385">385</a> <em class="jxr_javadoccomment">     * The formula used assumes that the supplied mean value is the arithmetic</em>
+<a class="jxr_linenumber" name="L386" href="Variance.html#L386">386</a> <em class="jxr_javadoccomment">     * mean of the sample data, not a known population parameter.  This method</em>
+<a class="jxr_linenumber" name="L387" href="Variance.html#L387">387</a> <em class="jxr_javadoccomment">     * is supplied only to save computation when the mean has already been</em>
+<a class="jxr_linenumber" name="L388" href="Variance.html#L388">388</a> <em class="jxr_javadoccomment">     * computed.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L389" href="Variance.html#L389">389</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L390" href="Variance.html#L390">390</a> <em class="jxr_javadoccomment">     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L391" href="Variance.html#L391">391</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L392" href="Variance.html#L392">392</a> <em class="jxr_javadoccomment">     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L393" href="Variance.html#L393">393</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L394" href="Variance.html#L394">394</a> <em class="jxr_javadoccomment">     * Does not change the internal state of the statistic.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L395" href="Variance.html#L395">395</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L396" href="Variance.html#L396">396</a> <em class="jxr_javadoccomment">     * @param values the input array</em>
+<a class="jxr_linenumber" name="L397" href="Variance.html#L397">397</a> <em class="jxr_javadoccomment">     * @param mean the precomputed mean value</em>
+<a class="jxr_linenumber" name="L398" href="Variance.html#L398">398</a> <em class="jxr_javadoccomment">     * @param begin index of the first array element to include</em>
+<a class="jxr_linenumber" name="L399" href="Variance.html#L399">399</a> <em class="jxr_javadoccomment">     * @param length the number of elements to include</em>
+<a class="jxr_linenumber" name="L400" href="Variance.html#L400">400</a> <em class="jxr_javadoccomment">     * @return the variance of the values or Double.NaN if length = 0</em>
+<a class="jxr_linenumber" name="L401" href="Variance.html#L401">401</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the array is null or the array index</em>
+<a class="jxr_linenumber" name="L402" href="Variance.html#L402">402</a> <em class="jxr_javadoccomment">     *  parameters are not valid</em>
+<a class="jxr_linenumber" name="L403" href="Variance.html#L403">403</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L404" href="Variance.html#L404">404</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> mean,
+<a class="jxr_linenumber" name="L405" href="Variance.html#L405">405</a>                            <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> begin, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L406" href="Variance.html#L406">406</a> 
+<a class="jxr_linenumber" name="L407" href="Variance.html#L407">407</a>         <strong class="jxr_keyword">double</strong> <strong class="jxr_keyword">var</strong> = Double.NaN;
+<a class="jxr_linenumber" name="L408" href="Variance.html#L408">408</a> 
+<a class="jxr_linenumber" name="L409" href="Variance.html#L409">409</a>         <strong class="jxr_keyword">if</strong> (MathArrays.verifyValues(values, begin, length)) {
+<a class="jxr_linenumber" name="L410" href="Variance.html#L410">410</a>             <strong class="jxr_keyword">if</strong> (length == 1) {
+<a class="jxr_linenumber" name="L411" href="Variance.html#L411">411</a>                 <strong class="jxr_keyword">var</strong> = 0.0;
+<a class="jxr_linenumber" name="L412" href="Variance.html#L412">412</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (length &gt; 1) {
+<a class="jxr_linenumber" name="L413" href="Variance.html#L413">413</a>                 <strong class="jxr_keyword">double</strong> accum = 0.0;
+<a class="jxr_linenumber" name="L414" href="Variance.html#L414">414</a>                 <strong class="jxr_keyword">double</strong> dev = 0.0;
+<a class="jxr_linenumber" name="L415" href="Variance.html#L415">415</a>                 <strong class="jxr_keyword">double</strong> accum2 = 0.0;
+<a class="jxr_linenumber" name="L416" href="Variance.html#L416">416</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = begin; i &lt; begin + length; i++) {
+<a class="jxr_linenumber" name="L417" href="Variance.html#L417">417</a>                     dev = values[i] - mean;
+<a class="jxr_linenumber" name="L418" href="Variance.html#L418">418</a>                     accum += dev * dev;
+<a class="jxr_linenumber" name="L419" href="Variance.html#L419">419</a>                     accum2 += dev;
+<a class="jxr_linenumber" name="L420" href="Variance.html#L420">420</a>                 }
+<a class="jxr_linenumber" name="L421" href="Variance.html#L421">421</a>                 <strong class="jxr_keyword">double</strong> len = length;
+<a class="jxr_linenumber" name="L422" href="Variance.html#L422">422</a>                 <strong class="jxr_keyword">if</strong> (isBiasCorrected) {
+<a class="jxr_linenumber" name="L423" href="Variance.html#L423">423</a>                     <strong class="jxr_keyword">var</strong> = (accum - (accum2 * accum2 / len)) / (len - 1.0);
+<a class="jxr_linenumber" name="L424" href="Variance.html#L424">424</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L425" href="Variance.html#L425">425</a>                     <strong class="jxr_keyword">var</strong> = (accum - (accum2 * accum2 / len)) / len;
+<a class="jxr_linenumber" name="L426" href="Variance.html#L426">426</a>                 }
+<a class="jxr_linenumber" name="L427" href="Variance.html#L427">427</a>             }
+<a class="jxr_linenumber" name="L428" href="Variance.html#L428">428</a>         }
+<a class="jxr_linenumber" name="L429" href="Variance.html#L429">429</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">var</strong>;
+<a class="jxr_linenumber" name="L430" href="Variance.html#L430">430</a>     }
+<a class="jxr_linenumber" name="L431" href="Variance.html#L431">431</a> 
+<a class="jxr_linenumber" name="L432" href="Variance.html#L432">432</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L433" href="Variance.html#L433">433</a> <em class="jxr_javadoccomment">     * Returns the variance of the entries in the input array, using the</em>
+<a class="jxr_linenumber" name="L434" href="Variance.html#L434">434</a> <em class="jxr_javadoccomment">     * precomputed mean value.  Returns &lt;code&gt;Double.NaN&lt;/code&gt; if the array</em>
+<a class="jxr_linenumber" name="L435" href="Variance.html#L435">435</a> <em class="jxr_javadoccomment">     * is empty.</em>
+<a class="jxr_linenumber" name="L436" href="Variance.html#L436">436</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L437" href="Variance.html#L437">437</a> <em class="jxr_javadoccomment">     * See {@link Variance} for details on the computing algorithm.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L438" href="Variance.html#L438">438</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L439" href="Variance.html#L439">439</a> <em class="jxr_javadoccomment">     * If &lt;code&gt;isBiasCorrected&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt; the formula used</em>
+<a class="jxr_linenumber" name="L440" href="Variance.html#L440">440</a> <em class="jxr_javadoccomment">     * assumes that the supplied mean value is the arithmetic mean of the</em>
+<a class="jxr_linenumber" name="L441" href="Variance.html#L441">441</a> <em class="jxr_javadoccomment">     * sample data, not a known population parameter.  If the mean is a known</em>
+<a class="jxr_linenumber" name="L442" href="Variance.html#L442">442</a> <em class="jxr_javadoccomment">     * population parameter, or if the "population" version of the variance is</em>
+<a class="jxr_linenumber" name="L443" href="Variance.html#L443">443</a> <em class="jxr_javadoccomment">     * desired, set &lt;code&gt;isBiasCorrected&lt;/code&gt; to &lt;code&gt;false&lt;/code&gt; before</em>
+<a class="jxr_linenumber" name="L444" href="Variance.html#L444">444</a> <em class="jxr_javadoccomment">     * invoking this method.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L445" href="Variance.html#L445">445</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L446" href="Variance.html#L446">446</a> <em class="jxr_javadoccomment">     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L447" href="Variance.html#L447">447</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L448" href="Variance.html#L448">448</a> <em class="jxr_javadoccomment">     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L449" href="Variance.html#L449">449</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L450" href="Variance.html#L450">450</a> <em class="jxr_javadoccomment">     * Does not change the internal state of the statistic.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L451" href="Variance.html#L451">451</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L452" href="Variance.html#L452">452</a> <em class="jxr_javadoccomment">     * @param values the input array</em>
+<a class="jxr_linenumber" name="L453" href="Variance.html#L453">453</a> <em class="jxr_javadoccomment">     * @param mean the precomputed mean value</em>
+<a class="jxr_linenumber" name="L454" href="Variance.html#L454">454</a> <em class="jxr_javadoccomment">     * @return the variance of the values or Double.NaN if the array is empty</em>
+<a class="jxr_linenumber" name="L455" href="Variance.html#L455">455</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the array is null</em>
+<a class="jxr_linenumber" name="L456" href="Variance.html#L456">456</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L457" href="Variance.html#L457">457</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> mean) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L458" href="Variance.html#L458">458</a>         <strong class="jxr_keyword">return</strong> evaluate(values, mean, 0, values.length);
+<a class="jxr_linenumber" name="L459" href="Variance.html#L459">459</a>     }
+<a class="jxr_linenumber" name="L460" href="Variance.html#L460">460</a> 
+<a class="jxr_linenumber" name="L461" href="Variance.html#L461">461</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L462" href="Variance.html#L462">462</a> <em class="jxr_javadoccomment">     * Returns the weighted variance of the entries in the specified portion of</em>
+<a class="jxr_linenumber" name="L463" href="Variance.html#L463">463</a> <em class="jxr_javadoccomment">     * the input array, using the precomputed weighted mean value.  Returns</em>
+<a class="jxr_linenumber" name="L464" href="Variance.html#L464">464</a> <em class="jxr_javadoccomment">     * &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray is empty.</em>
+<a class="jxr_linenumber" name="L465" href="Variance.html#L465">465</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L466" href="Variance.html#L466">466</a> <em class="jxr_javadoccomment">     * Uses the formula &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L467" href="Variance.html#L467">467</a> <em class="jxr_javadoccomment">     *   &amp;Sigma;(weights[i]*(values[i] - mean)&lt;sup&gt;2&lt;/sup&gt;)/(&amp;Sigma;(weights[i]) - 1)</em>
+<a class="jxr_linenumber" name="L468" href="Variance.html#L468">468</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L469" href="Variance.html#L469">469</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L470" href="Variance.html#L470">470</a> <em class="jxr_javadoccomment">     * The formula used assumes that the supplied mean value is the weighted arithmetic</em>
+<a class="jxr_linenumber" name="L471" href="Variance.html#L471">471</a> <em class="jxr_javadoccomment">     * mean of the sample data, not a known population parameter. This method</em>
+<a class="jxr_linenumber" name="L472" href="Variance.html#L472">472</a> <em class="jxr_javadoccomment">     * is supplied only to save computation when the mean has already been</em>
+<a class="jxr_linenumber" name="L473" href="Variance.html#L473">473</a> <em class="jxr_javadoccomment">     * computed.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L474" href="Variance.html#L474">474</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L475" href="Variance.html#L475">475</a> <em class="jxr_javadoccomment">     * This formula will not return the same result as the unweighted variance when all</em>
+<a class="jxr_linenumber" name="L476" href="Variance.html#L476">476</a> <em class="jxr_javadoccomment">     * weights are equal, unless all weights are equal to 1. The formula assumes that</em>
+<a class="jxr_linenumber" name="L477" href="Variance.html#L477">477</a> <em class="jxr_javadoccomment">     * weights are to be treated as "expansion values," as will be the case if for example</em>
+<a class="jxr_linenumber" name="L478" href="Variance.html#L478">478</a> <em class="jxr_javadoccomment">     * the weights represent frequency counts. To normalize weights so that the denominator</em>
+<a class="jxr_linenumber" name="L479" href="Variance.html#L479">479</a> <em class="jxr_javadoccomment">     * in the variance computation equals the length of the input vector minus one, use &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L480" href="Variance.html#L480">480</a> <em class="jxr_javadoccomment">     *   &lt;code&gt;evaluate(values, MathArrays.normalizeArray(weights, values.length), mean); &lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L481" href="Variance.html#L481">481</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L482" href="Variance.html#L482">482</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L483" href="Variance.html#L483">483</a> <em class="jxr_javadoccomment">     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L484" href="Variance.html#L484">484</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L485" href="Variance.html#L485">485</a> <em class="jxr_javadoccomment">     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if any of the following are true:</em>
+<a class="jxr_linenumber" name="L486" href="Variance.html#L486">486</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;&lt;li&gt;the values array is null&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L487" href="Variance.html#L487">487</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array is null&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L488" href="Variance.html#L488">488</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array does not have the same length as the values array&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L489" href="Variance.html#L489">489</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array contains one or more infinite values&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L490" href="Variance.html#L490">490</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array contains one or more NaN values&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L491" href="Variance.html#L491">491</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array contains negative values&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L492" href="Variance.html#L492">492</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the start and length arguments do not determine a valid array&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L493" href="Variance.html#L493">493</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L494" href="Variance.html#L494">494</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L495" href="Variance.html#L495">495</a> <em class="jxr_javadoccomment">     * Does not change the internal state of the statistic.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L496" href="Variance.html#L496">496</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L497" href="Variance.html#L497">497</a> <em class="jxr_javadoccomment">     * @param values the input array</em>
+<a class="jxr_linenumber" name="L498" href="Variance.html#L498">498</a> <em class="jxr_javadoccomment">     * @param weights the weights array</em>
+<a class="jxr_linenumber" name="L499" href="Variance.html#L499">499</a> <em class="jxr_javadoccomment">     * @param mean the precomputed weighted mean value</em>
+<a class="jxr_linenumber" name="L500" href="Variance.html#L500">500</a> <em class="jxr_javadoccomment">     * @param begin index of the first array element to include</em>
+<a class="jxr_linenumber" name="L501" href="Variance.html#L501">501</a> <em class="jxr_javadoccomment">     * @param length the number of elements to include</em>
+<a class="jxr_linenumber" name="L502" href="Variance.html#L502">502</a> <em class="jxr_javadoccomment">     * @return the variance of the values or Double.NaN if length = 0</em>
+<a class="jxr_linenumber" name="L503" href="Variance.html#L503">503</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the parameters are not valid</em>
+<a class="jxr_linenumber" name="L504" href="Variance.html#L504">504</a> <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L505" href="Variance.html#L505">505</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L506" href="Variance.html#L506">506</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] weights,
+<a class="jxr_linenumber" name="L507" href="Variance.html#L507">507</a>                            <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> mean, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> begin, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length)
+<a class="jxr_linenumber" name="L508" href="Variance.html#L508">508</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L509" href="Variance.html#L509">509</a> 
+<a class="jxr_linenumber" name="L510" href="Variance.html#L510">510</a>         <strong class="jxr_keyword">double</strong> <strong class="jxr_keyword">var</strong> = Double.NaN;
+<a class="jxr_linenumber" name="L511" href="Variance.html#L511">511</a> 
+<a class="jxr_linenumber" name="L512" href="Variance.html#L512">512</a>         <strong class="jxr_keyword">if</strong> (MathArrays.verifyValues(values, weights, begin, length)) {
+<a class="jxr_linenumber" name="L513" href="Variance.html#L513">513</a>             <strong class="jxr_keyword">if</strong> (length == 1) {
+<a class="jxr_linenumber" name="L514" href="Variance.html#L514">514</a>                 <strong class="jxr_keyword">var</strong> = 0.0;
+<a class="jxr_linenumber" name="L515" href="Variance.html#L515">515</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (length &gt; 1) {
+<a class="jxr_linenumber" name="L516" href="Variance.html#L516">516</a>                 <strong class="jxr_keyword">double</strong> accum = 0.0;
+<a class="jxr_linenumber" name="L517" href="Variance.html#L517">517</a>                 <strong class="jxr_keyword">double</strong> dev = 0.0;
+<a class="jxr_linenumber" name="L518" href="Variance.html#L518">518</a>                 <strong class="jxr_keyword">double</strong> accum2 = 0.0;
+<a class="jxr_linenumber" name="L519" href="Variance.html#L519">519</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = begin; i &lt; begin + length; i++) {
+<a class="jxr_linenumber" name="L520" href="Variance.html#L520">520</a>                     dev = values[i] - mean;
+<a class="jxr_linenumber" name="L521" href="Variance.html#L521">521</a>                     accum += weights[i] * (dev * dev);
+<a class="jxr_linenumber" name="L522" href="Variance.html#L522">522</a>                     accum2 += weights[i] * dev;
+<a class="jxr_linenumber" name="L523" href="Variance.html#L523">523</a>                 }
+<a class="jxr_linenumber" name="L524" href="Variance.html#L524">524</a> 
+<a class="jxr_linenumber" name="L525" href="Variance.html#L525">525</a>                 <strong class="jxr_keyword">double</strong> sumWts = 0;
+<a class="jxr_linenumber" name="L526" href="Variance.html#L526">526</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = begin; i &lt; begin + length; i++) {
+<a class="jxr_linenumber" name="L527" href="Variance.html#L527">527</a>                     sumWts += weights[i];
+<a class="jxr_linenumber" name="L528" href="Variance.html#L528">528</a>                 }
+<a class="jxr_linenumber" name="L529" href="Variance.html#L529">529</a> 
+<a class="jxr_linenumber" name="L530" href="Variance.html#L530">530</a>                 <strong class="jxr_keyword">if</strong> (isBiasCorrected) {
+<a class="jxr_linenumber" name="L531" href="Variance.html#L531">531</a>                     <strong class="jxr_keyword">var</strong> = (accum - (accum2 * accum2 / sumWts)) / (sumWts - 1.0);
+<a class="jxr_linenumber" name="L532" href="Variance.html#L532">532</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L533" href="Variance.html#L533">533</a>                     <strong class="jxr_keyword">var</strong> = (accum - (accum2 * accum2 / sumWts)) / sumWts;
+<a class="jxr_linenumber" name="L534" href="Variance.html#L534">534</a>                 }
+<a class="jxr_linenumber" name="L535" href="Variance.html#L535">535</a>             }
+<a class="jxr_linenumber" name="L536" href="Variance.html#L536">536</a>         }
+<a class="jxr_linenumber" name="L537" href="Variance.html#L537">537</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">var</strong>;
+<a class="jxr_linenumber" name="L538" href="Variance.html#L538">538</a>     }
+<a class="jxr_linenumber" name="L539" href="Variance.html#L539">539</a> 
+<a class="jxr_linenumber" name="L540" href="Variance.html#L540">540</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L541" href="Variance.html#L541">541</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Returns the weighted variance of the values in the input array, using</em>
+<a class="jxr_linenumber" name="L542" href="Variance.html#L542">542</a> <em class="jxr_javadoccomment">     * the precomputed weighted mean value.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L543" href="Variance.html#L543">543</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L544" href="Variance.html#L544">544</a> <em class="jxr_javadoccomment">     * Uses the formula &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L545" href="Variance.html#L545">545</a> <em class="jxr_javadoccomment">     *   &amp;Sigma;(weights[i]*(values[i] - mean)&lt;sup&gt;2&lt;/sup&gt;)/(&amp;Sigma;(weights[i]) - 1)</em>
+<a class="jxr_linenumber" name="L546" href="Variance.html#L546">546</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L547" href="Variance.html#L547">547</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L548" href="Variance.html#L548">548</a> <em class="jxr_javadoccomment">     * The formula used assumes that the supplied mean value is the weighted arithmetic</em>
+<a class="jxr_linenumber" name="L549" href="Variance.html#L549">549</a> <em class="jxr_javadoccomment">     * mean of the sample data, not a known population parameter. This method</em>
+<a class="jxr_linenumber" name="L550" href="Variance.html#L550">550</a> <em class="jxr_javadoccomment">     * is supplied only to save computation when the mean has already been</em>
+<a class="jxr_linenumber" name="L551" href="Variance.html#L551">551</a> <em class="jxr_javadoccomment">     * computed.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L552" href="Variance.html#L552">552</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L553" href="Variance.html#L553">553</a> <em class="jxr_javadoccomment">     * This formula will not return the same result as the unweighted variance when all</em>
+<a class="jxr_linenumber" name="L554" href="Variance.html#L554">554</a> <em class="jxr_javadoccomment">     * weights are equal, unless all weights are equal to 1. The formula assumes that</em>
+<a class="jxr_linenumber" name="L555" href="Variance.html#L555">555</a> <em class="jxr_javadoccomment">     * weights are to be treated as "expansion values," as will be the case if for example</em>
+<a class="jxr_linenumber" name="L556" href="Variance.html#L556">556</a> <em class="jxr_javadoccomment">     * the weights represent frequency counts. To normalize weights so that the denominator</em>
+<a class="jxr_linenumber" name="L557" href="Variance.html#L557">557</a> <em class="jxr_javadoccomment">     * in the variance computation equals the length of the input vector minus one, use &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L558" href="Variance.html#L558">558</a> <em class="jxr_javadoccomment">     *   &lt;code&gt;evaluate(values, MathArrays.normalizeArray(weights, values.length), mean); &lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L559" href="Variance.html#L559">559</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L560" href="Variance.html#L560">560</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L561" href="Variance.html#L561">561</a> <em class="jxr_javadoccomment">     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L562" href="Variance.html#L562">562</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L563" href="Variance.html#L563">563</a> <em class="jxr_javadoccomment">     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if any of the following are true:</em>
+<a class="jxr_linenumber" name="L564" href="Variance.html#L564">564</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;&lt;li&gt;the values array is null&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L565" href="Variance.html#L565">565</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array is null&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L566" href="Variance.html#L566">566</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array does not have the same length as the values array&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L567" href="Variance.html#L567">567</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array contains one or more infinite values&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L568" href="Variance.html#L568">568</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array contains one or more NaN values&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L569" href="Variance.html#L569">569</a> <em class="jxr_javadoccomment">     *     &lt;li&gt;the weights array contains negative values&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L570" href="Variance.html#L570">570</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L571" href="Variance.html#L571">571</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L572" href="Variance.html#L572">572</a> <em class="jxr_javadoccomment">     * Does not change the internal state of the statistic.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L573" href="Variance.html#L573">573</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L574" href="Variance.html#L574">574</a> <em class="jxr_javadoccomment">     * @param values the input array</em>
+<a class="jxr_linenumber" name="L575" href="Variance.html#L575">575</a> <em class="jxr_javadoccomment">     * @param weights the weights array</em>
+<a class="jxr_linenumber" name="L576" href="Variance.html#L576">576</a> <em class="jxr_javadoccomment">     * @param mean the precomputed weighted mean value</em>
+<a class="jxr_linenumber" name="L577" href="Variance.html#L577">577</a> <em class="jxr_javadoccomment">     * @return the variance of the values or Double.NaN if length = 0</em>
+<a class="jxr_linenumber" name="L578" href="Variance.html#L578">578</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the parameters are not valid</em>
+<a class="jxr_linenumber" name="L579" href="Variance.html#L579">579</a> <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L580" href="Variance.html#L580">580</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L581" href="Variance.html#L581">581</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] weights, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> mean)
+<a class="jxr_linenumber" name="L582" href="Variance.html#L582">582</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L583" href="Variance.html#L583">583</a>         <strong class="jxr_keyword">return</strong> evaluate(values, weights, mean, 0, values.length);
+<a class="jxr_linenumber" name="L584" href="Variance.html#L584">584</a>     }
+<a class="jxr_linenumber" name="L585" href="Variance.html#L585">585</a> 
+<a class="jxr_linenumber" name="L586" href="Variance.html#L586">586</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L587" href="Variance.html#L587">587</a> <em class="jxr_javadoccomment">     * @return Returns the isBiasCorrected.</em>
+<a class="jxr_linenumber" name="L588" href="Variance.html#L588">588</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L589" href="Variance.html#L589">589</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isBiasCorrected() {
+<a class="jxr_linenumber" name="L590" href="Variance.html#L590">590</a>         <strong class="jxr_keyword">return</strong> isBiasCorrected;
+<a class="jxr_linenumber" name="L591" href="Variance.html#L591">591</a>     }
+<a class="jxr_linenumber" name="L592" href="Variance.html#L592">592</a> 
+<a class="jxr_linenumber" name="L593" href="Variance.html#L593">593</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L594" href="Variance.html#L594">594</a> <em class="jxr_javadoccomment">     * @param biasCorrected The isBiasCorrected to set.</em>
+<a class="jxr_linenumber" name="L595" href="Variance.html#L595">595</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L596" href="Variance.html#L596">596</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setBiasCorrected(<strong class="jxr_keyword">boolean</strong> biasCorrected) {
+<a class="jxr_linenumber" name="L597" href="Variance.html#L597">597</a>         <strong class="jxr_keyword">this</strong>.isBiasCorrected = biasCorrected;
+<a class="jxr_linenumber" name="L598" href="Variance.html#L598">598</a>     }
+<a class="jxr_linenumber" name="L599" href="Variance.html#L599">599</a> 
+<a class="jxr_linenumber" name="L600" href="Variance.html#L600">600</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L601" href="Variance.html#L601">601</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L602" href="Variance.html#L602">602</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L603" href="Variance.html#L603">603</a>     @Override
+<a class="jxr_linenumber" name="L604" href="Variance.html#L604">604</a>     <strong class="jxr_keyword">public</strong> <a href="Variance.html">Variance</a> copy() {
+<a class="jxr_linenumber" name="L605" href="Variance.html#L605">605</a>         <a href="Variance.html">Variance</a> result = <strong class="jxr_keyword">new</strong> <a href="Variance.html">Variance</a>();
+<a class="jxr_linenumber" name="L606" href="Variance.html#L606">606</a>         <em class="jxr_comment">// No try-catch or advertised exception because parameters are guaranteed non-null</em>
+<a class="jxr_linenumber" name="L607" href="Variance.html#L607">607</a>         copy(<strong class="jxr_keyword">this</strong>, result);
+<a class="jxr_linenumber" name="L608" href="Variance.html#L608">608</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L609" href="Variance.html#L609">609</a>     }
+<a class="jxr_linenumber" name="L610" href="Variance.html#L610">610</a> 
+<a class="jxr_linenumber" name="L611" href="Variance.html#L611">611</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L612" href="Variance.html#L612">612</a> <em class="jxr_javadoccomment">     * Copies source to dest.</em>
+<a class="jxr_linenumber" name="L613" href="Variance.html#L613">613</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Neither source nor dest can be null.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L614" href="Variance.html#L614">614</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L615" href="Variance.html#L615">615</a> <em class="jxr_javadoccomment">     * @param source Variance to copy</em>
+<a class="jxr_linenumber" name="L616" href="Variance.html#L616">616</a> <em class="jxr_javadoccomment">     * @param dest Variance to copy to</em>
+<a class="jxr_linenumber" name="L617" href="Variance.html#L617">617</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if either source or dest is null</em>
+<a class="jxr_linenumber" name="L618" href="Variance.html#L618">618</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L619" href="Variance.html#L619">619</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> copy(<a href="Variance.html">Variance</a> source, <a href="Variance.html">Variance</a> dest)
+<a class="jxr_linenumber" name="L620" href="Variance.html#L620">620</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../exception/NullArgumentException.html">NullArgumentException</a> {
+<a class="jxr_linenumber" name="L621" href="Variance.html#L621">621</a>         MathUtils.checkNotNull(source);
+<a class="jxr_linenumber" name="L622" href="Variance.html#L622">622</a>         MathUtils.checkNotNull(dest);
+<a class="jxr_linenumber" name="L623" href="Variance.html#L623">623</a>         dest.moment = source.moment.copy();
+<a class="jxr_linenumber" name="L624" href="Variance.html#L624">624</a>         dest.isBiasCorrected = source.isBiasCorrected;
+<a class="jxr_linenumber" name="L625" href="Variance.html#L625">625</a>         dest.incMoment = source.incMoment;
+<a class="jxr_linenumber" name="L626" href="Variance.html#L626">626</a>     }
+<a class="jxr_linenumber" name="L627" href="Variance.html#L627">627</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>RealMatrixFormat xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/linear/RealMatrixFormat.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="RealMatrixFormat.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="RealMatrixFormat.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="RealMatrixFormat.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="RealMatrixFormat.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="RealMatrixFormat.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="RealMatrixFormat.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="RealMatrixFormat.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="RealMatrixFormat.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="RealMatrixFormat.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="RealMatrixFormat.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="RealMatrixFormat.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="RealMatrixFormat.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="RealMatrixFormat.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="RealMatrixFormat.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="RealMatrixFormat.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="RealMatrixFormat.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="RealMatrixFormat.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="RealMatrixFormat.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.linear;
+<a class="jxr_linenumber" name="L19" href="RealMatrixFormat.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="RealMatrixFormat.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.text.FieldPosition;
+<a class="jxr_linenumber" name="L21" href="RealMatrixFormat.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.text.NumberFormat;
+<a class="jxr_linenumber" name="L22" href="RealMatrixFormat.html#L22">22</a>  <strong class="jxr_keyword">import</strong> java.text.ParsePosition;
+<a class="jxr_linenumber" name="L23" href="RealMatrixFormat.html#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L24" href="RealMatrixFormat.html#L24">24</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L25" href="RealMatrixFormat.html#L25">25</a>  <strong class="jxr_keyword">import</strong> java.util.Locale;
+<a class="jxr_linenumber" name="L26" href="RealMatrixFormat.html#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="RealMatrixFormat.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathParseException;
+<a class="jxr_linenumber" name="L28" href="RealMatrixFormat.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.CompositeFormat;
+<a class="jxr_linenumber" name="L29" href="RealMatrixFormat.html#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="RealMatrixFormat.html#L30">30</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L31" href="RealMatrixFormat.html#L31">31</a>  <em class="jxr_javadoccomment"> * Formats a {@code nxm} matrix in components list format</em>
+<a class="jxr_linenumber" name="L32" href="RealMatrixFormat.html#L32">32</a>  <em class="jxr_javadoccomment"> * "{{a&lt;sub&gt;0&lt;/sub&gt;&lt;sub&gt;0&lt;/sub&gt;,a&lt;sub&gt;0&lt;/sub&gt;&lt;sub&gt;1&lt;/sub&gt;, ...,</em>
+<a class="jxr_linenumber" name="L33" href="RealMatrixFormat.html#L33">33</a>  <em class="jxr_javadoccomment"> * a&lt;sub&gt;0&lt;/sub&gt;&lt;sub&gt;m-1&lt;/sub&gt;},{a&lt;sub&gt;1&lt;/sub&gt;&lt;sub&gt;0&lt;/sub&gt;,</em>
+<a class="jxr_linenumber" name="L34" href="RealMatrixFormat.html#L34">34</a>  <em class="jxr_javadoccomment"> * a&lt;sub&gt;1&lt;/sub&gt;&lt;sub&gt;1&lt;/sub&gt;, ..., a&lt;sub&gt;1&lt;/sub&gt;&lt;sub&gt;m-1&lt;/sub&gt;},{...},{</em>
+<a class="jxr_linenumber" name="L35" href="RealMatrixFormat.html#L35">35</a>  <em class="jxr_javadoccomment"> * a&lt;sub&gt;n-1&lt;/sub&gt;&lt;sub&gt;0&lt;/sub&gt;, a&lt;sub&gt;n-1&lt;/sub&gt;&lt;sub&gt;1&lt;/sub&gt;, ...,</em>
+<a class="jxr_linenumber" name="L36" href="RealMatrixFormat.html#L36">36</a>  <em class="jxr_javadoccomment"> * a&lt;sub&gt;n-1&lt;/sub&gt;&lt;sub&gt;m-1&lt;/sub&gt;}}".</em>
+<a class="jxr_linenumber" name="L37" href="RealMatrixFormat.html#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;The prefix and suffix "{" and "}", the row prefix and suffix "{" and "}",</em>
+<a class="jxr_linenumber" name="L38" href="RealMatrixFormat.html#L38">38</a>  <em class="jxr_javadoccomment"> * the row separator "," and the column separator "," can be replaced by any</em>
+<a class="jxr_linenumber" name="L39" href="RealMatrixFormat.html#L39">39</a>  <em class="jxr_javadoccomment"> * user-defined strings. The number format for components can be configured.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L40" href="RealMatrixFormat.html#L40">40</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L41" href="RealMatrixFormat.html#L41">41</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;White space is ignored at parse time, even if it is in the prefix, suffix</em>
+<a class="jxr_linenumber" name="L42" href="RealMatrixFormat.html#L42">42</a>  <em class="jxr_javadoccomment"> * or separator specifications. So even if the default separator does include a space</em>
+<a class="jxr_linenumber" name="L43" href="RealMatrixFormat.html#L43">43</a>  <em class="jxr_javadoccomment"> * character that is used at format time, both input string "{{1,1,1}}" and</em>
+<a class="jxr_linenumber" name="L44" href="RealMatrixFormat.html#L44">44</a>  <em class="jxr_javadoccomment"> * " { { 1 , 1 , 1 } } " will be parsed without error and the same matrix will be</em>
+<a class="jxr_linenumber" name="L45" href="RealMatrixFormat.html#L45">45</a>  <em class="jxr_javadoccomment"> * returned. In the second case, however, the parse position after parsing will be</em>
+<a class="jxr_linenumber" name="L46" href="RealMatrixFormat.html#L46">46</a>  <em class="jxr_javadoccomment"> * just after the closing curly brace, i.e. just before the trailing space.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L47" href="RealMatrixFormat.html#L47">47</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L48" href="RealMatrixFormat.html#L48">48</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; the grouping functionality of the used {@link NumberFormat} is</em>
+<a class="jxr_linenumber" name="L49" href="RealMatrixFormat.html#L49">49</a>  <em class="jxr_javadoccomment"> * disabled to prevent problems when parsing (e.g. 1,345.34 would be a valid number</em>
+<a class="jxr_linenumber" name="L50" href="RealMatrixFormat.html#L50">50</a>  <em class="jxr_javadoccomment"> * but conflicts with the default column separator).&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L51" href="RealMatrixFormat.html#L51">51</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L52" href="RealMatrixFormat.html#L52">52</a>  <em class="jxr_javadoccomment"> * @since 3.1</em>
+<a class="jxr_linenumber" name="L53" href="RealMatrixFormat.html#L53">53</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L54" href="RealMatrixFormat.html#L54">54</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="RealMatrixFormat.html">RealMatrixFormat</a> {
+<a class="jxr_linenumber" name="L55" href="RealMatrixFormat.html#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="RealMatrixFormat.html#L56">56</a>      <em class="jxr_javadoccomment">/** The default prefix: "{". */</em>
+<a class="jxr_linenumber" name="L57" href="RealMatrixFormat.html#L57">57</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String DEFAULT_PREFIX = <span class="jxr_string">"{"</span>;
+<a class="jxr_linenumber" name="L58" href="RealMatrixFormat.html#L58">58</a>      <em class="jxr_javadoccomment">/** The default suffix: "}". */</em>
+<a class="jxr_linenumber" name="L59" href="RealMatrixFormat.html#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String DEFAULT_SUFFIX = <span class="jxr_string">"}"</span>;
+<a class="jxr_linenumber" name="L60" href="RealMatrixFormat.html#L60">60</a>      <em class="jxr_javadoccomment">/** The default row prefix: "{". */</em>
+<a class="jxr_linenumber" name="L61" href="RealMatrixFormat.html#L61">61</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String DEFAULT_ROW_PREFIX = <span class="jxr_string">"{"</span>;
+<a class="jxr_linenumber" name="L62" href="RealMatrixFormat.html#L62">62</a>      <em class="jxr_javadoccomment">/** The default row suffix: "}". */</em>
+<a class="jxr_linenumber" name="L63" href="RealMatrixFormat.html#L63">63</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String DEFAULT_ROW_SUFFIX = <span class="jxr_string">"}"</span>;
+<a class="jxr_linenumber" name="L64" href="RealMatrixFormat.html#L64">64</a>      <em class="jxr_javadoccomment">/** The default row separator: ",". */</em>
+<a class="jxr_linenumber" name="L65" href="RealMatrixFormat.html#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String DEFAULT_ROW_SEPARATOR = <span class="jxr_string">","</span>;
+<a class="jxr_linenumber" name="L66" href="RealMatrixFormat.html#L66">66</a>      <em class="jxr_javadoccomment">/** The default column separator: ",". */</em>
+<a class="jxr_linenumber" name="L67" href="RealMatrixFormat.html#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String DEFAULT_COLUMN_SEPARATOR = <span class="jxr_string">","</span>;
+<a class="jxr_linenumber" name="L68" href="RealMatrixFormat.html#L68">68</a>      <em class="jxr_javadoccomment">/** Prefix. */</em>
+<a class="jxr_linenumber" name="L69" href="RealMatrixFormat.html#L69">69</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String prefix;
+<a class="jxr_linenumber" name="L70" href="RealMatrixFormat.html#L70">70</a>      <em class="jxr_javadoccomment">/** Suffix. */</em>
+<a class="jxr_linenumber" name="L71" href="RealMatrixFormat.html#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String suffix;
+<a class="jxr_linenumber" name="L72" href="RealMatrixFormat.html#L72">72</a>      <em class="jxr_javadoccomment">/** Row prefix. */</em>
+<a class="jxr_linenumber" name="L73" href="RealMatrixFormat.html#L73">73</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String rowPrefix;
+<a class="jxr_linenumber" name="L74" href="RealMatrixFormat.html#L74">74</a>      <em class="jxr_javadoccomment">/** Row suffix. */</em>
+<a class="jxr_linenumber" name="L75" href="RealMatrixFormat.html#L75">75</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String rowSuffix;
+<a class="jxr_linenumber" name="L76" href="RealMatrixFormat.html#L76">76</a>      <em class="jxr_javadoccomment">/** Row separator. */</em>
+<a class="jxr_linenumber" name="L77" href="RealMatrixFormat.html#L77">77</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String rowSeparator;
+<a class="jxr_linenumber" name="L78" href="RealMatrixFormat.html#L78">78</a>      <em class="jxr_javadoccomment">/** Column separator. */</em>
+<a class="jxr_linenumber" name="L79" href="RealMatrixFormat.html#L79">79</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String columnSeparator;
+<a class="jxr_linenumber" name="L80" href="RealMatrixFormat.html#L80">80</a>      <em class="jxr_javadoccomment">/** The format used for components. */</em>
+<a class="jxr_linenumber" name="L81" href="RealMatrixFormat.html#L81">81</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> NumberFormat format;
+<a class="jxr_linenumber" name="L82" href="RealMatrixFormat.html#L82">82</a>  
+<a class="jxr_linenumber" name="L83" href="RealMatrixFormat.html#L83">83</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L84" href="RealMatrixFormat.html#L84">84</a>  <em class="jxr_javadoccomment">     * Create an instance with default settings.</em>
+<a class="jxr_linenumber" name="L85" href="RealMatrixFormat.html#L85">85</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;The instance uses the default prefix, suffix and row/column separator:</em>
+<a class="jxr_linenumber" name="L86" href="RealMatrixFormat.html#L86">86</a>  <em class="jxr_javadoccomment">     * "[", "]", ";" and ", " and the default number format for components.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L87" href="RealMatrixFormat.html#L87">87</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L88" href="RealMatrixFormat.html#L88">88</a>      <strong class="jxr_keyword">public</strong> <a href="RealMatrixFormat.html">RealMatrixFormat</a>() {
+<a class="jxr_linenumber" name="L89" href="RealMatrixFormat.html#L89">89</a>          <strong class="jxr_keyword">this</strong>(DEFAULT_PREFIX, DEFAULT_SUFFIX, DEFAULT_ROW_PREFIX, DEFAULT_ROW_SUFFIX,
+<a class="jxr_linenumber" name="L90" href="RealMatrixFormat.html#L90">90</a>                  DEFAULT_ROW_SEPARATOR, DEFAULT_COLUMN_SEPARATOR, CompositeFormat.getDefaultNumberFormat());
+<a class="jxr_linenumber" name="L91" href="RealMatrixFormat.html#L91">91</a>      }
+<a class="jxr_linenumber" name="L92" href="RealMatrixFormat.html#L92">92</a>  
+<a class="jxr_linenumber" name="L93" href="RealMatrixFormat.html#L93">93</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L94" href="RealMatrixFormat.html#L94">94</a>  <em class="jxr_javadoccomment">     * Create an instance with a custom number format for components.</em>
+<a class="jxr_linenumber" name="L95" href="RealMatrixFormat.html#L95">95</a>  <em class="jxr_javadoccomment">     * @param format the custom format for components.</em>
+<a class="jxr_linenumber" name="L96" href="RealMatrixFormat.html#L96">96</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L97" href="RealMatrixFormat.html#L97">97</a>      <strong class="jxr_keyword">public</strong> <a href="RealMatrixFormat.html">RealMatrixFormat</a>(<strong class="jxr_keyword">final</strong> NumberFormat format) {
+<a class="jxr_linenumber" name="L98" href="RealMatrixFormat.html#L98">98</a>          <strong class="jxr_keyword">this</strong>(DEFAULT_PREFIX, DEFAULT_SUFFIX, DEFAULT_ROW_PREFIX, DEFAULT_ROW_SUFFIX,
+<a class="jxr_linenumber" name="L99" href="RealMatrixFormat.html#L99">99</a>                  DEFAULT_ROW_SEPARATOR, DEFAULT_COLUMN_SEPARATOR, format);
+<a class="jxr_linenumber" name="L100" href="RealMatrixFormat.html#L100">100</a>     }
+<a class="jxr_linenumber" name="L101" href="RealMatrixFormat.html#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="RealMatrixFormat.html#L102">102</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L103" href="RealMatrixFormat.html#L103">103</a> <em class="jxr_javadoccomment">     * Create an instance with custom prefix, suffix and separator.</em>
+<a class="jxr_linenumber" name="L104" href="RealMatrixFormat.html#L104">104</a> <em class="jxr_javadoccomment">     * @param prefix prefix to use instead of the default "{"</em>
+<a class="jxr_linenumber" name="L105" href="RealMatrixFormat.html#L105">105</a> <em class="jxr_javadoccomment">     * @param suffix suffix to use instead of the default "}"</em>
+<a class="jxr_linenumber" name="L106" href="RealMatrixFormat.html#L106">106</a> <em class="jxr_javadoccomment">     * @param rowPrefix row prefix to use instead of the default "{"</em>
+<a class="jxr_linenumber" name="L107" href="RealMatrixFormat.html#L107">107</a> <em class="jxr_javadoccomment">     * @param rowSuffix row suffix to use instead of the default "}"</em>
+<a class="jxr_linenumber" name="L108" href="RealMatrixFormat.html#L108">108</a> <em class="jxr_javadoccomment">     * @param rowSeparator tow separator to use instead of the default ";"</em>
+<a class="jxr_linenumber" name="L109" href="RealMatrixFormat.html#L109">109</a> <em class="jxr_javadoccomment">     * @param columnSeparator column separator to use instead of the default ", "</em>
+<a class="jxr_linenumber" name="L110" href="RealMatrixFormat.html#L110">110</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L111" href="RealMatrixFormat.html#L111">111</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrixFormat.html">RealMatrixFormat</a>(<strong class="jxr_keyword">final</strong> String prefix, <strong class="jxr_keyword">final</strong> String suffix,
+<a class="jxr_linenumber" name="L112" href="RealMatrixFormat.html#L112">112</a>                             <strong class="jxr_keyword">final</strong> String rowPrefix, <strong class="jxr_keyword">final</strong> String rowSuffix,
+<a class="jxr_linenumber" name="L113" href="RealMatrixFormat.html#L113">113</a>                             <strong class="jxr_keyword">final</strong> String rowSeparator, <strong class="jxr_keyword">final</strong> String columnSeparator) {
+<a class="jxr_linenumber" name="L114" href="RealMatrixFormat.html#L114">114</a>         <strong class="jxr_keyword">this</strong>(prefix, suffix, rowPrefix, rowSuffix, rowSeparator, columnSeparator,
+<a class="jxr_linenumber" name="L115" href="RealMatrixFormat.html#L115">115</a>                 CompositeFormat.getDefaultNumberFormat());
+<a class="jxr_linenumber" name="L116" href="RealMatrixFormat.html#L116">116</a>     }
+<a class="jxr_linenumber" name="L117" href="RealMatrixFormat.html#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="RealMatrixFormat.html#L118">118</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L119" href="RealMatrixFormat.html#L119">119</a> <em class="jxr_javadoccomment">     * Create an instance with custom prefix, suffix, separator and format</em>
+<a class="jxr_linenumber" name="L120" href="RealMatrixFormat.html#L120">120</a> <em class="jxr_javadoccomment">     * for components.</em>
+<a class="jxr_linenumber" name="L121" href="RealMatrixFormat.html#L121">121</a> <em class="jxr_javadoccomment">     * @param prefix prefix to use instead of the default "{"</em>
+<a class="jxr_linenumber" name="L122" href="RealMatrixFormat.html#L122">122</a> <em class="jxr_javadoccomment">     * @param suffix suffix to use instead of the default "}"</em>
+<a class="jxr_linenumber" name="L123" href="RealMatrixFormat.html#L123">123</a> <em class="jxr_javadoccomment">     * @param rowPrefix row prefix to use instead of the default "{"</em>
+<a class="jxr_linenumber" name="L124" href="RealMatrixFormat.html#L124">124</a> <em class="jxr_javadoccomment">     * @param rowSuffix row suffix to use instead of the default "}"</em>
+<a class="jxr_linenumber" name="L125" href="RealMatrixFormat.html#L125">125</a> <em class="jxr_javadoccomment">     * @param rowSeparator tow separator to use instead of the default ";"</em>
+<a class="jxr_linenumber" name="L126" href="RealMatrixFormat.html#L126">126</a> <em class="jxr_javadoccomment">     * @param columnSeparator column separator to use instead of the default ", "</em>
+<a class="jxr_linenumber" name="L127" href="RealMatrixFormat.html#L127">127</a> <em class="jxr_javadoccomment">     * @param format the custom format for components.</em>
+<a class="jxr_linenumber" name="L128" href="RealMatrixFormat.html#L128">128</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L129" href="RealMatrixFormat.html#L129">129</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrixFormat.html">RealMatrixFormat</a>(<strong class="jxr_keyword">final</strong> String prefix, <strong class="jxr_keyword">final</strong> String suffix,
+<a class="jxr_linenumber" name="L130" href="RealMatrixFormat.html#L130">130</a>                             <strong class="jxr_keyword">final</strong> String rowPrefix, <strong class="jxr_keyword">final</strong> String rowSuffix,
+<a class="jxr_linenumber" name="L131" href="RealMatrixFormat.html#L131">131</a>                             <strong class="jxr_keyword">final</strong> String rowSeparator, <strong class="jxr_keyword">final</strong> String columnSeparator,
+<a class="jxr_linenumber" name="L132" href="RealMatrixFormat.html#L132">132</a>                             <strong class="jxr_keyword">final</strong> NumberFormat format) {
+<a class="jxr_linenumber" name="L133" href="RealMatrixFormat.html#L133">133</a>         <strong class="jxr_keyword">this</strong>.prefix            = prefix;
+<a class="jxr_linenumber" name="L134" href="RealMatrixFormat.html#L134">134</a>         <strong class="jxr_keyword">this</strong>.suffix            = suffix;
+<a class="jxr_linenumber" name="L135" href="RealMatrixFormat.html#L135">135</a>         <strong class="jxr_keyword">this</strong>.rowPrefix         = rowPrefix;
+<a class="jxr_linenumber" name="L136" href="RealMatrixFormat.html#L136">136</a>         <strong class="jxr_keyword">this</strong>.rowSuffix         = rowSuffix;
+<a class="jxr_linenumber" name="L137" href="RealMatrixFormat.html#L137">137</a>         <strong class="jxr_keyword">this</strong>.rowSeparator      = rowSeparator;
+<a class="jxr_linenumber" name="L138" href="RealMatrixFormat.html#L138">138</a>         <strong class="jxr_keyword">this</strong>.columnSeparator   = columnSeparator;
+<a class="jxr_linenumber" name="L139" href="RealMatrixFormat.html#L139">139</a>         <strong class="jxr_keyword">this</strong>.format            = format;
+<a class="jxr_linenumber" name="L140" href="RealMatrixFormat.html#L140">140</a>         <em class="jxr_comment">// disable grouping to prevent parsing problems</em>
+<a class="jxr_linenumber" name="L141" href="RealMatrixFormat.html#L141">141</a>         <strong class="jxr_keyword">this</strong>.format.setGroupingUsed(false);
+<a class="jxr_linenumber" name="L142" href="RealMatrixFormat.html#L142">142</a>     }
+<a class="jxr_linenumber" name="L143" href="RealMatrixFormat.html#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="RealMatrixFormat.html#L144">144</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L145" href="RealMatrixFormat.html#L145">145</a> <em class="jxr_javadoccomment">     * Get the set of locales for which real vectors formats are available.</em>
+<a class="jxr_linenumber" name="L146" href="RealMatrixFormat.html#L146">146</a> <em class="jxr_javadoccomment">     * &lt;p&gt;This is the same set as the {@link NumberFormat} set.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L147" href="RealMatrixFormat.html#L147">147</a> <em class="jxr_javadoccomment">     * @return available real vector format locales.</em>
+<a class="jxr_linenumber" name="L148" href="RealMatrixFormat.html#L148">148</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L149" href="RealMatrixFormat.html#L149">149</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Locale[] getAvailableLocales() {
+<a class="jxr_linenumber" name="L150" href="RealMatrixFormat.html#L150">150</a>         <strong class="jxr_keyword">return</strong> NumberFormat.getAvailableLocales();
+<a class="jxr_linenumber" name="L151" href="RealMatrixFormat.html#L151">151</a>     }
+<a class="jxr_linenumber" name="L152" href="RealMatrixFormat.html#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="RealMatrixFormat.html#L153">153</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L154" href="RealMatrixFormat.html#L154">154</a> <em class="jxr_javadoccomment">     * Get the format prefix.</em>
+<a class="jxr_linenumber" name="L155" href="RealMatrixFormat.html#L155">155</a> <em class="jxr_javadoccomment">     * @return format prefix.</em>
+<a class="jxr_linenumber" name="L156" href="RealMatrixFormat.html#L156">156</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L157" href="RealMatrixFormat.html#L157">157</a>     <strong class="jxr_keyword">public</strong> String getPrefix() {
+<a class="jxr_linenumber" name="L158" href="RealMatrixFormat.html#L158">158</a>         <strong class="jxr_keyword">return</strong> prefix;
+<a class="jxr_linenumber" name="L159" href="RealMatrixFormat.html#L159">159</a>     }
+<a class="jxr_linenumber" name="L160" href="RealMatrixFormat.html#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="RealMatrixFormat.html#L161">161</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L162" href="RealMatrixFormat.html#L162">162</a> <em class="jxr_javadoccomment">     * Get the format suffix.</em>
+<a class="jxr_linenumber" name="L163" href="RealMatrixFormat.html#L163">163</a> <em class="jxr_javadoccomment">     * @return format suffix.</em>
+<a class="jxr_linenumber" name="L164" href="RealMatrixFormat.html#L164">164</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L165" href="RealMatrixFormat.html#L165">165</a>     <strong class="jxr_keyword">public</strong> String getSuffix() {
+<a class="jxr_linenumber" name="L166" href="RealMatrixFormat.html#L166">166</a>         <strong class="jxr_keyword">return</strong> suffix;
+<a class="jxr_linenumber" name="L167" href="RealMatrixFormat.html#L167">167</a>     }
+<a class="jxr_linenumber" name="L168" href="RealMatrixFormat.html#L168">168</a> 
+<a class="jxr_linenumber" name="L169" href="RealMatrixFormat.html#L169">169</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L170" href="RealMatrixFormat.html#L170">170</a> <em class="jxr_javadoccomment">     * Get the format prefix.</em>
+<a class="jxr_linenumber" name="L171" href="RealMatrixFormat.html#L171">171</a> <em class="jxr_javadoccomment">     * @return format prefix.</em>
+<a class="jxr_linenumber" name="L172" href="RealMatrixFormat.html#L172">172</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L173" href="RealMatrixFormat.html#L173">173</a>     <strong class="jxr_keyword">public</strong> String getRowPrefix() {
+<a class="jxr_linenumber" name="L174" href="RealMatrixFormat.html#L174">174</a>         <strong class="jxr_keyword">return</strong> rowPrefix;
+<a class="jxr_linenumber" name="L175" href="RealMatrixFormat.html#L175">175</a>     }
+<a class="jxr_linenumber" name="L176" href="RealMatrixFormat.html#L176">176</a> 
+<a class="jxr_linenumber" name="L177" href="RealMatrixFormat.html#L177">177</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L178" href="RealMatrixFormat.html#L178">178</a> <em class="jxr_javadoccomment">     * Get the format suffix.</em>
+<a class="jxr_linenumber" name="L179" href="RealMatrixFormat.html#L179">179</a> <em class="jxr_javadoccomment">     * @return format suffix.</em>
+<a class="jxr_linenumber" name="L180" href="RealMatrixFormat.html#L180">180</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L181" href="RealMatrixFormat.html#L181">181</a>     <strong class="jxr_keyword">public</strong> String getRowSuffix() {
+<a class="jxr_linenumber" name="L182" href="RealMatrixFormat.html#L182">182</a>         <strong class="jxr_keyword">return</strong> rowSuffix;
+<a class="jxr_linenumber" name="L183" href="RealMatrixFormat.html#L183">183</a>     }
+<a class="jxr_linenumber" name="L184" href="RealMatrixFormat.html#L184">184</a> 
+<a class="jxr_linenumber" name="L185" href="RealMatrixFormat.html#L185">185</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L186" href="RealMatrixFormat.html#L186">186</a> <em class="jxr_javadoccomment">     * Get the format separator between rows of the matrix.</em>
+<a class="jxr_linenumber" name="L187" href="RealMatrixFormat.html#L187">187</a> <em class="jxr_javadoccomment">     * @return format separator for rows.</em>
+<a class="jxr_linenumber" name="L188" href="RealMatrixFormat.html#L188">188</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L189" href="RealMatrixFormat.html#L189">189</a>     <strong class="jxr_keyword">public</strong> String getRowSeparator() {
+<a class="jxr_linenumber" name="L190" href="RealMatrixFormat.html#L190">190</a>         <strong class="jxr_keyword">return</strong> rowSeparator;
+<a class="jxr_linenumber" name="L191" href="RealMatrixFormat.html#L191">191</a>     }
+<a class="jxr_linenumber" name="L192" href="RealMatrixFormat.html#L192">192</a> 
+<a class="jxr_linenumber" name="L193" href="RealMatrixFormat.html#L193">193</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L194" href="RealMatrixFormat.html#L194">194</a> <em class="jxr_javadoccomment">     * Get the format separator between components.</em>
+<a class="jxr_linenumber" name="L195" href="RealMatrixFormat.html#L195">195</a> <em class="jxr_javadoccomment">     * @return format separator between components.</em>
+<a class="jxr_linenumber" name="L196" href="RealMatrixFormat.html#L196">196</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L197" href="RealMatrixFormat.html#L197">197</a>     <strong class="jxr_keyword">public</strong> String getColumnSeparator() {
+<a class="jxr_linenumber" name="L198" href="RealMatrixFormat.html#L198">198</a>         <strong class="jxr_keyword">return</strong> columnSeparator;
+<a class="jxr_linenumber" name="L199" href="RealMatrixFormat.html#L199">199</a>     }
+<a class="jxr_linenumber" name="L200" href="RealMatrixFormat.html#L200">200</a> 
+<a class="jxr_linenumber" name="L201" href="RealMatrixFormat.html#L201">201</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L202" href="RealMatrixFormat.html#L202">202</a> <em class="jxr_javadoccomment">     * Get the components format.</em>
+<a class="jxr_linenumber" name="L203" href="RealMatrixFormat.html#L203">203</a> <em class="jxr_javadoccomment">     * @return components format.</em>
+<a class="jxr_linenumber" name="L204" href="RealMatrixFormat.html#L204">204</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L205" href="RealMatrixFormat.html#L205">205</a>     <strong class="jxr_keyword">public</strong> NumberFormat getFormat() {
+<a class="jxr_linenumber" name="L206" href="RealMatrixFormat.html#L206">206</a>         <strong class="jxr_keyword">return</strong> format;
+<a class="jxr_linenumber" name="L207" href="RealMatrixFormat.html#L207">207</a>     }
+<a class="jxr_linenumber" name="L208" href="RealMatrixFormat.html#L208">208</a> 
+<a class="jxr_linenumber" name="L209" href="RealMatrixFormat.html#L209">209</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L210" href="RealMatrixFormat.html#L210">210</a> <em class="jxr_javadoccomment">     * Returns the default real vector format for the current locale.</em>
+<a class="jxr_linenumber" name="L211" href="RealMatrixFormat.html#L211">211</a> <em class="jxr_javadoccomment">     * @return the default real vector format.</em>
+<a class="jxr_linenumber" name="L212" href="RealMatrixFormat.html#L212">212</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L213" href="RealMatrixFormat.html#L213">213</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="RealMatrixFormat.html">RealMatrixFormat</a> getInstance() {
+<a class="jxr_linenumber" name="L214" href="RealMatrixFormat.html#L214">214</a>         <strong class="jxr_keyword">return</strong> getInstance(Locale.getDefault());
+<a class="jxr_linenumber" name="L215" href="RealMatrixFormat.html#L215">215</a>     }
+<a class="jxr_linenumber" name="L216" href="RealMatrixFormat.html#L216">216</a> 
+<a class="jxr_linenumber" name="L217" href="RealMatrixFormat.html#L217">217</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L218" href="RealMatrixFormat.html#L218">218</a> <em class="jxr_javadoccomment">     * Returns the default real vector format for the given locale.</em>
+<a class="jxr_linenumber" name="L219" href="RealMatrixFormat.html#L219">219</a> <em class="jxr_javadoccomment">     * @param locale the specific locale used by the format.</em>
+<a class="jxr_linenumber" name="L220" href="RealMatrixFormat.html#L220">220</a> <em class="jxr_javadoccomment">     * @return the real vector format specific to the given locale.</em>
+<a class="jxr_linenumber" name="L221" href="RealMatrixFormat.html#L221">221</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L222" href="RealMatrixFormat.html#L222">222</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="RealMatrixFormat.html">RealMatrixFormat</a> getInstance(<strong class="jxr_keyword">final</strong> Locale locale) {
+<a class="jxr_linenumber" name="L223" href="RealMatrixFormat.html#L223">223</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="RealMatrixFormat.html">RealMatrixFormat</a>(CompositeFormat.getDefaultNumberFormat(locale));
+<a class="jxr_linenumber" name="L224" href="RealMatrixFormat.html#L224">224</a>     }
+<a class="jxr_linenumber" name="L225" href="RealMatrixFormat.html#L225">225</a> 
+<a class="jxr_linenumber" name="L226" href="RealMatrixFormat.html#L226">226</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L227" href="RealMatrixFormat.html#L227">227</a> <em class="jxr_javadoccomment">     * This method calls {@link #format(RealMatrix,StringBuffer,FieldPosition)}.</em>
+<a class="jxr_linenumber" name="L228" href="RealMatrixFormat.html#L228">228</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L229" href="RealMatrixFormat.html#L229">229</a> <em class="jxr_javadoccomment">     * @param m RealMatrix object to format.</em>
+<a class="jxr_linenumber" name="L230" href="RealMatrixFormat.html#L230">230</a> <em class="jxr_javadoccomment">     * @return a formatted matrix.</em>
+<a class="jxr_linenumber" name="L231" href="RealMatrixFormat.html#L231">231</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L232" href="RealMatrixFormat.html#L232">232</a>     <strong class="jxr_keyword">public</strong> String format(<a href="RealMatrix.html">RealMatrix</a> m) {
+<a class="jxr_linenumber" name="L233" href="RealMatrixFormat.html#L233">233</a>         <strong class="jxr_keyword">return</strong> format(m, <strong class="jxr_keyword">new</strong> StringBuffer(), <strong class="jxr_keyword">new</strong> FieldPosition(0)).toString();
+<a class="jxr_linenumber" name="L234" href="RealMatrixFormat.html#L234">234</a>     }
+<a class="jxr_linenumber" name="L235" href="RealMatrixFormat.html#L235">235</a> 
+<a class="jxr_linenumber" name="L236" href="RealMatrixFormat.html#L236">236</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L237" href="RealMatrixFormat.html#L237">237</a> <em class="jxr_javadoccomment">     * Formats a {@link RealMatrix} object to produce a string.</em>
+<a class="jxr_linenumber" name="L238" href="RealMatrixFormat.html#L238">238</a> <em class="jxr_javadoccomment">     * @param matrix the object to format.</em>
+<a class="jxr_linenumber" name="L239" href="RealMatrixFormat.html#L239">239</a> <em class="jxr_javadoccomment">     * @param toAppendTo where the text is to be appended</em>
+<a class="jxr_linenumber" name="L240" href="RealMatrixFormat.html#L240">240</a> <em class="jxr_javadoccomment">     * @param pos On input: an alignment field, if desired. On output: the</em>
+<a class="jxr_linenumber" name="L241" href="RealMatrixFormat.html#L241">241</a> <em class="jxr_javadoccomment">     *            offsets of the alignment field</em>
+<a class="jxr_linenumber" name="L242" href="RealMatrixFormat.html#L242">242</a> <em class="jxr_javadoccomment">     * @return the value passed in as toAppendTo.</em>
+<a class="jxr_linenumber" name="L243" href="RealMatrixFormat.html#L243">243</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L244" href="RealMatrixFormat.html#L244">244</a>     <strong class="jxr_keyword">public</strong> StringBuffer format(<a href="RealMatrix.html">RealMatrix</a> matrix, StringBuffer toAppendTo,
+<a class="jxr_linenumber" name="L245" href="RealMatrixFormat.html#L245">245</a>                                FieldPosition pos) {
+<a class="jxr_linenumber" name="L246" href="RealMatrixFormat.html#L246">246</a> 
+<a class="jxr_linenumber" name="L247" href="RealMatrixFormat.html#L247">247</a>         pos.setBeginIndex(0);
+<a class="jxr_linenumber" name="L248" href="RealMatrixFormat.html#L248">248</a>         pos.setEndIndex(0);
+<a class="jxr_linenumber" name="L249" href="RealMatrixFormat.html#L249">249</a> 
+<a class="jxr_linenumber" name="L250" href="RealMatrixFormat.html#L250">250</a>         <em class="jxr_comment">// format prefix</em>
+<a class="jxr_linenumber" name="L251" href="RealMatrixFormat.html#L251">251</a>         toAppendTo.append(prefix);
+<a class="jxr_linenumber" name="L252" href="RealMatrixFormat.html#L252">252</a> 
+<a class="jxr_linenumber" name="L253" href="RealMatrixFormat.html#L253">253</a>         <em class="jxr_comment">// format rows</em>
+<a class="jxr_linenumber" name="L254" href="RealMatrixFormat.html#L254">254</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> rows = matrix.getRowDimension();
+<a class="jxr_linenumber" name="L255" href="RealMatrixFormat.html#L255">255</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; rows; ++i) {
+<a class="jxr_linenumber" name="L256" href="RealMatrixFormat.html#L256">256</a>             toAppendTo.append(rowPrefix);
+<a class="jxr_linenumber" name="L257" href="RealMatrixFormat.html#L257">257</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; matrix.getColumnDimension(); ++j) {
+<a class="jxr_linenumber" name="L258" href="RealMatrixFormat.html#L258">258</a>                 <strong class="jxr_keyword">if</strong> (j &gt; 0) {
+<a class="jxr_linenumber" name="L259" href="RealMatrixFormat.html#L259">259</a>                     toAppendTo.append(columnSeparator);
+<a class="jxr_linenumber" name="L260" href="RealMatrixFormat.html#L260">260</a>                 }
+<a class="jxr_linenumber" name="L261" href="RealMatrixFormat.html#L261">261</a>                 CompositeFormat.formatDouble(matrix.getEntry(i, j), format, toAppendTo, pos);
+<a class="jxr_linenumber" name="L262" href="RealMatrixFormat.html#L262">262</a>             }
+<a class="jxr_linenumber" name="L263" href="RealMatrixFormat.html#L263">263</a>             toAppendTo.append(rowSuffix);
+<a class="jxr_linenumber" name="L264" href="RealMatrixFormat.html#L264">264</a>             <strong class="jxr_keyword">if</strong> (i &lt; rows - 1) {
+<a class="jxr_linenumber" name="L265" href="RealMatrixFormat.html#L265">265</a>                 toAppendTo.append(rowSeparator);
+<a class="jxr_linenumber" name="L266" href="RealMatrixFormat.html#L266">266</a>             }
+<a class="jxr_linenumber" name="L267" href="RealMatrixFormat.html#L267">267</a>         }
+<a class="jxr_linenumber" name="L268" href="RealMatrixFormat.html#L268">268</a> 
+<a class="jxr_linenumber" name="L269" href="RealMatrixFormat.html#L269">269</a>         <em class="jxr_comment">// format suffix</em>
+<a class="jxr_linenumber" name="L270" href="RealMatrixFormat.html#L270">270</a>         toAppendTo.append(suffix);
+<a class="jxr_linenumber" name="L271" href="RealMatrixFormat.html#L271">271</a> 
+<a class="jxr_linenumber" name="L272" href="RealMatrixFormat.html#L272">272</a>         <strong class="jxr_keyword">return</strong> toAppendTo;
+<a class="jxr_linenumber" name="L273" href="RealMatrixFormat.html#L273">273</a>     }
+<a class="jxr_linenumber" name="L274" href="RealMatrixFormat.html#L274">274</a> 
+<a class="jxr_linenumber" name="L275" href="RealMatrixFormat.html#L275">275</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L276" href="RealMatrixFormat.html#L276">276</a> <em class="jxr_javadoccomment">     * Parse a string to produce a {@link RealMatrix} object.</em>
+<a class="jxr_linenumber" name="L277" href="RealMatrixFormat.html#L277">277</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L278" href="RealMatrixFormat.html#L278">278</a> <em class="jxr_javadoccomment">     * @param source String to parse.</em>
+<a class="jxr_linenumber" name="L279" href="RealMatrixFormat.html#L279">279</a> <em class="jxr_javadoccomment">     * @return the parsed {@link RealMatrix} object.</em>
+<a class="jxr_linenumber" name="L280" href="RealMatrixFormat.html#L280">280</a> <em class="jxr_javadoccomment">     * @throws MathParseException if the beginning of the specified string</em>
+<a class="jxr_linenumber" name="L281" href="RealMatrixFormat.html#L281">281</a> <em class="jxr_javadoccomment">     * cannot be parsed.</em>
+<a class="jxr_linenumber" name="L282" href="RealMatrixFormat.html#L282">282</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L283" href="RealMatrixFormat.html#L283">283</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> parse(String source) {
+<a class="jxr_linenumber" name="L284" href="RealMatrixFormat.html#L284">284</a>         <strong class="jxr_keyword">final</strong> ParsePosition parsePosition = <strong class="jxr_keyword">new</strong> ParsePosition(0);
+<a class="jxr_linenumber" name="L285" href="RealMatrixFormat.html#L285">285</a>         <strong class="jxr_keyword">final</strong> <a href="RealMatrix.html">RealMatrix</a> result = parse(source, parsePosition);
+<a class="jxr_linenumber" name="L286" href="RealMatrixFormat.html#L286">286</a>         <strong class="jxr_keyword">if</strong> (parsePosition.getIndex() == 0) {
+<a class="jxr_linenumber" name="L287" href="RealMatrixFormat.html#L287">287</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathParseException.html">MathParseException</a>(source,
+<a class="jxr_linenumber" name="L288" href="RealMatrixFormat.html#L288">288</a>                                          parsePosition.getErrorIndex(),
+<a class="jxr_linenumber" name="L289" href="RealMatrixFormat.html#L289">289</a>                                          Array2DRowRealMatrix.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L290" href="RealMatrixFormat.html#L290">290</a>         }
+<a class="jxr_linenumber" name="L291" href="RealMatrixFormat.html#L291">291</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L292" href="RealMatrixFormat.html#L292">292</a>     }
+<a class="jxr_linenumber" name="L293" href="RealMatrixFormat.html#L293">293</a> 
+<a class="jxr_linenumber" name="L294" href="RealMatrixFormat.html#L294">294</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L295" href="RealMatrixFormat.html#L295">295</a> <em class="jxr_javadoccomment">     * Parse a string to produce a {@link RealMatrix} object.</em>
+<a class="jxr_linenumber" name="L296" href="RealMatrixFormat.html#L296">296</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L297" href="RealMatrixFormat.html#L297">297</a> <em class="jxr_javadoccomment">     * @param source String to parse.</em>
+<a class="jxr_linenumber" name="L298" href="RealMatrixFormat.html#L298">298</a> <em class="jxr_javadoccomment">     * @param pos input/ouput parsing parameter.</em>
+<a class="jxr_linenumber" name="L299" href="RealMatrixFormat.html#L299">299</a> <em class="jxr_javadoccomment">     * @return the parsed {@link RealMatrix} object.</em>
+<a class="jxr_linenumber" name="L300" href="RealMatrixFormat.html#L300">300</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L301" href="RealMatrixFormat.html#L301">301</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> parse(String source, ParsePosition pos) {
+<a class="jxr_linenumber" name="L302" href="RealMatrixFormat.html#L302">302</a>         <strong class="jxr_keyword">int</strong> initialIndex = pos.getIndex();
+<a class="jxr_linenumber" name="L303" href="RealMatrixFormat.html#L303">303</a> 
+<a class="jxr_linenumber" name="L304" href="RealMatrixFormat.html#L304">304</a>         <strong class="jxr_keyword">final</strong> String trimmedPrefix = prefix.trim();
+<a class="jxr_linenumber" name="L305" href="RealMatrixFormat.html#L305">305</a>         <strong class="jxr_keyword">final</strong> String trimmedSuffix = suffix.trim();
+<a class="jxr_linenumber" name="L306" href="RealMatrixFormat.html#L306">306</a>         <strong class="jxr_keyword">final</strong> String trimmedRowPrefix = rowPrefix.trim();
+<a class="jxr_linenumber" name="L307" href="RealMatrixFormat.html#L307">307</a>         <strong class="jxr_keyword">final</strong> String trimmedRowSuffix = rowSuffix.trim();
+<a class="jxr_linenumber" name="L308" href="RealMatrixFormat.html#L308">308</a>         <strong class="jxr_keyword">final</strong> String trimmedColumnSeparator = columnSeparator.trim();
+<a class="jxr_linenumber" name="L309" href="RealMatrixFormat.html#L309">309</a>         <strong class="jxr_keyword">final</strong> String trimmedRowSeparator = rowSeparator.trim();
+<a class="jxr_linenumber" name="L310" href="RealMatrixFormat.html#L310">310</a> 
+<a class="jxr_linenumber" name="L311" href="RealMatrixFormat.html#L311">311</a>         <em class="jxr_comment">// parse prefix</em>
+<a class="jxr_linenumber" name="L312" href="RealMatrixFormat.html#L312">312</a>         CompositeFormat.parseAndIgnoreWhitespace(source, pos);
+<a class="jxr_linenumber" name="L313" href="RealMatrixFormat.html#L313">313</a>         <strong class="jxr_keyword">if</strong> (!CompositeFormat.parseFixedstring(source, trimmedPrefix, pos)) {
+<a class="jxr_linenumber" name="L314" href="RealMatrixFormat.html#L314">314</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L315" href="RealMatrixFormat.html#L315">315</a>         }
+<a class="jxr_linenumber" name="L316" href="RealMatrixFormat.html#L316">316</a> 
+<a class="jxr_linenumber" name="L317" href="RealMatrixFormat.html#L317">317</a>         <em class="jxr_comment">// parse components</em>
+<a class="jxr_linenumber" name="L318" href="RealMatrixFormat.html#L318">318</a>         List&lt;List&lt;Number&gt;&gt; matrix = <strong class="jxr_keyword">new</strong> ArrayList&lt;List&lt;Number&gt;&gt;();
+<a class="jxr_linenumber" name="L319" href="RealMatrixFormat.html#L319">319</a>         List&lt;Number&gt; rowComponents = <strong class="jxr_keyword">new</strong> ArrayList&lt;Number&gt;();
+<a class="jxr_linenumber" name="L320" href="RealMatrixFormat.html#L320">320</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">boolean</strong> loop = <strong class="jxr_keyword">true</strong>; loop;){
+<a class="jxr_linenumber" name="L321" href="RealMatrixFormat.html#L321">321</a> 
+<a class="jxr_linenumber" name="L322" href="RealMatrixFormat.html#L322">322</a>             <strong class="jxr_keyword">if</strong> (!rowComponents.isEmpty()) {
+<a class="jxr_linenumber" name="L323" href="RealMatrixFormat.html#L323">323</a>                 CompositeFormat.parseAndIgnoreWhitespace(source, pos);
+<a class="jxr_linenumber" name="L324" href="RealMatrixFormat.html#L324">324</a>                 <strong class="jxr_keyword">if</strong> (!CompositeFormat.parseFixedstring(source, trimmedColumnSeparator, pos)) {
+<a class="jxr_linenumber" name="L325" href="RealMatrixFormat.html#L325">325</a>                     <strong class="jxr_keyword">if</strong> (trimmedRowSuffix.length() != 0 &amp;&amp;
+<a class="jxr_linenumber" name="L326" href="RealMatrixFormat.html#L326">326</a>                         !CompositeFormat.parseFixedstring(source, trimmedRowSuffix, pos)) {
+<a class="jxr_linenumber" name="L327" href="RealMatrixFormat.html#L327">327</a>                         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L328" href="RealMatrixFormat.html#L328">328</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L329" href="RealMatrixFormat.html#L329">329</a>                         CompositeFormat.parseAndIgnoreWhitespace(source, pos);
+<a class="jxr_linenumber" name="L330" href="RealMatrixFormat.html#L330">330</a>                         <strong class="jxr_keyword">if</strong> (CompositeFormat.parseFixedstring(source, trimmedRowSeparator, pos)) {
+<a class="jxr_linenumber" name="L331" href="RealMatrixFormat.html#L331">331</a>                             matrix.add(rowComponents);
+<a class="jxr_linenumber" name="L332" href="RealMatrixFormat.html#L332">332</a>                             rowComponents = <strong class="jxr_keyword">new</strong> ArrayList&lt;Number&gt;();
+<a class="jxr_linenumber" name="L333" href="RealMatrixFormat.html#L333">333</a>                             <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L334" href="RealMatrixFormat.html#L334">334</a>                         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L335" href="RealMatrixFormat.html#L335">335</a>                             loop = false;
+<a class="jxr_linenumber" name="L336" href="RealMatrixFormat.html#L336">336</a>                         }
+<a class="jxr_linenumber" name="L337" href="RealMatrixFormat.html#L337">337</a>                     }
+<a class="jxr_linenumber" name="L338" href="RealMatrixFormat.html#L338">338</a>                 }
+<a class="jxr_linenumber" name="L339" href="RealMatrixFormat.html#L339">339</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L340" href="RealMatrixFormat.html#L340">340</a>                 CompositeFormat.parseAndIgnoreWhitespace(source, pos);
+<a class="jxr_linenumber" name="L341" href="RealMatrixFormat.html#L341">341</a>                 <strong class="jxr_keyword">if</strong> (trimmedRowPrefix.length() != 0 &amp;&amp;
+<a class="jxr_linenumber" name="L342" href="RealMatrixFormat.html#L342">342</a>                     !CompositeFormat.parseFixedstring(source, trimmedRowPrefix, pos)) {
+<a class="jxr_linenumber" name="L343" href="RealMatrixFormat.html#L343">343</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L344" href="RealMatrixFormat.html#L344">344</a>                 }
+<a class="jxr_linenumber" name="L345" href="RealMatrixFormat.html#L345">345</a>             }
+<a class="jxr_linenumber" name="L346" href="RealMatrixFormat.html#L346">346</a> 
+<a class="jxr_linenumber" name="L347" href="RealMatrixFormat.html#L347">347</a>             <strong class="jxr_keyword">if</strong> (loop) {
+<a class="jxr_linenumber" name="L348" href="RealMatrixFormat.html#L348">348</a>                 CompositeFormat.parseAndIgnoreWhitespace(source, pos);
+<a class="jxr_linenumber" name="L349" href="RealMatrixFormat.html#L349">349</a>                 Number component = CompositeFormat.parseNumber(source, format, pos);
+<a class="jxr_linenumber" name="L350" href="RealMatrixFormat.html#L350">350</a>                 <strong class="jxr_keyword">if</strong> (component != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L351" href="RealMatrixFormat.html#L351">351</a>                     rowComponents.add(component);
+<a class="jxr_linenumber" name="L352" href="RealMatrixFormat.html#L352">352</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L353" href="RealMatrixFormat.html#L353">353</a>                     <strong class="jxr_keyword">if</strong> (rowComponents.isEmpty()) {
+<a class="jxr_linenumber" name="L354" href="RealMatrixFormat.html#L354">354</a>                         loop = false;
+<a class="jxr_linenumber" name="L355" href="RealMatrixFormat.html#L355">355</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L356" href="RealMatrixFormat.html#L356">356</a>                         <em class="jxr_comment">// invalid component</em>
+<a class="jxr_linenumber" name="L357" href="RealMatrixFormat.html#L357">357</a>                         <em class="jxr_comment">// set index back to initial, error index should already be set</em>
+<a class="jxr_linenumber" name="L358" href="RealMatrixFormat.html#L358">358</a>                         pos.setIndex(initialIndex);
+<a class="jxr_linenumber" name="L359" href="RealMatrixFormat.html#L359">359</a>                         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L360" href="RealMatrixFormat.html#L360">360</a>                     }
+<a class="jxr_linenumber" name="L361" href="RealMatrixFormat.html#L361">361</a>                 }
+<a class="jxr_linenumber" name="L362" href="RealMatrixFormat.html#L362">362</a>             }
+<a class="jxr_linenumber" name="L363" href="RealMatrixFormat.html#L363">363</a> 
+<a class="jxr_linenumber" name="L364" href="RealMatrixFormat.html#L364">364</a>         }
+<a class="jxr_linenumber" name="L365" href="RealMatrixFormat.html#L365">365</a> 
+<a class="jxr_linenumber" name="L366" href="RealMatrixFormat.html#L366">366</a>         <strong class="jxr_keyword">if</strong> (!rowComponents.isEmpty()) {
+<a class="jxr_linenumber" name="L367" href="RealMatrixFormat.html#L367">367</a>             matrix.add(rowComponents);
+<a class="jxr_linenumber" name="L368" href="RealMatrixFormat.html#L368">368</a>         }
+<a class="jxr_linenumber" name="L369" href="RealMatrixFormat.html#L369">369</a> 
+<a class="jxr_linenumber" name="L370" href="RealMatrixFormat.html#L370">370</a>         <em class="jxr_comment">// parse suffix</em>
+<a class="jxr_linenumber" name="L371" href="RealMatrixFormat.html#L371">371</a>         CompositeFormat.parseAndIgnoreWhitespace(source, pos);
+<a class="jxr_linenumber" name="L372" href="RealMatrixFormat.html#L372">372</a>         <strong class="jxr_keyword">if</strong> (!CompositeFormat.parseFixedstring(source, trimmedSuffix, pos)) {
+<a class="jxr_linenumber" name="L373" href="RealMatrixFormat.html#L373">373</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L374" href="RealMatrixFormat.html#L374">374</a>         }
+<a class="jxr_linenumber" name="L375" href="RealMatrixFormat.html#L375">375</a> 
+<a class="jxr_linenumber" name="L376" href="RealMatrixFormat.html#L376">376</a>         <em class="jxr_comment">// do not allow an empty matrix</em>
+<a class="jxr_linenumber" name="L377" href="RealMatrixFormat.html#L377">377</a>         <strong class="jxr_keyword">if</strong> (matrix.isEmpty()) {
+<a class="jxr_linenumber" name="L378" href="RealMatrixFormat.html#L378">378</a>             pos.setIndex(initialIndex);
+<a class="jxr_linenumber" name="L379" href="RealMatrixFormat.html#L379">379</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L380" href="RealMatrixFormat.html#L380">380</a>         }
+<a class="jxr_linenumber" name="L381" href="RealMatrixFormat.html#L381">381</a> 
+<a class="jxr_linenumber" name="L382" href="RealMatrixFormat.html#L382">382</a>         <em class="jxr_comment">// build vector</em>
+<a class="jxr_linenumber" name="L383" href="RealMatrixFormat.html#L383">383</a>         <strong class="jxr_keyword">double</strong>[][] data = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[matrix.size()][];
+<a class="jxr_linenumber" name="L384" href="RealMatrixFormat.html#L384">384</a>         <strong class="jxr_keyword">int</strong> row = 0;
+<a class="jxr_linenumber" name="L385" href="RealMatrixFormat.html#L385">385</a>         <strong class="jxr_keyword">for</strong> (List&lt;Number&gt; rowList : matrix) {
+<a class="jxr_linenumber" name="L386" href="RealMatrixFormat.html#L386">386</a>             data[row] = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[rowList.size()];
+<a class="jxr_linenumber" name="L387" href="RealMatrixFormat.html#L387">387</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; rowList.size(); i++) {
+<a class="jxr_linenumber" name="L388" href="RealMatrixFormat.html#L388">388</a>                 data[row][i] = rowList.get(i).doubleValue();
+<a class="jxr_linenumber" name="L389" href="RealMatrixFormat.html#L389">389</a>             }
+<a class="jxr_linenumber" name="L390" href="RealMatrixFormat.html#L390">390</a>             row++;
+<a class="jxr_linenumber" name="L391" href="RealMatrixFormat.html#L391">391</a>         }
+<a class="jxr_linenumber" name="L392" href="RealMatrixFormat.html#L392">392</a>         <strong class="jxr_keyword">return</strong> MatrixUtils.createRealMatrix(data);
+<a class="jxr_linenumber" name="L393" href="RealMatrixFormat.html#L393">393</a>     }
+<a class="jxr_linenumber" name="L394" href="RealMatrixFormat.html#L394">394</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

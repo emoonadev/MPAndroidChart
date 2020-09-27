@@ -1,0 +1,406 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>FiniteDifferencesDifferentiator xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/analysis/differentiation/FiniteDifferencesDifferentiator.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="FiniteDifferencesDifferentiator.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="FiniteDifferencesDifferentiator.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="FiniteDifferencesDifferentiator.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="FiniteDifferencesDifferentiator.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="FiniteDifferencesDifferentiator.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="FiniteDifferencesDifferentiator.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="FiniteDifferencesDifferentiator.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="FiniteDifferencesDifferentiator.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="FiniteDifferencesDifferentiator.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="FiniteDifferencesDifferentiator.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="FiniteDifferencesDifferentiator.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="FiniteDifferencesDifferentiator.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="FiniteDifferencesDifferentiator.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="FiniteDifferencesDifferentiator.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="FiniteDifferencesDifferentiator.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="FiniteDifferencesDifferentiator.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="FiniteDifferencesDifferentiator.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.differentiation;
+<a class="jxr_linenumber" name="L18" href="FiniteDifferencesDifferentiator.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="FiniteDifferencesDifferentiator.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.io.Serializable;
+<a class="jxr_linenumber" name="L20" href="FiniteDifferencesDifferentiator.html#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="FiniteDifferencesDifferentiator.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.UnivariateFunction;
+<a class="jxr_linenumber" name="L22" href="FiniteDifferencesDifferentiator.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.UnivariateMatrixFunction;
+<a class="jxr_linenumber" name="L23" href="FiniteDifferencesDifferentiator.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.UnivariateVectorFunction;
+<a class="jxr_linenumber" name="L24" href="FiniteDifferencesDifferentiator.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L25" href="FiniteDifferencesDifferentiator.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotPositiveException;
+<a class="jxr_linenumber" name="L26" href="FiniteDifferencesDifferentiator.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooLargeException;
+<a class="jxr_linenumber" name="L27" href="FiniteDifferencesDifferentiator.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L28" href="FiniteDifferencesDifferentiator.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L29" href="FiniteDifferencesDifferentiator.html#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="FiniteDifferencesDifferentiator.html#L30">30</a>  <em class="jxr_javadoccomment">/** Univariate functions differentiator using finite differences.</em>
+<a class="jxr_linenumber" name="L31" href="FiniteDifferencesDifferentiator.html#L31">31</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L32" href="FiniteDifferencesDifferentiator.html#L32">32</a>  <em class="jxr_javadoccomment"> * This class creates some wrapper objects around regular</em>
+<a class="jxr_linenumber" name="L33" href="FiniteDifferencesDifferentiator.html#L33">33</a>  <em class="jxr_javadoccomment"> * {@link UnivariateFunction univariate functions} (or {@link</em>
+<a class="jxr_linenumber" name="L34" href="FiniteDifferencesDifferentiator.html#L34">34</a>  <em class="jxr_javadoccomment"> * UnivariateVectorFunction univariate vector functions} or {@link</em>
+<a class="jxr_linenumber" name="L35" href="FiniteDifferencesDifferentiator.html#L35">35</a>  <em class="jxr_javadoccomment"> * UnivariateMatrixFunction univariate matrix functions}). These</em>
+<a class="jxr_linenumber" name="L36" href="FiniteDifferencesDifferentiator.html#L36">36</a>  <em class="jxr_javadoccomment"> * wrapper objects compute derivatives in addition to function</em>
+<a class="jxr_linenumber" name="L37" href="FiniteDifferencesDifferentiator.html#L37">37</a>  <em class="jxr_javadoccomment"> * values.</em>
+<a class="jxr_linenumber" name="L38" href="FiniteDifferencesDifferentiator.html#L38">38</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L39" href="FiniteDifferencesDifferentiator.html#L39">39</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L40" href="FiniteDifferencesDifferentiator.html#L40">40</a>  <em class="jxr_javadoccomment"> * The wrapper objects work by calling the underlying function on</em>
+<a class="jxr_linenumber" name="L41" href="FiniteDifferencesDifferentiator.html#L41">41</a>  <em class="jxr_javadoccomment"> * a sampling grid around the current point and performing polynomial</em>
+<a class="jxr_linenumber" name="L42" href="FiniteDifferencesDifferentiator.html#L42">42</a>  <em class="jxr_javadoccomment"> * interpolation. A finite differences scheme with n points is</em>
+<a class="jxr_linenumber" name="L43" href="FiniteDifferencesDifferentiator.html#L43">43</a>  <em class="jxr_javadoccomment"> * theoretically able to compute derivatives up to order n-1, but</em>
+<a class="jxr_linenumber" name="L44" href="FiniteDifferencesDifferentiator.html#L44">44</a>  <em class="jxr_javadoccomment"> * it is generally better to have a slight margin. The step size must</em>
+<a class="jxr_linenumber" name="L45" href="FiniteDifferencesDifferentiator.html#L45">45</a>  <em class="jxr_javadoccomment"> * also be small enough in order for the polynomial approximation to</em>
+<a class="jxr_linenumber" name="L46" href="FiniteDifferencesDifferentiator.html#L46">46</a>  <em class="jxr_javadoccomment"> * be good in the current point neighborhood, but it should not be too</em>
+<a class="jxr_linenumber" name="L47" href="FiniteDifferencesDifferentiator.html#L47">47</a>  <em class="jxr_javadoccomment"> * small because numerical instability appears quickly (there are several</em>
+<a class="jxr_linenumber" name="L48" href="FiniteDifferencesDifferentiator.html#L48">48</a>  <em class="jxr_javadoccomment"> * differences of close points). Choosing the number of points and</em>
+<a class="jxr_linenumber" name="L49" href="FiniteDifferencesDifferentiator.html#L49">49</a>  <em class="jxr_javadoccomment"> * the step size is highly problem dependent.</em>
+<a class="jxr_linenumber" name="L50" href="FiniteDifferencesDifferentiator.html#L50">50</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L51" href="FiniteDifferencesDifferentiator.html#L51">51</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L52" href="FiniteDifferencesDifferentiator.html#L52">52</a>  <em class="jxr_javadoccomment"> * As an example of good and bad settings, lets consider the quintic</em>
+<a class="jxr_linenumber" name="L53" href="FiniteDifferencesDifferentiator.html#L53">53</a>  <em class="jxr_javadoccomment"> * polynomial function {@code f(x) = (x-1)*(x-0.5)*x*(x+0.5)*(x+1)}.</em>
+<a class="jxr_linenumber" name="L54" href="FiniteDifferencesDifferentiator.html#L54">54</a>  <em class="jxr_javadoccomment"> * Since it is a polynomial, finite differences with at least 6 points</em>
+<a class="jxr_linenumber" name="L55" href="FiniteDifferencesDifferentiator.html#L55">55</a>  <em class="jxr_javadoccomment"> * should theoretically recover the exact same polynomial and hence</em>
+<a class="jxr_linenumber" name="L56" href="FiniteDifferencesDifferentiator.html#L56">56</a>  <em class="jxr_javadoccomment"> * compute accurate derivatives for any order. However, due to numerical</em>
+<a class="jxr_linenumber" name="L57" href="FiniteDifferencesDifferentiator.html#L57">57</a>  <em class="jxr_javadoccomment"> * errors, we get the following results for a 7 points finite differences</em>
+<a class="jxr_linenumber" name="L58" href="FiniteDifferencesDifferentiator.html#L58">58</a>  <em class="jxr_javadoccomment"> * for abscissae in the [-10, 10] range:</em>
+<a class="jxr_linenumber" name="L59" href="FiniteDifferencesDifferentiator.html#L59">59</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L60" href="FiniteDifferencesDifferentiator.html#L60">60</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;step size = 0.25, second order derivative error about 9.97e-10&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L61" href="FiniteDifferencesDifferentiator.html#L61">61</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;step size = 0.25, fourth order derivative error about 5.43e-8&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L62" href="FiniteDifferencesDifferentiator.html#L62">62</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;step size = 1.0e-6, second order derivative error about 148&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L63" href="FiniteDifferencesDifferentiator.html#L63">63</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;step size = 1.0e-6, fourth order derivative error about 6.35e+14&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L64" href="FiniteDifferencesDifferentiator.html#L64">64</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L65" href="FiniteDifferencesDifferentiator.html#L65">65</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L66" href="FiniteDifferencesDifferentiator.html#L66">66</a>  <em class="jxr_javadoccomment"> * This example shows that the small step size is really bad, even simply</em>
+<a class="jxr_linenumber" name="L67" href="FiniteDifferencesDifferentiator.html#L67">67</a>  <em class="jxr_javadoccomment"> * for second order derivative!&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L68" href="FiniteDifferencesDifferentiator.html#L68">68</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L69" href="FiniteDifferencesDifferentiator.html#L69">69</a>  <em class="jxr_javadoccomment"> * @since 3.1</em>
+<a class="jxr_linenumber" name="L70" href="FiniteDifferencesDifferentiator.html#L70">70</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L71" href="FiniteDifferencesDifferentiator.html#L71">71</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="FiniteDifferencesDifferentiator.html">FiniteDifferencesDifferentiator</a>
+<a class="jxr_linenumber" name="L72" href="FiniteDifferencesDifferentiator.html#L72">72</a>      <strong class="jxr_keyword">implements</strong> UnivariateFunctionDifferentiator, UnivariateVectorFunctionDifferentiator,
+<a class="jxr_linenumber" name="L73" href="FiniteDifferencesDifferentiator.html#L73">73</a>                 UnivariateMatrixFunctionDifferentiator, Serializable {
+<a class="jxr_linenumber" name="L74" href="FiniteDifferencesDifferentiator.html#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="FiniteDifferencesDifferentiator.html#L75">75</a>      <em class="jxr_javadoccomment">/** Serializable UID. */</em>
+<a class="jxr_linenumber" name="L76" href="FiniteDifferencesDifferentiator.html#L76">76</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20120917L;
+<a class="jxr_linenumber" name="L77" href="FiniteDifferencesDifferentiator.html#L77">77</a>  
+<a class="jxr_linenumber" name="L78" href="FiniteDifferencesDifferentiator.html#L78">78</a>      <em class="jxr_javadoccomment">/** Number of points to use. */</em>
+<a class="jxr_linenumber" name="L79" href="FiniteDifferencesDifferentiator.html#L79">79</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nbPoints;
+<a class="jxr_linenumber" name="L80" href="FiniteDifferencesDifferentiator.html#L80">80</a>  
+<a class="jxr_linenumber" name="L81" href="FiniteDifferencesDifferentiator.html#L81">81</a>      <em class="jxr_javadoccomment">/** Step size. */</em>
+<a class="jxr_linenumber" name="L82" href="FiniteDifferencesDifferentiator.html#L82">82</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> stepSize;
+<a class="jxr_linenumber" name="L83" href="FiniteDifferencesDifferentiator.html#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="FiniteDifferencesDifferentiator.html#L84">84</a>      <em class="jxr_javadoccomment">/** Half sample span. */</em>
+<a class="jxr_linenumber" name="L85" href="FiniteDifferencesDifferentiator.html#L85">85</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> halfSampleSpan;
+<a class="jxr_linenumber" name="L86" href="FiniteDifferencesDifferentiator.html#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="FiniteDifferencesDifferentiator.html#L87">87</a>      <em class="jxr_javadoccomment">/** Lower bound for independent variable. */</em>
+<a class="jxr_linenumber" name="L88" href="FiniteDifferencesDifferentiator.html#L88">88</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tMin;
+<a class="jxr_linenumber" name="L89" href="FiniteDifferencesDifferentiator.html#L89">89</a>  
+<a class="jxr_linenumber" name="L90" href="FiniteDifferencesDifferentiator.html#L90">90</a>      <em class="jxr_javadoccomment">/** Upper bound for independent variable. */</em>
+<a class="jxr_linenumber" name="L91" href="FiniteDifferencesDifferentiator.html#L91">91</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tMax;
+<a class="jxr_linenumber" name="L92" href="FiniteDifferencesDifferentiator.html#L92">92</a>  
+<a class="jxr_linenumber" name="L93" href="FiniteDifferencesDifferentiator.html#L93">93</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L94" href="FiniteDifferencesDifferentiator.html#L94">94</a>  <em class="jxr_javadoccomment">     * Build a differentiator with number of points and step size when independent variable is unbounded.</em>
+<a class="jxr_linenumber" name="L95" href="FiniteDifferencesDifferentiator.html#L95">95</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L96" href="FiniteDifferencesDifferentiator.html#L96">96</a>  <em class="jxr_javadoccomment">     * Beware that wrong settings for the finite differences differentiator</em>
+<a class="jxr_linenumber" name="L97" href="FiniteDifferencesDifferentiator.html#L97">97</a>  <em class="jxr_javadoccomment">     * can lead to highly unstable and inaccurate results, especially for</em>
+<a class="jxr_linenumber" name="L98" href="FiniteDifferencesDifferentiator.html#L98">98</a>  <em class="jxr_javadoccomment">     * high derivation orders. Using very small step sizes is often a</em>
+<a class="jxr_linenumber" name="L99" href="FiniteDifferencesDifferentiator.html#L99">99</a>  <em class="jxr_javadoccomment">     * &lt;em&gt;bad&lt;/em&gt; idea.</em>
+<a class="jxr_linenumber" name="L100" href="FiniteDifferencesDifferentiator.html#L100">100</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L101" href="FiniteDifferencesDifferentiator.html#L101">101</a> <em class="jxr_javadoccomment">     * @param nbPoints number of points to use</em>
+<a class="jxr_linenumber" name="L102" href="FiniteDifferencesDifferentiator.html#L102">102</a> <em class="jxr_javadoccomment">     * @param stepSize step size (gap between each point)</em>
+<a class="jxr_linenumber" name="L103" href="FiniteDifferencesDifferentiator.html#L103">103</a> <em class="jxr_javadoccomment">     * @exception NotPositiveException if {@code stepsize &lt;= 0} (note that</em>
+<a class="jxr_linenumber" name="L104" href="FiniteDifferencesDifferentiator.html#L104">104</a> <em class="jxr_javadoccomment">     * {@link NotPositiveException} extends {@link NumberIsTooSmallException})</em>
+<a class="jxr_linenumber" name="L105" href="FiniteDifferencesDifferentiator.html#L105">105</a> <em class="jxr_javadoccomment">     * @exception NumberIsTooSmallException {@code nbPoint &lt;= 1}</em>
+<a class="jxr_linenumber" name="L106" href="FiniteDifferencesDifferentiator.html#L106">106</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L107" href="FiniteDifferencesDifferentiator.html#L107">107</a>     <strong class="jxr_keyword">public</strong> <a href="FiniteDifferencesDifferentiator.html">FiniteDifferencesDifferentiator</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nbPoints, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> stepSize)
+<a class="jxr_linenumber" name="L108" href="FiniteDifferencesDifferentiator.html#L108">108</a>         <strong class="jxr_keyword">throws</strong> NotPositiveException, <a href="../../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a> {
+<a class="jxr_linenumber" name="L109" href="FiniteDifferencesDifferentiator.html#L109">109</a>         <strong class="jxr_keyword">this</strong>(nbPoints, stepSize, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+<a class="jxr_linenumber" name="L110" href="FiniteDifferencesDifferentiator.html#L110">110</a>     }
+<a class="jxr_linenumber" name="L111" href="FiniteDifferencesDifferentiator.html#L111">111</a> 
+<a class="jxr_linenumber" name="L112" href="FiniteDifferencesDifferentiator.html#L112">112</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L113" href="FiniteDifferencesDifferentiator.html#L113">113</a> <em class="jxr_javadoccomment">     * Build a differentiator with number of points and step size when independent variable is bounded.</em>
+<a class="jxr_linenumber" name="L114" href="FiniteDifferencesDifferentiator.html#L114">114</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L115" href="FiniteDifferencesDifferentiator.html#L115">115</a> <em class="jxr_javadoccomment">     * When the independent variable is bounded (tLower &amp;lt; t &amp;lt; tUpper), the sampling</em>
+<a class="jxr_linenumber" name="L116" href="FiniteDifferencesDifferentiator.html#L116">116</a> <em class="jxr_javadoccomment">     * points used for differentiation will be adapted to ensure the constraint holds</em>
+<a class="jxr_linenumber" name="L117" href="FiniteDifferencesDifferentiator.html#L117">117</a> <em class="jxr_javadoccomment">     * even near the boundaries. This means the sample will not be centered anymore in</em>
+<a class="jxr_linenumber" name="L118" href="FiniteDifferencesDifferentiator.html#L118">118</a> <em class="jxr_javadoccomment">     * these cases. At an extreme case, computing derivatives exactly at the lower bound</em>
+<a class="jxr_linenumber" name="L119" href="FiniteDifferencesDifferentiator.html#L119">119</a> <em class="jxr_javadoccomment">     * will lead the sample to be entirely on the right side of the derivation point.</em>
+<a class="jxr_linenumber" name="L120" href="FiniteDifferencesDifferentiator.html#L120">120</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L121" href="FiniteDifferencesDifferentiator.html#L121">121</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L122" href="FiniteDifferencesDifferentiator.html#L122">122</a> <em class="jxr_javadoccomment">     * Note that the boundaries are considered to be excluded for function evaluation.</em>
+<a class="jxr_linenumber" name="L123" href="FiniteDifferencesDifferentiator.html#L123">123</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L124" href="FiniteDifferencesDifferentiator.html#L124">124</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L125" href="FiniteDifferencesDifferentiator.html#L125">125</a> <em class="jxr_javadoccomment">     * Beware that wrong settings for the finite differences differentiator</em>
+<a class="jxr_linenumber" name="L126" href="FiniteDifferencesDifferentiator.html#L126">126</a> <em class="jxr_javadoccomment">     * can lead to highly unstable and inaccurate results, especially for</em>
+<a class="jxr_linenumber" name="L127" href="FiniteDifferencesDifferentiator.html#L127">127</a> <em class="jxr_javadoccomment">     * high derivation orders. Using very small step sizes is often a</em>
+<a class="jxr_linenumber" name="L128" href="FiniteDifferencesDifferentiator.html#L128">128</a> <em class="jxr_javadoccomment">     * &lt;em&gt;bad&lt;/em&gt; idea.</em>
+<a class="jxr_linenumber" name="L129" href="FiniteDifferencesDifferentiator.html#L129">129</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L130" href="FiniteDifferencesDifferentiator.html#L130">130</a> <em class="jxr_javadoccomment">     * @param nbPoints number of points to use</em>
+<a class="jxr_linenumber" name="L131" href="FiniteDifferencesDifferentiator.html#L131">131</a> <em class="jxr_javadoccomment">     * @param stepSize step size (gap between each point)</em>
+<a class="jxr_linenumber" name="L132" href="FiniteDifferencesDifferentiator.html#L132">132</a> <em class="jxr_javadoccomment">     * @param tLower lower bound for independent variable (may be {@code Double.NEGATIVE_INFINITY}</em>
+<a class="jxr_linenumber" name="L133" href="FiniteDifferencesDifferentiator.html#L133">133</a> <em class="jxr_javadoccomment">     * if there are no lower bounds)</em>
+<a class="jxr_linenumber" name="L134" href="FiniteDifferencesDifferentiator.html#L134">134</a> <em class="jxr_javadoccomment">     * @param tUpper upper bound for independent variable (may be {@code Double.POSITIVE_INFINITY}</em>
+<a class="jxr_linenumber" name="L135" href="FiniteDifferencesDifferentiator.html#L135">135</a> <em class="jxr_javadoccomment">     * if there are no upper bounds)</em>
+<a class="jxr_linenumber" name="L136" href="FiniteDifferencesDifferentiator.html#L136">136</a> <em class="jxr_javadoccomment">     * @exception NotPositiveException if {@code stepsize &lt;= 0} (note that</em>
+<a class="jxr_linenumber" name="L137" href="FiniteDifferencesDifferentiator.html#L137">137</a> <em class="jxr_javadoccomment">     * {@link NotPositiveException} extends {@link NumberIsTooSmallException})</em>
+<a class="jxr_linenumber" name="L138" href="FiniteDifferencesDifferentiator.html#L138">138</a> <em class="jxr_javadoccomment">     * @exception NumberIsTooSmallException {@code nbPoint &lt;= 1}</em>
+<a class="jxr_linenumber" name="L139" href="FiniteDifferencesDifferentiator.html#L139">139</a> <em class="jxr_javadoccomment">     * @exception NumberIsTooLargeException {@code stepSize * (nbPoints - 1) &gt;= tUpper - tLower}</em>
+<a class="jxr_linenumber" name="L140" href="FiniteDifferencesDifferentiator.html#L140">140</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L141" href="FiniteDifferencesDifferentiator.html#L141">141</a>     <strong class="jxr_keyword">public</strong> <a href="FiniteDifferencesDifferentiator.html">FiniteDifferencesDifferentiator</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nbPoints, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> stepSize,
+<a class="jxr_linenumber" name="L142" href="FiniteDifferencesDifferentiator.html#L142">142</a>                                            <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tLower, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tUpper)
+<a class="jxr_linenumber" name="L143" href="FiniteDifferencesDifferentiator.html#L143">143</a>             <strong class="jxr_keyword">throws</strong> NotPositiveException, NumberIsTooSmallException, <a href="../../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a> {
+<a class="jxr_linenumber" name="L144" href="FiniteDifferencesDifferentiator.html#L144">144</a> 
+<a class="jxr_linenumber" name="L145" href="FiniteDifferencesDifferentiator.html#L145">145</a>         <strong class="jxr_keyword">if</strong> (nbPoints &lt;= 1) {
+<a class="jxr_linenumber" name="L146" href="FiniteDifferencesDifferentiator.html#L146">146</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(stepSize, 1, false);
+<a class="jxr_linenumber" name="L147" href="FiniteDifferencesDifferentiator.html#L147">147</a>         }
+<a class="jxr_linenumber" name="L148" href="FiniteDifferencesDifferentiator.html#L148">148</a>         <strong class="jxr_keyword">this</strong>.nbPoints = nbPoints;
+<a class="jxr_linenumber" name="L149" href="FiniteDifferencesDifferentiator.html#L149">149</a> 
+<a class="jxr_linenumber" name="L150" href="FiniteDifferencesDifferentiator.html#L150">150</a>         <strong class="jxr_keyword">if</strong> (stepSize &lt;= 0) {
+<a class="jxr_linenumber" name="L151" href="FiniteDifferencesDifferentiator.html#L151">151</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotPositiveException.html">NotPositiveException</a>(stepSize);
+<a class="jxr_linenumber" name="L152" href="FiniteDifferencesDifferentiator.html#L152">152</a>         }
+<a class="jxr_linenumber" name="L153" href="FiniteDifferencesDifferentiator.html#L153">153</a>         <strong class="jxr_keyword">this</strong>.stepSize = stepSize;
+<a class="jxr_linenumber" name="L154" href="FiniteDifferencesDifferentiator.html#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="FiniteDifferencesDifferentiator.html#L155">155</a>         halfSampleSpan = 0.5 * stepSize * (nbPoints - 1);
+<a class="jxr_linenumber" name="L156" href="FiniteDifferencesDifferentiator.html#L156">156</a>         <strong class="jxr_keyword">if</strong> (2 * halfSampleSpan &gt;= tUpper - tLower) {
+<a class="jxr_linenumber" name="L157" href="FiniteDifferencesDifferentiator.html#L157">157</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a>(2 * halfSampleSpan, tUpper - tLower, false);
+<a class="jxr_linenumber" name="L158" href="FiniteDifferencesDifferentiator.html#L158">158</a>         }
+<a class="jxr_linenumber" name="L159" href="FiniteDifferencesDifferentiator.html#L159">159</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> safety = FastMath.ulp(halfSampleSpan);
+<a class="jxr_linenumber" name="L160" href="FiniteDifferencesDifferentiator.html#L160">160</a>         <strong class="jxr_keyword">this</strong>.tMin = tLower + halfSampleSpan + safety;
+<a class="jxr_linenumber" name="L161" href="FiniteDifferencesDifferentiator.html#L161">161</a>         <strong class="jxr_keyword">this</strong>.tMax = tUpper - halfSampleSpan - safety;
+<a class="jxr_linenumber" name="L162" href="FiniteDifferencesDifferentiator.html#L162">162</a> 
+<a class="jxr_linenumber" name="L163" href="FiniteDifferencesDifferentiator.html#L163">163</a>     }
+<a class="jxr_linenumber" name="L164" href="FiniteDifferencesDifferentiator.html#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="FiniteDifferencesDifferentiator.html#L165">165</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L166" href="FiniteDifferencesDifferentiator.html#L166">166</a> <em class="jxr_javadoccomment">     * Get the number of points to use.</em>
+<a class="jxr_linenumber" name="L167" href="FiniteDifferencesDifferentiator.html#L167">167</a> <em class="jxr_javadoccomment">     * @return number of points to use</em>
+<a class="jxr_linenumber" name="L168" href="FiniteDifferencesDifferentiator.html#L168">168</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L169" href="FiniteDifferencesDifferentiator.html#L169">169</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getNbPoints() {
+<a class="jxr_linenumber" name="L170" href="FiniteDifferencesDifferentiator.html#L170">170</a>         <strong class="jxr_keyword">return</strong> nbPoints;
+<a class="jxr_linenumber" name="L171" href="FiniteDifferencesDifferentiator.html#L171">171</a>     }
+<a class="jxr_linenumber" name="L172" href="FiniteDifferencesDifferentiator.html#L172">172</a> 
+<a class="jxr_linenumber" name="L173" href="FiniteDifferencesDifferentiator.html#L173">173</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L174" href="FiniteDifferencesDifferentiator.html#L174">174</a> <em class="jxr_javadoccomment">     * Get the step size.</em>
+<a class="jxr_linenumber" name="L175" href="FiniteDifferencesDifferentiator.html#L175">175</a> <em class="jxr_javadoccomment">     * @return step size</em>
+<a class="jxr_linenumber" name="L176" href="FiniteDifferencesDifferentiator.html#L176">176</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L177" href="FiniteDifferencesDifferentiator.html#L177">177</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getStepSize() {
+<a class="jxr_linenumber" name="L178" href="FiniteDifferencesDifferentiator.html#L178">178</a>         <strong class="jxr_keyword">return</strong> stepSize;
+<a class="jxr_linenumber" name="L179" href="FiniteDifferencesDifferentiator.html#L179">179</a>     }
+<a class="jxr_linenumber" name="L180" href="FiniteDifferencesDifferentiator.html#L180">180</a> 
+<a class="jxr_linenumber" name="L181" href="FiniteDifferencesDifferentiator.html#L181">181</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L182" href="FiniteDifferencesDifferentiator.html#L182">182</a> <em class="jxr_javadoccomment">     * Evaluate derivatives from a sample.</em>
+<a class="jxr_linenumber" name="L183" href="FiniteDifferencesDifferentiator.html#L183">183</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L184" href="FiniteDifferencesDifferentiator.html#L184">184</a> <em class="jxr_javadoccomment">     * Evaluation is done using divided differences.</em>
+<a class="jxr_linenumber" name="L185" href="FiniteDifferencesDifferentiator.html#L185">185</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L186" href="FiniteDifferencesDifferentiator.html#L186">186</a> <em class="jxr_javadoccomment">     * @param t evaluation abscissa value and derivatives</em>
+<a class="jxr_linenumber" name="L187" href="FiniteDifferencesDifferentiator.html#L187">187</a> <em class="jxr_javadoccomment">     * @param t0 first sample point abscissa</em>
+<a class="jxr_linenumber" name="L188" href="FiniteDifferencesDifferentiator.html#L188">188</a> <em class="jxr_javadoccomment">     * @param y function values sample {@code y[i] = f(t[i]) = f(t0 + i * stepSize)}</em>
+<a class="jxr_linenumber" name="L189" href="FiniteDifferencesDifferentiator.html#L189">189</a> <em class="jxr_javadoccomment">     * @return value and derivatives at {@code t}</em>
+<a class="jxr_linenumber" name="L190" href="FiniteDifferencesDifferentiator.html#L190">190</a> <em class="jxr_javadoccomment">     * @exception NumberIsTooLargeException if the requested derivation order</em>
+<a class="jxr_linenumber" name="L191" href="FiniteDifferencesDifferentiator.html#L191">191</a> <em class="jxr_javadoccomment">     * is larger or equal to the number of points</em>
+<a class="jxr_linenumber" name="L192" href="FiniteDifferencesDifferentiator.html#L192">192</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L193" href="FiniteDifferencesDifferentiator.html#L193">193</a>     <strong class="jxr_keyword">private</strong> <a href="DerivativeStructure.html">DerivativeStructure</a> evaluate(<strong class="jxr_keyword">final</strong> <a href="DerivativeStructure.html">DerivativeStructure</a> t, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> t0,
+<a class="jxr_linenumber" name="L194" href="FiniteDifferencesDifferentiator.html#L194">194</a>                                          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] y)
+<a class="jxr_linenumber" name="L195" href="FiniteDifferencesDifferentiator.html#L195">195</a>         <strong class="jxr_keyword">throws</strong> <a href="../../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a> {
+<a class="jxr_linenumber" name="L196" href="FiniteDifferencesDifferentiator.html#L196">196</a> 
+<a class="jxr_linenumber" name="L197" href="FiniteDifferencesDifferentiator.html#L197">197</a>         <em class="jxr_comment">// create divided differences diagonal arrays</em>
+<a class="jxr_linenumber" name="L198" href="FiniteDifferencesDifferentiator.html#L198">198</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] top    = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nbPoints];
+<a class="jxr_linenumber" name="L199" href="FiniteDifferencesDifferentiator.html#L199">199</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] bottom = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nbPoints];
+<a class="jxr_linenumber" name="L200" href="FiniteDifferencesDifferentiator.html#L200">200</a> 
+<a class="jxr_linenumber" name="L201" href="FiniteDifferencesDifferentiator.html#L201">201</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nbPoints; ++i) {
+<a class="jxr_linenumber" name="L202" href="FiniteDifferencesDifferentiator.html#L202">202</a> 
+<a class="jxr_linenumber" name="L203" href="FiniteDifferencesDifferentiator.html#L203">203</a>             <em class="jxr_comment">// update the bottom diagonal of the divided differences array</em>
+<a class="jxr_linenumber" name="L204" href="FiniteDifferencesDifferentiator.html#L204">204</a>             bottom[i] = y[i];
+<a class="jxr_linenumber" name="L205" href="FiniteDifferencesDifferentiator.html#L205">205</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 1; j &lt;= i; ++j) {
+<a class="jxr_linenumber" name="L206" href="FiniteDifferencesDifferentiator.html#L206">206</a>                 bottom[i - j] = (bottom[i - j + 1] - bottom[i - j]) / (j * stepSize);
+<a class="jxr_linenumber" name="L207" href="FiniteDifferencesDifferentiator.html#L207">207</a>             }
+<a class="jxr_linenumber" name="L208" href="FiniteDifferencesDifferentiator.html#L208">208</a> 
+<a class="jxr_linenumber" name="L209" href="FiniteDifferencesDifferentiator.html#L209">209</a>             <em class="jxr_comment">// update the top diagonal of the divided differences array</em>
+<a class="jxr_linenumber" name="L210" href="FiniteDifferencesDifferentiator.html#L210">210</a>             top[i] = bottom[0];
+<a class="jxr_linenumber" name="L211" href="FiniteDifferencesDifferentiator.html#L211">211</a> 
+<a class="jxr_linenumber" name="L212" href="FiniteDifferencesDifferentiator.html#L212">212</a>         }
+<a class="jxr_linenumber" name="L213" href="FiniteDifferencesDifferentiator.html#L213">213</a> 
+<a class="jxr_linenumber" name="L214" href="FiniteDifferencesDifferentiator.html#L214">214</a>         <em class="jxr_comment">// evaluate interpolation polynomial (represented by top diagonal) at t</em>
+<a class="jxr_linenumber" name="L215" href="FiniteDifferencesDifferentiator.html#L215">215</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> order            = t.getOrder();
+<a class="jxr_linenumber" name="L216" href="FiniteDifferencesDifferentiator.html#L216">216</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> parameters       = t.getFreeParameters();
+<a class="jxr_linenumber" name="L217" href="FiniteDifferencesDifferentiator.html#L217">217</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] derivatives = t.getAllDerivatives();
+<a class="jxr_linenumber" name="L218" href="FiniteDifferencesDifferentiator.html#L218">218</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> dt0           = t.getValue() - t0;
+<a class="jxr_linenumber" name="L219" href="FiniteDifferencesDifferentiator.html#L219">219</a>         <a href="DerivativeStructure.html">DerivativeStructure</a> interpolation = <strong class="jxr_keyword">new</strong> <a href="DerivativeStructure.html">DerivativeStructure</a>(parameters, order, 0.0);
+<a class="jxr_linenumber" name="L220" href="FiniteDifferencesDifferentiator.html#L220">220</a>         <a href="DerivativeStructure.html">DerivativeStructure</a> monomial = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L221" href="FiniteDifferencesDifferentiator.html#L221">221</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nbPoints; ++i) {
+<a class="jxr_linenumber" name="L222" href="FiniteDifferencesDifferentiator.html#L222">222</a>             <strong class="jxr_keyword">if</strong> (i == 0) {
+<a class="jxr_linenumber" name="L223" href="FiniteDifferencesDifferentiator.html#L223">223</a>                 <em class="jxr_comment">// start with monomial(t) = 1</em>
+<a class="jxr_linenumber" name="L224" href="FiniteDifferencesDifferentiator.html#L224">224</a>                 monomial = <strong class="jxr_keyword">new</strong> <a href="DerivativeStructure.html">DerivativeStructure</a>(parameters, order, 1.0);
+<a class="jxr_linenumber" name="L225" href="FiniteDifferencesDifferentiator.html#L225">225</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L226" href="FiniteDifferencesDifferentiator.html#L226">226</a>                 <em class="jxr_comment">// monomial(t) = (t - t0) * (t - t1) * ... * (t - t(i-1))</em>
+<a class="jxr_linenumber" name="L227" href="FiniteDifferencesDifferentiator.html#L227">227</a>                 derivatives[0] = dt0 - (i - 1) * stepSize;
+<a class="jxr_linenumber" name="L228" href="FiniteDifferencesDifferentiator.html#L228">228</a>                 <strong class="jxr_keyword">final</strong> <a href="DerivativeStructure.html">DerivativeStructure</a> deltaX = <strong class="jxr_keyword">new</strong> <a href="DerivativeStructure.html">DerivativeStructure</a>(parameters, order, derivatives);
+<a class="jxr_linenumber" name="L229" href="FiniteDifferencesDifferentiator.html#L229">229</a>                 monomial = monomial.multiply(deltaX);
+<a class="jxr_linenumber" name="L230" href="FiniteDifferencesDifferentiator.html#L230">230</a>             }
+<a class="jxr_linenumber" name="L231" href="FiniteDifferencesDifferentiator.html#L231">231</a>             interpolation = interpolation.add(monomial.multiply(top[i]));
+<a class="jxr_linenumber" name="L232" href="FiniteDifferencesDifferentiator.html#L232">232</a>         }
+<a class="jxr_linenumber" name="L233" href="FiniteDifferencesDifferentiator.html#L233">233</a> 
+<a class="jxr_linenumber" name="L234" href="FiniteDifferencesDifferentiator.html#L234">234</a>         <strong class="jxr_keyword">return</strong> interpolation;
+<a class="jxr_linenumber" name="L235" href="FiniteDifferencesDifferentiator.html#L235">235</a> 
+<a class="jxr_linenumber" name="L236" href="FiniteDifferencesDifferentiator.html#L236">236</a>     }
+<a class="jxr_linenumber" name="L237" href="FiniteDifferencesDifferentiator.html#L237">237</a> 
+<a class="jxr_linenumber" name="L238" href="FiniteDifferencesDifferentiator.html#L238">238</a>     <em class="jxr_javadoccomment">/** {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L239" href="FiniteDifferencesDifferentiator.html#L239">239</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The returned object cannot compute derivatives to arbitrary orders. The</em>
+<a class="jxr_linenumber" name="L240" href="FiniteDifferencesDifferentiator.html#L240">240</a> <em class="jxr_javadoccomment">     * value function will throw a {@link NumberIsTooLargeException} if the requested</em>
+<a class="jxr_linenumber" name="L241" href="FiniteDifferencesDifferentiator.html#L241">241</a> <em class="jxr_javadoccomment">     * derivation order is larger or equal to the number of points.</em>
+<a class="jxr_linenumber" name="L242" href="FiniteDifferencesDifferentiator.html#L242">242</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L243" href="FiniteDifferencesDifferentiator.html#L243">243</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L244" href="FiniteDifferencesDifferentiator.html#L244">244</a>     @Override
+<a class="jxr_linenumber" name="L245" href="FiniteDifferencesDifferentiator.html#L245">245</a>     <strong class="jxr_keyword">public</strong> <a href="UnivariateDifferentiableFunction.html">UnivariateDifferentiableFunction</a> differentiate(<strong class="jxr_keyword">final</strong> <a href="../UnivariateFunction.html">UnivariateFunction</a> function) {
+<a class="jxr_linenumber" name="L246" href="FiniteDifferencesDifferentiator.html#L246">246</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="UnivariateDifferentiableFunction.html">UnivariateDifferentiableFunction</a>() {
+<a class="jxr_linenumber" name="L247" href="FiniteDifferencesDifferentiator.html#L247">247</a> 
+<a class="jxr_linenumber" name="L248" href="FiniteDifferencesDifferentiator.html#L248">248</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L249" href="FiniteDifferencesDifferentiator.html#L249">249</a>             @Override
+<a class="jxr_linenumber" name="L250" href="FiniteDifferencesDifferentiator.html#L250">250</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L251" href="FiniteDifferencesDifferentiator.html#L251">251</a>                 <strong class="jxr_keyword">return</strong> function.value(x);
+<a class="jxr_linenumber" name="L252" href="FiniteDifferencesDifferentiator.html#L252">252</a>             }
+<a class="jxr_linenumber" name="L253" href="FiniteDifferencesDifferentiator.html#L253">253</a> 
+<a class="jxr_linenumber" name="L254" href="FiniteDifferencesDifferentiator.html#L254">254</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L255" href="FiniteDifferencesDifferentiator.html#L255">255</a>             @Override
+<a class="jxr_linenumber" name="L256" href="FiniteDifferencesDifferentiator.html#L256">256</a>             <strong class="jxr_keyword">public</strong> <a href="DerivativeStructure.html">DerivativeStructure</a> value(<strong class="jxr_keyword">final</strong> <a href="DerivativeStructure.html">DerivativeStructure</a> t)
+<a class="jxr_linenumber" name="L257" href="FiniteDifferencesDifferentiator.html#L257">257</a>                 <strong class="jxr_keyword">throws</strong> <a href="../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L258" href="FiniteDifferencesDifferentiator.html#L258">258</a> 
+<a class="jxr_linenumber" name="L259" href="FiniteDifferencesDifferentiator.html#L259">259</a>                 <em class="jxr_comment">// check we can achieve the requested derivation order with the sample</em>
+<a class="jxr_linenumber" name="L260" href="FiniteDifferencesDifferentiator.html#L260">260</a>                 <strong class="jxr_keyword">if</strong> (t.getOrder() &gt;= nbPoints) {
+<a class="jxr_linenumber" name="L261" href="FiniteDifferencesDifferentiator.html#L261">261</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a>(t.getOrder(), nbPoints, false);
+<a class="jxr_linenumber" name="L262" href="FiniteDifferencesDifferentiator.html#L262">262</a>                 }
+<a class="jxr_linenumber" name="L263" href="FiniteDifferencesDifferentiator.html#L263">263</a> 
+<a class="jxr_linenumber" name="L264" href="FiniteDifferencesDifferentiator.html#L264">264</a>                 <em class="jxr_comment">// compute sample position, trying to be centered if possible</em>
+<a class="jxr_linenumber" name="L265" href="FiniteDifferencesDifferentiator.html#L265">265</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> t0 = FastMath.max(FastMath.min(t.getValue(), tMax), tMin) - halfSampleSpan;
+<a class="jxr_linenumber" name="L266" href="FiniteDifferencesDifferentiator.html#L266">266</a> 
+<a class="jxr_linenumber" name="L267" href="FiniteDifferencesDifferentiator.html#L267">267</a>                 <em class="jxr_comment">// compute sample points</em>
+<a class="jxr_linenumber" name="L268" href="FiniteDifferencesDifferentiator.html#L268">268</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] y = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nbPoints];
+<a class="jxr_linenumber" name="L269" href="FiniteDifferencesDifferentiator.html#L269">269</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nbPoints; ++i) {
+<a class="jxr_linenumber" name="L270" href="FiniteDifferencesDifferentiator.html#L270">270</a>                     y[i] = function.value(t0 + i * stepSize);
+<a class="jxr_linenumber" name="L271" href="FiniteDifferencesDifferentiator.html#L271">271</a>                 }
+<a class="jxr_linenumber" name="L272" href="FiniteDifferencesDifferentiator.html#L272">272</a> 
+<a class="jxr_linenumber" name="L273" href="FiniteDifferencesDifferentiator.html#L273">273</a>                 <em class="jxr_comment">// evaluate derivatives</em>
+<a class="jxr_linenumber" name="L274" href="FiniteDifferencesDifferentiator.html#L274">274</a>                 <strong class="jxr_keyword">return</strong> evaluate(t, t0, y);
+<a class="jxr_linenumber" name="L275" href="FiniteDifferencesDifferentiator.html#L275">275</a> 
+<a class="jxr_linenumber" name="L276" href="FiniteDifferencesDifferentiator.html#L276">276</a>             }
+<a class="jxr_linenumber" name="L277" href="FiniteDifferencesDifferentiator.html#L277">277</a> 
+<a class="jxr_linenumber" name="L278" href="FiniteDifferencesDifferentiator.html#L278">278</a>         };
+<a class="jxr_linenumber" name="L279" href="FiniteDifferencesDifferentiator.html#L279">279</a>     }
+<a class="jxr_linenumber" name="L280" href="FiniteDifferencesDifferentiator.html#L280">280</a> 
+<a class="jxr_linenumber" name="L281" href="FiniteDifferencesDifferentiator.html#L281">281</a>     <em class="jxr_javadoccomment">/** {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L282" href="FiniteDifferencesDifferentiator.html#L282">282</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The returned object cannot compute derivatives to arbitrary orders. The</em>
+<a class="jxr_linenumber" name="L283" href="FiniteDifferencesDifferentiator.html#L283">283</a> <em class="jxr_javadoccomment">     * value function will throw a {@link NumberIsTooLargeException} if the requested</em>
+<a class="jxr_linenumber" name="L284" href="FiniteDifferencesDifferentiator.html#L284">284</a> <em class="jxr_javadoccomment">     * derivation order is larger or equal to the number of points.</em>
+<a class="jxr_linenumber" name="L285" href="FiniteDifferencesDifferentiator.html#L285">285</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L286" href="FiniteDifferencesDifferentiator.html#L286">286</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L287" href="FiniteDifferencesDifferentiator.html#L287">287</a>     @Override
+<a class="jxr_linenumber" name="L288" href="FiniteDifferencesDifferentiator.html#L288">288</a>     <strong class="jxr_keyword">public</strong> <a href="UnivariateDifferentiableVectorFunction.html">UnivariateDifferentiableVectorFunction</a> differentiate(<strong class="jxr_keyword">final</strong> <a href="../UnivariateVectorFunction.html">UnivariateVectorFunction</a> function) {
+<a class="jxr_linenumber" name="L289" href="FiniteDifferencesDifferentiator.html#L289">289</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="UnivariateDifferentiableVectorFunction.html">UnivariateDifferentiableVectorFunction</a>() {
+<a class="jxr_linenumber" name="L290" href="FiniteDifferencesDifferentiator.html#L290">290</a> 
+<a class="jxr_linenumber" name="L291" href="FiniteDifferencesDifferentiator.html#L291">291</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L292" href="FiniteDifferencesDifferentiator.html#L292">292</a>             @Override
+<a class="jxr_linenumber" name="L293" href="FiniteDifferencesDifferentiator.html#L293">293</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[]value(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L294" href="FiniteDifferencesDifferentiator.html#L294">294</a>                 <strong class="jxr_keyword">return</strong> function.value(x);
+<a class="jxr_linenumber" name="L295" href="FiniteDifferencesDifferentiator.html#L295">295</a>             }
+<a class="jxr_linenumber" name="L296" href="FiniteDifferencesDifferentiator.html#L296">296</a> 
+<a class="jxr_linenumber" name="L297" href="FiniteDifferencesDifferentiator.html#L297">297</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L298" href="FiniteDifferencesDifferentiator.html#L298">298</a>             @Override
+<a class="jxr_linenumber" name="L299" href="FiniteDifferencesDifferentiator.html#L299">299</a>             <strong class="jxr_keyword">public</strong> <a href="DerivativeStructure.html">DerivativeStructure</a>[] value(<strong class="jxr_keyword">final</strong> <a href="DerivativeStructure.html">DerivativeStructure</a> t)
+<a class="jxr_linenumber" name="L300" href="FiniteDifferencesDifferentiator.html#L300">300</a>                 <strong class="jxr_keyword">throws</strong> <a href="../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L301" href="FiniteDifferencesDifferentiator.html#L301">301</a> 
+<a class="jxr_linenumber" name="L302" href="FiniteDifferencesDifferentiator.html#L302">302</a>                 <em class="jxr_comment">// check we can achieve the requested derivation order with the sample</em>
+<a class="jxr_linenumber" name="L303" href="FiniteDifferencesDifferentiator.html#L303">303</a>                 <strong class="jxr_keyword">if</strong> (t.getOrder() &gt;= nbPoints) {
+<a class="jxr_linenumber" name="L304" href="FiniteDifferencesDifferentiator.html#L304">304</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a>(t.getOrder(), nbPoints, false);
+<a class="jxr_linenumber" name="L305" href="FiniteDifferencesDifferentiator.html#L305">305</a>                 }
+<a class="jxr_linenumber" name="L306" href="FiniteDifferencesDifferentiator.html#L306">306</a> 
+<a class="jxr_linenumber" name="L307" href="FiniteDifferencesDifferentiator.html#L307">307</a>                 <em class="jxr_comment">// compute sample position, trying to be centered if possible</em>
+<a class="jxr_linenumber" name="L308" href="FiniteDifferencesDifferentiator.html#L308">308</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> t0 = FastMath.max(FastMath.min(t.getValue(), tMax), tMin) - halfSampleSpan;
+<a class="jxr_linenumber" name="L309" href="FiniteDifferencesDifferentiator.html#L309">309</a> 
+<a class="jxr_linenumber" name="L310" href="FiniteDifferencesDifferentiator.html#L310">310</a>                 <em class="jxr_comment">// compute sample points</em>
+<a class="jxr_linenumber" name="L311" href="FiniteDifferencesDifferentiator.html#L311">311</a>                 <strong class="jxr_keyword">double</strong>[][] y = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L312" href="FiniteDifferencesDifferentiator.html#L312">312</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nbPoints; ++i) {
+<a class="jxr_linenumber" name="L313" href="FiniteDifferencesDifferentiator.html#L313">313</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] v = function.value(t0 + i * stepSize);
+<a class="jxr_linenumber" name="L314" href="FiniteDifferencesDifferentiator.html#L314">314</a>                     <strong class="jxr_keyword">if</strong> (i == 0) {
+<a class="jxr_linenumber" name="L315" href="FiniteDifferencesDifferentiator.html#L315">315</a>                         y = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[v.length][nbPoints];
+<a class="jxr_linenumber" name="L316" href="FiniteDifferencesDifferentiator.html#L316">316</a>                     }
+<a class="jxr_linenumber" name="L317" href="FiniteDifferencesDifferentiator.html#L317">317</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; v.length; ++j) {
+<a class="jxr_linenumber" name="L318" href="FiniteDifferencesDifferentiator.html#L318">318</a>                         y[j][i] = v[j];
+<a class="jxr_linenumber" name="L319" href="FiniteDifferencesDifferentiator.html#L319">319</a>                     }
+<a class="jxr_linenumber" name="L320" href="FiniteDifferencesDifferentiator.html#L320">320</a>                 }
+<a class="jxr_linenumber" name="L321" href="FiniteDifferencesDifferentiator.html#L321">321</a> 
+<a class="jxr_linenumber" name="L322" href="FiniteDifferencesDifferentiator.html#L322">322</a>                 <em class="jxr_comment">// evaluate derivatives</em>
+<a class="jxr_linenumber" name="L323" href="FiniteDifferencesDifferentiator.html#L323">323</a>                 <strong class="jxr_keyword">final</strong> <a href="DerivativeStructure.html">DerivativeStructure</a>[] value = <strong class="jxr_keyword">new</strong> <a href="DerivativeStructure.html">DerivativeStructure</a>[y.length];
+<a class="jxr_linenumber" name="L324" href="FiniteDifferencesDifferentiator.html#L324">324</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; value.length; ++j) {
+<a class="jxr_linenumber" name="L325" href="FiniteDifferencesDifferentiator.html#L325">325</a>                     value[j] = evaluate(t, t0, y[j]);
+<a class="jxr_linenumber" name="L326" href="FiniteDifferencesDifferentiator.html#L326">326</a>                 }
+<a class="jxr_linenumber" name="L327" href="FiniteDifferencesDifferentiator.html#L327">327</a> 
+<a class="jxr_linenumber" name="L328" href="FiniteDifferencesDifferentiator.html#L328">328</a>                 <strong class="jxr_keyword">return</strong> value;
+<a class="jxr_linenumber" name="L329" href="FiniteDifferencesDifferentiator.html#L329">329</a> 
+<a class="jxr_linenumber" name="L330" href="FiniteDifferencesDifferentiator.html#L330">330</a>             }
+<a class="jxr_linenumber" name="L331" href="FiniteDifferencesDifferentiator.html#L331">331</a> 
+<a class="jxr_linenumber" name="L332" href="FiniteDifferencesDifferentiator.html#L332">332</a>         };
+<a class="jxr_linenumber" name="L333" href="FiniteDifferencesDifferentiator.html#L333">333</a>     }
+<a class="jxr_linenumber" name="L334" href="FiniteDifferencesDifferentiator.html#L334">334</a> 
+<a class="jxr_linenumber" name="L335" href="FiniteDifferencesDifferentiator.html#L335">335</a>     <em class="jxr_javadoccomment">/** {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L336" href="FiniteDifferencesDifferentiator.html#L336">336</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The returned object cannot compute derivatives to arbitrary orders. The</em>
+<a class="jxr_linenumber" name="L337" href="FiniteDifferencesDifferentiator.html#L337">337</a> <em class="jxr_javadoccomment">     * value function will throw a {@link NumberIsTooLargeException} if the requested</em>
+<a class="jxr_linenumber" name="L338" href="FiniteDifferencesDifferentiator.html#L338">338</a> <em class="jxr_javadoccomment">     * derivation order is larger or equal to the number of points.</em>
+<a class="jxr_linenumber" name="L339" href="FiniteDifferencesDifferentiator.html#L339">339</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L340" href="FiniteDifferencesDifferentiator.html#L340">340</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L341" href="FiniteDifferencesDifferentiator.html#L341">341</a>     @Override
+<a class="jxr_linenumber" name="L342" href="FiniteDifferencesDifferentiator.html#L342">342</a>     <strong class="jxr_keyword">public</strong> <a href="UnivariateDifferentiableMatrixFunction.html">UnivariateDifferentiableMatrixFunction</a> differentiate(<strong class="jxr_keyword">final</strong> <a href="../UnivariateMatrixFunction.html">UnivariateMatrixFunction</a> function) {
+<a class="jxr_linenumber" name="L343" href="FiniteDifferencesDifferentiator.html#L343">343</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="UnivariateDifferentiableMatrixFunction.html">UnivariateDifferentiableMatrixFunction</a>() {
+<a class="jxr_linenumber" name="L344" href="FiniteDifferencesDifferentiator.html#L344">344</a> 
+<a class="jxr_linenumber" name="L345" href="FiniteDifferencesDifferentiator.html#L345">345</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L346" href="FiniteDifferencesDifferentiator.html#L346">346</a>             @Override
+<a class="jxr_linenumber" name="L347" href="FiniteDifferencesDifferentiator.html#L347">347</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[][]  value(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L348" href="FiniteDifferencesDifferentiator.html#L348">348</a>                 <strong class="jxr_keyword">return</strong> function.value(x);
+<a class="jxr_linenumber" name="L349" href="FiniteDifferencesDifferentiator.html#L349">349</a>             }
+<a class="jxr_linenumber" name="L350" href="FiniteDifferencesDifferentiator.html#L350">350</a> 
+<a class="jxr_linenumber" name="L351" href="FiniteDifferencesDifferentiator.html#L351">351</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L352" href="FiniteDifferencesDifferentiator.html#L352">352</a>             @Override
+<a class="jxr_linenumber" name="L353" href="FiniteDifferencesDifferentiator.html#L353">353</a>             <strong class="jxr_keyword">public</strong> <a href="DerivativeStructure.html">DerivativeStructure</a>[][]  value(<strong class="jxr_keyword">final</strong> DerivativeStructure t)
+<a class="jxr_linenumber" name="L354" href="FiniteDifferencesDifferentiator.html#L354">354</a>                 <strong class="jxr_keyword">throws</strong> <a href="../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L355" href="FiniteDifferencesDifferentiator.html#L355">355</a> 
+<a class="jxr_linenumber" name="L356" href="FiniteDifferencesDifferentiator.html#L356">356</a>                 <em class="jxr_comment">// check we can achieve the requested derivation order with the sample</em>
+<a class="jxr_linenumber" name="L357" href="FiniteDifferencesDifferentiator.html#L357">357</a>                 <strong class="jxr_keyword">if</strong> (t.getOrder() &gt;= nbPoints) {
+<a class="jxr_linenumber" name="L358" href="FiniteDifferencesDifferentiator.html#L358">358</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a>(t.getOrder(), nbPoints, false);
+<a class="jxr_linenumber" name="L359" href="FiniteDifferencesDifferentiator.html#L359">359</a>                 }
+<a class="jxr_linenumber" name="L360" href="FiniteDifferencesDifferentiator.html#L360">360</a> 
+<a class="jxr_linenumber" name="L361" href="FiniteDifferencesDifferentiator.html#L361">361</a>                 <em class="jxr_comment">// compute sample position, trying to be centered if possible</em>
+<a class="jxr_linenumber" name="L362" href="FiniteDifferencesDifferentiator.html#L362">362</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> t0 = FastMath.max(FastMath.min(t.getValue(), tMax), tMin) - halfSampleSpan;
+<a class="jxr_linenumber" name="L363" href="FiniteDifferencesDifferentiator.html#L363">363</a> 
+<a class="jxr_linenumber" name="L364" href="FiniteDifferencesDifferentiator.html#L364">364</a>                 <em class="jxr_comment">// compute sample points</em>
+<a class="jxr_linenumber" name="L365" href="FiniteDifferencesDifferentiator.html#L365">365</a>                 <strong class="jxr_keyword">double</strong>[][][] y = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L366" href="FiniteDifferencesDifferentiator.html#L366">366</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nbPoints; ++i) {
+<a class="jxr_linenumber" name="L367" href="FiniteDifferencesDifferentiator.html#L367">367</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] v = function.value(t0 + i * stepSize);
+<a class="jxr_linenumber" name="L368" href="FiniteDifferencesDifferentiator.html#L368">368</a>                     <strong class="jxr_keyword">if</strong> (i == 0) {
+<a class="jxr_linenumber" name="L369" href="FiniteDifferencesDifferentiator.html#L369">369</a>                         y = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[v.length][v[0].length][nbPoints];
+<a class="jxr_linenumber" name="L370" href="FiniteDifferencesDifferentiator.html#L370">370</a>                     }
+<a class="jxr_linenumber" name="L371" href="FiniteDifferencesDifferentiator.html#L371">371</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; v.length; ++j) {
+<a class="jxr_linenumber" name="L372" href="FiniteDifferencesDifferentiator.html#L372">372</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; v[j].length; ++k) {
+<a class="jxr_linenumber" name="L373" href="FiniteDifferencesDifferentiator.html#L373">373</a>                             y[j][k][i] = v[j][k];
+<a class="jxr_linenumber" name="L374" href="FiniteDifferencesDifferentiator.html#L374">374</a>                         }
+<a class="jxr_linenumber" name="L375" href="FiniteDifferencesDifferentiator.html#L375">375</a>                     }
+<a class="jxr_linenumber" name="L376" href="FiniteDifferencesDifferentiator.html#L376">376</a>                 }
+<a class="jxr_linenumber" name="L377" href="FiniteDifferencesDifferentiator.html#L377">377</a> 
+<a class="jxr_linenumber" name="L378" href="FiniteDifferencesDifferentiator.html#L378">378</a>                 <em class="jxr_comment">// evaluate derivatives</em>
+<a class="jxr_linenumber" name="L379" href="FiniteDifferencesDifferentiator.html#L379">379</a>                 <strong class="jxr_keyword">final</strong> <a href="DerivativeStructure.html">DerivativeStructure</a>[][] value = <strong class="jxr_keyword">new</strong> <a href="DerivativeStructure.html">DerivativeStructure</a>[y.length][y[0].length];
+<a class="jxr_linenumber" name="L380" href="FiniteDifferencesDifferentiator.html#L380">380</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; value.length; ++j) {
+<a class="jxr_linenumber" name="L381" href="FiniteDifferencesDifferentiator.html#L381">381</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; y[j].length; ++k) {
+<a class="jxr_linenumber" name="L382" href="FiniteDifferencesDifferentiator.html#L382">382</a>                         value[j][k] = evaluate(t, t0, y[j][k]);
+<a class="jxr_linenumber" name="L383" href="FiniteDifferencesDifferentiator.html#L383">383</a>                     }
+<a class="jxr_linenumber" name="L384" href="FiniteDifferencesDifferentiator.html#L384">384</a>                 }
+<a class="jxr_linenumber" name="L385" href="FiniteDifferencesDifferentiator.html#L385">385</a> 
+<a class="jxr_linenumber" name="L386" href="FiniteDifferencesDifferentiator.html#L386">386</a>                 <strong class="jxr_keyword">return</strong> value;
+<a class="jxr_linenumber" name="L387" href="FiniteDifferencesDifferentiator.html#L387">387</a> 
+<a class="jxr_linenumber" name="L388" href="FiniteDifferencesDifferentiator.html#L388">388</a>             }
+<a class="jxr_linenumber" name="L389" href="FiniteDifferencesDifferentiator.html#L389">389</a> 
+<a class="jxr_linenumber" name="L390" href="FiniteDifferencesDifferentiator.html#L390">390</a>         };
+<a class="jxr_linenumber" name="L391" href="FiniteDifferencesDifferentiator.html#L391">391</a>     }
+<a class="jxr_linenumber" name="L392" href="FiniteDifferencesDifferentiator.html#L392">392</a> 
+<a class="jxr_linenumber" name="L393" href="FiniteDifferencesDifferentiator.html#L393">393</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

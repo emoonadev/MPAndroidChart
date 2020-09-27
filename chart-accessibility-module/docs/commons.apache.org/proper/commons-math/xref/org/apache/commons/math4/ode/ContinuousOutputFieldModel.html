@@ -1,0 +1,359 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>ContinuousOutputFieldModel xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/ode/ContinuousOutputFieldModel.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="ContinuousOutputFieldModel.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="ContinuousOutputFieldModel.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="ContinuousOutputFieldModel.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="ContinuousOutputFieldModel.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="ContinuousOutputFieldModel.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="ContinuousOutputFieldModel.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="ContinuousOutputFieldModel.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="ContinuousOutputFieldModel.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="ContinuousOutputFieldModel.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="ContinuousOutputFieldModel.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="ContinuousOutputFieldModel.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="ContinuousOutputFieldModel.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="ContinuousOutputFieldModel.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="ContinuousOutputFieldModel.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="ContinuousOutputFieldModel.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="ContinuousOutputFieldModel.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="ContinuousOutputFieldModel.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="ContinuousOutputFieldModel.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.ode;
+<a class="jxr_linenumber" name="L19" href="ContinuousOutputFieldModel.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="ContinuousOutputFieldModel.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L21" href="ContinuousOutputFieldModel.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L22" href="ContinuousOutputFieldModel.html#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="ContinuousOutputFieldModel.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.RealFieldElement;
+<a class="jxr_linenumber" name="L24" href="ContinuousOutputFieldModel.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L25" href="ContinuousOutputFieldModel.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L26" href="ContinuousOutputFieldModel.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MaxCountExceededException;
+<a class="jxr_linenumber" name="L27" href="ContinuousOutputFieldModel.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L28" href="ContinuousOutputFieldModel.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.sampling.FieldStepHandler;
+<a class="jxr_linenumber" name="L29" href="ContinuousOutputFieldModel.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.sampling.FieldStepInterpolator;
+<a class="jxr_linenumber" name="L30" href="ContinuousOutputFieldModel.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L31" href="ContinuousOutputFieldModel.html#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="ContinuousOutputFieldModel.html#L32">32</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L33" href="ContinuousOutputFieldModel.html#L33">33</a>  <em class="jxr_javadoccomment"> * This class stores all information provided by an ODE integrator</em>
+<a class="jxr_linenumber" name="L34" href="ContinuousOutputFieldModel.html#L34">34</a>  <em class="jxr_javadoccomment"> * during the integration process and build a continuous model of the</em>
+<a class="jxr_linenumber" name="L35" href="ContinuousOutputFieldModel.html#L35">35</a>  <em class="jxr_javadoccomment"> * solution from this.</em>
+<a class="jxr_linenumber" name="L36" href="ContinuousOutputFieldModel.html#L36">36</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L37" href="ContinuousOutputFieldModel.html#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This class act as a step handler from the integrator point of</em>
+<a class="jxr_linenumber" name="L38" href="ContinuousOutputFieldModel.html#L38">38</a>  <em class="jxr_javadoccomment"> * view. It is called iteratively during the integration process and</em>
+<a class="jxr_linenumber" name="L39" href="ContinuousOutputFieldModel.html#L39">39</a>  <em class="jxr_javadoccomment"> * stores a copy of all steps information in a sorted collection for</em>
+<a class="jxr_linenumber" name="L40" href="ContinuousOutputFieldModel.html#L40">40</a>  <em class="jxr_javadoccomment"> * later use. Once the integration process is over, the user can use</em>
+<a class="jxr_linenumber" name="L41" href="ContinuousOutputFieldModel.html#L41">41</a>  <em class="jxr_javadoccomment"> * the {@link #getInterpolatedState(RealFieldElement) getInterpolatedState}</em>
+<a class="jxr_linenumber" name="L42" href="ContinuousOutputFieldModel.html#L42">42</a>  <em class="jxr_javadoccomment"> * method to retrieve this information at any time. It is important to wait</em>
+<a class="jxr_linenumber" name="L43" href="ContinuousOutputFieldModel.html#L43">43</a>  <em class="jxr_javadoccomment"> * for the integration to be over before attempting to call {@link</em>
+<a class="jxr_linenumber" name="L44" href="ContinuousOutputFieldModel.html#L44">44</a>  <em class="jxr_javadoccomment"> * #getInterpolatedState(RealFieldElement)} because some internal</em>
+<a class="jxr_linenumber" name="L45" href="ContinuousOutputFieldModel.html#L45">45</a>  <em class="jxr_javadoccomment"> * variables are set only once the last step has been handled.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L46" href="ContinuousOutputFieldModel.html#L46">46</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L47" href="ContinuousOutputFieldModel.html#L47">47</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This is useful for example if the main loop of the user</em>
+<a class="jxr_linenumber" name="L48" href="ContinuousOutputFieldModel.html#L48">48</a>  <em class="jxr_javadoccomment"> * application should remain independent from the integration process</em>
+<a class="jxr_linenumber" name="L49" href="ContinuousOutputFieldModel.html#L49">49</a>  <em class="jxr_javadoccomment"> * or if one needs to mimic the behaviour of an analytical model</em>
+<a class="jxr_linenumber" name="L50" href="ContinuousOutputFieldModel.html#L50">50</a>  <em class="jxr_javadoccomment"> * despite a numerical model is used (i.e. one needs the ability to</em>
+<a class="jxr_linenumber" name="L51" href="ContinuousOutputFieldModel.html#L51">51</a>  <em class="jxr_javadoccomment"> * get the model value at any time or to navigate through the</em>
+<a class="jxr_linenumber" name="L52" href="ContinuousOutputFieldModel.html#L52">52</a>  <em class="jxr_javadoccomment"> * data).&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L53" href="ContinuousOutputFieldModel.html#L53">53</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L54" href="ContinuousOutputFieldModel.html#L54">54</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;If problem modeling is done with several separate</em>
+<a class="jxr_linenumber" name="L55" href="ContinuousOutputFieldModel.html#L55">55</a>  <em class="jxr_javadoccomment"> * integration phases for contiguous intervals, the same</em>
+<a class="jxr_linenumber" name="L56" href="ContinuousOutputFieldModel.html#L56">56</a>  <em class="jxr_javadoccomment"> * ContinuousOutputModel can be used as step handler for all</em>
+<a class="jxr_linenumber" name="L57" href="ContinuousOutputFieldModel.html#L57">57</a>  <em class="jxr_javadoccomment"> * integration phases as long as they are performed in order and in</em>
+<a class="jxr_linenumber" name="L58" href="ContinuousOutputFieldModel.html#L58">58</a>  <em class="jxr_javadoccomment"> * the same direction. As an example, one can extrapolate the</em>
+<a class="jxr_linenumber" name="L59" href="ContinuousOutputFieldModel.html#L59">59</a>  <em class="jxr_javadoccomment"> * trajectory of a satellite with one model (i.e. one set of</em>
+<a class="jxr_linenumber" name="L60" href="ContinuousOutputFieldModel.html#L60">60</a>  <em class="jxr_javadoccomment"> * differential equations) up to the beginning of a maneuver, use</em>
+<a class="jxr_linenumber" name="L61" href="ContinuousOutputFieldModel.html#L61">61</a>  <em class="jxr_javadoccomment"> * another more complex model including thrusters modeling and</em>
+<a class="jxr_linenumber" name="L62" href="ContinuousOutputFieldModel.html#L62">62</a>  <em class="jxr_javadoccomment"> * accurate attitude control during the maneuver, and revert to the</em>
+<a class="jxr_linenumber" name="L63" href="ContinuousOutputFieldModel.html#L63">63</a>  <em class="jxr_javadoccomment"> * first model after the end of the maneuver. If the same continuous</em>
+<a class="jxr_linenumber" name="L64" href="ContinuousOutputFieldModel.html#L64">64</a>  <em class="jxr_javadoccomment"> * output model handles the steps of all integration phases, the user</em>
+<a class="jxr_linenumber" name="L65" href="ContinuousOutputFieldModel.html#L65">65</a>  <em class="jxr_javadoccomment"> * do not need to bother when the maneuver begins or ends, he has all</em>
+<a class="jxr_linenumber" name="L66" href="ContinuousOutputFieldModel.html#L66">66</a>  <em class="jxr_javadoccomment"> * the data available in a transparent manner.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L67" href="ContinuousOutputFieldModel.html#L67">67</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L68" href="ContinuousOutputFieldModel.html#L68">68</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;One should be aware that the amount of data stored in a</em>
+<a class="jxr_linenumber" name="L69" href="ContinuousOutputFieldModel.html#L69">69</a>  <em class="jxr_javadoccomment"> * ContinuousOutputFieldModel instance can be important if the state vector</em>
+<a class="jxr_linenumber" name="L70" href="ContinuousOutputFieldModel.html#L70">70</a>  <em class="jxr_javadoccomment"> * is large, if the integration interval is long or if the steps are</em>
+<a class="jxr_linenumber" name="L71" href="ContinuousOutputFieldModel.html#L71">71</a>  <em class="jxr_javadoccomment"> * small (which can result from small tolerance settings in {@link</em>
+<a class="jxr_linenumber" name="L72" href="ContinuousOutputFieldModel.html#L72">72</a>  <em class="jxr_javadoccomment"> * org.apache.commons.math4.ode.nonstiff.AdaptiveStepsizeFieldIntegrator adaptive</em>
+<a class="jxr_linenumber" name="L73" href="ContinuousOutputFieldModel.html#L73">73</a>  <em class="jxr_javadoccomment"> * step size integrators}).&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L74" href="ContinuousOutputFieldModel.html#L74">74</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L75" href="ContinuousOutputFieldModel.html#L75">75</a>  <em class="jxr_javadoccomment"> * @see FieldStepHandler</em>
+<a class="jxr_linenumber" name="L76" href="ContinuousOutputFieldModel.html#L76">76</a>  <em class="jxr_javadoccomment"> * @see FieldStepInterpolator</em>
+<a class="jxr_linenumber" name="L77" href="ContinuousOutputFieldModel.html#L77">77</a>  <em class="jxr_javadoccomment"> * @param &lt;T&gt; the type of the field elements</em>
+<a class="jxr_linenumber" name="L78" href="ContinuousOutputFieldModel.html#L78">78</a>  <em class="jxr_javadoccomment"> * @since 3.6</em>
+<a class="jxr_linenumber" name="L79" href="ContinuousOutputFieldModel.html#L79">79</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L80" href="ContinuousOutputFieldModel.html#L80">80</a>  
+<a class="jxr_linenumber" name="L81" href="ContinuousOutputFieldModel.html#L81">81</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> ContinuousOutputFieldModel&lt;T <strong class="jxr_keyword">extends</strong> RealFieldElement&lt;T&gt;&gt;
+<a class="jxr_linenumber" name="L82" href="ContinuousOutputFieldModel.html#L82">82</a>      <strong class="jxr_keyword">implements</strong> FieldStepHandler&lt;T&gt; {
+<a class="jxr_linenumber" name="L83" href="ContinuousOutputFieldModel.html#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="ContinuousOutputFieldModel.html#L84">84</a>      <em class="jxr_javadoccomment">/** Initial integration time. */</em>
+<a class="jxr_linenumber" name="L85" href="ContinuousOutputFieldModel.html#L85">85</a>      <strong class="jxr_keyword">private</strong> T initialTime;
+<a class="jxr_linenumber" name="L86" href="ContinuousOutputFieldModel.html#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="ContinuousOutputFieldModel.html#L87">87</a>      <em class="jxr_javadoccomment">/** Final integration time. */</em>
+<a class="jxr_linenumber" name="L88" href="ContinuousOutputFieldModel.html#L88">88</a>      <strong class="jxr_keyword">private</strong> T finalTime;
+<a class="jxr_linenumber" name="L89" href="ContinuousOutputFieldModel.html#L89">89</a>  
+<a class="jxr_linenumber" name="L90" href="ContinuousOutputFieldModel.html#L90">90</a>      <em class="jxr_javadoccomment">/** Integration direction indicator. */</em>
+<a class="jxr_linenumber" name="L91" href="ContinuousOutputFieldModel.html#L91">91</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> forward;
+<a class="jxr_linenumber" name="L92" href="ContinuousOutputFieldModel.html#L92">92</a>  
+<a class="jxr_linenumber" name="L93" href="ContinuousOutputFieldModel.html#L93">93</a>      <em class="jxr_javadoccomment">/** Current interpolator index. */</em>
+<a class="jxr_linenumber" name="L94" href="ContinuousOutputFieldModel.html#L94">94</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> index;
+<a class="jxr_linenumber" name="L95" href="ContinuousOutputFieldModel.html#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="ContinuousOutputFieldModel.html#L96">96</a>      <em class="jxr_javadoccomment">/** Steps table. */</em>
+<a class="jxr_linenumber" name="L97" href="ContinuousOutputFieldModel.html#L97">97</a>      <strong class="jxr_keyword">private</strong> List&lt;FieldStepInterpolator&lt;T&gt;&gt; steps;
+<a class="jxr_linenumber" name="L98" href="ContinuousOutputFieldModel.html#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="ContinuousOutputFieldModel.html#L99">99</a>      <em class="jxr_javadoccomment">/** Simple constructor.</em>
+<a class="jxr_linenumber" name="L100" href="ContinuousOutputFieldModel.html#L100">100</a> <em class="jxr_javadoccomment">     * Build an empty continuous output model.</em>
+<a class="jxr_linenumber" name="L101" href="ContinuousOutputFieldModel.html#L101">101</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L102" href="ContinuousOutputFieldModel.html#L102">102</a>     <strong class="jxr_keyword">public</strong> <a href="ContinuousOutputFieldModel.html">ContinuousOutputFieldModel</a>() {
+<a class="jxr_linenumber" name="L103" href="ContinuousOutputFieldModel.html#L103">103</a>         steps       = <strong class="jxr_keyword">new</strong> ArrayList&lt;FieldStepInterpolator&lt;T&gt;&gt;();
+<a class="jxr_linenumber" name="L104" href="ContinuousOutputFieldModel.html#L104">104</a>         initialTime = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L105" href="ContinuousOutputFieldModel.html#L105">105</a>         finalTime   = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L106" href="ContinuousOutputFieldModel.html#L106">106</a>         forward     = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L107" href="ContinuousOutputFieldModel.html#L107">107</a>         index       = 0;
+<a class="jxr_linenumber" name="L108" href="ContinuousOutputFieldModel.html#L108">108</a>     }
+<a class="jxr_linenumber" name="L109" href="ContinuousOutputFieldModel.html#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="ContinuousOutputFieldModel.html#L110">110</a>     <em class="jxr_javadoccomment">/** Append another model at the end of the instance.</em>
+<a class="jxr_linenumber" name="L111" href="ContinuousOutputFieldModel.html#L111">111</a> <em class="jxr_javadoccomment">     * @param model model to add at the end of the instance</em>
+<a class="jxr_linenumber" name="L112" href="ContinuousOutputFieldModel.html#L112">112</a> <em class="jxr_javadoccomment">     * @exception MathIllegalArgumentException if the model to append is not</em>
+<a class="jxr_linenumber" name="L113" href="ContinuousOutputFieldModel.html#L113">113</a> <em class="jxr_javadoccomment">     * compatible with the instance (dimension of the state vector,</em>
+<a class="jxr_linenumber" name="L114" href="ContinuousOutputFieldModel.html#L114">114</a> <em class="jxr_javadoccomment">     * propagation direction, hole between the dates)</em>
+<a class="jxr_linenumber" name="L115" href="ContinuousOutputFieldModel.html#L115">115</a> <em class="jxr_javadoccomment">     * @exception DimensionMismatchException if the dimensions of the states or</em>
+<a class="jxr_linenumber" name="L116" href="ContinuousOutputFieldModel.html#L116">116</a> <em class="jxr_javadoccomment">     * the number of secondary states do not match</em>
+<a class="jxr_linenumber" name="L117" href="ContinuousOutputFieldModel.html#L117">117</a> <em class="jxr_javadoccomment">     * @exception MaxCountExceededException if the number of functions evaluations is exceeded</em>
+<a class="jxr_linenumber" name="L118" href="ContinuousOutputFieldModel.html#L118">118</a> <em class="jxr_javadoccomment">     * during step finalization</em>
+<a class="jxr_linenumber" name="L119" href="ContinuousOutputFieldModel.html#L119">119</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L120" href="ContinuousOutputFieldModel.html#L120">120</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> append(<strong class="jxr_keyword">final</strong> ContinuousOutputFieldModel&lt;T&gt; model)
+<a class="jxr_linenumber" name="L121" href="ContinuousOutputFieldModel.html#L121">121</a>         <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException, <a href="../exception/MaxCountExceededException.html">MaxCountExceededException</a> {
+<a class="jxr_linenumber" name="L122" href="ContinuousOutputFieldModel.html#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="ContinuousOutputFieldModel.html#L123">123</a>         <strong class="jxr_keyword">if</strong> (model.steps.size() == 0) {
+<a class="jxr_linenumber" name="L124" href="ContinuousOutputFieldModel.html#L124">124</a>             <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L125" href="ContinuousOutputFieldModel.html#L125">125</a>         }
+<a class="jxr_linenumber" name="L126" href="ContinuousOutputFieldModel.html#L126">126</a> 
+<a class="jxr_linenumber" name="L127" href="ContinuousOutputFieldModel.html#L127">127</a>         <strong class="jxr_keyword">if</strong> (steps.size() == 0) {
+<a class="jxr_linenumber" name="L128" href="ContinuousOutputFieldModel.html#L128">128</a>             initialTime = model.initialTime;
+<a class="jxr_linenumber" name="L129" href="ContinuousOutputFieldModel.html#L129">129</a>             forward     = model.forward;
+<a class="jxr_linenumber" name="L130" href="ContinuousOutputFieldModel.html#L130">130</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L131" href="ContinuousOutputFieldModel.html#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="ContinuousOutputFieldModel.html#L132">132</a>             <em class="jxr_comment">// safety checks</em>
+<a class="jxr_linenumber" name="L133" href="ContinuousOutputFieldModel.html#L133">133</a>             <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; s1 = steps.get(0).getPreviousState();
+<a class="jxr_linenumber" name="L134" href="ContinuousOutputFieldModel.html#L134">134</a>             <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; s2 = model.steps.get(0).getPreviousState();
+<a class="jxr_linenumber" name="L135" href="ContinuousOutputFieldModel.html#L135">135</a>             checkDimensionsEquality(s1.getStateDimension(), s2.getStateDimension());
+<a class="jxr_linenumber" name="L136" href="ContinuousOutputFieldModel.html#L136">136</a>             checkDimensionsEquality(s1.getNumberOfSecondaryStates(), s2.getNumberOfSecondaryStates());
+<a class="jxr_linenumber" name="L137" href="ContinuousOutputFieldModel.html#L137">137</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; s1.getNumberOfSecondaryStates(); ++i) {
+<a class="jxr_linenumber" name="L138" href="ContinuousOutputFieldModel.html#L138">138</a>                 checkDimensionsEquality(s1.getSecondaryStateDimension(i), s2.getSecondaryStateDimension(i));
+<a class="jxr_linenumber" name="L139" href="ContinuousOutputFieldModel.html#L139">139</a>             }
+<a class="jxr_linenumber" name="L140" href="ContinuousOutputFieldModel.html#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="ContinuousOutputFieldModel.html#L141">141</a>             <strong class="jxr_keyword">if</strong> (forward ^ model.forward) {
+<a class="jxr_linenumber" name="L142" href="ContinuousOutputFieldModel.html#L142">142</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(LocalizedFormats.PROPAGATION_DIRECTION_MISMATCH);
+<a class="jxr_linenumber" name="L143" href="ContinuousOutputFieldModel.html#L143">143</a>             }
+<a class="jxr_linenumber" name="L144" href="ContinuousOutputFieldModel.html#L144">144</a> 
+<a class="jxr_linenumber" name="L145" href="ContinuousOutputFieldModel.html#L145">145</a>             <strong class="jxr_keyword">final</strong> FieldStepInterpolator&lt;T&gt; lastInterpolator = steps.get(index);
+<a class="jxr_linenumber" name="L146" href="ContinuousOutputFieldModel.html#L146">146</a>             <strong class="jxr_keyword">final</strong> T current  = lastInterpolator.getCurrentState().getTime();
+<a class="jxr_linenumber" name="L147" href="ContinuousOutputFieldModel.html#L147">147</a>             <strong class="jxr_keyword">final</strong> T previous = lastInterpolator.getPreviousState().getTime();
+<a class="jxr_linenumber" name="L148" href="ContinuousOutputFieldModel.html#L148">148</a>             <strong class="jxr_keyword">final</strong> T step = current.subtract(previous);
+<a class="jxr_linenumber" name="L149" href="ContinuousOutputFieldModel.html#L149">149</a>             <strong class="jxr_keyword">final</strong> T gap = model.getInitialTime().subtract(current);
+<a class="jxr_linenumber" name="L150" href="ContinuousOutputFieldModel.html#L150">150</a>             <strong class="jxr_keyword">if</strong> (gap.abs().subtract(step.abs().multiply(1.0e-3)).getReal() &gt; 0) {
+<a class="jxr_linenumber" name="L151" href="ContinuousOutputFieldModel.html#L151">151</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(LocalizedFormats.HOLE_BETWEEN_MODELS_TIME_RANGES,
+<a class="jxr_linenumber" name="L152" href="ContinuousOutputFieldModel.html#L152">152</a>                                                        gap.abs().getReal());
+<a class="jxr_linenumber" name="L153" href="ContinuousOutputFieldModel.html#L153">153</a>             }
+<a class="jxr_linenumber" name="L154" href="ContinuousOutputFieldModel.html#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="ContinuousOutputFieldModel.html#L155">155</a>         }
+<a class="jxr_linenumber" name="L156" href="ContinuousOutputFieldModel.html#L156">156</a> 
+<a class="jxr_linenumber" name="L157" href="ContinuousOutputFieldModel.html#L157">157</a>         <strong class="jxr_keyword">for</strong> (FieldStepInterpolator&lt;T&gt; interpolator : model.steps) {
+<a class="jxr_linenumber" name="L158" href="ContinuousOutputFieldModel.html#L158">158</a>             steps.add(interpolator);
+<a class="jxr_linenumber" name="L159" href="ContinuousOutputFieldModel.html#L159">159</a>         }
+<a class="jxr_linenumber" name="L160" href="ContinuousOutputFieldModel.html#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="ContinuousOutputFieldModel.html#L161">161</a>         index = steps.size() - 1;
+<a class="jxr_linenumber" name="L162" href="ContinuousOutputFieldModel.html#L162">162</a>         finalTime = (steps.get(index)).getCurrentState().getTime();
+<a class="jxr_linenumber" name="L163" href="ContinuousOutputFieldModel.html#L163">163</a> 
+<a class="jxr_linenumber" name="L164" href="ContinuousOutputFieldModel.html#L164">164</a>     }
+<a class="jxr_linenumber" name="L165" href="ContinuousOutputFieldModel.html#L165">165</a> 
+<a class="jxr_linenumber" name="L166" href="ContinuousOutputFieldModel.html#L166">166</a>     <em class="jxr_javadoccomment">/** Check dimensions equality.</em>
+<a class="jxr_linenumber" name="L167" href="ContinuousOutputFieldModel.html#L167">167</a> <em class="jxr_javadoccomment">     * @param d1 first dimension</em>
+<a class="jxr_linenumber" name="L168" href="ContinuousOutputFieldModel.html#L168">168</a> <em class="jxr_javadoccomment">     * @param d2 second dimansion</em>
+<a class="jxr_linenumber" name="L169" href="ContinuousOutputFieldModel.html#L169">169</a> <em class="jxr_javadoccomment">     * @exception DimensionMismatchException if dimensions do not match</em>
+<a class="jxr_linenumber" name="L170" href="ContinuousOutputFieldModel.html#L170">170</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L171" href="ContinuousOutputFieldModel.html#L171">171</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> checkDimensionsEquality(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> d1, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> d2)
+<a class="jxr_linenumber" name="L172" href="ContinuousOutputFieldModel.html#L172">172</a>         <strong class="jxr_keyword">throws</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a> {
+<a class="jxr_linenumber" name="L173" href="ContinuousOutputFieldModel.html#L173">173</a>         <strong class="jxr_keyword">if</strong> (d1 != d2) {
+<a class="jxr_linenumber" name="L174" href="ContinuousOutputFieldModel.html#L174">174</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a>(d2, d1);
+<a class="jxr_linenumber" name="L175" href="ContinuousOutputFieldModel.html#L175">175</a>         }
+<a class="jxr_linenumber" name="L176" href="ContinuousOutputFieldModel.html#L176">176</a>     }
+<a class="jxr_linenumber" name="L177" href="ContinuousOutputFieldModel.html#L177">177</a> 
+<a class="jxr_linenumber" name="L178" href="ContinuousOutputFieldModel.html#L178">178</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L179" href="ContinuousOutputFieldModel.html#L179">179</a>     @Override
+<a class="jxr_linenumber" name="L180" href="ContinuousOutputFieldModel.html#L180">180</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> init(<strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; initialState, <strong class="jxr_keyword">final</strong> T t) {
+<a class="jxr_linenumber" name="L181" href="ContinuousOutputFieldModel.html#L181">181</a>         initialTime = initialState.getTime();
+<a class="jxr_linenumber" name="L182" href="ContinuousOutputFieldModel.html#L182">182</a>         finalTime   = t;
+<a class="jxr_linenumber" name="L183" href="ContinuousOutputFieldModel.html#L183">183</a>         forward     = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L184" href="ContinuousOutputFieldModel.html#L184">184</a>         index       = 0;
+<a class="jxr_linenumber" name="L185" href="ContinuousOutputFieldModel.html#L185">185</a>         steps.clear();
+<a class="jxr_linenumber" name="L186" href="ContinuousOutputFieldModel.html#L186">186</a>     }
+<a class="jxr_linenumber" name="L187" href="ContinuousOutputFieldModel.html#L187">187</a> 
+<a class="jxr_linenumber" name="L188" href="ContinuousOutputFieldModel.html#L188">188</a>     <em class="jxr_javadoccomment">/** Handle the last accepted step.</em>
+<a class="jxr_linenumber" name="L189" href="ContinuousOutputFieldModel.html#L189">189</a> <em class="jxr_javadoccomment">     * A copy of the information provided by the last step is stored in</em>
+<a class="jxr_linenumber" name="L190" href="ContinuousOutputFieldModel.html#L190">190</a> <em class="jxr_javadoccomment">     * the instance for later use.</em>
+<a class="jxr_linenumber" name="L191" href="ContinuousOutputFieldModel.html#L191">191</a> <em class="jxr_javadoccomment">     * @param interpolator interpolator for the last accepted step.</em>
+<a class="jxr_linenumber" name="L192" href="ContinuousOutputFieldModel.html#L192">192</a> <em class="jxr_javadoccomment">     * @param isLast true if the step is the last one</em>
+<a class="jxr_linenumber" name="L193" href="ContinuousOutputFieldModel.html#L193">193</a> <em class="jxr_javadoccomment">     * @exception MaxCountExceededException if the number of functions evaluations is exceeded</em>
+<a class="jxr_linenumber" name="L194" href="ContinuousOutputFieldModel.html#L194">194</a> <em class="jxr_javadoccomment">     * during step finalization</em>
+<a class="jxr_linenumber" name="L195" href="ContinuousOutputFieldModel.html#L195">195</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L196" href="ContinuousOutputFieldModel.html#L196">196</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> handleStep(<strong class="jxr_keyword">final</strong> FieldStepInterpolator&lt;T&gt; interpolator, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isLast)
+<a class="jxr_linenumber" name="L197" href="ContinuousOutputFieldModel.html#L197">197</a>         <strong class="jxr_keyword">throws</strong> <a href="../exception/MaxCountExceededException.html">MaxCountExceededException</a> {
+<a class="jxr_linenumber" name="L198" href="ContinuousOutputFieldModel.html#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="ContinuousOutputFieldModel.html#L199">199</a>         <strong class="jxr_keyword">if</strong> (steps.size() == 0) {
+<a class="jxr_linenumber" name="L200" href="ContinuousOutputFieldModel.html#L200">200</a>             initialTime = interpolator.getPreviousState().getTime();
+<a class="jxr_linenumber" name="L201" href="ContinuousOutputFieldModel.html#L201">201</a>             forward     = interpolator.isForward();
+<a class="jxr_linenumber" name="L202" href="ContinuousOutputFieldModel.html#L202">202</a>         }
+<a class="jxr_linenumber" name="L203" href="ContinuousOutputFieldModel.html#L203">203</a> 
+<a class="jxr_linenumber" name="L204" href="ContinuousOutputFieldModel.html#L204">204</a>         steps.add(interpolator);
+<a class="jxr_linenumber" name="L205" href="ContinuousOutputFieldModel.html#L205">205</a> 
+<a class="jxr_linenumber" name="L206" href="ContinuousOutputFieldModel.html#L206">206</a>         <strong class="jxr_keyword">if</strong> (isLast) {
+<a class="jxr_linenumber" name="L207" href="ContinuousOutputFieldModel.html#L207">207</a>             finalTime = interpolator.getCurrentState().getTime();
+<a class="jxr_linenumber" name="L208" href="ContinuousOutputFieldModel.html#L208">208</a>             index     = steps.size() - 1;
+<a class="jxr_linenumber" name="L209" href="ContinuousOutputFieldModel.html#L209">209</a>         }
+<a class="jxr_linenumber" name="L210" href="ContinuousOutputFieldModel.html#L210">210</a> 
+<a class="jxr_linenumber" name="L211" href="ContinuousOutputFieldModel.html#L211">211</a>     }
+<a class="jxr_linenumber" name="L212" href="ContinuousOutputFieldModel.html#L212">212</a> 
+<a class="jxr_linenumber" name="L213" href="ContinuousOutputFieldModel.html#L213">213</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L214" href="ContinuousOutputFieldModel.html#L214">214</a> <em class="jxr_javadoccomment">     * Get the initial integration time.</em>
+<a class="jxr_linenumber" name="L215" href="ContinuousOutputFieldModel.html#L215">215</a> <em class="jxr_javadoccomment">     * @return initial integration time</em>
+<a class="jxr_linenumber" name="L216" href="ContinuousOutputFieldModel.html#L216">216</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L217" href="ContinuousOutputFieldModel.html#L217">217</a>     <strong class="jxr_keyword">public</strong> T getInitialTime() {
+<a class="jxr_linenumber" name="L218" href="ContinuousOutputFieldModel.html#L218">218</a>         <strong class="jxr_keyword">return</strong> initialTime;
+<a class="jxr_linenumber" name="L219" href="ContinuousOutputFieldModel.html#L219">219</a>     }
+<a class="jxr_linenumber" name="L220" href="ContinuousOutputFieldModel.html#L220">220</a> 
+<a class="jxr_linenumber" name="L221" href="ContinuousOutputFieldModel.html#L221">221</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L222" href="ContinuousOutputFieldModel.html#L222">222</a> <em class="jxr_javadoccomment">     * Get the final integration time.</em>
+<a class="jxr_linenumber" name="L223" href="ContinuousOutputFieldModel.html#L223">223</a> <em class="jxr_javadoccomment">     * @return final integration time</em>
+<a class="jxr_linenumber" name="L224" href="ContinuousOutputFieldModel.html#L224">224</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L225" href="ContinuousOutputFieldModel.html#L225">225</a>     <strong class="jxr_keyword">public</strong> T getFinalTime() {
+<a class="jxr_linenumber" name="L226" href="ContinuousOutputFieldModel.html#L226">226</a>         <strong class="jxr_keyword">return</strong> finalTime;
+<a class="jxr_linenumber" name="L227" href="ContinuousOutputFieldModel.html#L227">227</a>     }
+<a class="jxr_linenumber" name="L228" href="ContinuousOutputFieldModel.html#L228">228</a> 
+<a class="jxr_linenumber" name="L229" href="ContinuousOutputFieldModel.html#L229">229</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L230" href="ContinuousOutputFieldModel.html#L230">230</a> <em class="jxr_javadoccomment">     * Get the state at interpolated time.</em>
+<a class="jxr_linenumber" name="L231" href="ContinuousOutputFieldModel.html#L231">231</a> <em class="jxr_javadoccomment">     * @param time time of the interpolated point</em>
+<a class="jxr_linenumber" name="L232" href="ContinuousOutputFieldModel.html#L232">232</a> <em class="jxr_javadoccomment">     * @return state at interpolated time</em>
+<a class="jxr_linenumber" name="L233" href="ContinuousOutputFieldModel.html#L233">233</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L234" href="ContinuousOutputFieldModel.html#L234">234</a>     <strong class="jxr_keyword">public</strong> FieldODEStateAndDerivative&lt;T&gt; getInterpolatedState(<strong class="jxr_keyword">final</strong> T time) {
+<a class="jxr_linenumber" name="L235" href="ContinuousOutputFieldModel.html#L235">235</a> 
+<a class="jxr_linenumber" name="L236" href="ContinuousOutputFieldModel.html#L236">236</a>         <em class="jxr_comment">// initialize the search with the complete steps table</em>
+<a class="jxr_linenumber" name="L237" href="ContinuousOutputFieldModel.html#L237">237</a>         <strong class="jxr_keyword">int</strong> iMin = 0;
+<a class="jxr_linenumber" name="L238" href="ContinuousOutputFieldModel.html#L238">238</a>         <strong class="jxr_keyword">final</strong> FieldStepInterpolator&lt;T&gt; sMin = steps.get(iMin);
+<a class="jxr_linenumber" name="L239" href="ContinuousOutputFieldModel.html#L239">239</a>         T tMin = sMin.getPreviousState().getTime().add(sMin.getCurrentState().getTime()).multiply(0.5);
+<a class="jxr_linenumber" name="L240" href="ContinuousOutputFieldModel.html#L240">240</a> 
+<a class="jxr_linenumber" name="L241" href="ContinuousOutputFieldModel.html#L241">241</a>         <strong class="jxr_keyword">int</strong> iMax = steps.size() - 1;
+<a class="jxr_linenumber" name="L242" href="ContinuousOutputFieldModel.html#L242">242</a>         <strong class="jxr_keyword">final</strong> FieldStepInterpolator&lt;T&gt; sMax = steps.get(iMax);
+<a class="jxr_linenumber" name="L243" href="ContinuousOutputFieldModel.html#L243">243</a>         T tMax = sMax.getPreviousState().getTime().add(sMax.getCurrentState().getTime()).multiply(0.5);
+<a class="jxr_linenumber" name="L244" href="ContinuousOutputFieldModel.html#L244">244</a> 
+<a class="jxr_linenumber" name="L245" href="ContinuousOutputFieldModel.html#L245">245</a>         <em class="jxr_comment">// handle points outside of the integration interval</em>
+<a class="jxr_linenumber" name="L246" href="ContinuousOutputFieldModel.html#L246">246</a>         <em class="jxr_comment">// or in the first and last step</em>
+<a class="jxr_linenumber" name="L247" href="ContinuousOutputFieldModel.html#L247">247</a>         <strong class="jxr_keyword">if</strong> (locatePoint(time, sMin) &lt;= 0) {
+<a class="jxr_linenumber" name="L248" href="ContinuousOutputFieldModel.html#L248">248</a>             index = iMin;
+<a class="jxr_linenumber" name="L249" href="ContinuousOutputFieldModel.html#L249">249</a>             <strong class="jxr_keyword">return</strong> sMin.getInterpolatedState(time);
+<a class="jxr_linenumber" name="L250" href="ContinuousOutputFieldModel.html#L250">250</a>         }
+<a class="jxr_linenumber" name="L251" href="ContinuousOutputFieldModel.html#L251">251</a>         <strong class="jxr_keyword">if</strong> (locatePoint(time, sMax) &gt;= 0) {
+<a class="jxr_linenumber" name="L252" href="ContinuousOutputFieldModel.html#L252">252</a>             index = iMax;
+<a class="jxr_linenumber" name="L253" href="ContinuousOutputFieldModel.html#L253">253</a>             <strong class="jxr_keyword">return</strong> sMax.getInterpolatedState(time);
+<a class="jxr_linenumber" name="L254" href="ContinuousOutputFieldModel.html#L254">254</a>         }
+<a class="jxr_linenumber" name="L255" href="ContinuousOutputFieldModel.html#L255">255</a> 
+<a class="jxr_linenumber" name="L256" href="ContinuousOutputFieldModel.html#L256">256</a>         <em class="jxr_comment">// reduction of the table slice size</em>
+<a class="jxr_linenumber" name="L257" href="ContinuousOutputFieldModel.html#L257">257</a>         <strong class="jxr_keyword">while</strong> (iMax - iMin &gt; 5) {
+<a class="jxr_linenumber" name="L258" href="ContinuousOutputFieldModel.html#L258">258</a> 
+<a class="jxr_linenumber" name="L259" href="ContinuousOutputFieldModel.html#L259">259</a>             <em class="jxr_comment">// use the last estimated index as the splitting index</em>
+<a class="jxr_linenumber" name="L260" href="ContinuousOutputFieldModel.html#L260">260</a>             <strong class="jxr_keyword">final</strong> FieldStepInterpolator&lt;T&gt; si = steps.get(index);
+<a class="jxr_linenumber" name="L261" href="ContinuousOutputFieldModel.html#L261">261</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> location = locatePoint(time, si);
+<a class="jxr_linenumber" name="L262" href="ContinuousOutputFieldModel.html#L262">262</a>             <strong class="jxr_keyword">if</strong> (location &lt; 0) {
+<a class="jxr_linenumber" name="L263" href="ContinuousOutputFieldModel.html#L263">263</a>                 iMax = index;
+<a class="jxr_linenumber" name="L264" href="ContinuousOutputFieldModel.html#L264">264</a>                 tMax = si.getPreviousState().getTime().add(si.getCurrentState().getTime()).multiply(0.5);
+<a class="jxr_linenumber" name="L265" href="ContinuousOutputFieldModel.html#L265">265</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (location &gt; 0) {
+<a class="jxr_linenumber" name="L266" href="ContinuousOutputFieldModel.html#L266">266</a>                 iMin = index;
+<a class="jxr_linenumber" name="L267" href="ContinuousOutputFieldModel.html#L267">267</a>                 tMin = si.getPreviousState().getTime().add(si.getCurrentState().getTime()).multiply(0.5);
+<a class="jxr_linenumber" name="L268" href="ContinuousOutputFieldModel.html#L268">268</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L269" href="ContinuousOutputFieldModel.html#L269">269</a>                 <em class="jxr_comment">// we have found the target step, no need to continue searching</em>
+<a class="jxr_linenumber" name="L270" href="ContinuousOutputFieldModel.html#L270">270</a>                 <strong class="jxr_keyword">return</strong> si.getInterpolatedState(time);
+<a class="jxr_linenumber" name="L271" href="ContinuousOutputFieldModel.html#L271">271</a>             }
+<a class="jxr_linenumber" name="L272" href="ContinuousOutputFieldModel.html#L272">272</a> 
+<a class="jxr_linenumber" name="L273" href="ContinuousOutputFieldModel.html#L273">273</a>             <em class="jxr_comment">// compute a new estimate of the index in the reduced table slice</em>
+<a class="jxr_linenumber" name="L274" href="ContinuousOutputFieldModel.html#L274">274</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> iMed = (iMin + iMax) / 2;
+<a class="jxr_linenumber" name="L275" href="ContinuousOutputFieldModel.html#L275">275</a>             <strong class="jxr_keyword">final</strong> FieldStepInterpolator&lt;T&gt; sMed = steps.get(iMed);
+<a class="jxr_linenumber" name="L276" href="ContinuousOutputFieldModel.html#L276">276</a>             <strong class="jxr_keyword">final</strong> T tMed = sMed.getPreviousState().getTime().add(sMed.getCurrentState().getTime()).multiply(0.5);
+<a class="jxr_linenumber" name="L277" href="ContinuousOutputFieldModel.html#L277">277</a> 
+<a class="jxr_linenumber" name="L278" href="ContinuousOutputFieldModel.html#L278">278</a>             <strong class="jxr_keyword">if</strong> (tMed.subtract(tMin).abs().subtract(1.0e-6).getReal() &lt; 0 ||
+<a class="jxr_linenumber" name="L279" href="ContinuousOutputFieldModel.html#L279">279</a>                 tMax.subtract(tMed).abs().subtract(1.0e-6).getReal() &lt; 0) {
+<a class="jxr_linenumber" name="L280" href="ContinuousOutputFieldModel.html#L280">280</a>                 <em class="jxr_comment">// too close to the bounds, we estimate using a simple dichotomy</em>
+<a class="jxr_linenumber" name="L281" href="ContinuousOutputFieldModel.html#L281">281</a>                 index = iMed;
+<a class="jxr_linenumber" name="L282" href="ContinuousOutputFieldModel.html#L282">282</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L283" href="ContinuousOutputFieldModel.html#L283">283</a>                 <em class="jxr_comment">// estimate the index using a reverse quadratic polynomial</em>
+<a class="jxr_linenumber" name="L284" href="ContinuousOutputFieldModel.html#L284">284</a>                 <em class="jxr_comment">// (reverse means we have i = P(t), thus allowing to simply</em>
+<a class="jxr_linenumber" name="L285" href="ContinuousOutputFieldModel.html#L285">285</a>                 <em class="jxr_comment">// compute index = P(time) rather than solving a quadratic equation)</em>
+<a class="jxr_linenumber" name="L286" href="ContinuousOutputFieldModel.html#L286">286</a>                 <strong class="jxr_keyword">final</strong> T d12 = tMax.subtract(tMed);
+<a class="jxr_linenumber" name="L287" href="ContinuousOutputFieldModel.html#L287">287</a>                 <strong class="jxr_keyword">final</strong> T d23 = tMed.subtract(tMin);
+<a class="jxr_linenumber" name="L288" href="ContinuousOutputFieldModel.html#L288">288</a>                 <strong class="jxr_keyword">final</strong> T d13 = tMax.subtract(tMin);
+<a class="jxr_linenumber" name="L289" href="ContinuousOutputFieldModel.html#L289">289</a>                 <strong class="jxr_keyword">final</strong> T dt1 = time.subtract(tMax);
+<a class="jxr_linenumber" name="L290" href="ContinuousOutputFieldModel.html#L290">290</a>                 <strong class="jxr_keyword">final</strong> T dt2 = time.subtract(tMed);
+<a class="jxr_linenumber" name="L291" href="ContinuousOutputFieldModel.html#L291">291</a>                 <strong class="jxr_keyword">final</strong> T dt3 = time.subtract(tMin);
+<a class="jxr_linenumber" name="L292" href="ContinuousOutputFieldModel.html#L292">292</a>                 <strong class="jxr_keyword">final</strong> T iLagrange =           dt2.multiply(dt3).multiply(d23).multiply(iMax).
+<a class="jxr_linenumber" name="L293" href="ContinuousOutputFieldModel.html#L293">293</a>                                      subtract(dt1.multiply(dt3).multiply(d13).multiply(iMed)).
+<a class="jxr_linenumber" name="L294" href="ContinuousOutputFieldModel.html#L294">294</a>                                      add(     dt1.multiply(dt2).multiply(d12).multiply(iMin)).
+<a class="jxr_linenumber" name="L295" href="ContinuousOutputFieldModel.html#L295">295</a>                                      divide(d12.multiply(d23).multiply(d13));
+<a class="jxr_linenumber" name="L296" href="ContinuousOutputFieldModel.html#L296">296</a>                 index = (<strong class="jxr_keyword">int</strong>) FastMath.rint(iLagrange.getReal());
+<a class="jxr_linenumber" name="L297" href="ContinuousOutputFieldModel.html#L297">297</a>             }
+<a class="jxr_linenumber" name="L298" href="ContinuousOutputFieldModel.html#L298">298</a> 
+<a class="jxr_linenumber" name="L299" href="ContinuousOutputFieldModel.html#L299">299</a>             <em class="jxr_comment">// force the next size reduction to be at least one tenth</em>
+<a class="jxr_linenumber" name="L300" href="ContinuousOutputFieldModel.html#L300">300</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> low  = FastMath.max(iMin + 1, (9 * iMin + iMax) / 10);
+<a class="jxr_linenumber" name="L301" href="ContinuousOutputFieldModel.html#L301">301</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> high = FastMath.min(iMax - 1, (iMin + 9 * iMax) / 10);
+<a class="jxr_linenumber" name="L302" href="ContinuousOutputFieldModel.html#L302">302</a>             <strong class="jxr_keyword">if</strong> (index &lt; low) {
+<a class="jxr_linenumber" name="L303" href="ContinuousOutputFieldModel.html#L303">303</a>                 index = low;
+<a class="jxr_linenumber" name="L304" href="ContinuousOutputFieldModel.html#L304">304</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (index &gt; high) {
+<a class="jxr_linenumber" name="L305" href="ContinuousOutputFieldModel.html#L305">305</a>                 index = high;
+<a class="jxr_linenumber" name="L306" href="ContinuousOutputFieldModel.html#L306">306</a>             }
+<a class="jxr_linenumber" name="L307" href="ContinuousOutputFieldModel.html#L307">307</a> 
+<a class="jxr_linenumber" name="L308" href="ContinuousOutputFieldModel.html#L308">308</a>         }
+<a class="jxr_linenumber" name="L309" href="ContinuousOutputFieldModel.html#L309">309</a> 
+<a class="jxr_linenumber" name="L310" href="ContinuousOutputFieldModel.html#L310">310</a>         <em class="jxr_comment">// now the table slice is very small, we perform an iterative search</em>
+<a class="jxr_linenumber" name="L311" href="ContinuousOutputFieldModel.html#L311">311</a>         index = iMin;
+<a class="jxr_linenumber" name="L312" href="ContinuousOutputFieldModel.html#L312">312</a>         <strong class="jxr_keyword">while</strong> (index &lt;= iMax &amp;&amp; locatePoint(time, steps.get(index)) &gt; 0) {
+<a class="jxr_linenumber" name="L313" href="ContinuousOutputFieldModel.html#L313">313</a>             ++index;
+<a class="jxr_linenumber" name="L314" href="ContinuousOutputFieldModel.html#L314">314</a>         }
+<a class="jxr_linenumber" name="L315" href="ContinuousOutputFieldModel.html#L315">315</a> 
+<a class="jxr_linenumber" name="L316" href="ContinuousOutputFieldModel.html#L316">316</a>         <strong class="jxr_keyword">return</strong> steps.get(index).getInterpolatedState(time);
+<a class="jxr_linenumber" name="L317" href="ContinuousOutputFieldModel.html#L317">317</a> 
+<a class="jxr_linenumber" name="L318" href="ContinuousOutputFieldModel.html#L318">318</a>     }
+<a class="jxr_linenumber" name="L319" href="ContinuousOutputFieldModel.html#L319">319</a> 
+<a class="jxr_linenumber" name="L320" href="ContinuousOutputFieldModel.html#L320">320</a>     <em class="jxr_javadoccomment">/** Compare a step interval and a double.</em>
+<a class="jxr_linenumber" name="L321" href="ContinuousOutputFieldModel.html#L321">321</a> <em class="jxr_javadoccomment">     * @param time point to locate</em>
+<a class="jxr_linenumber" name="L322" href="ContinuousOutputFieldModel.html#L322">322</a> <em class="jxr_javadoccomment">     * @param interval step interval</em>
+<a class="jxr_linenumber" name="L323" href="ContinuousOutputFieldModel.html#L323">323</a> <em class="jxr_javadoccomment">     * @return -1 if the double is before the interval, 0 if it is in</em>
+<a class="jxr_linenumber" name="L324" href="ContinuousOutputFieldModel.html#L324">324</a> <em class="jxr_javadoccomment">     * the interval, and +1 if it is after the interval, according to</em>
+<a class="jxr_linenumber" name="L325" href="ContinuousOutputFieldModel.html#L325">325</a> <em class="jxr_javadoccomment">     * the interval direction</em>
+<a class="jxr_linenumber" name="L326" href="ContinuousOutputFieldModel.html#L326">326</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L327" href="ContinuousOutputFieldModel.html#L327">327</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> locatePoint(<strong class="jxr_keyword">final</strong> T time, <strong class="jxr_keyword">final</strong> FieldStepInterpolator&lt;T&gt; interval) {
+<a class="jxr_linenumber" name="L328" href="ContinuousOutputFieldModel.html#L328">328</a>         <strong class="jxr_keyword">if</strong> (forward) {
+<a class="jxr_linenumber" name="L329" href="ContinuousOutputFieldModel.html#L329">329</a>             <strong class="jxr_keyword">if</strong> (time.subtract(interval.getPreviousState().getTime()).getReal() &lt; 0) {
+<a class="jxr_linenumber" name="L330" href="ContinuousOutputFieldModel.html#L330">330</a>                 <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L331" href="ContinuousOutputFieldModel.html#L331">331</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (time.subtract(interval.getCurrentState().getTime()).getReal() &gt; 0) {
+<a class="jxr_linenumber" name="L332" href="ContinuousOutputFieldModel.html#L332">332</a>                 <strong class="jxr_keyword">return</strong> +1;
+<a class="jxr_linenumber" name="L333" href="ContinuousOutputFieldModel.html#L333">333</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L334" href="ContinuousOutputFieldModel.html#L334">334</a>                 <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L335" href="ContinuousOutputFieldModel.html#L335">335</a>             }
+<a class="jxr_linenumber" name="L336" href="ContinuousOutputFieldModel.html#L336">336</a>         }
+<a class="jxr_linenumber" name="L337" href="ContinuousOutputFieldModel.html#L337">337</a>         <strong class="jxr_keyword">if</strong> (time.subtract(interval.getPreviousState().getTime()).getReal() &gt; 0) {
+<a class="jxr_linenumber" name="L338" href="ContinuousOutputFieldModel.html#L338">338</a>             <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L339" href="ContinuousOutputFieldModel.html#L339">339</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (time.subtract(interval.getCurrentState().getTime()).getReal() &lt; 0) {
+<a class="jxr_linenumber" name="L340" href="ContinuousOutputFieldModel.html#L340">340</a>             <strong class="jxr_keyword">return</strong> +1;
+<a class="jxr_linenumber" name="L341" href="ContinuousOutputFieldModel.html#L341">341</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L342" href="ContinuousOutputFieldModel.html#L342">342</a>             <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L343" href="ContinuousOutputFieldModel.html#L343">343</a>         }
+<a class="jxr_linenumber" name="L344" href="ContinuousOutputFieldModel.html#L344">344</a>     }
+<a class="jxr_linenumber" name="L345" href="ContinuousOutputFieldModel.html#L345">345</a> 
+<a class="jxr_linenumber" name="L346" href="ContinuousOutputFieldModel.html#L346">346</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

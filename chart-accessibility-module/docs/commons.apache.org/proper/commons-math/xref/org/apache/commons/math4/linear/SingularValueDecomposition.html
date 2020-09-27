@@ -1,0 +1,757 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>SingularValueDecomposition xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/linear/SingularValueDecomposition.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="SingularValueDecomposition.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="SingularValueDecomposition.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="SingularValueDecomposition.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="SingularValueDecomposition.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="SingularValueDecomposition.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="SingularValueDecomposition.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="SingularValueDecomposition.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="SingularValueDecomposition.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="SingularValueDecomposition.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="SingularValueDecomposition.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="SingularValueDecomposition.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="SingularValueDecomposition.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="SingularValueDecomposition.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="SingularValueDecomposition.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="SingularValueDecomposition.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="SingularValueDecomposition.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="SingularValueDecomposition.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.linear;
+<a class="jxr_linenumber" name="L18" href="SingularValueDecomposition.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="SingularValueDecomposition.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooLargeException;
+<a class="jxr_linenumber" name="L20" href="SingularValueDecomposition.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L21" href="SingularValueDecomposition.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L22" href="SingularValueDecomposition.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Precision;
+<a class="jxr_linenumber" name="L23" href="SingularValueDecomposition.html#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="SingularValueDecomposition.html#L24">24</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L25" href="SingularValueDecomposition.html#L25">25</a>  <em class="jxr_javadoccomment"> * Calculates the compact Singular Value Decomposition of a matrix.</em>
+<a class="jxr_linenumber" name="L26" href="SingularValueDecomposition.html#L26">26</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L27" href="SingularValueDecomposition.html#L27">27</a>  <em class="jxr_javadoccomment"> * The Singular Value Decomposition of matrix A is a set of three matrices: U,</em>
+<a class="jxr_linenumber" name="L28" href="SingularValueDecomposition.html#L28">28</a>  <em class="jxr_javadoccomment"> * &amp;Sigma; and V such that A = U &amp;times; &amp;Sigma; &amp;times; V&lt;sup&gt;T&lt;/sup&gt;. Let A be</em>
+<a class="jxr_linenumber" name="L29" href="SingularValueDecomposition.html#L29">29</a>  <em class="jxr_javadoccomment"> * a m &amp;times; n matrix, then U is a m &amp;times; p orthogonal matrix, &amp;Sigma; is a</em>
+<a class="jxr_linenumber" name="L30" href="SingularValueDecomposition.html#L30">30</a>  <em class="jxr_javadoccomment"> * p &amp;times; p diagonal matrix with positive or null elements, V is a p &amp;times;</em>
+<a class="jxr_linenumber" name="L31" href="SingularValueDecomposition.html#L31">31</a>  <em class="jxr_javadoccomment"> * n orthogonal matrix (hence V&lt;sup&gt;T&lt;/sup&gt; is also orthogonal) where</em>
+<a class="jxr_linenumber" name="L32" href="SingularValueDecomposition.html#L32">32</a>  <em class="jxr_javadoccomment"> * p=min(m,n).</em>
+<a class="jxr_linenumber" name="L33" href="SingularValueDecomposition.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L34" href="SingularValueDecomposition.html#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This class is similar to the class with similar name from the</em>
+<a class="jxr_linenumber" name="L35" href="SingularValueDecomposition.html#L35">35</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://math.nist.gov/javanumerics/jama/" target="alexandria_uri">http://math.nist.gov/javanumerics/jama/</a>"&gt;JAMA&lt;/a&gt; library, with the</em>
+<a class="jxr_linenumber" name="L36" href="SingularValueDecomposition.html#L36">36</a>  <em class="jxr_javadoccomment"> * following changes:&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L37" href="SingularValueDecomposition.html#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L38" href="SingularValueDecomposition.html#L38">38</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;the {@code norm2} method which has been renamed as {@link #getNorm()</em>
+<a class="jxr_linenumber" name="L39" href="SingularValueDecomposition.html#L39">39</a>  <em class="jxr_javadoccomment"> *   getNorm},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L40" href="SingularValueDecomposition.html#L40">40</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;the {@code cond} method which has been renamed as {@link</em>
+<a class="jxr_linenumber" name="L41" href="SingularValueDecomposition.html#L41">41</a>  <em class="jxr_javadoccomment"> *   #getConditionNumber() getConditionNumber},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L42" href="SingularValueDecomposition.html#L42">42</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;the {@code rank} method which has been renamed as {@link #getRank()</em>
+<a class="jxr_linenumber" name="L43" href="SingularValueDecomposition.html#L43">43</a>  <em class="jxr_javadoccomment"> *   getRank},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L44" href="SingularValueDecomposition.html#L44">44</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;a {@link #getUT() getUT} method has been added,&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L45" href="SingularValueDecomposition.html#L45">45</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;a {@link #getVT() getVT} method has been added,&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L46" href="SingularValueDecomposition.html#L46">46</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;a {@link #getSolver() getSolver} method has been added,&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L47" href="SingularValueDecomposition.html#L47">47</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;a {@link #getCovariance(double) getCovariance} method has been added.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L48" href="SingularValueDecomposition.html#L48">48</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L49" href="SingularValueDecomposition.html#L49">49</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://mathworld.wolfram.com/SingularValueDecomposition.html" target="alexandria_uri">http://mathworld.wolfram.com/SingularValueDecomposition.html</a>"&gt;MathWorld&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L50" href="SingularValueDecomposition.html#L50">50</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/Singular_value_decomposition" target="alexandria_uri">http://en.wikipedia.org/wiki/Singular_value_decomposition</a>"&gt;Wikipedia&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L51" href="SingularValueDecomposition.html#L51">51</a>  <em class="jxr_javadoccomment"> * @since 2.0 (changed to concrete class in 3.0)</em>
+<a class="jxr_linenumber" name="L52" href="SingularValueDecomposition.html#L52">52</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L53" href="SingularValueDecomposition.html#L53">53</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="SingularValueDecomposition.html">SingularValueDecomposition</a> {
+<a class="jxr_linenumber" name="L54" href="SingularValueDecomposition.html#L54">54</a>      <em class="jxr_javadoccomment">/** Relative threshold for small singular values. */</em>
+<a class="jxr_linenumber" name="L55" href="SingularValueDecomposition.html#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> EPS = 0x1.0p-52;
+<a class="jxr_linenumber" name="L56" href="SingularValueDecomposition.html#L56">56</a>      <em class="jxr_javadoccomment">/** Absolute threshold for small singular values. */</em>
+<a class="jxr_linenumber" name="L57" href="SingularValueDecomposition.html#L57">57</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> TINY = 0x1.0p-966;
+<a class="jxr_linenumber" name="L58" href="SingularValueDecomposition.html#L58">58</a>      <em class="jxr_javadoccomment">/** Computed singular values. */</em>
+<a class="jxr_linenumber" name="L59" href="SingularValueDecomposition.html#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] singularValues;
+<a class="jxr_linenumber" name="L60" href="SingularValueDecomposition.html#L60">60</a>      <em class="jxr_javadoccomment">/** max(row dimension, column dimension). */</em>
+<a class="jxr_linenumber" name="L61" href="SingularValueDecomposition.html#L61">61</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m;
+<a class="jxr_linenumber" name="L62" href="SingularValueDecomposition.html#L62">62</a>      <em class="jxr_javadoccomment">/** min(row dimension, column dimension). */</em>
+<a class="jxr_linenumber" name="L63" href="SingularValueDecomposition.html#L63">63</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n;
+<a class="jxr_linenumber" name="L64" href="SingularValueDecomposition.html#L64">64</a>      <em class="jxr_javadoccomment">/** Indicator for transposed matrix. */</em>
+<a class="jxr_linenumber" name="L65" href="SingularValueDecomposition.html#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> transposed;
+<a class="jxr_linenumber" name="L66" href="SingularValueDecomposition.html#L66">66</a>      <em class="jxr_javadoccomment">/** Cached value of U matrix. */</em>
+<a class="jxr_linenumber" name="L67" href="SingularValueDecomposition.html#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="RealMatrix.html">RealMatrix</a> cachedU;
+<a class="jxr_linenumber" name="L68" href="SingularValueDecomposition.html#L68">68</a>      <em class="jxr_javadoccomment">/** Cached value of transposed U matrix. */</em>
+<a class="jxr_linenumber" name="L69" href="SingularValueDecomposition.html#L69">69</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedUt;
+<a class="jxr_linenumber" name="L70" href="SingularValueDecomposition.html#L70">70</a>      <em class="jxr_javadoccomment">/** Cached value of S (diagonal) matrix. */</em>
+<a class="jxr_linenumber" name="L71" href="SingularValueDecomposition.html#L71">71</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedS;
+<a class="jxr_linenumber" name="L72" href="SingularValueDecomposition.html#L72">72</a>      <em class="jxr_javadoccomment">/** Cached value of V matrix. */</em>
+<a class="jxr_linenumber" name="L73" href="SingularValueDecomposition.html#L73">73</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="RealMatrix.html">RealMatrix</a> cachedV;
+<a class="jxr_linenumber" name="L74" href="SingularValueDecomposition.html#L74">74</a>      <em class="jxr_javadoccomment">/** Cached value of transposed V matrix. */</em>
+<a class="jxr_linenumber" name="L75" href="SingularValueDecomposition.html#L75">75</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedVt;
+<a class="jxr_linenumber" name="L76" href="SingularValueDecomposition.html#L76">76</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L77" href="SingularValueDecomposition.html#L77">77</a>  <em class="jxr_javadoccomment">     * Tolerance value for small singular values, calculated once we have</em>
+<a class="jxr_linenumber" name="L78" href="SingularValueDecomposition.html#L78">78</a>  <em class="jxr_javadoccomment">     * populated "singularValues".</em>
+<a class="jxr_linenumber" name="L79" href="SingularValueDecomposition.html#L79">79</a>  <em class="jxr_javadoccomment">     **/</em>
+<a class="jxr_linenumber" name="L80" href="SingularValueDecomposition.html#L80">80</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tol;
+<a class="jxr_linenumber" name="L81" href="SingularValueDecomposition.html#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="SingularValueDecomposition.html#L82">82</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L83" href="SingularValueDecomposition.html#L83">83</a>  <em class="jxr_javadoccomment">     * Calculates the compact Singular Value Decomposition of the given matrix.</em>
+<a class="jxr_linenumber" name="L84" href="SingularValueDecomposition.html#L84">84</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L85" href="SingularValueDecomposition.html#L85">85</a>  <em class="jxr_javadoccomment">     * @param matrix Matrix to decompose.</em>
+<a class="jxr_linenumber" name="L86" href="SingularValueDecomposition.html#L86">86</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L87" href="SingularValueDecomposition.html#L87">87</a>      <strong class="jxr_keyword">public</strong> <a href="SingularValueDecomposition.html">SingularValueDecomposition</a>(<strong class="jxr_keyword">final</strong> <a href="RealMatrix.html">RealMatrix</a> matrix) {
+<a class="jxr_linenumber" name="L88" href="SingularValueDecomposition.html#L88">88</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] A;
+<a class="jxr_linenumber" name="L89" href="SingularValueDecomposition.html#L89">89</a>  
+<a class="jxr_linenumber" name="L90" href="SingularValueDecomposition.html#L90">90</a>           <em class="jxr_comment">// "m" is always the largest dimension.</em>
+<a class="jxr_linenumber" name="L91" href="SingularValueDecomposition.html#L91">91</a>          <strong class="jxr_keyword">if</strong> (matrix.getRowDimension() &lt; matrix.getColumnDimension()) {
+<a class="jxr_linenumber" name="L92" href="SingularValueDecomposition.html#L92">92</a>              transposed = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L93" href="SingularValueDecomposition.html#L93">93</a>              A = matrix.transpose().getData();
+<a class="jxr_linenumber" name="L94" href="SingularValueDecomposition.html#L94">94</a>              m = matrix.getColumnDimension();
+<a class="jxr_linenumber" name="L95" href="SingularValueDecomposition.html#L95">95</a>              n = matrix.getRowDimension();
+<a class="jxr_linenumber" name="L96" href="SingularValueDecomposition.html#L96">96</a>          } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L97" href="SingularValueDecomposition.html#L97">97</a>              transposed = false;
+<a class="jxr_linenumber" name="L98" href="SingularValueDecomposition.html#L98">98</a>              A = matrix.getData();
+<a class="jxr_linenumber" name="L99" href="SingularValueDecomposition.html#L99">99</a>              m = matrix.getRowDimension();
+<a class="jxr_linenumber" name="L100" href="SingularValueDecomposition.html#L100">100</a>             n = matrix.getColumnDimension();
+<a class="jxr_linenumber" name="L101" href="SingularValueDecomposition.html#L101">101</a>         }
+<a class="jxr_linenumber" name="L102" href="SingularValueDecomposition.html#L102">102</a> 
+<a class="jxr_linenumber" name="L103" href="SingularValueDecomposition.html#L103">103</a>         singularValues = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n];
+<a class="jxr_linenumber" name="L104" href="SingularValueDecomposition.html#L104">104</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] U = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[m][n];
+<a class="jxr_linenumber" name="L105" href="SingularValueDecomposition.html#L105">105</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] V = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n][n];
+<a class="jxr_linenumber" name="L106" href="SingularValueDecomposition.html#L106">106</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] e = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n];
+<a class="jxr_linenumber" name="L107" href="SingularValueDecomposition.html#L107">107</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] work = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[m];
+<a class="jxr_linenumber" name="L108" href="SingularValueDecomposition.html#L108">108</a>         <em class="jxr_comment">// Reduce A to bidiagonal form, storing the diagonal elements</em>
+<a class="jxr_linenumber" name="L109" href="SingularValueDecomposition.html#L109">109</a>         <em class="jxr_comment">// in s and the super-diagonal elements in e.</em>
+<a class="jxr_linenumber" name="L110" href="SingularValueDecomposition.html#L110">110</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nct = FastMath.min(m - 1, n);
+<a class="jxr_linenumber" name="L111" href="SingularValueDecomposition.html#L111">111</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nrt = FastMath.max(0, n - 2);
+<a class="jxr_linenumber" name="L112" href="SingularValueDecomposition.html#L112">112</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; FastMath.max(nct, nrt); k++) {
+<a class="jxr_linenumber" name="L113" href="SingularValueDecomposition.html#L113">113</a>             <strong class="jxr_keyword">if</strong> (k &lt; nct) {
+<a class="jxr_linenumber" name="L114" href="SingularValueDecomposition.html#L114">114</a>                 <em class="jxr_comment">// Compute the transformation for the k-th column and</em>
+<a class="jxr_linenumber" name="L115" href="SingularValueDecomposition.html#L115">115</a>                 <em class="jxr_comment">// place the k-th diagonal in s[k].</em>
+<a class="jxr_linenumber" name="L116" href="SingularValueDecomposition.html#L116">116</a>                 <em class="jxr_comment">// Compute 2-norm of k-th column without under/overflow.</em>
+<a class="jxr_linenumber" name="L117" href="SingularValueDecomposition.html#L117">117</a>                 singularValues[k] = 0;
+<a class="jxr_linenumber" name="L118" href="SingularValueDecomposition.html#L118">118</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = k; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L119" href="SingularValueDecomposition.html#L119">119</a>                     singularValues[k] = FastMath.hypot(singularValues[k], A[i][k]);
+<a class="jxr_linenumber" name="L120" href="SingularValueDecomposition.html#L120">120</a>                 }
+<a class="jxr_linenumber" name="L121" href="SingularValueDecomposition.html#L121">121</a>                 <strong class="jxr_keyword">if</strong> (singularValues[k] != 0) {
+<a class="jxr_linenumber" name="L122" href="SingularValueDecomposition.html#L122">122</a>                     <strong class="jxr_keyword">if</strong> (A[k][k] &lt; 0) {
+<a class="jxr_linenumber" name="L123" href="SingularValueDecomposition.html#L123">123</a>                         singularValues[k] = -singularValues[k];
+<a class="jxr_linenumber" name="L124" href="SingularValueDecomposition.html#L124">124</a>                     }
+<a class="jxr_linenumber" name="L125" href="SingularValueDecomposition.html#L125">125</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = k; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L126" href="SingularValueDecomposition.html#L126">126</a>                         A[i][k] /= singularValues[k];
+<a class="jxr_linenumber" name="L127" href="SingularValueDecomposition.html#L127">127</a>                     }
+<a class="jxr_linenumber" name="L128" href="SingularValueDecomposition.html#L128">128</a>                     A[k][k] += 1;
+<a class="jxr_linenumber" name="L129" href="SingularValueDecomposition.html#L129">129</a>                 }
+<a class="jxr_linenumber" name="L130" href="SingularValueDecomposition.html#L130">130</a>                 singularValues[k] = -singularValues[k];
+<a class="jxr_linenumber" name="L131" href="SingularValueDecomposition.html#L131">131</a>             }
+<a class="jxr_linenumber" name="L132" href="SingularValueDecomposition.html#L132">132</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = k + 1; j &lt; n; j++) {
+<a class="jxr_linenumber" name="L133" href="SingularValueDecomposition.html#L133">133</a>                 <strong class="jxr_keyword">if</strong> (k &lt; nct &amp;&amp;
+<a class="jxr_linenumber" name="L134" href="SingularValueDecomposition.html#L134">134</a>                     singularValues[k] != 0) {
+<a class="jxr_linenumber" name="L135" href="SingularValueDecomposition.html#L135">135</a>                     <em class="jxr_comment">// Apply the transformation.</em>
+<a class="jxr_linenumber" name="L136" href="SingularValueDecomposition.html#L136">136</a>                     <strong class="jxr_keyword">double</strong> t = 0;
+<a class="jxr_linenumber" name="L137" href="SingularValueDecomposition.html#L137">137</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = k; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L138" href="SingularValueDecomposition.html#L138">138</a>                         t += A[i][k] * A[i][j];
+<a class="jxr_linenumber" name="L139" href="SingularValueDecomposition.html#L139">139</a>                     }
+<a class="jxr_linenumber" name="L140" href="SingularValueDecomposition.html#L140">140</a>                     t = -t / A[k][k];
+<a class="jxr_linenumber" name="L141" href="SingularValueDecomposition.html#L141">141</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = k; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L142" href="SingularValueDecomposition.html#L142">142</a>                         A[i][j] += t * A[i][k];
+<a class="jxr_linenumber" name="L143" href="SingularValueDecomposition.html#L143">143</a>                     }
+<a class="jxr_linenumber" name="L144" href="SingularValueDecomposition.html#L144">144</a>                 }
+<a class="jxr_linenumber" name="L145" href="SingularValueDecomposition.html#L145">145</a>                 <em class="jxr_comment">// Place the k-th row of A into e for the</em>
+<a class="jxr_linenumber" name="L146" href="SingularValueDecomposition.html#L146">146</a>                 <em class="jxr_comment">// subsequent calculation of the row transformation.</em>
+<a class="jxr_linenumber" name="L147" href="SingularValueDecomposition.html#L147">147</a>                 e[j] = A[k][j];
+<a class="jxr_linenumber" name="L148" href="SingularValueDecomposition.html#L148">148</a>             }
+<a class="jxr_linenumber" name="L149" href="SingularValueDecomposition.html#L149">149</a>             <strong class="jxr_keyword">if</strong> (k &lt; nct) {
+<a class="jxr_linenumber" name="L150" href="SingularValueDecomposition.html#L150">150</a>                 <em class="jxr_comment">// Place the transformation in U for subsequent back</em>
+<a class="jxr_linenumber" name="L151" href="SingularValueDecomposition.html#L151">151</a>                 <em class="jxr_comment">// multiplication.</em>
+<a class="jxr_linenumber" name="L152" href="SingularValueDecomposition.html#L152">152</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = k; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L153" href="SingularValueDecomposition.html#L153">153</a>                     U[i][k] = A[i][k];
+<a class="jxr_linenumber" name="L154" href="SingularValueDecomposition.html#L154">154</a>                 }
+<a class="jxr_linenumber" name="L155" href="SingularValueDecomposition.html#L155">155</a>             }
+<a class="jxr_linenumber" name="L156" href="SingularValueDecomposition.html#L156">156</a>             <strong class="jxr_keyword">if</strong> (k &lt; nrt) {
+<a class="jxr_linenumber" name="L157" href="SingularValueDecomposition.html#L157">157</a>                 <em class="jxr_comment">// Compute the k-th row transformation and place the</em>
+<a class="jxr_linenumber" name="L158" href="SingularValueDecomposition.html#L158">158</a>                 <em class="jxr_comment">// k-th super-diagonal in e[k].</em>
+<a class="jxr_linenumber" name="L159" href="SingularValueDecomposition.html#L159">159</a>                 <em class="jxr_comment">// Compute 2-norm without under/overflow.</em>
+<a class="jxr_linenumber" name="L160" href="SingularValueDecomposition.html#L160">160</a>                 e[k] = 0;
+<a class="jxr_linenumber" name="L161" href="SingularValueDecomposition.html#L161">161</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = k + 1; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L162" href="SingularValueDecomposition.html#L162">162</a>                     e[k] = FastMath.hypot(e[k], e[i]);
+<a class="jxr_linenumber" name="L163" href="SingularValueDecomposition.html#L163">163</a>                 }
+<a class="jxr_linenumber" name="L164" href="SingularValueDecomposition.html#L164">164</a>                 <strong class="jxr_keyword">if</strong> (e[k] != 0) {
+<a class="jxr_linenumber" name="L165" href="SingularValueDecomposition.html#L165">165</a>                     <strong class="jxr_keyword">if</strong> (e[k + 1] &lt; 0) {
+<a class="jxr_linenumber" name="L166" href="SingularValueDecomposition.html#L166">166</a>                         e[k] = -e[k];
+<a class="jxr_linenumber" name="L167" href="SingularValueDecomposition.html#L167">167</a>                     }
+<a class="jxr_linenumber" name="L168" href="SingularValueDecomposition.html#L168">168</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = k + 1; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L169" href="SingularValueDecomposition.html#L169">169</a>                         e[i] /= e[k];
+<a class="jxr_linenumber" name="L170" href="SingularValueDecomposition.html#L170">170</a>                     }
+<a class="jxr_linenumber" name="L171" href="SingularValueDecomposition.html#L171">171</a>                     e[k + 1] += 1;
+<a class="jxr_linenumber" name="L172" href="SingularValueDecomposition.html#L172">172</a>                 }
+<a class="jxr_linenumber" name="L173" href="SingularValueDecomposition.html#L173">173</a>                 e[k] = -e[k];
+<a class="jxr_linenumber" name="L174" href="SingularValueDecomposition.html#L174">174</a>                 <strong class="jxr_keyword">if</strong> (k + 1 &lt; m &amp;&amp;
+<a class="jxr_linenumber" name="L175" href="SingularValueDecomposition.html#L175">175</a>                     e[k] != 0) {
+<a class="jxr_linenumber" name="L176" href="SingularValueDecomposition.html#L176">176</a>                     <em class="jxr_comment">// Apply the transformation.</em>
+<a class="jxr_linenumber" name="L177" href="SingularValueDecomposition.html#L177">177</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = k + 1; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L178" href="SingularValueDecomposition.html#L178">178</a>                         work[i] = 0;
+<a class="jxr_linenumber" name="L179" href="SingularValueDecomposition.html#L179">179</a>                     }
+<a class="jxr_linenumber" name="L180" href="SingularValueDecomposition.html#L180">180</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = k + 1; j &lt; n; j++) {
+<a class="jxr_linenumber" name="L181" href="SingularValueDecomposition.html#L181">181</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = k + 1; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L182" href="SingularValueDecomposition.html#L182">182</a>                             work[i] += e[j] * A[i][j];
+<a class="jxr_linenumber" name="L183" href="SingularValueDecomposition.html#L183">183</a>                         }
+<a class="jxr_linenumber" name="L184" href="SingularValueDecomposition.html#L184">184</a>                     }
+<a class="jxr_linenumber" name="L185" href="SingularValueDecomposition.html#L185">185</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = k + 1; j &lt; n; j++) {
+<a class="jxr_linenumber" name="L186" href="SingularValueDecomposition.html#L186">186</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> t = -e[j] / e[k + 1];
+<a class="jxr_linenumber" name="L187" href="SingularValueDecomposition.html#L187">187</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = k + 1; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L188" href="SingularValueDecomposition.html#L188">188</a>                             A[i][j] += t * work[i];
+<a class="jxr_linenumber" name="L189" href="SingularValueDecomposition.html#L189">189</a>                         }
+<a class="jxr_linenumber" name="L190" href="SingularValueDecomposition.html#L190">190</a>                     }
+<a class="jxr_linenumber" name="L191" href="SingularValueDecomposition.html#L191">191</a>                 }
+<a class="jxr_linenumber" name="L192" href="SingularValueDecomposition.html#L192">192</a> 
+<a class="jxr_linenumber" name="L193" href="SingularValueDecomposition.html#L193">193</a>                 <em class="jxr_comment">// Place the transformation in V for subsequent</em>
+<a class="jxr_linenumber" name="L194" href="SingularValueDecomposition.html#L194">194</a>                 <em class="jxr_comment">// back multiplication.</em>
+<a class="jxr_linenumber" name="L195" href="SingularValueDecomposition.html#L195">195</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = k + 1; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L196" href="SingularValueDecomposition.html#L196">196</a>                     V[i][k] = e[i];
+<a class="jxr_linenumber" name="L197" href="SingularValueDecomposition.html#L197">197</a>                 }
+<a class="jxr_linenumber" name="L198" href="SingularValueDecomposition.html#L198">198</a>             }
+<a class="jxr_linenumber" name="L199" href="SingularValueDecomposition.html#L199">199</a>         }
+<a class="jxr_linenumber" name="L200" href="SingularValueDecomposition.html#L200">200</a>         <em class="jxr_comment">// Set up the final bidiagonal matrix or order p.</em>
+<a class="jxr_linenumber" name="L201" href="SingularValueDecomposition.html#L201">201</a>         <strong class="jxr_keyword">int</strong> p = n;
+<a class="jxr_linenumber" name="L202" href="SingularValueDecomposition.html#L202">202</a>         <strong class="jxr_keyword">if</strong> (nct &lt; n) {
+<a class="jxr_linenumber" name="L203" href="SingularValueDecomposition.html#L203">203</a>             singularValues[nct] = A[nct][nct];
+<a class="jxr_linenumber" name="L204" href="SingularValueDecomposition.html#L204">204</a>         }
+<a class="jxr_linenumber" name="L205" href="SingularValueDecomposition.html#L205">205</a>         <strong class="jxr_keyword">if</strong> (m &lt; p) {
+<a class="jxr_linenumber" name="L206" href="SingularValueDecomposition.html#L206">206</a>             singularValues[p - 1] = 0;
+<a class="jxr_linenumber" name="L207" href="SingularValueDecomposition.html#L207">207</a>         }
+<a class="jxr_linenumber" name="L208" href="SingularValueDecomposition.html#L208">208</a>         <strong class="jxr_keyword">if</strong> (nrt + 1 &lt; p) {
+<a class="jxr_linenumber" name="L209" href="SingularValueDecomposition.html#L209">209</a>             e[nrt] = A[nrt][p - 1];
+<a class="jxr_linenumber" name="L210" href="SingularValueDecomposition.html#L210">210</a>         }
+<a class="jxr_linenumber" name="L211" href="SingularValueDecomposition.html#L211">211</a>         e[p - 1] = 0;
+<a class="jxr_linenumber" name="L212" href="SingularValueDecomposition.html#L212">212</a> 
+<a class="jxr_linenumber" name="L213" href="SingularValueDecomposition.html#L213">213</a>         <em class="jxr_comment">// Generate U.</em>
+<a class="jxr_linenumber" name="L214" href="SingularValueDecomposition.html#L214">214</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = nct; j &lt; n; j++) {
+<a class="jxr_linenumber" name="L215" href="SingularValueDecomposition.html#L215">215</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L216" href="SingularValueDecomposition.html#L216">216</a>                 U[i][j] = 0;
+<a class="jxr_linenumber" name="L217" href="SingularValueDecomposition.html#L217">217</a>             }
+<a class="jxr_linenumber" name="L218" href="SingularValueDecomposition.html#L218">218</a>             U[j][j] = 1;
+<a class="jxr_linenumber" name="L219" href="SingularValueDecomposition.html#L219">219</a>         }
+<a class="jxr_linenumber" name="L220" href="SingularValueDecomposition.html#L220">220</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = nct - 1; k &gt;= 0; k--) {
+<a class="jxr_linenumber" name="L221" href="SingularValueDecomposition.html#L221">221</a>             <strong class="jxr_keyword">if</strong> (singularValues[k] != 0) {
+<a class="jxr_linenumber" name="L222" href="SingularValueDecomposition.html#L222">222</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = k + 1; j &lt; n; j++) {
+<a class="jxr_linenumber" name="L223" href="SingularValueDecomposition.html#L223">223</a>                     <strong class="jxr_keyword">double</strong> t = 0;
+<a class="jxr_linenumber" name="L224" href="SingularValueDecomposition.html#L224">224</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = k; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L225" href="SingularValueDecomposition.html#L225">225</a>                         t += U[i][k] * U[i][j];
+<a class="jxr_linenumber" name="L226" href="SingularValueDecomposition.html#L226">226</a>                     }
+<a class="jxr_linenumber" name="L227" href="SingularValueDecomposition.html#L227">227</a>                     t = -t / U[k][k];
+<a class="jxr_linenumber" name="L228" href="SingularValueDecomposition.html#L228">228</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = k; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L229" href="SingularValueDecomposition.html#L229">229</a>                         U[i][j] += t * U[i][k];
+<a class="jxr_linenumber" name="L230" href="SingularValueDecomposition.html#L230">230</a>                     }
+<a class="jxr_linenumber" name="L231" href="SingularValueDecomposition.html#L231">231</a>                 }
+<a class="jxr_linenumber" name="L232" href="SingularValueDecomposition.html#L232">232</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = k; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L233" href="SingularValueDecomposition.html#L233">233</a>                     U[i][k] = -U[i][k];
+<a class="jxr_linenumber" name="L234" href="SingularValueDecomposition.html#L234">234</a>                 }
+<a class="jxr_linenumber" name="L235" href="SingularValueDecomposition.html#L235">235</a>                 U[k][k] = 1 + U[k][k];
+<a class="jxr_linenumber" name="L236" href="SingularValueDecomposition.html#L236">236</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; k - 1; i++) {
+<a class="jxr_linenumber" name="L237" href="SingularValueDecomposition.html#L237">237</a>                     U[i][k] = 0;
+<a class="jxr_linenumber" name="L238" href="SingularValueDecomposition.html#L238">238</a>                 }
+<a class="jxr_linenumber" name="L239" href="SingularValueDecomposition.html#L239">239</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L240" href="SingularValueDecomposition.html#L240">240</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L241" href="SingularValueDecomposition.html#L241">241</a>                     U[i][k] = 0;
+<a class="jxr_linenumber" name="L242" href="SingularValueDecomposition.html#L242">242</a>                 }
+<a class="jxr_linenumber" name="L243" href="SingularValueDecomposition.html#L243">243</a>                 U[k][k] = 1;
+<a class="jxr_linenumber" name="L244" href="SingularValueDecomposition.html#L244">244</a>             }
+<a class="jxr_linenumber" name="L245" href="SingularValueDecomposition.html#L245">245</a>         }
+<a class="jxr_linenumber" name="L246" href="SingularValueDecomposition.html#L246">246</a> 
+<a class="jxr_linenumber" name="L247" href="SingularValueDecomposition.html#L247">247</a>         <em class="jxr_comment">// Generate V.</em>
+<a class="jxr_linenumber" name="L248" href="SingularValueDecomposition.html#L248">248</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = n - 1; k &gt;= 0; k--) {
+<a class="jxr_linenumber" name="L249" href="SingularValueDecomposition.html#L249">249</a>             <strong class="jxr_keyword">if</strong> (k &lt; nrt &amp;&amp;
+<a class="jxr_linenumber" name="L250" href="SingularValueDecomposition.html#L250">250</a>                 e[k] != 0) {
+<a class="jxr_linenumber" name="L251" href="SingularValueDecomposition.html#L251">251</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = k + 1; j &lt; n; j++) {
+<a class="jxr_linenumber" name="L252" href="SingularValueDecomposition.html#L252">252</a>                     <strong class="jxr_keyword">double</strong> t = 0;
+<a class="jxr_linenumber" name="L253" href="SingularValueDecomposition.html#L253">253</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = k + 1; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L254" href="SingularValueDecomposition.html#L254">254</a>                         t += V[i][k] * V[i][j];
+<a class="jxr_linenumber" name="L255" href="SingularValueDecomposition.html#L255">255</a>                     }
+<a class="jxr_linenumber" name="L256" href="SingularValueDecomposition.html#L256">256</a>                     t = -t / V[k + 1][k];
+<a class="jxr_linenumber" name="L257" href="SingularValueDecomposition.html#L257">257</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = k + 1; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L258" href="SingularValueDecomposition.html#L258">258</a>                         V[i][j] += t * V[i][k];
+<a class="jxr_linenumber" name="L259" href="SingularValueDecomposition.html#L259">259</a>                     }
+<a class="jxr_linenumber" name="L260" href="SingularValueDecomposition.html#L260">260</a>                 }
+<a class="jxr_linenumber" name="L261" href="SingularValueDecomposition.html#L261">261</a>             }
+<a class="jxr_linenumber" name="L262" href="SingularValueDecomposition.html#L262">262</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L263" href="SingularValueDecomposition.html#L263">263</a>                 V[i][k] = 0;
+<a class="jxr_linenumber" name="L264" href="SingularValueDecomposition.html#L264">264</a>             }
+<a class="jxr_linenumber" name="L265" href="SingularValueDecomposition.html#L265">265</a>             V[k][k] = 1;
+<a class="jxr_linenumber" name="L266" href="SingularValueDecomposition.html#L266">266</a>         }
+<a class="jxr_linenumber" name="L267" href="SingularValueDecomposition.html#L267">267</a> 
+<a class="jxr_linenumber" name="L268" href="SingularValueDecomposition.html#L268">268</a>         <em class="jxr_comment">// Main iteration loop for the singular values.</em>
+<a class="jxr_linenumber" name="L269" href="SingularValueDecomposition.html#L269">269</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> pp = p - 1;
+<a class="jxr_linenumber" name="L270" href="SingularValueDecomposition.html#L270">270</a>         <strong class="jxr_keyword">while</strong> (p &gt; 0) {
+<a class="jxr_linenumber" name="L271" href="SingularValueDecomposition.html#L271">271</a>             <strong class="jxr_keyword">int</strong> k;
+<a class="jxr_linenumber" name="L272" href="SingularValueDecomposition.html#L272">272</a>             <strong class="jxr_keyword">int</strong> kase;
+<a class="jxr_linenumber" name="L273" href="SingularValueDecomposition.html#L273">273</a>             <em class="jxr_comment">// Here is where a test for too many iterations would go.</em>
+<a class="jxr_linenumber" name="L274" href="SingularValueDecomposition.html#L274">274</a>             <em class="jxr_comment">// This section of the program inspects for</em>
+<a class="jxr_linenumber" name="L275" href="SingularValueDecomposition.html#L275">275</a>             <em class="jxr_comment">// negligible elements in the s and e arrays.  On</em>
+<a class="jxr_linenumber" name="L276" href="SingularValueDecomposition.html#L276">276</a>             <em class="jxr_comment">// completion the variables kase and k are set as follows.</em>
+<a class="jxr_linenumber" name="L277" href="SingularValueDecomposition.html#L277">277</a>             <em class="jxr_comment">// kase = 1     if s(p) and e[k-1] are negligible and k&lt;p</em>
+<a class="jxr_linenumber" name="L278" href="SingularValueDecomposition.html#L278">278</a>             <em class="jxr_comment">// kase = 2     if s(k) is negligible and k&lt;p</em>
+<a class="jxr_linenumber" name="L279" href="SingularValueDecomposition.html#L279">279</a>             <em class="jxr_comment">// kase = 3     if e[k-1] is negligible, k&lt;p, and</em>
+<a class="jxr_linenumber" name="L280" href="SingularValueDecomposition.html#L280">280</a>             <em class="jxr_comment">//              s(k), ..., s(p) are not negligible (qr step).</em>
+<a class="jxr_linenumber" name="L281" href="SingularValueDecomposition.html#L281">281</a>             <em class="jxr_comment">// kase = 4     if e(p-1) is negligible (convergence).</em>
+<a class="jxr_linenumber" name="L282" href="SingularValueDecomposition.html#L282">282</a>             <strong class="jxr_keyword">for</strong> (k = p - 2; k &gt;= 0; k--) {
+<a class="jxr_linenumber" name="L283" href="SingularValueDecomposition.html#L283">283</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> threshold
+<a class="jxr_linenumber" name="L284" href="SingularValueDecomposition.html#L284">284</a>                     = TINY + EPS * (FastMath.abs(singularValues[k]) +
+<a class="jxr_linenumber" name="L285" href="SingularValueDecomposition.html#L285">285</a>                                     FastMath.abs(singularValues[k + 1]));
+<a class="jxr_linenumber" name="L286" href="SingularValueDecomposition.html#L286">286</a> 
+<a class="jxr_linenumber" name="L287" href="SingularValueDecomposition.html#L287">287</a>                 <em class="jxr_comment">// the following condition is written this way in order</em>
+<a class="jxr_linenumber" name="L288" href="SingularValueDecomposition.html#L288">288</a>                 <em class="jxr_comment">// to break out of the loop when NaN occurs, writing it</em>
+<a class="jxr_linenumber" name="L289" href="SingularValueDecomposition.html#L289">289</a>                 <em class="jxr_comment">// as "if (FastMath.abs(e[k]) &lt;= threshold)" would loop</em>
+<a class="jxr_linenumber" name="L290" href="SingularValueDecomposition.html#L290">290</a>                 <em class="jxr_comment">// indefinitely in case of NaNs because comparison on NaNs</em>
+<a class="jxr_linenumber" name="L291" href="SingularValueDecomposition.html#L291">291</a>                 <em class="jxr_comment">// always return false, regardless of what is checked</em>
+<a class="jxr_linenumber" name="L292" href="SingularValueDecomposition.html#L292">292</a>                 <em class="jxr_comment">// see issue MATH-947</em>
+<a class="jxr_linenumber" name="L293" href="SingularValueDecomposition.html#L293">293</a>                 <strong class="jxr_keyword">if</strong> (!(FastMath.abs(e[k]) &gt; threshold)) {
+<a class="jxr_linenumber" name="L294" href="SingularValueDecomposition.html#L294">294</a>                     e[k] = 0;
+<a class="jxr_linenumber" name="L295" href="SingularValueDecomposition.html#L295">295</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L296" href="SingularValueDecomposition.html#L296">296</a>                 }
+<a class="jxr_linenumber" name="L297" href="SingularValueDecomposition.html#L297">297</a> 
+<a class="jxr_linenumber" name="L298" href="SingularValueDecomposition.html#L298">298</a>             }
+<a class="jxr_linenumber" name="L299" href="SingularValueDecomposition.html#L299">299</a> 
+<a class="jxr_linenumber" name="L300" href="SingularValueDecomposition.html#L300">300</a>             <strong class="jxr_keyword">if</strong> (k == p - 2) {
+<a class="jxr_linenumber" name="L301" href="SingularValueDecomposition.html#L301">301</a>                 kase = 4;
+<a class="jxr_linenumber" name="L302" href="SingularValueDecomposition.html#L302">302</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L303" href="SingularValueDecomposition.html#L303">303</a>                 <strong class="jxr_keyword">int</strong> ks;
+<a class="jxr_linenumber" name="L304" href="SingularValueDecomposition.html#L304">304</a>                 <strong class="jxr_keyword">for</strong> (ks = p - 1; ks &gt;= k; ks--) {
+<a class="jxr_linenumber" name="L305" href="SingularValueDecomposition.html#L305">305</a>                     <strong class="jxr_keyword">if</strong> (ks == k) {
+<a class="jxr_linenumber" name="L306" href="SingularValueDecomposition.html#L306">306</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L307" href="SingularValueDecomposition.html#L307">307</a>                     }
+<a class="jxr_linenumber" name="L308" href="SingularValueDecomposition.html#L308">308</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> t = (ks != p ? FastMath.abs(e[ks]) : 0) +
+<a class="jxr_linenumber" name="L309" href="SingularValueDecomposition.html#L309">309</a>                         (ks != k + 1 ? FastMath.abs(e[ks - 1]) : 0);
+<a class="jxr_linenumber" name="L310" href="SingularValueDecomposition.html#L310">310</a>                     <strong class="jxr_keyword">if</strong> (FastMath.abs(singularValues[ks]) &lt;= TINY + EPS * t) {
+<a class="jxr_linenumber" name="L311" href="SingularValueDecomposition.html#L311">311</a>                         singularValues[ks] = 0;
+<a class="jxr_linenumber" name="L312" href="SingularValueDecomposition.html#L312">312</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L313" href="SingularValueDecomposition.html#L313">313</a>                     }
+<a class="jxr_linenumber" name="L314" href="SingularValueDecomposition.html#L314">314</a>                 }
+<a class="jxr_linenumber" name="L315" href="SingularValueDecomposition.html#L315">315</a>                 <strong class="jxr_keyword">if</strong> (ks == k) {
+<a class="jxr_linenumber" name="L316" href="SingularValueDecomposition.html#L316">316</a>                     kase = 3;
+<a class="jxr_linenumber" name="L317" href="SingularValueDecomposition.html#L317">317</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (ks == p - 1) {
+<a class="jxr_linenumber" name="L318" href="SingularValueDecomposition.html#L318">318</a>                     kase = 1;
+<a class="jxr_linenumber" name="L319" href="SingularValueDecomposition.html#L319">319</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L320" href="SingularValueDecomposition.html#L320">320</a>                     kase = 2;
+<a class="jxr_linenumber" name="L321" href="SingularValueDecomposition.html#L321">321</a>                     k = ks;
+<a class="jxr_linenumber" name="L322" href="SingularValueDecomposition.html#L322">322</a>                 }
+<a class="jxr_linenumber" name="L323" href="SingularValueDecomposition.html#L323">323</a>             }
+<a class="jxr_linenumber" name="L324" href="SingularValueDecomposition.html#L324">324</a>             k++;
+<a class="jxr_linenumber" name="L325" href="SingularValueDecomposition.html#L325">325</a>             <em class="jxr_comment">// Perform the task indicated by kase.</em>
+<a class="jxr_linenumber" name="L326" href="SingularValueDecomposition.html#L326">326</a>             <strong class="jxr_keyword">switch</strong> (kase) {
+<a class="jxr_linenumber" name="L327" href="SingularValueDecomposition.html#L327">327</a>                 <em class="jxr_comment">// Deflate negligible s(p).</em>
+<a class="jxr_linenumber" name="L328" href="SingularValueDecomposition.html#L328">328</a>                 <strong class="jxr_keyword">case</strong> 1: {
+<a class="jxr_linenumber" name="L329" href="SingularValueDecomposition.html#L329">329</a>                     <strong class="jxr_keyword">double</strong> f = e[p - 2];
+<a class="jxr_linenumber" name="L330" href="SingularValueDecomposition.html#L330">330</a>                     e[p - 2] = 0;
+<a class="jxr_linenumber" name="L331" href="SingularValueDecomposition.html#L331">331</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = p - 2; j &gt;= k; j--) {
+<a class="jxr_linenumber" name="L332" href="SingularValueDecomposition.html#L332">332</a>                         <strong class="jxr_keyword">double</strong> t = FastMath.hypot(singularValues[j], f);
+<a class="jxr_linenumber" name="L333" href="SingularValueDecomposition.html#L333">333</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> cs = singularValues[j] / t;
+<a class="jxr_linenumber" name="L334" href="SingularValueDecomposition.html#L334">334</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> sn = f / t;
+<a class="jxr_linenumber" name="L335" href="SingularValueDecomposition.html#L335">335</a>                         singularValues[j] = t;
+<a class="jxr_linenumber" name="L336" href="SingularValueDecomposition.html#L336">336</a>                         <strong class="jxr_keyword">if</strong> (j != k) {
+<a class="jxr_linenumber" name="L337" href="SingularValueDecomposition.html#L337">337</a>                             f = -sn * e[j - 1];
+<a class="jxr_linenumber" name="L338" href="SingularValueDecomposition.html#L338">338</a>                             e[j - 1] = cs * e[j - 1];
+<a class="jxr_linenumber" name="L339" href="SingularValueDecomposition.html#L339">339</a>                         }
+<a class="jxr_linenumber" name="L340" href="SingularValueDecomposition.html#L340">340</a> 
+<a class="jxr_linenumber" name="L341" href="SingularValueDecomposition.html#L341">341</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L342" href="SingularValueDecomposition.html#L342">342</a>                             t = cs * V[i][j] + sn * V[i][p - 1];
+<a class="jxr_linenumber" name="L343" href="SingularValueDecomposition.html#L343">343</a>                             V[i][p - 1] = -sn * V[i][j] + cs * V[i][p - 1];
+<a class="jxr_linenumber" name="L344" href="SingularValueDecomposition.html#L344">344</a>                             V[i][j] = t;
+<a class="jxr_linenumber" name="L345" href="SingularValueDecomposition.html#L345">345</a>                         }
+<a class="jxr_linenumber" name="L346" href="SingularValueDecomposition.html#L346">346</a>                     }
+<a class="jxr_linenumber" name="L347" href="SingularValueDecomposition.html#L347">347</a>                 }
+<a class="jxr_linenumber" name="L348" href="SingularValueDecomposition.html#L348">348</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L349" href="SingularValueDecomposition.html#L349">349</a>                 <em class="jxr_comment">// Split at negligible s(k).</em>
+<a class="jxr_linenumber" name="L350" href="SingularValueDecomposition.html#L350">350</a>                 <strong class="jxr_keyword">case</strong> 2: {
+<a class="jxr_linenumber" name="L351" href="SingularValueDecomposition.html#L351">351</a>                     <strong class="jxr_keyword">double</strong> f = e[k - 1];
+<a class="jxr_linenumber" name="L352" href="SingularValueDecomposition.html#L352">352</a>                     e[k - 1] = 0;
+<a class="jxr_linenumber" name="L353" href="SingularValueDecomposition.html#L353">353</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = k; j &lt; p; j++) {
+<a class="jxr_linenumber" name="L354" href="SingularValueDecomposition.html#L354">354</a>                         <strong class="jxr_keyword">double</strong> t = FastMath.hypot(singularValues[j], f);
+<a class="jxr_linenumber" name="L355" href="SingularValueDecomposition.html#L355">355</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> cs = singularValues[j] / t;
+<a class="jxr_linenumber" name="L356" href="SingularValueDecomposition.html#L356">356</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> sn = f / t;
+<a class="jxr_linenumber" name="L357" href="SingularValueDecomposition.html#L357">357</a>                         singularValues[j] = t;
+<a class="jxr_linenumber" name="L358" href="SingularValueDecomposition.html#L358">358</a>                         f = -sn * e[j];
+<a class="jxr_linenumber" name="L359" href="SingularValueDecomposition.html#L359">359</a>                         e[j] = cs * e[j];
+<a class="jxr_linenumber" name="L360" href="SingularValueDecomposition.html#L360">360</a> 
+<a class="jxr_linenumber" name="L361" href="SingularValueDecomposition.html#L361">361</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L362" href="SingularValueDecomposition.html#L362">362</a>                             t = cs * U[i][j] + sn * U[i][k - 1];
+<a class="jxr_linenumber" name="L363" href="SingularValueDecomposition.html#L363">363</a>                             U[i][k - 1] = -sn * U[i][j] + cs * U[i][k - 1];
+<a class="jxr_linenumber" name="L364" href="SingularValueDecomposition.html#L364">364</a>                             U[i][j] = t;
+<a class="jxr_linenumber" name="L365" href="SingularValueDecomposition.html#L365">365</a>                         }
+<a class="jxr_linenumber" name="L366" href="SingularValueDecomposition.html#L366">366</a>                     }
+<a class="jxr_linenumber" name="L367" href="SingularValueDecomposition.html#L367">367</a>                 }
+<a class="jxr_linenumber" name="L368" href="SingularValueDecomposition.html#L368">368</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L369" href="SingularValueDecomposition.html#L369">369</a>                 <em class="jxr_comment">// Perform one qr step.</em>
+<a class="jxr_linenumber" name="L370" href="SingularValueDecomposition.html#L370">370</a>                 <strong class="jxr_keyword">case</strong> 3: {
+<a class="jxr_linenumber" name="L371" href="SingularValueDecomposition.html#L371">371</a>                     <em class="jxr_comment">// Calculate the shift.</em>
+<a class="jxr_linenumber" name="L372" href="SingularValueDecomposition.html#L372">372</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxPm1Pm2 = FastMath.max(FastMath.abs(singularValues[p - 1]),
+<a class="jxr_linenumber" name="L373" href="SingularValueDecomposition.html#L373">373</a>                                                           FastMath.abs(singularValues[p - 2]));
+<a class="jxr_linenumber" name="L374" href="SingularValueDecomposition.html#L374">374</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> scale = FastMath.max(FastMath.max(FastMath.max(maxPm1Pm2,
+<a class="jxr_linenumber" name="L375" href="SingularValueDecomposition.html#L375">375</a>                                                                                 FastMath.abs(e[p - 2])),
+<a class="jxr_linenumber" name="L376" href="SingularValueDecomposition.html#L376">376</a>                                                                    FastMath.abs(singularValues[k])),
+<a class="jxr_linenumber" name="L377" href="SingularValueDecomposition.html#L377">377</a>                                                       FastMath.abs(e[k]));
+<a class="jxr_linenumber" name="L378" href="SingularValueDecomposition.html#L378">378</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> sp = singularValues[p - 1] / scale;
+<a class="jxr_linenumber" name="L379" href="SingularValueDecomposition.html#L379">379</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> spm1 = singularValues[p - 2] / scale;
+<a class="jxr_linenumber" name="L380" href="SingularValueDecomposition.html#L380">380</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> epm1 = e[p - 2] / scale;
+<a class="jxr_linenumber" name="L381" href="SingularValueDecomposition.html#L381">381</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> sk = singularValues[k] / scale;
+<a class="jxr_linenumber" name="L382" href="SingularValueDecomposition.html#L382">382</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> ek = e[k] / scale;
+<a class="jxr_linenumber" name="L383" href="SingularValueDecomposition.html#L383">383</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> b = ((spm1 + sp) * (spm1 - sp) + epm1 * epm1) / 2.0;
+<a class="jxr_linenumber" name="L384" href="SingularValueDecomposition.html#L384">384</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> c = (sp * epm1) * (sp * epm1);
+<a class="jxr_linenumber" name="L385" href="SingularValueDecomposition.html#L385">385</a>                     <strong class="jxr_keyword">double</strong> shift = 0;
+<a class="jxr_linenumber" name="L386" href="SingularValueDecomposition.html#L386">386</a>                     <strong class="jxr_keyword">if</strong> (b != 0 ||
+<a class="jxr_linenumber" name="L387" href="SingularValueDecomposition.html#L387">387</a>                         c != 0) {
+<a class="jxr_linenumber" name="L388" href="SingularValueDecomposition.html#L388">388</a>                         shift = FastMath.sqrt(b * b + c);
+<a class="jxr_linenumber" name="L389" href="SingularValueDecomposition.html#L389">389</a>                         <strong class="jxr_keyword">if</strong> (b &lt; 0) {
+<a class="jxr_linenumber" name="L390" href="SingularValueDecomposition.html#L390">390</a>                             shift = -shift;
+<a class="jxr_linenumber" name="L391" href="SingularValueDecomposition.html#L391">391</a>                         }
+<a class="jxr_linenumber" name="L392" href="SingularValueDecomposition.html#L392">392</a>                         shift = c / (b + shift);
+<a class="jxr_linenumber" name="L393" href="SingularValueDecomposition.html#L393">393</a>                     }
+<a class="jxr_linenumber" name="L394" href="SingularValueDecomposition.html#L394">394</a>                     <strong class="jxr_keyword">double</strong> f = (sk + sp) * (sk - sp) + shift;
+<a class="jxr_linenumber" name="L395" href="SingularValueDecomposition.html#L395">395</a>                     <strong class="jxr_keyword">double</strong> g = sk * ek;
+<a class="jxr_linenumber" name="L396" href="SingularValueDecomposition.html#L396">396</a>                     <em class="jxr_comment">// Chase zeros.</em>
+<a class="jxr_linenumber" name="L397" href="SingularValueDecomposition.html#L397">397</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = k; j &lt; p - 1; j++) {
+<a class="jxr_linenumber" name="L398" href="SingularValueDecomposition.html#L398">398</a>                         <strong class="jxr_keyword">double</strong> t = FastMath.hypot(f, g);
+<a class="jxr_linenumber" name="L399" href="SingularValueDecomposition.html#L399">399</a>                         <strong class="jxr_keyword">double</strong> cs = f / t;
+<a class="jxr_linenumber" name="L400" href="SingularValueDecomposition.html#L400">400</a>                         <strong class="jxr_keyword">double</strong> sn = g / t;
+<a class="jxr_linenumber" name="L401" href="SingularValueDecomposition.html#L401">401</a>                         <strong class="jxr_keyword">if</strong> (j != k) {
+<a class="jxr_linenumber" name="L402" href="SingularValueDecomposition.html#L402">402</a>                             e[j - 1] = t;
+<a class="jxr_linenumber" name="L403" href="SingularValueDecomposition.html#L403">403</a>                         }
+<a class="jxr_linenumber" name="L404" href="SingularValueDecomposition.html#L404">404</a>                         f = cs * singularValues[j] + sn * e[j];
+<a class="jxr_linenumber" name="L405" href="SingularValueDecomposition.html#L405">405</a>                         e[j] = cs * e[j] - sn * singularValues[j];
+<a class="jxr_linenumber" name="L406" href="SingularValueDecomposition.html#L406">406</a>                         g = sn * singularValues[j + 1];
+<a class="jxr_linenumber" name="L407" href="SingularValueDecomposition.html#L407">407</a>                         singularValues[j + 1] = cs * singularValues[j + 1];
+<a class="jxr_linenumber" name="L408" href="SingularValueDecomposition.html#L408">408</a> 
+<a class="jxr_linenumber" name="L409" href="SingularValueDecomposition.html#L409">409</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L410" href="SingularValueDecomposition.html#L410">410</a>                             t = cs * V[i][j] + sn * V[i][j + 1];
+<a class="jxr_linenumber" name="L411" href="SingularValueDecomposition.html#L411">411</a>                             V[i][j + 1] = -sn * V[i][j] + cs * V[i][j + 1];
+<a class="jxr_linenumber" name="L412" href="SingularValueDecomposition.html#L412">412</a>                             V[i][j] = t;
+<a class="jxr_linenumber" name="L413" href="SingularValueDecomposition.html#L413">413</a>                         }
+<a class="jxr_linenumber" name="L414" href="SingularValueDecomposition.html#L414">414</a>                         t = FastMath.hypot(f, g);
+<a class="jxr_linenumber" name="L415" href="SingularValueDecomposition.html#L415">415</a>                         cs = f / t;
+<a class="jxr_linenumber" name="L416" href="SingularValueDecomposition.html#L416">416</a>                         sn = g / t;
+<a class="jxr_linenumber" name="L417" href="SingularValueDecomposition.html#L417">417</a>                         singularValues[j] = t;
+<a class="jxr_linenumber" name="L418" href="SingularValueDecomposition.html#L418">418</a>                         f = cs * e[j] + sn * singularValues[j + 1];
+<a class="jxr_linenumber" name="L419" href="SingularValueDecomposition.html#L419">419</a>                         singularValues[j + 1] = -sn * e[j] + cs * singularValues[j + 1];
+<a class="jxr_linenumber" name="L420" href="SingularValueDecomposition.html#L420">420</a>                         g = sn * e[j + 1];
+<a class="jxr_linenumber" name="L421" href="SingularValueDecomposition.html#L421">421</a>                         e[j + 1] = cs * e[j + 1];
+<a class="jxr_linenumber" name="L422" href="SingularValueDecomposition.html#L422">422</a>                         <strong class="jxr_keyword">if</strong> (j &lt; m - 1) {
+<a class="jxr_linenumber" name="L423" href="SingularValueDecomposition.html#L423">423</a>                             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L424" href="SingularValueDecomposition.html#L424">424</a>                                 t = cs * U[i][j] + sn * U[i][j + 1];
+<a class="jxr_linenumber" name="L425" href="SingularValueDecomposition.html#L425">425</a>                                 U[i][j + 1] = -sn * U[i][j] + cs * U[i][j + 1];
+<a class="jxr_linenumber" name="L426" href="SingularValueDecomposition.html#L426">426</a>                                 U[i][j] = t;
+<a class="jxr_linenumber" name="L427" href="SingularValueDecomposition.html#L427">427</a>                             }
+<a class="jxr_linenumber" name="L428" href="SingularValueDecomposition.html#L428">428</a>                         }
+<a class="jxr_linenumber" name="L429" href="SingularValueDecomposition.html#L429">429</a>                     }
+<a class="jxr_linenumber" name="L430" href="SingularValueDecomposition.html#L430">430</a>                     e[p - 2] = f;
+<a class="jxr_linenumber" name="L431" href="SingularValueDecomposition.html#L431">431</a>                 }
+<a class="jxr_linenumber" name="L432" href="SingularValueDecomposition.html#L432">432</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L433" href="SingularValueDecomposition.html#L433">433</a>                 <em class="jxr_comment">// Convergence.</em>
+<a class="jxr_linenumber" name="L434" href="SingularValueDecomposition.html#L434">434</a>                 <strong class="jxr_keyword">default</strong>: {
+<a class="jxr_linenumber" name="L435" href="SingularValueDecomposition.html#L435">435</a>                     <em class="jxr_comment">// Make the singular values positive.</em>
+<a class="jxr_linenumber" name="L436" href="SingularValueDecomposition.html#L436">436</a>                     <strong class="jxr_keyword">if</strong> (singularValues[k] &lt;= 0) {
+<a class="jxr_linenumber" name="L437" href="SingularValueDecomposition.html#L437">437</a>                         singularValues[k] = singularValues[k] &lt; 0 ? -singularValues[k] : 0;
+<a class="jxr_linenumber" name="L438" href="SingularValueDecomposition.html#L438">438</a> 
+<a class="jxr_linenumber" name="L439" href="SingularValueDecomposition.html#L439">439</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt;= pp; i++) {
+<a class="jxr_linenumber" name="L440" href="SingularValueDecomposition.html#L440">440</a>                             V[i][k] = -V[i][k];
+<a class="jxr_linenumber" name="L441" href="SingularValueDecomposition.html#L441">441</a>                         }
+<a class="jxr_linenumber" name="L442" href="SingularValueDecomposition.html#L442">442</a>                     }
+<a class="jxr_linenumber" name="L443" href="SingularValueDecomposition.html#L443">443</a>                     <em class="jxr_comment">// Order the singular values.</em>
+<a class="jxr_linenumber" name="L444" href="SingularValueDecomposition.html#L444">444</a>                     <strong class="jxr_keyword">while</strong> (k &lt; pp) {
+<a class="jxr_linenumber" name="L445" href="SingularValueDecomposition.html#L445">445</a>                         <strong class="jxr_keyword">if</strong> (singularValues[k] &gt;= singularValues[k + 1]) {
+<a class="jxr_linenumber" name="L446" href="SingularValueDecomposition.html#L446">446</a>                             <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L447" href="SingularValueDecomposition.html#L447">447</a>                         }
+<a class="jxr_linenumber" name="L448" href="SingularValueDecomposition.html#L448">448</a>                         <strong class="jxr_keyword">double</strong> t = singularValues[k];
+<a class="jxr_linenumber" name="L449" href="SingularValueDecomposition.html#L449">449</a>                         singularValues[k] = singularValues[k + 1];
+<a class="jxr_linenumber" name="L450" href="SingularValueDecomposition.html#L450">450</a>                         singularValues[k + 1] = t;
+<a class="jxr_linenumber" name="L451" href="SingularValueDecomposition.html#L451">451</a>                         <strong class="jxr_keyword">if</strong> (k &lt; n - 1) {
+<a class="jxr_linenumber" name="L452" href="SingularValueDecomposition.html#L452">452</a>                             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L453" href="SingularValueDecomposition.html#L453">453</a>                                 t = V[i][k + 1];
+<a class="jxr_linenumber" name="L454" href="SingularValueDecomposition.html#L454">454</a>                                 V[i][k + 1] = V[i][k];
+<a class="jxr_linenumber" name="L455" href="SingularValueDecomposition.html#L455">455</a>                                 V[i][k] = t;
+<a class="jxr_linenumber" name="L456" href="SingularValueDecomposition.html#L456">456</a>                             }
+<a class="jxr_linenumber" name="L457" href="SingularValueDecomposition.html#L457">457</a>                         }
+<a class="jxr_linenumber" name="L458" href="SingularValueDecomposition.html#L458">458</a>                         <strong class="jxr_keyword">if</strong> (k &lt; m - 1) {
+<a class="jxr_linenumber" name="L459" href="SingularValueDecomposition.html#L459">459</a>                             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L460" href="SingularValueDecomposition.html#L460">460</a>                                 t = U[i][k + 1];
+<a class="jxr_linenumber" name="L461" href="SingularValueDecomposition.html#L461">461</a>                                 U[i][k + 1] = U[i][k];
+<a class="jxr_linenumber" name="L462" href="SingularValueDecomposition.html#L462">462</a>                                 U[i][k] = t;
+<a class="jxr_linenumber" name="L463" href="SingularValueDecomposition.html#L463">463</a>                             }
+<a class="jxr_linenumber" name="L464" href="SingularValueDecomposition.html#L464">464</a>                         }
+<a class="jxr_linenumber" name="L465" href="SingularValueDecomposition.html#L465">465</a>                         k++;
+<a class="jxr_linenumber" name="L466" href="SingularValueDecomposition.html#L466">466</a>                     }
+<a class="jxr_linenumber" name="L467" href="SingularValueDecomposition.html#L467">467</a>                     p--;
+<a class="jxr_linenumber" name="L468" href="SingularValueDecomposition.html#L468">468</a>                 }
+<a class="jxr_linenumber" name="L469" href="SingularValueDecomposition.html#L469">469</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L470" href="SingularValueDecomposition.html#L470">470</a>             }
+<a class="jxr_linenumber" name="L471" href="SingularValueDecomposition.html#L471">471</a>         }
+<a class="jxr_linenumber" name="L472" href="SingularValueDecomposition.html#L472">472</a> 
+<a class="jxr_linenumber" name="L473" href="SingularValueDecomposition.html#L473">473</a>         <em class="jxr_comment">// Set the small value tolerance used to calculate rank and pseudo-inverse</em>
+<a class="jxr_linenumber" name="L474" href="SingularValueDecomposition.html#L474">474</a>         tol = FastMath.max(m * singularValues[0] * EPS,
+<a class="jxr_linenumber" name="L475" href="SingularValueDecomposition.html#L475">475</a>                            FastMath.sqrt(Precision.SAFE_MIN));
+<a class="jxr_linenumber" name="L476" href="SingularValueDecomposition.html#L476">476</a> 
+<a class="jxr_linenumber" name="L477" href="SingularValueDecomposition.html#L477">477</a>         <strong class="jxr_keyword">if</strong> (!transposed) {
+<a class="jxr_linenumber" name="L478" href="SingularValueDecomposition.html#L478">478</a>             cachedU = MatrixUtils.createRealMatrix(U);
+<a class="jxr_linenumber" name="L479" href="SingularValueDecomposition.html#L479">479</a>             cachedV = MatrixUtils.createRealMatrix(V);
+<a class="jxr_linenumber" name="L480" href="SingularValueDecomposition.html#L480">480</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L481" href="SingularValueDecomposition.html#L481">481</a>             cachedU = MatrixUtils.createRealMatrix(V);
+<a class="jxr_linenumber" name="L482" href="SingularValueDecomposition.html#L482">482</a>             cachedV = MatrixUtils.createRealMatrix(U);
+<a class="jxr_linenumber" name="L483" href="SingularValueDecomposition.html#L483">483</a>         }
+<a class="jxr_linenumber" name="L484" href="SingularValueDecomposition.html#L484">484</a>     }
+<a class="jxr_linenumber" name="L485" href="SingularValueDecomposition.html#L485">485</a> 
+<a class="jxr_linenumber" name="L486" href="SingularValueDecomposition.html#L486">486</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L487" href="SingularValueDecomposition.html#L487">487</a> <em class="jxr_javadoccomment">     * Returns the matrix U of the decomposition.</em>
+<a class="jxr_linenumber" name="L488" href="SingularValueDecomposition.html#L488">488</a> <em class="jxr_javadoccomment">     * &lt;p&gt;U is an orthogonal matrix, i.e. its transpose is also its inverse.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L489" href="SingularValueDecomposition.html#L489">489</a> <em class="jxr_javadoccomment">     * @return the U matrix</em>
+<a class="jxr_linenumber" name="L490" href="SingularValueDecomposition.html#L490">490</a> <em class="jxr_javadoccomment">     * @see #getUT()</em>
+<a class="jxr_linenumber" name="L491" href="SingularValueDecomposition.html#L491">491</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L492" href="SingularValueDecomposition.html#L492">492</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getU() {
+<a class="jxr_linenumber" name="L493" href="SingularValueDecomposition.html#L493">493</a>         <em class="jxr_comment">// return the cached matrix</em>
+<a class="jxr_linenumber" name="L494" href="SingularValueDecomposition.html#L494">494</a>         <strong class="jxr_keyword">return</strong> cachedU;
+<a class="jxr_linenumber" name="L495" href="SingularValueDecomposition.html#L495">495</a> 
+<a class="jxr_linenumber" name="L496" href="SingularValueDecomposition.html#L496">496</a>     }
+<a class="jxr_linenumber" name="L497" href="SingularValueDecomposition.html#L497">497</a> 
+<a class="jxr_linenumber" name="L498" href="SingularValueDecomposition.html#L498">498</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L499" href="SingularValueDecomposition.html#L499">499</a> <em class="jxr_javadoccomment">     * Returns the transpose of the matrix U of the decomposition.</em>
+<a class="jxr_linenumber" name="L500" href="SingularValueDecomposition.html#L500">500</a> <em class="jxr_javadoccomment">     * &lt;p&gt;U is an orthogonal matrix, i.e. its transpose is also its inverse.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L501" href="SingularValueDecomposition.html#L501">501</a> <em class="jxr_javadoccomment">     * @return the U matrix (or null if decomposed matrix is singular)</em>
+<a class="jxr_linenumber" name="L502" href="SingularValueDecomposition.html#L502">502</a> <em class="jxr_javadoccomment">     * @see #getU()</em>
+<a class="jxr_linenumber" name="L503" href="SingularValueDecomposition.html#L503">503</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L504" href="SingularValueDecomposition.html#L504">504</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getUT() {
+<a class="jxr_linenumber" name="L505" href="SingularValueDecomposition.html#L505">505</a>         <strong class="jxr_keyword">if</strong> (cachedUt == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L506" href="SingularValueDecomposition.html#L506">506</a>             cachedUt = getU().transpose();
+<a class="jxr_linenumber" name="L507" href="SingularValueDecomposition.html#L507">507</a>         }
+<a class="jxr_linenumber" name="L508" href="SingularValueDecomposition.html#L508">508</a>         <em class="jxr_comment">// return the cached matrix</em>
+<a class="jxr_linenumber" name="L509" href="SingularValueDecomposition.html#L509">509</a>         <strong class="jxr_keyword">return</strong> cachedUt;
+<a class="jxr_linenumber" name="L510" href="SingularValueDecomposition.html#L510">510</a>     }
+<a class="jxr_linenumber" name="L511" href="SingularValueDecomposition.html#L511">511</a> 
+<a class="jxr_linenumber" name="L512" href="SingularValueDecomposition.html#L512">512</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L513" href="SingularValueDecomposition.html#L513">513</a> <em class="jxr_javadoccomment">     * Returns the diagonal matrix &amp;Sigma; of the decomposition.</em>
+<a class="jxr_linenumber" name="L514" href="SingularValueDecomposition.html#L514">514</a> <em class="jxr_javadoccomment">     * &lt;p&gt;&amp;Sigma; is a diagonal matrix. The singular values are provided in</em>
+<a class="jxr_linenumber" name="L515" href="SingularValueDecomposition.html#L515">515</a> <em class="jxr_javadoccomment">     * non-increasing order, for compatibility with Jama.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L516" href="SingularValueDecomposition.html#L516">516</a> <em class="jxr_javadoccomment">     * @return the &amp;Sigma; matrix</em>
+<a class="jxr_linenumber" name="L517" href="SingularValueDecomposition.html#L517">517</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L518" href="SingularValueDecomposition.html#L518">518</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getS() {
+<a class="jxr_linenumber" name="L519" href="SingularValueDecomposition.html#L519">519</a>         <strong class="jxr_keyword">if</strong> (cachedS == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L520" href="SingularValueDecomposition.html#L520">520</a>             <em class="jxr_comment">// cache the matrix for subsequent calls</em>
+<a class="jxr_linenumber" name="L521" href="SingularValueDecomposition.html#L521">521</a>             cachedS = MatrixUtils.createRealDiagonalMatrix(singularValues);
+<a class="jxr_linenumber" name="L522" href="SingularValueDecomposition.html#L522">522</a>         }
+<a class="jxr_linenumber" name="L523" href="SingularValueDecomposition.html#L523">523</a>         <strong class="jxr_keyword">return</strong> cachedS;
+<a class="jxr_linenumber" name="L524" href="SingularValueDecomposition.html#L524">524</a>     }
+<a class="jxr_linenumber" name="L525" href="SingularValueDecomposition.html#L525">525</a> 
+<a class="jxr_linenumber" name="L526" href="SingularValueDecomposition.html#L526">526</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L527" href="SingularValueDecomposition.html#L527">527</a> <em class="jxr_javadoccomment">     * Returns the diagonal elements of the matrix &amp;Sigma; of the decomposition.</em>
+<a class="jxr_linenumber" name="L528" href="SingularValueDecomposition.html#L528">528</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The singular values are provided in non-increasing order, for</em>
+<a class="jxr_linenumber" name="L529" href="SingularValueDecomposition.html#L529">529</a> <em class="jxr_javadoccomment">     * compatibility with Jama.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L530" href="SingularValueDecomposition.html#L530">530</a> <em class="jxr_javadoccomment">     * @return the diagonal elements of the &amp;Sigma; matrix</em>
+<a class="jxr_linenumber" name="L531" href="SingularValueDecomposition.html#L531">531</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L532" href="SingularValueDecomposition.html#L532">532</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSingularValues() {
+<a class="jxr_linenumber" name="L533" href="SingularValueDecomposition.html#L533">533</a>         <strong class="jxr_keyword">return</strong> singularValues.clone();
+<a class="jxr_linenumber" name="L534" href="SingularValueDecomposition.html#L534">534</a>     }
+<a class="jxr_linenumber" name="L535" href="SingularValueDecomposition.html#L535">535</a> 
+<a class="jxr_linenumber" name="L536" href="SingularValueDecomposition.html#L536">536</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L537" href="SingularValueDecomposition.html#L537">537</a> <em class="jxr_javadoccomment">     * Returns the matrix V of the decomposition.</em>
+<a class="jxr_linenumber" name="L538" href="SingularValueDecomposition.html#L538">538</a> <em class="jxr_javadoccomment">     * &lt;p&gt;V is an orthogonal matrix, i.e. its transpose is also its inverse.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L539" href="SingularValueDecomposition.html#L539">539</a> <em class="jxr_javadoccomment">     * @return the V matrix (or null if decomposed matrix is singular)</em>
+<a class="jxr_linenumber" name="L540" href="SingularValueDecomposition.html#L540">540</a> <em class="jxr_javadoccomment">     * @see #getVT()</em>
+<a class="jxr_linenumber" name="L541" href="SingularValueDecomposition.html#L541">541</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L542" href="SingularValueDecomposition.html#L542">542</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getV() {
+<a class="jxr_linenumber" name="L543" href="SingularValueDecomposition.html#L543">543</a>         <em class="jxr_comment">// return the cached matrix</em>
+<a class="jxr_linenumber" name="L544" href="SingularValueDecomposition.html#L544">544</a>         <strong class="jxr_keyword">return</strong> cachedV;
+<a class="jxr_linenumber" name="L545" href="SingularValueDecomposition.html#L545">545</a>     }
+<a class="jxr_linenumber" name="L546" href="SingularValueDecomposition.html#L546">546</a> 
+<a class="jxr_linenumber" name="L547" href="SingularValueDecomposition.html#L547">547</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L548" href="SingularValueDecomposition.html#L548">548</a> <em class="jxr_javadoccomment">     * Returns the transpose of the matrix V of the decomposition.</em>
+<a class="jxr_linenumber" name="L549" href="SingularValueDecomposition.html#L549">549</a> <em class="jxr_javadoccomment">     * &lt;p&gt;V is an orthogonal matrix, i.e. its transpose is also its inverse.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L550" href="SingularValueDecomposition.html#L550">550</a> <em class="jxr_javadoccomment">     * @return the V matrix (or null if decomposed matrix is singular)</em>
+<a class="jxr_linenumber" name="L551" href="SingularValueDecomposition.html#L551">551</a> <em class="jxr_javadoccomment">     * @see #getV()</em>
+<a class="jxr_linenumber" name="L552" href="SingularValueDecomposition.html#L552">552</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L553" href="SingularValueDecomposition.html#L553">553</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getVT() {
+<a class="jxr_linenumber" name="L554" href="SingularValueDecomposition.html#L554">554</a>         <strong class="jxr_keyword">if</strong> (cachedVt == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L555" href="SingularValueDecomposition.html#L555">555</a>             cachedVt = getV().transpose();
+<a class="jxr_linenumber" name="L556" href="SingularValueDecomposition.html#L556">556</a>         }
+<a class="jxr_linenumber" name="L557" href="SingularValueDecomposition.html#L557">557</a>         <em class="jxr_comment">// return the cached matrix</em>
+<a class="jxr_linenumber" name="L558" href="SingularValueDecomposition.html#L558">558</a>         <strong class="jxr_keyword">return</strong> cachedVt;
+<a class="jxr_linenumber" name="L559" href="SingularValueDecomposition.html#L559">559</a>     }
+<a class="jxr_linenumber" name="L560" href="SingularValueDecomposition.html#L560">560</a> 
+<a class="jxr_linenumber" name="L561" href="SingularValueDecomposition.html#L561">561</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L562" href="SingularValueDecomposition.html#L562">562</a> <em class="jxr_javadoccomment">     * Returns the n &amp;times; n covariance matrix.</em>
+<a class="jxr_linenumber" name="L563" href="SingularValueDecomposition.html#L563">563</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The covariance matrix is V &amp;times; J &amp;times; V&lt;sup&gt;T&lt;/sup&gt;</em>
+<a class="jxr_linenumber" name="L564" href="SingularValueDecomposition.html#L564">564</a> <em class="jxr_javadoccomment">     * where J is the diagonal matrix of the inverse of the squares of</em>
+<a class="jxr_linenumber" name="L565" href="SingularValueDecomposition.html#L565">565</a> <em class="jxr_javadoccomment">     * the singular values.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L566" href="SingularValueDecomposition.html#L566">566</a> <em class="jxr_javadoccomment">     * @param minSingularValue value below which singular values are ignored</em>
+<a class="jxr_linenumber" name="L567" href="SingularValueDecomposition.html#L567">567</a> <em class="jxr_javadoccomment">     * (a 0 or negative value implies all singular value will be used)</em>
+<a class="jxr_linenumber" name="L568" href="SingularValueDecomposition.html#L568">568</a> <em class="jxr_javadoccomment">     * @return covariance matrix</em>
+<a class="jxr_linenumber" name="L569" href="SingularValueDecomposition.html#L569">569</a> <em class="jxr_javadoccomment">     * @exception IllegalArgumentException if minSingularValue is larger than</em>
+<a class="jxr_linenumber" name="L570" href="SingularValueDecomposition.html#L570">570</a> <em class="jxr_javadoccomment">     * the largest singular value, meaning all singular values are ignored</em>
+<a class="jxr_linenumber" name="L571" href="SingularValueDecomposition.html#L571">571</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L572" href="SingularValueDecomposition.html#L572">572</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getCovariance(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> minSingularValue) {
+<a class="jxr_linenumber" name="L573" href="SingularValueDecomposition.html#L573">573</a>         <em class="jxr_comment">// get the number of singular values to consider</em>
+<a class="jxr_linenumber" name="L574" href="SingularValueDecomposition.html#L574">574</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> p = singularValues.length;
+<a class="jxr_linenumber" name="L575" href="SingularValueDecomposition.html#L575">575</a>         <strong class="jxr_keyword">int</strong> dimension = 0;
+<a class="jxr_linenumber" name="L576" href="SingularValueDecomposition.html#L576">576</a>         <strong class="jxr_keyword">while</strong> (dimension &lt; p &amp;&amp;
+<a class="jxr_linenumber" name="L577" href="SingularValueDecomposition.html#L577">577</a>                singularValues[dimension] &gt;= minSingularValue) {
+<a class="jxr_linenumber" name="L578" href="SingularValueDecomposition.html#L578">578</a>             ++dimension;
+<a class="jxr_linenumber" name="L579" href="SingularValueDecomposition.html#L579">579</a>         }
+<a class="jxr_linenumber" name="L580" href="SingularValueDecomposition.html#L580">580</a> 
+<a class="jxr_linenumber" name="L581" href="SingularValueDecomposition.html#L581">581</a>         <strong class="jxr_keyword">if</strong> (dimension == 0) {
+<a class="jxr_linenumber" name="L582" href="SingularValueDecomposition.html#L582">582</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a>(LocalizedFormats.TOO_LARGE_CUTOFF_SINGULAR_VALUE,
+<a class="jxr_linenumber" name="L583" href="SingularValueDecomposition.html#L583">583</a>                                                 minSingularValue, singularValues[0], <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L584" href="SingularValueDecomposition.html#L584">584</a>         }
+<a class="jxr_linenumber" name="L585" href="SingularValueDecomposition.html#L585">585</a> 
+<a class="jxr_linenumber" name="L586" href="SingularValueDecomposition.html#L586">586</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] data = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[dimension][p];
+<a class="jxr_linenumber" name="L587" href="SingularValueDecomposition.html#L587">587</a>         getVT().walkInOptimizedOrder(<strong class="jxr_keyword">new</strong> DefaultRealMatrixPreservingVisitor() {
+<a class="jxr_linenumber" name="L588" href="SingularValueDecomposition.html#L588">588</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L589" href="SingularValueDecomposition.html#L589">589</a>             @Override
+<a class="jxr_linenumber" name="L590" href="SingularValueDecomposition.html#L590">590</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> visit(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> row, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> column,
+<a class="jxr_linenumber" name="L591" href="SingularValueDecomposition.html#L591">591</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> value) {
+<a class="jxr_linenumber" name="L592" href="SingularValueDecomposition.html#L592">592</a>                 data[row][column] = value / singularValues[row];
+<a class="jxr_linenumber" name="L593" href="SingularValueDecomposition.html#L593">593</a>             }
+<a class="jxr_linenumber" name="L594" href="SingularValueDecomposition.html#L594">594</a>         }, 0, dimension - 1, 0, p - 1);
+<a class="jxr_linenumber" name="L595" href="SingularValueDecomposition.html#L595">595</a> 
+<a class="jxr_linenumber" name="L596" href="SingularValueDecomposition.html#L596">596</a>         <a href="RealMatrix.html">RealMatrix</a> jv = <strong class="jxr_keyword">new</strong> <a href="Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(data, false);
+<a class="jxr_linenumber" name="L597" href="SingularValueDecomposition.html#L597">597</a>         <strong class="jxr_keyword">return</strong> jv.transpose().multiply(jv);
+<a class="jxr_linenumber" name="L598" href="SingularValueDecomposition.html#L598">598</a>     }
+<a class="jxr_linenumber" name="L599" href="SingularValueDecomposition.html#L599">599</a> 
+<a class="jxr_linenumber" name="L600" href="SingularValueDecomposition.html#L600">600</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L601" href="SingularValueDecomposition.html#L601">601</a> <em class="jxr_javadoccomment">     * Returns the L&lt;sub&gt;2&lt;/sub&gt; norm of the matrix.</em>
+<a class="jxr_linenumber" name="L602" href="SingularValueDecomposition.html#L602">602</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The L&lt;sub&gt;2&lt;/sub&gt; norm is max(|A &amp;times; u|&lt;sub&gt;2&lt;/sub&gt; /</em>
+<a class="jxr_linenumber" name="L603" href="SingularValueDecomposition.html#L603">603</a> <em class="jxr_javadoccomment">     * |u|&lt;sub&gt;2&lt;/sub&gt;), where |.|&lt;sub&gt;2&lt;/sub&gt; denotes the vectorial 2-norm</em>
+<a class="jxr_linenumber" name="L604" href="SingularValueDecomposition.html#L604">604</a> <em class="jxr_javadoccomment">     * (i.e. the traditional euclidian norm).&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L605" href="SingularValueDecomposition.html#L605">605</a> <em class="jxr_javadoccomment">     * @return norm</em>
+<a class="jxr_linenumber" name="L606" href="SingularValueDecomposition.html#L606">606</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L607" href="SingularValueDecomposition.html#L607">607</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNorm() {
+<a class="jxr_linenumber" name="L608" href="SingularValueDecomposition.html#L608">608</a>         <strong class="jxr_keyword">return</strong> singularValues[0];
+<a class="jxr_linenumber" name="L609" href="SingularValueDecomposition.html#L609">609</a>     }
+<a class="jxr_linenumber" name="L610" href="SingularValueDecomposition.html#L610">610</a> 
+<a class="jxr_linenumber" name="L611" href="SingularValueDecomposition.html#L611">611</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L612" href="SingularValueDecomposition.html#L612">612</a> <em class="jxr_javadoccomment">     * Return the condition number of the matrix.</em>
+<a class="jxr_linenumber" name="L613" href="SingularValueDecomposition.html#L613">613</a> <em class="jxr_javadoccomment">     * @return condition number of the matrix</em>
+<a class="jxr_linenumber" name="L614" href="SingularValueDecomposition.html#L614">614</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L615" href="SingularValueDecomposition.html#L615">615</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getConditionNumber() {
+<a class="jxr_linenumber" name="L616" href="SingularValueDecomposition.html#L616">616</a>         <strong class="jxr_keyword">return</strong> singularValues[0] / singularValues[n - 1];
+<a class="jxr_linenumber" name="L617" href="SingularValueDecomposition.html#L617">617</a>     }
+<a class="jxr_linenumber" name="L618" href="SingularValueDecomposition.html#L618">618</a> 
+<a class="jxr_linenumber" name="L619" href="SingularValueDecomposition.html#L619">619</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L620" href="SingularValueDecomposition.html#L620">620</a> <em class="jxr_javadoccomment">     * Computes the inverse of the condition number.</em>
+<a class="jxr_linenumber" name="L621" href="SingularValueDecomposition.html#L621">621</a> <em class="jxr_javadoccomment">     * In cases of rank deficiency, the {@link #getConditionNumber() condition</em>
+<a class="jxr_linenumber" name="L622" href="SingularValueDecomposition.html#L622">622</a> <em class="jxr_javadoccomment">     * number} will become undefined.</em>
+<a class="jxr_linenumber" name="L623" href="SingularValueDecomposition.html#L623">623</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L624" href="SingularValueDecomposition.html#L624">624</a> <em class="jxr_javadoccomment">     * @return the inverse of the condition number.</em>
+<a class="jxr_linenumber" name="L625" href="SingularValueDecomposition.html#L625">625</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L626" href="SingularValueDecomposition.html#L626">626</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getInverseConditionNumber() {
+<a class="jxr_linenumber" name="L627" href="SingularValueDecomposition.html#L627">627</a>         <strong class="jxr_keyword">return</strong> singularValues[n - 1] / singularValues[0];
+<a class="jxr_linenumber" name="L628" href="SingularValueDecomposition.html#L628">628</a>     }
+<a class="jxr_linenumber" name="L629" href="SingularValueDecomposition.html#L629">629</a> 
+<a class="jxr_linenumber" name="L630" href="SingularValueDecomposition.html#L630">630</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L631" href="SingularValueDecomposition.html#L631">631</a> <em class="jxr_javadoccomment">     * Return the effective numerical matrix rank.</em>
+<a class="jxr_linenumber" name="L632" href="SingularValueDecomposition.html#L632">632</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The effective numerical rank is the number of non-negligible</em>
+<a class="jxr_linenumber" name="L633" href="SingularValueDecomposition.html#L633">633</a> <em class="jxr_javadoccomment">     * singular values. The threshold used to identify non-negligible</em>
+<a class="jxr_linenumber" name="L634" href="SingularValueDecomposition.html#L634">634</a> <em class="jxr_javadoccomment">     * terms is max(m,n) &amp;times; ulp(s&lt;sub&gt;1&lt;/sub&gt;) where ulp(s&lt;sub&gt;1&lt;/sub&gt;)</em>
+<a class="jxr_linenumber" name="L635" href="SingularValueDecomposition.html#L635">635</a> <em class="jxr_javadoccomment">     * is the least significant bit of the largest singular value.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L636" href="SingularValueDecomposition.html#L636">636</a> <em class="jxr_javadoccomment">     * @return effective numerical matrix rank</em>
+<a class="jxr_linenumber" name="L637" href="SingularValueDecomposition.html#L637">637</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L638" href="SingularValueDecomposition.html#L638">638</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getRank() {
+<a class="jxr_linenumber" name="L639" href="SingularValueDecomposition.html#L639">639</a>         <strong class="jxr_keyword">int</strong> r = 0;
+<a class="jxr_linenumber" name="L640" href="SingularValueDecomposition.html#L640">640</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; singularValues.length; i++) {
+<a class="jxr_linenumber" name="L641" href="SingularValueDecomposition.html#L641">641</a>             <strong class="jxr_keyword">if</strong> (singularValues[i] &gt; tol) {
+<a class="jxr_linenumber" name="L642" href="SingularValueDecomposition.html#L642">642</a>                 r++;
+<a class="jxr_linenumber" name="L643" href="SingularValueDecomposition.html#L643">643</a>             }
+<a class="jxr_linenumber" name="L644" href="SingularValueDecomposition.html#L644">644</a>         }
+<a class="jxr_linenumber" name="L645" href="SingularValueDecomposition.html#L645">645</a>         <strong class="jxr_keyword">return</strong> r;
+<a class="jxr_linenumber" name="L646" href="SingularValueDecomposition.html#L646">646</a>     }
+<a class="jxr_linenumber" name="L647" href="SingularValueDecomposition.html#L647">647</a> 
+<a class="jxr_linenumber" name="L648" href="SingularValueDecomposition.html#L648">648</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L649" href="SingularValueDecomposition.html#L649">649</a> <em class="jxr_javadoccomment">     * Get a solver for finding the A &amp;times; X = B solution in least square sense.</em>
+<a class="jxr_linenumber" name="L650" href="SingularValueDecomposition.html#L650">650</a> <em class="jxr_javadoccomment">     * @return a solver</em>
+<a class="jxr_linenumber" name="L651" href="SingularValueDecomposition.html#L651">651</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L652" href="SingularValueDecomposition.html#L652">652</a>     <strong class="jxr_keyword">public</strong> <a href="DecompositionSolver.html">DecompositionSolver</a> getSolver() {
+<a class="jxr_linenumber" name="L653" href="SingularValueDecomposition.html#L653">653</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="RRQRDecomposition.html">Solver</a>(singularValues, getUT(), getV(), getRank() == m, tol);
+<a class="jxr_linenumber" name="L654" href="SingularValueDecomposition.html#L654">654</a>     }
+<a class="jxr_linenumber" name="L655" href="SingularValueDecomposition.html#L655">655</a> 
+<a class="jxr_linenumber" name="L656" href="SingularValueDecomposition.html#L656">656</a>     <em class="jxr_javadoccomment">/** Specialized solver. */</em>
+<a class="jxr_linenumber" name="L657" href="SingularValueDecomposition.html#L657">657</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="RRQRDecomposition.html">Solver</a> <strong class="jxr_keyword">implements</strong> <a href="DecompositionSolver.html">DecompositionSolver</a> {
+<a class="jxr_linenumber" name="L658" href="SingularValueDecomposition.html#L658">658</a>         <em class="jxr_javadoccomment">/** Pseudo-inverse of the initial matrix. */</em>
+<a class="jxr_linenumber" name="L659" href="SingularValueDecomposition.html#L659">659</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="RealMatrix.html">RealMatrix</a> pseudoInverse;
+<a class="jxr_linenumber" name="L660" href="SingularValueDecomposition.html#L660">660</a>         <em class="jxr_javadoccomment">/** Singularity indicator. */</em>
+<a class="jxr_linenumber" name="L661" href="SingularValueDecomposition.html#L661">661</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> nonSingular;
+<a class="jxr_linenumber" name="L662" href="SingularValueDecomposition.html#L662">662</a> 
+<a class="jxr_linenumber" name="L663" href="SingularValueDecomposition.html#L663">663</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L664" href="SingularValueDecomposition.html#L664">664</a> <em class="jxr_javadoccomment">         * Build a solver from decomposed matrix.</em>
+<a class="jxr_linenumber" name="L665" href="SingularValueDecomposition.html#L665">665</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L666" href="SingularValueDecomposition.html#L666">666</a> <em class="jxr_javadoccomment">         * @param singularValues Singular values.</em>
+<a class="jxr_linenumber" name="L667" href="SingularValueDecomposition.html#L667">667</a> <em class="jxr_javadoccomment">         * @param uT U&lt;sup&gt;T&lt;/sup&gt; matrix of the decomposition.</em>
+<a class="jxr_linenumber" name="L668" href="SingularValueDecomposition.html#L668">668</a> <em class="jxr_javadoccomment">         * @param v V matrix of the decomposition.</em>
+<a class="jxr_linenumber" name="L669" href="SingularValueDecomposition.html#L669">669</a> <em class="jxr_javadoccomment">         * @param nonSingular Singularity indicator.</em>
+<a class="jxr_linenumber" name="L670" href="SingularValueDecomposition.html#L670">670</a> <em class="jxr_javadoccomment">         * @param tol tolerance for singular values</em>
+<a class="jxr_linenumber" name="L671" href="SingularValueDecomposition.html#L671">671</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L672" href="SingularValueDecomposition.html#L672">672</a>         <strong class="jxr_keyword">private</strong> <a href="RRQRDecomposition.html">Solver</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] singularValues, <strong class="jxr_keyword">final</strong> <a href="RealMatrix.html">RealMatrix</a> uT,
+<a class="jxr_linenumber" name="L673" href="SingularValueDecomposition.html#L673">673</a>                        <strong class="jxr_keyword">final</strong> <a href="RealMatrix.html">RealMatrix</a> v, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> nonSingular, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tol) {
+<a class="jxr_linenumber" name="L674" href="SingularValueDecomposition.html#L674">674</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] suT = uT.getData();
+<a class="jxr_linenumber" name="L675" href="SingularValueDecomposition.html#L675">675</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; singularValues.length; ++i) {
+<a class="jxr_linenumber" name="L676" href="SingularValueDecomposition.html#L676">676</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> a;
+<a class="jxr_linenumber" name="L677" href="SingularValueDecomposition.html#L677">677</a>                 <strong class="jxr_keyword">if</strong> (singularValues[i] &gt; tol) {
+<a class="jxr_linenumber" name="L678" href="SingularValueDecomposition.html#L678">678</a>                     a = 1 / singularValues[i];
+<a class="jxr_linenumber" name="L679" href="SingularValueDecomposition.html#L679">679</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L680" href="SingularValueDecomposition.html#L680">680</a>                     a = 0;
+<a class="jxr_linenumber" name="L681" href="SingularValueDecomposition.html#L681">681</a>                 }
+<a class="jxr_linenumber" name="L682" href="SingularValueDecomposition.html#L682">682</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] suTi = suT[i];
+<a class="jxr_linenumber" name="L683" href="SingularValueDecomposition.html#L683">683</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; suTi.length; ++j) {
+<a class="jxr_linenumber" name="L684" href="SingularValueDecomposition.html#L684">684</a>                     suTi[j] *= a;
+<a class="jxr_linenumber" name="L685" href="SingularValueDecomposition.html#L685">685</a>                 }
+<a class="jxr_linenumber" name="L686" href="SingularValueDecomposition.html#L686">686</a>             }
+<a class="jxr_linenumber" name="L687" href="SingularValueDecomposition.html#L687">687</a>             pseudoInverse = v.multiply(<strong class="jxr_keyword">new</strong> <a href="Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(suT, false));
+<a class="jxr_linenumber" name="L688" href="SingularValueDecomposition.html#L688">688</a>             <strong class="jxr_keyword">this</strong>.nonSingular = nonSingular;
+<a class="jxr_linenumber" name="L689" href="SingularValueDecomposition.html#L689">689</a>         }
+<a class="jxr_linenumber" name="L690" href="SingularValueDecomposition.html#L690">690</a> 
+<a class="jxr_linenumber" name="L691" href="SingularValueDecomposition.html#L691">691</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L692" href="SingularValueDecomposition.html#L692">692</a> <em class="jxr_javadoccomment">         * Solve the linear equation A &amp;times; X = B in least square sense.</em>
+<a class="jxr_linenumber" name="L693" href="SingularValueDecomposition.html#L693">693</a> <em class="jxr_javadoccomment">         * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L694" href="SingularValueDecomposition.html#L694">694</a> <em class="jxr_javadoccomment">         * The m&amp;times;n matrix A may not be square, the solution X is such that</em>
+<a class="jxr_linenumber" name="L695" href="SingularValueDecomposition.html#L695">695</a> <em class="jxr_javadoccomment">         * ||A &amp;times; X - B|| is minimal.</em>
+<a class="jxr_linenumber" name="L696" href="SingularValueDecomposition.html#L696">696</a> <em class="jxr_javadoccomment">         * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L697" href="SingularValueDecomposition.html#L697">697</a> <em class="jxr_javadoccomment">         * @param b Right-hand side of the equation A &amp;times; X = B</em>
+<a class="jxr_linenumber" name="L698" href="SingularValueDecomposition.html#L698">698</a> <em class="jxr_javadoccomment">         * @return a vector X that minimizes the two norm of A &amp;times; X - B</em>
+<a class="jxr_linenumber" name="L699" href="SingularValueDecomposition.html#L699">699</a> <em class="jxr_javadoccomment">         * @throws org.apache.commons.math4.exception.DimensionMismatchException</em>
+<a class="jxr_linenumber" name="L700" href="SingularValueDecomposition.html#L700">700</a> <em class="jxr_javadoccomment">         * if the matrices dimensions do not match.</em>
+<a class="jxr_linenumber" name="L701" href="SingularValueDecomposition.html#L701">701</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L702" href="SingularValueDecomposition.html#L702">702</a>         @Override
+<a class="jxr_linenumber" name="L703" href="SingularValueDecomposition.html#L703">703</a>         <strong class="jxr_keyword">public</strong> <a href="RealVector.html">RealVector</a> solve(<strong class="jxr_keyword">final</strong> <a href="RealVector.html">RealVector</a> b) {
+<a class="jxr_linenumber" name="L704" href="SingularValueDecomposition.html#L704">704</a>             <strong class="jxr_keyword">return</strong> pseudoInverse.operate(b);
+<a class="jxr_linenumber" name="L705" href="SingularValueDecomposition.html#L705">705</a>         }
+<a class="jxr_linenumber" name="L706" href="SingularValueDecomposition.html#L706">706</a> 
+<a class="jxr_linenumber" name="L707" href="SingularValueDecomposition.html#L707">707</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L708" href="SingularValueDecomposition.html#L708">708</a> <em class="jxr_javadoccomment">         * Solve the linear equation A &amp;times; X = B in least square sense.</em>
+<a class="jxr_linenumber" name="L709" href="SingularValueDecomposition.html#L709">709</a> <em class="jxr_javadoccomment">         * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L710" href="SingularValueDecomposition.html#L710">710</a> <em class="jxr_javadoccomment">         * The m&amp;times;n matrix A may not be square, the solution X is such that</em>
+<a class="jxr_linenumber" name="L711" href="SingularValueDecomposition.html#L711">711</a> <em class="jxr_javadoccomment">         * ||A &amp;times; X - B|| is minimal.</em>
+<a class="jxr_linenumber" name="L712" href="SingularValueDecomposition.html#L712">712</a> <em class="jxr_javadoccomment">         * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L713" href="SingularValueDecomposition.html#L713">713</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L714" href="SingularValueDecomposition.html#L714">714</a> <em class="jxr_javadoccomment">         * @param b Right-hand side of the equation A &amp;times; X = B</em>
+<a class="jxr_linenumber" name="L715" href="SingularValueDecomposition.html#L715">715</a> <em class="jxr_javadoccomment">         * @return a matrix X that minimizes the two norm of A &amp;times; X - B</em>
+<a class="jxr_linenumber" name="L716" href="SingularValueDecomposition.html#L716">716</a> <em class="jxr_javadoccomment">         * @throws org.apache.commons.math4.exception.DimensionMismatchException</em>
+<a class="jxr_linenumber" name="L717" href="SingularValueDecomposition.html#L717">717</a> <em class="jxr_javadoccomment">         * if the matrices dimensions do not match.</em>
+<a class="jxr_linenumber" name="L718" href="SingularValueDecomposition.html#L718">718</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L719" href="SingularValueDecomposition.html#L719">719</a>         @Override
+<a class="jxr_linenumber" name="L720" href="SingularValueDecomposition.html#L720">720</a>         <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> solve(<strong class="jxr_keyword">final</strong> <a href="RealMatrix.html">RealMatrix</a> b) {
+<a class="jxr_linenumber" name="L721" href="SingularValueDecomposition.html#L721">721</a>             <strong class="jxr_keyword">return</strong> pseudoInverse.multiply(b);
+<a class="jxr_linenumber" name="L722" href="SingularValueDecomposition.html#L722">722</a>         }
+<a class="jxr_linenumber" name="L723" href="SingularValueDecomposition.html#L723">723</a> 
+<a class="jxr_linenumber" name="L724" href="SingularValueDecomposition.html#L724">724</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L725" href="SingularValueDecomposition.html#L725">725</a> <em class="jxr_javadoccomment">         * Check if the decomposed matrix is non-singular.</em>
+<a class="jxr_linenumber" name="L726" href="SingularValueDecomposition.html#L726">726</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L727" href="SingularValueDecomposition.html#L727">727</a> <em class="jxr_javadoccomment">         * @return {@code true} if the decomposed matrix is non-singular.</em>
+<a class="jxr_linenumber" name="L728" href="SingularValueDecomposition.html#L728">728</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L729" href="SingularValueDecomposition.html#L729">729</a>         @Override
+<a class="jxr_linenumber" name="L730" href="SingularValueDecomposition.html#L730">730</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isNonSingular() {
+<a class="jxr_linenumber" name="L731" href="SingularValueDecomposition.html#L731">731</a>             <strong class="jxr_keyword">return</strong> nonSingular;
+<a class="jxr_linenumber" name="L732" href="SingularValueDecomposition.html#L732">732</a>         }
+<a class="jxr_linenumber" name="L733" href="SingularValueDecomposition.html#L733">733</a> 
+<a class="jxr_linenumber" name="L734" href="SingularValueDecomposition.html#L734">734</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L735" href="SingularValueDecomposition.html#L735">735</a> <em class="jxr_javadoccomment">         * Get the pseudo-inverse of the decomposed matrix.</em>
+<a class="jxr_linenumber" name="L736" href="SingularValueDecomposition.html#L736">736</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L737" href="SingularValueDecomposition.html#L737">737</a> <em class="jxr_javadoccomment">         * @return the inverse matrix.</em>
+<a class="jxr_linenumber" name="L738" href="SingularValueDecomposition.html#L738">738</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L739" href="SingularValueDecomposition.html#L739">739</a>         @Override
+<a class="jxr_linenumber" name="L740" href="SingularValueDecomposition.html#L740">740</a>         <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getInverse() {
+<a class="jxr_linenumber" name="L741" href="SingularValueDecomposition.html#L741">741</a>             <strong class="jxr_keyword">return</strong> pseudoInverse;
+<a class="jxr_linenumber" name="L742" href="SingularValueDecomposition.html#L742">742</a>         }
+<a class="jxr_linenumber" name="L743" href="SingularValueDecomposition.html#L743">743</a>     }
+<a class="jxr_linenumber" name="L744" href="SingularValueDecomposition.html#L744">744</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

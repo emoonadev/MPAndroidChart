@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>AdamsFieldIntegrator xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/ode/nonstiff/AdamsFieldIntegrator.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="AdamsFieldIntegrator.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="AdamsFieldIntegrator.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="AdamsFieldIntegrator.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="AdamsFieldIntegrator.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="AdamsFieldIntegrator.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="AdamsFieldIntegrator.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="AdamsFieldIntegrator.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="AdamsFieldIntegrator.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="AdamsFieldIntegrator.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="AdamsFieldIntegrator.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="AdamsFieldIntegrator.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="AdamsFieldIntegrator.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="AdamsFieldIntegrator.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="AdamsFieldIntegrator.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="AdamsFieldIntegrator.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="AdamsFieldIntegrator.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="AdamsFieldIntegrator.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="AdamsFieldIntegrator.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.ode.nonstiff;
+<a class="jxr_linenumber" name="L19" href="AdamsFieldIntegrator.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="AdamsFieldIntegrator.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.Field;
+<a class="jxr_linenumber" name="L21" href="AdamsFieldIntegrator.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.RealFieldElement;
+<a class="jxr_linenumber" name="L22" href="AdamsFieldIntegrator.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L23" href="AdamsFieldIntegrator.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MaxCountExceededException;
+<a class="jxr_linenumber" name="L24" href="AdamsFieldIntegrator.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoBracketingException;
+<a class="jxr_linenumber" name="L25" href="AdamsFieldIntegrator.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L26" href="AdamsFieldIntegrator.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.Array2DRowFieldMatrix;
+<a class="jxr_linenumber" name="L27" href="AdamsFieldIntegrator.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.FieldExpandableODE;
+<a class="jxr_linenumber" name="L28" href="AdamsFieldIntegrator.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.FieldODEState;
+<a class="jxr_linenumber" name="L29" href="AdamsFieldIntegrator.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.FieldODEStateAndDerivative;
+<a class="jxr_linenumber" name="L30" href="AdamsFieldIntegrator.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.MultistepFieldIntegrator;
+<a class="jxr_linenumber" name="L31" href="AdamsFieldIntegrator.html#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="AdamsFieldIntegrator.html#L32">32</a>  
+<a class="jxr_linenumber" name="L33" href="AdamsFieldIntegrator.html#L33">33</a>  <em class="jxr_javadoccomment">/** Base class for {@link AdamsBashforthFieldIntegrator Adams-Bashforth} and</em>
+<a class="jxr_linenumber" name="L34" href="AdamsFieldIntegrator.html#L34">34</a>  <em class="jxr_javadoccomment"> * {@link AdamsMoultonFieldIntegrator Adams-Moulton} integrators.</em>
+<a class="jxr_linenumber" name="L35" href="AdamsFieldIntegrator.html#L35">35</a>  <em class="jxr_javadoccomment"> * @param &lt;T&gt; the type of the field elements</em>
+<a class="jxr_linenumber" name="L36" href="AdamsFieldIntegrator.html#L36">36</a>  <em class="jxr_javadoccomment"> * @since 3.6</em>
+<a class="jxr_linenumber" name="L37" href="AdamsFieldIntegrator.html#L37">37</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L38" href="AdamsFieldIntegrator.html#L38">38</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> AdamsFieldIntegrator&lt;T <strong class="jxr_keyword">extends</strong> RealFieldElement&lt;T&gt;&gt; <strong class="jxr_keyword">extends</strong> MultistepFieldIntegrator&lt;T&gt; {
+<a class="jxr_linenumber" name="L39" href="AdamsFieldIntegrator.html#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="AdamsFieldIntegrator.html#L40">40</a>      <em class="jxr_javadoccomment">/** Transformer. */</em>
+<a class="jxr_linenumber" name="L41" href="AdamsFieldIntegrator.html#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> AdamsNordsieckFieldTransformer&lt;T&gt; transformer;
+<a class="jxr_linenumber" name="L42" href="AdamsFieldIntegrator.html#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="AdamsFieldIntegrator.html#L43">43</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L44" href="AdamsFieldIntegrator.html#L44">44</a>  <em class="jxr_javadoccomment">     * Build an Adams integrator with the given order and step control parameters.</em>
+<a class="jxr_linenumber" name="L45" href="AdamsFieldIntegrator.html#L45">45</a>  <em class="jxr_javadoccomment">     * @param field field to which the time and state vector elements belong</em>
+<a class="jxr_linenumber" name="L46" href="AdamsFieldIntegrator.html#L46">46</a>  <em class="jxr_javadoccomment">     * @param name name of the method</em>
+<a class="jxr_linenumber" name="L47" href="AdamsFieldIntegrator.html#L47">47</a>  <em class="jxr_javadoccomment">     * @param nSteps number of steps of the method excluding the one being computed</em>
+<a class="jxr_linenumber" name="L48" href="AdamsFieldIntegrator.html#L48">48</a>  <em class="jxr_javadoccomment">     * @param order order of the method</em>
+<a class="jxr_linenumber" name="L49" href="AdamsFieldIntegrator.html#L49">49</a>  <em class="jxr_javadoccomment">     * @param minStep minimal step (sign is irrelevant, regardless of</em>
+<a class="jxr_linenumber" name="L50" href="AdamsFieldIntegrator.html#L50">50</a>  <em class="jxr_javadoccomment">     * integration direction, forward or backward), the last step can</em>
+<a class="jxr_linenumber" name="L51" href="AdamsFieldIntegrator.html#L51">51</a>  <em class="jxr_javadoccomment">     * be smaller than this</em>
+<a class="jxr_linenumber" name="L52" href="AdamsFieldIntegrator.html#L52">52</a>  <em class="jxr_javadoccomment">     * @param maxStep maximal step (sign is irrelevant, regardless of</em>
+<a class="jxr_linenumber" name="L53" href="AdamsFieldIntegrator.html#L53">53</a>  <em class="jxr_javadoccomment">     * integration direction, forward or backward), the last step can</em>
+<a class="jxr_linenumber" name="L54" href="AdamsFieldIntegrator.html#L54">54</a>  <em class="jxr_javadoccomment">     * be smaller than this</em>
+<a class="jxr_linenumber" name="L55" href="AdamsFieldIntegrator.html#L55">55</a>  <em class="jxr_javadoccomment">     * @param scalAbsoluteTolerance allowed absolute error</em>
+<a class="jxr_linenumber" name="L56" href="AdamsFieldIntegrator.html#L56">56</a>  <em class="jxr_javadoccomment">     * @param scalRelativeTolerance allowed relative error</em>
+<a class="jxr_linenumber" name="L57" href="AdamsFieldIntegrator.html#L57">57</a>  <em class="jxr_javadoccomment">     * @exception NumberIsTooSmallException if order is 1 or less</em>
+<a class="jxr_linenumber" name="L58" href="AdamsFieldIntegrator.html#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L59" href="AdamsFieldIntegrator.html#L59">59</a>      <strong class="jxr_keyword">public</strong> <a href="AdamsFieldIntegrator.html">AdamsFieldIntegrator</a>(<strong class="jxr_keyword">final</strong> Field&lt;T&gt; field, <strong class="jxr_keyword">final</strong> String name,
+<a class="jxr_linenumber" name="L60" href="AdamsFieldIntegrator.html#L60">60</a>                                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nSteps, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> order,
+<a class="jxr_linenumber" name="L61" href="AdamsFieldIntegrator.html#L61">61</a>                                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> minStep, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxStep,
+<a class="jxr_linenumber" name="L62" href="AdamsFieldIntegrator.html#L62">62</a>                                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> scalAbsoluteTolerance,
+<a class="jxr_linenumber" name="L63" href="AdamsFieldIntegrator.html#L63">63</a>                                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> scalRelativeTolerance)
+<a class="jxr_linenumber" name="L64" href="AdamsFieldIntegrator.html#L64">64</a>          <strong class="jxr_keyword">throws</strong> <a href="../../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a> {
+<a class="jxr_linenumber" name="L65" href="AdamsFieldIntegrator.html#L65">65</a>          <strong class="jxr_keyword">super</strong>(field, name, nSteps, order, minStep, maxStep,
+<a class="jxr_linenumber" name="L66" href="AdamsFieldIntegrator.html#L66">66</a>                scalAbsoluteTolerance, scalRelativeTolerance);
+<a class="jxr_linenumber" name="L67" href="AdamsFieldIntegrator.html#L67">67</a>          transformer = AdamsNordsieckFieldTransformer.getInstance(field, nSteps);
+<a class="jxr_linenumber" name="L68" href="AdamsFieldIntegrator.html#L68">68</a>      }
+<a class="jxr_linenumber" name="L69" href="AdamsFieldIntegrator.html#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="AdamsFieldIntegrator.html#L70">70</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L71" href="AdamsFieldIntegrator.html#L71">71</a>  <em class="jxr_javadoccomment">     * Build an Adams integrator with the given order and step control parameters.</em>
+<a class="jxr_linenumber" name="L72" href="AdamsFieldIntegrator.html#L72">72</a>  <em class="jxr_javadoccomment">     * @param field field to which the time and state vector elements belong</em>
+<a class="jxr_linenumber" name="L73" href="AdamsFieldIntegrator.html#L73">73</a>  <em class="jxr_javadoccomment">     * @param name name of the method</em>
+<a class="jxr_linenumber" name="L74" href="AdamsFieldIntegrator.html#L74">74</a>  <em class="jxr_javadoccomment">     * @param nSteps number of steps of the method excluding the one being computed</em>
+<a class="jxr_linenumber" name="L75" href="AdamsFieldIntegrator.html#L75">75</a>  <em class="jxr_javadoccomment">     * @param order order of the method</em>
+<a class="jxr_linenumber" name="L76" href="AdamsFieldIntegrator.html#L76">76</a>  <em class="jxr_javadoccomment">     * @param minStep minimal step (sign is irrelevant, regardless of</em>
+<a class="jxr_linenumber" name="L77" href="AdamsFieldIntegrator.html#L77">77</a>  <em class="jxr_javadoccomment">     * integration direction, forward or backward), the last step can</em>
+<a class="jxr_linenumber" name="L78" href="AdamsFieldIntegrator.html#L78">78</a>  <em class="jxr_javadoccomment">     * be smaller than this</em>
+<a class="jxr_linenumber" name="L79" href="AdamsFieldIntegrator.html#L79">79</a>  <em class="jxr_javadoccomment">     * @param maxStep maximal step (sign is irrelevant, regardless of</em>
+<a class="jxr_linenumber" name="L80" href="AdamsFieldIntegrator.html#L80">80</a>  <em class="jxr_javadoccomment">     * integration direction, forward or backward), the last step can</em>
+<a class="jxr_linenumber" name="L81" href="AdamsFieldIntegrator.html#L81">81</a>  <em class="jxr_javadoccomment">     * be smaller than this</em>
+<a class="jxr_linenumber" name="L82" href="AdamsFieldIntegrator.html#L82">82</a>  <em class="jxr_javadoccomment">     * @param vecAbsoluteTolerance allowed absolute error</em>
+<a class="jxr_linenumber" name="L83" href="AdamsFieldIntegrator.html#L83">83</a>  <em class="jxr_javadoccomment">     * @param vecRelativeTolerance allowed relative error</em>
+<a class="jxr_linenumber" name="L84" href="AdamsFieldIntegrator.html#L84">84</a>  <em class="jxr_javadoccomment">     * @exception IllegalArgumentException if order is 1 or less</em>
+<a class="jxr_linenumber" name="L85" href="AdamsFieldIntegrator.html#L85">85</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L86" href="AdamsFieldIntegrator.html#L86">86</a>      <strong class="jxr_keyword">public</strong> <a href="AdamsFieldIntegrator.html">AdamsFieldIntegrator</a>(<strong class="jxr_keyword">final</strong> Field&lt;T&gt; field, <strong class="jxr_keyword">final</strong> String name,
+<a class="jxr_linenumber" name="L87" href="AdamsFieldIntegrator.html#L87">87</a>                                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nSteps, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> order,
+<a class="jxr_linenumber" name="L88" href="AdamsFieldIntegrator.html#L88">88</a>                                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> minStep, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxStep,
+<a class="jxr_linenumber" name="L89" href="AdamsFieldIntegrator.html#L89">89</a>                                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] vecAbsoluteTolerance,
+<a class="jxr_linenumber" name="L90" href="AdamsFieldIntegrator.html#L90">90</a>                                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] vecRelativeTolerance)
+<a class="jxr_linenumber" name="L91" href="AdamsFieldIntegrator.html#L91">91</a>          <strong class="jxr_keyword">throws</strong> IllegalArgumentException {
+<a class="jxr_linenumber" name="L92" href="AdamsFieldIntegrator.html#L92">92</a>          <strong class="jxr_keyword">super</strong>(field, name, nSteps, order, minStep, maxStep,
+<a class="jxr_linenumber" name="L93" href="AdamsFieldIntegrator.html#L93">93</a>                vecAbsoluteTolerance, vecRelativeTolerance);
+<a class="jxr_linenumber" name="L94" href="AdamsFieldIntegrator.html#L94">94</a>          transformer = AdamsNordsieckFieldTransformer.getInstance(field, nSteps);
+<a class="jxr_linenumber" name="L95" href="AdamsFieldIntegrator.html#L95">95</a>      }
+<a class="jxr_linenumber" name="L96" href="AdamsFieldIntegrator.html#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="AdamsFieldIntegrator.html#L97">97</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L98" href="AdamsFieldIntegrator.html#L98">98</a>      @Override
+<a class="jxr_linenumber" name="L99" href="AdamsFieldIntegrator.html#L99">99</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> FieldODEStateAndDerivative&lt;T&gt; integrate(<strong class="jxr_keyword">final</strong> FieldExpandableODE&lt;T&gt; equations,
+<a class="jxr_linenumber" name="L100" href="AdamsFieldIntegrator.html#L100">100</a>                                                             <strong class="jxr_keyword">final</strong> FieldODEState&lt;T&gt; initialState,
+<a class="jxr_linenumber" name="L101" href="AdamsFieldIntegrator.html#L101">101</a>                                                             <strong class="jxr_keyword">final</strong> T finalTime)
+<a class="jxr_linenumber" name="L102" href="AdamsFieldIntegrator.html#L102">102</a>         <strong class="jxr_keyword">throws</strong> NumberIsTooSmallException, DimensionMismatchException,
+<a class="jxr_linenumber" name="L103" href="AdamsFieldIntegrator.html#L103">103</a>                MaxCountExceededException, NoBracketingException;
+<a class="jxr_linenumber" name="L104" href="AdamsFieldIntegrator.html#L104">104</a> 
+<a class="jxr_linenumber" name="L105" href="AdamsFieldIntegrator.html#L105">105</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L106" href="AdamsFieldIntegrator.html#L106">106</a>     @Override
+<a class="jxr_linenumber" name="L107" href="AdamsFieldIntegrator.html#L107">107</a>     <strong class="jxr_keyword">protected</strong> Array2DRowFieldMatrix&lt;T&gt; initializeHighOrderDerivatives(<strong class="jxr_keyword">final</strong> T h, <strong class="jxr_keyword">final</strong> T[] t,
+<a class="jxr_linenumber" name="L108" href="AdamsFieldIntegrator.html#L108">108</a>                                                                       <strong class="jxr_keyword">final</strong> T[][] y,
+<a class="jxr_linenumber" name="L109" href="AdamsFieldIntegrator.html#L109">109</a>                                                                       <strong class="jxr_keyword">final</strong> T[][] yDot) {
+<a class="jxr_linenumber" name="L110" href="AdamsFieldIntegrator.html#L110">110</a>         <strong class="jxr_keyword">return</strong> transformer.initializeHighOrderDerivatives(h, t, y, yDot);
+<a class="jxr_linenumber" name="L111" href="AdamsFieldIntegrator.html#L111">111</a>     }
+<a class="jxr_linenumber" name="L112" href="AdamsFieldIntegrator.html#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="AdamsFieldIntegrator.html#L113">113</a>     <em class="jxr_javadoccomment">/** Update the high order scaled derivatives for Adams integrators (phase 1).</em>
+<a class="jxr_linenumber" name="L114" href="AdamsFieldIntegrator.html#L114">114</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The complete update of high order derivatives has a form similar to:</em>
+<a class="jxr_linenumber" name="L115" href="AdamsFieldIntegrator.html#L115">115</a> <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L116" href="AdamsFieldIntegrator.html#L116">116</a> <em class="jxr_javadoccomment">     * r&lt;sub&gt;n+1&lt;/sub&gt; = (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u + P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt;</em>
+<a class="jxr_linenumber" name="L117" href="AdamsFieldIntegrator.html#L117">117</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L118" href="AdamsFieldIntegrator.html#L118">118</a> <em class="jxr_javadoccomment">     * this method computes the P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt; part.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L119" href="AdamsFieldIntegrator.html#L119">119</a> <em class="jxr_javadoccomment">     * @param highOrder high order scaled derivatives</em>
+<a class="jxr_linenumber" name="L120" href="AdamsFieldIntegrator.html#L120">120</a> <em class="jxr_javadoccomment">     * (h&lt;sup&gt;2&lt;/sup&gt;/2 y'', ... h&lt;sup&gt;k&lt;/sup&gt;/k! y(k))</em>
+<a class="jxr_linenumber" name="L121" href="AdamsFieldIntegrator.html#L121">121</a> <em class="jxr_javadoccomment">     * @return updated high order derivatives</em>
+<a class="jxr_linenumber" name="L122" href="AdamsFieldIntegrator.html#L122">122</a> <em class="jxr_javadoccomment">     * @see #updateHighOrderDerivativesPhase2(RealFieldElement[], RealFieldElement[], Array2DRowFieldMatrix)</em>
+<a class="jxr_linenumber" name="L123" href="AdamsFieldIntegrator.html#L123">123</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L124" href="AdamsFieldIntegrator.html#L124">124</a>     <strong class="jxr_keyword">public</strong> Array2DRowFieldMatrix&lt;T&gt; updateHighOrderDerivativesPhase1(<strong class="jxr_keyword">final</strong> Array2DRowFieldMatrix&lt;T&gt; highOrder) {
+<a class="jxr_linenumber" name="L125" href="AdamsFieldIntegrator.html#L125">125</a>         <strong class="jxr_keyword">return</strong> transformer.updateHighOrderDerivativesPhase1(highOrder);
+<a class="jxr_linenumber" name="L126" href="AdamsFieldIntegrator.html#L126">126</a>     }
+<a class="jxr_linenumber" name="L127" href="AdamsFieldIntegrator.html#L127">127</a> 
+<a class="jxr_linenumber" name="L128" href="AdamsFieldIntegrator.html#L128">128</a>     <em class="jxr_javadoccomment">/** Update the high order scaled derivatives Adams integrators (phase 2).</em>
+<a class="jxr_linenumber" name="L129" href="AdamsFieldIntegrator.html#L129">129</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The complete update of high order derivatives has a form similar to:</em>
+<a class="jxr_linenumber" name="L130" href="AdamsFieldIntegrator.html#L130">130</a> <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L131" href="AdamsFieldIntegrator.html#L131">131</a> <em class="jxr_javadoccomment">     * r&lt;sub&gt;n+1&lt;/sub&gt; = (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u + P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt;</em>
+<a class="jxr_linenumber" name="L132" href="AdamsFieldIntegrator.html#L132">132</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L133" href="AdamsFieldIntegrator.html#L133">133</a> <em class="jxr_javadoccomment">     * this method computes the (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u part.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L134" href="AdamsFieldIntegrator.html#L134">134</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Phase 1 of the update must already have been performed.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L135" href="AdamsFieldIntegrator.html#L135">135</a> <em class="jxr_javadoccomment">     * @param start first order scaled derivatives at step start</em>
+<a class="jxr_linenumber" name="L136" href="AdamsFieldIntegrator.html#L136">136</a> <em class="jxr_javadoccomment">     * @param end first order scaled derivatives at step end</em>
+<a class="jxr_linenumber" name="L137" href="AdamsFieldIntegrator.html#L137">137</a> <em class="jxr_javadoccomment">     * @param highOrder high order scaled derivatives, will be modified</em>
+<a class="jxr_linenumber" name="L138" href="AdamsFieldIntegrator.html#L138">138</a> <em class="jxr_javadoccomment">     * (h&lt;sup&gt;2&lt;/sup&gt;/2 y'', ... h&lt;sup&gt;k&lt;/sup&gt;/k! y(k))</em>
+<a class="jxr_linenumber" name="L139" href="AdamsFieldIntegrator.html#L139">139</a> <em class="jxr_javadoccomment">     * @see #updateHighOrderDerivativesPhase1(Array2DRowFieldMatrix)</em>
+<a class="jxr_linenumber" name="L140" href="AdamsFieldIntegrator.html#L140">140</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L141" href="AdamsFieldIntegrator.html#L141">141</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> updateHighOrderDerivativesPhase2(<strong class="jxr_keyword">final</strong> T[] start, <strong class="jxr_keyword">final</strong> T[] end,
+<a class="jxr_linenumber" name="L142" href="AdamsFieldIntegrator.html#L142">142</a>                                                  <strong class="jxr_keyword">final</strong> Array2DRowFieldMatrix&lt;T&gt; highOrder) {
+<a class="jxr_linenumber" name="L143" href="AdamsFieldIntegrator.html#L143">143</a>         transformer.updateHighOrderDerivativesPhase2(start, end, highOrder);
+<a class="jxr_linenumber" name="L144" href="AdamsFieldIntegrator.html#L144">144</a>     }
+<a class="jxr_linenumber" name="L145" href="AdamsFieldIntegrator.html#L145">145</a> 
+<a class="jxr_linenumber" name="L146" href="AdamsFieldIntegrator.html#L146">146</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

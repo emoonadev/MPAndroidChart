@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>FieldHermiteInterpolator xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/analysis/interpolation/FieldHermiteInterpolator.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="FieldHermiteInterpolator.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="FieldHermiteInterpolator.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="FieldHermiteInterpolator.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="FieldHermiteInterpolator.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="FieldHermiteInterpolator.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="FieldHermiteInterpolator.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="FieldHermiteInterpolator.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="FieldHermiteInterpolator.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="FieldHermiteInterpolator.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="FieldHermiteInterpolator.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="FieldHermiteInterpolator.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="FieldHermiteInterpolator.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="FieldHermiteInterpolator.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="FieldHermiteInterpolator.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="FieldHermiteInterpolator.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="FieldHermiteInterpolator.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="FieldHermiteInterpolator.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.interpolation;
+<a class="jxr_linenumber" name="L18" href="FieldHermiteInterpolator.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="FieldHermiteInterpolator.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L20" href="FieldHermiteInterpolator.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L21" href="FieldHermiteInterpolator.html#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="FieldHermiteInterpolator.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.FieldElement;
+<a class="jxr_linenumber" name="L23" href="FieldHermiteInterpolator.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L24" href="FieldHermiteInterpolator.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathArithmeticException;
+<a class="jxr_linenumber" name="L25" href="FieldHermiteInterpolator.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoDataException;
+<a class="jxr_linenumber" name="L26" href="FieldHermiteInterpolator.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NullArgumentException;
+<a class="jxr_linenumber" name="L27" href="FieldHermiteInterpolator.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.ZeroException;
+<a class="jxr_linenumber" name="L28" href="FieldHermiteInterpolator.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L29" href="FieldHermiteInterpolator.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L30" href="FieldHermiteInterpolator.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathUtils;
+<a class="jxr_linenumber" name="L31" href="FieldHermiteInterpolator.html#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="FieldHermiteInterpolator.html#L32">32</a>  <em class="jxr_javadoccomment">/** Polynomial interpolator using both sample values and sample derivatives.</em>
+<a class="jxr_linenumber" name="L33" href="FieldHermiteInterpolator.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L34" href="FieldHermiteInterpolator.html#L34">34</a>  <em class="jxr_javadoccomment"> * The interpolation polynomials match all sample points, including both values</em>
+<a class="jxr_linenumber" name="L35" href="FieldHermiteInterpolator.html#L35">35</a>  <em class="jxr_javadoccomment"> * and provided derivatives. There is one polynomial for each component of</em>
+<a class="jxr_linenumber" name="L36" href="FieldHermiteInterpolator.html#L36">36</a>  <em class="jxr_javadoccomment"> * the values vector. All polynomials have the same degree. The degree of the</em>
+<a class="jxr_linenumber" name="L37" href="FieldHermiteInterpolator.html#L37">37</a>  <em class="jxr_javadoccomment"> * polynomials depends on the number of points and number of derivatives at each</em>
+<a class="jxr_linenumber" name="L38" href="FieldHermiteInterpolator.html#L38">38</a>  <em class="jxr_javadoccomment"> * point. For example the interpolation polynomials for n sample points without</em>
+<a class="jxr_linenumber" name="L39" href="FieldHermiteInterpolator.html#L39">39</a>  <em class="jxr_javadoccomment"> * any derivatives all have degree n-1. The interpolation polynomials for n</em>
+<a class="jxr_linenumber" name="L40" href="FieldHermiteInterpolator.html#L40">40</a>  <em class="jxr_javadoccomment"> * sample points with the two extreme points having value and first derivative</em>
+<a class="jxr_linenumber" name="L41" href="FieldHermiteInterpolator.html#L41">41</a>  <em class="jxr_javadoccomment"> * and the remaining points having value only all have degree n+1. The</em>
+<a class="jxr_linenumber" name="L42" href="FieldHermiteInterpolator.html#L42">42</a>  <em class="jxr_javadoccomment"> * interpolation polynomial for n sample points with value, first and second</em>
+<a class="jxr_linenumber" name="L43" href="FieldHermiteInterpolator.html#L43">43</a>  <em class="jxr_javadoccomment"> * derivative for all points all have degree 3n-1.</em>
+<a class="jxr_linenumber" name="L44" href="FieldHermiteInterpolator.html#L44">44</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L45" href="FieldHermiteInterpolator.html#L45">45</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L46" href="FieldHermiteInterpolator.html#L46">46</a>  <em class="jxr_javadoccomment"> * @param &lt;T&gt; Type of the field elements.</em>
+<a class="jxr_linenumber" name="L47" href="FieldHermiteInterpolator.html#L47">47</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L48" href="FieldHermiteInterpolator.html#L48">48</a>  <em class="jxr_javadoccomment"> * @since 3.2</em>
+<a class="jxr_linenumber" name="L49" href="FieldHermiteInterpolator.html#L49">49</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L50" href="FieldHermiteInterpolator.html#L50">50</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> FieldHermiteInterpolator&lt;T <strong class="jxr_keyword">extends</strong> FieldElement&lt;T&gt;&gt; {
+<a class="jxr_linenumber" name="L51" href="FieldHermiteInterpolator.html#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="FieldHermiteInterpolator.html#L52">52</a>      <em class="jxr_javadoccomment">/** Sample abscissae. */</em>
+<a class="jxr_linenumber" name="L53" href="FieldHermiteInterpolator.html#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> List&lt;T&gt; abscissae;
+<a class="jxr_linenumber" name="L54" href="FieldHermiteInterpolator.html#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="FieldHermiteInterpolator.html#L55">55</a>      <em class="jxr_javadoccomment">/** Top diagonal of the divided differences array. */</em>
+<a class="jxr_linenumber" name="L56" href="FieldHermiteInterpolator.html#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> List&lt;T[]&gt; topDiagonal;
+<a class="jxr_linenumber" name="L57" href="FieldHermiteInterpolator.html#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="FieldHermiteInterpolator.html#L58">58</a>      <em class="jxr_javadoccomment">/** Bottom diagonal of the divided differences array. */</em>
+<a class="jxr_linenumber" name="L59" href="FieldHermiteInterpolator.html#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> List&lt;T[]&gt; bottomDiagonal;
+<a class="jxr_linenumber" name="L60" href="FieldHermiteInterpolator.html#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="FieldHermiteInterpolator.html#L61">61</a>      <em class="jxr_javadoccomment">/** Create an empty interpolator.</em>
+<a class="jxr_linenumber" name="L62" href="FieldHermiteInterpolator.html#L62">62</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L63" href="FieldHermiteInterpolator.html#L63">63</a>      <strong class="jxr_keyword">public</strong> <a href="FieldHermiteInterpolator.html">FieldHermiteInterpolator</a>() {
+<a class="jxr_linenumber" name="L64" href="FieldHermiteInterpolator.html#L64">64</a>          <strong class="jxr_keyword">this</strong>.abscissae      = <strong class="jxr_keyword">new</strong> ArrayList&lt;T&gt;();
+<a class="jxr_linenumber" name="L65" href="FieldHermiteInterpolator.html#L65">65</a>          <strong class="jxr_keyword">this</strong>.topDiagonal    = <strong class="jxr_keyword">new</strong> ArrayList&lt;T[]&gt;();
+<a class="jxr_linenumber" name="L66" href="FieldHermiteInterpolator.html#L66">66</a>          <strong class="jxr_keyword">this</strong>.bottomDiagonal = <strong class="jxr_keyword">new</strong> ArrayList&lt;T[]&gt;();
+<a class="jxr_linenumber" name="L67" href="FieldHermiteInterpolator.html#L67">67</a>      }
+<a class="jxr_linenumber" name="L68" href="FieldHermiteInterpolator.html#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="FieldHermiteInterpolator.html#L69">69</a>      <em class="jxr_javadoccomment">/** Add a sample point.</em>
+<a class="jxr_linenumber" name="L70" href="FieldHermiteInterpolator.html#L70">70</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L71" href="FieldHermiteInterpolator.html#L71">71</a>  <em class="jxr_javadoccomment">     * This method must be called once for each sample point. It is allowed to</em>
+<a class="jxr_linenumber" name="L72" href="FieldHermiteInterpolator.html#L72">72</a>  <em class="jxr_javadoccomment">     * mix some calls with values only with calls with values and first</em>
+<a class="jxr_linenumber" name="L73" href="FieldHermiteInterpolator.html#L73">73</a>  <em class="jxr_javadoccomment">     * derivatives.</em>
+<a class="jxr_linenumber" name="L74" href="FieldHermiteInterpolator.html#L74">74</a>  <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L75" href="FieldHermiteInterpolator.html#L75">75</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L76" href="FieldHermiteInterpolator.html#L76">76</a>  <em class="jxr_javadoccomment">     * The point abscissae for all calls &lt;em&gt;must&lt;/em&gt; be different.</em>
+<a class="jxr_linenumber" name="L77" href="FieldHermiteInterpolator.html#L77">77</a>  <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L78" href="FieldHermiteInterpolator.html#L78">78</a>  <em class="jxr_javadoccomment">     * @param x abscissa of the sample point</em>
+<a class="jxr_linenumber" name="L79" href="FieldHermiteInterpolator.html#L79">79</a>  <em class="jxr_javadoccomment">     * @param value value and derivatives of the sample point</em>
+<a class="jxr_linenumber" name="L80" href="FieldHermiteInterpolator.html#L80">80</a>  <em class="jxr_javadoccomment">     * (if only one row is passed, it is the value, if two rows are</em>
+<a class="jxr_linenumber" name="L81" href="FieldHermiteInterpolator.html#L81">81</a>  <em class="jxr_javadoccomment">     * passed the first one is the value and the second the derivative</em>
+<a class="jxr_linenumber" name="L82" href="FieldHermiteInterpolator.html#L82">82</a>  <em class="jxr_javadoccomment">     * and so on)</em>
+<a class="jxr_linenumber" name="L83" href="FieldHermiteInterpolator.html#L83">83</a>  <em class="jxr_javadoccomment">     * @exception ZeroException if the abscissa difference between added point</em>
+<a class="jxr_linenumber" name="L84" href="FieldHermiteInterpolator.html#L84">84</a>  <em class="jxr_javadoccomment">     * and a previous point is zero (i.e. the two points are at same abscissa)</em>
+<a class="jxr_linenumber" name="L85" href="FieldHermiteInterpolator.html#L85">85</a>  <em class="jxr_javadoccomment">     * @exception MathArithmeticException if the number of derivatives is larger</em>
+<a class="jxr_linenumber" name="L86" href="FieldHermiteInterpolator.html#L86">86</a>  <em class="jxr_javadoccomment">     * than 20, which prevents computation of a factorial</em>
+<a class="jxr_linenumber" name="L87" href="FieldHermiteInterpolator.html#L87">87</a>  <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if derivative structures are inconsistent</em>
+<a class="jxr_linenumber" name="L88" href="FieldHermiteInterpolator.html#L88">88</a>  <em class="jxr_javadoccomment">     * @throws NullArgumentException if x is null</em>
+<a class="jxr_linenumber" name="L89" href="FieldHermiteInterpolator.html#L89">89</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L90" href="FieldHermiteInterpolator.html#L90">90</a>      @SafeVarargs
+<a class="jxr_linenumber" name="L91" href="FieldHermiteInterpolator.html#L91">91</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">void</strong> addSamplePoint(<strong class="jxr_keyword">final</strong> T x, <strong class="jxr_keyword">final</strong> T[] ... value)
+<a class="jxr_linenumber" name="L92" href="FieldHermiteInterpolator.html#L92">92</a>          <strong class="jxr_keyword">throws</strong> ZeroException, MathArithmeticException,
+<a class="jxr_linenumber" name="L93" href="FieldHermiteInterpolator.html#L93">93</a>                 DimensionMismatchException, <a href="../../exception/NullArgumentException.html">NullArgumentException</a> {
+<a class="jxr_linenumber" name="L94" href="FieldHermiteInterpolator.html#L94">94</a>  
+<a class="jxr_linenumber" name="L95" href="FieldHermiteInterpolator.html#L95">95</a>          MathUtils.checkNotNull(x);
+<a class="jxr_linenumber" name="L96" href="FieldHermiteInterpolator.html#L96">96</a>          T factorial = x.getField().getOne();
+<a class="jxr_linenumber" name="L97" href="FieldHermiteInterpolator.html#L97">97</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; value.length; ++i) {
+<a class="jxr_linenumber" name="L98" href="FieldHermiteInterpolator.html#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="FieldHermiteInterpolator.html#L99">99</a>              <strong class="jxr_keyword">final</strong> T[] y = value[i].clone();
+<a class="jxr_linenumber" name="L100" href="FieldHermiteInterpolator.html#L100">100</a>             <strong class="jxr_keyword">if</strong> (i &gt; 1) {
+<a class="jxr_linenumber" name="L101" href="FieldHermiteInterpolator.html#L101">101</a>                 factorial = factorial.multiply(i);
+<a class="jxr_linenumber" name="L102" href="FieldHermiteInterpolator.html#L102">102</a>                 <strong class="jxr_keyword">final</strong> T inv = factorial.reciprocal();
+<a class="jxr_linenumber" name="L103" href="FieldHermiteInterpolator.html#L103">103</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; y.length; ++j) {
+<a class="jxr_linenumber" name="L104" href="FieldHermiteInterpolator.html#L104">104</a>                     y[j] = y[j].multiply(inv);
+<a class="jxr_linenumber" name="L105" href="FieldHermiteInterpolator.html#L105">105</a>                 }
+<a class="jxr_linenumber" name="L106" href="FieldHermiteInterpolator.html#L106">106</a>             }
+<a class="jxr_linenumber" name="L107" href="FieldHermiteInterpolator.html#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="FieldHermiteInterpolator.html#L108">108</a>             <em class="jxr_comment">// update the bottom diagonal of the divided differences array</em>
+<a class="jxr_linenumber" name="L109" href="FieldHermiteInterpolator.html#L109">109</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = abscissae.size();
+<a class="jxr_linenumber" name="L110" href="FieldHermiteInterpolator.html#L110">110</a>             bottomDiagonal.add(n - i, y);
+<a class="jxr_linenumber" name="L111" href="FieldHermiteInterpolator.html#L111">111</a>             T[] bottom0 = y;
+<a class="jxr_linenumber" name="L112" href="FieldHermiteInterpolator.html#L112">112</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = i; j &lt; n; ++j) {
+<a class="jxr_linenumber" name="L113" href="FieldHermiteInterpolator.html#L113">113</a>                 <strong class="jxr_keyword">final</strong> T[] bottom1 = bottomDiagonal.get(n - (j + 1));
+<a class="jxr_linenumber" name="L114" href="FieldHermiteInterpolator.html#L114">114</a>                 <strong class="jxr_keyword">if</strong> (x.equals(abscissae.get(n - (j + 1)))) {
+<a class="jxr_linenumber" name="L115" href="FieldHermiteInterpolator.html#L115">115</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/ZeroException.html">ZeroException</a>(LocalizedFormats.DUPLICATED_ABSCISSA_DIVISION_BY_ZERO, x);
+<a class="jxr_linenumber" name="L116" href="FieldHermiteInterpolator.html#L116">116</a>                 }
+<a class="jxr_linenumber" name="L117" href="FieldHermiteInterpolator.html#L117">117</a>                 <strong class="jxr_keyword">final</strong> T inv = x.subtract(abscissae.get(n - (j + 1))).reciprocal();
+<a class="jxr_linenumber" name="L118" href="FieldHermiteInterpolator.html#L118">118</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; y.length; ++k) {
+<a class="jxr_linenumber" name="L119" href="FieldHermiteInterpolator.html#L119">119</a>                     bottom1[k] = inv.multiply(bottom0[k].subtract(bottom1[k]));
+<a class="jxr_linenumber" name="L120" href="FieldHermiteInterpolator.html#L120">120</a>                 }
+<a class="jxr_linenumber" name="L121" href="FieldHermiteInterpolator.html#L121">121</a>                 bottom0 = bottom1;
+<a class="jxr_linenumber" name="L122" href="FieldHermiteInterpolator.html#L122">122</a>             }
+<a class="jxr_linenumber" name="L123" href="FieldHermiteInterpolator.html#L123">123</a> 
+<a class="jxr_linenumber" name="L124" href="FieldHermiteInterpolator.html#L124">124</a>             <em class="jxr_comment">// update the top diagonal of the divided differences array</em>
+<a class="jxr_linenumber" name="L125" href="FieldHermiteInterpolator.html#L125">125</a>             topDiagonal.add(bottom0.clone());
+<a class="jxr_linenumber" name="L126" href="FieldHermiteInterpolator.html#L126">126</a> 
+<a class="jxr_linenumber" name="L127" href="FieldHermiteInterpolator.html#L127">127</a>             <em class="jxr_comment">// update the abscissae array</em>
+<a class="jxr_linenumber" name="L128" href="FieldHermiteInterpolator.html#L128">128</a>             abscissae.add(x);
+<a class="jxr_linenumber" name="L129" href="FieldHermiteInterpolator.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="FieldHermiteInterpolator.html#L130">130</a>         }
+<a class="jxr_linenumber" name="L131" href="FieldHermiteInterpolator.html#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="FieldHermiteInterpolator.html#L132">132</a>     }
+<a class="jxr_linenumber" name="L133" href="FieldHermiteInterpolator.html#L133">133</a> 
+<a class="jxr_linenumber" name="L134" href="FieldHermiteInterpolator.html#L134">134</a>     <em class="jxr_javadoccomment">/** Interpolate value at a specified abscissa.</em>
+<a class="jxr_linenumber" name="L135" href="FieldHermiteInterpolator.html#L135">135</a> <em class="jxr_javadoccomment">     * @param x interpolation abscissa</em>
+<a class="jxr_linenumber" name="L136" href="FieldHermiteInterpolator.html#L136">136</a> <em class="jxr_javadoccomment">     * @return interpolated value</em>
+<a class="jxr_linenumber" name="L137" href="FieldHermiteInterpolator.html#L137">137</a> <em class="jxr_javadoccomment">     * @exception NoDataException if sample is empty</em>
+<a class="jxr_linenumber" name="L138" href="FieldHermiteInterpolator.html#L138">138</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if x is null</em>
+<a class="jxr_linenumber" name="L139" href="FieldHermiteInterpolator.html#L139">139</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L140" href="FieldHermiteInterpolator.html#L140">140</a>     <strong class="jxr_keyword">public</strong> T[] value(T x) <strong class="jxr_keyword">throws</strong> NoDataException, NullArgumentException {
+<a class="jxr_linenumber" name="L141" href="FieldHermiteInterpolator.html#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="FieldHermiteInterpolator.html#L142">142</a>         <em class="jxr_comment">// safety check</em>
+<a class="jxr_linenumber" name="L143" href="FieldHermiteInterpolator.html#L143">143</a>         MathUtils.checkNotNull(x);
+<a class="jxr_linenumber" name="L144" href="FieldHermiteInterpolator.html#L144">144</a>         <strong class="jxr_keyword">if</strong> (abscissae.isEmpty()) {
+<a class="jxr_linenumber" name="L145" href="FieldHermiteInterpolator.html#L145">145</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NoDataException.html">NoDataException</a>(LocalizedFormats.EMPTY_INTERPOLATION_SAMPLE);
+<a class="jxr_linenumber" name="L146" href="FieldHermiteInterpolator.html#L146">146</a>         }
+<a class="jxr_linenumber" name="L147" href="FieldHermiteInterpolator.html#L147">147</a> 
+<a class="jxr_linenumber" name="L148" href="FieldHermiteInterpolator.html#L148">148</a>         <strong class="jxr_keyword">final</strong> T[] value = MathArrays.buildArray(x.getField(), topDiagonal.get(0).length);
+<a class="jxr_linenumber" name="L149" href="FieldHermiteInterpolator.html#L149">149</a>         T valueCoeff = x.getField().getOne();
+<a class="jxr_linenumber" name="L150" href="FieldHermiteInterpolator.html#L150">150</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; topDiagonal.size(); ++i) {
+<a class="jxr_linenumber" name="L151" href="FieldHermiteInterpolator.html#L151">151</a>             T[] dividedDifference = topDiagonal.get(i);
+<a class="jxr_linenumber" name="L152" href="FieldHermiteInterpolator.html#L152">152</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; value.length; ++k) {
+<a class="jxr_linenumber" name="L153" href="FieldHermiteInterpolator.html#L153">153</a>                 value[k] = value[k].add(dividedDifference[k].multiply(valueCoeff));
+<a class="jxr_linenumber" name="L154" href="FieldHermiteInterpolator.html#L154">154</a>             }
+<a class="jxr_linenumber" name="L155" href="FieldHermiteInterpolator.html#L155">155</a>             <strong class="jxr_keyword">final</strong> T deltaX = x.subtract(abscissae.get(i));
+<a class="jxr_linenumber" name="L156" href="FieldHermiteInterpolator.html#L156">156</a>             valueCoeff = valueCoeff.multiply(deltaX);
+<a class="jxr_linenumber" name="L157" href="FieldHermiteInterpolator.html#L157">157</a>         }
+<a class="jxr_linenumber" name="L158" href="FieldHermiteInterpolator.html#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="FieldHermiteInterpolator.html#L159">159</a>         <strong class="jxr_keyword">return</strong> value;
+<a class="jxr_linenumber" name="L160" href="FieldHermiteInterpolator.html#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="FieldHermiteInterpolator.html#L161">161</a>     }
+<a class="jxr_linenumber" name="L162" href="FieldHermiteInterpolator.html#L162">162</a> 
+<a class="jxr_linenumber" name="L163" href="FieldHermiteInterpolator.html#L163">163</a>     <em class="jxr_javadoccomment">/** Interpolate value and first derivatives at a specified abscissa.</em>
+<a class="jxr_linenumber" name="L164" href="FieldHermiteInterpolator.html#L164">164</a> <em class="jxr_javadoccomment">     * @param x interpolation abscissa</em>
+<a class="jxr_linenumber" name="L165" href="FieldHermiteInterpolator.html#L165">165</a> <em class="jxr_javadoccomment">     * @param order maximum derivation order</em>
+<a class="jxr_linenumber" name="L166" href="FieldHermiteInterpolator.html#L166">166</a> <em class="jxr_javadoccomment">     * @return interpolated value and derivatives (value in row 0,</em>
+<a class="jxr_linenumber" name="L167" href="FieldHermiteInterpolator.html#L167">167</a> <em class="jxr_javadoccomment">     * 1&lt;sup&gt;st&lt;/sup&gt; derivative in row 1, ... n&lt;sup&gt;th&lt;/sup&gt; derivative in row n)</em>
+<a class="jxr_linenumber" name="L168" href="FieldHermiteInterpolator.html#L168">168</a> <em class="jxr_javadoccomment">     * @exception NoDataException if sample is empty</em>
+<a class="jxr_linenumber" name="L169" href="FieldHermiteInterpolator.html#L169">169</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if x is null</em>
+<a class="jxr_linenumber" name="L170" href="FieldHermiteInterpolator.html#L170">170</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L171" href="FieldHermiteInterpolator.html#L171">171</a>     <strong class="jxr_keyword">public</strong> T[][] derivatives(T x, <strong class="jxr_keyword">int</strong> order) <strong class="jxr_keyword">throws</strong> NoDataException, NullArgumentException {
+<a class="jxr_linenumber" name="L172" href="FieldHermiteInterpolator.html#L172">172</a> 
+<a class="jxr_linenumber" name="L173" href="FieldHermiteInterpolator.html#L173">173</a>         <em class="jxr_comment">// safety check</em>
+<a class="jxr_linenumber" name="L174" href="FieldHermiteInterpolator.html#L174">174</a>         MathUtils.checkNotNull(x);
+<a class="jxr_linenumber" name="L175" href="FieldHermiteInterpolator.html#L175">175</a>         <strong class="jxr_keyword">if</strong> (abscissae.isEmpty()) {
+<a class="jxr_linenumber" name="L176" href="FieldHermiteInterpolator.html#L176">176</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NoDataException.html">NoDataException</a>(LocalizedFormats.EMPTY_INTERPOLATION_SAMPLE);
+<a class="jxr_linenumber" name="L177" href="FieldHermiteInterpolator.html#L177">177</a>         }
+<a class="jxr_linenumber" name="L178" href="FieldHermiteInterpolator.html#L178">178</a> 
+<a class="jxr_linenumber" name="L179" href="FieldHermiteInterpolator.html#L179">179</a>         <strong class="jxr_keyword">final</strong> T zero = x.getField().getZero();
+<a class="jxr_linenumber" name="L180" href="FieldHermiteInterpolator.html#L180">180</a>         <strong class="jxr_keyword">final</strong> T one  = x.getField().getOne();
+<a class="jxr_linenumber" name="L181" href="FieldHermiteInterpolator.html#L181">181</a>         <strong class="jxr_keyword">final</strong> T[] tj = MathArrays.buildArray(x.getField(), order + 1);
+<a class="jxr_linenumber" name="L182" href="FieldHermiteInterpolator.html#L182">182</a>         tj[0] = zero;
+<a class="jxr_linenumber" name="L183" href="FieldHermiteInterpolator.html#L183">183</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; order; ++i) {
+<a class="jxr_linenumber" name="L184" href="FieldHermiteInterpolator.html#L184">184</a>             tj[i + 1] = tj[i].add(one);
+<a class="jxr_linenumber" name="L185" href="FieldHermiteInterpolator.html#L185">185</a>         }
+<a class="jxr_linenumber" name="L186" href="FieldHermiteInterpolator.html#L186">186</a> 
+<a class="jxr_linenumber" name="L187" href="FieldHermiteInterpolator.html#L187">187</a>         <strong class="jxr_keyword">final</strong> T[][] derivatives =
+<a class="jxr_linenumber" name="L188" href="FieldHermiteInterpolator.html#L188">188</a>                 MathArrays.buildArray(x.getField(), order + 1, topDiagonal.get(0).length);
+<a class="jxr_linenumber" name="L189" href="FieldHermiteInterpolator.html#L189">189</a>         <strong class="jxr_keyword">final</strong> T[] valueCoeff = MathArrays.buildArray(x.getField(), order + 1);
+<a class="jxr_linenumber" name="L190" href="FieldHermiteInterpolator.html#L190">190</a>         valueCoeff[0] = x.getField().getOne();
+<a class="jxr_linenumber" name="L191" href="FieldHermiteInterpolator.html#L191">191</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; topDiagonal.size(); ++i) {
+<a class="jxr_linenumber" name="L192" href="FieldHermiteInterpolator.html#L192">192</a>             T[] dividedDifference = topDiagonal.get(i);
+<a class="jxr_linenumber" name="L193" href="FieldHermiteInterpolator.html#L193">193</a>             <strong class="jxr_keyword">final</strong> T deltaX = x.subtract(abscissae.get(i));
+<a class="jxr_linenumber" name="L194" href="FieldHermiteInterpolator.html#L194">194</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = order; j &gt;= 0; --j) {
+<a class="jxr_linenumber" name="L195" href="FieldHermiteInterpolator.html#L195">195</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; derivatives[j].length; ++k) {
+<a class="jxr_linenumber" name="L196" href="FieldHermiteInterpolator.html#L196">196</a>                     derivatives[j][k] =
+<a class="jxr_linenumber" name="L197" href="FieldHermiteInterpolator.html#L197">197</a>                             derivatives[j][k].add(dividedDifference[k].multiply(valueCoeff[j]));
+<a class="jxr_linenumber" name="L198" href="FieldHermiteInterpolator.html#L198">198</a>                 }
+<a class="jxr_linenumber" name="L199" href="FieldHermiteInterpolator.html#L199">199</a>                 valueCoeff[j] = valueCoeff[j].multiply(deltaX);
+<a class="jxr_linenumber" name="L200" href="FieldHermiteInterpolator.html#L200">200</a>                 <strong class="jxr_keyword">if</strong> (j &gt; 0) {
+<a class="jxr_linenumber" name="L201" href="FieldHermiteInterpolator.html#L201">201</a>                     valueCoeff[j] = valueCoeff[j].add(tj[j].multiply(valueCoeff[j - 1]));
+<a class="jxr_linenumber" name="L202" href="FieldHermiteInterpolator.html#L202">202</a>                 }
+<a class="jxr_linenumber" name="L203" href="FieldHermiteInterpolator.html#L203">203</a>             }
+<a class="jxr_linenumber" name="L204" href="FieldHermiteInterpolator.html#L204">204</a>         }
+<a class="jxr_linenumber" name="L205" href="FieldHermiteInterpolator.html#L205">205</a> 
+<a class="jxr_linenumber" name="L206" href="FieldHermiteInterpolator.html#L206">206</a>         <strong class="jxr_keyword">return</strong> derivatives;
+<a class="jxr_linenumber" name="L207" href="FieldHermiteInterpolator.html#L207">207</a> 
+<a class="jxr_linenumber" name="L208" href="FieldHermiteInterpolator.html#L208">208</a>     }
+<a class="jxr_linenumber" name="L209" href="FieldHermiteInterpolator.html#L209">209</a> 
+<a class="jxr_linenumber" name="L210" href="FieldHermiteInterpolator.html#L210">210</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

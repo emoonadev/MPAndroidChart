@@ -1,0 +1,1004 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>PSquarePercentile xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../../apidocs/org/apache/commons/math4/stat/descriptive/rank/PSquarePercentile.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="PSquarePercentile.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="PSquarePercentile.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="PSquarePercentile.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="PSquarePercentile.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="PSquarePercentile.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="PSquarePercentile.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="PSquarePercentile.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="PSquarePercentile.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="PSquarePercentile.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="PSquarePercentile.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="PSquarePercentile.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="PSquarePercentile.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="PSquarePercentile.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="PSquarePercentile.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="PSquarePercentile.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="PSquarePercentile.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="PSquarePercentile.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.stat.descriptive.rank;
+<a class="jxr_linenumber" name="L18" href="PSquarePercentile.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="PSquarePercentile.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L20" href="PSquarePercentile.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.io.ObjectInputStream;
+<a class="jxr_linenumber" name="L21" href="PSquarePercentile.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.io.Serializable;
+<a class="jxr_linenumber" name="L22" href="PSquarePercentile.html#L22">22</a>  <strong class="jxr_keyword">import</strong> java.text.DecimalFormat;
+<a class="jxr_linenumber" name="L23" href="PSquarePercentile.html#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L24" href="PSquarePercentile.html#L24">24</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L25" href="PSquarePercentile.html#L25">25</a>  <strong class="jxr_keyword">import</strong> java.util.Collection;
+<a class="jxr_linenumber" name="L26" href="PSquarePercentile.html#L26">26</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L27" href="PSquarePercentile.html#L27">27</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L28" href="PSquarePercentile.html#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="PSquarePercentile.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.UnivariateFunction;
+<a class="jxr_linenumber" name="L30" href="PSquarePercentile.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.interpolation.LinearInterpolator;
+<a class="jxr_linenumber" name="L31" href="PSquarePercentile.html#L31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.interpolation.NevilleInterpolator;
+<a class="jxr_linenumber" name="L32" href="PSquarePercentile.html#L32">32</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.interpolation.UnivariateInterpolator;
+<a class="jxr_linenumber" name="L33" href="PSquarePercentile.html#L33">33</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.InsufficientDataException;
+<a class="jxr_linenumber" name="L34" href="PSquarePercentile.html#L34">34</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L35" href="PSquarePercentile.html#L35">35</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L36" href="PSquarePercentile.html#L36">36</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.descriptive.AbstractStorelessUnivariateStatistic;
+<a class="jxr_linenumber" name="L37" href="PSquarePercentile.html#L37">37</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.descriptive.StorelessUnivariateStatistic;
+<a class="jxr_linenumber" name="L38" href="PSquarePercentile.html#L38">38</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L39" href="PSquarePercentile.html#L39">39</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathUtils;
+<a class="jxr_linenumber" name="L40" href="PSquarePercentile.html#L40">40</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Precision;
+<a class="jxr_linenumber" name="L41" href="PSquarePercentile.html#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="PSquarePercentile.html#L42">42</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L43" href="PSquarePercentile.html#L43">43</a>  <em class="jxr_javadoccomment"> * A {@link StorelessUnivariateStatistic} estimating percentiles using the</em>
+<a class="jxr_linenumber" name="L44" href="PSquarePercentile.html#L44">44</a>  <em class="jxr_javadoccomment"> * &lt;ahref=<a href="http://www.cs.wustl.edu/~jain/papers/ftp/psqr.pdf&gt;P&lt;SUP&gt;2&lt;/SUP&gt;&lt;/a&gt" target="alexandria_uri">http://www.cs.wustl.edu/~jain/papers/ftp/psqr.pdf&gt;P&lt;SUP&gt;2&lt;/SUP&gt;&lt;/a&gt</a>;</em>
+<a class="jxr_linenumber" name="L45" href="PSquarePercentile.html#L45">45</a>  <em class="jxr_javadoccomment"> * Algorithm as explained by &lt;a href=<a href="http://www.cse.wustl.edu/~jain/&gt;Ra" target="alexandria_uri">http://www.cse.wustl.edu/~jain/&gt;Ra</a>j</em>
+<a class="jxr_linenumber" name="L46" href="PSquarePercentile.html#L46">46</a>  <em class="jxr_javadoccomment"> * Jain&lt;/a&gt; and Imrich Chlamtac in</em>
+<a class="jxr_linenumber" name="L47" href="PSquarePercentile.html#L47">47</a>  <em class="jxr_javadoccomment"> * &lt;a href=<a href="http://www.cse.wustl.edu/~jain/papers/psqr.htm&gt;P&lt;SUP&gt;2&lt;/SUP&gt;" target="alexandria_uri">http://www.cse.wustl.edu/~jain/papers/psqr.htm&gt;P&lt;SUP&gt;2&lt;/SUP&gt;</a> Algorithm</em>
+<a class="jxr_linenumber" name="L48" href="PSquarePercentile.html#L48">48</a>  <em class="jxr_javadoccomment"> * for Dynamic Calculation of Quantiles and Histogram Without Storing</em>
+<a class="jxr_linenumber" name="L49" href="PSquarePercentile.html#L49">49</a>  <em class="jxr_javadoccomment"> * Observations&lt;/a&gt;.</em>
+<a class="jxr_linenumber" name="L50" href="PSquarePercentile.html#L50">50</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L51" href="PSquarePercentile.html#L51">51</a>  <em class="jxr_javadoccomment"> * Note: This implementation is not synchronized and produces an approximate</em>
+<a class="jxr_linenumber" name="L52" href="PSquarePercentile.html#L52">52</a>  <em class="jxr_javadoccomment"> * result. For small samples, where data can be stored and processed in memory,</em>
+<a class="jxr_linenumber" name="L53" href="PSquarePercentile.html#L53">53</a>  <em class="jxr_javadoccomment"> * {@link Percentile} should be used.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L54" href="PSquarePercentile.html#L54">54</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L55" href="PSquarePercentile.html#L55">55</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L56" href="PSquarePercentile.html#L56">56</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="PSquarePercentile.html">PSquarePercentile</a> <strong class="jxr_keyword">extends</strong> <a href="../AbstractStorelessUnivariateStatistic.html">AbstractStorelessUnivariateStatistic</a>
+<a class="jxr_linenumber" name="L57" href="PSquarePercentile.html#L57">57</a>          <strong class="jxr_keyword">implements</strong> StorelessUnivariateStatistic, Serializable {
+<a class="jxr_linenumber" name="L58" href="PSquarePercentile.html#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="PSquarePercentile.html#L59">59</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L60" href="PSquarePercentile.html#L60">60</a>  <em class="jxr_javadoccomment">     * The maximum array size used for psquare algorithm</em>
+<a class="jxr_linenumber" name="L61" href="PSquarePercentile.html#L61">61</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L62" href="PSquarePercentile.html#L62">62</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PSQUARE_CONSTANT = 5;
+<a class="jxr_linenumber" name="L63" href="PSquarePercentile.html#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="PSquarePercentile.html#L64">64</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L65" href="PSquarePercentile.html#L65">65</a>  <em class="jxr_javadoccomment">     * A Default quantile needed in case if user prefers to use default no</em>
+<a class="jxr_linenumber" name="L66" href="PSquarePercentile.html#L66">66</a>  <em class="jxr_javadoccomment">     * argument constructor.</em>
+<a class="jxr_linenumber" name="L67" href="PSquarePercentile.html#L67">67</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L68" href="PSquarePercentile.html#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_QUANTILE_DESIRED = 50d;
+<a class="jxr_linenumber" name="L69" href="PSquarePercentile.html#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="PSquarePercentile.html#L70">70</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L71" href="PSquarePercentile.html#L71">71</a>  <em class="jxr_javadoccomment">     * Serial ID</em>
+<a class="jxr_linenumber" name="L72" href="PSquarePercentile.html#L72">72</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L73" href="PSquarePercentile.html#L73">73</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20150412L;
+<a class="jxr_linenumber" name="L74" href="PSquarePercentile.html#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="PSquarePercentile.html#L75">75</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L76" href="PSquarePercentile.html#L76">76</a>  <em class="jxr_javadoccomment">     * A decimal formatter for print convenience</em>
+<a class="jxr_linenumber" name="L77" href="PSquarePercentile.html#L77">77</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L78" href="PSquarePercentile.html#L78">78</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> DecimalFormat DECIMAL_FORMAT = <strong class="jxr_keyword">new</strong> DecimalFormat(<span class="jxr_string">"00.00"</span>);
+<a class="jxr_linenumber" name="L79" href="PSquarePercentile.html#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="PSquarePercentile.html#L80">80</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L81" href="PSquarePercentile.html#L81">81</a>  <em class="jxr_javadoccomment">     * Initial list of 5 numbers corresponding to 5 markers. &lt;b&gt;NOTE:&lt;/b&gt;watch</em>
+<a class="jxr_linenumber" name="L82" href="PSquarePercentile.html#L82">82</a>  <em class="jxr_javadoccomment">     * out for the add methods that are overloaded</em>
+<a class="jxr_linenumber" name="L83" href="PSquarePercentile.html#L83">83</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L84" href="PSquarePercentile.html#L84">84</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> List&lt;Double&gt; initialFive = <strong class="jxr_keyword">new</strong> FixedCapacityList&lt;Double&gt;(PSQUARE_CONSTANT);
+<a class="jxr_linenumber" name="L85" href="PSquarePercentile.html#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="PSquarePercentile.html#L86">86</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L87" href="PSquarePercentile.html#L87">87</a>  <em class="jxr_javadoccomment">     * The quantile needed should be in range of 0-1. The constructor</em>
+<a class="jxr_linenumber" name="L88" href="PSquarePercentile.html#L88">88</a>  <em class="jxr_javadoccomment">     * {@link #PSquarePercentile(double)} ensures that passed in percentile is</em>
+<a class="jxr_linenumber" name="L89" href="PSquarePercentile.html#L89">89</a>  <em class="jxr_javadoccomment">     * divided by 100.</em>
+<a class="jxr_linenumber" name="L90" href="PSquarePercentile.html#L90">90</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L91" href="PSquarePercentile.html#L91">91</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> quantile;
+<a class="jxr_linenumber" name="L92" href="PSquarePercentile.html#L92">92</a>  
+<a class="jxr_linenumber" name="L93" href="PSquarePercentile.html#L93">93</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L94" href="PSquarePercentile.html#L94">94</a>  <em class="jxr_javadoccomment">     * lastObservation is the last observation value/input sample. No need to</em>
+<a class="jxr_linenumber" name="L95" href="PSquarePercentile.html#L95">95</a>  <em class="jxr_javadoccomment">     * serialize</em>
+<a class="jxr_linenumber" name="L96" href="PSquarePercentile.html#L96">96</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L97" href="PSquarePercentile.html#L97">97</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> <strong class="jxr_keyword">double</strong> lastObservation;
+<a class="jxr_linenumber" name="L98" href="PSquarePercentile.html#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="PSquarePercentile.html#L99">99</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L100" href="PSquarePercentile.html#L100">100</a> <em class="jxr_javadoccomment">     * Markers is the marker collection object which comes to effect</em>
+<a class="jxr_linenumber" name="L101" href="PSquarePercentile.html#L101">101</a> <em class="jxr_javadoccomment">     * only after 5 values are inserted</em>
+<a class="jxr_linenumber" name="L102" href="PSquarePercentile.html#L102">102</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L103" href="PSquarePercentile.html#L103">103</a>     <strong class="jxr_keyword">private</strong> <a href="PSquarePercentile.html">PSquareMarkers</a> markers = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L104" href="PSquarePercentile.html#L104">104</a> 
+<a class="jxr_linenumber" name="L105" href="PSquarePercentile.html#L105">105</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L106" href="PSquarePercentile.html#L106">106</a> <em class="jxr_javadoccomment">     * Computed p value (i,e percentile value of data set hither to received)</em>
+<a class="jxr_linenumber" name="L107" href="PSquarePercentile.html#L107">107</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L108" href="PSquarePercentile.html#L108">108</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> pValue = Double.NaN;
+<a class="jxr_linenumber" name="L109" href="PSquarePercentile.html#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="PSquarePercentile.html#L110">110</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L111" href="PSquarePercentile.html#L111">111</a> <em class="jxr_javadoccomment">     * Counter to count the values/observations accepted into this data set</em>
+<a class="jxr_linenumber" name="L112" href="PSquarePercentile.html#L112">112</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L113" href="PSquarePercentile.html#L113">113</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> countOfObservations;
+<a class="jxr_linenumber" name="L114" href="PSquarePercentile.html#L114">114</a> 
+<a class="jxr_linenumber" name="L115" href="PSquarePercentile.html#L115">115</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L116" href="PSquarePercentile.html#L116">116</a> <em class="jxr_javadoccomment">     * Constructs a PSquarePercentile with the specific percentile value.</em>
+<a class="jxr_linenumber" name="L117" href="PSquarePercentile.html#L117">117</a> <em class="jxr_javadoccomment">     * @param p the percentile</em>
+<a class="jxr_linenumber" name="L118" href="PSquarePercentile.html#L118">118</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException  if p is not greater than 0 and less</em>
+<a class="jxr_linenumber" name="L119" href="PSquarePercentile.html#L119">119</a> <em class="jxr_javadoccomment">     * than or equal to 100</em>
+<a class="jxr_linenumber" name="L120" href="PSquarePercentile.html#L120">120</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L121" href="PSquarePercentile.html#L121">121</a>     <strong class="jxr_keyword">public</strong> <a href="PSquarePercentile.html">PSquarePercentile</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p) {
+<a class="jxr_linenumber" name="L122" href="PSquarePercentile.html#L122">122</a>         <strong class="jxr_keyword">if</strong> (p &gt; 100 || p &lt; 0) {
+<a class="jxr_linenumber" name="L123" href="PSquarePercentile.html#L123">123</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../exception/OutOfRangeException.html">OutOfRangeException</a>(LocalizedFormats.OUT_OF_RANGE, p, 0, 100);
+<a class="jxr_linenumber" name="L124" href="PSquarePercentile.html#L124">124</a>         }
+<a class="jxr_linenumber" name="L125" href="PSquarePercentile.html#L125">125</a>         <strong class="jxr_keyword">this</strong>.quantile = p / 100d;<em class="jxr_comment">// always set it within (0,1]</em>
+<a class="jxr_linenumber" name="L126" href="PSquarePercentile.html#L126">126</a>     }
+<a class="jxr_linenumber" name="L127" href="PSquarePercentile.html#L127">127</a> 
+<a class="jxr_linenumber" name="L128" href="PSquarePercentile.html#L128">128</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L129" href="PSquarePercentile.html#L129">129</a> <em class="jxr_javadoccomment">     * Default constructor that assumes a {@link #DEFAULT_QUANTILE_DESIRED</em>
+<a class="jxr_linenumber" name="L130" href="PSquarePercentile.html#L130">130</a> <em class="jxr_javadoccomment">     * default quantile} needed.</em>
+<a class="jxr_linenumber" name="L131" href="PSquarePercentile.html#L131">131</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L132" href="PSquarePercentile.html#L132">132</a>     <a href="PSquarePercentile.html">PSquarePercentile</a>() {
+<a class="jxr_linenumber" name="L133" href="PSquarePercentile.html#L133">133</a>         <strong class="jxr_keyword">this</strong>(DEFAULT_QUANTILE_DESIRED);
+<a class="jxr_linenumber" name="L134" href="PSquarePercentile.html#L134">134</a>     }
+<a class="jxr_linenumber" name="L135" href="PSquarePercentile.html#L135">135</a> 
+<a class="jxr_linenumber" name="L136" href="PSquarePercentile.html#L136">136</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L137" href="PSquarePercentile.html#L137">137</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L138" href="PSquarePercentile.html#L138">138</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L139" href="PSquarePercentile.html#L139">139</a>     @Override
+<a class="jxr_linenumber" name="L140" href="PSquarePercentile.html#L140">140</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> hashCode() {
+<a class="jxr_linenumber" name="L141" href="PSquarePercentile.html#L141">141</a>         <strong class="jxr_keyword">double</strong> result = getResult();
+<a class="jxr_linenumber" name="L142" href="PSquarePercentile.html#L142">142</a>         result = Double.isNaN(result) ? 37 : result;
+<a class="jxr_linenumber" name="L143" href="PSquarePercentile.html#L143">143</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> markersHash = markers == <strong class="jxr_keyword">null</strong> ? 0 : markers.hashCode();
+<a class="jxr_linenumber" name="L144" href="PSquarePercentile.html#L144">144</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] toHash = {result, quantile, markersHash, countOfObservations};
+<a class="jxr_linenumber" name="L145" href="PSquarePercentile.html#L145">145</a>         <strong class="jxr_keyword">return</strong> Arrays.hashCode(toHash);
+<a class="jxr_linenumber" name="L146" href="PSquarePercentile.html#L146">146</a>     }
+<a class="jxr_linenumber" name="L147" href="PSquarePercentile.html#L147">147</a> 
+<a class="jxr_linenumber" name="L148" href="PSquarePercentile.html#L148">148</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L149" href="PSquarePercentile.html#L149">149</a> <em class="jxr_javadoccomment">     * Returns true iff {@code o} is a {@code PSquarePercentile} returning the</em>
+<a class="jxr_linenumber" name="L150" href="PSquarePercentile.html#L150">150</a> <em class="jxr_javadoccomment">     * same values as this for {@code getResult()} and {@code getN()} and also</em>
+<a class="jxr_linenumber" name="L151" href="PSquarePercentile.html#L151">151</a> <em class="jxr_javadoccomment">     * having equal markers</em>
+<a class="jxr_linenumber" name="L152" href="PSquarePercentile.html#L152">152</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L153" href="PSquarePercentile.html#L153">153</a> <em class="jxr_javadoccomment">     * @param o object to compare</em>
+<a class="jxr_linenumber" name="L154" href="PSquarePercentile.html#L154">154</a> <em class="jxr_javadoccomment">     * @return true if {@code o} is a {@code PSquarePercentile} with</em>
+<a class="jxr_linenumber" name="L155" href="PSquarePercentile.html#L155">155</a> <em class="jxr_javadoccomment">     * equivalent internal state</em>
+<a class="jxr_linenumber" name="L156" href="PSquarePercentile.html#L156">156</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L157" href="PSquarePercentile.html#L157">157</a>     @Override
+<a class="jxr_linenumber" name="L158" href="PSquarePercentile.html#L158">158</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equals(Object o) {
+<a class="jxr_linenumber" name="L159" href="PSquarePercentile.html#L159">159</a>         <strong class="jxr_keyword">boolean</strong> result = false;
+<a class="jxr_linenumber" name="L160" href="PSquarePercentile.html#L160">160</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong> == o) {
+<a class="jxr_linenumber" name="L161" href="PSquarePercentile.html#L161">161</a>             result = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L162" href="PSquarePercentile.html#L162">162</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (o instanceof PSquarePercentile) {
+<a class="jxr_linenumber" name="L163" href="PSquarePercentile.html#L163">163</a>             <a href="PSquarePercentile.html">PSquarePercentile</a> that = (PSquarePercentile) o;
+<a class="jxr_linenumber" name="L164" href="PSquarePercentile.html#L164">164</a>             <strong class="jxr_keyword">boolean</strong> isNotNull = markers != <strong class="jxr_keyword">null</strong> &amp;&amp; that.markers != <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L165" href="PSquarePercentile.html#L165">165</a>             <strong class="jxr_keyword">boolean</strong> isNull = markers == <strong class="jxr_keyword">null</strong> &amp;&amp; that.markers == <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L166" href="PSquarePercentile.html#L166">166</a>             result = isNotNull ? markers.equals(that.markers) : isNull;
+<a class="jxr_linenumber" name="L167" href="PSquarePercentile.html#L167">167</a>             <em class="jxr_comment">// markers as in the case of first</em>
+<a class="jxr_linenumber" name="L168" href="PSquarePercentile.html#L168">168</a>             <em class="jxr_comment">// five observations</em>
+<a class="jxr_linenumber" name="L169" href="PSquarePercentile.html#L169">169</a>             result = result &amp;&amp; getN() == that.getN();
+<a class="jxr_linenumber" name="L170" href="PSquarePercentile.html#L170">170</a>         }
+<a class="jxr_linenumber" name="L171" href="PSquarePercentile.html#L171">171</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L172" href="PSquarePercentile.html#L172">172</a>     }
+<a class="jxr_linenumber" name="L173" href="PSquarePercentile.html#L173">173</a> 
+<a class="jxr_linenumber" name="L174" href="PSquarePercentile.html#L174">174</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L175" href="PSquarePercentile.html#L175">175</a> <em class="jxr_javadoccomment">     * {@inheritDoc}The internal state updated due to the new value in this</em>
+<a class="jxr_linenumber" name="L176" href="PSquarePercentile.html#L176">176</a> <em class="jxr_javadoccomment">     * context is basically of the marker positions and computation of the</em>
+<a class="jxr_linenumber" name="L177" href="PSquarePercentile.html#L177">177</a> <em class="jxr_javadoccomment">     * approximate quantile.</em>
+<a class="jxr_linenumber" name="L178" href="PSquarePercentile.html#L178">178</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L179" href="PSquarePercentile.html#L179">179</a> <em class="jxr_javadoccomment">     * @param observation the observation currently being added.</em>
+<a class="jxr_linenumber" name="L180" href="PSquarePercentile.html#L180">180</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L181" href="PSquarePercentile.html#L181">181</a>     @Override
+<a class="jxr_linenumber" name="L182" href="PSquarePercentile.html#L182">182</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> increment(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> observation) {
+<a class="jxr_linenumber" name="L183" href="PSquarePercentile.html#L183">183</a>         <em class="jxr_comment">// Increment counter</em>
+<a class="jxr_linenumber" name="L184" href="PSquarePercentile.html#L184">184</a>         countOfObservations++;
+<a class="jxr_linenumber" name="L185" href="PSquarePercentile.html#L185">185</a> 
+<a class="jxr_linenumber" name="L186" href="PSquarePercentile.html#L186">186</a>         <em class="jxr_comment">// Store last observation</em>
+<a class="jxr_linenumber" name="L187" href="PSquarePercentile.html#L187">187</a>         <strong class="jxr_keyword">this</strong>.lastObservation = observation;
+<a class="jxr_linenumber" name="L188" href="PSquarePercentile.html#L188">188</a> 
+<a class="jxr_linenumber" name="L189" href="PSquarePercentile.html#L189">189</a>         <em class="jxr_comment">// 0. Use Brute force for &lt;5</em>
+<a class="jxr_linenumber" name="L190" href="PSquarePercentile.html#L190">190</a>         <strong class="jxr_keyword">if</strong> (markers == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L191" href="PSquarePercentile.html#L191">191</a>             <strong class="jxr_keyword">if</strong> (initialFive.add(observation)) {
+<a class="jxr_linenumber" name="L192" href="PSquarePercentile.html#L192">192</a>                 Collections.sort(initialFive);
+<a class="jxr_linenumber" name="L193" href="PSquarePercentile.html#L193">193</a>                 pValue =
+<a class="jxr_linenumber" name="L194" href="PSquarePercentile.html#L194">194</a>                         initialFive
+<a class="jxr_linenumber" name="L195" href="PSquarePercentile.html#L195">195</a>                                 .get((<strong class="jxr_keyword">int</strong>) (quantile * (initialFive.size() - 1)));
+<a class="jxr_linenumber" name="L196" href="PSquarePercentile.html#L196">196</a>                 <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L197" href="PSquarePercentile.html#L197">197</a>             }
+<a class="jxr_linenumber" name="L198" href="PSquarePercentile.html#L198">198</a>             <em class="jxr_comment">// 1. Initialize once after 5th observation</em>
+<a class="jxr_linenumber" name="L199" href="PSquarePercentile.html#L199">199</a>             markers = newMarkers(initialFive, quantile);
+<a class="jxr_linenumber" name="L200" href="PSquarePercentile.html#L200">200</a>         }
+<a class="jxr_linenumber" name="L201" href="PSquarePercentile.html#L201">201</a>         <em class="jxr_comment">// 2. process a Data Point and return pValue</em>
+<a class="jxr_linenumber" name="L202" href="PSquarePercentile.html#L202">202</a>         pValue = markers.processDataPoint(observation);
+<a class="jxr_linenumber" name="L203" href="PSquarePercentile.html#L203">203</a>     }
+<a class="jxr_linenumber" name="L204" href="PSquarePercentile.html#L204">204</a> 
+<a class="jxr_linenumber" name="L205" href="PSquarePercentile.html#L205">205</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L206" href="PSquarePercentile.html#L206">206</a> <em class="jxr_javadoccomment">     * Returns a string containing the last observation, the current estimate</em>
+<a class="jxr_linenumber" name="L207" href="PSquarePercentile.html#L207">207</a> <em class="jxr_javadoccomment">     * of the quantile and all markers.</em>
+<a class="jxr_linenumber" name="L208" href="PSquarePercentile.html#L208">208</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L209" href="PSquarePercentile.html#L209">209</a> <em class="jxr_javadoccomment">     * @return string representation of state data</em>
+<a class="jxr_linenumber" name="L210" href="PSquarePercentile.html#L210">210</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L211" href="PSquarePercentile.html#L211">211</a>     @Override
+<a class="jxr_linenumber" name="L212" href="PSquarePercentile.html#L212">212</a>     <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L213" href="PSquarePercentile.html#L213">213</a> 
+<a class="jxr_linenumber" name="L214" href="PSquarePercentile.html#L214">214</a>         <strong class="jxr_keyword">if</strong> (markers == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L215" href="PSquarePercentile.html#L215">215</a>             <strong class="jxr_keyword">return</strong> String.format(<span class="jxr_string">"obs=%s pValue=%s"</span>,
+<a class="jxr_linenumber" name="L216" href="PSquarePercentile.html#L216">216</a>                     DECIMAL_FORMAT.format(lastObservation),
+<a class="jxr_linenumber" name="L217" href="PSquarePercentile.html#L217">217</a>                     DECIMAL_FORMAT.format(pValue));
+<a class="jxr_linenumber" name="L218" href="PSquarePercentile.html#L218">218</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L219" href="PSquarePercentile.html#L219">219</a>             <strong class="jxr_keyword">return</strong> String.format(<span class="jxr_string">"obs=%s markers=%s"</span>,
+<a class="jxr_linenumber" name="L220" href="PSquarePercentile.html#L220">220</a>                     DECIMAL_FORMAT.format(lastObservation), markers.toString());
+<a class="jxr_linenumber" name="L221" href="PSquarePercentile.html#L221">221</a>         }
+<a class="jxr_linenumber" name="L222" href="PSquarePercentile.html#L222">222</a>     }
+<a class="jxr_linenumber" name="L223" href="PSquarePercentile.html#L223">223</a> 
+<a class="jxr_linenumber" name="L224" href="PSquarePercentile.html#L224">224</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L225" href="PSquarePercentile.html#L225">225</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L226" href="PSquarePercentile.html#L226">226</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L227" href="PSquarePercentile.html#L227">227</a>     @Override
+<a class="jxr_linenumber" name="L228" href="PSquarePercentile.html#L228">228</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getN() {
+<a class="jxr_linenumber" name="L229" href="PSquarePercentile.html#L229">229</a>         <strong class="jxr_keyword">return</strong> countOfObservations;
+<a class="jxr_linenumber" name="L230" href="PSquarePercentile.html#L230">230</a>     }
+<a class="jxr_linenumber" name="L231" href="PSquarePercentile.html#L231">231</a> 
+<a class="jxr_linenumber" name="L232" href="PSquarePercentile.html#L232">232</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L233" href="PSquarePercentile.html#L233">233</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L234" href="PSquarePercentile.html#L234">234</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L235" href="PSquarePercentile.html#L235">235</a>     @Override
+<a class="jxr_linenumber" name="L236" href="PSquarePercentile.html#L236">236</a>     <strong class="jxr_keyword">public</strong> <a href="../StorelessUnivariateStatistic.html">StorelessUnivariateStatistic</a> copy() {
+<a class="jxr_linenumber" name="L237" href="PSquarePercentile.html#L237">237</a>         <em class="jxr_comment">// multiply quantile by 100 now as anyway constructor divides it by 100</em>
+<a class="jxr_linenumber" name="L238" href="PSquarePercentile.html#L238">238</a>         <a href="PSquarePercentile.html">PSquarePercentile</a> copy = <strong class="jxr_keyword">new</strong> <a href="PSquarePercentile.html">PSquarePercentile</a>(100d * quantile);
+<a class="jxr_linenumber" name="L239" href="PSquarePercentile.html#L239">239</a> 
+<a class="jxr_linenumber" name="L240" href="PSquarePercentile.html#L240">240</a>         <strong class="jxr_keyword">if</strong> (markers != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L241" href="PSquarePercentile.html#L241">241</a>             copy.markers = (PSquareMarkers) markers.clone();
+<a class="jxr_linenumber" name="L242" href="PSquarePercentile.html#L242">242</a>         }
+<a class="jxr_linenumber" name="L243" href="PSquarePercentile.html#L243">243</a>         copy.countOfObservations = countOfObservations;
+<a class="jxr_linenumber" name="L244" href="PSquarePercentile.html#L244">244</a>         copy.pValue = pValue;
+<a class="jxr_linenumber" name="L245" href="PSquarePercentile.html#L245">245</a>         copy.initialFive.clear();
+<a class="jxr_linenumber" name="L246" href="PSquarePercentile.html#L246">246</a>         copy.initialFive.addAll(initialFive);
+<a class="jxr_linenumber" name="L247" href="PSquarePercentile.html#L247">247</a>         <strong class="jxr_keyword">return</strong> copy;
+<a class="jxr_linenumber" name="L248" href="PSquarePercentile.html#L248">248</a>     }
+<a class="jxr_linenumber" name="L249" href="PSquarePercentile.html#L249">249</a> 
+<a class="jxr_linenumber" name="L250" href="PSquarePercentile.html#L250">250</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L251" href="PSquarePercentile.html#L251">251</a> <em class="jxr_javadoccomment">     * Returns the quantile estimated by this statistic in the range [0.0-1.0]</em>
+<a class="jxr_linenumber" name="L252" href="PSquarePercentile.html#L252">252</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L253" href="PSquarePercentile.html#L253">253</a> <em class="jxr_javadoccomment">     * @return quantile estimated by {@link #getResult()}</em>
+<a class="jxr_linenumber" name="L254" href="PSquarePercentile.html#L254">254</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L255" href="PSquarePercentile.html#L255">255</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> quantile() {
+<a class="jxr_linenumber" name="L256" href="PSquarePercentile.html#L256">256</a>         <strong class="jxr_keyword">return</strong> quantile;
+<a class="jxr_linenumber" name="L257" href="PSquarePercentile.html#L257">257</a>     }
+<a class="jxr_linenumber" name="L258" href="PSquarePercentile.html#L258">258</a> 
+<a class="jxr_linenumber" name="L259" href="PSquarePercentile.html#L259">259</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L260" href="PSquarePercentile.html#L260">260</a> <em class="jxr_javadoccomment">     * {@inheritDoc}. This basically clears all the markers, the</em>
+<a class="jxr_linenumber" name="L261" href="PSquarePercentile.html#L261">261</a> <em class="jxr_javadoccomment">     * initialFive list and sets countOfObservations to 0.</em>
+<a class="jxr_linenumber" name="L262" href="PSquarePercentile.html#L262">262</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L263" href="PSquarePercentile.html#L263">263</a>     @Override
+<a class="jxr_linenumber" name="L264" href="PSquarePercentile.html#L264">264</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> clear() {
+<a class="jxr_linenumber" name="L265" href="PSquarePercentile.html#L265">265</a>         markers = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L266" href="PSquarePercentile.html#L266">266</a>         initialFive.clear();
+<a class="jxr_linenumber" name="L267" href="PSquarePercentile.html#L267">267</a>         countOfObservations = 0L;
+<a class="jxr_linenumber" name="L268" href="PSquarePercentile.html#L268">268</a>         pValue = Double.NaN;
+<a class="jxr_linenumber" name="L269" href="PSquarePercentile.html#L269">269</a>     }
+<a class="jxr_linenumber" name="L270" href="PSquarePercentile.html#L270">270</a> 
+<a class="jxr_linenumber" name="L271" href="PSquarePercentile.html#L271">271</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L272" href="PSquarePercentile.html#L272">272</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L273" href="PSquarePercentile.html#L273">273</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L274" href="PSquarePercentile.html#L274">274</a>     @Override
+<a class="jxr_linenumber" name="L275" href="PSquarePercentile.html#L275">275</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getResult() {
+<a class="jxr_linenumber" name="L276" href="PSquarePercentile.html#L276">276</a>         <strong class="jxr_keyword">if</strong> (Double.compare(quantile, 1d) == 0) {
+<a class="jxr_linenumber" name="L277" href="PSquarePercentile.html#L277">277</a>             pValue = maximum();
+<a class="jxr_linenumber" name="L278" href="PSquarePercentile.html#L278">278</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (Double.compare(quantile, 0d) == 0) {
+<a class="jxr_linenumber" name="L279" href="PSquarePercentile.html#L279">279</a>             pValue = minimum();
+<a class="jxr_linenumber" name="L280" href="PSquarePercentile.html#L280">280</a>         }
+<a class="jxr_linenumber" name="L281" href="PSquarePercentile.html#L281">281</a>         <strong class="jxr_keyword">return</strong> pValue;
+<a class="jxr_linenumber" name="L282" href="PSquarePercentile.html#L282">282</a>     }
+<a class="jxr_linenumber" name="L283" href="PSquarePercentile.html#L283">283</a> 
+<a class="jxr_linenumber" name="L284" href="PSquarePercentile.html#L284">284</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L285" href="PSquarePercentile.html#L285">285</a> <em class="jxr_javadoccomment">     * @return maximum in the data set added to this statistic</em>
+<a class="jxr_linenumber" name="L286" href="PSquarePercentile.html#L286">286</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L287" href="PSquarePercentile.html#L287">287</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> maximum() {
+<a class="jxr_linenumber" name="L288" href="PSquarePercentile.html#L288">288</a>         <strong class="jxr_keyword">double</strong> val = Double.NaN;
+<a class="jxr_linenumber" name="L289" href="PSquarePercentile.html#L289">289</a>         <strong class="jxr_keyword">if</strong> (markers != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L290" href="PSquarePercentile.html#L290">290</a>             val = markers.height(PSQUARE_CONSTANT);
+<a class="jxr_linenumber" name="L291" href="PSquarePercentile.html#L291">291</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!initialFive.isEmpty()) {
+<a class="jxr_linenumber" name="L292" href="PSquarePercentile.html#L292">292</a>             val = initialFive.get(initialFive.size() - 1);
+<a class="jxr_linenumber" name="L293" href="PSquarePercentile.html#L293">293</a>         }
+<a class="jxr_linenumber" name="L294" href="PSquarePercentile.html#L294">294</a>         <strong class="jxr_keyword">return</strong> val;
+<a class="jxr_linenumber" name="L295" href="PSquarePercentile.html#L295">295</a>     }
+<a class="jxr_linenumber" name="L296" href="PSquarePercentile.html#L296">296</a> 
+<a class="jxr_linenumber" name="L297" href="PSquarePercentile.html#L297">297</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L298" href="PSquarePercentile.html#L298">298</a> <em class="jxr_javadoccomment">     * @return minimum in the data set added to this statistic</em>
+<a class="jxr_linenumber" name="L299" href="PSquarePercentile.html#L299">299</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L300" href="PSquarePercentile.html#L300">300</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> minimum() {
+<a class="jxr_linenumber" name="L301" href="PSquarePercentile.html#L301">301</a>         <strong class="jxr_keyword">double</strong> val = Double.NaN;
+<a class="jxr_linenumber" name="L302" href="PSquarePercentile.html#L302">302</a>         <strong class="jxr_keyword">if</strong> (markers != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L303" href="PSquarePercentile.html#L303">303</a>             val = markers.height(1);
+<a class="jxr_linenumber" name="L304" href="PSquarePercentile.html#L304">304</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!initialFive.isEmpty()) {
+<a class="jxr_linenumber" name="L305" href="PSquarePercentile.html#L305">305</a>             val = initialFive.get(0);
+<a class="jxr_linenumber" name="L306" href="PSquarePercentile.html#L306">306</a>         }
+<a class="jxr_linenumber" name="L307" href="PSquarePercentile.html#L307">307</a>         <strong class="jxr_keyword">return</strong> val;
+<a class="jxr_linenumber" name="L308" href="PSquarePercentile.html#L308">308</a>     }
+<a class="jxr_linenumber" name="L309" href="PSquarePercentile.html#L309">309</a> 
+<a class="jxr_linenumber" name="L310" href="PSquarePercentile.html#L310">310</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L311" href="PSquarePercentile.html#L311">311</a> <em class="jxr_javadoccomment">     * Markers is an encapsulation of the five markers/buckets as indicated in</em>
+<a class="jxr_linenumber" name="L312" href="PSquarePercentile.html#L312">312</a> <em class="jxr_javadoccomment">     * the original works.</em>
+<a class="jxr_linenumber" name="L313" href="PSquarePercentile.html#L313">313</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L314" href="PSquarePercentile.html#L314">314</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="PSquarePercentile.html">Markers</a> <strong class="jxr_keyword">implements</strong> PSquareMarkers, Serializable {
+<a class="jxr_linenumber" name="L315" href="PSquarePercentile.html#L315">315</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L316" href="PSquarePercentile.html#L316">316</a> <em class="jxr_javadoccomment">         * Serial version id</em>
+<a class="jxr_linenumber" name="L317" href="PSquarePercentile.html#L317">317</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L318" href="PSquarePercentile.html#L318">318</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
+<a class="jxr_linenumber" name="L319" href="PSquarePercentile.html#L319">319</a> 
+<a class="jxr_linenumber" name="L320" href="PSquarePercentile.html#L320">320</a>         <em class="jxr_javadoccomment">/** Low marker index */</em>
+<a class="jxr_linenumber" name="L321" href="PSquarePercentile.html#L321">321</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> LOW = 2;
+<a class="jxr_linenumber" name="L322" href="PSquarePercentile.html#L322">322</a> 
+<a class="jxr_linenumber" name="L323" href="PSquarePercentile.html#L323">323</a>         <em class="jxr_javadoccomment">/** High marker index */</em>
+<a class="jxr_linenumber" name="L324" href="PSquarePercentile.html#L324">324</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> HIGH = 4;
+<a class="jxr_linenumber" name="L325" href="PSquarePercentile.html#L325">325</a> 
+<a class="jxr_linenumber" name="L326" href="PSquarePercentile.html#L326">326</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L327" href="PSquarePercentile.html#L327">327</a> <em class="jxr_javadoccomment">         * Array of 5+1 Markers (The first marker is dummy just so we</em>
+<a class="jxr_linenumber" name="L328" href="PSquarePercentile.html#L328">328</a> <em class="jxr_javadoccomment">         * can match the rest of indexes [1-5] indicated in the original works</em>
+<a class="jxr_linenumber" name="L329" href="PSquarePercentile.html#L329">329</a> <em class="jxr_javadoccomment">         * which follows unit based index)</em>
+<a class="jxr_linenumber" name="L330" href="PSquarePercentile.html#L330">330</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L331" href="PSquarePercentile.html#L331">331</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="PSquarePercentile.html">Marker</a>[] markerArray;
+<a class="jxr_linenumber" name="L332" href="PSquarePercentile.html#L332">332</a> 
+<a class="jxr_linenumber" name="L333" href="PSquarePercentile.html#L333">333</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L334" href="PSquarePercentile.html#L334">334</a> <em class="jxr_javadoccomment">         * Kth cell belonging to [1-5] of the markerArray. No need for</em>
+<a class="jxr_linenumber" name="L335" href="PSquarePercentile.html#L335">335</a> <em class="jxr_javadoccomment">         * this to be serialized</em>
+<a class="jxr_linenumber" name="L336" href="PSquarePercentile.html#L336">336</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L337" href="PSquarePercentile.html#L337">337</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> <strong class="jxr_keyword">int</strong> k = -1;
+<a class="jxr_linenumber" name="L338" href="PSquarePercentile.html#L338">338</a> 
+<a class="jxr_linenumber" name="L339" href="PSquarePercentile.html#L339">339</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L340" href="PSquarePercentile.html#L340">340</a> <em class="jxr_javadoccomment">         * Constructor</em>
+<a class="jxr_linenumber" name="L341" href="PSquarePercentile.html#L341">341</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L342" href="PSquarePercentile.html#L342">342</a> <em class="jxr_javadoccomment">         * @param theMarkerArray marker array to be used</em>
+<a class="jxr_linenumber" name="L343" href="PSquarePercentile.html#L343">343</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L344" href="PSquarePercentile.html#L344">344</a>         <strong class="jxr_keyword">private</strong> <a href="PSquarePercentile.html">Markers</a>(<strong class="jxr_keyword">final</strong> <a href="PSquarePercentile.html">Marker</a>[] theMarkerArray) {
+<a class="jxr_linenumber" name="L345" href="PSquarePercentile.html#L345">345</a>             MathUtils.checkNotNull(theMarkerArray);
+<a class="jxr_linenumber" name="L346" href="PSquarePercentile.html#L346">346</a>             markerArray = theMarkerArray;
+<a class="jxr_linenumber" name="L347" href="PSquarePercentile.html#L347">347</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; PSQUARE_CONSTANT; i++) {
+<a class="jxr_linenumber" name="L348" href="PSquarePercentile.html#L348">348</a>                 markerArray[i].previous(markerArray[i - 1])
+<a class="jxr_linenumber" name="L349" href="PSquarePercentile.html#L349">349</a>                         .next(markerArray[i + 1]).index(i);
+<a class="jxr_linenumber" name="L350" href="PSquarePercentile.html#L350">350</a>             }
+<a class="jxr_linenumber" name="L351" href="PSquarePercentile.html#L351">351</a>             markerArray[0].previous(markerArray[0]).next(markerArray[1])
+<a class="jxr_linenumber" name="L352" href="PSquarePercentile.html#L352">352</a>                     .index(0);
+<a class="jxr_linenumber" name="L353" href="PSquarePercentile.html#L353">353</a>             markerArray[5].previous(markerArray[4]).next(markerArray[5])
+<a class="jxr_linenumber" name="L354" href="PSquarePercentile.html#L354">354</a>                     .index(5);
+<a class="jxr_linenumber" name="L355" href="PSquarePercentile.html#L355">355</a>         }
+<a class="jxr_linenumber" name="L356" href="PSquarePercentile.html#L356">356</a> 
+<a class="jxr_linenumber" name="L357" href="PSquarePercentile.html#L357">357</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L358" href="PSquarePercentile.html#L358">358</a> <em class="jxr_javadoccomment">         * Constructor</em>
+<a class="jxr_linenumber" name="L359" href="PSquarePercentile.html#L359">359</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L360" href="PSquarePercentile.html#L360">360</a> <em class="jxr_javadoccomment">         * @param initialFive elements required to build Marker</em>
+<a class="jxr_linenumber" name="L361" href="PSquarePercentile.html#L361">361</a> <em class="jxr_javadoccomment">         * @param p quantile required to be computed</em>
+<a class="jxr_linenumber" name="L362" href="PSquarePercentile.html#L362">362</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L363" href="PSquarePercentile.html#L363">363</a>         <strong class="jxr_keyword">private</strong> <a href="PSquarePercentile.html">Markers</a>(<strong class="jxr_keyword">final</strong> List&lt;Double&gt; initialFive, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p) {
+<a class="jxr_linenumber" name="L364" href="PSquarePercentile.html#L364">364</a>             <strong class="jxr_keyword">this</strong>(createMarkerArray(initialFive, p));
+<a class="jxr_linenumber" name="L365" href="PSquarePercentile.html#L365">365</a>         }
+<a class="jxr_linenumber" name="L366" href="PSquarePercentile.html#L366">366</a> 
+<a class="jxr_linenumber" name="L367" href="PSquarePercentile.html#L367">367</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L368" href="PSquarePercentile.html#L368">368</a> <em class="jxr_javadoccomment">         * Creates a marker array using initial five elements and a quantile</em>
+<a class="jxr_linenumber" name="L369" href="PSquarePercentile.html#L369">369</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L370" href="PSquarePercentile.html#L370">370</a> <em class="jxr_javadoccomment">         * @param initialFive list of initial five elements</em>
+<a class="jxr_linenumber" name="L371" href="PSquarePercentile.html#L371">371</a> <em class="jxr_javadoccomment">         * @param p the pth quantile</em>
+<a class="jxr_linenumber" name="L372" href="PSquarePercentile.html#L372">372</a> <em class="jxr_javadoccomment">         * @return Marker array</em>
+<a class="jxr_linenumber" name="L373" href="PSquarePercentile.html#L373">373</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L374" href="PSquarePercentile.html#L374">374</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a href="PSquarePercentile.html">Marker</a>[] createMarkerArray(
+<a class="jxr_linenumber" name="L375" href="PSquarePercentile.html#L375">375</a>                 <strong class="jxr_keyword">final</strong> List&lt;Double&gt; initialFive, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p) {
+<a class="jxr_linenumber" name="L376" href="PSquarePercentile.html#L376">376</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> countObserved =
+<a class="jxr_linenumber" name="L377" href="PSquarePercentile.html#L377">377</a>                     initialFive == <strong class="jxr_keyword">null</strong> ? -1 : initialFive.size();
+<a class="jxr_linenumber" name="L378" href="PSquarePercentile.html#L378">378</a>             <strong class="jxr_keyword">if</strong> (countObserved &lt; PSQUARE_CONSTANT) {
+<a class="jxr_linenumber" name="L379" href="PSquarePercentile.html#L379">379</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../exception/InsufficientDataException.html">InsufficientDataException</a>(
+<a class="jxr_linenumber" name="L380" href="PSquarePercentile.html#L380">380</a>                         LocalizedFormats.INSUFFICIENT_OBSERVED_POINTS_IN_SAMPLE,
+<a class="jxr_linenumber" name="L381" href="PSquarePercentile.html#L381">381</a>                         countObserved, PSQUARE_CONSTANT);
+<a class="jxr_linenumber" name="L382" href="PSquarePercentile.html#L382">382</a>             }
+<a class="jxr_linenumber" name="L383" href="PSquarePercentile.html#L383">383</a>             Collections.sort(initialFive);
+<a class="jxr_linenumber" name="L384" href="PSquarePercentile.html#L384">384</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="PSquarePercentile.html">Marker</a>[] {
+<a class="jxr_linenumber" name="L385" href="PSquarePercentile.html#L385">385</a>                     <strong class="jxr_keyword">new</strong> <a href="PSquarePercentile.html">Marker</a>(),<em class="jxr_comment">// Null Marker</em>
+<a class="jxr_linenumber" name="L386" href="PSquarePercentile.html#L386">386</a>                     <strong class="jxr_keyword">new</strong> <a href="PSquarePercentile.html">Marker</a>(initialFive.get(0), 1, 0, 1),
+<a class="jxr_linenumber" name="L387" href="PSquarePercentile.html#L387">387</a>                     <strong class="jxr_keyword">new</strong> <a href="PSquarePercentile.html">Marker</a>(initialFive.get(1), 1 + 2 * p, p / 2, 2),
+<a class="jxr_linenumber" name="L388" href="PSquarePercentile.html#L388">388</a>                     <strong class="jxr_keyword">new</strong> <a href="PSquarePercentile.html">Marker</a>(initialFive.get(2), 1 + 4 * p, p, 3),
+<a class="jxr_linenumber" name="L389" href="PSquarePercentile.html#L389">389</a>                     <strong class="jxr_keyword">new</strong> <a href="PSquarePercentile.html">Marker</a>(initialFive.get(3), 3 + 2 * p, (1 + p) / 2, 4),
+<a class="jxr_linenumber" name="L390" href="PSquarePercentile.html#L390">390</a>                     <strong class="jxr_keyword">new</strong> <a href="PSquarePercentile.html">Marker</a>(initialFive.get(4), 5, 1, 5) };
+<a class="jxr_linenumber" name="L391" href="PSquarePercentile.html#L391">391</a>         }
+<a class="jxr_linenumber" name="L392" href="PSquarePercentile.html#L392">392</a> 
+<a class="jxr_linenumber" name="L393" href="PSquarePercentile.html#L393">393</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L394" href="PSquarePercentile.html#L394">394</a> <em class="jxr_javadoccomment">         * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L395" href="PSquarePercentile.html#L395">395</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L396" href="PSquarePercentile.html#L396">396</a>         @Override
+<a class="jxr_linenumber" name="L397" href="PSquarePercentile.html#L397">397</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> hashCode() {
+<a class="jxr_linenumber" name="L398" href="PSquarePercentile.html#L398">398</a>             <strong class="jxr_keyword">return</strong> Arrays.deepHashCode(markerArray);
+<a class="jxr_linenumber" name="L399" href="PSquarePercentile.html#L399">399</a>         }
+<a class="jxr_linenumber" name="L400" href="PSquarePercentile.html#L400">400</a> 
+<a class="jxr_linenumber" name="L401" href="PSquarePercentile.html#L401">401</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L402" href="PSquarePercentile.html#L402">402</a> <em class="jxr_javadoccomment">         * {@inheritDoc}.This equals method basically checks for marker array to</em>
+<a class="jxr_linenumber" name="L403" href="PSquarePercentile.html#L403">403</a> <em class="jxr_javadoccomment">         * be deep equals.</em>
+<a class="jxr_linenumber" name="L404" href="PSquarePercentile.html#L404">404</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L405" href="PSquarePercentile.html#L405">405</a> <em class="jxr_javadoccomment">         * @param o is the other object</em>
+<a class="jxr_linenumber" name="L406" href="PSquarePercentile.html#L406">406</a> <em class="jxr_javadoccomment">         * @return true if the object compares with this object are equivalent</em>
+<a class="jxr_linenumber" name="L407" href="PSquarePercentile.html#L407">407</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L408" href="PSquarePercentile.html#L408">408</a>         @Override
+<a class="jxr_linenumber" name="L409" href="PSquarePercentile.html#L409">409</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equals(Object o) {
+<a class="jxr_linenumber" name="L410" href="PSquarePercentile.html#L410">410</a>             <strong class="jxr_keyword">boolean</strong> result = false;
+<a class="jxr_linenumber" name="L411" href="PSquarePercentile.html#L411">411</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong> == o) {
+<a class="jxr_linenumber" name="L412" href="PSquarePercentile.html#L412">412</a>                 result = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L413" href="PSquarePercentile.html#L413">413</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (o instanceof Markers) {
+<a class="jxr_linenumber" name="L414" href="PSquarePercentile.html#L414">414</a>                 <a href="PSquarePercentile.html">Markers</a> that = (Markers) o;
+<a class="jxr_linenumber" name="L415" href="PSquarePercentile.html#L415">415</a>                 result = Arrays.deepEquals(markerArray, that.markerArray);
+<a class="jxr_linenumber" name="L416" href="PSquarePercentile.html#L416">416</a>             }
+<a class="jxr_linenumber" name="L417" href="PSquarePercentile.html#L417">417</a>             <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L418" href="PSquarePercentile.html#L418">418</a>         }
+<a class="jxr_linenumber" name="L419" href="PSquarePercentile.html#L419">419</a> 
+<a class="jxr_linenumber" name="L420" href="PSquarePercentile.html#L420">420</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L421" href="PSquarePercentile.html#L421">421</a> <em class="jxr_javadoccomment">         * Process a data point</em>
+<a class="jxr_linenumber" name="L422" href="PSquarePercentile.html#L422">422</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L423" href="PSquarePercentile.html#L423">423</a> <em class="jxr_javadoccomment">         * @param inputDataPoint is the data point passed</em>
+<a class="jxr_linenumber" name="L424" href="PSquarePercentile.html#L424">424</a> <em class="jxr_javadoccomment">         * @return computed percentile</em>
+<a class="jxr_linenumber" name="L425" href="PSquarePercentile.html#L425">425</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L426" href="PSquarePercentile.html#L426">426</a>         @Override
+<a class="jxr_linenumber" name="L427" href="PSquarePercentile.html#L427">427</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> processDataPoint(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> inputDataPoint) {
+<a class="jxr_linenumber" name="L428" href="PSquarePercentile.html#L428">428</a> 
+<a class="jxr_linenumber" name="L429" href="PSquarePercentile.html#L429">429</a>             <em class="jxr_comment">// 1. Find cell and update minima and maxima</em>
+<a class="jxr_linenumber" name="L430" href="PSquarePercentile.html#L430">430</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> kthCell = findCellAndUpdateMinMax(inputDataPoint);
+<a class="jxr_linenumber" name="L431" href="PSquarePercentile.html#L431">431</a> 
+<a class="jxr_linenumber" name="L432" href="PSquarePercentile.html#L432">432</a>             <em class="jxr_comment">// 2. Increment positions</em>
+<a class="jxr_linenumber" name="L433" href="PSquarePercentile.html#L433">433</a>             incrementPositions(1, kthCell + 1, 5);
+<a class="jxr_linenumber" name="L434" href="PSquarePercentile.html#L434">434</a> 
+<a class="jxr_linenumber" name="L435" href="PSquarePercentile.html#L435">435</a>             <em class="jxr_comment">// 2a. Update desired position with increments</em>
+<a class="jxr_linenumber" name="L436" href="PSquarePercentile.html#L436">436</a>             updateDesiredPositions();
+<a class="jxr_linenumber" name="L437" href="PSquarePercentile.html#L437">437</a> 
+<a class="jxr_linenumber" name="L438" href="PSquarePercentile.html#L438">438</a>             <em class="jxr_comment">// 3. Adjust heights of m[2-4] if necessary</em>
+<a class="jxr_linenumber" name="L439" href="PSquarePercentile.html#L439">439</a>             adjustHeightsOfMarkers();
+<a class="jxr_linenumber" name="L440" href="PSquarePercentile.html#L440">440</a> 
+<a class="jxr_linenumber" name="L441" href="PSquarePercentile.html#L441">441</a>             <em class="jxr_comment">// 4. Return percentile</em>
+<a class="jxr_linenumber" name="L442" href="PSquarePercentile.html#L442">442</a>             <strong class="jxr_keyword">return</strong> getPercentileValue();
+<a class="jxr_linenumber" name="L443" href="PSquarePercentile.html#L443">443</a>         }
+<a class="jxr_linenumber" name="L444" href="PSquarePercentile.html#L444">444</a> 
+<a class="jxr_linenumber" name="L445" href="PSquarePercentile.html#L445">445</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L446" href="PSquarePercentile.html#L446">446</a> <em class="jxr_javadoccomment">         * Returns the percentile computed thus far.</em>
+<a class="jxr_linenumber" name="L447" href="PSquarePercentile.html#L447">447</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L448" href="PSquarePercentile.html#L448">448</a> <em class="jxr_javadoccomment">         * @return height of mid point marker</em>
+<a class="jxr_linenumber" name="L449" href="PSquarePercentile.html#L449">449</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L450" href="PSquarePercentile.html#L450">450</a>         @Override
+<a class="jxr_linenumber" name="L451" href="PSquarePercentile.html#L451">451</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getPercentileValue() {
+<a class="jxr_linenumber" name="L452" href="PSquarePercentile.html#L452">452</a>             <strong class="jxr_keyword">return</strong> height(3);
+<a class="jxr_linenumber" name="L453" href="PSquarePercentile.html#L453">453</a>         }
+<a class="jxr_linenumber" name="L454" href="PSquarePercentile.html#L454">454</a> 
+<a class="jxr_linenumber" name="L455" href="PSquarePercentile.html#L455">455</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L456" href="PSquarePercentile.html#L456">456</a> <em class="jxr_javadoccomment">         * Finds the cell where the input observation / value fits.</em>
+<a class="jxr_linenumber" name="L457" href="PSquarePercentile.html#L457">457</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L458" href="PSquarePercentile.html#L458">458</a> <em class="jxr_javadoccomment">         * @param observation the input value to be checked for</em>
+<a class="jxr_linenumber" name="L459" href="PSquarePercentile.html#L459">459</a> <em class="jxr_javadoccomment">         * @return kth cell (of the markers ranging from 1-5) where observed</em>
+<a class="jxr_linenumber" name="L460" href="PSquarePercentile.html#L460">460</a> <em class="jxr_javadoccomment">         *         sample fits</em>
+<a class="jxr_linenumber" name="L461" href="PSquarePercentile.html#L461">461</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L462" href="PSquarePercentile.html#L462">462</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> findCellAndUpdateMinMax(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> observation) {
+<a class="jxr_linenumber" name="L463" href="PSquarePercentile.html#L463">463</a>             k = -1;
+<a class="jxr_linenumber" name="L464" href="PSquarePercentile.html#L464">464</a>             <strong class="jxr_keyword">if</strong> (observation &lt; height(1)) {
+<a class="jxr_linenumber" name="L465" href="PSquarePercentile.html#L465">465</a>                 markerArray[1].markerHeight = observation;
+<a class="jxr_linenumber" name="L466" href="PSquarePercentile.html#L466">466</a>                 k = 1;
+<a class="jxr_linenumber" name="L467" href="PSquarePercentile.html#L467">467</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (observation &lt; height(2)) {
+<a class="jxr_linenumber" name="L468" href="PSquarePercentile.html#L468">468</a>                 k = 1;
+<a class="jxr_linenumber" name="L469" href="PSquarePercentile.html#L469">469</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (observation &lt; height(3)) {
+<a class="jxr_linenumber" name="L470" href="PSquarePercentile.html#L470">470</a>                 k = 2;
+<a class="jxr_linenumber" name="L471" href="PSquarePercentile.html#L471">471</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (observation &lt; height(4)) {
+<a class="jxr_linenumber" name="L472" href="PSquarePercentile.html#L472">472</a>                 k = 3;
+<a class="jxr_linenumber" name="L473" href="PSquarePercentile.html#L473">473</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (observation &lt;= height(5)) {
+<a class="jxr_linenumber" name="L474" href="PSquarePercentile.html#L474">474</a>                 k = 4;
+<a class="jxr_linenumber" name="L475" href="PSquarePercentile.html#L475">475</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L476" href="PSquarePercentile.html#L476">476</a>                 markerArray[5].markerHeight = observation;
+<a class="jxr_linenumber" name="L477" href="PSquarePercentile.html#L477">477</a>                 k = 4;
+<a class="jxr_linenumber" name="L478" href="PSquarePercentile.html#L478">478</a>             }
+<a class="jxr_linenumber" name="L479" href="PSquarePercentile.html#L479">479</a>             <strong class="jxr_keyword">return</strong> k;
+<a class="jxr_linenumber" name="L480" href="PSquarePercentile.html#L480">480</a>         }
+<a class="jxr_linenumber" name="L481" href="PSquarePercentile.html#L481">481</a> 
+<a class="jxr_linenumber" name="L482" href="PSquarePercentile.html#L482">482</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L483" href="PSquarePercentile.html#L483">483</a> <em class="jxr_javadoccomment">         * Adjust marker heights by setting quantile estimates to middle markers.</em>
+<a class="jxr_linenumber" name="L484" href="PSquarePercentile.html#L484">484</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L485" href="PSquarePercentile.html#L485">485</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> adjustHeightsOfMarkers() {
+<a class="jxr_linenumber" name="L486" href="PSquarePercentile.html#L486">486</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = LOW; i &lt;= HIGH; i++) {
+<a class="jxr_linenumber" name="L487" href="PSquarePercentile.html#L487">487</a>                 estimate(i);
+<a class="jxr_linenumber" name="L488" href="PSquarePercentile.html#L488">488</a>             }
+<a class="jxr_linenumber" name="L489" href="PSquarePercentile.html#L489">489</a>         }
+<a class="jxr_linenumber" name="L490" href="PSquarePercentile.html#L490">490</a> 
+<a class="jxr_linenumber" name="L491" href="PSquarePercentile.html#L491">491</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L492" href="PSquarePercentile.html#L492">492</a> <em class="jxr_javadoccomment">         * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L493" href="PSquarePercentile.html#L493">493</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L494" href="PSquarePercentile.html#L494">494</a>         @Override
+<a class="jxr_linenumber" name="L495" href="PSquarePercentile.html#L495">495</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> estimate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> index) {
+<a class="jxr_linenumber" name="L496" href="PSquarePercentile.html#L496">496</a>             <strong class="jxr_keyword">if</strong> (index &lt; LOW || index &gt; HIGH) {
+<a class="jxr_linenumber" name="L497" href="PSquarePercentile.html#L497">497</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../exception/OutOfRangeException.html">OutOfRangeException</a>(index, LOW, HIGH);
+<a class="jxr_linenumber" name="L498" href="PSquarePercentile.html#L498">498</a>             }
+<a class="jxr_linenumber" name="L499" href="PSquarePercentile.html#L499">499</a>             <strong class="jxr_keyword">return</strong> markerArray[index].estimate();
+<a class="jxr_linenumber" name="L500" href="PSquarePercentile.html#L500">500</a>         }
+<a class="jxr_linenumber" name="L501" href="PSquarePercentile.html#L501">501</a> 
+<a class="jxr_linenumber" name="L502" href="PSquarePercentile.html#L502">502</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L503" href="PSquarePercentile.html#L503">503</a> <em class="jxr_javadoccomment">         * Increment positions by d. Refer to algorithm paper for the</em>
+<a class="jxr_linenumber" name="L504" href="PSquarePercentile.html#L504">504</a> <em class="jxr_javadoccomment">         * definition of d.</em>
+<a class="jxr_linenumber" name="L505" href="PSquarePercentile.html#L505">505</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L506" href="PSquarePercentile.html#L506">506</a> <em class="jxr_javadoccomment">         * @param d The increment value for the position</em>
+<a class="jxr_linenumber" name="L507" href="PSquarePercentile.html#L507">507</a> <em class="jxr_javadoccomment">         * @param startIndex start index of the marker array</em>
+<a class="jxr_linenumber" name="L508" href="PSquarePercentile.html#L508">508</a> <em class="jxr_javadoccomment">         * @param endIndex end index of the marker array</em>
+<a class="jxr_linenumber" name="L509" href="PSquarePercentile.html#L509">509</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L510" href="PSquarePercentile.html#L510">510</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> incrementPositions(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> d, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> startIndex,
+<a class="jxr_linenumber" name="L511" href="PSquarePercentile.html#L511">511</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> endIndex) {
+<a class="jxr_linenumber" name="L512" href="PSquarePercentile.html#L512">512</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = startIndex; i &lt;= endIndex; i++) {
+<a class="jxr_linenumber" name="L513" href="PSquarePercentile.html#L513">513</a>                 markerArray[i].incrementPosition(d);
+<a class="jxr_linenumber" name="L514" href="PSquarePercentile.html#L514">514</a>             }
+<a class="jxr_linenumber" name="L515" href="PSquarePercentile.html#L515">515</a>         }
+<a class="jxr_linenumber" name="L516" href="PSquarePercentile.html#L516">516</a> 
+<a class="jxr_linenumber" name="L517" href="PSquarePercentile.html#L517">517</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L518" href="PSquarePercentile.html#L518">518</a> <em class="jxr_javadoccomment">         * Desired positions incremented by bucket width. The bucket width is</em>
+<a class="jxr_linenumber" name="L519" href="PSquarePercentile.html#L519">519</a> <em class="jxr_javadoccomment">         * basically the desired increments.</em>
+<a class="jxr_linenumber" name="L520" href="PSquarePercentile.html#L520">520</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L521" href="PSquarePercentile.html#L521">521</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> updateDesiredPositions() {
+<a class="jxr_linenumber" name="L522" href="PSquarePercentile.html#L522">522</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; markerArray.length; i++) {
+<a class="jxr_linenumber" name="L523" href="PSquarePercentile.html#L523">523</a>                 markerArray[i].updateDesiredPosition();
+<a class="jxr_linenumber" name="L524" href="PSquarePercentile.html#L524">524</a>             }
+<a class="jxr_linenumber" name="L525" href="PSquarePercentile.html#L525">525</a>         }
+<a class="jxr_linenumber" name="L526" href="PSquarePercentile.html#L526">526</a> 
+<a class="jxr_linenumber" name="L527" href="PSquarePercentile.html#L527">527</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L528" href="PSquarePercentile.html#L528">528</a> <em class="jxr_javadoccomment">         * Sets previous and next markers after default read is done.</em>
+<a class="jxr_linenumber" name="L529" href="PSquarePercentile.html#L529">529</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L530" href="PSquarePercentile.html#L530">530</a> <em class="jxr_javadoccomment">         * @param anInputStream the input stream to be deserialized</em>
+<a class="jxr_linenumber" name="L531" href="PSquarePercentile.html#L531">531</a> <em class="jxr_javadoccomment">         * @throws ClassNotFoundException thrown when a desired class not found</em>
+<a class="jxr_linenumber" name="L532" href="PSquarePercentile.html#L532">532</a> <em class="jxr_javadoccomment">         * @throws IOException thrown due to any io errors</em>
+<a class="jxr_linenumber" name="L533" href="PSquarePercentile.html#L533">533</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L534" href="PSquarePercentile.html#L534">534</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> readObject(ObjectInputStream anInputStream)
+<a class="jxr_linenumber" name="L535" href="PSquarePercentile.html#L535">535</a>                 <strong class="jxr_keyword">throws</strong> ClassNotFoundException, IOException {
+<a class="jxr_linenumber" name="L536" href="PSquarePercentile.html#L536">536</a>             <em class="jxr_comment">// always perform the default de-serialization first</em>
+<a class="jxr_linenumber" name="L537" href="PSquarePercentile.html#L537">537</a>             anInputStream.defaultReadObject();
+<a class="jxr_linenumber" name="L538" href="PSquarePercentile.html#L538">538</a>             <em class="jxr_comment">// Build links</em>
+<a class="jxr_linenumber" name="L539" href="PSquarePercentile.html#L539">539</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; PSQUARE_CONSTANT; i++) {
+<a class="jxr_linenumber" name="L540" href="PSquarePercentile.html#L540">540</a>                 markerArray[i].previous(markerArray[i - 1]).next(markerArray[i + 1]).index(i);
+<a class="jxr_linenumber" name="L541" href="PSquarePercentile.html#L541">541</a>             }
+<a class="jxr_linenumber" name="L542" href="PSquarePercentile.html#L542">542</a>             markerArray[0].previous(markerArray[0]).next(markerArray[1]).index(0);
+<a class="jxr_linenumber" name="L543" href="PSquarePercentile.html#L543">543</a>             markerArray[5].previous(markerArray[4]).next(markerArray[5]).index(5);
+<a class="jxr_linenumber" name="L544" href="PSquarePercentile.html#L544">544</a>         }
+<a class="jxr_linenumber" name="L545" href="PSquarePercentile.html#L545">545</a> 
+<a class="jxr_linenumber" name="L546" href="PSquarePercentile.html#L546">546</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L547" href="PSquarePercentile.html#L547">547</a> <em class="jxr_javadoccomment">         * Return marker height given index</em>
+<a class="jxr_linenumber" name="L548" href="PSquarePercentile.html#L548">548</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L549" href="PSquarePercentile.html#L549">549</a> <em class="jxr_javadoccomment">         * @param markerIndex index of marker within (1,6)</em>
+<a class="jxr_linenumber" name="L550" href="PSquarePercentile.html#L550">550</a> <em class="jxr_javadoccomment">         * @return marker height</em>
+<a class="jxr_linenumber" name="L551" href="PSquarePercentile.html#L551">551</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L552" href="PSquarePercentile.html#L552">552</a>         @Override
+<a class="jxr_linenumber" name="L553" href="PSquarePercentile.html#L553">553</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> height(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> markerIndex) {
+<a class="jxr_linenumber" name="L554" href="PSquarePercentile.html#L554">554</a>             <strong class="jxr_keyword">if</strong> (markerIndex &gt;= markerArray.length || markerIndex &lt;= 0) {
+<a class="jxr_linenumber" name="L555" href="PSquarePercentile.html#L555">555</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../exception/OutOfRangeException.html">OutOfRangeException</a>(markerIndex, 1, markerArray.length);
+<a class="jxr_linenumber" name="L556" href="PSquarePercentile.html#L556">556</a>             }
+<a class="jxr_linenumber" name="L557" href="PSquarePercentile.html#L557">557</a>             <strong class="jxr_keyword">return</strong> markerArray[markerIndex].markerHeight;
+<a class="jxr_linenumber" name="L558" href="PSquarePercentile.html#L558">558</a>         }
+<a class="jxr_linenumber" name="L559" href="PSquarePercentile.html#L559">559</a> 
+<a class="jxr_linenumber" name="L560" href="PSquarePercentile.html#L560">560</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L561" href="PSquarePercentile.html#L561">561</a> <em class="jxr_javadoccomment">         * {@inheritDoc}.Clone Markers</em>
+<a class="jxr_linenumber" name="L562" href="PSquarePercentile.html#L562">562</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L563" href="PSquarePercentile.html#L563">563</a> <em class="jxr_javadoccomment">         * @return cloned object</em>
+<a class="jxr_linenumber" name="L564" href="PSquarePercentile.html#L564">564</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L565" href="PSquarePercentile.html#L565">565</a>         @Override
+<a class="jxr_linenumber" name="L566" href="PSquarePercentile.html#L566">566</a>         <strong class="jxr_keyword">public</strong> Object clone() {
+<a class="jxr_linenumber" name="L567" href="PSquarePercentile.html#L567">567</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="PSquarePercentile.html">Markers</a>(<strong class="jxr_keyword">new</strong> <a href="PSquarePercentile.html">Marker</a>[] { <strong class="jxr_keyword">new</strong> Marker(),
+<a class="jxr_linenumber" name="L568" href="PSquarePercentile.html#L568">568</a>                     (<a href="PSquarePercentile.html">Marker</a>) markerArray[1].clone(),
+<a class="jxr_linenumber" name="L569" href="PSquarePercentile.html#L569">569</a>                     (<a href="PSquarePercentile.html">Marker</a>) markerArray[2].clone(),
+<a class="jxr_linenumber" name="L570" href="PSquarePercentile.html#L570">570</a>                     (<a href="PSquarePercentile.html">Marker</a>) markerArray[3].clone(),
+<a class="jxr_linenumber" name="L571" href="PSquarePercentile.html#L571">571</a>                     (<a href="PSquarePercentile.html">Marker</a>) markerArray[4].clone(),
+<a class="jxr_linenumber" name="L572" href="PSquarePercentile.html#L572">572</a>                     (<a href="PSquarePercentile.html">Marker</a>) markerArray[5].clone() });
+<a class="jxr_linenumber" name="L573" href="PSquarePercentile.html#L573">573</a> 
+<a class="jxr_linenumber" name="L574" href="PSquarePercentile.html#L574">574</a>         }
+<a class="jxr_linenumber" name="L575" href="PSquarePercentile.html#L575">575</a> 
+<a class="jxr_linenumber" name="L576" href="PSquarePercentile.html#L576">576</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L577" href="PSquarePercentile.html#L577">577</a> <em class="jxr_javadoccomment">         * Returns string representation of the Marker array.</em>
+<a class="jxr_linenumber" name="L578" href="PSquarePercentile.html#L578">578</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L579" href="PSquarePercentile.html#L579">579</a> <em class="jxr_javadoccomment">         * @return Markers as a string</em>
+<a class="jxr_linenumber" name="L580" href="PSquarePercentile.html#L580">580</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L581" href="PSquarePercentile.html#L581">581</a>         @Override
+<a class="jxr_linenumber" name="L582" href="PSquarePercentile.html#L582">582</a>         <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L583" href="PSquarePercentile.html#L583">583</a>             <strong class="jxr_keyword">return</strong> String.format(<span class="jxr_string">"m1=[%s],m2=[%s],m3=[%s],m4=[%s],m5=[%s]"</span>,
+<a class="jxr_linenumber" name="L584" href="PSquarePercentile.html#L584">584</a>                     markerArray[1].toString(), markerArray[2].toString(),
+<a class="jxr_linenumber" name="L585" href="PSquarePercentile.html#L585">585</a>                     markerArray[3].toString(), markerArray[4].toString(),
+<a class="jxr_linenumber" name="L586" href="PSquarePercentile.html#L586">586</a>                     markerArray[5].toString());
+<a class="jxr_linenumber" name="L587" href="PSquarePercentile.html#L587">587</a>         }
+<a class="jxr_linenumber" name="L588" href="PSquarePercentile.html#L588">588</a> 
+<a class="jxr_linenumber" name="L589" href="PSquarePercentile.html#L589">589</a>     }
+<a class="jxr_linenumber" name="L590" href="PSquarePercentile.html#L590">590</a> 
+<a class="jxr_linenumber" name="L591" href="PSquarePercentile.html#L591">591</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L592" href="PSquarePercentile.html#L592">592</a> <em class="jxr_javadoccomment">     * The class modeling the attributes of the marker of the P-square algorithm</em>
+<a class="jxr_linenumber" name="L593" href="PSquarePercentile.html#L593">593</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L594" href="PSquarePercentile.html#L594">594</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="PSquarePercentile.html">Marker</a> <strong class="jxr_keyword">implements</strong> Serializable, Cloneable {
+<a class="jxr_linenumber" name="L595" href="PSquarePercentile.html#L595">595</a> 
+<a class="jxr_linenumber" name="L596" href="PSquarePercentile.html#L596">596</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L597" href="PSquarePercentile.html#L597">597</a> <em class="jxr_javadoccomment">         * Serial Version ID</em>
+<a class="jxr_linenumber" name="L598" href="PSquarePercentile.html#L598">598</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L599" href="PSquarePercentile.html#L599">599</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = -3575879478288538431L;
+<a class="jxr_linenumber" name="L600" href="PSquarePercentile.html#L600">600</a> 
+<a class="jxr_linenumber" name="L601" href="PSquarePercentile.html#L601">601</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L602" href="PSquarePercentile.html#L602">602</a> <em class="jxr_javadoccomment">         * The marker index which is just a serial number for the marker in the</em>
+<a class="jxr_linenumber" name="L603" href="PSquarePercentile.html#L603">603</a> <em class="jxr_javadoccomment">         * marker array of 5+1.</em>
+<a class="jxr_linenumber" name="L604" href="PSquarePercentile.html#L604">604</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L605" href="PSquarePercentile.html#L605">605</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> index;
+<a class="jxr_linenumber" name="L606" href="PSquarePercentile.html#L606">606</a> 
+<a class="jxr_linenumber" name="L607" href="PSquarePercentile.html#L607">607</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L608" href="PSquarePercentile.html#L608">608</a> <em class="jxr_javadoccomment">         * The integral marker position. Refer to the variable n in the original</em>
+<a class="jxr_linenumber" name="L609" href="PSquarePercentile.html#L609">609</a> <em class="jxr_javadoccomment">         * works.</em>
+<a class="jxr_linenumber" name="L610" href="PSquarePercentile.html#L610">610</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L611" href="PSquarePercentile.html#L611">611</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> intMarkerPosition;
+<a class="jxr_linenumber" name="L612" href="PSquarePercentile.html#L612">612</a> 
+<a class="jxr_linenumber" name="L613" href="PSquarePercentile.html#L613">613</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L614" href="PSquarePercentile.html#L614">614</a> <em class="jxr_javadoccomment">         * Desired marker position. Refer to the variable n' in the original</em>
+<a class="jxr_linenumber" name="L615" href="PSquarePercentile.html#L615">615</a> <em class="jxr_javadoccomment">         * works.</em>
+<a class="jxr_linenumber" name="L616" href="PSquarePercentile.html#L616">616</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L617" href="PSquarePercentile.html#L617">617</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> desiredMarkerPosition;
+<a class="jxr_linenumber" name="L618" href="PSquarePercentile.html#L618">618</a> 
+<a class="jxr_linenumber" name="L619" href="PSquarePercentile.html#L619">619</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L620" href="PSquarePercentile.html#L620">620</a> <em class="jxr_javadoccomment">         * Marker height or the quantile. Refer to the variable q in the</em>
+<a class="jxr_linenumber" name="L621" href="PSquarePercentile.html#L621">621</a> <em class="jxr_javadoccomment">         * original works.</em>
+<a class="jxr_linenumber" name="L622" href="PSquarePercentile.html#L622">622</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L623" href="PSquarePercentile.html#L623">623</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> markerHeight;
+<a class="jxr_linenumber" name="L624" href="PSquarePercentile.html#L624">624</a> 
+<a class="jxr_linenumber" name="L625" href="PSquarePercentile.html#L625">625</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L626" href="PSquarePercentile.html#L626">626</a> <em class="jxr_javadoccomment">         * Desired marker increment. Refer to the variable dn' in the original</em>
+<a class="jxr_linenumber" name="L627" href="PSquarePercentile.html#L627">627</a> <em class="jxr_javadoccomment">         * works.</em>
+<a class="jxr_linenumber" name="L628" href="PSquarePercentile.html#L628">628</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L629" href="PSquarePercentile.html#L629">629</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> desiredMarkerIncrement;
+<a class="jxr_linenumber" name="L630" href="PSquarePercentile.html#L630">630</a> 
+<a class="jxr_linenumber" name="L631" href="PSquarePercentile.html#L631">631</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L632" href="PSquarePercentile.html#L632">632</a> <em class="jxr_javadoccomment">         * Next and previous markers for easy linked navigation in loops. this</em>
+<a class="jxr_linenumber" name="L633" href="PSquarePercentile.html#L633">633</a> <em class="jxr_javadoccomment">         * is not serialized as they can be rebuilt during deserialization.</em>
+<a class="jxr_linenumber" name="L634" href="PSquarePercentile.html#L634">634</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L635" href="PSquarePercentile.html#L635">635</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> <a href="PSquarePercentile.html">Marker</a> next;
+<a class="jxr_linenumber" name="L636" href="PSquarePercentile.html#L636">636</a> 
+<a class="jxr_linenumber" name="L637" href="PSquarePercentile.html#L637">637</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L638" href="PSquarePercentile.html#L638">638</a> <em class="jxr_javadoccomment">         * The previous marker links</em>
+<a class="jxr_linenumber" name="L639" href="PSquarePercentile.html#L639">639</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L640" href="PSquarePercentile.html#L640">640</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> <a href="PSquarePercentile.html">Marker</a> previous;
+<a class="jxr_linenumber" name="L641" href="PSquarePercentile.html#L641">641</a> 
+<a class="jxr_linenumber" name="L642" href="PSquarePercentile.html#L642">642</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L643" href="PSquarePercentile.html#L643">643</a> <em class="jxr_javadoccomment">         * Nonlinear interpolator</em>
+<a class="jxr_linenumber" name="L644" href="PSquarePercentile.html#L644">644</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L645" href="PSquarePercentile.html#L645">645</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../analysis/interpolation/UnivariateInterpolator.html">UnivariateInterpolator</a> nonLinear = <strong class="jxr_keyword">new</strong> <a href="../../../analysis/interpolation/NevilleInterpolator.html">NevilleInterpolator</a>();
+<a class="jxr_linenumber" name="L646" href="PSquarePercentile.html#L646">646</a> 
+<a class="jxr_linenumber" name="L647" href="PSquarePercentile.html#L647">647</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L648" href="PSquarePercentile.html#L648">648</a> <em class="jxr_javadoccomment">         * Linear interpolator which is not serializable</em>
+<a class="jxr_linenumber" name="L649" href="PSquarePercentile.html#L649">649</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L650" href="PSquarePercentile.html#L650">650</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> <a href="../../../analysis/interpolation/UnivariateInterpolator.html">UnivariateInterpolator</a> linear = <strong class="jxr_keyword">new</strong> <a href="../../../analysis/interpolation/LinearInterpolator.html">LinearInterpolator</a>();
+<a class="jxr_linenumber" name="L651" href="PSquarePercentile.html#L651">651</a> 
+<a class="jxr_linenumber" name="L652" href="PSquarePercentile.html#L652">652</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L653" href="PSquarePercentile.html#L653">653</a> <em class="jxr_javadoccomment">         * Default constructor</em>
+<a class="jxr_linenumber" name="L654" href="PSquarePercentile.html#L654">654</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L655" href="PSquarePercentile.html#L655">655</a>         <strong class="jxr_keyword">private</strong> <a href="PSquarePercentile.html">Marker</a>() {
+<a class="jxr_linenumber" name="L656" href="PSquarePercentile.html#L656">656</a>             <strong class="jxr_keyword">this</strong>.next = <strong class="jxr_keyword">this</strong>.previous = <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L657" href="PSquarePercentile.html#L657">657</a>         }
+<a class="jxr_linenumber" name="L658" href="PSquarePercentile.html#L658">658</a> 
+<a class="jxr_linenumber" name="L659" href="PSquarePercentile.html#L659">659</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L660" href="PSquarePercentile.html#L660">660</a> <em class="jxr_javadoccomment">         * Constructor of the marker with parameters</em>
+<a class="jxr_linenumber" name="L661" href="PSquarePercentile.html#L661">661</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L662" href="PSquarePercentile.html#L662">662</a> <em class="jxr_javadoccomment">         * @param heightOfMarker represent the quantile value</em>
+<a class="jxr_linenumber" name="L663" href="PSquarePercentile.html#L663">663</a> <em class="jxr_javadoccomment">         * @param makerPositionDesired represent the desired marker position</em>
+<a class="jxr_linenumber" name="L664" href="PSquarePercentile.html#L664">664</a> <em class="jxr_javadoccomment">         * @param markerPositionIncrement represent increments for position</em>
+<a class="jxr_linenumber" name="L665" href="PSquarePercentile.html#L665">665</a> <em class="jxr_javadoccomment">         * @param markerPositionNumber represent the position number of marker</em>
+<a class="jxr_linenumber" name="L666" href="PSquarePercentile.html#L666">666</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L667" href="PSquarePercentile.html#L667">667</a>         <strong class="jxr_keyword">private</strong> <a href="PSquarePercentile.html">Marker</a>(<strong class="jxr_keyword">double</strong> heightOfMarker, <strong class="jxr_keyword">double</strong> makerPositionDesired,
+<a class="jxr_linenumber" name="L668" href="PSquarePercentile.html#L668">668</a>                 <strong class="jxr_keyword">double</strong> markerPositionIncrement, <strong class="jxr_keyword">double</strong> markerPositionNumber) {
+<a class="jxr_linenumber" name="L669" href="PSquarePercentile.html#L669">669</a>             <strong class="jxr_keyword">this</strong>();
+<a class="jxr_linenumber" name="L670" href="PSquarePercentile.html#L670">670</a>             <strong class="jxr_keyword">this</strong>.markerHeight = heightOfMarker;
+<a class="jxr_linenumber" name="L671" href="PSquarePercentile.html#L671">671</a>             <strong class="jxr_keyword">this</strong>.desiredMarkerPosition = makerPositionDesired;
+<a class="jxr_linenumber" name="L672" href="PSquarePercentile.html#L672">672</a>             <strong class="jxr_keyword">this</strong>.desiredMarkerIncrement = markerPositionIncrement;
+<a class="jxr_linenumber" name="L673" href="PSquarePercentile.html#L673">673</a>             <strong class="jxr_keyword">this</strong>.intMarkerPosition = markerPositionNumber;
+<a class="jxr_linenumber" name="L674" href="PSquarePercentile.html#L674">674</a>         }
+<a class="jxr_linenumber" name="L675" href="PSquarePercentile.html#L675">675</a> 
+<a class="jxr_linenumber" name="L676" href="PSquarePercentile.html#L676">676</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L677" href="PSquarePercentile.html#L677">677</a> <em class="jxr_javadoccomment">         * Sets the previous marker.</em>
+<a class="jxr_linenumber" name="L678" href="PSquarePercentile.html#L678">678</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L679" href="PSquarePercentile.html#L679">679</a> <em class="jxr_javadoccomment">         * @param previousMarker the previous marker to the current marker in</em>
+<a class="jxr_linenumber" name="L680" href="PSquarePercentile.html#L680">680</a> <em class="jxr_javadoccomment">         *            the array of markers</em>
+<a class="jxr_linenumber" name="L681" href="PSquarePercentile.html#L681">681</a> <em class="jxr_javadoccomment">         * @return this instance</em>
+<a class="jxr_linenumber" name="L682" href="PSquarePercentile.html#L682">682</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L683" href="PSquarePercentile.html#L683">683</a>         <strong class="jxr_keyword">private</strong> <a href="PSquarePercentile.html">Marker</a> previous(<strong class="jxr_keyword">final</strong> <a href="PSquarePercentile.html">Marker</a> previousMarker) {
+<a class="jxr_linenumber" name="L684" href="PSquarePercentile.html#L684">684</a>             MathUtils.checkNotNull(previousMarker);
+<a class="jxr_linenumber" name="L685" href="PSquarePercentile.html#L685">685</a>             <strong class="jxr_keyword">this</strong>.previous = previousMarker;
+<a class="jxr_linenumber" name="L686" href="PSquarePercentile.html#L686">686</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L687" href="PSquarePercentile.html#L687">687</a>         }
+<a class="jxr_linenumber" name="L688" href="PSquarePercentile.html#L688">688</a> 
+<a class="jxr_linenumber" name="L689" href="PSquarePercentile.html#L689">689</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L690" href="PSquarePercentile.html#L690">690</a> <em class="jxr_javadoccomment">         * Sets the next marker.</em>
+<a class="jxr_linenumber" name="L691" href="PSquarePercentile.html#L691">691</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L692" href="PSquarePercentile.html#L692">692</a> <em class="jxr_javadoccomment">         * @param nextMarker the next marker to the current marker in the array</em>
+<a class="jxr_linenumber" name="L693" href="PSquarePercentile.html#L693">693</a> <em class="jxr_javadoccomment">         *            of markers</em>
+<a class="jxr_linenumber" name="L694" href="PSquarePercentile.html#L694">694</a> <em class="jxr_javadoccomment">         * @return this instance</em>
+<a class="jxr_linenumber" name="L695" href="PSquarePercentile.html#L695">695</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L696" href="PSquarePercentile.html#L696">696</a>         <strong class="jxr_keyword">private</strong> <a href="PSquarePercentile.html">Marker</a> next(<strong class="jxr_keyword">final</strong> <a href="PSquarePercentile.html">Marker</a> nextMarker) {
+<a class="jxr_linenumber" name="L697" href="PSquarePercentile.html#L697">697</a>             MathUtils.checkNotNull(nextMarker);
+<a class="jxr_linenumber" name="L698" href="PSquarePercentile.html#L698">698</a>             <strong class="jxr_keyword">this</strong>.next = nextMarker;
+<a class="jxr_linenumber" name="L699" href="PSquarePercentile.html#L699">699</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L700" href="PSquarePercentile.html#L700">700</a>         }
+<a class="jxr_linenumber" name="L701" href="PSquarePercentile.html#L701">701</a> 
+<a class="jxr_linenumber" name="L702" href="PSquarePercentile.html#L702">702</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L703" href="PSquarePercentile.html#L703">703</a> <em class="jxr_javadoccomment">         * Sets the index of the marker.</em>
+<a class="jxr_linenumber" name="L704" href="PSquarePercentile.html#L704">704</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L705" href="PSquarePercentile.html#L705">705</a> <em class="jxr_javadoccomment">         * @param indexOfMarker the array index of the marker in marker array</em>
+<a class="jxr_linenumber" name="L706" href="PSquarePercentile.html#L706">706</a> <em class="jxr_javadoccomment">         * @return this instance</em>
+<a class="jxr_linenumber" name="L707" href="PSquarePercentile.html#L707">707</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L708" href="PSquarePercentile.html#L708">708</a>         <strong class="jxr_keyword">private</strong> <a href="PSquarePercentile.html">Marker</a> index(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> indexOfMarker) {
+<a class="jxr_linenumber" name="L709" href="PSquarePercentile.html#L709">709</a>             <strong class="jxr_keyword">this</strong>.index = indexOfMarker;
+<a class="jxr_linenumber" name="L710" href="PSquarePercentile.html#L710">710</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L711" href="PSquarePercentile.html#L711">711</a>         }
+<a class="jxr_linenumber" name="L712" href="PSquarePercentile.html#L712">712</a> 
+<a class="jxr_linenumber" name="L713" href="PSquarePercentile.html#L713">713</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L714" href="PSquarePercentile.html#L714">714</a> <em class="jxr_javadoccomment">         * Update desired Position with increment.</em>
+<a class="jxr_linenumber" name="L715" href="PSquarePercentile.html#L715">715</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L716" href="PSquarePercentile.html#L716">716</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> updateDesiredPosition() {
+<a class="jxr_linenumber" name="L717" href="PSquarePercentile.html#L717">717</a>             desiredMarkerPosition += desiredMarkerIncrement;
+<a class="jxr_linenumber" name="L718" href="PSquarePercentile.html#L718">718</a>         }
+<a class="jxr_linenumber" name="L719" href="PSquarePercentile.html#L719">719</a> 
+<a class="jxr_linenumber" name="L720" href="PSquarePercentile.html#L720">720</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L721" href="PSquarePercentile.html#L721">721</a> <em class="jxr_javadoccomment">         * Increment Position by d.</em>
+<a class="jxr_linenumber" name="L722" href="PSquarePercentile.html#L722">722</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L723" href="PSquarePercentile.html#L723">723</a> <em class="jxr_javadoccomment">         * @param d a delta value to increment</em>
+<a class="jxr_linenumber" name="L724" href="PSquarePercentile.html#L724">724</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L725" href="PSquarePercentile.html#L725">725</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> incrementPosition(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> d) {
+<a class="jxr_linenumber" name="L726" href="PSquarePercentile.html#L726">726</a>             intMarkerPosition += d;
+<a class="jxr_linenumber" name="L727" href="PSquarePercentile.html#L727">727</a>         }
+<a class="jxr_linenumber" name="L728" href="PSquarePercentile.html#L728">728</a> 
+<a class="jxr_linenumber" name="L729" href="PSquarePercentile.html#L729">729</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L730" href="PSquarePercentile.html#L730">730</a> <em class="jxr_javadoccomment">         * Difference between desired and actual position</em>
+<a class="jxr_linenumber" name="L731" href="PSquarePercentile.html#L731">731</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L732" href="PSquarePercentile.html#L732">732</a> <em class="jxr_javadoccomment">         * @return difference between desired and actual position</em>
+<a class="jxr_linenumber" name="L733" href="PSquarePercentile.html#L733">733</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L734" href="PSquarePercentile.html#L734">734</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> difference() {
+<a class="jxr_linenumber" name="L735" href="PSquarePercentile.html#L735">735</a>             <strong class="jxr_keyword">return</strong> desiredMarkerPosition - intMarkerPosition;
+<a class="jxr_linenumber" name="L736" href="PSquarePercentile.html#L736">736</a>         }
+<a class="jxr_linenumber" name="L737" href="PSquarePercentile.html#L737">737</a> 
+<a class="jxr_linenumber" name="L738" href="PSquarePercentile.html#L738">738</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L739" href="PSquarePercentile.html#L739">739</a> <em class="jxr_javadoccomment">         * Estimate the quantile for the current marker.</em>
+<a class="jxr_linenumber" name="L740" href="PSquarePercentile.html#L740">740</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L741" href="PSquarePercentile.html#L741">741</a> <em class="jxr_javadoccomment">         * @return estimated quantile</em>
+<a class="jxr_linenumber" name="L742" href="PSquarePercentile.html#L742">742</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L743" href="PSquarePercentile.html#L743">743</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> estimate() {
+<a class="jxr_linenumber" name="L744" href="PSquarePercentile.html#L744">744</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> di = difference();
+<a class="jxr_linenumber" name="L745" href="PSquarePercentile.html#L745">745</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isNextHigher =
+<a class="jxr_linenumber" name="L746" href="PSquarePercentile.html#L746">746</a>                     next.intMarkerPosition - intMarkerPosition &gt; 1;
+<a class="jxr_linenumber" name="L747" href="PSquarePercentile.html#L747">747</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isPreviousLower =
+<a class="jxr_linenumber" name="L748" href="PSquarePercentile.html#L748">748</a>                     previous.intMarkerPosition - intMarkerPosition &lt; -1;
+<a class="jxr_linenumber" name="L749" href="PSquarePercentile.html#L749">749</a> 
+<a class="jxr_linenumber" name="L750" href="PSquarePercentile.html#L750">750</a>             <strong class="jxr_keyword">if</strong> (di &gt;= 1 &amp;&amp; isNextHigher || di &lt;= -1 &amp;&amp; isPreviousLower) {
+<a class="jxr_linenumber" name="L751" href="PSquarePercentile.html#L751">751</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> d = di &gt;= 0 ? 1 : -1;
+<a class="jxr_linenumber" name="L752" href="PSquarePercentile.html#L752">752</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xval =
+<a class="jxr_linenumber" name="L753" href="PSquarePercentile.html#L753">753</a>                         <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { previous.intMarkerPosition,
+<a class="jxr_linenumber" name="L754" href="PSquarePercentile.html#L754">754</a>                                 intMarkerPosition, next.intMarkerPosition };
+<a class="jxr_linenumber" name="L755" href="PSquarePercentile.html#L755">755</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yval =
+<a class="jxr_linenumber" name="L756" href="PSquarePercentile.html#L756">756</a>                         <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { previous.markerHeight, markerHeight,
+<a class="jxr_linenumber" name="L757" href="PSquarePercentile.html#L757">757</a>                                 next.markerHeight };
+<a class="jxr_linenumber" name="L758" href="PSquarePercentile.html#L758">758</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xD = intMarkerPosition + d;
+<a class="jxr_linenumber" name="L759" href="PSquarePercentile.html#L759">759</a> 
+<a class="jxr_linenumber" name="L760" href="PSquarePercentile.html#L760">760</a>                 <a href="../../../analysis/UnivariateFunction.html">UnivariateFunction</a> univariateFunction =
+<a class="jxr_linenumber" name="L761" href="PSquarePercentile.html#L761">761</a>                         nonLinear.interpolate(xval, yval);
+<a class="jxr_linenumber" name="L762" href="PSquarePercentile.html#L762">762</a>                 markerHeight = univariateFunction.value(xD);
+<a class="jxr_linenumber" name="L763" href="PSquarePercentile.html#L763">763</a> 
+<a class="jxr_linenumber" name="L764" href="PSquarePercentile.html#L764">764</a>                 <em class="jxr_comment">// If parabolic estimate is bad then turn linear</em>
+<a class="jxr_linenumber" name="L765" href="PSquarePercentile.html#L765">765</a>                 <strong class="jxr_keyword">if</strong> (isEstimateBad(yval, markerHeight)) {
+<a class="jxr_linenumber" name="L766" href="PSquarePercentile.html#L766">766</a>                     <strong class="jxr_keyword">int</strong> delta = xD - xval[1] &gt; 0 ? 1 : -1;
+<a class="jxr_linenumber" name="L767" href="PSquarePercentile.html#L767">767</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xBad =
+<a class="jxr_linenumber" name="L768" href="PSquarePercentile.html#L768">768</a>                             <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { xval[1], xval[1 + delta] };
+<a class="jxr_linenumber" name="L769" href="PSquarePercentile.html#L769">769</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yBad =
+<a class="jxr_linenumber" name="L770" href="PSquarePercentile.html#L770">770</a>                             <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { yval[1], yval[1 + delta] };
+<a class="jxr_linenumber" name="L771" href="PSquarePercentile.html#L771">771</a>                     MathArrays.sortInPlace(xBad, yBad);<em class="jxr_comment">// since d can be +/- 1</em>
+<a class="jxr_linenumber" name="L772" href="PSquarePercentile.html#L772">772</a>                     univariateFunction = linear.interpolate(xBad, yBad);
+<a class="jxr_linenumber" name="L773" href="PSquarePercentile.html#L773">773</a>                     markerHeight = univariateFunction.value(xD);
+<a class="jxr_linenumber" name="L774" href="PSquarePercentile.html#L774">774</a>                 }
+<a class="jxr_linenumber" name="L775" href="PSquarePercentile.html#L775">775</a>                 incrementPosition(d);
+<a class="jxr_linenumber" name="L776" href="PSquarePercentile.html#L776">776</a>             }
+<a class="jxr_linenumber" name="L777" href="PSquarePercentile.html#L777">777</a>             <strong class="jxr_keyword">return</strong> markerHeight;
+<a class="jxr_linenumber" name="L778" href="PSquarePercentile.html#L778">778</a>         }
+<a class="jxr_linenumber" name="L779" href="PSquarePercentile.html#L779">779</a> 
+<a class="jxr_linenumber" name="L780" href="PSquarePercentile.html#L780">780</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L781" href="PSquarePercentile.html#L781">781</a> <em class="jxr_javadoccomment">         * Check if parabolic/nonlinear estimate is bad by checking if the</em>
+<a class="jxr_linenumber" name="L782" href="PSquarePercentile.html#L782">782</a> <em class="jxr_javadoccomment">         * ordinate found is beyond the y[0] and y[2].</em>
+<a class="jxr_linenumber" name="L783" href="PSquarePercentile.html#L783">783</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L784" href="PSquarePercentile.html#L784">784</a> <em class="jxr_javadoccomment">         * @param y the array to get the bounds</em>
+<a class="jxr_linenumber" name="L785" href="PSquarePercentile.html#L785">785</a> <em class="jxr_javadoccomment">         * @param yD the estimate</em>
+<a class="jxr_linenumber" name="L786" href="PSquarePercentile.html#L786">786</a> <em class="jxr_javadoccomment">         * @return true if yD is a bad estimate</em>
+<a class="jxr_linenumber" name="L787" href="PSquarePercentile.html#L787">787</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L788" href="PSquarePercentile.html#L788">788</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isEstimateBad(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] y, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yD) {
+<a class="jxr_linenumber" name="L789" href="PSquarePercentile.html#L789">789</a>             <strong class="jxr_keyword">return</strong> yD &lt;= y[0] || yD &gt;= y[2];
+<a class="jxr_linenumber" name="L790" href="PSquarePercentile.html#L790">790</a>         }
+<a class="jxr_linenumber" name="L791" href="PSquarePercentile.html#L791">791</a> 
+<a class="jxr_linenumber" name="L792" href="PSquarePercentile.html#L792">792</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L793" href="PSquarePercentile.html#L793">793</a> <em class="jxr_javadoccomment">         * {@inheritDoc}&lt;i&gt;This equals method checks for marker attributes and</em>
+<a class="jxr_linenumber" name="L794" href="PSquarePercentile.html#L794">794</a> <em class="jxr_javadoccomment">         * as well checks if navigation pointers (next and previous) are the same</em>
+<a class="jxr_linenumber" name="L795" href="PSquarePercentile.html#L795">795</a> <em class="jxr_javadoccomment">         * between this and passed in object&lt;/i&gt;</em>
+<a class="jxr_linenumber" name="L796" href="PSquarePercentile.html#L796">796</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L797" href="PSquarePercentile.html#L797">797</a> <em class="jxr_javadoccomment">         * @param o Other object</em>
+<a class="jxr_linenumber" name="L798" href="PSquarePercentile.html#L798">798</a> <em class="jxr_javadoccomment">         * @return true if this equals passed in other object o</em>
+<a class="jxr_linenumber" name="L799" href="PSquarePercentile.html#L799">799</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L800" href="PSquarePercentile.html#L800">800</a>         @Override
+<a class="jxr_linenumber" name="L801" href="PSquarePercentile.html#L801">801</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equals(Object o) {
+<a class="jxr_linenumber" name="L802" href="PSquarePercentile.html#L802">802</a>             <strong class="jxr_keyword">boolean</strong> result = false;
+<a class="jxr_linenumber" name="L803" href="PSquarePercentile.html#L803">803</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong> == o) {
+<a class="jxr_linenumber" name="L804" href="PSquarePercentile.html#L804">804</a>                 result = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L805" href="PSquarePercentile.html#L805">805</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (o instanceof Marker) {
+<a class="jxr_linenumber" name="L806" href="PSquarePercentile.html#L806">806</a>                 <a href="PSquarePercentile.html">Marker</a> that = (Marker) o;
+<a class="jxr_linenumber" name="L807" href="PSquarePercentile.html#L807">807</a> 
+<a class="jxr_linenumber" name="L808" href="PSquarePercentile.html#L808">808</a>                 result = Double.compare(markerHeight, that.markerHeight) == 0;
+<a class="jxr_linenumber" name="L809" href="PSquarePercentile.html#L809">809</a>                 result =
+<a class="jxr_linenumber" name="L810" href="PSquarePercentile.html#L810">810</a>                         result &amp;&amp;
+<a class="jxr_linenumber" name="L811" href="PSquarePercentile.html#L811">811</a>                                 Double.compare(intMarkerPosition,
+<a class="jxr_linenumber" name="L812" href="PSquarePercentile.html#L812">812</a>                                         that.intMarkerPosition) == 0;
+<a class="jxr_linenumber" name="L813" href="PSquarePercentile.html#L813">813</a>                 result =
+<a class="jxr_linenumber" name="L814" href="PSquarePercentile.html#L814">814</a>                         result &amp;&amp;
+<a class="jxr_linenumber" name="L815" href="PSquarePercentile.html#L815">815</a>                                 Double.compare(desiredMarkerPosition,
+<a class="jxr_linenumber" name="L816" href="PSquarePercentile.html#L816">816</a>                                         that.desiredMarkerPosition) == 0;
+<a class="jxr_linenumber" name="L817" href="PSquarePercentile.html#L817">817</a>                 result =
+<a class="jxr_linenumber" name="L818" href="PSquarePercentile.html#L818">818</a>                         result &amp;&amp;
+<a class="jxr_linenumber" name="L819" href="PSquarePercentile.html#L819">819</a>                                 Double.compare(desiredMarkerIncrement,
+<a class="jxr_linenumber" name="L820" href="PSquarePercentile.html#L820">820</a>                                         that.desiredMarkerIncrement) == 0;
+<a class="jxr_linenumber" name="L821" href="PSquarePercentile.html#L821">821</a> 
+<a class="jxr_linenumber" name="L822" href="PSquarePercentile.html#L822">822</a>                 result = result &amp;&amp; next.index == that.next.index;
+<a class="jxr_linenumber" name="L823" href="PSquarePercentile.html#L823">823</a>                 result = result &amp;&amp; previous.index == that.previous.index;
+<a class="jxr_linenumber" name="L824" href="PSquarePercentile.html#L824">824</a>             }
+<a class="jxr_linenumber" name="L825" href="PSquarePercentile.html#L825">825</a>             <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L826" href="PSquarePercentile.html#L826">826</a>         }
+<a class="jxr_linenumber" name="L827" href="PSquarePercentile.html#L827">827</a> 
+<a class="jxr_linenumber" name="L828" href="PSquarePercentile.html#L828">828</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L829" href="PSquarePercentile.html#L829">829</a>         @Override
+<a class="jxr_linenumber" name="L830" href="PSquarePercentile.html#L830">830</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> hashCode() {
+<a class="jxr_linenumber" name="L831" href="PSquarePercentile.html#L831">831</a>             <strong class="jxr_keyword">return</strong> Arrays.hashCode(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {markerHeight, intMarkerPosition,
+<a class="jxr_linenumber" name="L832" href="PSquarePercentile.html#L832">832</a>                 desiredMarkerIncrement, desiredMarkerPosition, previous.index, next.index});
+<a class="jxr_linenumber" name="L833" href="PSquarePercentile.html#L833">833</a>         }
+<a class="jxr_linenumber" name="L834" href="PSquarePercentile.html#L834">834</a> 
+<a class="jxr_linenumber" name="L835" href="PSquarePercentile.html#L835">835</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L836" href="PSquarePercentile.html#L836">836</a> <em class="jxr_javadoccomment">         * Read Object to deserialize.</em>
+<a class="jxr_linenumber" name="L837" href="PSquarePercentile.html#L837">837</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L838" href="PSquarePercentile.html#L838">838</a> <em class="jxr_javadoccomment">         * @param anInstream Stream Object data</em>
+<a class="jxr_linenumber" name="L839" href="PSquarePercentile.html#L839">839</a> <em class="jxr_javadoccomment">         * @throws IOException thrown for IO Errors</em>
+<a class="jxr_linenumber" name="L840" href="PSquarePercentile.html#L840">840</a> <em class="jxr_javadoccomment">         * @throws ClassNotFoundException thrown for class not being found</em>
+<a class="jxr_linenumber" name="L841" href="PSquarePercentile.html#L841">841</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L842" href="PSquarePercentile.html#L842">842</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> readObject(ObjectInputStream anInstream)
+<a class="jxr_linenumber" name="L843" href="PSquarePercentile.html#L843">843</a>                 <strong class="jxr_keyword">throws</strong> ClassNotFoundException, IOException {
+<a class="jxr_linenumber" name="L844" href="PSquarePercentile.html#L844">844</a>             anInstream.defaultReadObject();
+<a class="jxr_linenumber" name="L845" href="PSquarePercentile.html#L845">845</a>             previous=next=<strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L846" href="PSquarePercentile.html#L846">846</a>             linear = <strong class="jxr_keyword">new</strong> <a href="../../../analysis/interpolation/LinearInterpolator.html">LinearInterpolator</a>();
+<a class="jxr_linenumber" name="L847" href="PSquarePercentile.html#L847">847</a>         }
+<a class="jxr_linenumber" name="L848" href="PSquarePercentile.html#L848">848</a> 
+<a class="jxr_linenumber" name="L849" href="PSquarePercentile.html#L849">849</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L850" href="PSquarePercentile.html#L850">850</a> <em class="jxr_javadoccomment">         * Clone this instance.</em>
+<a class="jxr_linenumber" name="L851" href="PSquarePercentile.html#L851">851</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L852" href="PSquarePercentile.html#L852">852</a> <em class="jxr_javadoccomment">         * @return cloned marker</em>
+<a class="jxr_linenumber" name="L853" href="PSquarePercentile.html#L853">853</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L854" href="PSquarePercentile.html#L854">854</a>         @Override
+<a class="jxr_linenumber" name="L855" href="PSquarePercentile.html#L855">855</a>         <strong class="jxr_keyword">public</strong> Object clone() {
+<a class="jxr_linenumber" name="L856" href="PSquarePercentile.html#L856">856</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="PSquarePercentile.html">Marker</a>(markerHeight, desiredMarkerPosition, desiredMarkerIncrement, intMarkerPosition);
+<a class="jxr_linenumber" name="L857" href="PSquarePercentile.html#L857">857</a>         }
+<a class="jxr_linenumber" name="L858" href="PSquarePercentile.html#L858">858</a> 
+<a class="jxr_linenumber" name="L859" href="PSquarePercentile.html#L859">859</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L860" href="PSquarePercentile.html#L860">860</a> <em class="jxr_javadoccomment">         * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L861" href="PSquarePercentile.html#L861">861</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L862" href="PSquarePercentile.html#L862">862</a>         @Override
+<a class="jxr_linenumber" name="L863" href="PSquarePercentile.html#L863">863</a>         <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L864" href="PSquarePercentile.html#L864">864</a>             <strong class="jxr_keyword">return</strong> String.format(
+<a class="jxr_linenumber" name="L865" href="PSquarePercentile.html#L865">865</a>                     <span class="jxr_string">"index=%.0f,n=%.0f,np=%.2f,q=%.2f,dn=%.2f,prev=%d,next=%d"</span>,
+<a class="jxr_linenumber" name="L866" href="PSquarePercentile.html#L866">866</a>                     (<strong class="jxr_keyword">double</strong>) index, Precision.round(intMarkerPosition, 0),
+<a class="jxr_linenumber" name="L867" href="PSquarePercentile.html#L867">867</a>                     Precision.round(desiredMarkerPosition, 2),
+<a class="jxr_linenumber" name="L868" href="PSquarePercentile.html#L868">868</a>                     Precision.round(markerHeight, 2),
+<a class="jxr_linenumber" name="L869" href="PSquarePercentile.html#L869">869</a>                     Precision.round(desiredMarkerIncrement, 2), previous.index,
+<a class="jxr_linenumber" name="L870" href="PSquarePercentile.html#L870">870</a>                     next.index);
+<a class="jxr_linenumber" name="L871" href="PSquarePercentile.html#L871">871</a>         }
+<a class="jxr_linenumber" name="L872" href="PSquarePercentile.html#L872">872</a>     }
+<a class="jxr_linenumber" name="L873" href="PSquarePercentile.html#L873">873</a> 
+<a class="jxr_linenumber" name="L874" href="PSquarePercentile.html#L874">874</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L875" href="PSquarePercentile.html#L875">875</a> <em class="jxr_javadoccomment">     * A simple fixed capacity list that has an upper bound to growth.</em>
+<a class="jxr_linenumber" name="L876" href="PSquarePercentile.html#L876">876</a> <em class="jxr_javadoccomment">     * Once its capacity is reached, {@code add} is a no-op, returning</em>
+<a class="jxr_linenumber" name="L877" href="PSquarePercentile.html#L877">877</a> <em class="jxr_javadoccomment">     * {@code false}.</em>
+<a class="jxr_linenumber" name="L878" href="PSquarePercentile.html#L878">878</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L879" href="PSquarePercentile.html#L879">879</a> <em class="jxr_javadoccomment">     * @param &lt;E&gt;</em>
+<a class="jxr_linenumber" name="L880" href="PSquarePercentile.html#L880">880</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L881" href="PSquarePercentile.html#L881">881</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> FixedCapacityList&lt;E&gt; <strong class="jxr_keyword">extends</strong> ArrayList&lt;E&gt; <strong class="jxr_keyword">implements</strong> Serializable {
+<a class="jxr_linenumber" name="L882" href="PSquarePercentile.html#L882">882</a> 
+<a class="jxr_linenumber" name="L883" href="PSquarePercentile.html#L883">883</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L884" href="PSquarePercentile.html#L884">884</a> <em class="jxr_javadoccomment">         * Serialization Version Id</em>
+<a class="jxr_linenumber" name="L885" href="PSquarePercentile.html#L885">885</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L886" href="PSquarePercentile.html#L886">886</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 2283952083075725479L;
+<a class="jxr_linenumber" name="L887" href="PSquarePercentile.html#L887">887</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L888" href="PSquarePercentile.html#L888">888</a> <em class="jxr_javadoccomment">         * Capacity of the list</em>
+<a class="jxr_linenumber" name="L889" href="PSquarePercentile.html#L889">889</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L890" href="PSquarePercentile.html#L890">890</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> capacity;
+<a class="jxr_linenumber" name="L891" href="PSquarePercentile.html#L891">891</a> 
+<a class="jxr_linenumber" name="L892" href="PSquarePercentile.html#L892">892</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L893" href="PSquarePercentile.html#L893">893</a> <em class="jxr_javadoccomment">         * This constructor constructs the list with given capacity and as well</em>
+<a class="jxr_linenumber" name="L894" href="PSquarePercentile.html#L894">894</a> <em class="jxr_javadoccomment">         * as stores the capacity</em>
+<a class="jxr_linenumber" name="L895" href="PSquarePercentile.html#L895">895</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L896" href="PSquarePercentile.html#L896">896</a> <em class="jxr_javadoccomment">         * @param fixedCapacity the capacity to be fixed for this list</em>
+<a class="jxr_linenumber" name="L897" href="PSquarePercentile.html#L897">897</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L898" href="PSquarePercentile.html#L898">898</a>         <a href="PSquarePercentile.html">FixedCapacityList</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> fixedCapacity) {
+<a class="jxr_linenumber" name="L899" href="PSquarePercentile.html#L899">899</a>             <strong class="jxr_keyword">super</strong>(fixedCapacity);
+<a class="jxr_linenumber" name="L900" href="PSquarePercentile.html#L900">900</a>             <strong class="jxr_keyword">this</strong>.capacity = fixedCapacity;
+<a class="jxr_linenumber" name="L901" href="PSquarePercentile.html#L901">901</a>         }
+<a class="jxr_linenumber" name="L902" href="PSquarePercentile.html#L902">902</a> 
+<a class="jxr_linenumber" name="L903" href="PSquarePercentile.html#L903">903</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L904" href="PSquarePercentile.html#L904">904</a> <em class="jxr_javadoccomment">         * {@inheritDoc} In addition it checks if the {@link #size()} returns a</em>
+<a class="jxr_linenumber" name="L905" href="PSquarePercentile.html#L905">905</a> <em class="jxr_javadoccomment">         * size that is within capacity and if true it adds; otherwise the list</em>
+<a class="jxr_linenumber" name="L906" href="PSquarePercentile.html#L906">906</a> <em class="jxr_javadoccomment">         * contents are unchanged and {@code false} is returned.</em>
+<a class="jxr_linenumber" name="L907" href="PSquarePercentile.html#L907">907</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L908" href="PSquarePercentile.html#L908">908</a> <em class="jxr_javadoccomment">         * @return true if addition is successful and false otherwise</em>
+<a class="jxr_linenumber" name="L909" href="PSquarePercentile.html#L909">909</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L910" href="PSquarePercentile.html#L910">910</a>         @Override
+<a class="jxr_linenumber" name="L911" href="PSquarePercentile.html#L911">911</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> add(<strong class="jxr_keyword">final</strong> E e) {
+<a class="jxr_linenumber" name="L912" href="PSquarePercentile.html#L912">912</a>             <strong class="jxr_keyword">return</strong> size() &lt; capacity ? <strong class="jxr_keyword">super</strong>.add(e) : false;
+<a class="jxr_linenumber" name="L913" href="PSquarePercentile.html#L913">913</a>         }
+<a class="jxr_linenumber" name="L914" href="PSquarePercentile.html#L914">914</a> 
+<a class="jxr_linenumber" name="L915" href="PSquarePercentile.html#L915">915</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L916" href="PSquarePercentile.html#L916">916</a> <em class="jxr_javadoccomment">         * {@inheritDoc} In addition it checks if the sum of Collection size and</em>
+<a class="jxr_linenumber" name="L917" href="PSquarePercentile.html#L917">917</a> <em class="jxr_javadoccomment">         * this instance's {@link #size()} returns a value that is within</em>
+<a class="jxr_linenumber" name="L918" href="PSquarePercentile.html#L918">918</a> <em class="jxr_javadoccomment">         * capacity and if true it adds the collection; otherwise the list</em>
+<a class="jxr_linenumber" name="L919" href="PSquarePercentile.html#L919">919</a> <em class="jxr_javadoccomment">         * contents are unchanged and {@code false} is returned.</em>
+<a class="jxr_linenumber" name="L920" href="PSquarePercentile.html#L920">920</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L921" href="PSquarePercentile.html#L921">921</a> <em class="jxr_javadoccomment">         * @return true if addition is successful and false otherwise</em>
+<a class="jxr_linenumber" name="L922" href="PSquarePercentile.html#L922">922</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L923" href="PSquarePercentile.html#L923">923</a>         @Override
+<a class="jxr_linenumber" name="L924" href="PSquarePercentile.html#L924">924</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> addAll(Collection&lt;? <strong class="jxr_keyword">extends</strong> E&gt; collection) {
+<a class="jxr_linenumber" name="L925" href="PSquarePercentile.html#L925">925</a>             <strong class="jxr_keyword">boolean</strong> isCollectionLess =
+<a class="jxr_linenumber" name="L926" href="PSquarePercentile.html#L926">926</a>                     collection != <strong class="jxr_keyword">null</strong> &amp;&amp;
+<a class="jxr_linenumber" name="L927" href="PSquarePercentile.html#L927">927</a>                             collection.size() + size() &lt;= capacity;
+<a class="jxr_linenumber" name="L928" href="PSquarePercentile.html#L928">928</a>             <strong class="jxr_keyword">return</strong> isCollectionLess ? <strong class="jxr_keyword">super</strong>.addAll(collection) : false;
+<a class="jxr_linenumber" name="L929" href="PSquarePercentile.html#L929">929</a>         }
+<a class="jxr_linenumber" name="L930" href="PSquarePercentile.html#L930">930</a>     }
+<a class="jxr_linenumber" name="L931" href="PSquarePercentile.html#L931">931</a> 
+<a class="jxr_linenumber" name="L932" href="PSquarePercentile.html#L932">932</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L933" href="PSquarePercentile.html#L933">933</a> <em class="jxr_javadoccomment">     * A creation method to build Markers</em>
+<a class="jxr_linenumber" name="L934" href="PSquarePercentile.html#L934">934</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L935" href="PSquarePercentile.html#L935">935</a> <em class="jxr_javadoccomment">     * @param initialFive list of initial five elements</em>
+<a class="jxr_linenumber" name="L936" href="PSquarePercentile.html#L936">936</a> <em class="jxr_javadoccomment">     * @param p the quantile desired</em>
+<a class="jxr_linenumber" name="L937" href="PSquarePercentile.html#L937">937</a> <em class="jxr_javadoccomment">     * @return an instance of PSquareMarkers</em>
+<a class="jxr_linenumber" name="L938" href="PSquarePercentile.html#L938">938</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L939" href="PSquarePercentile.html#L939">939</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="PSquarePercentile.html">PSquareMarkers</a> newMarkers(<strong class="jxr_keyword">final</strong> List&lt;Double&gt; initialFive, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p) {
+<a class="jxr_linenumber" name="L940" href="PSquarePercentile.html#L940">940</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="PSquarePercentile.html">Markers</a>(initialFive, p);
+<a class="jxr_linenumber" name="L941" href="PSquarePercentile.html#L941">941</a>     }
+<a class="jxr_linenumber" name="L942" href="PSquarePercentile.html#L942">942</a> 
+<a class="jxr_linenumber" name="L943" href="PSquarePercentile.html#L943">943</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L944" href="PSquarePercentile.html#L944">944</a> <em class="jxr_javadoccomment">     * An interface that encapsulates abstractions of the</em>
+<a class="jxr_linenumber" name="L945" href="PSquarePercentile.html#L945">945</a> <em class="jxr_javadoccomment">     * P-square algorithm markers as is explained in the original works. This</em>
+<a class="jxr_linenumber" name="L946" href="PSquarePercentile.html#L946">946</a> <em class="jxr_javadoccomment">     * interface is exposed with protected access to help in testability.</em>
+<a class="jxr_linenumber" name="L947" href="PSquarePercentile.html#L947">947</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L948" href="PSquarePercentile.html#L948">948</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">interface</strong> <a href="PSquarePercentile.html">PSquareMarkers</a> <strong class="jxr_keyword">extends</strong> Cloneable {
+<a class="jxr_linenumber" name="L949" href="PSquarePercentile.html#L949">949</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L950" href="PSquarePercentile.html#L950">950</a> <em class="jxr_javadoccomment">         * Returns Percentile value computed thus far.</em>
+<a class="jxr_linenumber" name="L951" href="PSquarePercentile.html#L951">951</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L952" href="PSquarePercentile.html#L952">952</a> <em class="jxr_javadoccomment">         * @return percentile</em>
+<a class="jxr_linenumber" name="L953" href="PSquarePercentile.html#L953">953</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L954" href="PSquarePercentile.html#L954">954</a>         <strong class="jxr_keyword">double</strong> getPercentileValue();
+<a class="jxr_linenumber" name="L955" href="PSquarePercentile.html#L955">955</a> 
+<a class="jxr_linenumber" name="L956" href="PSquarePercentile.html#L956">956</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L957" href="PSquarePercentile.html#L957">957</a> <em class="jxr_javadoccomment">         * A clone function to clone the current instance. It's created as an</em>
+<a class="jxr_linenumber" name="L958" href="PSquarePercentile.html#L958">958</a> <em class="jxr_javadoccomment">         * interface method as well for convenience though Cloneable is just a</em>
+<a class="jxr_linenumber" name="L959" href="PSquarePercentile.html#L959">959</a> <em class="jxr_javadoccomment">         * marker interface.</em>
+<a class="jxr_linenumber" name="L960" href="PSquarePercentile.html#L960">960</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L961" href="PSquarePercentile.html#L961">961</a> <em class="jxr_javadoccomment">         * @return clone of this instance</em>
+<a class="jxr_linenumber" name="L962" href="PSquarePercentile.html#L962">962</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L963" href="PSquarePercentile.html#L963">963</a>         Object clone();
+<a class="jxr_linenumber" name="L964" href="PSquarePercentile.html#L964">964</a> 
+<a class="jxr_linenumber" name="L965" href="PSquarePercentile.html#L965">965</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L966" href="PSquarePercentile.html#L966">966</a> <em class="jxr_javadoccomment">         * Returns the marker height (or percentile) of a given marker index.</em>
+<a class="jxr_linenumber" name="L967" href="PSquarePercentile.html#L967">967</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L968" href="PSquarePercentile.html#L968">968</a> <em class="jxr_javadoccomment">         * @param markerIndex is the index of marker in the marker array</em>
+<a class="jxr_linenumber" name="L969" href="PSquarePercentile.html#L969">969</a> <em class="jxr_javadoccomment">         * @return percentile value of the marker index passed</em>
+<a class="jxr_linenumber" name="L970" href="PSquarePercentile.html#L970">970</a> <em class="jxr_javadoccomment">         * @throws OutOfRangeException in case the index is not within [1-5]</em>
+<a class="jxr_linenumber" name="L971" href="PSquarePercentile.html#L971">971</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L972" href="PSquarePercentile.html#L972">972</a>         <strong class="jxr_keyword">double</strong> height(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> markerIndex);
+<a class="jxr_linenumber" name="L973" href="PSquarePercentile.html#L973">973</a> 
+<a class="jxr_linenumber" name="L974" href="PSquarePercentile.html#L974">974</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L975" href="PSquarePercentile.html#L975">975</a> <em class="jxr_javadoccomment">         * Process a data point by moving the marker heights based on estimator.</em>
+<a class="jxr_linenumber" name="L976" href="PSquarePercentile.html#L976">976</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L977" href="PSquarePercentile.html#L977">977</a> <em class="jxr_javadoccomment">         * @param inputDataPoint is the data point passed</em>
+<a class="jxr_linenumber" name="L978" href="PSquarePercentile.html#L978">978</a> <em class="jxr_javadoccomment">         * @return computed percentile</em>
+<a class="jxr_linenumber" name="L979" href="PSquarePercentile.html#L979">979</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L980" href="PSquarePercentile.html#L980">980</a>         <strong class="jxr_keyword">double</strong> processDataPoint(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> inputDataPoint);
+<a class="jxr_linenumber" name="L981" href="PSquarePercentile.html#L981">981</a> 
+<a class="jxr_linenumber" name="L982" href="PSquarePercentile.html#L982">982</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L983" href="PSquarePercentile.html#L983">983</a> <em class="jxr_javadoccomment">         * An Estimate of the percentile value of a given Marker</em>
+<a class="jxr_linenumber" name="L984" href="PSquarePercentile.html#L984">984</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L985" href="PSquarePercentile.html#L985">985</a> <em class="jxr_javadoccomment">         * @param index the marker's index in the array of markers</em>
+<a class="jxr_linenumber" name="L986" href="PSquarePercentile.html#L986">986</a> <em class="jxr_javadoccomment">         * @return percentile estimate</em>
+<a class="jxr_linenumber" name="L987" href="PSquarePercentile.html#L987">987</a> <em class="jxr_javadoccomment">         * @throws OutOfRangeException in case if index is not within [1-5]</em>
+<a class="jxr_linenumber" name="L988" href="PSquarePercentile.html#L988">988</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L989" href="PSquarePercentile.html#L989">989</a>         <strong class="jxr_keyword">double</strong> estimate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> index);
+<a class="jxr_linenumber" name="L990" href="PSquarePercentile.html#L990">990</a>     }
+<a class="jxr_linenumber" name="L991" href="PSquarePercentile.html#L991">991</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

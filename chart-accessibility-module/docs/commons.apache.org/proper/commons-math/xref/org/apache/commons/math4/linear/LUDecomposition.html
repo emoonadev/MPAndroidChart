@@ -1,0 +1,407 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>LUDecomposition xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/linear/LUDecomposition.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="LUDecomposition.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="LUDecomposition.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="LUDecomposition.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="LUDecomposition.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="LUDecomposition.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="LUDecomposition.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="LUDecomposition.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="LUDecomposition.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="LUDecomposition.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="LUDecomposition.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="LUDecomposition.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="LUDecomposition.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="LUDecomposition.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="LUDecomposition.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="LUDecomposition.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="LUDecomposition.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="LUDecomposition.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="LUDecomposition.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.linear;
+<a class="jxr_linenumber" name="L19" href="LUDecomposition.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="LUDecomposition.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L21" href="LUDecomposition.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L22" href="LUDecomposition.html#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="LUDecomposition.html#L23">23</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L24" href="LUDecomposition.html#L24">24</a>  <em class="jxr_javadoccomment"> * Calculates the LUP-decomposition of a square matrix.</em>
+<a class="jxr_linenumber" name="L25" href="LUDecomposition.html#L25">25</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;The LUP-decomposition of a matrix A consists of three matrices L, U and</em>
+<a class="jxr_linenumber" name="L26" href="LUDecomposition.html#L26">26</a>  <em class="jxr_javadoccomment"> * P that satisfy: P&amp;times;A = L&amp;times;U. L is lower triangular (with unit</em>
+<a class="jxr_linenumber" name="L27" href="LUDecomposition.html#L27">27</a>  <em class="jxr_javadoccomment"> * diagonal terms), U is upper triangular and P is a permutation matrix. All</em>
+<a class="jxr_linenumber" name="L28" href="LUDecomposition.html#L28">28</a>  <em class="jxr_javadoccomment"> * matrices are m&amp;times;m.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L29" href="LUDecomposition.html#L29">29</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;As shown by the presence of the P matrix, this decomposition is</em>
+<a class="jxr_linenumber" name="L30" href="LUDecomposition.html#L30">30</a>  <em class="jxr_javadoccomment"> * implemented using partial pivoting.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L31" href="LUDecomposition.html#L31">31</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This class is based on the class with similar name from the</em>
+<a class="jxr_linenumber" name="L32" href="LUDecomposition.html#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://math.nist.gov/javanumerics/jama/" target="alexandria_uri">http://math.nist.gov/javanumerics/jama/</a>"&gt;JAMA&lt;/a&gt; library.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L33" href="LUDecomposition.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L34" href="LUDecomposition.html#L34">34</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;a {@link #getP() getP} method has been added,&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L35" href="LUDecomposition.html#L35">35</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;the {@code det} method has been renamed as {@link #getDeterminant()</em>
+<a class="jxr_linenumber" name="L36" href="LUDecomposition.html#L36">36</a>  <em class="jxr_javadoccomment"> *   getDeterminant},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L37" href="LUDecomposition.html#L37">37</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;the {@code getDoublePivot} method has been removed (but the int based</em>
+<a class="jxr_linenumber" name="L38" href="LUDecomposition.html#L38">38</a>  <em class="jxr_javadoccomment"> *   {@link #getPivot() getPivot} method has been kept),&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L39" href="LUDecomposition.html#L39">39</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;the {@code solve} and {@code isNonSingular} methods have been replaced</em>
+<a class="jxr_linenumber" name="L40" href="LUDecomposition.html#L40">40</a>  <em class="jxr_javadoccomment"> *   by a {@link #getSolver() getSolver} method and the equivalent methods</em>
+<a class="jxr_linenumber" name="L41" href="LUDecomposition.html#L41">41</a>  <em class="jxr_javadoccomment"> *   provided by the returned {@link DecompositionSolver}.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L42" href="LUDecomposition.html#L42">42</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L43" href="LUDecomposition.html#L43">43</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L44" href="LUDecomposition.html#L44">44</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://mathworld.wolfram.com/LUDecomposition.html" target="alexandria_uri">http://mathworld.wolfram.com/LUDecomposition.html</a>"&gt;MathWorld&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L45" href="LUDecomposition.html#L45">45</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/LU_decomposition" target="alexandria_uri">http://en.wikipedia.org/wiki/LU_decomposition</a>"&gt;Wikipedia&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L46" href="LUDecomposition.html#L46">46</a>  <em class="jxr_javadoccomment"> * @since 2.0 (changed to concrete class in 3.0)</em>
+<a class="jxr_linenumber" name="L47" href="LUDecomposition.html#L47">47</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L48" href="LUDecomposition.html#L48">48</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="LUDecomposition.html">LUDecomposition</a> {
+<a class="jxr_linenumber" name="L49" href="LUDecomposition.html#L49">49</a>      <em class="jxr_javadoccomment">/** Default bound to determine effective singularity in LU decomposition. */</em>
+<a class="jxr_linenumber" name="L50" href="LUDecomposition.html#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_TOO_SMALL = 1e-11;
+<a class="jxr_linenumber" name="L51" href="LUDecomposition.html#L51">51</a>      <em class="jxr_javadoccomment">/** Entries of LU decomposition. */</em>
+<a class="jxr_linenumber" name="L52" href="LUDecomposition.html#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] lu;
+<a class="jxr_linenumber" name="L53" href="LUDecomposition.html#L53">53</a>      <em class="jxr_javadoccomment">/** Pivot permutation associated with LU decomposition. */</em>
+<a class="jxr_linenumber" name="L54" href="LUDecomposition.html#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] pivot;
+<a class="jxr_linenumber" name="L55" href="LUDecomposition.html#L55">55</a>      <em class="jxr_javadoccomment">/** Parity of the permutation associated with the LU decomposition. */</em>
+<a class="jxr_linenumber" name="L56" href="LUDecomposition.html#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> even;
+<a class="jxr_linenumber" name="L57" href="LUDecomposition.html#L57">57</a>      <em class="jxr_javadoccomment">/** Singularity indicator. */</em>
+<a class="jxr_linenumber" name="L58" href="LUDecomposition.html#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> singular;
+<a class="jxr_linenumber" name="L59" href="LUDecomposition.html#L59">59</a>      <em class="jxr_javadoccomment">/** Cached value of L. */</em>
+<a class="jxr_linenumber" name="L60" href="LUDecomposition.html#L60">60</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedL;
+<a class="jxr_linenumber" name="L61" href="LUDecomposition.html#L61">61</a>      <em class="jxr_javadoccomment">/** Cached value of U. */</em>
+<a class="jxr_linenumber" name="L62" href="LUDecomposition.html#L62">62</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedU;
+<a class="jxr_linenumber" name="L63" href="LUDecomposition.html#L63">63</a>      <em class="jxr_javadoccomment">/** Cached value of P. */</em>
+<a class="jxr_linenumber" name="L64" href="LUDecomposition.html#L64">64</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedP;
+<a class="jxr_linenumber" name="L65" href="LUDecomposition.html#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="LUDecomposition.html#L66">66</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L67" href="LUDecomposition.html#L67">67</a>  <em class="jxr_javadoccomment">     * Calculates the LU-decomposition of the given matrix.</em>
+<a class="jxr_linenumber" name="L68" href="LUDecomposition.html#L68">68</a>  <em class="jxr_javadoccomment">     * This constructor uses 1e-11 as default value for the singularity</em>
+<a class="jxr_linenumber" name="L69" href="LUDecomposition.html#L69">69</a>  <em class="jxr_javadoccomment">     * threshold.</em>
+<a class="jxr_linenumber" name="L70" href="LUDecomposition.html#L70">70</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L71" href="LUDecomposition.html#L71">71</a>  <em class="jxr_javadoccomment">     * @param matrix Matrix to decompose.</em>
+<a class="jxr_linenumber" name="L72" href="LUDecomposition.html#L72">72</a>  <em class="jxr_javadoccomment">     * @throws NonSquareMatrixException if matrix is not square.</em>
+<a class="jxr_linenumber" name="L73" href="LUDecomposition.html#L73">73</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L74" href="LUDecomposition.html#L74">74</a>      <strong class="jxr_keyword">public</strong> <a href="LUDecomposition.html">LUDecomposition</a>(<a href="RealMatrix.html">RealMatrix</a> matrix) {
+<a class="jxr_linenumber" name="L75" href="LUDecomposition.html#L75">75</a>          <strong class="jxr_keyword">this</strong>(matrix, DEFAULT_TOO_SMALL);
+<a class="jxr_linenumber" name="L76" href="LUDecomposition.html#L76">76</a>      }
+<a class="jxr_linenumber" name="L77" href="LUDecomposition.html#L77">77</a>  
+<a class="jxr_linenumber" name="L78" href="LUDecomposition.html#L78">78</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L79" href="LUDecomposition.html#L79">79</a>  <em class="jxr_javadoccomment">     * Calculates the LU-decomposition of the given matrix.</em>
+<a class="jxr_linenumber" name="L80" href="LUDecomposition.html#L80">80</a>  <em class="jxr_javadoccomment">     * @param matrix The matrix to decompose.</em>
+<a class="jxr_linenumber" name="L81" href="LUDecomposition.html#L81">81</a>  <em class="jxr_javadoccomment">     * @param singularityThreshold threshold (based on partial row norm)</em>
+<a class="jxr_linenumber" name="L82" href="LUDecomposition.html#L82">82</a>  <em class="jxr_javadoccomment">     * under which a matrix is considered singular</em>
+<a class="jxr_linenumber" name="L83" href="LUDecomposition.html#L83">83</a>  <em class="jxr_javadoccomment">     * @throws NonSquareMatrixException if matrix is not square</em>
+<a class="jxr_linenumber" name="L84" href="LUDecomposition.html#L84">84</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L85" href="LUDecomposition.html#L85">85</a>      <strong class="jxr_keyword">public</strong> <a href="LUDecomposition.html">LUDecomposition</a>(<a href="RealMatrix.html">RealMatrix</a> matrix, <strong class="jxr_keyword">double</strong> singularityThreshold) {
+<a class="jxr_linenumber" name="L86" href="LUDecomposition.html#L86">86</a>          <strong class="jxr_keyword">if</strong> (!matrix.isSquare()) {
+<a class="jxr_linenumber" name="L87" href="LUDecomposition.html#L87">87</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="NonSquareMatrixException.html">NonSquareMatrixException</a>(matrix.getRowDimension(),
+<a class="jxr_linenumber" name="L88" href="LUDecomposition.html#L88">88</a>                                                 matrix.getColumnDimension());
+<a class="jxr_linenumber" name="L89" href="LUDecomposition.html#L89">89</a>          }
+<a class="jxr_linenumber" name="L90" href="LUDecomposition.html#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="LUDecomposition.html#L91">91</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = matrix.getColumnDimension();
+<a class="jxr_linenumber" name="L92" href="LUDecomposition.html#L92">92</a>          lu = matrix.getData();
+<a class="jxr_linenumber" name="L93" href="LUDecomposition.html#L93">93</a>          pivot = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[m];
+<a class="jxr_linenumber" name="L94" href="LUDecomposition.html#L94">94</a>          cachedL = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L95" href="LUDecomposition.html#L95">95</a>          cachedU = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L96" href="LUDecomposition.html#L96">96</a>          cachedP = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L97" href="LUDecomposition.html#L97">97</a>  
+<a class="jxr_linenumber" name="L98" href="LUDecomposition.html#L98">98</a>          <em class="jxr_comment">// Initialize permutation array and parity</em>
+<a class="jxr_linenumber" name="L99" href="LUDecomposition.html#L99">99</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = 0; row &lt; m; row++) {
+<a class="jxr_linenumber" name="L100" href="LUDecomposition.html#L100">100</a>             pivot[row] = row;
+<a class="jxr_linenumber" name="L101" href="LUDecomposition.html#L101">101</a>         }
+<a class="jxr_linenumber" name="L102" href="LUDecomposition.html#L102">102</a>         even     = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L103" href="LUDecomposition.html#L103">103</a>         singular = false;
+<a class="jxr_linenumber" name="L104" href="LUDecomposition.html#L104">104</a> 
+<a class="jxr_linenumber" name="L105" href="LUDecomposition.html#L105">105</a>         <em class="jxr_comment">// Loop over columns</em>
+<a class="jxr_linenumber" name="L106" href="LUDecomposition.html#L106">106</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = 0; col &lt; m; col++) {
+<a class="jxr_linenumber" name="L107" href="LUDecomposition.html#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="LUDecomposition.html#L108">108</a>             <em class="jxr_comment">// upper</em>
+<a class="jxr_linenumber" name="L109" href="LUDecomposition.html#L109">109</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = 0; row &lt; col; row++) {
+<a class="jxr_linenumber" name="L110" href="LUDecomposition.html#L110">110</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] luRow = lu[row];
+<a class="jxr_linenumber" name="L111" href="LUDecomposition.html#L111">111</a>                 <strong class="jxr_keyword">double</strong> sum = luRow[col];
+<a class="jxr_linenumber" name="L112" href="LUDecomposition.html#L112">112</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; row; i++) {
+<a class="jxr_linenumber" name="L113" href="LUDecomposition.html#L113">113</a>                     sum -= luRow[i] * lu[i][col];
+<a class="jxr_linenumber" name="L114" href="LUDecomposition.html#L114">114</a>                 }
+<a class="jxr_linenumber" name="L115" href="LUDecomposition.html#L115">115</a>                 luRow[col] = sum;
+<a class="jxr_linenumber" name="L116" href="LUDecomposition.html#L116">116</a>             }
+<a class="jxr_linenumber" name="L117" href="LUDecomposition.html#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="LUDecomposition.html#L118">118</a>             <em class="jxr_comment">// lower</em>
+<a class="jxr_linenumber" name="L119" href="LUDecomposition.html#L119">119</a>             <strong class="jxr_keyword">int</strong> max = col; <em class="jxr_comment">// permutation row</em>
+<a class="jxr_linenumber" name="L120" href="LUDecomposition.html#L120">120</a>             <strong class="jxr_keyword">double</strong> largest = Double.NEGATIVE_INFINITY;
+<a class="jxr_linenumber" name="L121" href="LUDecomposition.html#L121">121</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = col; row &lt; m; row++) {
+<a class="jxr_linenumber" name="L122" href="LUDecomposition.html#L122">122</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] luRow = lu[row];
+<a class="jxr_linenumber" name="L123" href="LUDecomposition.html#L123">123</a>                 <strong class="jxr_keyword">double</strong> sum = luRow[col];
+<a class="jxr_linenumber" name="L124" href="LUDecomposition.html#L124">124</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; col; i++) {
+<a class="jxr_linenumber" name="L125" href="LUDecomposition.html#L125">125</a>                     sum -= luRow[i] * lu[i][col];
+<a class="jxr_linenumber" name="L126" href="LUDecomposition.html#L126">126</a>                 }
+<a class="jxr_linenumber" name="L127" href="LUDecomposition.html#L127">127</a>                 luRow[col] = sum;
+<a class="jxr_linenumber" name="L128" href="LUDecomposition.html#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="LUDecomposition.html#L129">129</a>                 <em class="jxr_comment">// maintain best permutation choice</em>
+<a class="jxr_linenumber" name="L130" href="LUDecomposition.html#L130">130</a>                 <strong class="jxr_keyword">if</strong> (FastMath.abs(sum) &gt; largest) {
+<a class="jxr_linenumber" name="L131" href="LUDecomposition.html#L131">131</a>                     largest = FastMath.abs(sum);
+<a class="jxr_linenumber" name="L132" href="LUDecomposition.html#L132">132</a>                     max = row;
+<a class="jxr_linenumber" name="L133" href="LUDecomposition.html#L133">133</a>                 }
+<a class="jxr_linenumber" name="L134" href="LUDecomposition.html#L134">134</a>             }
+<a class="jxr_linenumber" name="L135" href="LUDecomposition.html#L135">135</a> 
+<a class="jxr_linenumber" name="L136" href="LUDecomposition.html#L136">136</a>             <em class="jxr_comment">// Singularity check</em>
+<a class="jxr_linenumber" name="L137" href="LUDecomposition.html#L137">137</a>             <strong class="jxr_keyword">if</strong> (FastMath.abs(lu[max][col]) &lt; singularityThreshold) {
+<a class="jxr_linenumber" name="L138" href="LUDecomposition.html#L138">138</a>                 singular = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L139" href="LUDecomposition.html#L139">139</a>                 <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L140" href="LUDecomposition.html#L140">140</a>             }
+<a class="jxr_linenumber" name="L141" href="LUDecomposition.html#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="LUDecomposition.html#L142">142</a>             <em class="jxr_comment">// Pivot if necessary</em>
+<a class="jxr_linenumber" name="L143" href="LUDecomposition.html#L143">143</a>             <strong class="jxr_keyword">if</strong> (max != col) {
+<a class="jxr_linenumber" name="L144" href="LUDecomposition.html#L144">144</a>                 <strong class="jxr_keyword">double</strong> tmp = 0;
+<a class="jxr_linenumber" name="L145" href="LUDecomposition.html#L145">145</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] luMax = lu[max];
+<a class="jxr_linenumber" name="L146" href="LUDecomposition.html#L146">146</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] luCol = lu[col];
+<a class="jxr_linenumber" name="L147" href="LUDecomposition.html#L147">147</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L148" href="LUDecomposition.html#L148">148</a>                     tmp = luMax[i];
+<a class="jxr_linenumber" name="L149" href="LUDecomposition.html#L149">149</a>                     luMax[i] = luCol[i];
+<a class="jxr_linenumber" name="L150" href="LUDecomposition.html#L150">150</a>                     luCol[i] = tmp;
+<a class="jxr_linenumber" name="L151" href="LUDecomposition.html#L151">151</a>                 }
+<a class="jxr_linenumber" name="L152" href="LUDecomposition.html#L152">152</a>                 <strong class="jxr_keyword">int</strong> temp = pivot[max];
+<a class="jxr_linenumber" name="L153" href="LUDecomposition.html#L153">153</a>                 pivot[max] = pivot[col];
+<a class="jxr_linenumber" name="L154" href="LUDecomposition.html#L154">154</a>                 pivot[col] = temp;
+<a class="jxr_linenumber" name="L155" href="LUDecomposition.html#L155">155</a>                 even = !even;
+<a class="jxr_linenumber" name="L156" href="LUDecomposition.html#L156">156</a>             }
+<a class="jxr_linenumber" name="L157" href="LUDecomposition.html#L157">157</a> 
+<a class="jxr_linenumber" name="L158" href="LUDecomposition.html#L158">158</a>             <em class="jxr_comment">// Divide the lower elements by the "winning" diagonal elt.</em>
+<a class="jxr_linenumber" name="L159" href="LUDecomposition.html#L159">159</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> luDiag = lu[col][col];
+<a class="jxr_linenumber" name="L160" href="LUDecomposition.html#L160">160</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = col + 1; row &lt; m; row++) {
+<a class="jxr_linenumber" name="L161" href="LUDecomposition.html#L161">161</a>                 lu[row][col] /= luDiag;
+<a class="jxr_linenumber" name="L162" href="LUDecomposition.html#L162">162</a>             }
+<a class="jxr_linenumber" name="L163" href="LUDecomposition.html#L163">163</a>         }
+<a class="jxr_linenumber" name="L164" href="LUDecomposition.html#L164">164</a>     }
+<a class="jxr_linenumber" name="L165" href="LUDecomposition.html#L165">165</a> 
+<a class="jxr_linenumber" name="L166" href="LUDecomposition.html#L166">166</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L167" href="LUDecomposition.html#L167">167</a> <em class="jxr_javadoccomment">     * Returns the matrix L of the decomposition.</em>
+<a class="jxr_linenumber" name="L168" href="LUDecomposition.html#L168">168</a> <em class="jxr_javadoccomment">     * &lt;p&gt;L is a lower-triangular matrix&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L169" href="LUDecomposition.html#L169">169</a> <em class="jxr_javadoccomment">     * @return the L matrix (or null if decomposed matrix is singular)</em>
+<a class="jxr_linenumber" name="L170" href="LUDecomposition.html#L170">170</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L171" href="LUDecomposition.html#L171">171</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getL() {
+<a class="jxr_linenumber" name="L172" href="LUDecomposition.html#L172">172</a>         <strong class="jxr_keyword">if</strong> ((cachedL == <strong class="jxr_keyword">null</strong>) &amp;&amp; !singular) {
+<a class="jxr_linenumber" name="L173" href="LUDecomposition.html#L173">173</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = pivot.length;
+<a class="jxr_linenumber" name="L174" href="LUDecomposition.html#L174">174</a>             cachedL = MatrixUtils.createRealMatrix(m, m);
+<a class="jxr_linenumber" name="L175" href="LUDecomposition.html#L175">175</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; m; ++i) {
+<a class="jxr_linenumber" name="L176" href="LUDecomposition.html#L176">176</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] luI = lu[i];
+<a class="jxr_linenumber" name="L177" href="LUDecomposition.html#L177">177</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; i; ++j) {
+<a class="jxr_linenumber" name="L178" href="LUDecomposition.html#L178">178</a>                     cachedL.setEntry(i, j, luI[j]);
+<a class="jxr_linenumber" name="L179" href="LUDecomposition.html#L179">179</a>                 }
+<a class="jxr_linenumber" name="L180" href="LUDecomposition.html#L180">180</a>                 cachedL.setEntry(i, i, 1.0);
+<a class="jxr_linenumber" name="L181" href="LUDecomposition.html#L181">181</a>             }
+<a class="jxr_linenumber" name="L182" href="LUDecomposition.html#L182">182</a>         }
+<a class="jxr_linenumber" name="L183" href="LUDecomposition.html#L183">183</a>         <strong class="jxr_keyword">return</strong> cachedL;
+<a class="jxr_linenumber" name="L184" href="LUDecomposition.html#L184">184</a>     }
+<a class="jxr_linenumber" name="L185" href="LUDecomposition.html#L185">185</a> 
+<a class="jxr_linenumber" name="L186" href="LUDecomposition.html#L186">186</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L187" href="LUDecomposition.html#L187">187</a> <em class="jxr_javadoccomment">     * Returns the matrix U of the decomposition.</em>
+<a class="jxr_linenumber" name="L188" href="LUDecomposition.html#L188">188</a> <em class="jxr_javadoccomment">     * &lt;p&gt;U is an upper-triangular matrix&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L189" href="LUDecomposition.html#L189">189</a> <em class="jxr_javadoccomment">     * @return the U matrix (or null if decomposed matrix is singular)</em>
+<a class="jxr_linenumber" name="L190" href="LUDecomposition.html#L190">190</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L191" href="LUDecomposition.html#L191">191</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getU() {
+<a class="jxr_linenumber" name="L192" href="LUDecomposition.html#L192">192</a>         <strong class="jxr_keyword">if</strong> ((cachedU == <strong class="jxr_keyword">null</strong>) &amp;&amp; !singular) {
+<a class="jxr_linenumber" name="L193" href="LUDecomposition.html#L193">193</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = pivot.length;
+<a class="jxr_linenumber" name="L194" href="LUDecomposition.html#L194">194</a>             cachedU = MatrixUtils.createRealMatrix(m, m);
+<a class="jxr_linenumber" name="L195" href="LUDecomposition.html#L195">195</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; m; ++i) {
+<a class="jxr_linenumber" name="L196" href="LUDecomposition.html#L196">196</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] luI = lu[i];
+<a class="jxr_linenumber" name="L197" href="LUDecomposition.html#L197">197</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = i; j &lt; m; ++j) {
+<a class="jxr_linenumber" name="L198" href="LUDecomposition.html#L198">198</a>                     cachedU.setEntry(i, j, luI[j]);
+<a class="jxr_linenumber" name="L199" href="LUDecomposition.html#L199">199</a>                 }
+<a class="jxr_linenumber" name="L200" href="LUDecomposition.html#L200">200</a>             }
+<a class="jxr_linenumber" name="L201" href="LUDecomposition.html#L201">201</a>         }
+<a class="jxr_linenumber" name="L202" href="LUDecomposition.html#L202">202</a>         <strong class="jxr_keyword">return</strong> cachedU;
+<a class="jxr_linenumber" name="L203" href="LUDecomposition.html#L203">203</a>     }
+<a class="jxr_linenumber" name="L204" href="LUDecomposition.html#L204">204</a> 
+<a class="jxr_linenumber" name="L205" href="LUDecomposition.html#L205">205</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L206" href="LUDecomposition.html#L206">206</a> <em class="jxr_javadoccomment">     * Returns the P rows permutation matrix.</em>
+<a class="jxr_linenumber" name="L207" href="LUDecomposition.html#L207">207</a> <em class="jxr_javadoccomment">     * &lt;p&gt;P is a sparse matrix with exactly one element set to 1.0 in</em>
+<a class="jxr_linenumber" name="L208" href="LUDecomposition.html#L208">208</a> <em class="jxr_javadoccomment">     * each row and each column, all other elements being set to 0.0.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L209" href="LUDecomposition.html#L209">209</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The positions of the 1 elements are given by the {@link #getPivot()</em>
+<a class="jxr_linenumber" name="L210" href="LUDecomposition.html#L210">210</a> <em class="jxr_javadoccomment">     * pivot permutation vector}.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L211" href="LUDecomposition.html#L211">211</a> <em class="jxr_javadoccomment">     * @return the P rows permutation matrix (or null if decomposed matrix is singular)</em>
+<a class="jxr_linenumber" name="L212" href="LUDecomposition.html#L212">212</a> <em class="jxr_javadoccomment">     * @see #getPivot()</em>
+<a class="jxr_linenumber" name="L213" href="LUDecomposition.html#L213">213</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L214" href="LUDecomposition.html#L214">214</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getP() {
+<a class="jxr_linenumber" name="L215" href="LUDecomposition.html#L215">215</a>         <strong class="jxr_keyword">if</strong> ((cachedP == <strong class="jxr_keyword">null</strong>) &amp;&amp; !singular) {
+<a class="jxr_linenumber" name="L216" href="LUDecomposition.html#L216">216</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = pivot.length;
+<a class="jxr_linenumber" name="L217" href="LUDecomposition.html#L217">217</a>             cachedP = MatrixUtils.createRealMatrix(m, m);
+<a class="jxr_linenumber" name="L218" href="LUDecomposition.html#L218">218</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; m; ++i) {
+<a class="jxr_linenumber" name="L219" href="LUDecomposition.html#L219">219</a>                 cachedP.setEntry(i, pivot[i], 1.0);
+<a class="jxr_linenumber" name="L220" href="LUDecomposition.html#L220">220</a>             }
+<a class="jxr_linenumber" name="L221" href="LUDecomposition.html#L221">221</a>         }
+<a class="jxr_linenumber" name="L222" href="LUDecomposition.html#L222">222</a>         <strong class="jxr_keyword">return</strong> cachedP;
+<a class="jxr_linenumber" name="L223" href="LUDecomposition.html#L223">223</a>     }
+<a class="jxr_linenumber" name="L224" href="LUDecomposition.html#L224">224</a> 
+<a class="jxr_linenumber" name="L225" href="LUDecomposition.html#L225">225</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L226" href="LUDecomposition.html#L226">226</a> <em class="jxr_javadoccomment">     * Returns the pivot permutation vector.</em>
+<a class="jxr_linenumber" name="L227" href="LUDecomposition.html#L227">227</a> <em class="jxr_javadoccomment">     * @return the pivot permutation vector</em>
+<a class="jxr_linenumber" name="L228" href="LUDecomposition.html#L228">228</a> <em class="jxr_javadoccomment">     * @see #getP()</em>
+<a class="jxr_linenumber" name="L229" href="LUDecomposition.html#L229">229</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L230" href="LUDecomposition.html#L230">230</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong>[] getPivot() {
+<a class="jxr_linenumber" name="L231" href="LUDecomposition.html#L231">231</a>         <strong class="jxr_keyword">return</strong> pivot.clone();
+<a class="jxr_linenumber" name="L232" href="LUDecomposition.html#L232">232</a>     }
+<a class="jxr_linenumber" name="L233" href="LUDecomposition.html#L233">233</a> 
+<a class="jxr_linenumber" name="L234" href="LUDecomposition.html#L234">234</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L235" href="LUDecomposition.html#L235">235</a> <em class="jxr_javadoccomment">     * Return the determinant of the matrix</em>
+<a class="jxr_linenumber" name="L236" href="LUDecomposition.html#L236">236</a> <em class="jxr_javadoccomment">     * @return determinant of the matrix</em>
+<a class="jxr_linenumber" name="L237" href="LUDecomposition.html#L237">237</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L238" href="LUDecomposition.html#L238">238</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getDeterminant() {
+<a class="jxr_linenumber" name="L239" href="LUDecomposition.html#L239">239</a>         <strong class="jxr_keyword">if</strong> (singular) {
+<a class="jxr_linenumber" name="L240" href="LUDecomposition.html#L240">240</a>             <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L241" href="LUDecomposition.html#L241">241</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L242" href="LUDecomposition.html#L242">242</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = pivot.length;
+<a class="jxr_linenumber" name="L243" href="LUDecomposition.html#L243">243</a>             <strong class="jxr_keyword">double</strong> determinant = even ? 1 : -1;
+<a class="jxr_linenumber" name="L244" href="LUDecomposition.html#L244">244</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L245" href="LUDecomposition.html#L245">245</a>                 determinant *= lu[i][i];
+<a class="jxr_linenumber" name="L246" href="LUDecomposition.html#L246">246</a>             }
+<a class="jxr_linenumber" name="L247" href="LUDecomposition.html#L247">247</a>             <strong class="jxr_keyword">return</strong> determinant;
+<a class="jxr_linenumber" name="L248" href="LUDecomposition.html#L248">248</a>         }
+<a class="jxr_linenumber" name="L249" href="LUDecomposition.html#L249">249</a>     }
+<a class="jxr_linenumber" name="L250" href="LUDecomposition.html#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="LUDecomposition.html#L251">251</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L252" href="LUDecomposition.html#L252">252</a> <em class="jxr_javadoccomment">     * Get a solver for finding the A &amp;times; X = B solution in exact linear</em>
+<a class="jxr_linenumber" name="L253" href="LUDecomposition.html#L253">253</a> <em class="jxr_javadoccomment">     * sense.</em>
+<a class="jxr_linenumber" name="L254" href="LUDecomposition.html#L254">254</a> <em class="jxr_javadoccomment">     * @return a solver</em>
+<a class="jxr_linenumber" name="L255" href="LUDecomposition.html#L255">255</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L256" href="LUDecomposition.html#L256">256</a>     <strong class="jxr_keyword">public</strong> <a href="DecompositionSolver.html">DecompositionSolver</a> getSolver() {
+<a class="jxr_linenumber" name="L257" href="LUDecomposition.html#L257">257</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="RRQRDecomposition.html">Solver</a>(lu, pivot, singular);
+<a class="jxr_linenumber" name="L258" href="LUDecomposition.html#L258">258</a>     }
+<a class="jxr_linenumber" name="L259" href="LUDecomposition.html#L259">259</a> 
+<a class="jxr_linenumber" name="L260" href="LUDecomposition.html#L260">260</a>     <em class="jxr_javadoccomment">/** Specialized solver. */</em>
+<a class="jxr_linenumber" name="L261" href="LUDecomposition.html#L261">261</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="RRQRDecomposition.html">Solver</a> <strong class="jxr_keyword">implements</strong> <a href="DecompositionSolver.html">DecompositionSolver</a> {
+<a class="jxr_linenumber" name="L262" href="LUDecomposition.html#L262">262</a> 
+<a class="jxr_linenumber" name="L263" href="LUDecomposition.html#L263">263</a>         <em class="jxr_javadoccomment">/** Entries of LU decomposition. */</em>
+<a class="jxr_linenumber" name="L264" href="LUDecomposition.html#L264">264</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] lu;
+<a class="jxr_linenumber" name="L265" href="LUDecomposition.html#L265">265</a> 
+<a class="jxr_linenumber" name="L266" href="LUDecomposition.html#L266">266</a>         <em class="jxr_javadoccomment">/** Pivot permutation associated with LU decomposition. */</em>
+<a class="jxr_linenumber" name="L267" href="LUDecomposition.html#L267">267</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] pivot;
+<a class="jxr_linenumber" name="L268" href="LUDecomposition.html#L268">268</a> 
+<a class="jxr_linenumber" name="L269" href="LUDecomposition.html#L269">269</a>         <em class="jxr_javadoccomment">/** Singularity indicator. */</em>
+<a class="jxr_linenumber" name="L270" href="LUDecomposition.html#L270">270</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> singular;
+<a class="jxr_linenumber" name="L271" href="LUDecomposition.html#L271">271</a> 
+<a class="jxr_linenumber" name="L272" href="LUDecomposition.html#L272">272</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L273" href="LUDecomposition.html#L273">273</a> <em class="jxr_javadoccomment">         * Build a solver from decomposed matrix.</em>
+<a class="jxr_linenumber" name="L274" href="LUDecomposition.html#L274">274</a> <em class="jxr_javadoccomment">         * @param lu entries of LU decomposition</em>
+<a class="jxr_linenumber" name="L275" href="LUDecomposition.html#L275">275</a> <em class="jxr_javadoccomment">         * @param pivot pivot permutation associated with LU decomposition</em>
+<a class="jxr_linenumber" name="L276" href="LUDecomposition.html#L276">276</a> <em class="jxr_javadoccomment">         * @param singular singularity indicator</em>
+<a class="jxr_linenumber" name="L277" href="LUDecomposition.html#L277">277</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L278" href="LUDecomposition.html#L278">278</a>         <strong class="jxr_keyword">private</strong> <a href="RRQRDecomposition.html">Solver</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] lu, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] pivot, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> singular) {
+<a class="jxr_linenumber" name="L279" href="LUDecomposition.html#L279">279</a>             <strong class="jxr_keyword">this</strong>.lu       = lu;
+<a class="jxr_linenumber" name="L280" href="LUDecomposition.html#L280">280</a>             <strong class="jxr_keyword">this</strong>.pivot    = pivot;
+<a class="jxr_linenumber" name="L281" href="LUDecomposition.html#L281">281</a>             <strong class="jxr_keyword">this</strong>.singular = singular;
+<a class="jxr_linenumber" name="L282" href="LUDecomposition.html#L282">282</a>         }
+<a class="jxr_linenumber" name="L283" href="LUDecomposition.html#L283">283</a> 
+<a class="jxr_linenumber" name="L284" href="LUDecomposition.html#L284">284</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L285" href="LUDecomposition.html#L285">285</a>         @Override
+<a class="jxr_linenumber" name="L286" href="LUDecomposition.html#L286">286</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isNonSingular() {
+<a class="jxr_linenumber" name="L287" href="LUDecomposition.html#L287">287</a>             <strong class="jxr_keyword">return</strong> !singular;
+<a class="jxr_linenumber" name="L288" href="LUDecomposition.html#L288">288</a>         }
+<a class="jxr_linenumber" name="L289" href="LUDecomposition.html#L289">289</a> 
+<a class="jxr_linenumber" name="L290" href="LUDecomposition.html#L290">290</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L291" href="LUDecomposition.html#L291">291</a>         @Override
+<a class="jxr_linenumber" name="L292" href="LUDecomposition.html#L292">292</a>         <strong class="jxr_keyword">public</strong> <a href="RealVector.html">RealVector</a> solve(<a href="RealVector.html">RealVector</a> b) {
+<a class="jxr_linenumber" name="L293" href="LUDecomposition.html#L293">293</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = pivot.length;
+<a class="jxr_linenumber" name="L294" href="LUDecomposition.html#L294">294</a>             <strong class="jxr_keyword">if</strong> (b.getDimension() != m) {
+<a class="jxr_linenumber" name="L295" href="LUDecomposition.html#L295">295</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a>(b.getDimension(), m);
+<a class="jxr_linenumber" name="L296" href="LUDecomposition.html#L296">296</a>             }
+<a class="jxr_linenumber" name="L297" href="LUDecomposition.html#L297">297</a>             <strong class="jxr_keyword">if</strong> (singular) {
+<a class="jxr_linenumber" name="L298" href="LUDecomposition.html#L298">298</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="SingularMatrixException.html">SingularMatrixException</a>();
+<a class="jxr_linenumber" name="L299" href="LUDecomposition.html#L299">299</a>             }
+<a class="jxr_linenumber" name="L300" href="LUDecomposition.html#L300">300</a> 
+<a class="jxr_linenumber" name="L301" href="LUDecomposition.html#L301">301</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] bp = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[m];
+<a class="jxr_linenumber" name="L302" href="LUDecomposition.html#L302">302</a> 
+<a class="jxr_linenumber" name="L303" href="LUDecomposition.html#L303">303</a>             <em class="jxr_comment">// Apply permutations to b</em>
+<a class="jxr_linenumber" name="L304" href="LUDecomposition.html#L304">304</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = 0; row &lt; m; row++) {
+<a class="jxr_linenumber" name="L305" href="LUDecomposition.html#L305">305</a>                 bp[row] = b.getEntry(pivot[row]);
+<a class="jxr_linenumber" name="L306" href="LUDecomposition.html#L306">306</a>             }
+<a class="jxr_linenumber" name="L307" href="LUDecomposition.html#L307">307</a> 
+<a class="jxr_linenumber" name="L308" href="LUDecomposition.html#L308">308</a>             <em class="jxr_comment">// Solve LY = b</em>
+<a class="jxr_linenumber" name="L309" href="LUDecomposition.html#L309">309</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = 0; col &lt; m; col++) {
+<a class="jxr_linenumber" name="L310" href="LUDecomposition.html#L310">310</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> bpCol = bp[col];
+<a class="jxr_linenumber" name="L311" href="LUDecomposition.html#L311">311</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = col + 1; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L312" href="LUDecomposition.html#L312">312</a>                     bp[i] -= bpCol * lu[i][col];
+<a class="jxr_linenumber" name="L313" href="LUDecomposition.html#L313">313</a>                 }
+<a class="jxr_linenumber" name="L314" href="LUDecomposition.html#L314">314</a>             }
+<a class="jxr_linenumber" name="L315" href="LUDecomposition.html#L315">315</a> 
+<a class="jxr_linenumber" name="L316" href="LUDecomposition.html#L316">316</a>             <em class="jxr_comment">// Solve UX = Y</em>
+<a class="jxr_linenumber" name="L317" href="LUDecomposition.html#L317">317</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = m - 1; col &gt;= 0; col--) {
+<a class="jxr_linenumber" name="L318" href="LUDecomposition.html#L318">318</a>                 bp[col] /= lu[col][col];
+<a class="jxr_linenumber" name="L319" href="LUDecomposition.html#L319">319</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> bpCol = bp[col];
+<a class="jxr_linenumber" name="L320" href="LUDecomposition.html#L320">320</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; col; i++) {
+<a class="jxr_linenumber" name="L321" href="LUDecomposition.html#L321">321</a>                     bp[i] -= bpCol * lu[i][col];
+<a class="jxr_linenumber" name="L322" href="LUDecomposition.html#L322">322</a>                 }
+<a class="jxr_linenumber" name="L323" href="LUDecomposition.html#L323">323</a>             }
+<a class="jxr_linenumber" name="L324" href="LUDecomposition.html#L324">324</a> 
+<a class="jxr_linenumber" name="L325" href="LUDecomposition.html#L325">325</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="ArrayRealVector.html">ArrayRealVector</a>(bp, false);
+<a class="jxr_linenumber" name="L326" href="LUDecomposition.html#L326">326</a>         }
+<a class="jxr_linenumber" name="L327" href="LUDecomposition.html#L327">327</a> 
+<a class="jxr_linenumber" name="L328" href="LUDecomposition.html#L328">328</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L329" href="LUDecomposition.html#L329">329</a>         @Override
+<a class="jxr_linenumber" name="L330" href="LUDecomposition.html#L330">330</a>         <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> solve(<a href="RealMatrix.html">RealMatrix</a> b) {
+<a class="jxr_linenumber" name="L331" href="LUDecomposition.html#L331">331</a> 
+<a class="jxr_linenumber" name="L332" href="LUDecomposition.html#L332">332</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = pivot.length;
+<a class="jxr_linenumber" name="L333" href="LUDecomposition.html#L333">333</a>             <strong class="jxr_keyword">if</strong> (b.getRowDimension() != m) {
+<a class="jxr_linenumber" name="L334" href="LUDecomposition.html#L334">334</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a>(b.getRowDimension(), m);
+<a class="jxr_linenumber" name="L335" href="LUDecomposition.html#L335">335</a>             }
+<a class="jxr_linenumber" name="L336" href="LUDecomposition.html#L336">336</a>             <strong class="jxr_keyword">if</strong> (singular) {
+<a class="jxr_linenumber" name="L337" href="LUDecomposition.html#L337">337</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="SingularMatrixException.html">SingularMatrixException</a>();
+<a class="jxr_linenumber" name="L338" href="LUDecomposition.html#L338">338</a>             }
+<a class="jxr_linenumber" name="L339" href="LUDecomposition.html#L339">339</a> 
+<a class="jxr_linenumber" name="L340" href="LUDecomposition.html#L340">340</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nColB = b.getColumnDimension();
+<a class="jxr_linenumber" name="L341" href="LUDecomposition.html#L341">341</a> 
+<a class="jxr_linenumber" name="L342" href="LUDecomposition.html#L342">342</a>             <em class="jxr_comment">// Apply permutations to b</em>
+<a class="jxr_linenumber" name="L343" href="LUDecomposition.html#L343">343</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] bp = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[m][nColB];
+<a class="jxr_linenumber" name="L344" href="LUDecomposition.html#L344">344</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = 0; row &lt; m; row++) {
+<a class="jxr_linenumber" name="L345" href="LUDecomposition.html#L345">345</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] bpRow = bp[row];
+<a class="jxr_linenumber" name="L346" href="LUDecomposition.html#L346">346</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> pRow = pivot[row];
+<a class="jxr_linenumber" name="L347" href="LUDecomposition.html#L347">347</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = 0; col &lt; nColB; col++) {
+<a class="jxr_linenumber" name="L348" href="LUDecomposition.html#L348">348</a>                     bpRow[col] = b.getEntry(pRow, col);
+<a class="jxr_linenumber" name="L349" href="LUDecomposition.html#L349">349</a>                 }
+<a class="jxr_linenumber" name="L350" href="LUDecomposition.html#L350">350</a>             }
+<a class="jxr_linenumber" name="L351" href="LUDecomposition.html#L351">351</a> 
+<a class="jxr_linenumber" name="L352" href="LUDecomposition.html#L352">352</a>             <em class="jxr_comment">// Solve LY = b</em>
+<a class="jxr_linenumber" name="L353" href="LUDecomposition.html#L353">353</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = 0; col &lt; m; col++) {
+<a class="jxr_linenumber" name="L354" href="LUDecomposition.html#L354">354</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] bpCol = bp[col];
+<a class="jxr_linenumber" name="L355" href="LUDecomposition.html#L355">355</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = col + 1; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L356" href="LUDecomposition.html#L356">356</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] bpI = bp[i];
+<a class="jxr_linenumber" name="L357" href="LUDecomposition.html#L357">357</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> luICol = lu[i][col];
+<a class="jxr_linenumber" name="L358" href="LUDecomposition.html#L358">358</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; nColB; j++) {
+<a class="jxr_linenumber" name="L359" href="LUDecomposition.html#L359">359</a>                         bpI[j] -= bpCol[j] * luICol;
+<a class="jxr_linenumber" name="L360" href="LUDecomposition.html#L360">360</a>                     }
+<a class="jxr_linenumber" name="L361" href="LUDecomposition.html#L361">361</a>                 }
+<a class="jxr_linenumber" name="L362" href="LUDecomposition.html#L362">362</a>             }
+<a class="jxr_linenumber" name="L363" href="LUDecomposition.html#L363">363</a> 
+<a class="jxr_linenumber" name="L364" href="LUDecomposition.html#L364">364</a>             <em class="jxr_comment">// Solve UX = Y</em>
+<a class="jxr_linenumber" name="L365" href="LUDecomposition.html#L365">365</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = m - 1; col &gt;= 0; col--) {
+<a class="jxr_linenumber" name="L366" href="LUDecomposition.html#L366">366</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] bpCol = bp[col];
+<a class="jxr_linenumber" name="L367" href="LUDecomposition.html#L367">367</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> luDiag = lu[col][col];
+<a class="jxr_linenumber" name="L368" href="LUDecomposition.html#L368">368</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; nColB; j++) {
+<a class="jxr_linenumber" name="L369" href="LUDecomposition.html#L369">369</a>                     bpCol[j] /= luDiag;
+<a class="jxr_linenumber" name="L370" href="LUDecomposition.html#L370">370</a>                 }
+<a class="jxr_linenumber" name="L371" href="LUDecomposition.html#L371">371</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; col; i++) {
+<a class="jxr_linenumber" name="L372" href="LUDecomposition.html#L372">372</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] bpI = bp[i];
+<a class="jxr_linenumber" name="L373" href="LUDecomposition.html#L373">373</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> luICol = lu[i][col];
+<a class="jxr_linenumber" name="L374" href="LUDecomposition.html#L374">374</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; nColB; j++) {
+<a class="jxr_linenumber" name="L375" href="LUDecomposition.html#L375">375</a>                         bpI[j] -= bpCol[j] * luICol;
+<a class="jxr_linenumber" name="L376" href="LUDecomposition.html#L376">376</a>                     }
+<a class="jxr_linenumber" name="L377" href="LUDecomposition.html#L377">377</a>                 }
+<a class="jxr_linenumber" name="L378" href="LUDecomposition.html#L378">378</a>             }
+<a class="jxr_linenumber" name="L379" href="LUDecomposition.html#L379">379</a> 
+<a class="jxr_linenumber" name="L380" href="LUDecomposition.html#L380">380</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(bp, false);
+<a class="jxr_linenumber" name="L381" href="LUDecomposition.html#L381">381</a>         }
+<a class="jxr_linenumber" name="L382" href="LUDecomposition.html#L382">382</a> 
+<a class="jxr_linenumber" name="L383" href="LUDecomposition.html#L383">383</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L384" href="LUDecomposition.html#L384">384</a> <em class="jxr_javadoccomment">         * Get the inverse of the decomposed matrix.</em>
+<a class="jxr_linenumber" name="L385" href="LUDecomposition.html#L385">385</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L386" href="LUDecomposition.html#L386">386</a> <em class="jxr_javadoccomment">         * @return the inverse matrix.</em>
+<a class="jxr_linenumber" name="L387" href="LUDecomposition.html#L387">387</a> <em class="jxr_javadoccomment">         * @throws SingularMatrixException if the decomposed matrix is singular.</em>
+<a class="jxr_linenumber" name="L388" href="LUDecomposition.html#L388">388</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L389" href="LUDecomposition.html#L389">389</a>         @Override
+<a class="jxr_linenumber" name="L390" href="LUDecomposition.html#L390">390</a>         <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getInverse() {
+<a class="jxr_linenumber" name="L391" href="LUDecomposition.html#L391">391</a>             <strong class="jxr_keyword">return</strong> solve(MatrixUtils.createRealIdentityMatrix(pivot.length));
+<a class="jxr_linenumber" name="L392" href="LUDecomposition.html#L392">392</a>         }
+<a class="jxr_linenumber" name="L393" href="LUDecomposition.html#L393">393</a>     }
+<a class="jxr_linenumber" name="L394" href="LUDecomposition.html#L394">394</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

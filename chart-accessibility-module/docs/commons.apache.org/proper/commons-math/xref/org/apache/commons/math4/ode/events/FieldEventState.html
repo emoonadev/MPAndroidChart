@@ -1,0 +1,358 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>FieldEventState xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/ode/events/FieldEventState.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="FieldEventState.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="FieldEventState.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="FieldEventState.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="FieldEventState.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="FieldEventState.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="FieldEventState.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="FieldEventState.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="FieldEventState.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="FieldEventState.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="FieldEventState.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="FieldEventState.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="FieldEventState.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="FieldEventState.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="FieldEventState.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="FieldEventState.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="FieldEventState.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="FieldEventState.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="FieldEventState.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.ode.events;
+<a class="jxr_linenumber" name="L19" href="FieldEventState.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="FieldEventState.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.RealFieldElement;
+<a class="jxr_linenumber" name="L21" href="FieldEventState.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.RealFieldUnivariateFunction;
+<a class="jxr_linenumber" name="L22" href="FieldEventState.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.solvers.AllowedSolution;
+<a class="jxr_linenumber" name="L23" href="FieldEventState.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.solvers.BracketedRealFieldUnivariateSolver;
+<a class="jxr_linenumber" name="L24" href="FieldEventState.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MaxCountExceededException;
+<a class="jxr_linenumber" name="L25" href="FieldEventState.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoBracketingException;
+<a class="jxr_linenumber" name="L26" href="FieldEventState.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.FieldODEState;
+<a class="jxr_linenumber" name="L27" href="FieldEventState.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.FieldODEStateAndDerivative;
+<a class="jxr_linenumber" name="L28" href="FieldEventState.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.sampling.FieldStepInterpolator;
+<a class="jxr_linenumber" name="L29" href="FieldEventState.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L30" href="FieldEventState.html#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="FieldEventState.html#L31">31</a>  <em class="jxr_javadoccomment">/** This class handles the state for one {@link EventHandler</em>
+<a class="jxr_linenumber" name="L32" href="FieldEventState.html#L32">32</a>  <em class="jxr_javadoccomment"> * event handler} during integration steps.</em>
+<a class="jxr_linenumber" name="L33" href="FieldEventState.html#L33">33</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L34" href="FieldEventState.html#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Each time the integrator proposes a step, the event handler</em>
+<a class="jxr_linenumber" name="L35" href="FieldEventState.html#L35">35</a>  <em class="jxr_javadoccomment"> * switching function should be checked. This class handles the state</em>
+<a class="jxr_linenumber" name="L36" href="FieldEventState.html#L36">36</a>  <em class="jxr_javadoccomment"> * of one handler during one integration step, with references to the</em>
+<a class="jxr_linenumber" name="L37" href="FieldEventState.html#L37">37</a>  <em class="jxr_javadoccomment"> * state at the end of the preceding step. This information is used to</em>
+<a class="jxr_linenumber" name="L38" href="FieldEventState.html#L38">38</a>  <em class="jxr_javadoccomment"> * decide if the handler should trigger an event or not during the</em>
+<a class="jxr_linenumber" name="L39" href="FieldEventState.html#L39">39</a>  <em class="jxr_javadoccomment"> * proposed step.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L40" href="FieldEventState.html#L40">40</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L41" href="FieldEventState.html#L41">41</a>  <em class="jxr_javadoccomment"> * @param &lt;T&gt; the type of the field elements</em>
+<a class="jxr_linenumber" name="L42" href="FieldEventState.html#L42">42</a>  <em class="jxr_javadoccomment"> * @since 3.6</em>
+<a class="jxr_linenumber" name="L43" href="FieldEventState.html#L43">43</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L44" href="FieldEventState.html#L44">44</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> FieldEventState&lt;T <strong class="jxr_keyword">extends</strong> RealFieldElement&lt;T&gt;&gt; {
+<a class="jxr_linenumber" name="L45" href="FieldEventState.html#L45">45</a>  
+<a class="jxr_linenumber" name="L46" href="FieldEventState.html#L46">46</a>      <em class="jxr_javadoccomment">/** Event handler. */</em>
+<a class="jxr_linenumber" name="L47" href="FieldEventState.html#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> FieldEventHandler&lt;T&gt; handler;
+<a class="jxr_linenumber" name="L48" href="FieldEventState.html#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="FieldEventState.html#L49">49</a>      <em class="jxr_javadoccomment">/** Maximal time interval between events handler checks. */</em>
+<a class="jxr_linenumber" name="L50" href="FieldEventState.html#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxCheckInterval;
+<a class="jxr_linenumber" name="L51" href="FieldEventState.html#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="FieldEventState.html#L52">52</a>      <em class="jxr_javadoccomment">/** Convergence threshold for event localization. */</em>
+<a class="jxr_linenumber" name="L53" href="FieldEventState.html#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> T convergence;
+<a class="jxr_linenumber" name="L54" href="FieldEventState.html#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="FieldEventState.html#L55">55</a>      <em class="jxr_javadoccomment">/** Upper limit in the iteration count for event localization. */</em>
+<a class="jxr_linenumber" name="L56" href="FieldEventState.html#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIterationCount;
+<a class="jxr_linenumber" name="L57" href="FieldEventState.html#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="FieldEventState.html#L58">58</a>      <em class="jxr_javadoccomment">/** Time at the beginning of the step. */</em>
+<a class="jxr_linenumber" name="L59" href="FieldEventState.html#L59">59</a>      <strong class="jxr_keyword">private</strong> T t0;
+<a class="jxr_linenumber" name="L60" href="FieldEventState.html#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="FieldEventState.html#L61">61</a>      <em class="jxr_javadoccomment">/** Value of the events handler at the beginning of the step. */</em>
+<a class="jxr_linenumber" name="L62" href="FieldEventState.html#L62">62</a>      <strong class="jxr_keyword">private</strong> T g0;
+<a class="jxr_linenumber" name="L63" href="FieldEventState.html#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="FieldEventState.html#L64">64</a>      <em class="jxr_javadoccomment">/** Simulated sign of g0 (we cheat when crossing events). */</em>
+<a class="jxr_linenumber" name="L65" href="FieldEventState.html#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> g0Positive;
+<a class="jxr_linenumber" name="L66" href="FieldEventState.html#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="FieldEventState.html#L67">67</a>      <em class="jxr_javadoccomment">/** Indicator of event expected during the step. */</em>
+<a class="jxr_linenumber" name="L68" href="FieldEventState.html#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> pendingEvent;
+<a class="jxr_linenumber" name="L69" href="FieldEventState.html#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="FieldEventState.html#L70">70</a>      <em class="jxr_javadoccomment">/** Occurrence time of the pending event. */</em>
+<a class="jxr_linenumber" name="L71" href="FieldEventState.html#L71">71</a>      <strong class="jxr_keyword">private</strong> T pendingEventTime;
+<a class="jxr_linenumber" name="L72" href="FieldEventState.html#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="FieldEventState.html#L73">73</a>      <em class="jxr_javadoccomment">/** Occurrence time of the previous event. */</em>
+<a class="jxr_linenumber" name="L74" href="FieldEventState.html#L74">74</a>      <strong class="jxr_keyword">private</strong> T previousEventTime;
+<a class="jxr_linenumber" name="L75" href="FieldEventState.html#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="FieldEventState.html#L76">76</a>      <em class="jxr_javadoccomment">/** Integration direction. */</em>
+<a class="jxr_linenumber" name="L77" href="FieldEventState.html#L77">77</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> forward;
+<a class="jxr_linenumber" name="L78" href="FieldEventState.html#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="FieldEventState.html#L79">79</a>      <em class="jxr_javadoccomment">/** Variation direction around pending event.</em>
+<a class="jxr_linenumber" name="L80" href="FieldEventState.html#L80">80</a>  <em class="jxr_javadoccomment">     *  (this is considered with respect to the integration direction)</em>
+<a class="jxr_linenumber" name="L81" href="FieldEventState.html#L81">81</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L82" href="FieldEventState.html#L82">82</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> increasing;
+<a class="jxr_linenumber" name="L83" href="FieldEventState.html#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="FieldEventState.html#L84">84</a>      <em class="jxr_javadoccomment">/** Next action indicator. */</em>
+<a class="jxr_linenumber" name="L85" href="FieldEventState.html#L85">85</a>      <strong class="jxr_keyword">private</strong> <a href="Action.html">Action</a> nextAction;
+<a class="jxr_linenumber" name="L86" href="FieldEventState.html#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="FieldEventState.html#L87">87</a>      <em class="jxr_javadoccomment">/** Root-finding algorithm to use to detect state events. */</em>
+<a class="jxr_linenumber" name="L88" href="FieldEventState.html#L88">88</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> BracketedRealFieldUnivariateSolver&lt;T&gt; solver;
+<a class="jxr_linenumber" name="L89" href="FieldEventState.html#L89">89</a>  
+<a class="jxr_linenumber" name="L90" href="FieldEventState.html#L90">90</a>      <em class="jxr_javadoccomment">/** Simple constructor.</em>
+<a class="jxr_linenumber" name="L91" href="FieldEventState.html#L91">91</a>  <em class="jxr_javadoccomment">     * @param handler event handler</em>
+<a class="jxr_linenumber" name="L92" href="FieldEventState.html#L92">92</a>  <em class="jxr_javadoccomment">     * @param maxCheckInterval maximal time interval between switching</em>
+<a class="jxr_linenumber" name="L93" href="FieldEventState.html#L93">93</a>  <em class="jxr_javadoccomment">     * function checks (this interval prevents missing sign changes in</em>
+<a class="jxr_linenumber" name="L94" href="FieldEventState.html#L94">94</a>  <em class="jxr_javadoccomment">     * case the integration steps becomes very large)</em>
+<a class="jxr_linenumber" name="L95" href="FieldEventState.html#L95">95</a>  <em class="jxr_javadoccomment">     * @param convergence convergence threshold in the event time search</em>
+<a class="jxr_linenumber" name="L96" href="FieldEventState.html#L96">96</a>  <em class="jxr_javadoccomment">     * @param maxIterationCount upper limit of the iteration count in</em>
+<a class="jxr_linenumber" name="L97" href="FieldEventState.html#L97">97</a>  <em class="jxr_javadoccomment">     * the event time search</em>
+<a class="jxr_linenumber" name="L98" href="FieldEventState.html#L98">98</a>  <em class="jxr_javadoccomment">     * @param solver Root-finding algorithm to use to detect state events</em>
+<a class="jxr_linenumber" name="L99" href="FieldEventState.html#L99">99</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L100" href="FieldEventState.html#L100">100</a>     <strong class="jxr_keyword">public</strong> <a href="FieldEventState.html">FieldEventState</a>(<strong class="jxr_keyword">final</strong> FieldEventHandler&lt;T&gt; handler, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxCheckInterval,
+<a class="jxr_linenumber" name="L101" href="FieldEventState.html#L101">101</a>                            <strong class="jxr_keyword">final</strong> T convergence, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIterationCount,
+<a class="jxr_linenumber" name="L102" href="FieldEventState.html#L102">102</a>                            <strong class="jxr_keyword">final</strong> BracketedRealFieldUnivariateSolver&lt;T&gt; solver) {
+<a class="jxr_linenumber" name="L103" href="FieldEventState.html#L103">103</a>         <strong class="jxr_keyword">this</strong>.handler           = handler;
+<a class="jxr_linenumber" name="L104" href="FieldEventState.html#L104">104</a>         <strong class="jxr_keyword">this</strong>.maxCheckInterval  = maxCheckInterval;
+<a class="jxr_linenumber" name="L105" href="FieldEventState.html#L105">105</a>         <strong class="jxr_keyword">this</strong>.convergence       = convergence.abs();
+<a class="jxr_linenumber" name="L106" href="FieldEventState.html#L106">106</a>         <strong class="jxr_keyword">this</strong>.maxIterationCount = maxIterationCount;
+<a class="jxr_linenumber" name="L107" href="FieldEventState.html#L107">107</a>         <strong class="jxr_keyword">this</strong>.solver            = solver;
+<a class="jxr_linenumber" name="L108" href="FieldEventState.html#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="FieldEventState.html#L109">109</a>         <em class="jxr_comment">// some dummy values ...</em>
+<a class="jxr_linenumber" name="L110" href="FieldEventState.html#L110">110</a>         t0                = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L111" href="FieldEventState.html#L111">111</a>         g0                = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L112" href="FieldEventState.html#L112">112</a>         g0Positive        = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L113" href="FieldEventState.html#L113">113</a>         pendingEvent      = false;
+<a class="jxr_linenumber" name="L114" href="FieldEventState.html#L114">114</a>         pendingEventTime  = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L115" href="FieldEventState.html#L115">115</a>         previousEventTime = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L116" href="FieldEventState.html#L116">116</a>         increasing        = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L117" href="FieldEventState.html#L117">117</a>         nextAction        = Action.CONTINUE;
+<a class="jxr_linenumber" name="L118" href="FieldEventState.html#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="FieldEventState.html#L119">119</a>     }
+<a class="jxr_linenumber" name="L120" href="FieldEventState.html#L120">120</a> 
+<a class="jxr_linenumber" name="L121" href="FieldEventState.html#L121">121</a>     <em class="jxr_javadoccomment">/** Get the underlying event handler.</em>
+<a class="jxr_linenumber" name="L122" href="FieldEventState.html#L122">122</a> <em class="jxr_javadoccomment">     * @return underlying event handler</em>
+<a class="jxr_linenumber" name="L123" href="FieldEventState.html#L123">123</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L124" href="FieldEventState.html#L124">124</a>     <strong class="jxr_keyword">public</strong> FieldEventHandler&lt;T&gt; getEventHandler() {
+<a class="jxr_linenumber" name="L125" href="FieldEventState.html#L125">125</a>         <strong class="jxr_keyword">return</strong> handler;
+<a class="jxr_linenumber" name="L126" href="FieldEventState.html#L126">126</a>     }
+<a class="jxr_linenumber" name="L127" href="FieldEventState.html#L127">127</a> 
+<a class="jxr_linenumber" name="L128" href="FieldEventState.html#L128">128</a>     <em class="jxr_javadoccomment">/** Get the maximal time interval between events handler checks.</em>
+<a class="jxr_linenumber" name="L129" href="FieldEventState.html#L129">129</a> <em class="jxr_javadoccomment">     * @return maximal time interval between events handler checks</em>
+<a class="jxr_linenumber" name="L130" href="FieldEventState.html#L130">130</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L131" href="FieldEventState.html#L131">131</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getMaxCheckInterval() {
+<a class="jxr_linenumber" name="L132" href="FieldEventState.html#L132">132</a>         <strong class="jxr_keyword">return</strong> maxCheckInterval;
+<a class="jxr_linenumber" name="L133" href="FieldEventState.html#L133">133</a>     }
+<a class="jxr_linenumber" name="L134" href="FieldEventState.html#L134">134</a> 
+<a class="jxr_linenumber" name="L135" href="FieldEventState.html#L135">135</a>     <em class="jxr_javadoccomment">/** Get the convergence threshold for event localization.</em>
+<a class="jxr_linenumber" name="L136" href="FieldEventState.html#L136">136</a> <em class="jxr_javadoccomment">     * @return convergence threshold for event localization</em>
+<a class="jxr_linenumber" name="L137" href="FieldEventState.html#L137">137</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L138" href="FieldEventState.html#L138">138</a>     <strong class="jxr_keyword">public</strong> T getConvergence() {
+<a class="jxr_linenumber" name="L139" href="FieldEventState.html#L139">139</a>         <strong class="jxr_keyword">return</strong> convergence;
+<a class="jxr_linenumber" name="L140" href="FieldEventState.html#L140">140</a>     }
+<a class="jxr_linenumber" name="L141" href="FieldEventState.html#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="FieldEventState.html#L142">142</a>     <em class="jxr_javadoccomment">/** Get the upper limit in the iteration count for event localization.</em>
+<a class="jxr_linenumber" name="L143" href="FieldEventState.html#L143">143</a> <em class="jxr_javadoccomment">     * @return upper limit in the iteration count for event localization</em>
+<a class="jxr_linenumber" name="L144" href="FieldEventState.html#L144">144</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L145" href="FieldEventState.html#L145">145</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getMaxIterationCount() {
+<a class="jxr_linenumber" name="L146" href="FieldEventState.html#L146">146</a>         <strong class="jxr_keyword">return</strong> maxIterationCount;
+<a class="jxr_linenumber" name="L147" href="FieldEventState.html#L147">147</a>     }
+<a class="jxr_linenumber" name="L148" href="FieldEventState.html#L148">148</a> 
+<a class="jxr_linenumber" name="L149" href="FieldEventState.html#L149">149</a>     <em class="jxr_javadoccomment">/** Reinitialize the beginning of the step.</em>
+<a class="jxr_linenumber" name="L150" href="FieldEventState.html#L150">150</a> <em class="jxr_javadoccomment">     * @param interpolator valid for the current step</em>
+<a class="jxr_linenumber" name="L151" href="FieldEventState.html#L151">151</a> <em class="jxr_javadoccomment">     * @exception MaxCountExceededException if the interpolator throws one because</em>
+<a class="jxr_linenumber" name="L152" href="FieldEventState.html#L152">152</a> <em class="jxr_javadoccomment">     * the number of functions evaluations is exceeded</em>
+<a class="jxr_linenumber" name="L153" href="FieldEventState.html#L153">153</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L154" href="FieldEventState.html#L154">154</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> reinitializeBegin(<strong class="jxr_keyword">final</strong> FieldStepInterpolator&lt;T&gt; interpolator)
+<a class="jxr_linenumber" name="L155" href="FieldEventState.html#L155">155</a>         <strong class="jxr_keyword">throws</strong> <a href="../../exception/MaxCountExceededException.html">MaxCountExceededException</a> {
+<a class="jxr_linenumber" name="L156" href="FieldEventState.html#L156">156</a> 
+<a class="jxr_linenumber" name="L157" href="FieldEventState.html#L157">157</a>         <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; s0 = interpolator.getPreviousState();
+<a class="jxr_linenumber" name="L158" href="FieldEventState.html#L158">158</a>         t0 = s0.getTime();
+<a class="jxr_linenumber" name="L159" href="FieldEventState.html#L159">159</a>         g0 = handler.g(s0);
+<a class="jxr_linenumber" name="L160" href="FieldEventState.html#L160">160</a>         <strong class="jxr_keyword">if</strong> (g0.getReal() == 0) {
+<a class="jxr_linenumber" name="L161" href="FieldEventState.html#L161">161</a>             <em class="jxr_comment">// excerpt from MATH-421 issue:</em>
+<a class="jxr_linenumber" name="L162" href="FieldEventState.html#L162">162</a>             <em class="jxr_comment">// If an ODE solver is setup with an EventHandler that return STOP</em>
+<a class="jxr_linenumber" name="L163" href="FieldEventState.html#L163">163</a>             <em class="jxr_comment">// when the even is triggered, the integrator stops (which is exactly</em>
+<a class="jxr_linenumber" name="L164" href="FieldEventState.html#L164">164</a>             <em class="jxr_comment">// the expected behavior). If however the user wants to restart the</em>
+<a class="jxr_linenumber" name="L165" href="FieldEventState.html#L165">165</a>             <em class="jxr_comment">// solver from the final state reached at the event with the same</em>
+<a class="jxr_linenumber" name="L166" href="FieldEventState.html#L166">166</a>             <em class="jxr_comment">// configuration (expecting the event to be triggered again at a</em>
+<a class="jxr_linenumber" name="L167" href="FieldEventState.html#L167">167</a>             <em class="jxr_comment">// later time), then the integrator may fail to start. It can get stuck</em>
+<a class="jxr_linenumber" name="L168" href="FieldEventState.html#L168">168</a>             <em class="jxr_comment">// at the previous event. The use case for the bug MATH-421 is fairly</em>
+<a class="jxr_linenumber" name="L169" href="FieldEventState.html#L169">169</a>             <em class="jxr_comment">// general, so events occurring exactly at start in the first step should</em>
+<a class="jxr_linenumber" name="L170" href="FieldEventState.html#L170">170</a>             <em class="jxr_comment">// be ignored.</em>
+<a class="jxr_linenumber" name="L171" href="FieldEventState.html#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="FieldEventState.html#L172">172</a>             <em class="jxr_comment">// extremely rare case: there is a zero EXACTLY at interval start</em>
+<a class="jxr_linenumber" name="L173" href="FieldEventState.html#L173">173</a>             <em class="jxr_comment">// we will use the sign slightly after step beginning to force ignoring this zero</em>
+<a class="jxr_linenumber" name="L174" href="FieldEventState.html#L174">174</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> epsilon = FastMath.max(solver.getAbsoluteAccuracy().getReal(),
+<a class="jxr_linenumber" name="L175" href="FieldEventState.html#L175">175</a>                                                 FastMath.abs(solver.getRelativeAccuracy().multiply(t0).getReal()));
+<a class="jxr_linenumber" name="L176" href="FieldEventState.html#L176">176</a>             <strong class="jxr_keyword">final</strong> T tStart = t0.add(0.5 * epsilon);
+<a class="jxr_linenumber" name="L177" href="FieldEventState.html#L177">177</a>             g0 = handler.g(interpolator.getInterpolatedState(tStart));
+<a class="jxr_linenumber" name="L178" href="FieldEventState.html#L178">178</a>         }
+<a class="jxr_linenumber" name="L179" href="FieldEventState.html#L179">179</a>         g0Positive = g0.getReal() &gt;= 0;
+<a class="jxr_linenumber" name="L180" href="FieldEventState.html#L180">180</a> 
+<a class="jxr_linenumber" name="L181" href="FieldEventState.html#L181">181</a>     }
+<a class="jxr_linenumber" name="L182" href="FieldEventState.html#L182">182</a> 
+<a class="jxr_linenumber" name="L183" href="FieldEventState.html#L183">183</a>     <em class="jxr_javadoccomment">/** Evaluate the impact of the proposed step on the event handler.</em>
+<a class="jxr_linenumber" name="L184" href="FieldEventState.html#L184">184</a> <em class="jxr_javadoccomment">     * @param interpolator step interpolator for the proposed step</em>
+<a class="jxr_linenumber" name="L185" href="FieldEventState.html#L185">185</a> <em class="jxr_javadoccomment">     * @return true if the event handler triggers an event before</em>
+<a class="jxr_linenumber" name="L186" href="FieldEventState.html#L186">186</a> <em class="jxr_javadoccomment">     * the end of the proposed step</em>
+<a class="jxr_linenumber" name="L187" href="FieldEventState.html#L187">187</a> <em class="jxr_javadoccomment">     * @exception MaxCountExceededException if the interpolator throws one because</em>
+<a class="jxr_linenumber" name="L188" href="FieldEventState.html#L188">188</a> <em class="jxr_javadoccomment">     * the number of functions evaluations is exceeded</em>
+<a class="jxr_linenumber" name="L189" href="FieldEventState.html#L189">189</a> <em class="jxr_javadoccomment">     * @exception NoBracketingException if the event cannot be bracketed</em>
+<a class="jxr_linenumber" name="L190" href="FieldEventState.html#L190">190</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L191" href="FieldEventState.html#L191">191</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> evaluateStep(<strong class="jxr_keyword">final</strong> FieldStepInterpolator&lt;T&gt; interpolator)
+<a class="jxr_linenumber" name="L192" href="FieldEventState.html#L192">192</a>         <strong class="jxr_keyword">throws</strong> MaxCountExceededException, <a href="../../exception/NoBracketingException.html">NoBracketingException</a> {
+<a class="jxr_linenumber" name="L193" href="FieldEventState.html#L193">193</a> 
+<a class="jxr_linenumber" name="L194" href="FieldEventState.html#L194">194</a>         forward = interpolator.isForward();
+<a class="jxr_linenumber" name="L195" href="FieldEventState.html#L195">195</a>         <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; s1 = interpolator.getCurrentState();
+<a class="jxr_linenumber" name="L196" href="FieldEventState.html#L196">196</a>         <strong class="jxr_keyword">final</strong> T t1 = s1.getTime();
+<a class="jxr_linenumber" name="L197" href="FieldEventState.html#L197">197</a>         <strong class="jxr_keyword">final</strong> T dt = t1.subtract(t0);
+<a class="jxr_linenumber" name="L198" href="FieldEventState.html#L198">198</a>         <strong class="jxr_keyword">if</strong> (dt.abs().subtract(convergence).getReal() &lt; 0) {
+<a class="jxr_linenumber" name="L199" href="FieldEventState.html#L199">199</a>             <em class="jxr_comment">// we cannot do anything on such a small step, don't trigger any events</em>
+<a class="jxr_linenumber" name="L200" href="FieldEventState.html#L200">200</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L201" href="FieldEventState.html#L201">201</a>         }
+<a class="jxr_linenumber" name="L202" href="FieldEventState.html#L202">202</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = FastMath.max(1, (<strong class="jxr_keyword">int</strong>) FastMath.ceil(FastMath.abs(dt.getReal()) / maxCheckInterval));
+<a class="jxr_linenumber" name="L203" href="FieldEventState.html#L203">203</a>         <strong class="jxr_keyword">final</strong> T   h = dt.divide(n);
+<a class="jxr_linenumber" name="L204" href="FieldEventState.html#L204">204</a> 
+<a class="jxr_linenumber" name="L205" href="FieldEventState.html#L205">205</a>         <strong class="jxr_keyword">final</strong> RealFieldUnivariateFunction&lt;T&gt; f = <strong class="jxr_keyword">new</strong> RealFieldUnivariateFunction&lt;T&gt;() {
+<a class="jxr_linenumber" name="L206" href="FieldEventState.html#L206">206</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L207" href="FieldEventState.html#L207">207</a>             @Override
+<a class="jxr_linenumber" name="L208" href="FieldEventState.html#L208">208</a>             <strong class="jxr_keyword">public</strong> T value(<strong class="jxr_keyword">final</strong> T t) {
+<a class="jxr_linenumber" name="L209" href="FieldEventState.html#L209">209</a>                 <strong class="jxr_keyword">return</strong> handler.g(interpolator.getInterpolatedState(t));
+<a class="jxr_linenumber" name="L210" href="FieldEventState.html#L210">210</a>             }
+<a class="jxr_linenumber" name="L211" href="FieldEventState.html#L211">211</a>         };
+<a class="jxr_linenumber" name="L212" href="FieldEventState.html#L212">212</a> 
+<a class="jxr_linenumber" name="L213" href="FieldEventState.html#L213">213</a>         T ta = t0;
+<a class="jxr_linenumber" name="L214" href="FieldEventState.html#L214">214</a>         T ga = g0;
+<a class="jxr_linenumber" name="L215" href="FieldEventState.html#L215">215</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; ++i) {
+<a class="jxr_linenumber" name="L216" href="FieldEventState.html#L216">216</a> 
+<a class="jxr_linenumber" name="L217" href="FieldEventState.html#L217">217</a>             <em class="jxr_comment">// evaluate handler value at the end of the substep</em>
+<a class="jxr_linenumber" name="L218" href="FieldEventState.html#L218">218</a>             <strong class="jxr_keyword">final</strong> T tb = (i == n - 1) ? t1 : t0.add(h.multiply(i + 1));
+<a class="jxr_linenumber" name="L219" href="FieldEventState.html#L219">219</a>             <strong class="jxr_keyword">final</strong> T gb = handler.g(interpolator.getInterpolatedState(tb));
+<a class="jxr_linenumber" name="L220" href="FieldEventState.html#L220">220</a> 
+<a class="jxr_linenumber" name="L221" href="FieldEventState.html#L221">221</a>             <em class="jxr_comment">// check events occurrence</em>
+<a class="jxr_linenumber" name="L222" href="FieldEventState.html#L222">222</a>             <strong class="jxr_keyword">if</strong> (g0Positive ^ (gb.getReal() &gt;= 0)) {
+<a class="jxr_linenumber" name="L223" href="FieldEventState.html#L223">223</a>                 <em class="jxr_comment">// there is a sign change: an event is expected during this step</em>
+<a class="jxr_linenumber" name="L224" href="FieldEventState.html#L224">224</a> 
+<a class="jxr_linenumber" name="L225" href="FieldEventState.html#L225">225</a>                 <em class="jxr_comment">// variation direction, with respect to the integration direction</em>
+<a class="jxr_linenumber" name="L226" href="FieldEventState.html#L226">226</a>                 increasing = gb.subtract(ga).getReal() &gt;= 0;
+<a class="jxr_linenumber" name="L227" href="FieldEventState.html#L227">227</a> 
+<a class="jxr_linenumber" name="L228" href="FieldEventState.html#L228">228</a>                 <em class="jxr_comment">// find the event time making sure we select a solution just at or past the exact root</em>
+<a class="jxr_linenumber" name="L229" href="FieldEventState.html#L229">229</a>                 <strong class="jxr_keyword">final</strong> T root = forward ?
+<a class="jxr_linenumber" name="L230" href="FieldEventState.html#L230">230</a>                                solver.solve(maxIterationCount, f, ta, tb, AllowedSolution.RIGHT_SIDE) :
+<a class="jxr_linenumber" name="L231" href="FieldEventState.html#L231">231</a>                                solver.solve(maxIterationCount, f, tb, ta, AllowedSolution.LEFT_SIDE);
+<a class="jxr_linenumber" name="L232" href="FieldEventState.html#L232">232</a> 
+<a class="jxr_linenumber" name="L233" href="FieldEventState.html#L233">233</a>                 <strong class="jxr_keyword">if</strong> (previousEventTime != <strong class="jxr_keyword">null</strong> &amp;&amp;
+<a class="jxr_linenumber" name="L234" href="FieldEventState.html#L234">234</a>                     root.subtract(ta).abs().subtract(convergence).getReal() &lt;= 0 &amp;&amp;
+<a class="jxr_linenumber" name="L235" href="FieldEventState.html#L235">235</a>                     root.subtract(previousEventTime).abs().subtract(convergence).getReal() &lt;= 0) {
+<a class="jxr_linenumber" name="L236" href="FieldEventState.html#L236">236</a>                     <em class="jxr_comment">// we have either found nothing or found (again ?) a past event,</em>
+<a class="jxr_linenumber" name="L237" href="FieldEventState.html#L237">237</a>                     <em class="jxr_comment">// retry the substep excluding this value, and taking care to have the</em>
+<a class="jxr_linenumber" name="L238" href="FieldEventState.html#L238">238</a>                     <em class="jxr_comment">// required sign in case the g function is noisy around its zero and</em>
+<a class="jxr_linenumber" name="L239" href="FieldEventState.html#L239">239</a>                     <em class="jxr_comment">// crosses the axis several times</em>
+<a class="jxr_linenumber" name="L240" href="FieldEventState.html#L240">240</a>                     <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L241" href="FieldEventState.html#L241">241</a>                         ta = forward ? ta.add(convergence) : ta.subtract(convergence);
+<a class="jxr_linenumber" name="L242" href="FieldEventState.html#L242">242</a>                         ga = f.value(ta);
+<a class="jxr_linenumber" name="L243" href="FieldEventState.html#L243">243</a>                     } <strong class="jxr_keyword">while</strong> ((g0Positive ^ (ga.getReal() &gt;= 0)) &amp;&amp; (forward ^ (ta.subtract(tb).getReal() &gt;= 0)));
+<a class="jxr_linenumber" name="L244" href="FieldEventState.html#L244">244</a> 
+<a class="jxr_linenumber" name="L245" href="FieldEventState.html#L245">245</a>                     <strong class="jxr_keyword">if</strong> (forward ^ (ta.subtract(tb).getReal() &gt;= 0)) {
+<a class="jxr_linenumber" name="L246" href="FieldEventState.html#L246">246</a>                         <em class="jxr_comment">// we were able to skip this spurious root</em>
+<a class="jxr_linenumber" name="L247" href="FieldEventState.html#L247">247</a>                         --i;
+<a class="jxr_linenumber" name="L248" href="FieldEventState.html#L248">248</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L249" href="FieldEventState.html#L249">249</a>                         <em class="jxr_comment">// we can't avoid this root before the end of the step,</em>
+<a class="jxr_linenumber" name="L250" href="FieldEventState.html#L250">250</a>                         <em class="jxr_comment">// we have to handle it despite it is close to the former one</em>
+<a class="jxr_linenumber" name="L251" href="FieldEventState.html#L251">251</a>                         <em class="jxr_comment">// maybe we have two very close roots</em>
+<a class="jxr_linenumber" name="L252" href="FieldEventState.html#L252">252</a>                         pendingEventTime = root;
+<a class="jxr_linenumber" name="L253" href="FieldEventState.html#L253">253</a>                         pendingEvent     = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L254" href="FieldEventState.html#L254">254</a>                         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L255" href="FieldEventState.html#L255">255</a>                     }
+<a class="jxr_linenumber" name="L256" href="FieldEventState.html#L256">256</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (previousEventTime == <strong class="jxr_keyword">null</strong> ||
+<a class="jxr_linenumber" name="L257" href="FieldEventState.html#L257">257</a>                            previousEventTime.subtract(root).abs().subtract(convergence).getReal() &gt; 0) {
+<a class="jxr_linenumber" name="L258" href="FieldEventState.html#L258">258</a>                     pendingEventTime = root;
+<a class="jxr_linenumber" name="L259" href="FieldEventState.html#L259">259</a>                     pendingEvent     = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L260" href="FieldEventState.html#L260">260</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L261" href="FieldEventState.html#L261">261</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L262" href="FieldEventState.html#L262">262</a>                     <em class="jxr_comment">// no sign change: there is no event for now</em>
+<a class="jxr_linenumber" name="L263" href="FieldEventState.html#L263">263</a>                     ta = tb;
+<a class="jxr_linenumber" name="L264" href="FieldEventState.html#L264">264</a>                     ga = gb;
+<a class="jxr_linenumber" name="L265" href="FieldEventState.html#L265">265</a>                 }
+<a class="jxr_linenumber" name="L266" href="FieldEventState.html#L266">266</a> 
+<a class="jxr_linenumber" name="L267" href="FieldEventState.html#L267">267</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L268" href="FieldEventState.html#L268">268</a>                 <em class="jxr_comment">// no sign change: there is no event for now</em>
+<a class="jxr_linenumber" name="L269" href="FieldEventState.html#L269">269</a>                 ta = tb;
+<a class="jxr_linenumber" name="L270" href="FieldEventState.html#L270">270</a>                 ga = gb;
+<a class="jxr_linenumber" name="L271" href="FieldEventState.html#L271">271</a>             }
+<a class="jxr_linenumber" name="L272" href="FieldEventState.html#L272">272</a> 
+<a class="jxr_linenumber" name="L273" href="FieldEventState.html#L273">273</a>         }
+<a class="jxr_linenumber" name="L274" href="FieldEventState.html#L274">274</a> 
+<a class="jxr_linenumber" name="L275" href="FieldEventState.html#L275">275</a>         <em class="jxr_comment">// no event during the whole step</em>
+<a class="jxr_linenumber" name="L276" href="FieldEventState.html#L276">276</a>         pendingEvent     = false;
+<a class="jxr_linenumber" name="L277" href="FieldEventState.html#L277">277</a>         pendingEventTime = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L278" href="FieldEventState.html#L278">278</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L279" href="FieldEventState.html#L279">279</a> 
+<a class="jxr_linenumber" name="L280" href="FieldEventState.html#L280">280</a>     }
+<a class="jxr_linenumber" name="L281" href="FieldEventState.html#L281">281</a> 
+<a class="jxr_linenumber" name="L282" href="FieldEventState.html#L282">282</a>     <em class="jxr_javadoccomment">/** Get the occurrence time of the event triggered in the current step.</em>
+<a class="jxr_linenumber" name="L283" href="FieldEventState.html#L283">283</a> <em class="jxr_javadoccomment">     * @return occurrence time of the event triggered in the current</em>
+<a class="jxr_linenumber" name="L284" href="FieldEventState.html#L284">284</a> <em class="jxr_javadoccomment">     * step or infinity if no events are triggered</em>
+<a class="jxr_linenumber" name="L285" href="FieldEventState.html#L285">285</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L286" href="FieldEventState.html#L286">286</a>     <strong class="jxr_keyword">public</strong> T getEventTime() {
+<a class="jxr_linenumber" name="L287" href="FieldEventState.html#L287">287</a>         <strong class="jxr_keyword">return</strong> pendingEvent ?
+<a class="jxr_linenumber" name="L288" href="FieldEventState.html#L288">288</a>                pendingEventTime :
+<a class="jxr_linenumber" name="L289" href="FieldEventState.html#L289">289</a>                t0.getField().getZero().add(forward ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY);
+<a class="jxr_linenumber" name="L290" href="FieldEventState.html#L290">290</a>     }
+<a class="jxr_linenumber" name="L291" href="FieldEventState.html#L291">291</a> 
+<a class="jxr_linenumber" name="L292" href="FieldEventState.html#L292">292</a>     <em class="jxr_javadoccomment">/** Acknowledge the fact the step has been accepted by the integrator.</em>
+<a class="jxr_linenumber" name="L293" href="FieldEventState.html#L293">293</a> <em class="jxr_javadoccomment">     * @param state state at the end of the step</em>
+<a class="jxr_linenumber" name="L294" href="FieldEventState.html#L294">294</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L295" href="FieldEventState.html#L295">295</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> stepAccepted(<strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; state) {
+<a class="jxr_linenumber" name="L296" href="FieldEventState.html#L296">296</a> 
+<a class="jxr_linenumber" name="L297" href="FieldEventState.html#L297">297</a>         t0 = state.getTime();
+<a class="jxr_linenumber" name="L298" href="FieldEventState.html#L298">298</a>         g0 = handler.g(state);
+<a class="jxr_linenumber" name="L299" href="FieldEventState.html#L299">299</a> 
+<a class="jxr_linenumber" name="L300" href="FieldEventState.html#L300">300</a>         <strong class="jxr_keyword">if</strong> (pendingEvent &amp;&amp; pendingEventTime.subtract(state.getTime()).abs().subtract(convergence).getReal() &lt;= 0) {
+<a class="jxr_linenumber" name="L301" href="FieldEventState.html#L301">301</a>             <em class="jxr_comment">// force the sign to its value "just after the event"</em>
+<a class="jxr_linenumber" name="L302" href="FieldEventState.html#L302">302</a>             previousEventTime = state.getTime();
+<a class="jxr_linenumber" name="L303" href="FieldEventState.html#L303">303</a>             g0Positive        = increasing;
+<a class="jxr_linenumber" name="L304" href="FieldEventState.html#L304">304</a>             nextAction        = handler.eventOccurred(state, !(increasing ^ forward));
+<a class="jxr_linenumber" name="L305" href="FieldEventState.html#L305">305</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L306" href="FieldEventState.html#L306">306</a>             g0Positive = g0.getReal() &gt;= 0;
+<a class="jxr_linenumber" name="L307" href="FieldEventState.html#L307">307</a>             nextAction = Action.CONTINUE;
+<a class="jxr_linenumber" name="L308" href="FieldEventState.html#L308">308</a>         }
+<a class="jxr_linenumber" name="L309" href="FieldEventState.html#L309">309</a>     }
+<a class="jxr_linenumber" name="L310" href="FieldEventState.html#L310">310</a> 
+<a class="jxr_linenumber" name="L311" href="FieldEventState.html#L311">311</a>     <em class="jxr_javadoccomment">/** Check if the integration should be stopped at the end of the</em>
+<a class="jxr_linenumber" name="L312" href="FieldEventState.html#L312">312</a> <em class="jxr_javadoccomment">     * current step.</em>
+<a class="jxr_linenumber" name="L313" href="FieldEventState.html#L313">313</a> <em class="jxr_javadoccomment">     * @return true if the integration should be stopped</em>
+<a class="jxr_linenumber" name="L314" href="FieldEventState.html#L314">314</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L315" href="FieldEventState.html#L315">315</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> stop() {
+<a class="jxr_linenumber" name="L316" href="FieldEventState.html#L316">316</a>         <strong class="jxr_keyword">return</strong> nextAction == Action.STOP;
+<a class="jxr_linenumber" name="L317" href="FieldEventState.html#L317">317</a>     }
+<a class="jxr_linenumber" name="L318" href="FieldEventState.html#L318">318</a> 
+<a class="jxr_linenumber" name="L319" href="FieldEventState.html#L319">319</a>     <em class="jxr_javadoccomment">/** Let the event handler reset the state if it wants.</em>
+<a class="jxr_linenumber" name="L320" href="FieldEventState.html#L320">320</a> <em class="jxr_javadoccomment">     * @param state state at the beginning of the next step</em>
+<a class="jxr_linenumber" name="L321" href="FieldEventState.html#L321">321</a> <em class="jxr_javadoccomment">     * @return reset state (may by the same as initial state if only</em>
+<a class="jxr_linenumber" name="L322" href="FieldEventState.html#L322">322</a> <em class="jxr_javadoccomment">     * derivatives should be reset), or null if nothing is reset</em>
+<a class="jxr_linenumber" name="L323" href="FieldEventState.html#L323">323</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L324" href="FieldEventState.html#L324">324</a>     <strong class="jxr_keyword">public</strong> FieldODEState&lt;T&gt; reset(<strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; state) {
+<a class="jxr_linenumber" name="L325" href="FieldEventState.html#L325">325</a> 
+<a class="jxr_linenumber" name="L326" href="FieldEventState.html#L326">326</a>         <strong class="jxr_keyword">if</strong> (!(pendingEvent &amp;&amp; pendingEventTime.subtract(state.getTime()).abs().subtract(convergence).getReal() &lt;= 0)) {
+<a class="jxr_linenumber" name="L327" href="FieldEventState.html#L327">327</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L328" href="FieldEventState.html#L328">328</a>         }
+<a class="jxr_linenumber" name="L329" href="FieldEventState.html#L329">329</a> 
+<a class="jxr_linenumber" name="L330" href="FieldEventState.html#L330">330</a>         <strong class="jxr_keyword">final</strong> FieldODEState&lt;T&gt; newState;
+<a class="jxr_linenumber" name="L331" href="FieldEventState.html#L331">331</a>         <strong class="jxr_keyword">if</strong> (nextAction == Action.RESET_STATE) {
+<a class="jxr_linenumber" name="L332" href="FieldEventState.html#L332">332</a>             newState = handler.resetState(state);
+<a class="jxr_linenumber" name="L333" href="FieldEventState.html#L333">333</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (nextAction == Action.RESET_DERIVATIVES) {
+<a class="jxr_linenumber" name="L334" href="FieldEventState.html#L334">334</a>             newState = state;
+<a class="jxr_linenumber" name="L335" href="FieldEventState.html#L335">335</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L336" href="FieldEventState.html#L336">336</a>             newState = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L337" href="FieldEventState.html#L337">337</a>         }
+<a class="jxr_linenumber" name="L338" href="FieldEventState.html#L338">338</a>         pendingEvent      = false;
+<a class="jxr_linenumber" name="L339" href="FieldEventState.html#L339">339</a>         pendingEventTime  = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L340" href="FieldEventState.html#L340">340</a> 
+<a class="jxr_linenumber" name="L341" href="FieldEventState.html#L341">341</a>         <strong class="jxr_keyword">return</strong> newState;
+<a class="jxr_linenumber" name="L342" href="FieldEventState.html#L342">342</a> 
+<a class="jxr_linenumber" name="L343" href="FieldEventState.html#L343">343</a>     }
+<a class="jxr_linenumber" name="L344" href="FieldEventState.html#L344">344</a> 
+<a class="jxr_linenumber" name="L345" href="FieldEventState.html#L345">345</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

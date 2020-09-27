@@ -1,0 +1,429 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>FastFourierTransformer xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/transform/FastFourierTransformer.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="FastFourierTransformer.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="FastFourierTransformer.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="FastFourierTransformer.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="FastFourierTransformer.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="FastFourierTransformer.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="FastFourierTransformer.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="FastFourierTransformer.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="FastFourierTransformer.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="FastFourierTransformer.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="FastFourierTransformer.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="FastFourierTransformer.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="FastFourierTransformer.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="FastFourierTransformer.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="FastFourierTransformer.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="FastFourierTransformer.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="FastFourierTransformer.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="FastFourierTransformer.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.transform;
+<a class="jxr_linenumber" name="L18" href="FastFourierTransformer.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="FastFourierTransformer.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.io.Serializable;
+<a class="jxr_linenumber" name="L20" href="FastFourierTransformer.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.FunctionUtils;
+<a class="jxr_linenumber" name="L21" href="FastFourierTransformer.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.UnivariateFunction;
+<a class="jxr_linenumber" name="L22" href="FastFourierTransformer.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.complex.Complex;
+<a class="jxr_linenumber" name="L23" href="FastFourierTransformer.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L24" href="FastFourierTransformer.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L25" href="FastFourierTransformer.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalStateException;
+<a class="jxr_linenumber" name="L26" href="FastFourierTransformer.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L27" href="FastFourierTransformer.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.ArithmeticUtils;
+<a class="jxr_linenumber" name="L28" href="FastFourierTransformer.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L29" href="FastFourierTransformer.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L30" href="FastFourierTransformer.html#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="FastFourierTransformer.html#L31">31</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L32" href="FastFourierTransformer.html#L32">32</a>  <em class="jxr_javadoccomment"> * Implements the Fast Fourier Transform for transformation of one-dimensional</em>
+<a class="jxr_linenumber" name="L33" href="FastFourierTransformer.html#L33">33</a>  <em class="jxr_javadoccomment"> * real or complex data sets. For reference, see &lt;em&gt;Applied Numerical Linear</em>
+<a class="jxr_linenumber" name="L34" href="FastFourierTransformer.html#L34">34</a>  <em class="jxr_javadoccomment"> * Algebra&lt;/em&gt;, ISBN 0898713897, chapter 6.</em>
+<a class="jxr_linenumber" name="L35" href="FastFourierTransformer.html#L35">35</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L36" href="FastFourierTransformer.html#L36">36</a>  <em class="jxr_javadoccomment"> * There are several variants of the discrete Fourier transform, with various</em>
+<a class="jxr_linenumber" name="L37" href="FastFourierTransformer.html#L37">37</a>  <em class="jxr_javadoccomment"> * normalization conventions, which are specified by the parameter</em>
+<a class="jxr_linenumber" name="L38" href="FastFourierTransformer.html#L38">38</a>  <em class="jxr_javadoccomment"> * {@link DftNormalization}.</em>
+<a class="jxr_linenumber" name="L39" href="FastFourierTransformer.html#L39">39</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L40" href="FastFourierTransformer.html#L40">40</a>  <em class="jxr_javadoccomment"> * The current implementation of the discrete Fourier transform as a fast</em>
+<a class="jxr_linenumber" name="L41" href="FastFourierTransformer.html#L41">41</a>  <em class="jxr_javadoccomment"> * Fourier transform requires the length of the data set to be a power of 2.</em>
+<a class="jxr_linenumber" name="L42" href="FastFourierTransformer.html#L42">42</a>  <em class="jxr_javadoccomment"> * This greatly simplifies and speeds up the code. Users can pad the data with</em>
+<a class="jxr_linenumber" name="L43" href="FastFourierTransformer.html#L43">43</a>  <em class="jxr_javadoccomment"> * zeros to meet this requirement. There are other flavors of FFT, for</em>
+<a class="jxr_linenumber" name="L44" href="FastFourierTransformer.html#L44">44</a>  <em class="jxr_javadoccomment"> * reference, see S. Winograd,</em>
+<a class="jxr_linenumber" name="L45" href="FastFourierTransformer.html#L45">45</a>  <em class="jxr_javadoccomment"> * &lt;i&gt;On computing the discrete Fourier transform&lt;/i&gt;, Mathematics of</em>
+<a class="jxr_linenumber" name="L46" href="FastFourierTransformer.html#L46">46</a>  <em class="jxr_javadoccomment"> * Computation, 32 (1978), 175 - 199.</em>
+<a class="jxr_linenumber" name="L47" href="FastFourierTransformer.html#L47">47</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L48" href="FastFourierTransformer.html#L48">48</a>  <em class="jxr_javadoccomment"> * @see DftNormalization</em>
+<a class="jxr_linenumber" name="L49" href="FastFourierTransformer.html#L49">49</a>  <em class="jxr_javadoccomment"> * @since 1.2</em>
+<a class="jxr_linenumber" name="L50" href="FastFourierTransformer.html#L50">50</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L51" href="FastFourierTransformer.html#L51">51</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="FastFourierTransformer.html">FastFourierTransformer</a> <strong class="jxr_keyword">implements</strong> Serializable {
+<a class="jxr_linenumber" name="L52" href="FastFourierTransformer.html#L52">52</a>      <em class="jxr_javadoccomment">/** Serializable version identifier. */</em>
+<a class="jxr_linenumber" name="L53" href="FastFourierTransformer.html#L53">53</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20120210L;
+<a class="jxr_linenumber" name="L54" href="FastFourierTransformer.html#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="FastFourierTransformer.html#L55">55</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L56" href="FastFourierTransformer.html#L56">56</a>  <em class="jxr_javadoccomment">     * {@code W_SUB_N_R[i]} is the real part of</em>
+<a class="jxr_linenumber" name="L57" href="FastFourierTransformer.html#L57">57</a>  <em class="jxr_javadoccomment">     * {@code exp(- 2 * i * pi / n)}:</em>
+<a class="jxr_linenumber" name="L58" href="FastFourierTransformer.html#L58">58</a>  <em class="jxr_javadoccomment">     * {@code W_SUB_N_R[i] = cos(2 * pi/ n)}, where {@code n = 2^i}.</em>
+<a class="jxr_linenumber" name="L59" href="FastFourierTransformer.html#L59">59</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L60" href="FastFourierTransformer.html#L60">60</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] W_SUB_N_R =
+<a class="jxr_linenumber" name="L61" href="FastFourierTransformer.html#L61">61</a>              {  0x1.0p0, -0x1.0p0, 0x1.1a62633145c07p-54, 0x1.6a09e667f3bcdp-1
+<a class="jxr_linenumber" name="L62" href="FastFourierTransformer.html#L62">62</a>              , 0x1.d906bcf328d46p-1, 0x1.f6297cff75cbp-1, 0x1.fd88da3d12526p-1, 0x1.ff621e3796d7ep-1
+<a class="jxr_linenumber" name="L63" href="FastFourierTransformer.html#L63">63</a>              , 0x1.ffd886084cd0dp-1, 0x1.fff62169b92dbp-1, 0x1.fffd8858e8a92p-1, 0x1.ffff621621d02p-1
+<a class="jxr_linenumber" name="L64" href="FastFourierTransformer.html#L64">64</a>              , 0x1.ffffd88586ee6p-1, 0x1.fffff62161a34p-1, 0x1.fffffd8858675p-1, 0x1.ffffff621619cp-1
+<a class="jxr_linenumber" name="L65" href="FastFourierTransformer.html#L65">65</a>              , 0x1.ffffffd885867p-1, 0x1.fffffff62161ap-1, 0x1.fffffffd88586p-1, 0x1.ffffffff62162p-1
+<a class="jxr_linenumber" name="L66" href="FastFourierTransformer.html#L66">66</a>              , 0x1.ffffffffd8858p-1, 0x1.fffffffff6216p-1, 0x1.fffffffffd886p-1, 0x1.ffffffffff621p-1
+<a class="jxr_linenumber" name="L67" href="FastFourierTransformer.html#L67">67</a>              , 0x1.ffffffffffd88p-1, 0x1.fffffffffff62p-1, 0x1.fffffffffffd9p-1, 0x1.ffffffffffff6p-1
+<a class="jxr_linenumber" name="L68" href="FastFourierTransformer.html#L68">68</a>              , 0x1.ffffffffffffep-1, 0x1.fffffffffffffp-1, 0x1.0p0, 0x1.0p0
+<a class="jxr_linenumber" name="L69" href="FastFourierTransformer.html#L69">69</a>              , 0x1.0p0, 0x1.0p0, 0x1.0p0, 0x1.0p0
+<a class="jxr_linenumber" name="L70" href="FastFourierTransformer.html#L70">70</a>              , 0x1.0p0, 0x1.0p0, 0x1.0p0, 0x1.0p0
+<a class="jxr_linenumber" name="L71" href="FastFourierTransformer.html#L71">71</a>              , 0x1.0p0, 0x1.0p0, 0x1.0p0, 0x1.0p0
+<a class="jxr_linenumber" name="L72" href="FastFourierTransformer.html#L72">72</a>              , 0x1.0p0, 0x1.0p0, 0x1.0p0, 0x1.0p0
+<a class="jxr_linenumber" name="L73" href="FastFourierTransformer.html#L73">73</a>              , 0x1.0p0, 0x1.0p0, 0x1.0p0, 0x1.0p0
+<a class="jxr_linenumber" name="L74" href="FastFourierTransformer.html#L74">74</a>              , 0x1.0p0, 0x1.0p0, 0x1.0p0, 0x1.0p0
+<a class="jxr_linenumber" name="L75" href="FastFourierTransformer.html#L75">75</a>              , 0x1.0p0, 0x1.0p0, 0x1.0p0, 0x1.0p0
+<a class="jxr_linenumber" name="L76" href="FastFourierTransformer.html#L76">76</a>              , 0x1.0p0, 0x1.0p0, 0x1.0p0 };
+<a class="jxr_linenumber" name="L77" href="FastFourierTransformer.html#L77">77</a>  
+<a class="jxr_linenumber" name="L78" href="FastFourierTransformer.html#L78">78</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L79" href="FastFourierTransformer.html#L79">79</a>  <em class="jxr_javadoccomment">     * {@code W_SUB_N_I[i]} is the imaginary part of</em>
+<a class="jxr_linenumber" name="L80" href="FastFourierTransformer.html#L80">80</a>  <em class="jxr_javadoccomment">     * {@code exp(- 2 * i * pi / n)}:</em>
+<a class="jxr_linenumber" name="L81" href="FastFourierTransformer.html#L81">81</a>  <em class="jxr_javadoccomment">     * {@code W_SUB_N_I[i] = -sin(2 * pi/ n)}, where {@code n = 2^i}.</em>
+<a class="jxr_linenumber" name="L82" href="FastFourierTransformer.html#L82">82</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L83" href="FastFourierTransformer.html#L83">83</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] W_SUB_N_I =
+<a class="jxr_linenumber" name="L84" href="FastFourierTransformer.html#L84">84</a>              {  0x1.1a62633145c07p-52, -0x1.1a62633145c07p-53, -0x1.0p0, -0x1.6a09e667f3bccp-1
+<a class="jxr_linenumber" name="L85" href="FastFourierTransformer.html#L85">85</a>              , -0x1.87de2a6aea963p-2, -0x1.8f8b83c69a60ap-3, -0x1.917a6bc29b42cp-4, -0x1.91f65f10dd814p-5
+<a class="jxr_linenumber" name="L86" href="FastFourierTransformer.html#L86">86</a>              , -0x1.92155f7a3667ep-6, -0x1.921d1fcdec784p-7, -0x1.921f0fe670071p-8, -0x1.921f8becca4bap-9
+<a class="jxr_linenumber" name="L87" href="FastFourierTransformer.html#L87">87</a>              , -0x1.921faaee6472dp-10, -0x1.921fb2aecb36p-11, -0x1.921fb49ee4ea6p-12, -0x1.921fb51aeb57bp-13
+<a class="jxr_linenumber" name="L88" href="FastFourierTransformer.html#L88">88</a>              , -0x1.921fb539ecf31p-14, -0x1.921fb541ad59ep-15, -0x1.921fb5439d73ap-16, -0x1.921fb544197ap-17
+<a class="jxr_linenumber" name="L89" href="FastFourierTransformer.html#L89">89</a>              , -0x1.921fb544387bap-18, -0x1.921fb544403c1p-19, -0x1.921fb544422c2p-20, -0x1.921fb54442a83p-21
+<a class="jxr_linenumber" name="L90" href="FastFourierTransformer.html#L90">90</a>              , -0x1.921fb54442c73p-22, -0x1.921fb54442cefp-23, -0x1.921fb54442d0ep-24, -0x1.921fb54442d15p-25
+<a class="jxr_linenumber" name="L91" href="FastFourierTransformer.html#L91">91</a>              , -0x1.921fb54442d17p-26, -0x1.921fb54442d18p-27, -0x1.921fb54442d18p-28, -0x1.921fb54442d18p-29
+<a class="jxr_linenumber" name="L92" href="FastFourierTransformer.html#L92">92</a>              , -0x1.921fb54442d18p-30, -0x1.921fb54442d18p-31, -0x1.921fb54442d18p-32, -0x1.921fb54442d18p-33
+<a class="jxr_linenumber" name="L93" href="FastFourierTransformer.html#L93">93</a>              , -0x1.921fb54442d18p-34, -0x1.921fb54442d18p-35, -0x1.921fb54442d18p-36, -0x1.921fb54442d18p-37
+<a class="jxr_linenumber" name="L94" href="FastFourierTransformer.html#L94">94</a>              , -0x1.921fb54442d18p-38, -0x1.921fb54442d18p-39, -0x1.921fb54442d18p-40, -0x1.921fb54442d18p-41
+<a class="jxr_linenumber" name="L95" href="FastFourierTransformer.html#L95">95</a>              , -0x1.921fb54442d18p-42, -0x1.921fb54442d18p-43, -0x1.921fb54442d18p-44, -0x1.921fb54442d18p-45
+<a class="jxr_linenumber" name="L96" href="FastFourierTransformer.html#L96">96</a>              , -0x1.921fb54442d18p-46, -0x1.921fb54442d18p-47, -0x1.921fb54442d18p-48, -0x1.921fb54442d18p-49
+<a class="jxr_linenumber" name="L97" href="FastFourierTransformer.html#L97">97</a>              , -0x1.921fb54442d18p-50, -0x1.921fb54442d18p-51, -0x1.921fb54442d18p-52, -0x1.921fb54442d18p-53
+<a class="jxr_linenumber" name="L98" href="FastFourierTransformer.html#L98">98</a>              , -0x1.921fb54442d18p-54, -0x1.921fb54442d18p-55, -0x1.921fb54442d18p-56, -0x1.921fb54442d18p-57
+<a class="jxr_linenumber" name="L99" href="FastFourierTransformer.html#L99">99</a>              , -0x1.921fb54442d18p-58, -0x1.921fb54442d18p-59, -0x1.921fb54442d18p-60 };
+<a class="jxr_linenumber" name="L100" href="FastFourierTransformer.html#L100">100</a> 
+<a class="jxr_linenumber" name="L101" href="FastFourierTransformer.html#L101">101</a>     <em class="jxr_javadoccomment">/** The type of DFT to be performed. */</em>
+<a class="jxr_linenumber" name="L102" href="FastFourierTransformer.html#L102">102</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="DftNormalization.html">DftNormalization</a> normalization;
+<a class="jxr_linenumber" name="L103" href="FastFourierTransformer.html#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="FastFourierTransformer.html#L104">104</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L105" href="FastFourierTransformer.html#L105">105</a> <em class="jxr_javadoccomment">     * Creates a new instance of this class, with various normalization</em>
+<a class="jxr_linenumber" name="L106" href="FastFourierTransformer.html#L106">106</a> <em class="jxr_javadoccomment">     * conventions.</em>
+<a class="jxr_linenumber" name="L107" href="FastFourierTransformer.html#L107">107</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L108" href="FastFourierTransformer.html#L108">108</a> <em class="jxr_javadoccomment">     * @param normalization the type of normalization to be applied to the</em>
+<a class="jxr_linenumber" name="L109" href="FastFourierTransformer.html#L109">109</a> <em class="jxr_javadoccomment">     * transformed data</em>
+<a class="jxr_linenumber" name="L110" href="FastFourierTransformer.html#L110">110</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L111" href="FastFourierTransformer.html#L111">111</a>     <strong class="jxr_keyword">public</strong> <a href="FastFourierTransformer.html">FastFourierTransformer</a>(<strong class="jxr_keyword">final</strong> <a href="DftNormalization.html">DftNormalization</a> normalization) {
+<a class="jxr_linenumber" name="L112" href="FastFourierTransformer.html#L112">112</a>         <strong class="jxr_keyword">this</strong>.normalization = normalization;
+<a class="jxr_linenumber" name="L113" href="FastFourierTransformer.html#L113">113</a>     }
+<a class="jxr_linenumber" name="L114" href="FastFourierTransformer.html#L114">114</a> 
+<a class="jxr_linenumber" name="L115" href="FastFourierTransformer.html#L115">115</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L116" href="FastFourierTransformer.html#L116">116</a> <em class="jxr_javadoccomment">     * Performs identical index bit reversal shuffles on two arrays of identical</em>
+<a class="jxr_linenumber" name="L117" href="FastFourierTransformer.html#L117">117</a> <em class="jxr_javadoccomment">     * size. Each element in the array is swapped with another element based on</em>
+<a class="jxr_linenumber" name="L118" href="FastFourierTransformer.html#L118">118</a> <em class="jxr_javadoccomment">     * the bit-reversal of the index. For example, in an array with length 16,</em>
+<a class="jxr_linenumber" name="L119" href="FastFourierTransformer.html#L119">119</a> <em class="jxr_javadoccomment">     * item at binary index 0011 (decimal 3) would be swapped with the item at</em>
+<a class="jxr_linenumber" name="L120" href="FastFourierTransformer.html#L120">120</a> <em class="jxr_javadoccomment">     * binary index 1100 (decimal 12).</em>
+<a class="jxr_linenumber" name="L121" href="FastFourierTransformer.html#L121">121</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L122" href="FastFourierTransformer.html#L122">122</a> <em class="jxr_javadoccomment">     * @param a the first array to be shuffled</em>
+<a class="jxr_linenumber" name="L123" href="FastFourierTransformer.html#L123">123</a> <em class="jxr_javadoccomment">     * @param b the second array to be shuffled</em>
+<a class="jxr_linenumber" name="L124" href="FastFourierTransformer.html#L124">124</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L125" href="FastFourierTransformer.html#L125">125</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> bitReversalShuffle2(<strong class="jxr_keyword">double</strong>[] a, <strong class="jxr_keyword">double</strong>[] b) {
+<a class="jxr_linenumber" name="L126" href="FastFourierTransformer.html#L126">126</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = a.length;
+<a class="jxr_linenumber" name="L127" href="FastFourierTransformer.html#L127">127</a>         assert b.length == n;
+<a class="jxr_linenumber" name="L128" href="FastFourierTransformer.html#L128">128</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> halfOfN = n &gt;&gt; 1;
+<a class="jxr_linenumber" name="L129" href="FastFourierTransformer.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="FastFourierTransformer.html#L130">130</a>         <strong class="jxr_keyword">int</strong> j = 0;
+<a class="jxr_linenumber" name="L131" href="FastFourierTransformer.html#L131">131</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L132" href="FastFourierTransformer.html#L132">132</a>             <strong class="jxr_keyword">if</strong> (i &lt; j) {
+<a class="jxr_linenumber" name="L133" href="FastFourierTransformer.html#L133">133</a>                 <em class="jxr_comment">// swap indices i &amp; j</em>
+<a class="jxr_linenumber" name="L134" href="FastFourierTransformer.html#L134">134</a>                 <strong class="jxr_keyword">double</strong> temp = a[i];
+<a class="jxr_linenumber" name="L135" href="FastFourierTransformer.html#L135">135</a>                 a[i] = a[j];
+<a class="jxr_linenumber" name="L136" href="FastFourierTransformer.html#L136">136</a>                 a[j] = temp;
+<a class="jxr_linenumber" name="L137" href="FastFourierTransformer.html#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="FastFourierTransformer.html#L138">138</a>                 temp = b[i];
+<a class="jxr_linenumber" name="L139" href="FastFourierTransformer.html#L139">139</a>                 b[i] = b[j];
+<a class="jxr_linenumber" name="L140" href="FastFourierTransformer.html#L140">140</a>                 b[j] = temp;
+<a class="jxr_linenumber" name="L141" href="FastFourierTransformer.html#L141">141</a>             }
+<a class="jxr_linenumber" name="L142" href="FastFourierTransformer.html#L142">142</a> 
+<a class="jxr_linenumber" name="L143" href="FastFourierTransformer.html#L143">143</a>             <strong class="jxr_keyword">int</strong> k = halfOfN;
+<a class="jxr_linenumber" name="L144" href="FastFourierTransformer.html#L144">144</a>             <strong class="jxr_keyword">while</strong> (k &lt;= j &amp;&amp; k &gt; 0) {
+<a class="jxr_linenumber" name="L145" href="FastFourierTransformer.html#L145">145</a>                 j -= k;
+<a class="jxr_linenumber" name="L146" href="FastFourierTransformer.html#L146">146</a>                 k &gt;&gt;= 1;
+<a class="jxr_linenumber" name="L147" href="FastFourierTransformer.html#L147">147</a>             }
+<a class="jxr_linenumber" name="L148" href="FastFourierTransformer.html#L148">148</a>             j += k;
+<a class="jxr_linenumber" name="L149" href="FastFourierTransformer.html#L149">149</a>         }
+<a class="jxr_linenumber" name="L150" href="FastFourierTransformer.html#L150">150</a>     }
+<a class="jxr_linenumber" name="L151" href="FastFourierTransformer.html#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="FastFourierTransformer.html#L152">152</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L153" href="FastFourierTransformer.html#L153">153</a> <em class="jxr_javadoccomment">     * Applies the proper normalization to the specified transformed data.</em>
+<a class="jxr_linenumber" name="L154" href="FastFourierTransformer.html#L154">154</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L155" href="FastFourierTransformer.html#L155">155</a> <em class="jxr_javadoccomment">     * @param dataRI the unscaled transformed data</em>
+<a class="jxr_linenumber" name="L156" href="FastFourierTransformer.html#L156">156</a> <em class="jxr_javadoccomment">     * @param normalization the normalization to be applied</em>
+<a class="jxr_linenumber" name="L157" href="FastFourierTransformer.html#L157">157</a> <em class="jxr_javadoccomment">     * @param type the type of transform (forward, inverse) which resulted in the specified data</em>
+<a class="jxr_linenumber" name="L158" href="FastFourierTransformer.html#L158">158</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L159" href="FastFourierTransformer.html#L159">159</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> normalizeTransformedData(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] dataRI,
+<a class="jxr_linenumber" name="L160" href="FastFourierTransformer.html#L160">160</a>         <strong class="jxr_keyword">final</strong> <a href="DftNormalization.html">DftNormalization</a> normalization, <strong class="jxr_keyword">final</strong> <a href="TransformType.html">TransformType</a> type) {
+<a class="jxr_linenumber" name="L161" href="FastFourierTransformer.html#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="FastFourierTransformer.html#L162">162</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] dataR = dataRI[0];
+<a class="jxr_linenumber" name="L163" href="FastFourierTransformer.html#L163">163</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] dataI = dataRI[1];
+<a class="jxr_linenumber" name="L164" href="FastFourierTransformer.html#L164">164</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = dataR.length;
+<a class="jxr_linenumber" name="L165" href="FastFourierTransformer.html#L165">165</a>         assert dataI.length == n;
+<a class="jxr_linenumber" name="L166" href="FastFourierTransformer.html#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="FastFourierTransformer.html#L167">167</a>         <strong class="jxr_keyword">switch</strong> (normalization) {
+<a class="jxr_linenumber" name="L168" href="FastFourierTransformer.html#L168">168</a>             <strong class="jxr_keyword">case</strong> STANDARD:
+<a class="jxr_linenumber" name="L169" href="FastFourierTransformer.html#L169">169</a>                 <strong class="jxr_keyword">if</strong> (type == TransformType.INVERSE) {
+<a class="jxr_linenumber" name="L170" href="FastFourierTransformer.html#L170">170</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> scaleFactor = 1.0 / ((<strong class="jxr_keyword">double</strong>) n);
+<a class="jxr_linenumber" name="L171" href="FastFourierTransformer.html#L171">171</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L172" href="FastFourierTransformer.html#L172">172</a>                         dataR[i] *= scaleFactor;
+<a class="jxr_linenumber" name="L173" href="FastFourierTransformer.html#L173">173</a>                         dataI[i] *= scaleFactor;
+<a class="jxr_linenumber" name="L174" href="FastFourierTransformer.html#L174">174</a>                     }
+<a class="jxr_linenumber" name="L175" href="FastFourierTransformer.html#L175">175</a>                 }
+<a class="jxr_linenumber" name="L176" href="FastFourierTransformer.html#L176">176</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L177" href="FastFourierTransformer.html#L177">177</a>             <strong class="jxr_keyword">case</strong> UNITARY:
+<a class="jxr_linenumber" name="L178" href="FastFourierTransformer.html#L178">178</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> scaleFactor = 1.0 / FastMath.sqrt(n);
+<a class="jxr_linenumber" name="L179" href="FastFourierTransformer.html#L179">179</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L180" href="FastFourierTransformer.html#L180">180</a>                     dataR[i] *= scaleFactor;
+<a class="jxr_linenumber" name="L181" href="FastFourierTransformer.html#L181">181</a>                     dataI[i] *= scaleFactor;
+<a class="jxr_linenumber" name="L182" href="FastFourierTransformer.html#L182">182</a>                 }
+<a class="jxr_linenumber" name="L183" href="FastFourierTransformer.html#L183">183</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L184" href="FastFourierTransformer.html#L184">184</a>             <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L185" href="FastFourierTransformer.html#L185">185</a>                 <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L186" href="FastFourierTransformer.html#L186">186</a> <em class="jxr_comment">                 * This should never occur in normal conditions. However this</em>
+<a class="jxr_linenumber" name="L187" href="FastFourierTransformer.html#L187">187</a> <em class="jxr_comment">                 * clause has been added as a safeguard if other types of</em>
+<a class="jxr_linenumber" name="L188" href="FastFourierTransformer.html#L188">188</a> <em class="jxr_comment">                 * normalizations are ever implemented, and the corresponding</em>
+<a class="jxr_linenumber" name="L189" href="FastFourierTransformer.html#L189">189</a> <em class="jxr_comment">                 * test is forgotten in the present switch.</em>
+<a class="jxr_linenumber" name="L190" href="FastFourierTransformer.html#L190">190</a> <em class="jxr_comment">                 */</em>
+<a class="jxr_linenumber" name="L191" href="FastFourierTransformer.html#L191">191</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathIllegalStateException.html">MathIllegalStateException</a>();
+<a class="jxr_linenumber" name="L192" href="FastFourierTransformer.html#L192">192</a>         }
+<a class="jxr_linenumber" name="L193" href="FastFourierTransformer.html#L193">193</a>     }
+<a class="jxr_linenumber" name="L194" href="FastFourierTransformer.html#L194">194</a> 
+<a class="jxr_linenumber" name="L195" href="FastFourierTransformer.html#L195">195</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L196" href="FastFourierTransformer.html#L196">196</a> <em class="jxr_javadoccomment">     * Computes the standard transform of the specified complex data. The</em>
+<a class="jxr_linenumber" name="L197" href="FastFourierTransformer.html#L197">197</a> <em class="jxr_javadoccomment">     * computation is done in place. The input data is laid out as follows</em>
+<a class="jxr_linenumber" name="L198" href="FastFourierTransformer.html#L198">198</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L199" href="FastFourierTransformer.html#L199">199</a> <em class="jxr_javadoccomment">     *   &lt;li&gt;{@code dataRI[0][i]} is the real part of the {@code i}-th data point,&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L200" href="FastFourierTransformer.html#L200">200</a> <em class="jxr_javadoccomment">     *   &lt;li&gt;{@code dataRI[1][i]} is the imaginary part of the {@code i}-th data point.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L201" href="FastFourierTransformer.html#L201">201</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L202" href="FastFourierTransformer.html#L202">202</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L203" href="FastFourierTransformer.html#L203">203</a> <em class="jxr_javadoccomment">     * @param dataRI the two dimensional array of real and imaginary parts of the data</em>
+<a class="jxr_linenumber" name="L204" href="FastFourierTransformer.html#L204">204</a> <em class="jxr_javadoccomment">     * @param normalization the normalization to be applied to the transformed data</em>
+<a class="jxr_linenumber" name="L205" href="FastFourierTransformer.html#L205">205</a> <em class="jxr_javadoccomment">     * @param type the type of transform (forward, inverse) to be performed</em>
+<a class="jxr_linenumber" name="L206" href="FastFourierTransformer.html#L206">206</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the number of rows of the specified</em>
+<a class="jxr_linenumber" name="L207" href="FastFourierTransformer.html#L207">207</a> <em class="jxr_javadoccomment">     *   array is not two, or the array is not rectangular</em>
+<a class="jxr_linenumber" name="L208" href="FastFourierTransformer.html#L208">208</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the number of data points is not</em>
+<a class="jxr_linenumber" name="L209" href="FastFourierTransformer.html#L209">209</a> <em class="jxr_javadoccomment">     *   a power of two</em>
+<a class="jxr_linenumber" name="L210" href="FastFourierTransformer.html#L210">210</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L211" href="FastFourierTransformer.html#L211">211</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> transformInPlace(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] dataRI,
+<a class="jxr_linenumber" name="L212" href="FastFourierTransformer.html#L212">212</a>         <strong class="jxr_keyword">final</strong> <a href="DftNormalization.html">DftNormalization</a> normalization, <strong class="jxr_keyword">final</strong> <a href="TransformType.html">TransformType</a> type) {
+<a class="jxr_linenumber" name="L213" href="FastFourierTransformer.html#L213">213</a> 
+<a class="jxr_linenumber" name="L214" href="FastFourierTransformer.html#L214">214</a>         <strong class="jxr_keyword">if</strong> (dataRI.length != 2) {
+<a class="jxr_linenumber" name="L215" href="FastFourierTransformer.html#L215">215</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a>(dataRI.length, 2);
+<a class="jxr_linenumber" name="L216" href="FastFourierTransformer.html#L216">216</a>         }
+<a class="jxr_linenumber" name="L217" href="FastFourierTransformer.html#L217">217</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] dataR = dataRI[0];
+<a class="jxr_linenumber" name="L218" href="FastFourierTransformer.html#L218">218</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] dataI = dataRI[1];
+<a class="jxr_linenumber" name="L219" href="FastFourierTransformer.html#L219">219</a>         <strong class="jxr_keyword">if</strong> (dataR.length != dataI.length) {
+<a class="jxr_linenumber" name="L220" href="FastFourierTransformer.html#L220">220</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a>(dataI.length, dataR.length);
+<a class="jxr_linenumber" name="L221" href="FastFourierTransformer.html#L221">221</a>         }
+<a class="jxr_linenumber" name="L222" href="FastFourierTransformer.html#L222">222</a> 
+<a class="jxr_linenumber" name="L223" href="FastFourierTransformer.html#L223">223</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = dataR.length;
+<a class="jxr_linenumber" name="L224" href="FastFourierTransformer.html#L224">224</a>         <strong class="jxr_keyword">if</strong> (!ArithmeticUtils.isPowerOfTwo(n)) {
+<a class="jxr_linenumber" name="L225" href="FastFourierTransformer.html#L225">225</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(
+<a class="jxr_linenumber" name="L226" href="FastFourierTransformer.html#L226">226</a>                 LocalizedFormats.NOT_POWER_OF_TWO_CONSIDER_PADDING,
+<a class="jxr_linenumber" name="L227" href="FastFourierTransformer.html#L227">227</a>                 Integer.valueOf(n));
+<a class="jxr_linenumber" name="L228" href="FastFourierTransformer.html#L228">228</a>         }
+<a class="jxr_linenumber" name="L229" href="FastFourierTransformer.html#L229">229</a> 
+<a class="jxr_linenumber" name="L230" href="FastFourierTransformer.html#L230">230</a>         <strong class="jxr_keyword">if</strong> (n == 1) {
+<a class="jxr_linenumber" name="L231" href="FastFourierTransformer.html#L231">231</a>             <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L232" href="FastFourierTransformer.html#L232">232</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (n == 2) {
+<a class="jxr_linenumber" name="L233" href="FastFourierTransformer.html#L233">233</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcR0 = dataR[0];
+<a class="jxr_linenumber" name="L234" href="FastFourierTransformer.html#L234">234</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcI0 = dataI[0];
+<a class="jxr_linenumber" name="L235" href="FastFourierTransformer.html#L235">235</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcR1 = dataR[1];
+<a class="jxr_linenumber" name="L236" href="FastFourierTransformer.html#L236">236</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcI1 = dataI[1];
+<a class="jxr_linenumber" name="L237" href="FastFourierTransformer.html#L237">237</a> 
+<a class="jxr_linenumber" name="L238" href="FastFourierTransformer.html#L238">238</a>             <em class="jxr_comment">// X_0 = x_0 + x_1</em>
+<a class="jxr_linenumber" name="L239" href="FastFourierTransformer.html#L239">239</a>             dataR[0] = srcR0 + srcR1;
+<a class="jxr_linenumber" name="L240" href="FastFourierTransformer.html#L240">240</a>             dataI[0] = srcI0 + srcI1;
+<a class="jxr_linenumber" name="L241" href="FastFourierTransformer.html#L241">241</a>             <em class="jxr_comment">// X_1 = x_0 - x_1</em>
+<a class="jxr_linenumber" name="L242" href="FastFourierTransformer.html#L242">242</a>             dataR[1] = srcR0 - srcR1;
+<a class="jxr_linenumber" name="L243" href="FastFourierTransformer.html#L243">243</a>             dataI[1] = srcI0 - srcI1;
+<a class="jxr_linenumber" name="L244" href="FastFourierTransformer.html#L244">244</a> 
+<a class="jxr_linenumber" name="L245" href="FastFourierTransformer.html#L245">245</a>             normalizeTransformedData(dataRI, normalization, type);
+<a class="jxr_linenumber" name="L246" href="FastFourierTransformer.html#L246">246</a>             <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L247" href="FastFourierTransformer.html#L247">247</a>         }
+<a class="jxr_linenumber" name="L248" href="FastFourierTransformer.html#L248">248</a> 
+<a class="jxr_linenumber" name="L249" href="FastFourierTransformer.html#L249">249</a>         bitReversalShuffle2(dataR, dataI);
+<a class="jxr_linenumber" name="L250" href="FastFourierTransformer.html#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="FastFourierTransformer.html#L251">251</a>         <em class="jxr_comment">// Do 4-term DFT.</em>
+<a class="jxr_linenumber" name="L252" href="FastFourierTransformer.html#L252">252</a>         <strong class="jxr_keyword">if</strong> (type == TransformType.INVERSE) {
+<a class="jxr_linenumber" name="L253" href="FastFourierTransformer.html#L253">253</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i0 = 0; i0 &lt; n; i0 += 4) {
+<a class="jxr_linenumber" name="L254" href="FastFourierTransformer.html#L254">254</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i1 = i0 + 1;
+<a class="jxr_linenumber" name="L255" href="FastFourierTransformer.html#L255">255</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i2 = i0 + 2;
+<a class="jxr_linenumber" name="L256" href="FastFourierTransformer.html#L256">256</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i3 = i0 + 3;
+<a class="jxr_linenumber" name="L257" href="FastFourierTransformer.html#L257">257</a> 
+<a class="jxr_linenumber" name="L258" href="FastFourierTransformer.html#L258">258</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcR0 = dataR[i0];
+<a class="jxr_linenumber" name="L259" href="FastFourierTransformer.html#L259">259</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcI0 = dataI[i0];
+<a class="jxr_linenumber" name="L260" href="FastFourierTransformer.html#L260">260</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcR1 = dataR[i2];
+<a class="jxr_linenumber" name="L261" href="FastFourierTransformer.html#L261">261</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcI1 = dataI[i2];
+<a class="jxr_linenumber" name="L262" href="FastFourierTransformer.html#L262">262</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcR2 = dataR[i1];
+<a class="jxr_linenumber" name="L263" href="FastFourierTransformer.html#L263">263</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcI2 = dataI[i1];
+<a class="jxr_linenumber" name="L264" href="FastFourierTransformer.html#L264">264</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcR3 = dataR[i3];
+<a class="jxr_linenumber" name="L265" href="FastFourierTransformer.html#L265">265</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcI3 = dataI[i3];
+<a class="jxr_linenumber" name="L266" href="FastFourierTransformer.html#L266">266</a> 
+<a class="jxr_linenumber" name="L267" href="FastFourierTransformer.html#L267">267</a>                 <em class="jxr_comment">// 4-term DFT</em>
+<a class="jxr_linenumber" name="L268" href="FastFourierTransformer.html#L268">268</a>                 <em class="jxr_comment">// X_0 = x_0 + x_1 + x_2 + x_3</em>
+<a class="jxr_linenumber" name="L269" href="FastFourierTransformer.html#L269">269</a>                 dataR[i0] = srcR0 + srcR1 + srcR2 + srcR3;
+<a class="jxr_linenumber" name="L270" href="FastFourierTransformer.html#L270">270</a>                 dataI[i0] = srcI0 + srcI1 + srcI2 + srcI3;
+<a class="jxr_linenumber" name="L271" href="FastFourierTransformer.html#L271">271</a>                 <em class="jxr_comment">// X_1 = x_0 - x_2 + j * (x_3 - x_1)</em>
+<a class="jxr_linenumber" name="L272" href="FastFourierTransformer.html#L272">272</a>                 dataR[i1] = srcR0 - srcR2 + (srcI3 - srcI1);
+<a class="jxr_linenumber" name="L273" href="FastFourierTransformer.html#L273">273</a>                 dataI[i1] = srcI0 - srcI2 + (srcR1 - srcR3);
+<a class="jxr_linenumber" name="L274" href="FastFourierTransformer.html#L274">274</a>                 <em class="jxr_comment">// X_2 = x_0 - x_1 + x_2 - x_3</em>
+<a class="jxr_linenumber" name="L275" href="FastFourierTransformer.html#L275">275</a>                 dataR[i2] = srcR0 - srcR1 + srcR2 - srcR3;
+<a class="jxr_linenumber" name="L276" href="FastFourierTransformer.html#L276">276</a>                 dataI[i2] = srcI0 - srcI1 + srcI2 - srcI3;
+<a class="jxr_linenumber" name="L277" href="FastFourierTransformer.html#L277">277</a>                 <em class="jxr_comment">// X_3 = x_0 - x_2 + j * (x_1 - x_3)</em>
+<a class="jxr_linenumber" name="L278" href="FastFourierTransformer.html#L278">278</a>                 dataR[i3] = srcR0 - srcR2 + (srcI1 - srcI3);
+<a class="jxr_linenumber" name="L279" href="FastFourierTransformer.html#L279">279</a>                 dataI[i3] = srcI0 - srcI2 + (srcR3 - srcR1);
+<a class="jxr_linenumber" name="L280" href="FastFourierTransformer.html#L280">280</a>             }
+<a class="jxr_linenumber" name="L281" href="FastFourierTransformer.html#L281">281</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L282" href="FastFourierTransformer.html#L282">282</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i0 = 0; i0 &lt; n; i0 += 4) {
+<a class="jxr_linenumber" name="L283" href="FastFourierTransformer.html#L283">283</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i1 = i0 + 1;
+<a class="jxr_linenumber" name="L284" href="FastFourierTransformer.html#L284">284</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i2 = i0 + 2;
+<a class="jxr_linenumber" name="L285" href="FastFourierTransformer.html#L285">285</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i3 = i0 + 3;
+<a class="jxr_linenumber" name="L286" href="FastFourierTransformer.html#L286">286</a> 
+<a class="jxr_linenumber" name="L287" href="FastFourierTransformer.html#L287">287</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcR0 = dataR[i0];
+<a class="jxr_linenumber" name="L288" href="FastFourierTransformer.html#L288">288</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcI0 = dataI[i0];
+<a class="jxr_linenumber" name="L289" href="FastFourierTransformer.html#L289">289</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcR1 = dataR[i2];
+<a class="jxr_linenumber" name="L290" href="FastFourierTransformer.html#L290">290</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcI1 = dataI[i2];
+<a class="jxr_linenumber" name="L291" href="FastFourierTransformer.html#L291">291</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcR2 = dataR[i1];
+<a class="jxr_linenumber" name="L292" href="FastFourierTransformer.html#L292">292</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcI2 = dataI[i1];
+<a class="jxr_linenumber" name="L293" href="FastFourierTransformer.html#L293">293</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcR3 = dataR[i3];
+<a class="jxr_linenumber" name="L294" href="FastFourierTransformer.html#L294">294</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> srcI3 = dataI[i3];
+<a class="jxr_linenumber" name="L295" href="FastFourierTransformer.html#L295">295</a> 
+<a class="jxr_linenumber" name="L296" href="FastFourierTransformer.html#L296">296</a>                 <em class="jxr_comment">// 4-term DFT</em>
+<a class="jxr_linenumber" name="L297" href="FastFourierTransformer.html#L297">297</a>                 <em class="jxr_comment">// X_0 = x_0 + x_1 + x_2 + x_3</em>
+<a class="jxr_linenumber" name="L298" href="FastFourierTransformer.html#L298">298</a>                 dataR[i0] = srcR0 + srcR1 + srcR2 + srcR3;
+<a class="jxr_linenumber" name="L299" href="FastFourierTransformer.html#L299">299</a>                 dataI[i0] = srcI0 + srcI1 + srcI2 + srcI3;
+<a class="jxr_linenumber" name="L300" href="FastFourierTransformer.html#L300">300</a>                 <em class="jxr_comment">// X_1 = x_0 - x_2 + j * (x_3 - x_1)</em>
+<a class="jxr_linenumber" name="L301" href="FastFourierTransformer.html#L301">301</a>                 dataR[i1] = srcR0 - srcR2 + (srcI1 - srcI3);
+<a class="jxr_linenumber" name="L302" href="FastFourierTransformer.html#L302">302</a>                 dataI[i1] = srcI0 - srcI2 + (srcR3 - srcR1);
+<a class="jxr_linenumber" name="L303" href="FastFourierTransformer.html#L303">303</a>                 <em class="jxr_comment">// X_2 = x_0 - x_1 + x_2 - x_3</em>
+<a class="jxr_linenumber" name="L304" href="FastFourierTransformer.html#L304">304</a>                 dataR[i2] = srcR0 - srcR1 + srcR2 - srcR3;
+<a class="jxr_linenumber" name="L305" href="FastFourierTransformer.html#L305">305</a>                 dataI[i2] = srcI0 - srcI1 + srcI2 - srcI3;
+<a class="jxr_linenumber" name="L306" href="FastFourierTransformer.html#L306">306</a>                 <em class="jxr_comment">// X_3 = x_0 - x_2 + j * (x_1 - x_3)</em>
+<a class="jxr_linenumber" name="L307" href="FastFourierTransformer.html#L307">307</a>                 dataR[i3] = srcR0 - srcR2 + (srcI3 - srcI1);
+<a class="jxr_linenumber" name="L308" href="FastFourierTransformer.html#L308">308</a>                 dataI[i3] = srcI0 - srcI2 + (srcR1 - srcR3);
+<a class="jxr_linenumber" name="L309" href="FastFourierTransformer.html#L309">309</a>             }
+<a class="jxr_linenumber" name="L310" href="FastFourierTransformer.html#L310">310</a>         }
+<a class="jxr_linenumber" name="L311" href="FastFourierTransformer.html#L311">311</a> 
+<a class="jxr_linenumber" name="L312" href="FastFourierTransformer.html#L312">312</a>         <strong class="jxr_keyword">int</strong> lastN0 = 4;
+<a class="jxr_linenumber" name="L313" href="FastFourierTransformer.html#L313">313</a>         <strong class="jxr_keyword">int</strong> lastLogN0 = 2;
+<a class="jxr_linenumber" name="L314" href="FastFourierTransformer.html#L314">314</a>         <strong class="jxr_keyword">while</strong> (lastN0 &lt; n) {
+<a class="jxr_linenumber" name="L315" href="FastFourierTransformer.html#L315">315</a>             <strong class="jxr_keyword">int</strong> n0 = lastN0 &lt;&lt; 1;
+<a class="jxr_linenumber" name="L316" href="FastFourierTransformer.html#L316">316</a>             <strong class="jxr_keyword">int</strong> logN0 = lastLogN0 + 1;
+<a class="jxr_linenumber" name="L317" href="FastFourierTransformer.html#L317">317</a>             <strong class="jxr_keyword">double</strong> wSubN0R = W_SUB_N_R[logN0];
+<a class="jxr_linenumber" name="L318" href="FastFourierTransformer.html#L318">318</a>             <strong class="jxr_keyword">double</strong> wSubN0I = W_SUB_N_I[logN0];
+<a class="jxr_linenumber" name="L319" href="FastFourierTransformer.html#L319">319</a>             <strong class="jxr_keyword">if</strong> (type == TransformType.INVERSE) {
+<a class="jxr_linenumber" name="L320" href="FastFourierTransformer.html#L320">320</a>                 wSubN0I = -wSubN0I;
+<a class="jxr_linenumber" name="L321" href="FastFourierTransformer.html#L321">321</a>             }
+<a class="jxr_linenumber" name="L322" href="FastFourierTransformer.html#L322">322</a> 
+<a class="jxr_linenumber" name="L323" href="FastFourierTransformer.html#L323">323</a>             <em class="jxr_comment">// Combine even/odd transforms of size lastN0 into a transform of size N0 (lastN0 * 2).</em>
+<a class="jxr_linenumber" name="L324" href="FastFourierTransformer.html#L324">324</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> destEvenStartIndex = 0; destEvenStartIndex &lt; n; destEvenStartIndex += n0) {
+<a class="jxr_linenumber" name="L325" href="FastFourierTransformer.html#L325">325</a>                 <strong class="jxr_keyword">int</strong> destOddStartIndex = destEvenStartIndex + lastN0;
+<a class="jxr_linenumber" name="L326" href="FastFourierTransformer.html#L326">326</a> 
+<a class="jxr_linenumber" name="L327" href="FastFourierTransformer.html#L327">327</a>                 <strong class="jxr_keyword">double</strong> wSubN0ToRR = 1;
+<a class="jxr_linenumber" name="L328" href="FastFourierTransformer.html#L328">328</a>                 <strong class="jxr_keyword">double</strong> wSubN0ToRI = 0;
+<a class="jxr_linenumber" name="L329" href="FastFourierTransformer.html#L329">329</a> 
+<a class="jxr_linenumber" name="L330" href="FastFourierTransformer.html#L330">330</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> r = 0; r &lt; lastN0; r++) {
+<a class="jxr_linenumber" name="L331" href="FastFourierTransformer.html#L331">331</a>                     <strong class="jxr_keyword">double</strong> grR = dataR[destEvenStartIndex + r];
+<a class="jxr_linenumber" name="L332" href="FastFourierTransformer.html#L332">332</a>                     <strong class="jxr_keyword">double</strong> grI = dataI[destEvenStartIndex + r];
+<a class="jxr_linenumber" name="L333" href="FastFourierTransformer.html#L333">333</a>                     <strong class="jxr_keyword">double</strong> hrR = dataR[destOddStartIndex + r];
+<a class="jxr_linenumber" name="L334" href="FastFourierTransformer.html#L334">334</a>                     <strong class="jxr_keyword">double</strong> hrI = dataI[destOddStartIndex + r];
+<a class="jxr_linenumber" name="L335" href="FastFourierTransformer.html#L335">335</a> 
+<a class="jxr_linenumber" name="L336" href="FastFourierTransformer.html#L336">336</a>                     <em class="jxr_comment">// dest[destEvenStartIndex + r] = Gr + WsubN0ToR * Hr</em>
+<a class="jxr_linenumber" name="L337" href="FastFourierTransformer.html#L337">337</a>                     dataR[destEvenStartIndex + r] = grR + wSubN0ToRR * hrR - wSubN0ToRI * hrI;
+<a class="jxr_linenumber" name="L338" href="FastFourierTransformer.html#L338">338</a>                     dataI[destEvenStartIndex + r] = grI + wSubN0ToRR * hrI + wSubN0ToRI * hrR;
+<a class="jxr_linenumber" name="L339" href="FastFourierTransformer.html#L339">339</a>                     <em class="jxr_comment">// dest[destOddStartIndex + r] = Gr - WsubN0ToR * Hr</em>
+<a class="jxr_linenumber" name="L340" href="FastFourierTransformer.html#L340">340</a>                     dataR[destOddStartIndex + r] = grR - (wSubN0ToRR * hrR - wSubN0ToRI * hrI);
+<a class="jxr_linenumber" name="L341" href="FastFourierTransformer.html#L341">341</a>                     dataI[destOddStartIndex + r] = grI - (wSubN0ToRR * hrI + wSubN0ToRI * hrR);
+<a class="jxr_linenumber" name="L342" href="FastFourierTransformer.html#L342">342</a> 
+<a class="jxr_linenumber" name="L343" href="FastFourierTransformer.html#L343">343</a>                     <em class="jxr_comment">// WsubN0ToR *= WsubN0R</em>
+<a class="jxr_linenumber" name="L344" href="FastFourierTransformer.html#L344">344</a>                     <strong class="jxr_keyword">double</strong> nextWsubN0ToRR = wSubN0ToRR * wSubN0R - wSubN0ToRI * wSubN0I;
+<a class="jxr_linenumber" name="L345" href="FastFourierTransformer.html#L345">345</a>                     <strong class="jxr_keyword">double</strong> nextWsubN0ToRI = wSubN0ToRR * wSubN0I + wSubN0ToRI * wSubN0R;
+<a class="jxr_linenumber" name="L346" href="FastFourierTransformer.html#L346">346</a>                     wSubN0ToRR = nextWsubN0ToRR;
+<a class="jxr_linenumber" name="L347" href="FastFourierTransformer.html#L347">347</a>                     wSubN0ToRI = nextWsubN0ToRI;
+<a class="jxr_linenumber" name="L348" href="FastFourierTransformer.html#L348">348</a>                 }
+<a class="jxr_linenumber" name="L349" href="FastFourierTransformer.html#L349">349</a>             }
+<a class="jxr_linenumber" name="L350" href="FastFourierTransformer.html#L350">350</a> 
+<a class="jxr_linenumber" name="L351" href="FastFourierTransformer.html#L351">351</a>             lastN0 = n0;
+<a class="jxr_linenumber" name="L352" href="FastFourierTransformer.html#L352">352</a>             lastLogN0 = logN0;
+<a class="jxr_linenumber" name="L353" href="FastFourierTransformer.html#L353">353</a>         }
+<a class="jxr_linenumber" name="L354" href="FastFourierTransformer.html#L354">354</a> 
+<a class="jxr_linenumber" name="L355" href="FastFourierTransformer.html#L355">355</a>         normalizeTransformedData(dataRI, normalization, type);
+<a class="jxr_linenumber" name="L356" href="FastFourierTransformer.html#L356">356</a>     }
+<a class="jxr_linenumber" name="L357" href="FastFourierTransformer.html#L357">357</a> 
+<a class="jxr_linenumber" name="L358" href="FastFourierTransformer.html#L358">358</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L359" href="FastFourierTransformer.html#L359">359</a> <em class="jxr_javadoccomment">     * Returns the (forward, inverse) transform of the specified real data set.</em>
+<a class="jxr_linenumber" name="L360" href="FastFourierTransformer.html#L360">360</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L361" href="FastFourierTransformer.html#L361">361</a> <em class="jxr_javadoccomment">     * @param f the real data array to be transformed</em>
+<a class="jxr_linenumber" name="L362" href="FastFourierTransformer.html#L362">362</a> <em class="jxr_javadoccomment">     * @param type the type of transform (forward, inverse) to be performed</em>
+<a class="jxr_linenumber" name="L363" href="FastFourierTransformer.html#L363">363</a> <em class="jxr_javadoccomment">     * @return the complex transformed array</em>
+<a class="jxr_linenumber" name="L364" href="FastFourierTransformer.html#L364">364</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the length of the data array is not a power of two</em>
+<a class="jxr_linenumber" name="L365" href="FastFourierTransformer.html#L365">365</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L366" href="FastFourierTransformer.html#L366">366</a>     <strong class="jxr_keyword">public</strong> <a href="../complex/Complex.html">Complex</a>[] transform(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] f, <strong class="jxr_keyword">final</strong> <a href="TransformType.html">TransformType</a> type) {
+<a class="jxr_linenumber" name="L367" href="FastFourierTransformer.html#L367">367</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] dataRI = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L368" href="FastFourierTransformer.html#L368">368</a>             MathArrays.copyOf(f, f.length), <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[f.length]
+<a class="jxr_linenumber" name="L369" href="FastFourierTransformer.html#L369">369</a>         };
+<a class="jxr_linenumber" name="L370" href="FastFourierTransformer.html#L370">370</a> 
+<a class="jxr_linenumber" name="L371" href="FastFourierTransformer.html#L371">371</a>         transformInPlace(dataRI, normalization, type);
+<a class="jxr_linenumber" name="L372" href="FastFourierTransformer.html#L372">372</a> 
+<a class="jxr_linenumber" name="L373" href="FastFourierTransformer.html#L373">373</a>         <strong class="jxr_keyword">return</strong> TransformUtils.createComplexArray(dataRI);
+<a class="jxr_linenumber" name="L374" href="FastFourierTransformer.html#L374">374</a>     }
+<a class="jxr_linenumber" name="L375" href="FastFourierTransformer.html#L375">375</a> 
+<a class="jxr_linenumber" name="L376" href="FastFourierTransformer.html#L376">376</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L377" href="FastFourierTransformer.html#L377">377</a> <em class="jxr_javadoccomment">     * Returns the (forward, inverse) transform of the specified real function,</em>
+<a class="jxr_linenumber" name="L378" href="FastFourierTransformer.html#L378">378</a> <em class="jxr_javadoccomment">     * sampled on the specified interval.</em>
+<a class="jxr_linenumber" name="L379" href="FastFourierTransformer.html#L379">379</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L380" href="FastFourierTransformer.html#L380">380</a> <em class="jxr_javadoccomment">     * @param f the function to be sampled and transformed</em>
+<a class="jxr_linenumber" name="L381" href="FastFourierTransformer.html#L381">381</a> <em class="jxr_javadoccomment">     * @param min the (inclusive) lower bound for the interval</em>
+<a class="jxr_linenumber" name="L382" href="FastFourierTransformer.html#L382">382</a> <em class="jxr_javadoccomment">     * @param max the (exclusive) upper bound for the interval</em>
+<a class="jxr_linenumber" name="L383" href="FastFourierTransformer.html#L383">383</a> <em class="jxr_javadoccomment">     * @param n the number of sample points</em>
+<a class="jxr_linenumber" name="L384" href="FastFourierTransformer.html#L384">384</a> <em class="jxr_javadoccomment">     * @param type the type of transform (forward, inverse) to be performed</em>
+<a class="jxr_linenumber" name="L385" href="FastFourierTransformer.html#L385">385</a> <em class="jxr_javadoccomment">     * @return the complex transformed array</em>
+<a class="jxr_linenumber" name="L386" href="FastFourierTransformer.html#L386">386</a> <em class="jxr_javadoccomment">     * @throws org.apache.commons.math4.exception.NumberIsTooLargeException</em>
+<a class="jxr_linenumber" name="L387" href="FastFourierTransformer.html#L387">387</a> <em class="jxr_javadoccomment">     *   if the lower bound is greater than, or equal to the upper bound</em>
+<a class="jxr_linenumber" name="L388" href="FastFourierTransformer.html#L388">388</a> <em class="jxr_javadoccomment">     * @throws org.apache.commons.math4.exception.NotStrictlyPositiveException</em>
+<a class="jxr_linenumber" name="L389" href="FastFourierTransformer.html#L389">389</a> <em class="jxr_javadoccomment">     *   if the number of sample points {@code n} is negative</em>
+<a class="jxr_linenumber" name="L390" href="FastFourierTransformer.html#L390">390</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the number of sample points</em>
+<a class="jxr_linenumber" name="L391" href="FastFourierTransformer.html#L391">391</a> <em class="jxr_javadoccomment">     *   {@code n} is not a power of two</em>
+<a class="jxr_linenumber" name="L392" href="FastFourierTransformer.html#L392">392</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L393" href="FastFourierTransformer.html#L393">393</a>     <strong class="jxr_keyword">public</strong> <a href="../complex/Complex.html">Complex</a>[] transform(<strong class="jxr_keyword">final</strong> <a href="../analysis/UnivariateFunction.html">UnivariateFunction</a> f,
+<a class="jxr_linenumber" name="L394" href="FastFourierTransformer.html#L394">394</a>                                <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> min, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> max, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n,
+<a class="jxr_linenumber" name="L395" href="FastFourierTransformer.html#L395">395</a>                                <strong class="jxr_keyword">final</strong> <a href="TransformType.html">TransformType</a> type) {
+<a class="jxr_linenumber" name="L396" href="FastFourierTransformer.html#L396">396</a> 
+<a class="jxr_linenumber" name="L397" href="FastFourierTransformer.html#L397">397</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] data = FunctionUtils.sample(f, min, max, n);
+<a class="jxr_linenumber" name="L398" href="FastFourierTransformer.html#L398">398</a>         <strong class="jxr_keyword">return</strong> transform(data, type);
+<a class="jxr_linenumber" name="L399" href="FastFourierTransformer.html#L399">399</a>     }
+<a class="jxr_linenumber" name="L400" href="FastFourierTransformer.html#L400">400</a> 
+<a class="jxr_linenumber" name="L401" href="FastFourierTransformer.html#L401">401</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L402" href="FastFourierTransformer.html#L402">402</a> <em class="jxr_javadoccomment">     * Returns the (forward, inverse) transform of the specified complex data set.</em>
+<a class="jxr_linenumber" name="L403" href="FastFourierTransformer.html#L403">403</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L404" href="FastFourierTransformer.html#L404">404</a> <em class="jxr_javadoccomment">     * @param f the complex data array to be transformed</em>
+<a class="jxr_linenumber" name="L405" href="FastFourierTransformer.html#L405">405</a> <em class="jxr_javadoccomment">     * @param type the type of transform (forward, inverse) to be performed</em>
+<a class="jxr_linenumber" name="L406" href="FastFourierTransformer.html#L406">406</a> <em class="jxr_javadoccomment">     * @return the complex transformed array</em>
+<a class="jxr_linenumber" name="L407" href="FastFourierTransformer.html#L407">407</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the length of the data array is not a power of two</em>
+<a class="jxr_linenumber" name="L408" href="FastFourierTransformer.html#L408">408</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L409" href="FastFourierTransformer.html#L409">409</a>     <strong class="jxr_keyword">public</strong> <a href="../complex/Complex.html">Complex</a>[] transform(<strong class="jxr_keyword">final</strong> <a href="../complex/Complex.html">Complex</a>[] f, <strong class="jxr_keyword">final</strong> <a href="TransformType.html">TransformType</a> type) {
+<a class="jxr_linenumber" name="L410" href="FastFourierTransformer.html#L410">410</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] dataRI = TransformUtils.createRealImaginaryArray(f);
+<a class="jxr_linenumber" name="L411" href="FastFourierTransformer.html#L411">411</a> 
+<a class="jxr_linenumber" name="L412" href="FastFourierTransformer.html#L412">412</a>         transformInPlace(dataRI, normalization, type);
+<a class="jxr_linenumber" name="L413" href="FastFourierTransformer.html#L413">413</a> 
+<a class="jxr_linenumber" name="L414" href="FastFourierTransformer.html#L414">414</a>         <strong class="jxr_keyword">return</strong> TransformUtils.createComplexArray(dataRI);
+<a class="jxr_linenumber" name="L415" href="FastFourierTransformer.html#L415">415</a>     }
+<a class="jxr_linenumber" name="L416" href="FastFourierTransformer.html#L416">416</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>
