@@ -286,12 +286,7 @@ public class BarChart extends BarLineChartBase<BarData> implements BarDataProvid
                         "Data ranges from %s to %s.",
                 entryCount, entries, minVal, maxVal, minRange, maxRange);
 
-        return description + getDataAsJson();
+        return description;
     }
 
-    @Override
-    public String getDataAsJson() {
-        //TODO: implement GSON via an interface class
-        return super.getDataAsJson();
-    }
 }

@@ -16,14 +16,31 @@ fun main() {
 //    polynomialFitter()
 //    linearRegressionFitter()
 
-    val pcbd = PieChartDescriptor.Builder(
-            arrayOf("Category1", "Category2"),
-            arrayOf(0.3f, 0.5f),
-            "Categories"
-    ).numValuesToRead(1).readOrder(PieChartDescriptor.ReadOrder.Ascending).build().describe()
+    val pcbd = PieChartDescriptor(
+            arrayOf("iOS", "Android", "Windows", "Symbian"),
+            arrayOf(0.51f, 0.45f, 0.03f, 0.01f, 0.02f),
+            "Operating system",
+            numValuesToRead = 2
+    ).describe()
 
-    println()
+    val pcbds = PieChartDescriptor(
+            "Maruti,Hyundai,Mahindra,Tata,Honda,Toyota,Renault,Ford".split(",").toTypedArray(),
+            arrayOf(0.52f, 0.17f, 0.08f, 0.07f, 0.05f, 0.04f, 0.03f, 0.04f),
+            "Automobile Companies"
+    ).describe()
+
     println(pcbd)
+    println(pcbds)
+
+    val barChartDescriptorDescription = BarChartDescriptor(
+            arrayOf("Jazz", "City", "Accord", "HRV"),
+            arrayOf(333f, 3223f, 234f, 342f),
+            "Car model",
+            "sale count",
+            "Honda Car model sales count for 2020"
+    ).describe()
+
+    println(barChartDescriptorDescription)
 
 }
 

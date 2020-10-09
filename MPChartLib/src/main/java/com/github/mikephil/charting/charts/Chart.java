@@ -64,7 +64,7 @@ import java.util.ArrayList;
  */
 public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Entry>>> extends
         ViewGroup
-        implements ChartInterface, View.OnClickListener {
+        implements ChartInterface {
 
     public static final String LOG_TAG = "MPAndroidChart";
 
@@ -252,8 +252,16 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
             Log.i("", "Chart.init()");
 
         // enable being detected by ScreenReader
-        setFocusable(true);
-        this.setOnClickListener(this);
+        // setScreenReaderFocusable(true); DOES Not work Reliably by itself.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                setScreenReaderFocusable(true);
+            }
+        } else {
+            setFocusable(true);
+        }
+
     }
 
     // public void initWithDummyData() {
@@ -1845,10 +1853,7 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
 
     // region accessibility
 
-    /**
-     * @return accessibility description must be created for each chart
-     */
-    public abstract String getAccessibilityDescription();
+
 
     public String getAccessibilitySummaryDescription() {
         return accessibilitySummaryDescription;
@@ -1858,39 +1863,37 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
         this.accessibilitySummaryDescription = accessibilitySummaryDescription;
     }
 
+    /**
+     * @return accessibility description must be created for each chart
+     */
+    public abstract String getAccessibilityDescription();
+
     @Override
     public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
-
-        // This should be called...
-
-        boolean completed = super.dispatchPopulateAccessibilityEvent(event);
-        Log.d(TAG, "Dispatch called for Chart <View> and completed as " + completed);
-
-        event.getText().add("ChartEvent--Data--Region");
         event.getText().add(getAccessibilityDescription());
-        // event.text.add(getChartData()) --> to standardised format
-        event.getText().add("ChartEvent--Data--EndRegion");
 
+        return true;
+    }
 
-        // Add the user generated summary after the dynamic summary is complete.
+      /*  // Add the user generated summary after the dynamic summary is complete.
         if (!TextUtils.isEmpty(this.getAccessibilitySummaryDescription())) {
             event.getText().add(this.getAccessibilitySummaryDescription());
         }
 
 
         return true;
-    }
+    }*/
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    /**
+     * Use this to force sending an accessibility event! By adding a click listener to the this class
+     * @return None
+     */
+    /*@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onClick(View v) {
         sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED);
-    }
+    }*/
 
-    // TODO: make this an abstract method
-    public String getDataAsJson() {
-        return "{}";
-    }
 }
 
 

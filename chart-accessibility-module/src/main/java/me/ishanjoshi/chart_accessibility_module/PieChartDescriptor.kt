@@ -1,92 +1,82 @@
 package me.ishanjoshi.chart_accessibility_module
 
-/**
- * Pie charts can be described using this descriptor. They contain the following important pieces of information.
- * * **Category name**
- * * **Proportion**
- * * Title
- * * Context
- * * Read Count
- * * Read order
- *
- *
- */
+import kotlin.math.abs
 
-private data class XY(val category: Any, val proportion: Float) : Comparable<XY> {
-    override fun compareTo(other: XY): Int {
-        if (proportion < other.proportion) {
-            return -1
-        } else if (proportion > other.proportion) {
-            return 1
-        }
-        return 0
-    }
+
+/**
+ * Maximum values that can be retained by an average person
+ */
+private const val MILLERS_MEMORY_LIMIT = 7
+
+/**
+ * Determines how the values are read
+ */
+enum class ReadOrder {
+    Ascending,
+    Descending
 }
 
-class PieChartDescriptor(
-        val categories: Array<Any>,
-        val proportions: Array<Float>,
-        val categoriesTitle: String,
-        var title: String?,
-        var contextDescription: String?,
-        var numValuesToRead: Int,
-        var readOrder: ReadOrder
+
+
+/**
+ * Descriptor that takes in pie chart data and generates a description.
+ * @property categories the labels shown in the chart legend
+ * @property proportions floating values representing percentage of slice taken
+ * @property categoriesTitle a grouping for all the categories. e.g. Automobile company (Honda, 20%), (Toyota, 30%), ...
+ * @property title an optional string that generates contextual introduction
+ * @property numValuesToRead limit to reading the top `n` values
+ * @property readOrder ascending or descending
+ */
+data class PieChartDescriptor @JvmOverloads constructor(
+        private var categories: Array<Any>,
+        private var proportions: Array<Float>,
+        private var categoriesTitle: String,
+        private var title: String? = null,
+        private var contextDescription: String? = null,
+        private var numValuesToRead: Int = MILLERS_MEMORY_LIMIT,
+        private var readOrder: ReadOrder = ReadOrder.Descending
 ) : IDescriptor {
 
-    enum class ReadOrder {
-        Ascending,
-        Descending
+    /**
+     * Converted format to contain both X and Y values in one class
+     */
+    private val dataDataPoint: List<DataPoint>
+
+    init {
+        // Cannot read more than the items available
+        numValuesToRead = proportions.size.coerceAtMost(numValuesToRead)
+
+        // Ensure that if the sizes of x and y are inconsistent, they become same size.
+        dataDataPoint = categories.zip(proportions).map { DataPoint(it.first, it.second) }
+
+        if (categories.size != proportions.size) {
+            warn("Data list sizes do not match! Some entries may be omitted")
+        }
+
+        if (proportions.sum() != 1f) {
+            warn("Proportions do not add up to the full 100% of the pie.")
+        }
+
     }
 
-
-    data class Builder(
-            private var categories: Array<Any>,
-            private var proportions: Array<Float>,
-            private var categoriesTitle: String,
-            private var title: String? = null,
-            private var contextDescription: String? = null,
-            private var numValuesToRead: Int = Math.min(categories.size, 0),
-            private var readOrder: ReadOrder = ReadOrder.Descending
-    ) {
-        fun categories(data: Array<Any>) = apply { categories = data }
-        fun proportions(data: Array<Float>) = apply { proportions = data }
-        fun categoriesTitle(title: String) = apply { categoriesTitle = title }
-        fun title(title: String?) = apply { this.title = title }
-        fun contextDescription(description: String?) = apply { contextDescription = description }
-        fun numValuesToRead(readCount: Int) = apply { numValuesToRead = readCount }
-        fun readOrder(readOrder: ReadOrder) = apply { this.readOrder = readOrder }
-
-        fun build() = PieChartDescriptor(
-                categories,
-                proportions,
-                categoriesTitle,
-                title,
-                contextDescription,
-                numValuesToRead,
-                readOrder
-        )
+    private fun percentDescription(float: Float): String {
+        // https://www.ieltsbuddy.com/ielts-pie-chart.html
+        return when {
+            float < 0.03 -> return "a minority"
+            float == 0.1f -> return "one in 10"
+            float == 0.2f -> return "one in 5"
+            float == 0.3f -> return "three in 10"
+            float.approxEqualWithin((1 / 3f), 0.02f) -> return "approximately a third"
+            float == 0.4f -> return "four in 10"
+            float == 0.5f -> return "half"
+            float.approxEqualWithin(0.5f, 0.02f) -> "approximately half"
+            float == 0.75f -> return "third"
+            float.approxEqualWithin(0.75f, 0.02f) -> "almost a third"
+            float.approxEqualWithin(0.8f, 0.03f) -> "four fifths"
+            float >= 0.98 -> "almost all"
+            else -> "%.2f percent".format(float * 100)
+        }
     }
-
-    /**
-     * Array of objects implementing `.toString()` which will be used as the label.
-     */
-//    lateinit var categories: Array<Any>
-
-    /**
-     * A floating array of proportions. Ideally this should add up to 100.
-     * If it does not, it will be counted as unknown.
-     */
-//    lateinit var proportions: Array<Float>
-
-
-//    var title: String? = null
-//
-//    var contextDescription: String? = null
-//
-//    var numValuesToRead: Int = 0
-//
-//    var readOrder = ReadOrder.Descending
-
 
     private fun title(): String {
         return title?.also { t -> return t } ?: kotlin.run {
@@ -94,21 +84,37 @@ class PieChartDescriptor(
         }
     }
 
+    private fun descForDataPoint(dataPoint: DataPoint): String {
+        val fillerWords = arrayOf("fills", "takes")
+        return "${dataPoint.category} ${fillerWords.random()} up ${percentDescription(dataPoint.proportion)} of $categoriesTitle"
+    }
+
+
     private fun dataDescription(): String {
 
         // Sort it in sort order
-        var dataMerged: List<XY> = categories.zip(proportions).map {
-            XY(it.first, it.second)
-        }.sortedDescending()
+        var dataMerged: List<DataPoint> = dataDataPoint.sortedDescending()
 
         if (readOrder == ReadOrder.Ascending) {
             dataMerged = dataMerged.reversed()
         }
 
-        print(dataMerged)
+        val valuesToRead = numValuesToRead
+        val valuesIgnored = dataMerged.size - valuesToRead
 
 
-        return "There are ${dataMerged.size} data points available."
+        val dataDesc = dataMerged.take(valuesToRead).map {
+            descForDataPoint(it)
+        }.joinToString(",")
+
+
+        val ignoredValuesMessage = if (valuesIgnored == 0) "" else "$valuesIgnored values were ignored in the description"
+
+        val others = dataMerged.subList(valuesToRead, dataMerged.size)
+        val othersSum = others.sumByDouble { it.proportion.toDouble() }
+        val othersMessage = "Others take up ${percentDescription(othersSum.toFloat())} proportion"
+
+        return "There are ${dataMerged.size} data points available. $dataDesc. $ignoredValuesMessage. $othersMessage"
     }
 
     override fun describe(): String {
@@ -126,10 +132,12 @@ class PieChartDescriptor(
 
         if (!categories.contentEquals(other.categories)) return false
         if (!proportions.contentEquals(other.proportions)) return false
+        if (categoriesTitle != other.categoriesTitle) return false
         if (title != other.title) return false
         if (contextDescription != other.contextDescription) return false
         if (numValuesToRead != other.numValuesToRead) return false
         if (readOrder != other.readOrder) return false
+        if (dataDataPoint != other.dataDataPoint) return false
 
         return true
     }
@@ -137,15 +145,14 @@ class PieChartDescriptor(
     override fun hashCode(): Int {
         var result = categories.contentHashCode()
         result = 31 * result + proportions.contentHashCode()
+        result = 31 * result + categoriesTitle.hashCode()
         result = 31 * result + (title?.hashCode() ?: 0)
         result = 31 * result + (contextDescription?.hashCode() ?: 0)
         result = 31 * result + numValuesToRead
         result = 31 * result + readOrder.hashCode()
+        result = 31 * result + dataDataPoint.hashCode()
         return result
     }
 
 }
-
-
-
 
