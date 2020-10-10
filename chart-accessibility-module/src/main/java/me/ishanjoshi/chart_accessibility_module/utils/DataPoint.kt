@@ -1,4 +1,4 @@
-package me.ishanjoshi.chart_accessibility_module
+package me.ishanjoshi.chart_accessibility_module.utils
 
 /**
  * Stores the X and the Y coordinate.

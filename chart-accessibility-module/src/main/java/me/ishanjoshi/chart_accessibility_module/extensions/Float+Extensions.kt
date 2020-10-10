@@ -1,4 +1,4 @@
-package me.ishanjoshi.chart_accessibility_module
+package me.ishanjoshi.chart_accessibility_module.extensions
 
 import kotlin.math.abs
 

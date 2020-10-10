@@ -1,6 +1,9 @@
 package me.ishanjoshi.chart_accessibility_module
 
 
+import me.ishanjoshi.chart_accessibility_module.descriptors.BarChartDescriptor
+import me.ishanjoshi.chart_accessibility_module.descriptors.PieChartDescriptor
+import me.ishanjoshi.chart_accessibility_module.descriptors.WeatherColumnDescriptor
 import org.apache.commons.math3.fitting.HarmonicCurveFitter
 import org.apache.commons.math3.fitting.PolynomialCurveFitter
 import org.apache.commons.math3.fitting.WeightedObservedPoints
@@ -41,6 +44,14 @@ fun main() {
     ).describe()
 
     println(barChartDescriptorDescription)
+
+    val dayInMS = 24 * 60 * 60 * 1000
+    val wrcd = WeatherColumnDescriptor(
+            arrayOf(Date().time, Date().time + dayInMS),
+            arrayOf(0f, 12f),
+            "Clayton"
+    ).describe()
+    println(wrcd)
 
 }
 

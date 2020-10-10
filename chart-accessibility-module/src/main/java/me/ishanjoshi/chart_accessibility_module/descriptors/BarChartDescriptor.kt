@@ -1,4 +1,8 @@
-package me.ishanjoshi.chart_accessibility_module
+package me.ishanjoshi.chart_accessibility_module.descriptors
+
+import me.ishanjoshi.chart_accessibility_module.IDescriptor
+import me.ishanjoshi.chart_accessibility_module.utils.DataPoint
+import me.ishanjoshi.chart_accessibility_module.utils.warn
 
 
 /**

@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import com.github.mikephil.charting.components.XAxis;
@@ -20,10 +19,9 @@ import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.utils.Utils;
 
 import java.util.List;
-import java.util.Locale;
 
 import me.ishanjoshi.chart_accessibility_module.IDescriptor;
-import me.ishanjoshi.chart_accessibility_module.PieChartDescriptor;
+import me.ishanjoshi.chart_accessibility_module.descriptors.PieChartDescriptor;
 
 /**
  * View that represents a pie chart. Draws cake like slices.
