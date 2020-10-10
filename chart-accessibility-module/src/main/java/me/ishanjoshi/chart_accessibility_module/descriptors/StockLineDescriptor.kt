@@ -10,8 +10,8 @@ data class StockDataPoint(
         val stockValue: Float
 ) {
     fun timeDescription(): String {
-        val formatter = SimpleDateFormat("dd MMM YYYY", Locale.getDefault())
-        return formatter.format(Date(timestamp))
+        val formatter = SimpleDateFormat("dd MMM YYYY hh:mm ss", Locale.getDefault())
+        return formatter.format(Date(timestamp)) + " seconds"
     }
 }
 
@@ -69,9 +69,9 @@ data class StockLineDescriptor(
 
 
         return "The line chart shows information about $stockName, which is trending $trendDescription. " +
-                "The chart shows data from $timeRange. The starting value is $startingValue and the closing value is $closingValue" +
-                "The minimum value is ${valueDescription(minEntry!!)} on ${minEntry.timeDescription()}" +
-                "The maximum value is ${valueDescription(maxEntry!!)} on ${maxEntry.timeDescription()}"
+                "The chart shows data from $timeRange. The starting value is $startingValue and the closing value is $closingValue. " +
+                "The minimum value is ${valueDescription(minEntry!!)} on ${minEntry.timeDescription()}. " +
+                "The maximum value is ${valueDescription(maxEntry!!)} on ${maxEntry.timeDescription()}. "
     }
 
 }

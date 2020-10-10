@@ -3,6 +3,7 @@ package me.ishanjoshi.chart_accessibility_module
 
 import me.ishanjoshi.chart_accessibility_module.descriptors.BarChartDescriptor
 import me.ishanjoshi.chart_accessibility_module.descriptors.PieChartDescriptor
+import me.ishanjoshi.chart_accessibility_module.descriptors.StockLineDescriptor
 import me.ishanjoshi.chart_accessibility_module.descriptors.WeatherColumnDescriptor
 import org.apache.commons.math3.fitting.HarmonicCurveFitter
 import org.apache.commons.math3.fitting.PolynomialCurveFitter
@@ -11,13 +12,9 @@ import org.apache.commons.math3.stat.regression.SimpleRegression
 import java.util.*
 import kotlin.math.sin
 
-data class ChartPoint(val x: Double, val y: Double)
 
 
 fun main() {
-//    sineInterpolationCheck()
-//    polynomialFitter()
-//    linearRegressionFitter()
 
     val pcbd = PieChartDescriptor(
             arrayOf("iOS", "Android", "Windows", "Symbian"),
@@ -53,45 +50,13 @@ fun main() {
     ).describe()
     println(wrcd)
 
-}
-
-fun sineInterpolationCheck() {
-    val array = Array(10) { pos -> ChartPoint(pos.toDouble(), Math.random() * 0.1 + sin(pos.toDouble())) }
-
-    val weightedObservedPoints = WeightedObservedPoints()
-    array.forEach { chartPoint -> weightedObservedPoints.add(chartPoint.x, chartPoint.y) }
-
-    val harmonicCurveFitter = HarmonicCurveFitter.create()
-
-    val res = harmonicCurveFitter.fit(weightedObservedPoints.toList())
-
-    weightedObservedPoints.toList().forEach { point -> print("[${point.x}, ${point.y}]") }
-    println("")
-    println("Sine interpolation is ${Arrays.toString(res)}")
-}
-
-fun polynomialFitter() {
-    val observedPoints = WeightedObservedPoints()
-
-    for (i in 1..10) {
-        observedPoints.add(i.toDouble(), i * i.toDouble())
-    }
-
-    val polynomialCurveFitter = PolynomialCurveFitter.create(2)
-    val res = polynomialCurveFitter.fit(observedPoints.toList())
-
-    println(Arrays.toString(res))
+    val ti = 60 * 1000 // 60 seconds
+    val stcd = StockLineDescriptor(
+            arrayOf(Date().time, Date().time + ti, Date().time + ti + ti),
+            arrayOf(773f, 3243.324f, 773f),
+            "Amazon (AMZN)",
+            "US Dollars"
+    ).describe()
+    println(stcd)
 
 }
-
-
-fun linearRegressionFitter() {
-    val simpleRegression = SimpleRegression(true)
-    for (i in 1..100) {
-        simpleRegression.addData(i.toDouble(), Math.random() * 5 + i)
-    }
-
-    println(simpleRegression)
-}
-
-
