@@ -15,6 +15,9 @@ data class StockDataPoint(
     }
 }
 
+/**
+ * Use this descriptor for stock chart data. It will read out values that are important in understanding stocks.
+ */
 data class StockLineDescriptor(
         val timeStamps: Array<Long>,
         val stockValues: Array<Float>,

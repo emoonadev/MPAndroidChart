@@ -6,13 +6,12 @@ import me.ishanjoshi.chart_accessibility_module.utils.warn
 
 
 /**
- * Descriptor that takes in pie chart data and generates a description.
- * @property categories the labels shown in the chart legend
- * @property counts floating values representing percentage of slice taken
- * @property categoriesTitle a grouping for all the categories. e.g. Automobile company (Honda, 20%), (Toyota, 30%), ...
- * @property title an optional string that generates contextual introduction
- * @property numValuesToRead limit to reading the top `n` values
- * @property readOrder ascending or descending
+ * Bar chart descriptor should be used in situations where there is no temporal data,
+ * this reads out individual values and counts one at a time in descending order.
+ * No trend information like data should be used with this.
+ *
+ * **Sample description:**
+ * The bar chart describes Honda Car model sales count for 2020. There are 4 data points available. 3223.0 sale count for City,342.0 sale count for HRV,333.0 sale count for Jazz,234.0 sale count for Accord.
  */
 data class BarChartDescriptor @JvmOverloads constructor(
         private var categories: Array<Any>,

@@ -806,25 +806,51 @@ public class PieChart extends PieRadarChartBase<PieData> {
         super.onDetachedFromWindow();
     }
 
+    private String chartTitle = "";
+    private String categoryTitle = "";
+
+    public String getChartTitle() {
+        return chartTitle;
+    }
+
+    public void setChartTitle(String chartTitle) {
+        this.chartTitle = chartTitle;
+    }
+
+    public String getCategoryTitle() {
+        return categoryTitle;
+    }
+
+    public void setCategoryTitle(String categoryTitle) {
+        this.categoryTitle = categoryTitle;
+    }
+
     @Override
     public String getAccessibilityDescription() {
 
+        // Gather all relevant data from chart for the descriptor
         PieData pieData = getData();
+        IPieDataSet dataSet = pieData.getDataSetByIndex(0);
+        String categoryTitleDataset = dataSet.getLabel();
+
         int entryCount = pieData.getEntryCount();
 
         Object[] labels = new Object[entryCount];
         Float[] proportions = new Float[entryCount];
 
         for (int i = 0; i < entryCount; i++) {
-            PieEntry entry = pieData.getDataSet().getEntryForIndex(i);
+            PieEntry entry =dataSet.getEntryForIndex(i);
             float percentage = (entry.getValue() / pieData.getYValueSum());
             labels[i] = entry.getLabel();
             proportions[i] = percentage;
         }
 
+        String categoryTitleMerged = categoryTitle.isEmpty() ? categoryTitleDataset : categoryTitle;
 
+
+        // Using chart state, generate the descriptor and describe it.
         IDescriptor pieChartDescriptor = new PieChartDescriptor(
-                labels, proportions, "some title"
+                labels, proportions, categoryTitleMerged
         );
 
 

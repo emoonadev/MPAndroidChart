@@ -56,6 +56,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import me.ishanjoshi.chart_accessibility_module.IDescriptor;
+import me.ishanjoshi.chart_accessibility_module.descriptors.ToImplementDescriptor;
+
 
 /**
  * Baseclass of all Chart-Views.
@@ -1853,20 +1856,25 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
 
     // region accessibility
 
+    IDescriptor descriptor = new ToImplementDescriptor();
 
-
-    public String getAccessibilitySummaryDescription() {
-        return accessibilitySummaryDescription;
+    public IDescriptor getDescriptor() {
+        return descriptor;
     }
 
-    public void setAccessibilitySummaryDescription(String accessibilitySummaryDescription) {
-        this.accessibilitySummaryDescription = accessibilitySummaryDescription;
+    public void setDescriptor(IDescriptor descriptor) {
+        this.descriptor = descriptor;
     }
 
     /**
+     * This method is called when the view is in focus, and it is responsible for generating a textual description.
+     * There may be a predefined behaviour that could suit the requirements, but generally, overriding it is recommended.
+     *
      * @return accessibility description must be created for each chart
      */
-    public abstract String getAccessibilityDescription();
+    public String getAccessibilityDescription() {
+        return descriptor.describe();
+    }
 
     @Override
     public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
@@ -1874,25 +1882,6 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
 
         return true;
     }
-
-      /*  // Add the user generated summary after the dynamic summary is complete.
-        if (!TextUtils.isEmpty(this.getAccessibilitySummaryDescription())) {
-            event.getText().add(this.getAccessibilitySummaryDescription());
-        }
-
-
-        return true;
-    }*/
-
-    /**
-     * Use this to force sending an accessibility event! By adding a click listener to the this class
-     * @return None
-     */
-    /*@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    @Override
-    public void onClick(View v) {
-        sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED);
-    }*/
 
 }
 

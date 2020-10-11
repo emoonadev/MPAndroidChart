@@ -83,8 +83,6 @@ public class BarChartActivity extends DemoBase implements OnSeekBarChangeListene
         chart.setPinchZoom(false);
 
         chart.setDrawGridBackground(false);
-
-        chart.setAccessibilitySummaryDescription("some custom accessibility description");
         // chart.setDrawYLabels(false);
 
         ValueFormatter xAxisFormatter = new DayAxisValueFormatter(chart);

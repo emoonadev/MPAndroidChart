@@ -29,6 +29,7 @@ enum class ReadOrder {
  * @property title an optional string that generates contextual introduction
  * @property numValuesToRead limit to reading the top `n` values
  * @property readOrder ascending or descending
+ * Best used for pie chart like data that describe proportions.
  */
 data class PieChartDescriptor @JvmOverloads constructor(
         private var categories: Array<Any>,
