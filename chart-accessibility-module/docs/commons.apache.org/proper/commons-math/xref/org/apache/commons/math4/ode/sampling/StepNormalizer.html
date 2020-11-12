@@ -1,0 +1,314 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>StepNormalizer xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/ode/sampling/StepNormalizer.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="StepNormalizer.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="StepNormalizer.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="StepNormalizer.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="StepNormalizer.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="StepNormalizer.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="StepNormalizer.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="StepNormalizer.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="StepNormalizer.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="StepNormalizer.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="StepNormalizer.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="StepNormalizer.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="StepNormalizer.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="StepNormalizer.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="StepNormalizer.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="StepNormalizer.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="StepNormalizer.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="StepNormalizer.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="StepNormalizer.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.ode.sampling;
+<a class="jxr_linenumber" name="L19" href="StepNormalizer.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="StepNormalizer.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MaxCountExceededException;
+<a class="jxr_linenumber" name="L21" href="StepNormalizer.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L22" href="StepNormalizer.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Precision;
+<a class="jxr_linenumber" name="L23" href="StepNormalizer.html#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="StepNormalizer.html#L24">24</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L25" href="StepNormalizer.html#L25">25</a>  <em class="jxr_javadoccomment"> * This class wraps an object implementing {@link FixedStepHandler}</em>
+<a class="jxr_linenumber" name="L26" href="StepNormalizer.html#L26">26</a>  <em class="jxr_javadoccomment"> * into a {@link StepHandler}.</em>
+<a class="jxr_linenumber" name="L27" href="StepNormalizer.html#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="StepNormalizer.html#L28">28</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This wrapper allows to use fixed step handlers with general</em>
+<a class="jxr_linenumber" name="L29" href="StepNormalizer.html#L29">29</a>  <em class="jxr_javadoccomment"> * integrators which cannot guaranty their integration steps will</em>
+<a class="jxr_linenumber" name="L30" href="StepNormalizer.html#L30">30</a>  <em class="jxr_javadoccomment"> * remain constant and therefore only accept general step</em>
+<a class="jxr_linenumber" name="L31" href="StepNormalizer.html#L31">31</a>  <em class="jxr_javadoccomment"> * handlers.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L32" href="StepNormalizer.html#L32">32</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L33" href="StepNormalizer.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;The stepsize used is selected at construction time. The {@link</em>
+<a class="jxr_linenumber" name="L34" href="StepNormalizer.html#L34">34</a>  <em class="jxr_javadoccomment"> * FixedStepHandler#handleStep handleStep} method of the underlying</em>
+<a class="jxr_linenumber" name="L35" href="StepNormalizer.html#L35">35</a>  <em class="jxr_javadoccomment"> * {@link FixedStepHandler} object is called at normalized times. The</em>
+<a class="jxr_linenumber" name="L36" href="StepNormalizer.html#L36">36</a>  <em class="jxr_javadoccomment"> * normalized times can be influenced by the {@link StepNormalizerMode} and</em>
+<a class="jxr_linenumber" name="L37" href="StepNormalizer.html#L37">37</a>  <em class="jxr_javadoccomment"> * {@link StepNormalizerBounds}.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L38" href="StepNormalizer.html#L38">38</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L39" href="StepNormalizer.html#L39">39</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;There is no constraint on the integrator, it can use any time step</em>
+<a class="jxr_linenumber" name="L40" href="StepNormalizer.html#L40">40</a>  <em class="jxr_javadoccomment"> * it needs (time steps longer or shorter than the fixed time step and</em>
+<a class="jxr_linenumber" name="L41" href="StepNormalizer.html#L41">41</a>  <em class="jxr_javadoccomment"> * non-integer ratios are all allowed).&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L42" href="StepNormalizer.html#L42">42</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L43" href="StepNormalizer.html#L43">43</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L44" href="StepNormalizer.html#L44">44</a>  <em class="jxr_javadoccomment"> * &lt;table border="1" align="center"&gt;</em>
+<a class="jxr_linenumber" name="L45" href="StepNormalizer.html#L45">45</a>  <em class="jxr_javadoccomment"> * &lt;tr BGCOLOR="#CCCCFF"&gt;&lt;td colspan=6&gt;&lt;font size="+2"&gt;Examples (step size = 0.5)&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L46" href="StepNormalizer.html#L46">46</a>  <em class="jxr_javadoccomment"> * &lt;tr BGCOLOR="#EEEEFF"&gt;&lt;font size="+1"&gt;&lt;td&gt;Start time&lt;/td&gt;&lt;td&gt;End time&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L47" href="StepNormalizer.html#L47">47</a>  <em class="jxr_javadoccomment"> *  &lt;td&gt;Direction&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode Mode}&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L48" href="StepNormalizer.html#L48">48</a>  <em class="jxr_javadoccomment"> *  &lt;td&gt;{@link StepNormalizerBounds Bounds}&lt;/td&gt;&lt;td&gt;Output&lt;/td&gt;&lt;/font&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L49" href="StepNormalizer.html#L49">49</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;0.3&lt;/td&gt;&lt;td&gt;3.1&lt;/td&gt;&lt;td&gt;forward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#INCREMENT INCREMENT}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#NEITHER NEITHER}&lt;/td&gt;&lt;td&gt;0.8, 1.3, 1.8, 2.3, 2.8&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L50" href="StepNormalizer.html#L50">50</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;0.3&lt;/td&gt;&lt;td&gt;3.1&lt;/td&gt;&lt;td&gt;forward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#INCREMENT INCREMENT}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#FIRST FIRST}&lt;/td&gt;&lt;td&gt;0.3, 0.8, 1.3, 1.8, 2.3, 2.8&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L51" href="StepNormalizer.html#L51">51</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;0.3&lt;/td&gt;&lt;td&gt;3.1&lt;/td&gt;&lt;td&gt;forward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#INCREMENT INCREMENT}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#LAST LAST}&lt;/td&gt;&lt;td&gt;0.8, 1.3, 1.8, 2.3, 2.8, 3.1&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L52" href="StepNormalizer.html#L52">52</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;0.3&lt;/td&gt;&lt;td&gt;3.1&lt;/td&gt;&lt;td&gt;forward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#INCREMENT INCREMENT}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#BOTH BOTH}&lt;/td&gt;&lt;td&gt;0.3, 0.8, 1.3, 1.8, 2.3, 2.8, 3.1&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L53" href="StepNormalizer.html#L53">53</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;0.3&lt;/td&gt;&lt;td&gt;3.1&lt;/td&gt;&lt;td&gt;forward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#MULTIPLES MULTIPLES}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#NEITHER NEITHER}&lt;/td&gt;&lt;td&gt;0.5, 1.0, 1.5, 2.0, 2.5, 3.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L54" href="StepNormalizer.html#L54">54</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;0.3&lt;/td&gt;&lt;td&gt;3.1&lt;/td&gt;&lt;td&gt;forward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#MULTIPLES MULTIPLES}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#FIRST FIRST}&lt;/td&gt;&lt;td&gt;0.3, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L55" href="StepNormalizer.html#L55">55</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;0.3&lt;/td&gt;&lt;td&gt;3.1&lt;/td&gt;&lt;td&gt;forward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#MULTIPLES MULTIPLES}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#LAST LAST}&lt;/td&gt;&lt;td&gt;0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.1&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L56" href="StepNormalizer.html#L56">56</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;0.3&lt;/td&gt;&lt;td&gt;3.1&lt;/td&gt;&lt;td&gt;forward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#MULTIPLES MULTIPLES}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#BOTH BOTH}&lt;/td&gt;&lt;td&gt;0.3, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.1&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L57" href="StepNormalizer.html#L57">57</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;0.0&lt;/td&gt;&lt;td&gt;3.0&lt;/td&gt;&lt;td&gt;forward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#INCREMENT INCREMENT}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#NEITHER NEITHER}&lt;/td&gt;&lt;td&gt;0.5, 1.0, 1.5, 2.0, 2.5, 3.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L58" href="StepNormalizer.html#L58">58</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;0.0&lt;/td&gt;&lt;td&gt;3.0&lt;/td&gt;&lt;td&gt;forward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#INCREMENT INCREMENT}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#FIRST FIRST}&lt;/td&gt;&lt;td&gt;0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L59" href="StepNormalizer.html#L59">59</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;0.0&lt;/td&gt;&lt;td&gt;3.0&lt;/td&gt;&lt;td&gt;forward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#INCREMENT INCREMENT}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#LAST LAST}&lt;/td&gt;&lt;td&gt;0.5, 1.0, 1.5, 2.0, 2.5, 3.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L60" href="StepNormalizer.html#L60">60</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;0.0&lt;/td&gt;&lt;td&gt;3.0&lt;/td&gt;&lt;td&gt;forward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#INCREMENT INCREMENT}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#BOTH BOTH}&lt;/td&gt;&lt;td&gt;0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L61" href="StepNormalizer.html#L61">61</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;0.0&lt;/td&gt;&lt;td&gt;3.0&lt;/td&gt;&lt;td&gt;forward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#MULTIPLES MULTIPLES}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#NEITHER NEITHER}&lt;/td&gt;&lt;td&gt;0.5, 1.0, 1.5, 2.0, 2.5, 3.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L62" href="StepNormalizer.html#L62">62</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;0.0&lt;/td&gt;&lt;td&gt;3.0&lt;/td&gt;&lt;td&gt;forward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#MULTIPLES MULTIPLES}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#FIRST FIRST}&lt;/td&gt;&lt;td&gt;0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L63" href="StepNormalizer.html#L63">63</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;0.0&lt;/td&gt;&lt;td&gt;3.0&lt;/td&gt;&lt;td&gt;forward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#MULTIPLES MULTIPLES}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#LAST LAST}&lt;/td&gt;&lt;td&gt;0.5, 1.0, 1.5, 2.0, 2.5, 3.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L64" href="StepNormalizer.html#L64">64</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;0.0&lt;/td&gt;&lt;td&gt;3.0&lt;/td&gt;&lt;td&gt;forward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#MULTIPLES MULTIPLES}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#BOTH BOTH}&lt;/td&gt;&lt;td&gt;0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L65" href="StepNormalizer.html#L65">65</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;3.1&lt;/td&gt;&lt;td&gt;0.3&lt;/td&gt;&lt;td&gt;backward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#INCREMENT INCREMENT}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#NEITHER NEITHER}&lt;/td&gt;&lt;td&gt;2.6, 2.1, 1.6, 1.1, 0.6&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L66" href="StepNormalizer.html#L66">66</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;3.1&lt;/td&gt;&lt;td&gt;0.3&lt;/td&gt;&lt;td&gt;backward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#INCREMENT INCREMENT}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#FIRST FIRST}&lt;/td&gt;&lt;td&gt;3.1, 2.6, 2.1, 1.6, 1.1, 0.6&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L67" href="StepNormalizer.html#L67">67</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;3.1&lt;/td&gt;&lt;td&gt;0.3&lt;/td&gt;&lt;td&gt;backward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#INCREMENT INCREMENT}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#LAST LAST}&lt;/td&gt;&lt;td&gt;2.6, 2.1, 1.6, 1.1, 0.6, 0.3&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L68" href="StepNormalizer.html#L68">68</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;3.1&lt;/td&gt;&lt;td&gt;0.3&lt;/td&gt;&lt;td&gt;backward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#INCREMENT INCREMENT}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#BOTH BOTH}&lt;/td&gt;&lt;td&gt;3.1, 2.6, 2.1, 1.6, 1.1, 0.6, 0.3&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L69" href="StepNormalizer.html#L69">69</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;3.1&lt;/td&gt;&lt;td&gt;0.3&lt;/td&gt;&lt;td&gt;backward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#MULTIPLES MULTIPLES}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#NEITHER NEITHER}&lt;/td&gt;&lt;td&gt;3.0, 2.5, 2.0, 1.5, 1.0, 0.5&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L70" href="StepNormalizer.html#L70">70</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;3.1&lt;/td&gt;&lt;td&gt;0.3&lt;/td&gt;&lt;td&gt;backward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#MULTIPLES MULTIPLES}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#FIRST FIRST}&lt;/td&gt;&lt;td&gt;3.1, 3.0, 2.5, 2.0, 1.5, 1.0, 0.5&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L71" href="StepNormalizer.html#L71">71</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;3.1&lt;/td&gt;&lt;td&gt;0.3&lt;/td&gt;&lt;td&gt;backward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#MULTIPLES MULTIPLES}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#LAST LAST}&lt;/td&gt;&lt;td&gt;3.0, 2.5, 2.0, 1.5, 1.0, 0.5, 0.3&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L72" href="StepNormalizer.html#L72">72</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;3.1&lt;/td&gt;&lt;td&gt;0.3&lt;/td&gt;&lt;td&gt;backward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#MULTIPLES MULTIPLES}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#BOTH BOTH}&lt;/td&gt;&lt;td&gt;3.1, 3.0, 2.5, 2.0, 1.5, 1.0, 0.5, 0.3&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L73" href="StepNormalizer.html#L73">73</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;3.0&lt;/td&gt;&lt;td&gt;0.0&lt;/td&gt;&lt;td&gt;backward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#INCREMENT INCREMENT}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#NEITHER NEITHER}&lt;/td&gt;&lt;td&gt;2.5, 2.0, 1.5, 1.0, 0.5, 0.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L74" href="StepNormalizer.html#L74">74</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;3.0&lt;/td&gt;&lt;td&gt;0.0&lt;/td&gt;&lt;td&gt;backward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#INCREMENT INCREMENT}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#FIRST FIRST}&lt;/td&gt;&lt;td&gt;3.0, 2.5, 2.0, 1.5, 1.0, 0.5, 0.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L75" href="StepNormalizer.html#L75">75</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;3.0&lt;/td&gt;&lt;td&gt;0.0&lt;/td&gt;&lt;td&gt;backward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#INCREMENT INCREMENT}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#LAST LAST}&lt;/td&gt;&lt;td&gt;2.5, 2.0, 1.5, 1.0, 0.5, 0.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L76" href="StepNormalizer.html#L76">76</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;3.0&lt;/td&gt;&lt;td&gt;0.0&lt;/td&gt;&lt;td&gt;backward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#INCREMENT INCREMENT}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#BOTH BOTH}&lt;/td&gt;&lt;td&gt;3.0, 2.5, 2.0, 1.5, 1.0, 0.5, 0.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L77" href="StepNormalizer.html#L77">77</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;3.0&lt;/td&gt;&lt;td&gt;0.0&lt;/td&gt;&lt;td&gt;backward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#MULTIPLES MULTIPLES}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#NEITHER NEITHER}&lt;/td&gt;&lt;td&gt;2.5, 2.0, 1.5, 1.0, 0.5, 0.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L78" href="StepNormalizer.html#L78">78</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;3.0&lt;/td&gt;&lt;td&gt;0.0&lt;/td&gt;&lt;td&gt;backward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#MULTIPLES MULTIPLES}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#FIRST FIRST}&lt;/td&gt;&lt;td&gt;3.0, 2.5, 2.0, 1.5, 1.0, 0.5, 0.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L79" href="StepNormalizer.html#L79">79</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;3.0&lt;/td&gt;&lt;td&gt;0.0&lt;/td&gt;&lt;td&gt;backward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#MULTIPLES MULTIPLES}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#LAST LAST}&lt;/td&gt;&lt;td&gt;2.5, 2.0, 1.5, 1.0, 0.5, 0.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L80" href="StepNormalizer.html#L80">80</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;td&gt;3.0&lt;/td&gt;&lt;td&gt;0.0&lt;/td&gt;&lt;td&gt;backward&lt;/td&gt;&lt;td&gt;{@link StepNormalizerMode#MULTIPLES MULTIPLES}&lt;/td&gt;&lt;td&gt;{@link StepNormalizerBounds#BOTH BOTH}&lt;/td&gt;&lt;td&gt;3.0, 2.5, 2.0, 1.5, 1.0, 0.5, 0.0&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L81" href="StepNormalizer.html#L81">81</a>  <em class="jxr_javadoccomment"> * &lt;/table&gt;</em>
+<a class="jxr_linenumber" name="L82" href="StepNormalizer.html#L82">82</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L83" href="StepNormalizer.html#L83">83</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L84" href="StepNormalizer.html#L84">84</a>  <em class="jxr_javadoccomment"> * @see StepHandler</em>
+<a class="jxr_linenumber" name="L85" href="StepNormalizer.html#L85">85</a>  <em class="jxr_javadoccomment"> * @see FixedStepHandler</em>
+<a class="jxr_linenumber" name="L86" href="StepNormalizer.html#L86">86</a>  <em class="jxr_javadoccomment"> * @see StepNormalizerMode</em>
+<a class="jxr_linenumber" name="L87" href="StepNormalizer.html#L87">87</a>  <em class="jxr_javadoccomment"> * @see StepNormalizerBounds</em>
+<a class="jxr_linenumber" name="L88" href="StepNormalizer.html#L88">88</a>  <em class="jxr_javadoccomment"> * @since 1.2</em>
+<a class="jxr_linenumber" name="L89" href="StepNormalizer.html#L89">89</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L90" href="StepNormalizer.html#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="StepNormalizer.html#L91">91</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="StepNormalizer.html">StepNormalizer</a> <strong class="jxr_keyword">implements</strong> <a href="StepHandler.html">StepHandler</a> {
+<a class="jxr_linenumber" name="L92" href="StepNormalizer.html#L92">92</a>      <em class="jxr_javadoccomment">/** Fixed time step. */</em>
+<a class="jxr_linenumber" name="L93" href="StepNormalizer.html#L93">93</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> h;
+<a class="jxr_linenumber" name="L94" href="StepNormalizer.html#L94">94</a>  
+<a class="jxr_linenumber" name="L95" href="StepNormalizer.html#L95">95</a>      <em class="jxr_javadoccomment">/** Underlying step handler. */</em>
+<a class="jxr_linenumber" name="L96" href="StepNormalizer.html#L96">96</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="FixedStepHandler.html">FixedStepHandler</a> handler;
+<a class="jxr_linenumber" name="L97" href="StepNormalizer.html#L97">97</a>  
+<a class="jxr_linenumber" name="L98" href="StepNormalizer.html#L98">98</a>      <em class="jxr_javadoccomment">/** First step time. */</em>
+<a class="jxr_linenumber" name="L99" href="StepNormalizer.html#L99">99</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> firstTime;
+<a class="jxr_linenumber" name="L100" href="StepNormalizer.html#L100">100</a> 
+<a class="jxr_linenumber" name="L101" href="StepNormalizer.html#L101">101</a>     <em class="jxr_javadoccomment">/** Last step time. */</em>
+<a class="jxr_linenumber" name="L102" href="StepNormalizer.html#L102">102</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> lastTime;
+<a class="jxr_linenumber" name="L103" href="StepNormalizer.html#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="StepNormalizer.html#L104">104</a>     <em class="jxr_javadoccomment">/** Last state vector. */</em>
+<a class="jxr_linenumber" name="L105" href="StepNormalizer.html#L105">105</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[] lastState;
+<a class="jxr_linenumber" name="L106" href="StepNormalizer.html#L106">106</a> 
+<a class="jxr_linenumber" name="L107" href="StepNormalizer.html#L107">107</a>     <em class="jxr_javadoccomment">/** Last derivatives vector. */</em>
+<a class="jxr_linenumber" name="L108" href="StepNormalizer.html#L108">108</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[] lastDerivatives;
+<a class="jxr_linenumber" name="L109" href="StepNormalizer.html#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="StepNormalizer.html#L110">110</a>     <em class="jxr_javadoccomment">/** Integration direction indicator. */</em>
+<a class="jxr_linenumber" name="L111" href="StepNormalizer.html#L111">111</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> forward;
+<a class="jxr_linenumber" name="L112" href="StepNormalizer.html#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="StepNormalizer.html#L113">113</a>     <em class="jxr_javadoccomment">/** The step normalizer bounds settings to use. */</em>
+<a class="jxr_linenumber" name="L114" href="StepNormalizer.html#L114">114</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="StepNormalizerBounds.html">StepNormalizerBounds</a> bounds;
+<a class="jxr_linenumber" name="L115" href="StepNormalizer.html#L115">115</a> 
+<a class="jxr_linenumber" name="L116" href="StepNormalizer.html#L116">116</a>     <em class="jxr_javadoccomment">/** The step normalizer mode to use. */</em>
+<a class="jxr_linenumber" name="L117" href="StepNormalizer.html#L117">117</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="StepNormalizerMode.html">StepNormalizerMode</a> mode;
+<a class="jxr_linenumber" name="L118" href="StepNormalizer.html#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="StepNormalizer.html#L119">119</a>     <em class="jxr_javadoccomment">/** Simple constructor. Uses {@link StepNormalizerMode#INCREMENT INCREMENT}</em>
+<a class="jxr_linenumber" name="L120" href="StepNormalizer.html#L120">120</a> <em class="jxr_javadoccomment">     * mode, and {@link StepNormalizerBounds#FIRST FIRST} bounds setting, for</em>
+<a class="jxr_linenumber" name="L121" href="StepNormalizer.html#L121">121</a> <em class="jxr_javadoccomment">     * backwards compatibility.</em>
+<a class="jxr_linenumber" name="L122" href="StepNormalizer.html#L122">122</a> <em class="jxr_javadoccomment">     * @param h fixed time step (sign is not used)</em>
+<a class="jxr_linenumber" name="L123" href="StepNormalizer.html#L123">123</a> <em class="jxr_javadoccomment">     * @param handler fixed time step handler to wrap</em>
+<a class="jxr_linenumber" name="L124" href="StepNormalizer.html#L124">124</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L125" href="StepNormalizer.html#L125">125</a>     <strong class="jxr_keyword">public</strong> <a href="StepNormalizer.html">StepNormalizer</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> h, <strong class="jxr_keyword">final</strong> <a href="FixedStepHandler.html">FixedStepHandler</a> handler) {
+<a class="jxr_linenumber" name="L126" href="StepNormalizer.html#L126">126</a>         <strong class="jxr_keyword">this</strong>(h, handler, StepNormalizerMode.INCREMENT,
+<a class="jxr_linenumber" name="L127" href="StepNormalizer.html#L127">127</a>              StepNormalizerBounds.FIRST);
+<a class="jxr_linenumber" name="L128" href="StepNormalizer.html#L128">128</a>     }
+<a class="jxr_linenumber" name="L129" href="StepNormalizer.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="StepNormalizer.html#L130">130</a>     <em class="jxr_javadoccomment">/** Simple constructor. Uses {@link StepNormalizerBounds#FIRST FIRST}</em>
+<a class="jxr_linenumber" name="L131" href="StepNormalizer.html#L131">131</a> <em class="jxr_javadoccomment">     * bounds setting.</em>
+<a class="jxr_linenumber" name="L132" href="StepNormalizer.html#L132">132</a> <em class="jxr_javadoccomment">     * @param h fixed time step (sign is not used)</em>
+<a class="jxr_linenumber" name="L133" href="StepNormalizer.html#L133">133</a> <em class="jxr_javadoccomment">     * @param handler fixed time step handler to wrap</em>
+<a class="jxr_linenumber" name="L134" href="StepNormalizer.html#L134">134</a> <em class="jxr_javadoccomment">     * @param mode step normalizer mode to use</em>
+<a class="jxr_linenumber" name="L135" href="StepNormalizer.html#L135">135</a> <em class="jxr_javadoccomment">     * @since 3.0</em>
+<a class="jxr_linenumber" name="L136" href="StepNormalizer.html#L136">136</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L137" href="StepNormalizer.html#L137">137</a>     <strong class="jxr_keyword">public</strong> <a href="StepNormalizer.html">StepNormalizer</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> h, <strong class="jxr_keyword">final</strong> <a href="FixedStepHandler.html">FixedStepHandler</a> handler,
+<a class="jxr_linenumber" name="L138" href="StepNormalizer.html#L138">138</a>                           <strong class="jxr_keyword">final</strong> <a href="StepNormalizerMode.html">StepNormalizerMode</a> mode) {
+<a class="jxr_linenumber" name="L139" href="StepNormalizer.html#L139">139</a>         <strong class="jxr_keyword">this</strong>(h, handler, mode, StepNormalizerBounds.FIRST);
+<a class="jxr_linenumber" name="L140" href="StepNormalizer.html#L140">140</a>     }
+<a class="jxr_linenumber" name="L141" href="StepNormalizer.html#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="StepNormalizer.html#L142">142</a>     <em class="jxr_javadoccomment">/** Simple constructor. Uses {@link StepNormalizerMode#INCREMENT INCREMENT}</em>
+<a class="jxr_linenumber" name="L143" href="StepNormalizer.html#L143">143</a> <em class="jxr_javadoccomment">     * mode.</em>
+<a class="jxr_linenumber" name="L144" href="StepNormalizer.html#L144">144</a> <em class="jxr_javadoccomment">     * @param h fixed time step (sign is not used)</em>
+<a class="jxr_linenumber" name="L145" href="StepNormalizer.html#L145">145</a> <em class="jxr_javadoccomment">     * @param handler fixed time step handler to wrap</em>
+<a class="jxr_linenumber" name="L146" href="StepNormalizer.html#L146">146</a> <em class="jxr_javadoccomment">     * @param bounds step normalizer bounds setting to use</em>
+<a class="jxr_linenumber" name="L147" href="StepNormalizer.html#L147">147</a> <em class="jxr_javadoccomment">     * @since 3.0</em>
+<a class="jxr_linenumber" name="L148" href="StepNormalizer.html#L148">148</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L149" href="StepNormalizer.html#L149">149</a>     <strong class="jxr_keyword">public</strong> <a href="StepNormalizer.html">StepNormalizer</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> h, <strong class="jxr_keyword">final</strong> <a href="FixedStepHandler.html">FixedStepHandler</a> handler,
+<a class="jxr_linenumber" name="L150" href="StepNormalizer.html#L150">150</a>                           <strong class="jxr_keyword">final</strong> <a href="StepNormalizerBounds.html">StepNormalizerBounds</a> bounds) {
+<a class="jxr_linenumber" name="L151" href="StepNormalizer.html#L151">151</a>         <strong class="jxr_keyword">this</strong>(h, handler, StepNormalizerMode.INCREMENT, bounds);
+<a class="jxr_linenumber" name="L152" href="StepNormalizer.html#L152">152</a>     }
+<a class="jxr_linenumber" name="L153" href="StepNormalizer.html#L153">153</a> 
+<a class="jxr_linenumber" name="L154" href="StepNormalizer.html#L154">154</a>     <em class="jxr_javadoccomment">/** Simple constructor.</em>
+<a class="jxr_linenumber" name="L155" href="StepNormalizer.html#L155">155</a> <em class="jxr_javadoccomment">     * @param h fixed time step (sign is not used)</em>
+<a class="jxr_linenumber" name="L156" href="StepNormalizer.html#L156">156</a> <em class="jxr_javadoccomment">     * @param handler fixed time step handler to wrap</em>
+<a class="jxr_linenumber" name="L157" href="StepNormalizer.html#L157">157</a> <em class="jxr_javadoccomment">     * @param mode step normalizer mode to use</em>
+<a class="jxr_linenumber" name="L158" href="StepNormalizer.html#L158">158</a> <em class="jxr_javadoccomment">     * @param bounds step normalizer bounds setting to use</em>
+<a class="jxr_linenumber" name="L159" href="StepNormalizer.html#L159">159</a> <em class="jxr_javadoccomment">     * @since 3.0</em>
+<a class="jxr_linenumber" name="L160" href="StepNormalizer.html#L160">160</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L161" href="StepNormalizer.html#L161">161</a>     <strong class="jxr_keyword">public</strong> <a href="StepNormalizer.html">StepNormalizer</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> h, <strong class="jxr_keyword">final</strong> <a href="FixedStepHandler.html">FixedStepHandler</a> handler,
+<a class="jxr_linenumber" name="L162" href="StepNormalizer.html#L162">162</a>                           <strong class="jxr_keyword">final</strong> <a href="StepNormalizerMode.html">StepNormalizerMode</a> mode,
+<a class="jxr_linenumber" name="L163" href="StepNormalizer.html#L163">163</a>                           <strong class="jxr_keyword">final</strong> <a href="StepNormalizerBounds.html">StepNormalizerBounds</a> bounds) {
+<a class="jxr_linenumber" name="L164" href="StepNormalizer.html#L164">164</a>         <strong class="jxr_keyword">this</strong>.h          = FastMath.abs(h);
+<a class="jxr_linenumber" name="L165" href="StepNormalizer.html#L165">165</a>         <strong class="jxr_keyword">this</strong>.handler    = handler;
+<a class="jxr_linenumber" name="L166" href="StepNormalizer.html#L166">166</a>         <strong class="jxr_keyword">this</strong>.mode       = mode;
+<a class="jxr_linenumber" name="L167" href="StepNormalizer.html#L167">167</a>         <strong class="jxr_keyword">this</strong>.bounds     = bounds;
+<a class="jxr_linenumber" name="L168" href="StepNormalizer.html#L168">168</a>         firstTime       = Double.NaN;
+<a class="jxr_linenumber" name="L169" href="StepNormalizer.html#L169">169</a>         lastTime        = Double.NaN;
+<a class="jxr_linenumber" name="L170" href="StepNormalizer.html#L170">170</a>         lastState       = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L171" href="StepNormalizer.html#L171">171</a>         lastDerivatives = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L172" href="StepNormalizer.html#L172">172</a>         forward         = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L173" href="StepNormalizer.html#L173">173</a>     }
+<a class="jxr_linenumber" name="L174" href="StepNormalizer.html#L174">174</a> 
+<a class="jxr_linenumber" name="L175" href="StepNormalizer.html#L175">175</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L176" href="StepNormalizer.html#L176">176</a>     @Override
+<a class="jxr_linenumber" name="L177" href="StepNormalizer.html#L177">177</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> init(<strong class="jxr_keyword">double</strong> t0, <strong class="jxr_keyword">double</strong>[] y0, <strong class="jxr_keyword">double</strong> t) {
+<a class="jxr_linenumber" name="L178" href="StepNormalizer.html#L178">178</a> 
+<a class="jxr_linenumber" name="L179" href="StepNormalizer.html#L179">179</a>         firstTime       = Double.NaN;
+<a class="jxr_linenumber" name="L180" href="StepNormalizer.html#L180">180</a>         lastTime        = Double.NaN;
+<a class="jxr_linenumber" name="L181" href="StepNormalizer.html#L181">181</a>         lastState       = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L182" href="StepNormalizer.html#L182">182</a>         lastDerivatives = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L183" href="StepNormalizer.html#L183">183</a>         forward         = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L184" href="StepNormalizer.html#L184">184</a> 
+<a class="jxr_linenumber" name="L185" href="StepNormalizer.html#L185">185</a>         <em class="jxr_comment">// initialize the underlying handler</em>
+<a class="jxr_linenumber" name="L186" href="StepNormalizer.html#L186">186</a>         handler.init(t0, y0, t);
+<a class="jxr_linenumber" name="L187" href="StepNormalizer.html#L187">187</a> 
+<a class="jxr_linenumber" name="L188" href="StepNormalizer.html#L188">188</a>     }
+<a class="jxr_linenumber" name="L189" href="StepNormalizer.html#L189">189</a> 
+<a class="jxr_linenumber" name="L190" href="StepNormalizer.html#L190">190</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L191" href="StepNormalizer.html#L191">191</a> <em class="jxr_javadoccomment">     * Handle the last accepted step</em>
+<a class="jxr_linenumber" name="L192" href="StepNormalizer.html#L192">192</a> <em class="jxr_javadoccomment">     * @param interpolator interpolator for the last accepted step. For</em>
+<a class="jxr_linenumber" name="L193" href="StepNormalizer.html#L193">193</a> <em class="jxr_javadoccomment">     * efficiency purposes, the various integrators reuse the same</em>
+<a class="jxr_linenumber" name="L194" href="StepNormalizer.html#L194">194</a> <em class="jxr_javadoccomment">     * object on each call, so if the instance wants to keep it across</em>
+<a class="jxr_linenumber" name="L195" href="StepNormalizer.html#L195">195</a> <em class="jxr_javadoccomment">     * all calls (for example to provide at the end of the integration a</em>
+<a class="jxr_linenumber" name="L196" href="StepNormalizer.html#L196">196</a> <em class="jxr_javadoccomment">     * continuous model valid throughout the integration range), it</em>
+<a class="jxr_linenumber" name="L197" href="StepNormalizer.html#L197">197</a> <em class="jxr_javadoccomment">     * should build a local copy using the clone method and store this</em>
+<a class="jxr_linenumber" name="L198" href="StepNormalizer.html#L198">198</a> <em class="jxr_javadoccomment">     * copy.</em>
+<a class="jxr_linenumber" name="L199" href="StepNormalizer.html#L199">199</a> <em class="jxr_javadoccomment">     * @param isLast true if the step is the last one</em>
+<a class="jxr_linenumber" name="L200" href="StepNormalizer.html#L200">200</a> <em class="jxr_javadoccomment">     * @exception MaxCountExceededException if the interpolator throws one because</em>
+<a class="jxr_linenumber" name="L201" href="StepNormalizer.html#L201">201</a> <em class="jxr_javadoccomment">     * the number of functions evaluations is exceeded</em>
+<a class="jxr_linenumber" name="L202" href="StepNormalizer.html#L202">202</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L203" href="StepNormalizer.html#L203">203</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> handleStep(<strong class="jxr_keyword">final</strong> <a href="StepInterpolator.html">StepInterpolator</a> interpolator, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isLast)
+<a class="jxr_linenumber" name="L204" href="StepNormalizer.html#L204">204</a>         <strong class="jxr_keyword">throws</strong> <a href="../../exception/MaxCountExceededException.html">MaxCountExceededException</a> {
+<a class="jxr_linenumber" name="L205" href="StepNormalizer.html#L205">205</a>         <em class="jxr_comment">// The first time, update the last state with the start information.</em>
+<a class="jxr_linenumber" name="L206" href="StepNormalizer.html#L206">206</a>         <strong class="jxr_keyword">if</strong> (lastState == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L207" href="StepNormalizer.html#L207">207</a>             firstTime = interpolator.getPreviousTime();
+<a class="jxr_linenumber" name="L208" href="StepNormalizer.html#L208">208</a>             lastTime = interpolator.getPreviousTime();
+<a class="jxr_linenumber" name="L209" href="StepNormalizer.html#L209">209</a>             interpolator.setInterpolatedTime(lastTime);
+<a class="jxr_linenumber" name="L210" href="StepNormalizer.html#L210">210</a>             lastState = interpolator.getInterpolatedState().clone();
+<a class="jxr_linenumber" name="L211" href="StepNormalizer.html#L211">211</a>             lastDerivatives = interpolator.getInterpolatedDerivatives().clone();
+<a class="jxr_linenumber" name="L212" href="StepNormalizer.html#L212">212</a> 
+<a class="jxr_linenumber" name="L213" href="StepNormalizer.html#L213">213</a>             <em class="jxr_comment">// Take the integration direction into account.</em>
+<a class="jxr_linenumber" name="L214" href="StepNormalizer.html#L214">214</a>             forward = interpolator.getCurrentTime() &gt;= lastTime;
+<a class="jxr_linenumber" name="L215" href="StepNormalizer.html#L215">215</a>             <strong class="jxr_keyword">if</strong> (!forward) {
+<a class="jxr_linenumber" name="L216" href="StepNormalizer.html#L216">216</a>                 h = -h;
+<a class="jxr_linenumber" name="L217" href="StepNormalizer.html#L217">217</a>             }
+<a class="jxr_linenumber" name="L218" href="StepNormalizer.html#L218">218</a>         }
+<a class="jxr_linenumber" name="L219" href="StepNormalizer.html#L219">219</a> 
+<a class="jxr_linenumber" name="L220" href="StepNormalizer.html#L220">220</a>         <em class="jxr_comment">// Calculate next normalized step time.</em>
+<a class="jxr_linenumber" name="L221" href="StepNormalizer.html#L221">221</a>         <strong class="jxr_keyword">double</strong> nextTime = (mode == StepNormalizerMode.INCREMENT) ?
+<a class="jxr_linenumber" name="L222" href="StepNormalizer.html#L222">222</a>                           lastTime + h :
+<a class="jxr_linenumber" name="L223" href="StepNormalizer.html#L223">223</a>                           (FastMath.floor(lastTime / h) + 1) * h;
+<a class="jxr_linenumber" name="L224" href="StepNormalizer.html#L224">224</a>         <strong class="jxr_keyword">if</strong> (mode == StepNormalizerMode.MULTIPLES &amp;&amp;
+<a class="jxr_linenumber" name="L225" href="StepNormalizer.html#L225">225</a>             Precision.equals(nextTime, lastTime, 1)) {
+<a class="jxr_linenumber" name="L226" href="StepNormalizer.html#L226">226</a>             nextTime += h;
+<a class="jxr_linenumber" name="L227" href="StepNormalizer.html#L227">227</a>         }
+<a class="jxr_linenumber" name="L228" href="StepNormalizer.html#L228">228</a> 
+<a class="jxr_linenumber" name="L229" href="StepNormalizer.html#L229">229</a>         <em class="jxr_comment">// Process normalized steps as long as they are in the current step.</em>
+<a class="jxr_linenumber" name="L230" href="StepNormalizer.html#L230">230</a>         <strong class="jxr_keyword">boolean</strong> nextInStep = isNextInStep(nextTime, interpolator);
+<a class="jxr_linenumber" name="L231" href="StepNormalizer.html#L231">231</a>         <strong class="jxr_keyword">while</strong> (nextInStep) {
+<a class="jxr_linenumber" name="L232" href="StepNormalizer.html#L232">232</a>             <em class="jxr_comment">// Output the stored previous step.</em>
+<a class="jxr_linenumber" name="L233" href="StepNormalizer.html#L233">233</a>             doNormalizedStep(false);
+<a class="jxr_linenumber" name="L234" href="StepNormalizer.html#L234">234</a> 
+<a class="jxr_linenumber" name="L235" href="StepNormalizer.html#L235">235</a>             <em class="jxr_comment">// Store the next step as last step.</em>
+<a class="jxr_linenumber" name="L236" href="StepNormalizer.html#L236">236</a>             storeStep(interpolator, nextTime);
+<a class="jxr_linenumber" name="L237" href="StepNormalizer.html#L237">237</a> 
+<a class="jxr_linenumber" name="L238" href="StepNormalizer.html#L238">238</a>             <em class="jxr_comment">// Move on to the next step.</em>
+<a class="jxr_linenumber" name="L239" href="StepNormalizer.html#L239">239</a>             nextTime += h;
+<a class="jxr_linenumber" name="L240" href="StepNormalizer.html#L240">240</a>             nextInStep = isNextInStep(nextTime, interpolator);
+<a class="jxr_linenumber" name="L241" href="StepNormalizer.html#L241">241</a>         }
+<a class="jxr_linenumber" name="L242" href="StepNormalizer.html#L242">242</a> 
+<a class="jxr_linenumber" name="L243" href="StepNormalizer.html#L243">243</a>         <strong class="jxr_keyword">if</strong> (isLast) {
+<a class="jxr_linenumber" name="L244" href="StepNormalizer.html#L244">244</a>             <em class="jxr_comment">// There will be no more steps. The stored one should be given to</em>
+<a class="jxr_linenumber" name="L245" href="StepNormalizer.html#L245">245</a>             <em class="jxr_comment">// the handler. We may have to output one more step. Only the last</em>
+<a class="jxr_linenumber" name="L246" href="StepNormalizer.html#L246">246</a>             <em class="jxr_comment">// one of those should be flagged as being the last.</em>
+<a class="jxr_linenumber" name="L247" href="StepNormalizer.html#L247">247</a>             <strong class="jxr_keyword">boolean</strong> addLast = bounds.lastIncluded() &amp;&amp;
+<a class="jxr_linenumber" name="L248" href="StepNormalizer.html#L248">248</a>                               lastTime != interpolator.getCurrentTime();
+<a class="jxr_linenumber" name="L249" href="StepNormalizer.html#L249">249</a>             doNormalizedStep(!addLast);
+<a class="jxr_linenumber" name="L250" href="StepNormalizer.html#L250">250</a>             <strong class="jxr_keyword">if</strong> (addLast) {
+<a class="jxr_linenumber" name="L251" href="StepNormalizer.html#L251">251</a>                 storeStep(interpolator, interpolator.getCurrentTime());
+<a class="jxr_linenumber" name="L252" href="StepNormalizer.html#L252">252</a>                 doNormalizedStep(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L253" href="StepNormalizer.html#L253">253</a>             }
+<a class="jxr_linenumber" name="L254" href="StepNormalizer.html#L254">254</a>         }
+<a class="jxr_linenumber" name="L255" href="StepNormalizer.html#L255">255</a>     }
+<a class="jxr_linenumber" name="L256" href="StepNormalizer.html#L256">256</a> 
+<a class="jxr_linenumber" name="L257" href="StepNormalizer.html#L257">257</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L258" href="StepNormalizer.html#L258">258</a> <em class="jxr_javadoccomment">     * Returns a value indicating whether the next normalized time is in the</em>
+<a class="jxr_linenumber" name="L259" href="StepNormalizer.html#L259">259</a> <em class="jxr_javadoccomment">     * current step.</em>
+<a class="jxr_linenumber" name="L260" href="StepNormalizer.html#L260">260</a> <em class="jxr_javadoccomment">     * @param nextTime the next normalized time</em>
+<a class="jxr_linenumber" name="L261" href="StepNormalizer.html#L261">261</a> <em class="jxr_javadoccomment">     * @param interpolator interpolator for the last accepted step, to use to</em>
+<a class="jxr_linenumber" name="L262" href="StepNormalizer.html#L262">262</a> <em class="jxr_javadoccomment">     * get the end time of the current step</em>
+<a class="jxr_linenumber" name="L263" href="StepNormalizer.html#L263">263</a> <em class="jxr_javadoccomment">     * @return value indicating whether the next normalized time is in the</em>
+<a class="jxr_linenumber" name="L264" href="StepNormalizer.html#L264">264</a> <em class="jxr_javadoccomment">     * current step</em>
+<a class="jxr_linenumber" name="L265" href="StepNormalizer.html#L265">265</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L266" href="StepNormalizer.html#L266">266</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isNextInStep(<strong class="jxr_keyword">double</strong> nextTime,
+<a class="jxr_linenumber" name="L267" href="StepNormalizer.html#L267">267</a>                                  <a href="StepInterpolator.html">StepInterpolator</a> interpolator) {
+<a class="jxr_linenumber" name="L268" href="StepNormalizer.html#L268">268</a>         <strong class="jxr_keyword">return</strong> forward ?
+<a class="jxr_linenumber" name="L269" href="StepNormalizer.html#L269">269</a>                nextTime &lt;= interpolator.getCurrentTime() :
+<a class="jxr_linenumber" name="L270" href="StepNormalizer.html#L270">270</a>                nextTime &gt;= interpolator.getCurrentTime();
+<a class="jxr_linenumber" name="L271" href="StepNormalizer.html#L271">271</a>     }
+<a class="jxr_linenumber" name="L272" href="StepNormalizer.html#L272">272</a> 
+<a class="jxr_linenumber" name="L273" href="StepNormalizer.html#L273">273</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L274" href="StepNormalizer.html#L274">274</a> <em class="jxr_javadoccomment">     * Invokes the underlying step handler for the current normalized step.</em>
+<a class="jxr_linenumber" name="L275" href="StepNormalizer.html#L275">275</a> <em class="jxr_javadoccomment">     * @param isLast true if the step is the last one</em>
+<a class="jxr_linenumber" name="L276" href="StepNormalizer.html#L276">276</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L277" href="StepNormalizer.html#L277">277</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> doNormalizedStep(<strong class="jxr_keyword">boolean</strong> isLast) {
+<a class="jxr_linenumber" name="L278" href="StepNormalizer.html#L278">278</a>         <strong class="jxr_keyword">if</strong> (!bounds.firstIncluded() &amp;&amp; firstTime == lastTime) {
+<a class="jxr_linenumber" name="L279" href="StepNormalizer.html#L279">279</a>             <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L280" href="StepNormalizer.html#L280">280</a>         }
+<a class="jxr_linenumber" name="L281" href="StepNormalizer.html#L281">281</a>         handler.handleStep(lastTime, lastState, lastDerivatives, isLast);
+<a class="jxr_linenumber" name="L282" href="StepNormalizer.html#L282">282</a>     }
+<a class="jxr_linenumber" name="L283" href="StepNormalizer.html#L283">283</a> 
+<a class="jxr_linenumber" name="L284" href="StepNormalizer.html#L284">284</a>     <em class="jxr_javadoccomment">/** Stores the interpolated information for the given time in the current</em>
+<a class="jxr_linenumber" name="L285" href="StepNormalizer.html#L285">285</a> <em class="jxr_javadoccomment">     * state.</em>
+<a class="jxr_linenumber" name="L286" href="StepNormalizer.html#L286">286</a> <em class="jxr_javadoccomment">     * @param interpolator interpolator for the last accepted step, to use to</em>
+<a class="jxr_linenumber" name="L287" href="StepNormalizer.html#L287">287</a> <em class="jxr_javadoccomment">     * get the interpolated information</em>
+<a class="jxr_linenumber" name="L288" href="StepNormalizer.html#L288">288</a> <em class="jxr_javadoccomment">     * @param t the time for which to store the interpolated information</em>
+<a class="jxr_linenumber" name="L289" href="StepNormalizer.html#L289">289</a> <em class="jxr_javadoccomment">     * @exception MaxCountExceededException if the interpolator throws one because</em>
+<a class="jxr_linenumber" name="L290" href="StepNormalizer.html#L290">290</a> <em class="jxr_javadoccomment">     * the number of functions evaluations is exceeded</em>
+<a class="jxr_linenumber" name="L291" href="StepNormalizer.html#L291">291</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L292" href="StepNormalizer.html#L292">292</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> storeStep(<a href="StepInterpolator.html">StepInterpolator</a> interpolator, <strong class="jxr_keyword">double</strong> t)
+<a class="jxr_linenumber" name="L293" href="StepNormalizer.html#L293">293</a>         <strong class="jxr_keyword">throws</strong> <a href="../../exception/MaxCountExceededException.html">MaxCountExceededException</a> {
+<a class="jxr_linenumber" name="L294" href="StepNormalizer.html#L294">294</a>         lastTime = t;
+<a class="jxr_linenumber" name="L295" href="StepNormalizer.html#L295">295</a>         interpolator.setInterpolatedTime(lastTime);
+<a class="jxr_linenumber" name="L296" href="StepNormalizer.html#L296">296</a>         System.arraycopy(interpolator.getInterpolatedState(), 0,
+<a class="jxr_linenumber" name="L297" href="StepNormalizer.html#L297">297</a>                          lastState, 0, lastState.length);
+<a class="jxr_linenumber" name="L298" href="StepNormalizer.html#L298">298</a>         System.arraycopy(interpolator.getInterpolatedDerivatives(), 0,
+<a class="jxr_linenumber" name="L299" href="StepNormalizer.html#L299">299</a>                          lastDerivatives, 0, lastDerivatives.length);
+<a class="jxr_linenumber" name="L300" href="StepNormalizer.html#L300">300</a>     }
+<a class="jxr_linenumber" name="L301" href="StepNormalizer.html#L301">301</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/report.css" type="text/css"/><link rel="shortcut icon" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/report.gif" type="image/gif"/><title>UniformIntegerDistribution.java</title><link rel="stylesheet" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/prettify.css" type="text/css"/><script type="text/javascript" src="https://commons.apache.org/proper/commons-math/jacoco/.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="https://commons.apache.org/proper/commons-math/jacoco/.sessions.html" class="el_session">Sessions</a></span><a href="https://commons.apache.org/proper/commons-math/jacoco/index.html" class="el_report">Apache Commons Math</a> &gt; <a href="https://commons.apache.org/proper/commons-math/jacoco/org.apache.commons.math4.distribution/index.source.html" class="el_package">org.apache.commons.math4.distribution</a> &gt; <span class="el_source">UniformIntegerDistribution.java</span></div><h1>UniformIntegerDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math4.distribution;
+
+import org.apache.commons.math4.exception.NumberIsTooLargeException;
+import org.apache.commons.math4.exception.util.LocalizedFormats;
+import org.apache.commons.rng.UniformRandomProvider;
+
+/**
+ * Implementation of the uniform integer distribution.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Uniform_distribution_(discrete)&quot;
+ * &gt;Uniform distribution (discrete), at Wikipedia&lt;/a&gt;
+ *
+ * @since 3.0
+ */
+public class UniformIntegerDistribution extends AbstractIntegerDistribution {
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 20160308L;
+    /** Lower bound (inclusive) of this distribution. */
+    private final int lower;
+    /** Upper bound (inclusive) of this distribution. */
+    private final int upper;
+
+    /**
+     * Creates a new uniform integer distribution using the given lower and
+     * upper bounds (both inclusive).
+     *
+     * @param lower Lower bound (inclusive) of this distribution.
+     * @param upper Upper bound (inclusive) of this distribution.
+     * @throws NumberIsTooLargeException if {@code lower &gt; upper}.
+     */
+    public UniformIntegerDistribution(int lower,
+                                      int upper)
+<span class="fc" id="L50">        throws NumberIsTooLargeException {</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        if (lower &gt; upper) {</span>
+<span class="fc" id="L52">            throw new NumberIsTooLargeException(</span>
+                            LocalizedFormats.LOWER_BOUND_NOT_BELOW_UPPER_BOUND,
+<span class="fc" id="L54">                            lower, upper, true);</span>
+        }
+<span class="fc" id="L56">        this.lower = lower;</span>
+<span class="fc" id="L57">        this.upper = upper;</span>
+<span class="fc" id="L58">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public double probability(int x) {
+<span class="fc bfc" id="L63" title="All 4 branches covered.">        if (x &lt; lower || x &gt; upper) {</span>
+<span class="fc" id="L64">            return 0;</span>
+        }
+<span class="fc" id="L66">        return 1.0 / (upper - lower + 1);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double cumulativeProbability(int x) {
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (x &lt; lower) {</span>
+<span class="fc" id="L73">            return 0;</span>
+        }
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (x &gt; upper) {</span>
+<span class="fc" id="L76">            return 1;</span>
+        }
+<span class="fc" id="L78">        return (x - lower + 1.0) / (upper - lower + 1.0);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For lower bound {@code lower} and upper bound {@code upper}, the mean is
+     * {@code 0.5 * (lower + upper)}.
+     */
+    @Override
+    public double getNumericalMean() {
+<span class="fc" id="L89">        return 0.5 * (lower + upper);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For lower bound {@code lower} and upper bound {@code upper}, and
+     * {@code n = upper - lower + 1}, the variance is {@code (n^2 - 1) / 12}.
+     */
+    @Override
+    public double getNumericalVariance() {
+<span class="fc" id="L100">        double n = upper - lower + 1;</span>
+<span class="fc" id="L101">        return (n * n - 1) / 12.0;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The lower bound of the support is equal to the lower bound parameter
+     * of the distribution.
+     *
+     * @return lower bound of the support
+     */
+    @Override
+    public int getSupportLowerBound() {
+<span class="fc" id="L114">        return lower;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The upper bound of the support is equal to the upper bound parameter
+     * of the distribution.
+     *
+     * @return upper bound of the support
+     */
+    @Override
+    public int getSupportUpperBound() {
+<span class="fc" id="L127">        return upper;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The support of this distribution is connected.
+     *
+     * @return {@code true}
+     */
+    @Override
+    public boolean isSupportConnected() {
+<span class="nc" id="L139">        return true;</span>
+    }
+
+    /**{@inheritDoc} */
+    @Override
+    public IntegerDistribution.Sampler createSampler(final UniformRandomProvider rng) {
+<span class="fc" id="L145">        return new IntegerDistribution.Sampler() {</span>
+            /** {@inheritDoc} */
+            @Override
+            public int sample() {
+<span class="fc" id="L149">                final int max = (upper - lower) + 1;</span>
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">                if (max &lt;= 0) {</span>
+                    // The range is too wide to fit in a positive int (larger
+                    // than 2^31); as it covers more than half the integer range,
+                    // we use a simple rejection method.
+                    while (true) {
+<span class="nc" id="L155">                        final int r = rng.nextInt();</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">                        if (r &gt;= lower &amp;&amp;</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">                            r &lt;= upper) {</span>
+<span class="nc" id="L158">                            return r;</span>
+                        }
+<span class="nc" id="L160">                    }</span>
+                } else {
+                    // We can shift the range and directly generate a positive int.
+<span class="fc" id="L163">                    return lower + rng.nextInt(max);</span>
+                }
+            }
+        };
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/report.css" type="text/css"/><link rel="shortcut icon" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/report.gif" type="image/gif"/><title>LevyDistribution.java</title><link rel="stylesheet" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/prettify.css" type="text/css"/><script type="text/javascript" src="https://commons.apache.org/proper/commons-math/jacoco/.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="https://commons.apache.org/proper/commons-math/jacoco/.sessions.html" class="el_session">Sessions</a></span><a href="https://commons.apache.org/proper/commons-math/jacoco/index.html" class="el_report">Apache Commons Math</a> &gt; <a href="https://commons.apache.org/proper/commons-math/jacoco/org.apache.commons.math4.distribution/index.source.html" class="el_package">org.apache.commons.math4.distribution</a> &gt; <span class="el_source">LevyDistribution.java</span></div><h1>LevyDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math4.distribution;
+
+import org.apache.commons.math4.exception.OutOfRangeException;
+import org.apache.commons.math4.special.Erf;
+import org.apache.commons.math4.util.FastMath;
+
+/**
+ * This class implements the &lt;a href=&quot;http://en.wikipedia.org/wiki/L%C3%A9vy_distribution&quot;&gt;
+ * L&amp;eacute;vy distribution&lt;/a&gt;.
+ *
+ * @since 3.2
+ */
+public class LevyDistribution extends AbstractRealDistribution {
+
+    /** Serializable UID. */
+    private static final long serialVersionUID = 20630311L;
+
+    /** Location parameter. */
+    private final double mu;
+
+    /** Scale parameter. */
+    private final double c;  // Setting this to 1 returns a cumProb of 1.0
+
+    /** Half of c (for calculations). */
+    private final double halfC;
+
+    /**
+     * Creates a distribution.
+     *
+     * @param mu location
+     * @param c scale parameter
+     */
+<span class="fc" id="L49">    public LevyDistribution(final double mu, final double c) {</span>
+<span class="fc" id="L50">        this.mu = mu;</span>
+<span class="fc" id="L51">        this.c = c;</span>
+<span class="fc" id="L52">        this.halfC = 0.5 * c;</span>
+<span class="fc" id="L53">    }</span>
+
+    /** {@inheritDoc}
+    * &lt;p&gt;
+    * From Wikipedia: The probability density function of the L&amp;eacute;vy distribution
+    * over the domain is
+    * &lt;/p&gt;
+    * &lt;pre&gt;
+    * f(x; &amp;mu;, c) = &amp;radic;(c / 2&amp;pi;) * e&lt;sup&gt;-c / 2 (x - &amp;mu;)&lt;/sup&gt; / (x - &amp;mu;)&lt;sup&gt;3/2&lt;/sup&gt;
+    * &lt;/pre&gt;
+    * &lt;p&gt;
+    * For this distribution, {@code X}, this method returns {@code P(X &lt; x)}.
+    * If {@code x} is less than location parameter &amp;mu;, {@code Double.NaN} is
+    * returned, as in these cases the distribution is not defined.
+    * &lt;/p&gt;
+    */
+    @Override
+    public double density(final double x) {
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        if (x &lt; mu) {</span>
+<span class="nc" id="L72">            return Double.NaN;</span>
+        }
+
+<span class="fc" id="L75">        final double delta = x - mu;</span>
+<span class="fc" id="L76">        final double f     = halfC / delta;</span>
+<span class="fc" id="L77">        return FastMath.sqrt(f / FastMath.PI) * FastMath.exp(-f) /delta;</span>
+    }
+
+    /** {@inheritDoc}
+     *
+     * See documentation of {@link #density(double)} for computation details.
+     */
+    @Override
+    public double logDensity(double x) {
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">        if (x &lt; mu) {</span>
+<span class="nc" id="L87">            return Double.NaN;</span>
+        }
+
+<span class="fc" id="L90">        final double delta = x - mu;</span>
+<span class="fc" id="L91">        final double f     = halfC / delta;</span>
+<span class="fc" id="L92">        return 0.5 * FastMath.log(f / FastMath.PI) - f - FastMath.log(delta);</span>
+    }
+
+    /** {@inheritDoc}
+     * &lt;p&gt;
+     * From Wikipedia: the cumulative distribution function is
+     * &lt;/p&gt;
+     * &lt;pre&gt;
+     * f(x; u, c) = erfc (&amp;radic; (c / 2 (x - u )))
+     * &lt;/pre&gt;
+     */
+    @Override
+    public double cumulativeProbability(final double x) {
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (x &lt; mu) {</span>
+<span class="nc" id="L106">            return Double.NaN;</span>
+        }
+<span class="fc" id="L108">        return Erf.erfc(FastMath.sqrt(halfC / (x - mu)));</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double inverseCumulativeProbability(final double p) throws OutOfRangeException {
+<span class="fc bfc" id="L114" title="All 4 branches covered.">        if (p &lt; 0.0 || p &gt; 1.0) {</span>
+<span class="fc" id="L115">            throw new OutOfRangeException(p, 0, 1);</span>
+        }
+<span class="fc" id="L117">        final double t = Erf.erfcInv(p);</span>
+<span class="fc" id="L118">        return mu + halfC / (t * t);</span>
+    }
+
+    /** Get the scale parameter of the distribution.
+     * @return scale parameter of the distribution
+     */
+    public double getScale() {
+<span class="fc" id="L125">        return c;</span>
+    }
+
+    /** Get the location parameter of the distribution.
+     * @return location parameter of the distribution
+     */
+    public double getLocation() {
+<span class="fc" id="L132">        return mu;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double getNumericalMean() {
+<span class="nc" id="L138">        return Double.POSITIVE_INFINITY;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double getNumericalVariance() {
+<span class="nc" id="L144">        return Double.POSITIVE_INFINITY;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double getSupportLowerBound() {
+<span class="fc" id="L150">        return mu;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double getSupportUpperBound() {
+<span class="fc" id="L156">        return Double.POSITIVE_INFINITY;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isSupportConnected() {
+<span class="fc" id="L162">        return true;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

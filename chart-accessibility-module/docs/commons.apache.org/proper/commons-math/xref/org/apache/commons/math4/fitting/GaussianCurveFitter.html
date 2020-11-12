@@ -1,0 +1,441 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>GaussianCurveFitter xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/fitting/GaussianCurveFitter.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="GaussianCurveFitter.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="GaussianCurveFitter.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="GaussianCurveFitter.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="GaussianCurveFitter.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="GaussianCurveFitter.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="GaussianCurveFitter.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="GaussianCurveFitter.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="GaussianCurveFitter.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="GaussianCurveFitter.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="GaussianCurveFitter.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="GaussianCurveFitter.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="GaussianCurveFitter.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="GaussianCurveFitter.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="GaussianCurveFitter.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="GaussianCurveFitter.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="GaussianCurveFitter.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="GaussianCurveFitter.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.fitting;
+<a class="jxr_linenumber" name="L18" href="GaussianCurveFitter.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="GaussianCurveFitter.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L20" href="GaussianCurveFitter.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.Collection;
+<a class="jxr_linenumber" name="L21" href="GaussianCurveFitter.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L22" href="GaussianCurveFitter.html#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.Comparator;
+<a class="jxr_linenumber" name="L23" href="GaussianCurveFitter.html#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L24" href="GaussianCurveFitter.html#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="GaussianCurveFitter.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.function.Gaussian;
+<a class="jxr_linenumber" name="L26" href="GaussianCurveFitter.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L27" href="GaussianCurveFitter.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NullArgumentException;
+<a class="jxr_linenumber" name="L28" href="GaussianCurveFitter.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L29" href="GaussianCurveFitter.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L30" href="GaussianCurveFitter.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.ZeroException;
+<a class="jxr_linenumber" name="L31" href="GaussianCurveFitter.html#L31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L32" href="GaussianCurveFitter.html#L32">32</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.fitting.leastsquares.LeastSquaresBuilder;
+<a class="jxr_linenumber" name="L33" href="GaussianCurveFitter.html#L33">33</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.fitting.leastsquares.LeastSquaresProblem;
+<a class="jxr_linenumber" name="L34" href="GaussianCurveFitter.html#L34">34</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.DiagonalMatrix;
+<a class="jxr_linenumber" name="L35" href="GaussianCurveFitter.html#L35">35</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L36" href="GaussianCurveFitter.html#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="GaussianCurveFitter.html#L37">37</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L38" href="GaussianCurveFitter.html#L38">38</a>  <em class="jxr_javadoccomment"> * Fits points to a {@link</em>
+<a class="jxr_linenumber" name="L39" href="GaussianCurveFitter.html#L39">39</a>  <em class="jxr_javadoccomment"> * org.apache.commons.math4.analysis.function.Gaussian.Parametric Gaussian}</em>
+<a class="jxr_linenumber" name="L40" href="GaussianCurveFitter.html#L40">40</a>  <em class="jxr_javadoccomment"> * function.</em>
+<a class="jxr_linenumber" name="L41" href="GaussianCurveFitter.html#L41">41</a>  <em class="jxr_javadoccomment"> * &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L42" href="GaussianCurveFitter.html#L42">42</a>  <em class="jxr_javadoccomment"> * The {@link #withStartPoint(double[]) initial guess values} must be passed</em>
+<a class="jxr_linenumber" name="L43" href="GaussianCurveFitter.html#L43">43</a>  <em class="jxr_javadoccomment"> * in the following order:</em>
+<a class="jxr_linenumber" name="L44" href="GaussianCurveFitter.html#L44">44</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L45" href="GaussianCurveFitter.html#L45">45</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;Normalization&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L46" href="GaussianCurveFitter.html#L46">46</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;Mean&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L47" href="GaussianCurveFitter.html#L47">47</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;Sigma&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L48" href="GaussianCurveFitter.html#L48">48</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L49" href="GaussianCurveFitter.html#L49">49</a>  <em class="jxr_javadoccomment"> * The optimal values will be returned in the same order.</em>
+<a class="jxr_linenumber" name="L50" href="GaussianCurveFitter.html#L50">50</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L51" href="GaussianCurveFitter.html#L51">51</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L52" href="GaussianCurveFitter.html#L52">52</a>  <em class="jxr_javadoccomment"> * Usage example:</em>
+<a class="jxr_linenumber" name="L53" href="GaussianCurveFitter.html#L53">53</a>  <em class="jxr_javadoccomment"> * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L54" href="GaussianCurveFitter.html#L54">54</a>  <em class="jxr_javadoccomment"> *   WeightedObservedPoints obs = new WeightedObservedPoints();</em>
+<a class="jxr_linenumber" name="L55" href="GaussianCurveFitter.html#L55">55</a>  <em class="jxr_javadoccomment"> *   obs.add(4.0254623,  531026.0);</em>
+<a class="jxr_linenumber" name="L56" href="GaussianCurveFitter.html#L56">56</a>  <em class="jxr_javadoccomment"> *   obs.add(4.03128248, 984167.0);</em>
+<a class="jxr_linenumber" name="L57" href="GaussianCurveFitter.html#L57">57</a>  <em class="jxr_javadoccomment"> *   obs.add(4.03839603, 1887233.0);</em>
+<a class="jxr_linenumber" name="L58" href="GaussianCurveFitter.html#L58">58</a>  <em class="jxr_javadoccomment"> *   obs.add(4.04421621, 2687152.0);</em>
+<a class="jxr_linenumber" name="L59" href="GaussianCurveFitter.html#L59">59</a>  <em class="jxr_javadoccomment"> *   obs.add(4.05132976, 3461228.0);</em>
+<a class="jxr_linenumber" name="L60" href="GaussianCurveFitter.html#L60">60</a>  <em class="jxr_javadoccomment"> *   obs.add(4.05326982, 3580526.0);</em>
+<a class="jxr_linenumber" name="L61" href="GaussianCurveFitter.html#L61">61</a>  <em class="jxr_javadoccomment"> *   obs.add(4.05779662, 3439750.0);</em>
+<a class="jxr_linenumber" name="L62" href="GaussianCurveFitter.html#L62">62</a>  <em class="jxr_javadoccomment"> *   obs.add(4.0636168,  2877648.0);</em>
+<a class="jxr_linenumber" name="L63" href="GaussianCurveFitter.html#L63">63</a>  <em class="jxr_javadoccomment"> *   obs.add(4.06943698, 2175960.0);</em>
+<a class="jxr_linenumber" name="L64" href="GaussianCurveFitter.html#L64">64</a>  <em class="jxr_javadoccomment"> *   obs.add(4.07525716, 1447024.0);</em>
+<a class="jxr_linenumber" name="L65" href="GaussianCurveFitter.html#L65">65</a>  <em class="jxr_javadoccomment"> *   obs.add(4.08237071, 717104.0);</em>
+<a class="jxr_linenumber" name="L66" href="GaussianCurveFitter.html#L66">66</a>  <em class="jxr_javadoccomment"> *   obs.add(4.08366408, 620014.0);</em>
+<a class="jxr_linenumber" name="L67" href="GaussianCurveFitter.html#L67">67</a>  <em class="jxr_javadoccomment"> *   double[] parameters = GaussianCurveFitter.create().fit(obs.toList());</em>
+<a class="jxr_linenumber" name="L68" href="GaussianCurveFitter.html#L68">68</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L69" href="GaussianCurveFitter.html#L69">69</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L70" href="GaussianCurveFitter.html#L70">70</a>  <em class="jxr_javadoccomment"> * @since 3.3</em>
+<a class="jxr_linenumber" name="L71" href="GaussianCurveFitter.html#L71">71</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L72" href="GaussianCurveFitter.html#L72">72</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="GaussianCurveFitter.html">GaussianCurveFitter</a> <strong class="jxr_keyword">extends</strong> <a href="AbstractCurveFitter.html">AbstractCurveFitter</a> {
+<a class="jxr_linenumber" name="L73" href="GaussianCurveFitter.html#L73">73</a>      <em class="jxr_javadoccomment">/** Parametric function to be fitted. */</em>
+<a class="jxr_linenumber" name="L74" href="GaussianCurveFitter.html#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Gaussian.Parametric FUNCTION = <strong class="jxr_keyword">new</strong> Gaussian.Parametric() {
+<a class="jxr_linenumber" name="L75" href="GaussianCurveFitter.html#L75">75</a>              <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L76" href="GaussianCurveFitter.html#L76">76</a>              @Override
+<a class="jxr_linenumber" name="L77" href="GaussianCurveFitter.html#L77">77</a>              <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> ... p) {
+<a class="jxr_linenumber" name="L78" href="GaussianCurveFitter.html#L78">78</a>                  <strong class="jxr_keyword">double</strong> v = Double.POSITIVE_INFINITY;
+<a class="jxr_linenumber" name="L79" href="GaussianCurveFitter.html#L79">79</a>                  <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L80" href="GaussianCurveFitter.html#L80">80</a>                      v = <strong class="jxr_keyword">super</strong>.value(x, p);
+<a class="jxr_linenumber" name="L81" href="GaussianCurveFitter.html#L81">81</a>                  } <strong class="jxr_keyword">catch</strong> (NotStrictlyPositiveException e) { <em class="jxr_comment">// NOPMD</em>
+<a class="jxr_linenumber" name="L82" href="GaussianCurveFitter.html#L82">82</a>                      <em class="jxr_comment">// Do nothing.</em>
+<a class="jxr_linenumber" name="L83" href="GaussianCurveFitter.html#L83">83</a>                  }
+<a class="jxr_linenumber" name="L84" href="GaussianCurveFitter.html#L84">84</a>                  <strong class="jxr_keyword">return</strong> v;
+<a class="jxr_linenumber" name="L85" href="GaussianCurveFitter.html#L85">85</a>              }
+<a class="jxr_linenumber" name="L86" href="GaussianCurveFitter.html#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="GaussianCurveFitter.html#L87">87</a>              <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L88" href="GaussianCurveFitter.html#L88">88</a>              @Override
+<a class="jxr_linenumber" name="L89" href="GaussianCurveFitter.html#L89">89</a>              <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] gradient(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> ... p) {
+<a class="jxr_linenumber" name="L90" href="GaussianCurveFitter.html#L90">90</a>                  <strong class="jxr_keyword">double</strong>[] v = { Double.POSITIVE_INFINITY,
+<a class="jxr_linenumber" name="L91" href="GaussianCurveFitter.html#L91">91</a>                                 Double.POSITIVE_INFINITY,
+<a class="jxr_linenumber" name="L92" href="GaussianCurveFitter.html#L92">92</a>                                 Double.POSITIVE_INFINITY };
+<a class="jxr_linenumber" name="L93" href="GaussianCurveFitter.html#L93">93</a>                  <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L94" href="GaussianCurveFitter.html#L94">94</a>                      v = <strong class="jxr_keyword">super</strong>.gradient(x, p);
+<a class="jxr_linenumber" name="L95" href="GaussianCurveFitter.html#L95">95</a>                  } <strong class="jxr_keyword">catch</strong> (NotStrictlyPositiveException e) { <em class="jxr_comment">// NOPMD</em>
+<a class="jxr_linenumber" name="L96" href="GaussianCurveFitter.html#L96">96</a>                      <em class="jxr_comment">// Do nothing.</em>
+<a class="jxr_linenumber" name="L97" href="GaussianCurveFitter.html#L97">97</a>                  }
+<a class="jxr_linenumber" name="L98" href="GaussianCurveFitter.html#L98">98</a>                  <strong class="jxr_keyword">return</strong> v;
+<a class="jxr_linenumber" name="L99" href="GaussianCurveFitter.html#L99">99</a>              }
+<a class="jxr_linenumber" name="L100" href="GaussianCurveFitter.html#L100">100</a>         };
+<a class="jxr_linenumber" name="L101" href="GaussianCurveFitter.html#L101">101</a>     <em class="jxr_javadoccomment">/** Initial guess. */</em>
+<a class="jxr_linenumber" name="L102" href="GaussianCurveFitter.html#L102">102</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] initialGuess;
+<a class="jxr_linenumber" name="L103" href="GaussianCurveFitter.html#L103">103</a>     <em class="jxr_javadoccomment">/** Maximum number of iterations of the optimization algorithm. */</em>
+<a class="jxr_linenumber" name="L104" href="GaussianCurveFitter.html#L104">104</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIter;
+<a class="jxr_linenumber" name="L105" href="GaussianCurveFitter.html#L105">105</a> 
+<a class="jxr_linenumber" name="L106" href="GaussianCurveFitter.html#L106">106</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L107" href="GaussianCurveFitter.html#L107">107</a> <em class="jxr_javadoccomment">     * Contructor used by the factory methods.</em>
+<a class="jxr_linenumber" name="L108" href="GaussianCurveFitter.html#L108">108</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L109" href="GaussianCurveFitter.html#L109">109</a> <em class="jxr_javadoccomment">     * @param initialGuess Initial guess. If set to {@code null}, the initial guess</em>
+<a class="jxr_linenumber" name="L110" href="GaussianCurveFitter.html#L110">110</a> <em class="jxr_javadoccomment">     * will be estimated using the {@link ParameterGuesser}.</em>
+<a class="jxr_linenumber" name="L111" href="GaussianCurveFitter.html#L111">111</a> <em class="jxr_javadoccomment">     * @param maxIter Maximum number of iterations of the optimization algorithm.</em>
+<a class="jxr_linenumber" name="L112" href="GaussianCurveFitter.html#L112">112</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L113" href="GaussianCurveFitter.html#L113">113</a>     <strong class="jxr_keyword">private</strong> <a href="GaussianCurveFitter.html">GaussianCurveFitter</a>(<strong class="jxr_keyword">double</strong>[] initialGuess,
+<a class="jxr_linenumber" name="L114" href="GaussianCurveFitter.html#L114">114</a>                                 <strong class="jxr_keyword">int</strong> maxIter) {
+<a class="jxr_linenumber" name="L115" href="GaussianCurveFitter.html#L115">115</a>         <strong class="jxr_keyword">this</strong>.initialGuess = initialGuess;
+<a class="jxr_linenumber" name="L116" href="GaussianCurveFitter.html#L116">116</a>         <strong class="jxr_keyword">this</strong>.maxIter = maxIter;
+<a class="jxr_linenumber" name="L117" href="GaussianCurveFitter.html#L117">117</a>     }
+<a class="jxr_linenumber" name="L118" href="GaussianCurveFitter.html#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="GaussianCurveFitter.html#L119">119</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L120" href="GaussianCurveFitter.html#L120">120</a> <em class="jxr_javadoccomment">     * Creates a default curve fitter.</em>
+<a class="jxr_linenumber" name="L121" href="GaussianCurveFitter.html#L121">121</a> <em class="jxr_javadoccomment">     * The initial guess for the parameters will be {@link ParameterGuesser}</em>
+<a class="jxr_linenumber" name="L122" href="GaussianCurveFitter.html#L122">122</a> <em class="jxr_javadoccomment">     * computed automatically, and the maximum number of iterations of the</em>
+<a class="jxr_linenumber" name="L123" href="GaussianCurveFitter.html#L123">123</a> <em class="jxr_javadoccomment">     * optimization algorithm is set to {@link Integer#MAX_VALUE}.</em>
+<a class="jxr_linenumber" name="L124" href="GaussianCurveFitter.html#L124">124</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L125" href="GaussianCurveFitter.html#L125">125</a> <em class="jxr_javadoccomment">     * @return a curve fitter.</em>
+<a class="jxr_linenumber" name="L126" href="GaussianCurveFitter.html#L126">126</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L127" href="GaussianCurveFitter.html#L127">127</a> <em class="jxr_javadoccomment">     * @see #withStartPoint(double[])</em>
+<a class="jxr_linenumber" name="L128" href="GaussianCurveFitter.html#L128">128</a> <em class="jxr_javadoccomment">     * @see #withMaxIterations(int)</em>
+<a class="jxr_linenumber" name="L129" href="GaussianCurveFitter.html#L129">129</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L130" href="GaussianCurveFitter.html#L130">130</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="GaussianCurveFitter.html">GaussianCurveFitter</a> create() {
+<a class="jxr_linenumber" name="L131" href="GaussianCurveFitter.html#L131">131</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="GaussianCurveFitter.html">GaussianCurveFitter</a>(<strong class="jxr_keyword">null</strong>, Integer.MAX_VALUE);
+<a class="jxr_linenumber" name="L132" href="GaussianCurveFitter.html#L132">132</a>     }
+<a class="jxr_linenumber" name="L133" href="GaussianCurveFitter.html#L133">133</a> 
+<a class="jxr_linenumber" name="L134" href="GaussianCurveFitter.html#L134">134</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L135" href="GaussianCurveFitter.html#L135">135</a> <em class="jxr_javadoccomment">     * Configure the start point (initial guess).</em>
+<a class="jxr_linenumber" name="L136" href="GaussianCurveFitter.html#L136">136</a> <em class="jxr_javadoccomment">     * @param newStart new start point (initial guess)</em>
+<a class="jxr_linenumber" name="L137" href="GaussianCurveFitter.html#L137">137</a> <em class="jxr_javadoccomment">     * @return a new instance.</em>
+<a class="jxr_linenumber" name="L138" href="GaussianCurveFitter.html#L138">138</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L139" href="GaussianCurveFitter.html#L139">139</a>     <strong class="jxr_keyword">public</strong> <a href="GaussianCurveFitter.html">GaussianCurveFitter</a> withStartPoint(<strong class="jxr_keyword">double</strong>[] newStart) {
+<a class="jxr_linenumber" name="L140" href="GaussianCurveFitter.html#L140">140</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="GaussianCurveFitter.html">GaussianCurveFitter</a>(newStart.clone(),
+<a class="jxr_linenumber" name="L141" href="GaussianCurveFitter.html#L141">141</a>                                        maxIter);
+<a class="jxr_linenumber" name="L142" href="GaussianCurveFitter.html#L142">142</a>     }
+<a class="jxr_linenumber" name="L143" href="GaussianCurveFitter.html#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="GaussianCurveFitter.html#L144">144</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L145" href="GaussianCurveFitter.html#L145">145</a> <em class="jxr_javadoccomment">     * Configure the maximum number of iterations.</em>
+<a class="jxr_linenumber" name="L146" href="GaussianCurveFitter.html#L146">146</a> <em class="jxr_javadoccomment">     * @param newMaxIter maximum number of iterations</em>
+<a class="jxr_linenumber" name="L147" href="GaussianCurveFitter.html#L147">147</a> <em class="jxr_javadoccomment">     * @return a new instance.</em>
+<a class="jxr_linenumber" name="L148" href="GaussianCurveFitter.html#L148">148</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L149" href="GaussianCurveFitter.html#L149">149</a>     <strong class="jxr_keyword">public</strong> <a href="GaussianCurveFitter.html">GaussianCurveFitter</a> withMaxIterations(<strong class="jxr_keyword">int</strong> newMaxIter) {
+<a class="jxr_linenumber" name="L150" href="GaussianCurveFitter.html#L150">150</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="GaussianCurveFitter.html">GaussianCurveFitter</a>(initialGuess,
+<a class="jxr_linenumber" name="L151" href="GaussianCurveFitter.html#L151">151</a>                                        newMaxIter);
+<a class="jxr_linenumber" name="L152" href="GaussianCurveFitter.html#L152">152</a>     }
+<a class="jxr_linenumber" name="L153" href="GaussianCurveFitter.html#L153">153</a> 
+<a class="jxr_linenumber" name="L154" href="GaussianCurveFitter.html#L154">154</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L155" href="GaussianCurveFitter.html#L155">155</a>     @Override
+<a class="jxr_linenumber" name="L156" href="GaussianCurveFitter.html#L156">156</a>     <strong class="jxr_keyword">protected</strong> <a href="leastsquares/LeastSquaresProblem.html">LeastSquaresProblem</a> getProblem(Collection&lt;WeightedObservedPoint&gt; observations) {
+<a class="jxr_linenumber" name="L157" href="GaussianCurveFitter.html#L157">157</a> 
+<a class="jxr_linenumber" name="L158" href="GaussianCurveFitter.html#L158">158</a>         <em class="jxr_comment">// Prepare least-squares problem.</em>
+<a class="jxr_linenumber" name="L159" href="GaussianCurveFitter.html#L159">159</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> len = observations.size();
+<a class="jxr_linenumber" name="L160" href="GaussianCurveFitter.html#L160">160</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] target  = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[len];
+<a class="jxr_linenumber" name="L161" href="GaussianCurveFitter.html#L161">161</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] weights = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[len];
+<a class="jxr_linenumber" name="L162" href="GaussianCurveFitter.html#L162">162</a> 
+<a class="jxr_linenumber" name="L163" href="GaussianCurveFitter.html#L163">163</a>         <strong class="jxr_keyword">int</strong> i = 0;
+<a class="jxr_linenumber" name="L164" href="GaussianCurveFitter.html#L164">164</a>         <strong class="jxr_keyword">for</strong> (WeightedObservedPoint obs : observations) {
+<a class="jxr_linenumber" name="L165" href="GaussianCurveFitter.html#L165">165</a>             target[i]  = obs.getY();
+<a class="jxr_linenumber" name="L166" href="GaussianCurveFitter.html#L166">166</a>             weights[i] = obs.getWeight();
+<a class="jxr_linenumber" name="L167" href="GaussianCurveFitter.html#L167">167</a>             ++i;
+<a class="jxr_linenumber" name="L168" href="GaussianCurveFitter.html#L168">168</a>         }
+<a class="jxr_linenumber" name="L169" href="GaussianCurveFitter.html#L169">169</a> 
+<a class="jxr_linenumber" name="L170" href="GaussianCurveFitter.html#L170">170</a>         <strong class="jxr_keyword">final</strong> AbstractCurveFitter.TheoreticalValuesFunction model =
+<a class="jxr_linenumber" name="L171" href="GaussianCurveFitter.html#L171">171</a>                 <strong class="jxr_keyword">new</strong> AbstractCurveFitter.TheoreticalValuesFunction(FUNCTION, observations);
+<a class="jxr_linenumber" name="L172" href="GaussianCurveFitter.html#L172">172</a> 
+<a class="jxr_linenumber" name="L173" href="GaussianCurveFitter.html#L173">173</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] startPoint = initialGuess != <strong class="jxr_keyword">null</strong> ?
+<a class="jxr_linenumber" name="L174" href="GaussianCurveFitter.html#L174">174</a>             initialGuess :
+<a class="jxr_linenumber" name="L175" href="GaussianCurveFitter.html#L175">175</a>             <em class="jxr_comment">// Compute estimation.</em>
+<a class="jxr_linenumber" name="L176" href="GaussianCurveFitter.html#L176">176</a>             <strong class="jxr_keyword">new</strong> <a href="HarmonicCurveFitter.html">ParameterGuesser</a>(observations).guess();
+<a class="jxr_linenumber" name="L177" href="GaussianCurveFitter.html#L177">177</a> 
+<a class="jxr_linenumber" name="L178" href="GaussianCurveFitter.html#L178">178</a>         <em class="jxr_comment">// Return a new least squares problem set up to fit a Gaussian curve to the</em>
+<a class="jxr_linenumber" name="L179" href="GaussianCurveFitter.html#L179">179</a>         <em class="jxr_comment">// observed points.</em>
+<a class="jxr_linenumber" name="L180" href="GaussianCurveFitter.html#L180">180</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="leastsquares/LeastSquaresBuilder.html">LeastSquaresBuilder</a>().
+<a class="jxr_linenumber" name="L181" href="GaussianCurveFitter.html#L181">181</a>                 maxEvaluations(Integer.MAX_VALUE).
+<a class="jxr_linenumber" name="L182" href="GaussianCurveFitter.html#L182">182</a>                 maxIterations(maxIter).
+<a class="jxr_linenumber" name="L183" href="GaussianCurveFitter.html#L183">183</a>                 start(startPoint).
+<a class="jxr_linenumber" name="L184" href="GaussianCurveFitter.html#L184">184</a>                 target(target).
+<a class="jxr_linenumber" name="L185" href="GaussianCurveFitter.html#L185">185</a>                 weight(<strong class="jxr_keyword">new</strong> <a href="../linear/DiagonalMatrix.html">DiagonalMatrix</a>(weights)).
+<a class="jxr_linenumber" name="L186" href="GaussianCurveFitter.html#L186">186</a>                 model(model.getModelFunction(), model.getModelFunctionJacobian()).
+<a class="jxr_linenumber" name="L187" href="GaussianCurveFitter.html#L187">187</a>                 build();
+<a class="jxr_linenumber" name="L188" href="GaussianCurveFitter.html#L188">188</a> 
+<a class="jxr_linenumber" name="L189" href="GaussianCurveFitter.html#L189">189</a>     }
+<a class="jxr_linenumber" name="L190" href="GaussianCurveFitter.html#L190">190</a> 
+<a class="jxr_linenumber" name="L191" href="GaussianCurveFitter.html#L191">191</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L192" href="GaussianCurveFitter.html#L192">192</a> <em class="jxr_javadoccomment">     * Guesses the parameters {@code norm}, {@code mean}, and {@code sigma}</em>
+<a class="jxr_linenumber" name="L193" href="GaussianCurveFitter.html#L193">193</a> <em class="jxr_javadoccomment">     * of a {@link org.apache.commons.math4.analysis.function.Gaussian.Parametric}</em>
+<a class="jxr_linenumber" name="L194" href="GaussianCurveFitter.html#L194">194</a> <em class="jxr_javadoccomment">     * based on the specified observed points.</em>
+<a class="jxr_linenumber" name="L195" href="GaussianCurveFitter.html#L195">195</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L196" href="GaussianCurveFitter.html#L196">196</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="HarmonicCurveFitter.html">ParameterGuesser</a> {
+<a class="jxr_linenumber" name="L197" href="GaussianCurveFitter.html#L197">197</a>         <em class="jxr_javadoccomment">/** Normalization factor. */</em>
+<a class="jxr_linenumber" name="L198" href="GaussianCurveFitter.html#L198">198</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> norm;
+<a class="jxr_linenumber" name="L199" href="GaussianCurveFitter.html#L199">199</a>         <em class="jxr_javadoccomment">/** Mean. */</em>
+<a class="jxr_linenumber" name="L200" href="GaussianCurveFitter.html#L200">200</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> mean;
+<a class="jxr_linenumber" name="L201" href="GaussianCurveFitter.html#L201">201</a>         <em class="jxr_javadoccomment">/** Standard deviation. */</em>
+<a class="jxr_linenumber" name="L202" href="GaussianCurveFitter.html#L202">202</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> sigma;
+<a class="jxr_linenumber" name="L203" href="GaussianCurveFitter.html#L203">203</a> 
+<a class="jxr_linenumber" name="L204" href="GaussianCurveFitter.html#L204">204</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L205" href="GaussianCurveFitter.html#L205">205</a> <em class="jxr_javadoccomment">         * Constructs instance with the specified observed points.</em>
+<a class="jxr_linenumber" name="L206" href="GaussianCurveFitter.html#L206">206</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L207" href="GaussianCurveFitter.html#L207">207</a> <em class="jxr_javadoccomment">         * @param observations Observed points from which to guess the</em>
+<a class="jxr_linenumber" name="L208" href="GaussianCurveFitter.html#L208">208</a> <em class="jxr_javadoccomment">         * parameters of the Gaussian.</em>
+<a class="jxr_linenumber" name="L209" href="GaussianCurveFitter.html#L209">209</a> <em class="jxr_javadoccomment">         * @throws NullArgumentException if {@code observations} is</em>
+<a class="jxr_linenumber" name="L210" href="GaussianCurveFitter.html#L210">210</a> <em class="jxr_javadoccomment">         * {@code null}.</em>
+<a class="jxr_linenumber" name="L211" href="GaussianCurveFitter.html#L211">211</a> <em class="jxr_javadoccomment">         * @throws NumberIsTooSmallException if there are less than 3</em>
+<a class="jxr_linenumber" name="L212" href="GaussianCurveFitter.html#L212">212</a> <em class="jxr_javadoccomment">         * observations.</em>
+<a class="jxr_linenumber" name="L213" href="GaussianCurveFitter.html#L213">213</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L214" href="GaussianCurveFitter.html#L214">214</a>         <strong class="jxr_keyword">public</strong> <a href="HarmonicCurveFitter.html">ParameterGuesser</a>(Collection&lt;WeightedObservedPoint&gt; observations) {
+<a class="jxr_linenumber" name="L215" href="GaussianCurveFitter.html#L215">215</a>             <strong class="jxr_keyword">if</strong> (observations == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L216" href="GaussianCurveFitter.html#L216">216</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NullArgumentException.html">NullArgumentException</a>(LocalizedFormats.INPUT_ARRAY);
+<a class="jxr_linenumber" name="L217" href="GaussianCurveFitter.html#L217">217</a>             }
+<a class="jxr_linenumber" name="L218" href="GaussianCurveFitter.html#L218">218</a>             <strong class="jxr_keyword">if</strong> (observations.size() &lt; 3) {
+<a class="jxr_linenumber" name="L219" href="GaussianCurveFitter.html#L219">219</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(observations.size(), 3, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L220" href="GaussianCurveFitter.html#L220">220</a>             }
+<a class="jxr_linenumber" name="L221" href="GaussianCurveFitter.html#L221">221</a> 
+<a class="jxr_linenumber" name="L222" href="GaussianCurveFitter.html#L222">222</a>             <strong class="jxr_keyword">final</strong> List&lt;WeightedObservedPoint&gt; sorted = sortObservations(observations);
+<a class="jxr_linenumber" name="L223" href="GaussianCurveFitter.html#L223">223</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] params = basicGuess(sorted.toArray(<strong class="jxr_keyword">new</strong> <a href="WeightedObservedPoint.html">WeightedObservedPoint</a>[0]));
+<a class="jxr_linenumber" name="L224" href="GaussianCurveFitter.html#L224">224</a> 
+<a class="jxr_linenumber" name="L225" href="GaussianCurveFitter.html#L225">225</a>             norm = params[0];
+<a class="jxr_linenumber" name="L226" href="GaussianCurveFitter.html#L226">226</a>             mean = params[1];
+<a class="jxr_linenumber" name="L227" href="GaussianCurveFitter.html#L227">227</a>             sigma = params[2];
+<a class="jxr_linenumber" name="L228" href="GaussianCurveFitter.html#L228">228</a>         }
+<a class="jxr_linenumber" name="L229" href="GaussianCurveFitter.html#L229">229</a> 
+<a class="jxr_linenumber" name="L230" href="GaussianCurveFitter.html#L230">230</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L231" href="GaussianCurveFitter.html#L231">231</a> <em class="jxr_javadoccomment">         * Gets an estimation of the parameters.</em>
+<a class="jxr_linenumber" name="L232" href="GaussianCurveFitter.html#L232">232</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L233" href="GaussianCurveFitter.html#L233">233</a> <em class="jxr_javadoccomment">         * @return the guessed parameters, in the following order:</em>
+<a class="jxr_linenumber" name="L234" href="GaussianCurveFitter.html#L234">234</a> <em class="jxr_javadoccomment">         * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L235" href="GaussianCurveFitter.html#L235">235</a> <em class="jxr_javadoccomment">         *  &lt;li&gt;Normalization factor&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L236" href="GaussianCurveFitter.html#L236">236</a> <em class="jxr_javadoccomment">         *  &lt;li&gt;Mean&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L237" href="GaussianCurveFitter.html#L237">237</a> <em class="jxr_javadoccomment">         *  &lt;li&gt;Standard deviation&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L238" href="GaussianCurveFitter.html#L238">238</a> <em class="jxr_javadoccomment">         * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L239" href="GaussianCurveFitter.html#L239">239</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L240" href="GaussianCurveFitter.html#L240">240</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] guess() {
+<a class="jxr_linenumber" name="L241" href="GaussianCurveFitter.html#L241">241</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { norm, mean, sigma };
+<a class="jxr_linenumber" name="L242" href="GaussianCurveFitter.html#L242">242</a>         }
+<a class="jxr_linenumber" name="L243" href="GaussianCurveFitter.html#L243">243</a> 
+<a class="jxr_linenumber" name="L244" href="GaussianCurveFitter.html#L244">244</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L245" href="GaussianCurveFitter.html#L245">245</a> <em class="jxr_javadoccomment">         * Sort the observations.</em>
+<a class="jxr_linenumber" name="L246" href="GaussianCurveFitter.html#L246">246</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L247" href="GaussianCurveFitter.html#L247">247</a> <em class="jxr_javadoccomment">         * @param unsorted Input observations.</em>
+<a class="jxr_linenumber" name="L248" href="GaussianCurveFitter.html#L248">248</a> <em class="jxr_javadoccomment">         * @return the input observations, sorted.</em>
+<a class="jxr_linenumber" name="L249" href="GaussianCurveFitter.html#L249">249</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L250" href="GaussianCurveFitter.html#L250">250</a>         <strong class="jxr_keyword">private</strong> List&lt;WeightedObservedPoint&gt; sortObservations(Collection&lt;WeightedObservedPoint&gt; unsorted) {
+<a class="jxr_linenumber" name="L251" href="GaussianCurveFitter.html#L251">251</a>             <strong class="jxr_keyword">final</strong> List&lt;WeightedObservedPoint&gt; observations = <strong class="jxr_keyword">new</strong> ArrayList&lt;WeightedObservedPoint&gt;(unsorted);
+<a class="jxr_linenumber" name="L252" href="GaussianCurveFitter.html#L252">252</a> 
+<a class="jxr_linenumber" name="L253" href="GaussianCurveFitter.html#L253">253</a>             <strong class="jxr_keyword">final</strong> Comparator&lt;WeightedObservedPoint&gt; cmp = <strong class="jxr_keyword">new</strong> Comparator&lt;WeightedObservedPoint&gt;() {
+<a class="jxr_linenumber" name="L254" href="GaussianCurveFitter.html#L254">254</a>                 <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L255" href="GaussianCurveFitter.html#L255">255</a>                 @Override
+<a class="jxr_linenumber" name="L256" href="GaussianCurveFitter.html#L256">256</a>                 <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compare(<a href="WeightedObservedPoint.html">WeightedObservedPoint</a> p1,
+<a class="jxr_linenumber" name="L257" href="GaussianCurveFitter.html#L257">257</a>                                    <a href="WeightedObservedPoint.html">WeightedObservedPoint</a> p2) {
+<a class="jxr_linenumber" name="L258" href="GaussianCurveFitter.html#L258">258</a>                     <strong class="jxr_keyword">if</strong> (p1 == <strong class="jxr_keyword">null</strong> &amp;&amp; p2 == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L259" href="GaussianCurveFitter.html#L259">259</a>                         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L260" href="GaussianCurveFitter.html#L260">260</a>                     }
+<a class="jxr_linenumber" name="L261" href="GaussianCurveFitter.html#L261">261</a>                     <strong class="jxr_keyword">if</strong> (p1 == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L262" href="GaussianCurveFitter.html#L262">262</a>                         <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L263" href="GaussianCurveFitter.html#L263">263</a>                     }
+<a class="jxr_linenumber" name="L264" href="GaussianCurveFitter.html#L264">264</a>                     <strong class="jxr_keyword">if</strong> (p2 == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L265" href="GaussianCurveFitter.html#L265">265</a>                         <strong class="jxr_keyword">return</strong> 1;
+<a class="jxr_linenumber" name="L266" href="GaussianCurveFitter.html#L266">266</a>                     }
+<a class="jxr_linenumber" name="L267" href="GaussianCurveFitter.html#L267">267</a>                     <strong class="jxr_keyword">int</strong> comp = Double.compare(p1.getX(), p2.getX());
+<a class="jxr_linenumber" name="L268" href="GaussianCurveFitter.html#L268">268</a>                     <strong class="jxr_keyword">if</strong> (comp != 0) {
+<a class="jxr_linenumber" name="L269" href="GaussianCurveFitter.html#L269">269</a>                         <strong class="jxr_keyword">return</strong> comp;
+<a class="jxr_linenumber" name="L270" href="GaussianCurveFitter.html#L270">270</a>                     }
+<a class="jxr_linenumber" name="L271" href="GaussianCurveFitter.html#L271">271</a>                     comp = Double.compare(p1.getY(), p2.getY());
+<a class="jxr_linenumber" name="L272" href="GaussianCurveFitter.html#L272">272</a>                     <strong class="jxr_keyword">if</strong> (comp != 0) {
+<a class="jxr_linenumber" name="L273" href="GaussianCurveFitter.html#L273">273</a>                         <strong class="jxr_keyword">return</strong> comp;
+<a class="jxr_linenumber" name="L274" href="GaussianCurveFitter.html#L274">274</a>                     }
+<a class="jxr_linenumber" name="L275" href="GaussianCurveFitter.html#L275">275</a>                     comp = Double.compare(p1.getWeight(), p2.getWeight());
+<a class="jxr_linenumber" name="L276" href="GaussianCurveFitter.html#L276">276</a>                     <strong class="jxr_keyword">if</strong> (comp != 0) {
+<a class="jxr_linenumber" name="L277" href="GaussianCurveFitter.html#L277">277</a>                         <strong class="jxr_keyword">return</strong> comp;
+<a class="jxr_linenumber" name="L278" href="GaussianCurveFitter.html#L278">278</a>                     }
+<a class="jxr_linenumber" name="L279" href="GaussianCurveFitter.html#L279">279</a>                     <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L280" href="GaussianCurveFitter.html#L280">280</a>                 }
+<a class="jxr_linenumber" name="L281" href="GaussianCurveFitter.html#L281">281</a>             };
+<a class="jxr_linenumber" name="L282" href="GaussianCurveFitter.html#L282">282</a> 
+<a class="jxr_linenumber" name="L283" href="GaussianCurveFitter.html#L283">283</a>             Collections.sort(observations, cmp);
+<a class="jxr_linenumber" name="L284" href="GaussianCurveFitter.html#L284">284</a>             <strong class="jxr_keyword">return</strong> observations;
+<a class="jxr_linenumber" name="L285" href="GaussianCurveFitter.html#L285">285</a>         }
+<a class="jxr_linenumber" name="L286" href="GaussianCurveFitter.html#L286">286</a> 
+<a class="jxr_linenumber" name="L287" href="GaussianCurveFitter.html#L287">287</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L288" href="GaussianCurveFitter.html#L288">288</a> <em class="jxr_javadoccomment">         * Guesses the parameters based on the specified observed points.</em>
+<a class="jxr_linenumber" name="L289" href="GaussianCurveFitter.html#L289">289</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L290" href="GaussianCurveFitter.html#L290">290</a> <em class="jxr_javadoccomment">         * @param points Observed points, sorted.</em>
+<a class="jxr_linenumber" name="L291" href="GaussianCurveFitter.html#L291">291</a> <em class="jxr_javadoccomment">         * @return the guessed parameters (normalization factor, mean and</em>
+<a class="jxr_linenumber" name="L292" href="GaussianCurveFitter.html#L292">292</a> <em class="jxr_javadoccomment">         * sigma).</em>
+<a class="jxr_linenumber" name="L293" href="GaussianCurveFitter.html#L293">293</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L294" href="GaussianCurveFitter.html#L294">294</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[] basicGuess(<a href="WeightedObservedPoint.html">WeightedObservedPoint</a>[] points) {
+<a class="jxr_linenumber" name="L295" href="GaussianCurveFitter.html#L295">295</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxYIdx = findMaxY(points);
+<a class="jxr_linenumber" name="L296" href="GaussianCurveFitter.html#L296">296</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> n = points[maxYIdx].getY();
+<a class="jxr_linenumber" name="L297" href="GaussianCurveFitter.html#L297">297</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> m = points[maxYIdx].getX();
+<a class="jxr_linenumber" name="L298" href="GaussianCurveFitter.html#L298">298</a> 
+<a class="jxr_linenumber" name="L299" href="GaussianCurveFitter.html#L299">299</a>             <strong class="jxr_keyword">double</strong> fwhmApprox;
+<a class="jxr_linenumber" name="L300" href="GaussianCurveFitter.html#L300">300</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L301" href="GaussianCurveFitter.html#L301">301</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> halfY = n + ((m - n) / 2);
+<a class="jxr_linenumber" name="L302" href="GaussianCurveFitter.html#L302">302</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> fwhmX1 = interpolateXAtY(points, maxYIdx, -1, halfY);
+<a class="jxr_linenumber" name="L303" href="GaussianCurveFitter.html#L303">303</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> fwhmX2 = interpolateXAtY(points, maxYIdx, 1, halfY);
+<a class="jxr_linenumber" name="L304" href="GaussianCurveFitter.html#L304">304</a>                 fwhmApprox = fwhmX2 - fwhmX1;
+<a class="jxr_linenumber" name="L305" href="GaussianCurveFitter.html#L305">305</a>             } <strong class="jxr_keyword">catch</strong> (OutOfRangeException e) {
+<a class="jxr_linenumber" name="L306" href="GaussianCurveFitter.html#L306">306</a>                 <em class="jxr_comment">// TODO: Exceptions should not be used for flow control.</em>
+<a class="jxr_linenumber" name="L307" href="GaussianCurveFitter.html#L307">307</a>                 fwhmApprox = points[points.length - 1].getX() - points[0].getX();
+<a class="jxr_linenumber" name="L308" href="GaussianCurveFitter.html#L308">308</a>             }
+<a class="jxr_linenumber" name="L309" href="GaussianCurveFitter.html#L309">309</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> s = fwhmApprox / (2 * FastMath.sqrt(2 * FastMath.log(2)));
+<a class="jxr_linenumber" name="L310" href="GaussianCurveFitter.html#L310">310</a> 
+<a class="jxr_linenumber" name="L311" href="GaussianCurveFitter.html#L311">311</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { n, m, s };
+<a class="jxr_linenumber" name="L312" href="GaussianCurveFitter.html#L312">312</a>         }
+<a class="jxr_linenumber" name="L313" href="GaussianCurveFitter.html#L313">313</a> 
+<a class="jxr_linenumber" name="L314" href="GaussianCurveFitter.html#L314">314</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L315" href="GaussianCurveFitter.html#L315">315</a> <em class="jxr_javadoccomment">         * Finds index of point in specified points with the largest Y.</em>
+<a class="jxr_linenumber" name="L316" href="GaussianCurveFitter.html#L316">316</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L317" href="GaussianCurveFitter.html#L317">317</a> <em class="jxr_javadoccomment">         * @param points Points to search.</em>
+<a class="jxr_linenumber" name="L318" href="GaussianCurveFitter.html#L318">318</a> <em class="jxr_javadoccomment">         * @return the index in specified points array.</em>
+<a class="jxr_linenumber" name="L319" href="GaussianCurveFitter.html#L319">319</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L320" href="GaussianCurveFitter.html#L320">320</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> findMaxY(<a href="WeightedObservedPoint.html">WeightedObservedPoint</a>[] points) {
+<a class="jxr_linenumber" name="L321" href="GaussianCurveFitter.html#L321">321</a>             <strong class="jxr_keyword">int</strong> maxYIdx = 0;
+<a class="jxr_linenumber" name="L322" href="GaussianCurveFitter.html#L322">322</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; points.length; i++) {
+<a class="jxr_linenumber" name="L323" href="GaussianCurveFitter.html#L323">323</a>                 <strong class="jxr_keyword">if</strong> (points[i].getY() &gt; points[maxYIdx].getY()) {
+<a class="jxr_linenumber" name="L324" href="GaussianCurveFitter.html#L324">324</a>                     maxYIdx = i;
+<a class="jxr_linenumber" name="L325" href="GaussianCurveFitter.html#L325">325</a>                 }
+<a class="jxr_linenumber" name="L326" href="GaussianCurveFitter.html#L326">326</a>             }
+<a class="jxr_linenumber" name="L327" href="GaussianCurveFitter.html#L327">327</a>             <strong class="jxr_keyword">return</strong> maxYIdx;
+<a class="jxr_linenumber" name="L328" href="GaussianCurveFitter.html#L328">328</a>         }
+<a class="jxr_linenumber" name="L329" href="GaussianCurveFitter.html#L329">329</a> 
+<a class="jxr_linenumber" name="L330" href="GaussianCurveFitter.html#L330">330</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L331" href="GaussianCurveFitter.html#L331">331</a> <em class="jxr_javadoccomment">         * Interpolates using the specified points to determine X at the</em>
+<a class="jxr_linenumber" name="L332" href="GaussianCurveFitter.html#L332">332</a> <em class="jxr_javadoccomment">         * specified Y.</em>
+<a class="jxr_linenumber" name="L333" href="GaussianCurveFitter.html#L333">333</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L334" href="GaussianCurveFitter.html#L334">334</a> <em class="jxr_javadoccomment">         * @param points Points to use for interpolation.</em>
+<a class="jxr_linenumber" name="L335" href="GaussianCurveFitter.html#L335">335</a> <em class="jxr_javadoccomment">         * @param startIdx Index within points from which to start the search for</em>
+<a class="jxr_linenumber" name="L336" href="GaussianCurveFitter.html#L336">336</a> <em class="jxr_javadoccomment">         * interpolation bounds points.</em>
+<a class="jxr_linenumber" name="L337" href="GaussianCurveFitter.html#L337">337</a> <em class="jxr_javadoccomment">         * @param idxStep Index step for searching interpolation bounds points.</em>
+<a class="jxr_linenumber" name="L338" href="GaussianCurveFitter.html#L338">338</a> <em class="jxr_javadoccomment">         * @param y Y value for which X should be determined.</em>
+<a class="jxr_linenumber" name="L339" href="GaussianCurveFitter.html#L339">339</a> <em class="jxr_javadoccomment">         * @return the value of X for the specified Y.</em>
+<a class="jxr_linenumber" name="L340" href="GaussianCurveFitter.html#L340">340</a> <em class="jxr_javadoccomment">         * @throws ZeroException if {@code idxStep} is 0.</em>
+<a class="jxr_linenumber" name="L341" href="GaussianCurveFitter.html#L341">341</a> <em class="jxr_javadoccomment">         * @throws OutOfRangeException if specified {@code y} is not within the</em>
+<a class="jxr_linenumber" name="L342" href="GaussianCurveFitter.html#L342">342</a> <em class="jxr_javadoccomment">         * range of the specified {@code points}.</em>
+<a class="jxr_linenumber" name="L343" href="GaussianCurveFitter.html#L343">343</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L344" href="GaussianCurveFitter.html#L344">344</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> interpolateXAtY(<a href="WeightedObservedPoint.html">WeightedObservedPoint</a>[] points,
+<a class="jxr_linenumber" name="L345" href="GaussianCurveFitter.html#L345">345</a>                                        <strong class="jxr_keyword">int</strong> startIdx,
+<a class="jxr_linenumber" name="L346" href="GaussianCurveFitter.html#L346">346</a>                                        <strong class="jxr_keyword">int</strong> idxStep,
+<a class="jxr_linenumber" name="L347" href="GaussianCurveFitter.html#L347">347</a>                                        <strong class="jxr_keyword">double</strong> y)
+<a class="jxr_linenumber" name="L348" href="GaussianCurveFitter.html#L348">348</a>             <strong class="jxr_keyword">throws</strong> <a href="../exception/OutOfRangeException.html">OutOfRangeException</a> {
+<a class="jxr_linenumber" name="L349" href="GaussianCurveFitter.html#L349">349</a>             <strong class="jxr_keyword">if</strong> (idxStep == 0) {
+<a class="jxr_linenumber" name="L350" href="GaussianCurveFitter.html#L350">350</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/ZeroException.html">ZeroException</a>();
+<a class="jxr_linenumber" name="L351" href="GaussianCurveFitter.html#L351">351</a>             }
+<a class="jxr_linenumber" name="L352" href="GaussianCurveFitter.html#L352">352</a>             <strong class="jxr_keyword">final</strong> <a href="WeightedObservedPoint.html">WeightedObservedPoint</a>[] twoPoints
+<a class="jxr_linenumber" name="L353" href="GaussianCurveFitter.html#L353">353</a>                 = getInterpolationPointsForY(points, startIdx, idxStep, y);
+<a class="jxr_linenumber" name="L354" href="GaussianCurveFitter.html#L354">354</a>             <strong class="jxr_keyword">final</strong> <a href="WeightedObservedPoint.html">WeightedObservedPoint</a> p1 = twoPoints[0];
+<a class="jxr_linenumber" name="L355" href="GaussianCurveFitter.html#L355">355</a>             <strong class="jxr_keyword">final</strong> <a href="WeightedObservedPoint.html">WeightedObservedPoint</a> p2 = twoPoints[1];
+<a class="jxr_linenumber" name="L356" href="GaussianCurveFitter.html#L356">356</a>             <strong class="jxr_keyword">if</strong> (p1.getY() == y) {
+<a class="jxr_linenumber" name="L357" href="GaussianCurveFitter.html#L357">357</a>                 <strong class="jxr_keyword">return</strong> p1.getX();
+<a class="jxr_linenumber" name="L358" href="GaussianCurveFitter.html#L358">358</a>             }
+<a class="jxr_linenumber" name="L359" href="GaussianCurveFitter.html#L359">359</a>             <strong class="jxr_keyword">if</strong> (p2.getY() == y) {
+<a class="jxr_linenumber" name="L360" href="GaussianCurveFitter.html#L360">360</a>                 <strong class="jxr_keyword">return</strong> p2.getX();
+<a class="jxr_linenumber" name="L361" href="GaussianCurveFitter.html#L361">361</a>             }
+<a class="jxr_linenumber" name="L362" href="GaussianCurveFitter.html#L362">362</a>             <strong class="jxr_keyword">return</strong> p1.getX() + (((y - p1.getY()) * (p2.getX() - p1.getX())) /
+<a class="jxr_linenumber" name="L363" href="GaussianCurveFitter.html#L363">363</a>                                 (p2.getY() - p1.getY()));
+<a class="jxr_linenumber" name="L364" href="GaussianCurveFitter.html#L364">364</a>         }
+<a class="jxr_linenumber" name="L365" href="GaussianCurveFitter.html#L365">365</a> 
+<a class="jxr_linenumber" name="L366" href="GaussianCurveFitter.html#L366">366</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L367" href="GaussianCurveFitter.html#L367">367</a> <em class="jxr_javadoccomment">         * Gets the two bounding interpolation points from the specified points</em>
+<a class="jxr_linenumber" name="L368" href="GaussianCurveFitter.html#L368">368</a> <em class="jxr_javadoccomment">         * suitable for determining X at the specified Y.</em>
+<a class="jxr_linenumber" name="L369" href="GaussianCurveFitter.html#L369">369</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L370" href="GaussianCurveFitter.html#L370">370</a> <em class="jxr_javadoccomment">         * @param points Points to use for interpolation.</em>
+<a class="jxr_linenumber" name="L371" href="GaussianCurveFitter.html#L371">371</a> <em class="jxr_javadoccomment">         * @param startIdx Index within points from which to start search for</em>
+<a class="jxr_linenumber" name="L372" href="GaussianCurveFitter.html#L372">372</a> <em class="jxr_javadoccomment">         * interpolation bounds points.</em>
+<a class="jxr_linenumber" name="L373" href="GaussianCurveFitter.html#L373">373</a> <em class="jxr_javadoccomment">         * @param idxStep Index step for search for interpolation bounds points.</em>
+<a class="jxr_linenumber" name="L374" href="GaussianCurveFitter.html#L374">374</a> <em class="jxr_javadoccomment">         * @param y Y value for which X should be determined.</em>
+<a class="jxr_linenumber" name="L375" href="GaussianCurveFitter.html#L375">375</a> <em class="jxr_javadoccomment">         * @return the array containing two points suitable for determining X at</em>
+<a class="jxr_linenumber" name="L376" href="GaussianCurveFitter.html#L376">376</a> <em class="jxr_javadoccomment">         * the specified Y.</em>
+<a class="jxr_linenumber" name="L377" href="GaussianCurveFitter.html#L377">377</a> <em class="jxr_javadoccomment">         * @throws ZeroException if {@code idxStep} is 0.</em>
+<a class="jxr_linenumber" name="L378" href="GaussianCurveFitter.html#L378">378</a> <em class="jxr_javadoccomment">         * @throws OutOfRangeException if specified {@code y} is not within the</em>
+<a class="jxr_linenumber" name="L379" href="GaussianCurveFitter.html#L379">379</a> <em class="jxr_javadoccomment">         * range of the specified {@code points}.</em>
+<a class="jxr_linenumber" name="L380" href="GaussianCurveFitter.html#L380">380</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L381" href="GaussianCurveFitter.html#L381">381</a>         <strong class="jxr_keyword">private</strong> <a href="WeightedObservedPoint.html">WeightedObservedPoint</a>[] getInterpolationPointsForY(<a href="WeightedObservedPoint.html">WeightedObservedPoint</a>[] points,
+<a class="jxr_linenumber" name="L382" href="GaussianCurveFitter.html#L382">382</a>                                                                    <strong class="jxr_keyword">int</strong> startIdx,
+<a class="jxr_linenumber" name="L383" href="GaussianCurveFitter.html#L383">383</a>                                                                    <strong class="jxr_keyword">int</strong> idxStep,
+<a class="jxr_linenumber" name="L384" href="GaussianCurveFitter.html#L384">384</a>                                                                    <strong class="jxr_keyword">double</strong> y)
+<a class="jxr_linenumber" name="L385" href="GaussianCurveFitter.html#L385">385</a>             <strong class="jxr_keyword">throws</strong> <a href="../exception/OutOfRangeException.html">OutOfRangeException</a> {
+<a class="jxr_linenumber" name="L386" href="GaussianCurveFitter.html#L386">386</a>             <strong class="jxr_keyword">if</strong> (idxStep == 0) {
+<a class="jxr_linenumber" name="L387" href="GaussianCurveFitter.html#L387">387</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/ZeroException.html">ZeroException</a>();
+<a class="jxr_linenumber" name="L388" href="GaussianCurveFitter.html#L388">388</a>             }
+<a class="jxr_linenumber" name="L389" href="GaussianCurveFitter.html#L389">389</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = startIdx;
+<a class="jxr_linenumber" name="L390" href="GaussianCurveFitter.html#L390">390</a>                  idxStep &lt; 0 ? i + idxStep &gt;= 0 : i + idxStep &lt; points.length;
+<a class="jxr_linenumber" name="L391" href="GaussianCurveFitter.html#L391">391</a>                  i += idxStep) {
+<a class="jxr_linenumber" name="L392" href="GaussianCurveFitter.html#L392">392</a>                 <strong class="jxr_keyword">final</strong> <a href="WeightedObservedPoint.html">WeightedObservedPoint</a> p1 = points[i];
+<a class="jxr_linenumber" name="L393" href="GaussianCurveFitter.html#L393">393</a>                 <strong class="jxr_keyword">final</strong> <a href="WeightedObservedPoint.html">WeightedObservedPoint</a> p2 = points[i + idxStep];
+<a class="jxr_linenumber" name="L394" href="GaussianCurveFitter.html#L394">394</a>                 <strong class="jxr_keyword">if</strong> (isBetween(y, p1.getY(), p2.getY())) {
+<a class="jxr_linenumber" name="L395" href="GaussianCurveFitter.html#L395">395</a>                     <strong class="jxr_keyword">if</strong> (idxStep &lt; 0) {
+<a class="jxr_linenumber" name="L396" href="GaussianCurveFitter.html#L396">396</a>                         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="WeightedObservedPoint.html">WeightedObservedPoint</a>[] { p2, p1 };
+<a class="jxr_linenumber" name="L397" href="GaussianCurveFitter.html#L397">397</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L398" href="GaussianCurveFitter.html#L398">398</a>                         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="WeightedObservedPoint.html">WeightedObservedPoint</a>[] { p1, p2 };
+<a class="jxr_linenumber" name="L399" href="GaussianCurveFitter.html#L399">399</a>                     }
+<a class="jxr_linenumber" name="L400" href="GaussianCurveFitter.html#L400">400</a>                 }
+<a class="jxr_linenumber" name="L401" href="GaussianCurveFitter.html#L401">401</a>             }
+<a class="jxr_linenumber" name="L402" href="GaussianCurveFitter.html#L402">402</a> 
+<a class="jxr_linenumber" name="L403" href="GaussianCurveFitter.html#L403">403</a>             <em class="jxr_comment">// Boundaries are replaced by dummy values because the raised</em>
+<a class="jxr_linenumber" name="L404" href="GaussianCurveFitter.html#L404">404</a>             <em class="jxr_comment">// exception is caught and the message never displayed.</em>
+<a class="jxr_linenumber" name="L405" href="GaussianCurveFitter.html#L405">405</a>             <em class="jxr_comment">// TODO: Exceptions should not be used for flow control.</em>
+<a class="jxr_linenumber" name="L406" href="GaussianCurveFitter.html#L406">406</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/OutOfRangeException.html">OutOfRangeException</a>(y,
+<a class="jxr_linenumber" name="L407" href="GaussianCurveFitter.html#L407">407</a>                                           Double.NEGATIVE_INFINITY,
+<a class="jxr_linenumber" name="L408" href="GaussianCurveFitter.html#L408">408</a>                                           Double.POSITIVE_INFINITY);
+<a class="jxr_linenumber" name="L409" href="GaussianCurveFitter.html#L409">409</a>         }
+<a class="jxr_linenumber" name="L410" href="GaussianCurveFitter.html#L410">410</a> 
+<a class="jxr_linenumber" name="L411" href="GaussianCurveFitter.html#L411">411</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L412" href="GaussianCurveFitter.html#L412">412</a> <em class="jxr_javadoccomment">         * Determines whether a value is between two other values.</em>
+<a class="jxr_linenumber" name="L413" href="GaussianCurveFitter.html#L413">413</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L414" href="GaussianCurveFitter.html#L414">414</a> <em class="jxr_javadoccomment">         * @param value Value to test whether it is between {@code boundary1}</em>
+<a class="jxr_linenumber" name="L415" href="GaussianCurveFitter.html#L415">415</a> <em class="jxr_javadoccomment">         * and {@code boundary2}.</em>
+<a class="jxr_linenumber" name="L416" href="GaussianCurveFitter.html#L416">416</a> <em class="jxr_javadoccomment">         * @param boundary1 One end of the range.</em>
+<a class="jxr_linenumber" name="L417" href="GaussianCurveFitter.html#L417">417</a> <em class="jxr_javadoccomment">         * @param boundary2 Other end of the range.</em>
+<a class="jxr_linenumber" name="L418" href="GaussianCurveFitter.html#L418">418</a> <em class="jxr_javadoccomment">         * @return {@code true} if {@code value} is between {@code boundary1} and</em>
+<a class="jxr_linenumber" name="L419" href="GaussianCurveFitter.html#L419">419</a> <em class="jxr_javadoccomment">         * {@code boundary2} (inclusive), {@code false} otherwise.</em>
+<a class="jxr_linenumber" name="L420" href="GaussianCurveFitter.html#L420">420</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L421" href="GaussianCurveFitter.html#L421">421</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isBetween(<strong class="jxr_keyword">double</strong> value,
+<a class="jxr_linenumber" name="L422" href="GaussianCurveFitter.html#L422">422</a>                                   <strong class="jxr_keyword">double</strong> boundary1,
+<a class="jxr_linenumber" name="L423" href="GaussianCurveFitter.html#L423">423</a>                                   <strong class="jxr_keyword">double</strong> boundary2) {
+<a class="jxr_linenumber" name="L424" href="GaussianCurveFitter.html#L424">424</a>             <strong class="jxr_keyword">return</strong> (value &gt;= boundary1 &amp;&amp; value &lt;= boundary2) ||
+<a class="jxr_linenumber" name="L425" href="GaussianCurveFitter.html#L425">425</a>                 (value &gt;= boundary2 &amp;&amp; value &lt;= boundary1);
+<a class="jxr_linenumber" name="L426" href="GaussianCurveFitter.html#L426">426</a>         }
+<a class="jxr_linenumber" name="L427" href="GaussianCurveFitter.html#L427">427</a>     }
+<a class="jxr_linenumber" name="L428" href="GaussianCurveFitter.html#L428">428</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

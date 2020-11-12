@@ -1,0 +1,398 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>InterpolatingMicrosphere xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/analysis/interpolation/InterpolatingMicrosphere.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="InterpolatingMicrosphere.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="InterpolatingMicrosphere.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="InterpolatingMicrosphere.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="InterpolatingMicrosphere.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="InterpolatingMicrosphere.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="InterpolatingMicrosphere.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="InterpolatingMicrosphere.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="InterpolatingMicrosphere.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="InterpolatingMicrosphere.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="InterpolatingMicrosphere.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="InterpolatingMicrosphere.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="InterpolatingMicrosphere.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="InterpolatingMicrosphere.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="InterpolatingMicrosphere.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="InterpolatingMicrosphere.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="InterpolatingMicrosphere.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="InterpolatingMicrosphere.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.interpolation;
+<a class="jxr_linenumber" name="L18" href="InterpolatingMicrosphere.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="InterpolatingMicrosphere.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L20" href="InterpolatingMicrosphere.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L21" href="InterpolatingMicrosphere.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.random.UnitSphereRandomVectorGenerator;
+<a class="jxr_linenumber" name="L22" href="InterpolatingMicrosphere.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L23" href="InterpolatingMicrosphere.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotPositiveException;
+<a class="jxr_linenumber" name="L24" href="InterpolatingMicrosphere.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L25" href="InterpolatingMicrosphere.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MaxCountExceededException;
+<a class="jxr_linenumber" name="L26" href="InterpolatingMicrosphere.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L27" href="InterpolatingMicrosphere.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L28" href="InterpolatingMicrosphere.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L29" href="InterpolatingMicrosphere.html#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="InterpolatingMicrosphere.html#L30">30</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L31" href="InterpolatingMicrosphere.html#L31">31</a>  <em class="jxr_javadoccomment"> * Utility class for the {@link MicrosphereProjectionInterpolator} algorithm.</em>
+<a class="jxr_linenumber" name="L32" href="InterpolatingMicrosphere.html#L32">32</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L33" href="InterpolatingMicrosphere.html#L33">33</a>  <em class="jxr_javadoccomment"> * @since 3.6</em>
+<a class="jxr_linenumber" name="L34" href="InterpolatingMicrosphere.html#L34">34</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L35" href="InterpolatingMicrosphere.html#L35">35</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="InterpolatingMicrosphere.html">InterpolatingMicrosphere</a> {
+<a class="jxr_linenumber" name="L36" href="InterpolatingMicrosphere.html#L36">36</a>      <em class="jxr_javadoccomment">/** Microsphere. */</em>
+<a class="jxr_linenumber" name="L37" href="InterpolatingMicrosphere.html#L37">37</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> List&lt;Facet&gt; microsphere;
+<a class="jxr_linenumber" name="L38" href="InterpolatingMicrosphere.html#L38">38</a>      <em class="jxr_javadoccomment">/** Microsphere data. */</em>
+<a class="jxr_linenumber" name="L39" href="InterpolatingMicrosphere.html#L39">39</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> List&lt;FacetData&gt; microsphereData;
+<a class="jxr_linenumber" name="L40" href="InterpolatingMicrosphere.html#L40">40</a>      <em class="jxr_javadoccomment">/** Space dimension. */</em>
+<a class="jxr_linenumber" name="L41" href="InterpolatingMicrosphere.html#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> dimension;
+<a class="jxr_linenumber" name="L42" href="InterpolatingMicrosphere.html#L42">42</a>      <em class="jxr_javadoccomment">/** Number of surface elements. */</em>
+<a class="jxr_linenumber" name="L43" href="InterpolatingMicrosphere.html#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> size;
+<a class="jxr_linenumber" name="L44" href="InterpolatingMicrosphere.html#L44">44</a>      <em class="jxr_javadoccomment">/** Maximum fraction of the facets that can be dark. */</em>
+<a class="jxr_linenumber" name="L45" href="InterpolatingMicrosphere.html#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxDarkFraction;
+<a class="jxr_linenumber" name="L46" href="InterpolatingMicrosphere.html#L46">46</a>      <em class="jxr_javadoccomment">/** Lowest non-zero illumination. */</em>
+<a class="jxr_linenumber" name="L47" href="InterpolatingMicrosphere.html#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> darkThreshold;
+<a class="jxr_linenumber" name="L48" href="InterpolatingMicrosphere.html#L48">48</a>      <em class="jxr_javadoccomment">/** Background value. */</em>
+<a class="jxr_linenumber" name="L49" href="InterpolatingMicrosphere.html#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> background;
+<a class="jxr_linenumber" name="L50" href="InterpolatingMicrosphere.html#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="InterpolatingMicrosphere.html#L51">51</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L52" href="InterpolatingMicrosphere.html#L52">52</a>  <em class="jxr_javadoccomment">     * Create an unitialiazed sphere.</em>
+<a class="jxr_linenumber" name="L53" href="InterpolatingMicrosphere.html#L53">53</a>  <em class="jxr_javadoccomment">     * Sub-classes are responsible for calling the {@code add(double[]) add}</em>
+<a class="jxr_linenumber" name="L54" href="InterpolatingMicrosphere.html#L54">54</a>  <em class="jxr_javadoccomment">     * method in order to initialize all the sphere's facets.</em>
+<a class="jxr_linenumber" name="L55" href="InterpolatingMicrosphere.html#L55">55</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L56" href="InterpolatingMicrosphere.html#L56">56</a>  <em class="jxr_javadoccomment">     * @param dimension Dimension of the data space.</em>
+<a class="jxr_linenumber" name="L57" href="InterpolatingMicrosphere.html#L57">57</a>  <em class="jxr_javadoccomment">     * @param size Number of surface elements of the sphere.</em>
+<a class="jxr_linenumber" name="L58" href="InterpolatingMicrosphere.html#L58">58</a>  <em class="jxr_javadoccomment">     * @param maxDarkFraction Maximum fraction of the facets that can be dark.</em>
+<a class="jxr_linenumber" name="L59" href="InterpolatingMicrosphere.html#L59">59</a>  <em class="jxr_javadoccomment">     * If the fraction of "non-illuminated" facets is larger, no estimation</em>
+<a class="jxr_linenumber" name="L60" href="InterpolatingMicrosphere.html#L60">60</a>  <em class="jxr_javadoccomment">     * of the value will be performed, and the {@code background} value will</em>
+<a class="jxr_linenumber" name="L61" href="InterpolatingMicrosphere.html#L61">61</a>  <em class="jxr_javadoccomment">     * be returned instead.</em>
+<a class="jxr_linenumber" name="L62" href="InterpolatingMicrosphere.html#L62">62</a>  <em class="jxr_javadoccomment">     * @param darkThreshold Value of the illumination below which a facet is</em>
+<a class="jxr_linenumber" name="L63" href="InterpolatingMicrosphere.html#L63">63</a>  <em class="jxr_javadoccomment">     * considered dark.</em>
+<a class="jxr_linenumber" name="L64" href="InterpolatingMicrosphere.html#L64">64</a>  <em class="jxr_javadoccomment">     * @param background Value returned when the {@code maxDarkFraction}</em>
+<a class="jxr_linenumber" name="L65" href="InterpolatingMicrosphere.html#L65">65</a>  <em class="jxr_javadoccomment">     * threshold is exceeded.</em>
+<a class="jxr_linenumber" name="L66" href="InterpolatingMicrosphere.html#L66">66</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code dimension &lt;= 0}</em>
+<a class="jxr_linenumber" name="L67" href="InterpolatingMicrosphere.html#L67">67</a>  <em class="jxr_javadoccomment">     * or {@code size &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L68" href="InterpolatingMicrosphere.html#L68">68</a>  <em class="jxr_javadoccomment">     * @throws NotPositiveException if {@code darkThreshold &lt; 0}.</em>
+<a class="jxr_linenumber" name="L69" href="InterpolatingMicrosphere.html#L69">69</a>  <em class="jxr_javadoccomment">     * @throws OutOfRangeException if {@code maxDarkFraction} does not</em>
+<a class="jxr_linenumber" name="L70" href="InterpolatingMicrosphere.html#L70">70</a>  <em class="jxr_javadoccomment">     * belong to the interval {@code [0, 1]}.</em>
+<a class="jxr_linenumber" name="L71" href="InterpolatingMicrosphere.html#L71">71</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L72" href="InterpolatingMicrosphere.html#L72">72</a>      <strong class="jxr_keyword">protected</strong> <a href="InterpolatingMicrosphere.html">InterpolatingMicrosphere</a>(<strong class="jxr_keyword">int</strong> dimension,
+<a class="jxr_linenumber" name="L73" href="InterpolatingMicrosphere.html#L73">73</a>                                         <strong class="jxr_keyword">int</strong> size,
+<a class="jxr_linenumber" name="L74" href="InterpolatingMicrosphere.html#L74">74</a>                                         <strong class="jxr_keyword">double</strong> maxDarkFraction,
+<a class="jxr_linenumber" name="L75" href="InterpolatingMicrosphere.html#L75">75</a>                                         <strong class="jxr_keyword">double</strong> darkThreshold,
+<a class="jxr_linenumber" name="L76" href="InterpolatingMicrosphere.html#L76">76</a>                                         <strong class="jxr_keyword">double</strong> background) {
+<a class="jxr_linenumber" name="L77" href="InterpolatingMicrosphere.html#L77">77</a>          <strong class="jxr_keyword">if</strong> (dimension &lt;= 0) {
+<a class="jxr_linenumber" name="L78" href="InterpolatingMicrosphere.html#L78">78</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(dimension);
+<a class="jxr_linenumber" name="L79" href="InterpolatingMicrosphere.html#L79">79</a>          }
+<a class="jxr_linenumber" name="L80" href="InterpolatingMicrosphere.html#L80">80</a>          <strong class="jxr_keyword">if</strong> (size &lt;= 0) {
+<a class="jxr_linenumber" name="L81" href="InterpolatingMicrosphere.html#L81">81</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(size);
+<a class="jxr_linenumber" name="L82" href="InterpolatingMicrosphere.html#L82">82</a>          }
+<a class="jxr_linenumber" name="L83" href="InterpolatingMicrosphere.html#L83">83</a>          <strong class="jxr_keyword">if</strong> (maxDarkFraction &lt; 0 ||
+<a class="jxr_linenumber" name="L84" href="InterpolatingMicrosphere.html#L84">84</a>              maxDarkFraction &gt; 1) {
+<a class="jxr_linenumber" name="L85" href="InterpolatingMicrosphere.html#L85">85</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>(maxDarkFraction, 0, 1);
+<a class="jxr_linenumber" name="L86" href="InterpolatingMicrosphere.html#L86">86</a>          }
+<a class="jxr_linenumber" name="L87" href="InterpolatingMicrosphere.html#L87">87</a>          <strong class="jxr_keyword">if</strong> (darkThreshold &lt; 0) {
+<a class="jxr_linenumber" name="L88" href="InterpolatingMicrosphere.html#L88">88</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotPositiveException.html">NotPositiveException</a>(darkThreshold);
+<a class="jxr_linenumber" name="L89" href="InterpolatingMicrosphere.html#L89">89</a>          }
+<a class="jxr_linenumber" name="L90" href="InterpolatingMicrosphere.html#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="InterpolatingMicrosphere.html#L91">91</a>          <strong class="jxr_keyword">this</strong>.dimension = dimension;
+<a class="jxr_linenumber" name="L92" href="InterpolatingMicrosphere.html#L92">92</a>          <strong class="jxr_keyword">this</strong>.size = size;
+<a class="jxr_linenumber" name="L93" href="InterpolatingMicrosphere.html#L93">93</a>          <strong class="jxr_keyword">this</strong>.maxDarkFraction = maxDarkFraction;
+<a class="jxr_linenumber" name="L94" href="InterpolatingMicrosphere.html#L94">94</a>          <strong class="jxr_keyword">this</strong>.darkThreshold = darkThreshold;
+<a class="jxr_linenumber" name="L95" href="InterpolatingMicrosphere.html#L95">95</a>          <strong class="jxr_keyword">this</strong>.background = background;
+<a class="jxr_linenumber" name="L96" href="InterpolatingMicrosphere.html#L96">96</a>          microsphere = <strong class="jxr_keyword">new</strong> ArrayList&lt;Facet&gt;(size);
+<a class="jxr_linenumber" name="L97" href="InterpolatingMicrosphere.html#L97">97</a>          microsphereData = <strong class="jxr_keyword">new</strong> ArrayList&lt;FacetData&gt;(size);
+<a class="jxr_linenumber" name="L98" href="InterpolatingMicrosphere.html#L98">98</a>      }
+<a class="jxr_linenumber" name="L99" href="InterpolatingMicrosphere.html#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="InterpolatingMicrosphere.html#L100">100</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L101" href="InterpolatingMicrosphere.html#L101">101</a> <em class="jxr_javadoccomment">     * Create a sphere from randomly sampled vectors.</em>
+<a class="jxr_linenumber" name="L102" href="InterpolatingMicrosphere.html#L102">102</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L103" href="InterpolatingMicrosphere.html#L103">103</a> <em class="jxr_javadoccomment">     * @param dimension Dimension of the data space.</em>
+<a class="jxr_linenumber" name="L104" href="InterpolatingMicrosphere.html#L104">104</a> <em class="jxr_javadoccomment">     * @param size Number of surface elements of the sphere.</em>
+<a class="jxr_linenumber" name="L105" href="InterpolatingMicrosphere.html#L105">105</a> <em class="jxr_javadoccomment">     * @param rand Unit vector generator for creating the microsphere.</em>
+<a class="jxr_linenumber" name="L106" href="InterpolatingMicrosphere.html#L106">106</a> <em class="jxr_javadoccomment">     * @param maxDarkFraction Maximum fraction of the facets that can be dark.</em>
+<a class="jxr_linenumber" name="L107" href="InterpolatingMicrosphere.html#L107">107</a> <em class="jxr_javadoccomment">     * If the fraction of "non-illuminated" facets is larger, no estimation</em>
+<a class="jxr_linenumber" name="L108" href="InterpolatingMicrosphere.html#L108">108</a> <em class="jxr_javadoccomment">     * of the value will be performed, and the {@code background} value will</em>
+<a class="jxr_linenumber" name="L109" href="InterpolatingMicrosphere.html#L109">109</a> <em class="jxr_javadoccomment">     * be returned instead.</em>
+<a class="jxr_linenumber" name="L110" href="InterpolatingMicrosphere.html#L110">110</a> <em class="jxr_javadoccomment">     * @param darkThreshold Value of the illumination below which a facet</em>
+<a class="jxr_linenumber" name="L111" href="InterpolatingMicrosphere.html#L111">111</a> <em class="jxr_javadoccomment">     * is considered dark.</em>
+<a class="jxr_linenumber" name="L112" href="InterpolatingMicrosphere.html#L112">112</a> <em class="jxr_javadoccomment">     * @param background Value returned when the {@code maxDarkFraction}</em>
+<a class="jxr_linenumber" name="L113" href="InterpolatingMicrosphere.html#L113">113</a> <em class="jxr_javadoccomment">     * threshold is exceeded.</em>
+<a class="jxr_linenumber" name="L114" href="InterpolatingMicrosphere.html#L114">114</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the size of the generated</em>
+<a class="jxr_linenumber" name="L115" href="InterpolatingMicrosphere.html#L115">115</a> <em class="jxr_javadoccomment">     * vectors does not match the dimension set in the constructor.</em>
+<a class="jxr_linenumber" name="L116" href="InterpolatingMicrosphere.html#L116">116</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code dimension &lt;= 0}</em>
+<a class="jxr_linenumber" name="L117" href="InterpolatingMicrosphere.html#L117">117</a> <em class="jxr_javadoccomment">     * or {@code size &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L118" href="InterpolatingMicrosphere.html#L118">118</a> <em class="jxr_javadoccomment">     * @throws NotPositiveException if {@code darkThreshold &lt; 0}.</em>
+<a class="jxr_linenumber" name="L119" href="InterpolatingMicrosphere.html#L119">119</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if {@code maxDarkFraction} does not</em>
+<a class="jxr_linenumber" name="L120" href="InterpolatingMicrosphere.html#L120">120</a> <em class="jxr_javadoccomment">     * belong to the interval {@code [0, 1]}.</em>
+<a class="jxr_linenumber" name="L121" href="InterpolatingMicrosphere.html#L121">121</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L122" href="InterpolatingMicrosphere.html#L122">122</a>     <strong class="jxr_keyword">public</strong> <a href="InterpolatingMicrosphere.html">InterpolatingMicrosphere</a>(<strong class="jxr_keyword">int</strong> dimension,
+<a class="jxr_linenumber" name="L123" href="InterpolatingMicrosphere.html#L123">123</a>                                     <strong class="jxr_keyword">int</strong> size,
+<a class="jxr_linenumber" name="L124" href="InterpolatingMicrosphere.html#L124">124</a>                                     <strong class="jxr_keyword">double</strong> maxDarkFraction,
+<a class="jxr_linenumber" name="L125" href="InterpolatingMicrosphere.html#L125">125</a>                                     <strong class="jxr_keyword">double</strong> darkThreshold,
+<a class="jxr_linenumber" name="L126" href="InterpolatingMicrosphere.html#L126">126</a>                                     <strong class="jxr_keyword">double</strong> background,
+<a class="jxr_linenumber" name="L127" href="InterpolatingMicrosphere.html#L127">127</a>                                     <a href="../../random/UnitSphereRandomVectorGenerator.html">UnitSphereRandomVectorGenerator</a> rand) {
+<a class="jxr_linenumber" name="L128" href="InterpolatingMicrosphere.html#L128">128</a>         <strong class="jxr_keyword">this</strong>(dimension, size, maxDarkFraction, darkThreshold, background);
+<a class="jxr_linenumber" name="L129" href="InterpolatingMicrosphere.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="InterpolatingMicrosphere.html#L130">130</a>         <em class="jxr_comment">// Generate the microsphere normals, assuming that a number of</em>
+<a class="jxr_linenumber" name="L131" href="InterpolatingMicrosphere.html#L131">131</a>         <em class="jxr_comment">// randomly generated normals will represent a sphere.</em>
+<a class="jxr_linenumber" name="L132" href="InterpolatingMicrosphere.html#L132">132</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; size; i++) {
+<a class="jxr_linenumber" name="L133" href="InterpolatingMicrosphere.html#L133">133</a>             add(rand.nextVector(), false);
+<a class="jxr_linenumber" name="L134" href="InterpolatingMicrosphere.html#L134">134</a>         }
+<a class="jxr_linenumber" name="L135" href="InterpolatingMicrosphere.html#L135">135</a>     }
+<a class="jxr_linenumber" name="L136" href="InterpolatingMicrosphere.html#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="InterpolatingMicrosphere.html#L137">137</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L138" href="InterpolatingMicrosphere.html#L138">138</a> <em class="jxr_javadoccomment">     * Copy constructor.</em>
+<a class="jxr_linenumber" name="L139" href="InterpolatingMicrosphere.html#L139">139</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L140" href="InterpolatingMicrosphere.html#L140">140</a> <em class="jxr_javadoccomment">     * @param other Instance to copy.</em>
+<a class="jxr_linenumber" name="L141" href="InterpolatingMicrosphere.html#L141">141</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L142" href="InterpolatingMicrosphere.html#L142">142</a>     <strong class="jxr_keyword">protected</strong> <a href="InterpolatingMicrosphere.html">InterpolatingMicrosphere</a>(<a href="InterpolatingMicrosphere.html">InterpolatingMicrosphere</a> other) {
+<a class="jxr_linenumber" name="L143" href="InterpolatingMicrosphere.html#L143">143</a>         dimension = other.dimension;
+<a class="jxr_linenumber" name="L144" href="InterpolatingMicrosphere.html#L144">144</a>         size = other.size;
+<a class="jxr_linenumber" name="L145" href="InterpolatingMicrosphere.html#L145">145</a>         maxDarkFraction = other.maxDarkFraction;
+<a class="jxr_linenumber" name="L146" href="InterpolatingMicrosphere.html#L146">146</a>         darkThreshold = other.darkThreshold;
+<a class="jxr_linenumber" name="L147" href="InterpolatingMicrosphere.html#L147">147</a>         background = other.background;
+<a class="jxr_linenumber" name="L148" href="InterpolatingMicrosphere.html#L148">148</a> 
+<a class="jxr_linenumber" name="L149" href="InterpolatingMicrosphere.html#L149">149</a>         <em class="jxr_comment">// Field can be shared.</em>
+<a class="jxr_linenumber" name="L150" href="InterpolatingMicrosphere.html#L150">150</a>         microsphere = other.microsphere;
+<a class="jxr_linenumber" name="L151" href="InterpolatingMicrosphere.html#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="InterpolatingMicrosphere.html#L152">152</a>         <em class="jxr_comment">// Field must be copied.</em>
+<a class="jxr_linenumber" name="L153" href="InterpolatingMicrosphere.html#L153">153</a>         microsphereData = <strong class="jxr_keyword">new</strong> ArrayList&lt;FacetData&gt;(size);
+<a class="jxr_linenumber" name="L154" href="InterpolatingMicrosphere.html#L154">154</a>         <strong class="jxr_keyword">for</strong> (FacetData fd : other.microsphereData) {
+<a class="jxr_linenumber" name="L155" href="InterpolatingMicrosphere.html#L155">155</a>             microsphereData.add(<strong class="jxr_keyword">new</strong> <a href="InterpolatingMicrosphere.html">FacetData</a>(fd.illumination(), fd.sample()));
+<a class="jxr_linenumber" name="L156" href="InterpolatingMicrosphere.html#L156">156</a>         }
+<a class="jxr_linenumber" name="L157" href="InterpolatingMicrosphere.html#L157">157</a>     }
+<a class="jxr_linenumber" name="L158" href="InterpolatingMicrosphere.html#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="InterpolatingMicrosphere.html#L159">159</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L160" href="InterpolatingMicrosphere.html#L160">160</a> <em class="jxr_javadoccomment">     * Perform a copy.</em>
+<a class="jxr_linenumber" name="L161" href="InterpolatingMicrosphere.html#L161">161</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L162" href="InterpolatingMicrosphere.html#L162">162</a> <em class="jxr_javadoccomment">     * @return a copy of this instance.</em>
+<a class="jxr_linenumber" name="L163" href="InterpolatingMicrosphere.html#L163">163</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L164" href="InterpolatingMicrosphere.html#L164">164</a>     <strong class="jxr_keyword">public</strong> <a href="InterpolatingMicrosphere.html">InterpolatingMicrosphere</a> copy() {
+<a class="jxr_linenumber" name="L165" href="InterpolatingMicrosphere.html#L165">165</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="InterpolatingMicrosphere.html">InterpolatingMicrosphere</a>(<strong class="jxr_keyword">this</strong>);
+<a class="jxr_linenumber" name="L166" href="InterpolatingMicrosphere.html#L166">166</a>     }
+<a class="jxr_linenumber" name="L167" href="InterpolatingMicrosphere.html#L167">167</a> 
+<a class="jxr_linenumber" name="L168" href="InterpolatingMicrosphere.html#L168">168</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L169" href="InterpolatingMicrosphere.html#L169">169</a> <em class="jxr_javadoccomment">     * Get the space dimensionality.</em>
+<a class="jxr_linenumber" name="L170" href="InterpolatingMicrosphere.html#L170">170</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L171" href="InterpolatingMicrosphere.html#L171">171</a> <em class="jxr_javadoccomment">     * @return the number of space dimensions.</em>
+<a class="jxr_linenumber" name="L172" href="InterpolatingMicrosphere.html#L172">172</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L173" href="InterpolatingMicrosphere.html#L173">173</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getDimension() {
+<a class="jxr_linenumber" name="L174" href="InterpolatingMicrosphere.html#L174">174</a>         <strong class="jxr_keyword">return</strong> dimension;
+<a class="jxr_linenumber" name="L175" href="InterpolatingMicrosphere.html#L175">175</a>     }
+<a class="jxr_linenumber" name="L176" href="InterpolatingMicrosphere.html#L176">176</a> 
+<a class="jxr_linenumber" name="L177" href="InterpolatingMicrosphere.html#L177">177</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L178" href="InterpolatingMicrosphere.html#L178">178</a> <em class="jxr_javadoccomment">     * Get the size of the sphere.</em>
+<a class="jxr_linenumber" name="L179" href="InterpolatingMicrosphere.html#L179">179</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L180" href="InterpolatingMicrosphere.html#L180">180</a> <em class="jxr_javadoccomment">     * @return the number of surface elements of the microspshere.</em>
+<a class="jxr_linenumber" name="L181" href="InterpolatingMicrosphere.html#L181">181</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L182" href="InterpolatingMicrosphere.html#L182">182</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getSize() {
+<a class="jxr_linenumber" name="L183" href="InterpolatingMicrosphere.html#L183">183</a>         <strong class="jxr_keyword">return</strong> size;
+<a class="jxr_linenumber" name="L184" href="InterpolatingMicrosphere.html#L184">184</a>     }
+<a class="jxr_linenumber" name="L185" href="InterpolatingMicrosphere.html#L185">185</a> 
+<a class="jxr_linenumber" name="L186" href="InterpolatingMicrosphere.html#L186">186</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L187" href="InterpolatingMicrosphere.html#L187">187</a> <em class="jxr_javadoccomment">     * Estimate the value at the requested location.</em>
+<a class="jxr_linenumber" name="L188" href="InterpolatingMicrosphere.html#L188">188</a> <em class="jxr_javadoccomment">     * This microsphere is placed at the given {@code point}, contribution</em>
+<a class="jxr_linenumber" name="L189" href="InterpolatingMicrosphere.html#L189">189</a> <em class="jxr_javadoccomment">     * of the given {@code samplePoints} to each sphere facet is computed</em>
+<a class="jxr_linenumber" name="L190" href="InterpolatingMicrosphere.html#L190">190</a> <em class="jxr_javadoccomment">     * (illumination) and the interpolation is performed (integration of</em>
+<a class="jxr_linenumber" name="L191" href="InterpolatingMicrosphere.html#L191">191</a> <em class="jxr_javadoccomment">     * the illumination).</em>
+<a class="jxr_linenumber" name="L192" href="InterpolatingMicrosphere.html#L192">192</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L193" href="InterpolatingMicrosphere.html#L193">193</a> <em class="jxr_javadoccomment">     * @param point Interpolation point.</em>
+<a class="jxr_linenumber" name="L194" href="InterpolatingMicrosphere.html#L194">194</a> <em class="jxr_javadoccomment">     * @param samplePoints Sampling data points.</em>
+<a class="jxr_linenumber" name="L195" href="InterpolatingMicrosphere.html#L195">195</a> <em class="jxr_javadoccomment">     * @param sampleValues Sampling data values at the corresponding</em>
+<a class="jxr_linenumber" name="L196" href="InterpolatingMicrosphere.html#L196">196</a> <em class="jxr_javadoccomment">     * {@code samplePoints}.</em>
+<a class="jxr_linenumber" name="L197" href="InterpolatingMicrosphere.html#L197">197</a> <em class="jxr_javadoccomment">     * @param exponent Exponent used in the power law that computes</em>
+<a class="jxr_linenumber" name="L198" href="InterpolatingMicrosphere.html#L198">198</a> <em class="jxr_javadoccomment">     * the weights (distance dimming factor) of the sample data.</em>
+<a class="jxr_linenumber" name="L199" href="InterpolatingMicrosphere.html#L199">199</a> <em class="jxr_javadoccomment">     * @param noInterpolationTolerance When the distance between the</em>
+<a class="jxr_linenumber" name="L200" href="InterpolatingMicrosphere.html#L200">200</a> <em class="jxr_javadoccomment">     * {@code point} and one of the {@code samplePoints} is less than</em>
+<a class="jxr_linenumber" name="L201" href="InterpolatingMicrosphere.html#L201">201</a> <em class="jxr_javadoccomment">     * this value, no interpolation will be performed, and the value</em>
+<a class="jxr_linenumber" name="L202" href="InterpolatingMicrosphere.html#L202">202</a> <em class="jxr_javadoccomment">     * of the sample will just be returned.</em>
+<a class="jxr_linenumber" name="L203" href="InterpolatingMicrosphere.html#L203">203</a> <em class="jxr_javadoccomment">     * @return the estimated value at the given {@code point}.</em>
+<a class="jxr_linenumber" name="L204" href="InterpolatingMicrosphere.html#L204">204</a> <em class="jxr_javadoccomment">     * @throws NotPositiveException if {@code exponent &lt; 0}.</em>
+<a class="jxr_linenumber" name="L205" href="InterpolatingMicrosphere.html#L205">205</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L206" href="InterpolatingMicrosphere.html#L206">206</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong>[] point,
+<a class="jxr_linenumber" name="L207" href="InterpolatingMicrosphere.html#L207">207</a>                         <strong class="jxr_keyword">double</strong>[][] samplePoints,
+<a class="jxr_linenumber" name="L208" href="InterpolatingMicrosphere.html#L208">208</a>                         <strong class="jxr_keyword">double</strong>[] sampleValues,
+<a class="jxr_linenumber" name="L209" href="InterpolatingMicrosphere.html#L209">209</a>                         <strong class="jxr_keyword">double</strong> exponent,
+<a class="jxr_linenumber" name="L210" href="InterpolatingMicrosphere.html#L210">210</a>                         <strong class="jxr_keyword">double</strong> noInterpolationTolerance) {
+<a class="jxr_linenumber" name="L211" href="InterpolatingMicrosphere.html#L211">211</a>         <strong class="jxr_keyword">if</strong> (exponent &lt; 0) {
+<a class="jxr_linenumber" name="L212" href="InterpolatingMicrosphere.html#L212">212</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotPositiveException.html">NotPositiveException</a>(exponent);
+<a class="jxr_linenumber" name="L213" href="InterpolatingMicrosphere.html#L213">213</a>         }
+<a class="jxr_linenumber" name="L214" href="InterpolatingMicrosphere.html#L214">214</a> 
+<a class="jxr_linenumber" name="L215" href="InterpolatingMicrosphere.html#L215">215</a>         clear();
+<a class="jxr_linenumber" name="L216" href="InterpolatingMicrosphere.html#L216">216</a> 
+<a class="jxr_linenumber" name="L217" href="InterpolatingMicrosphere.html#L217">217</a>         <em class="jxr_comment">// Contribution of each sample point to the illumination of the</em>
+<a class="jxr_linenumber" name="L218" href="InterpolatingMicrosphere.html#L218">218</a>         <em class="jxr_comment">// microsphere's facets.</em>
+<a class="jxr_linenumber" name="L219" href="InterpolatingMicrosphere.html#L219">219</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numSamples = samplePoints.length;
+<a class="jxr_linenumber" name="L220" href="InterpolatingMicrosphere.html#L220">220</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; numSamples; i++) {
+<a class="jxr_linenumber" name="L221" href="InterpolatingMicrosphere.html#L221">221</a>             <em class="jxr_comment">// Vector between interpolation point and current sample point.</em>
+<a class="jxr_linenumber" name="L222" href="InterpolatingMicrosphere.html#L222">222</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] diff = MathArrays.ebeSubtract(samplePoints[i], point);
+<a class="jxr_linenumber" name="L223" href="InterpolatingMicrosphere.html#L223">223</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> diffNorm = MathArrays.safeNorm(diff);
+<a class="jxr_linenumber" name="L224" href="InterpolatingMicrosphere.html#L224">224</a> 
+<a class="jxr_linenumber" name="L225" href="InterpolatingMicrosphere.html#L225">225</a>             <strong class="jxr_keyword">if</strong> (FastMath.abs(diffNorm) &lt; noInterpolationTolerance) {
+<a class="jxr_linenumber" name="L226" href="InterpolatingMicrosphere.html#L226">226</a>                 <em class="jxr_comment">// No need to interpolate, as the interpolation point is</em>
+<a class="jxr_linenumber" name="L227" href="InterpolatingMicrosphere.html#L227">227</a>                 <em class="jxr_comment">// actually (very close to) one of the sampled points.</em>
+<a class="jxr_linenumber" name="L228" href="InterpolatingMicrosphere.html#L228">228</a>                 <strong class="jxr_keyword">return</strong> sampleValues[i];
+<a class="jxr_linenumber" name="L229" href="InterpolatingMicrosphere.html#L229">229</a>             }
+<a class="jxr_linenumber" name="L230" href="InterpolatingMicrosphere.html#L230">230</a> 
+<a class="jxr_linenumber" name="L231" href="InterpolatingMicrosphere.html#L231">231</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> weight = FastMath.pow(diffNorm, -exponent);
+<a class="jxr_linenumber" name="L232" href="InterpolatingMicrosphere.html#L232">232</a>             illuminate(diff, sampleValues[i], weight);
+<a class="jxr_linenumber" name="L233" href="InterpolatingMicrosphere.html#L233">233</a>         }
+<a class="jxr_linenumber" name="L234" href="InterpolatingMicrosphere.html#L234">234</a> 
+<a class="jxr_linenumber" name="L235" href="InterpolatingMicrosphere.html#L235">235</a>         <strong class="jxr_keyword">return</strong> interpolate();
+<a class="jxr_linenumber" name="L236" href="InterpolatingMicrosphere.html#L236">236</a>     }
+<a class="jxr_linenumber" name="L237" href="InterpolatingMicrosphere.html#L237">237</a> 
+<a class="jxr_linenumber" name="L238" href="InterpolatingMicrosphere.html#L238">238</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L239" href="InterpolatingMicrosphere.html#L239">239</a> <em class="jxr_javadoccomment">     * Replace {@code i}-th facet of the microsphere.</em>
+<a class="jxr_linenumber" name="L240" href="InterpolatingMicrosphere.html#L240">240</a> <em class="jxr_javadoccomment">     * Method for initializing the microsphere facets.</em>
+<a class="jxr_linenumber" name="L241" href="InterpolatingMicrosphere.html#L241">241</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L242" href="InterpolatingMicrosphere.html#L242">242</a> <em class="jxr_javadoccomment">     * @param normal Facet's normal vector.</em>
+<a class="jxr_linenumber" name="L243" href="InterpolatingMicrosphere.html#L243">243</a> <em class="jxr_javadoccomment">     * @param copy Whether to copy the given array.</em>
+<a class="jxr_linenumber" name="L244" href="InterpolatingMicrosphere.html#L244">244</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the length of {@code n}</em>
+<a class="jxr_linenumber" name="L245" href="InterpolatingMicrosphere.html#L245">245</a> <em class="jxr_javadoccomment">     * does not match the space dimension.</em>
+<a class="jxr_linenumber" name="L246" href="InterpolatingMicrosphere.html#L246">246</a> <em class="jxr_javadoccomment">     * @throws MaxCountExceededException if the method has been called</em>
+<a class="jxr_linenumber" name="L247" href="InterpolatingMicrosphere.html#L247">247</a> <em class="jxr_javadoccomment">     * more times than the size of the sphere.</em>
+<a class="jxr_linenumber" name="L248" href="InterpolatingMicrosphere.html#L248">248</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L249" href="InterpolatingMicrosphere.html#L249">249</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> add(<strong class="jxr_keyword">double</strong>[] normal,
+<a class="jxr_linenumber" name="L250" href="InterpolatingMicrosphere.html#L250">250</a>                        <strong class="jxr_keyword">boolean</strong> copy) {
+<a class="jxr_linenumber" name="L251" href="InterpolatingMicrosphere.html#L251">251</a>         <strong class="jxr_keyword">if</strong> (microsphere.size() &gt;= size) {
+<a class="jxr_linenumber" name="L252" href="InterpolatingMicrosphere.html#L252">252</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/MaxCountExceededException.html">MaxCountExceededException</a>(size);
+<a class="jxr_linenumber" name="L253" href="InterpolatingMicrosphere.html#L253">253</a>         }
+<a class="jxr_linenumber" name="L254" href="InterpolatingMicrosphere.html#L254">254</a>         <strong class="jxr_keyword">if</strong> (normal.length &gt; dimension) {
+<a class="jxr_linenumber" name="L255" href="InterpolatingMicrosphere.html#L255">255</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(normal.length, dimension);
+<a class="jxr_linenumber" name="L256" href="InterpolatingMicrosphere.html#L256">256</a>         }
+<a class="jxr_linenumber" name="L257" href="InterpolatingMicrosphere.html#L257">257</a> 
+<a class="jxr_linenumber" name="L258" href="InterpolatingMicrosphere.html#L258">258</a>         microsphere.add(<strong class="jxr_keyword">new</strong> <a href="InterpolatingMicrosphere.html">Facet</a>(copy ? normal.clone() : normal));
+<a class="jxr_linenumber" name="L259" href="InterpolatingMicrosphere.html#L259">259</a>         microsphereData.add(<strong class="jxr_keyword">new</strong> <a href="InterpolatingMicrosphere.html">FacetData</a>(0d, 0d));
+<a class="jxr_linenumber" name="L260" href="InterpolatingMicrosphere.html#L260">260</a>     }
+<a class="jxr_linenumber" name="L261" href="InterpolatingMicrosphere.html#L261">261</a> 
+<a class="jxr_linenumber" name="L262" href="InterpolatingMicrosphere.html#L262">262</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L263" href="InterpolatingMicrosphere.html#L263">263</a> <em class="jxr_javadoccomment">     * Interpolation.</em>
+<a class="jxr_linenumber" name="L264" href="InterpolatingMicrosphere.html#L264">264</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L265" href="InterpolatingMicrosphere.html#L265">265</a> <em class="jxr_javadoccomment">     * @return the value estimated from the current illumination of the</em>
+<a class="jxr_linenumber" name="L266" href="InterpolatingMicrosphere.html#L266">266</a> <em class="jxr_javadoccomment">     * microsphere.</em>
+<a class="jxr_linenumber" name="L267" href="InterpolatingMicrosphere.html#L267">267</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L268" href="InterpolatingMicrosphere.html#L268">268</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> interpolate() {
+<a class="jxr_linenumber" name="L269" href="InterpolatingMicrosphere.html#L269">269</a>         <em class="jxr_comment">// Number of non-illuminated facets.</em>
+<a class="jxr_linenumber" name="L270" href="InterpolatingMicrosphere.html#L270">270</a>         <strong class="jxr_keyword">int</strong> darkCount = 0;
+<a class="jxr_linenumber" name="L271" href="InterpolatingMicrosphere.html#L271">271</a> 
+<a class="jxr_linenumber" name="L272" href="InterpolatingMicrosphere.html#L272">272</a>         <strong class="jxr_keyword">double</strong> value = 0;
+<a class="jxr_linenumber" name="L273" href="InterpolatingMicrosphere.html#L273">273</a>         <strong class="jxr_keyword">double</strong> totalWeight = 0;
+<a class="jxr_linenumber" name="L274" href="InterpolatingMicrosphere.html#L274">274</a>         <strong class="jxr_keyword">for</strong> (FacetData fd : microsphereData) {
+<a class="jxr_linenumber" name="L275" href="InterpolatingMicrosphere.html#L275">275</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> iV = fd.illumination();
+<a class="jxr_linenumber" name="L276" href="InterpolatingMicrosphere.html#L276">276</a>             <strong class="jxr_keyword">if</strong> (iV != 0d) {
+<a class="jxr_linenumber" name="L277" href="InterpolatingMicrosphere.html#L277">277</a>                 value += iV * fd.sample();
+<a class="jxr_linenumber" name="L278" href="InterpolatingMicrosphere.html#L278">278</a>                 totalWeight += iV;
+<a class="jxr_linenumber" name="L279" href="InterpolatingMicrosphere.html#L279">279</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L280" href="InterpolatingMicrosphere.html#L280">280</a>                 ++darkCount;
+<a class="jxr_linenumber" name="L281" href="InterpolatingMicrosphere.html#L281">281</a>             }
+<a class="jxr_linenumber" name="L282" href="InterpolatingMicrosphere.html#L282">282</a>         }
+<a class="jxr_linenumber" name="L283" href="InterpolatingMicrosphere.html#L283">283</a> 
+<a class="jxr_linenumber" name="L284" href="InterpolatingMicrosphere.html#L284">284</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> darkFraction = darkCount / (<strong class="jxr_keyword">double</strong>) size;
+<a class="jxr_linenumber" name="L285" href="InterpolatingMicrosphere.html#L285">285</a> 
+<a class="jxr_linenumber" name="L286" href="InterpolatingMicrosphere.html#L286">286</a>         <strong class="jxr_keyword">return</strong> darkFraction &lt;= maxDarkFraction ?
+<a class="jxr_linenumber" name="L287" href="InterpolatingMicrosphere.html#L287">287</a>             value / totalWeight :
+<a class="jxr_linenumber" name="L288" href="InterpolatingMicrosphere.html#L288">288</a>             background;
+<a class="jxr_linenumber" name="L289" href="InterpolatingMicrosphere.html#L289">289</a>     }
+<a class="jxr_linenumber" name="L290" href="InterpolatingMicrosphere.html#L290">290</a> 
+<a class="jxr_linenumber" name="L291" href="InterpolatingMicrosphere.html#L291">291</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L292" href="InterpolatingMicrosphere.html#L292">292</a> <em class="jxr_javadoccomment">     * Illumination.</em>
+<a class="jxr_linenumber" name="L293" href="InterpolatingMicrosphere.html#L293">293</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L294" href="InterpolatingMicrosphere.html#L294">294</a> <em class="jxr_javadoccomment">     * @param sampleDirection Vector whose origin is at the interpolation</em>
+<a class="jxr_linenumber" name="L295" href="InterpolatingMicrosphere.html#L295">295</a> <em class="jxr_javadoccomment">     * point and tail is at the sample location.</em>
+<a class="jxr_linenumber" name="L296" href="InterpolatingMicrosphere.html#L296">296</a> <em class="jxr_javadoccomment">     * @param sampleValue Data value of the sample.</em>
+<a class="jxr_linenumber" name="L297" href="InterpolatingMicrosphere.html#L297">297</a> <em class="jxr_javadoccomment">     * @param weight Weight.</em>
+<a class="jxr_linenumber" name="L298" href="InterpolatingMicrosphere.html#L298">298</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L299" href="InterpolatingMicrosphere.html#L299">299</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> illuminate(<strong class="jxr_keyword">double</strong>[] sampleDirection,
+<a class="jxr_linenumber" name="L300" href="InterpolatingMicrosphere.html#L300">300</a>                             <strong class="jxr_keyword">double</strong> sampleValue,
+<a class="jxr_linenumber" name="L301" href="InterpolatingMicrosphere.html#L301">301</a>                             <strong class="jxr_keyword">double</strong> weight) {
+<a class="jxr_linenumber" name="L302" href="InterpolatingMicrosphere.html#L302">302</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; size; i++) {
+<a class="jxr_linenumber" name="L303" href="InterpolatingMicrosphere.html#L303">303</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] n = microsphere.get(i).getNormal();
+<a class="jxr_linenumber" name="L304" href="InterpolatingMicrosphere.html#L304">304</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> cos = MathArrays.cosAngle(n, sampleDirection);
+<a class="jxr_linenumber" name="L305" href="InterpolatingMicrosphere.html#L305">305</a> 
+<a class="jxr_linenumber" name="L306" href="InterpolatingMicrosphere.html#L306">306</a>             <strong class="jxr_keyword">if</strong> (cos &gt; 0) {
+<a class="jxr_linenumber" name="L307" href="InterpolatingMicrosphere.html#L307">307</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> illumination = cos * weight;
+<a class="jxr_linenumber" name="L308" href="InterpolatingMicrosphere.html#L308">308</a> 
+<a class="jxr_linenumber" name="L309" href="InterpolatingMicrosphere.html#L309">309</a>                 <strong class="jxr_keyword">if</strong> (illumination &gt; darkThreshold &amp;&amp;
+<a class="jxr_linenumber" name="L310" href="InterpolatingMicrosphere.html#L310">310</a>                     illumination &gt; microsphereData.get(i).illumination()) {
+<a class="jxr_linenumber" name="L311" href="InterpolatingMicrosphere.html#L311">311</a>                     microsphereData.set(i, <strong class="jxr_keyword">new</strong> <a href="InterpolatingMicrosphere.html">FacetData</a>(illumination, sampleValue));
+<a class="jxr_linenumber" name="L312" href="InterpolatingMicrosphere.html#L312">312</a>                 }
+<a class="jxr_linenumber" name="L313" href="InterpolatingMicrosphere.html#L313">313</a>             }
+<a class="jxr_linenumber" name="L314" href="InterpolatingMicrosphere.html#L314">314</a>         }
+<a class="jxr_linenumber" name="L315" href="InterpolatingMicrosphere.html#L315">315</a>     }
+<a class="jxr_linenumber" name="L316" href="InterpolatingMicrosphere.html#L316">316</a> 
+<a class="jxr_linenumber" name="L317" href="InterpolatingMicrosphere.html#L317">317</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L318" href="InterpolatingMicrosphere.html#L318">318</a> <em class="jxr_javadoccomment">     * Reset the all the {@link Facet facets} data to zero.</em>
+<a class="jxr_linenumber" name="L319" href="InterpolatingMicrosphere.html#L319">319</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L320" href="InterpolatingMicrosphere.html#L320">320</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> clear() {
+<a class="jxr_linenumber" name="L321" href="InterpolatingMicrosphere.html#L321">321</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; size; i++) {
+<a class="jxr_linenumber" name="L322" href="InterpolatingMicrosphere.html#L322">322</a>             microsphereData.set(i, <strong class="jxr_keyword">new</strong> <a href="InterpolatingMicrosphere.html">FacetData</a>(0d, 0d));
+<a class="jxr_linenumber" name="L323" href="InterpolatingMicrosphere.html#L323">323</a>         }
+<a class="jxr_linenumber" name="L324" href="InterpolatingMicrosphere.html#L324">324</a>     }
+<a class="jxr_linenumber" name="L325" href="InterpolatingMicrosphere.html#L325">325</a> 
+<a class="jxr_linenumber" name="L326" href="InterpolatingMicrosphere.html#L326">326</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L327" href="InterpolatingMicrosphere.html#L327">327</a> <em class="jxr_javadoccomment">     * Microsphere "facet" (surface element).</em>
+<a class="jxr_linenumber" name="L328" href="InterpolatingMicrosphere.html#L328">328</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L329" href="InterpolatingMicrosphere.html#L329">329</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="InterpolatingMicrosphere.html">Facet</a> {
+<a class="jxr_linenumber" name="L330" href="InterpolatingMicrosphere.html#L330">330</a>         <em class="jxr_javadoccomment">/** Normal vector characterizing a surface element. */</em>
+<a class="jxr_linenumber" name="L331" href="InterpolatingMicrosphere.html#L331">331</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] normal;
+<a class="jxr_linenumber" name="L332" href="InterpolatingMicrosphere.html#L332">332</a> 
+<a class="jxr_linenumber" name="L333" href="InterpolatingMicrosphere.html#L333">333</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L334" href="InterpolatingMicrosphere.html#L334">334</a> <em class="jxr_javadoccomment">         * @param n Normal vector characterizing a surface element</em>
+<a class="jxr_linenumber" name="L335" href="InterpolatingMicrosphere.html#L335">335</a> <em class="jxr_javadoccomment">         * of the microsphere. No copy is made.</em>
+<a class="jxr_linenumber" name="L336" href="InterpolatingMicrosphere.html#L336">336</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L337" href="InterpolatingMicrosphere.html#L337">337</a>         <a href="InterpolatingMicrosphere.html">Facet</a>(<strong class="jxr_keyword">double</strong>[] n) {
+<a class="jxr_linenumber" name="L338" href="InterpolatingMicrosphere.html#L338">338</a>             normal = n;
+<a class="jxr_linenumber" name="L339" href="InterpolatingMicrosphere.html#L339">339</a>         }
+<a class="jxr_linenumber" name="L340" href="InterpolatingMicrosphere.html#L340">340</a> 
+<a class="jxr_linenumber" name="L341" href="InterpolatingMicrosphere.html#L341">341</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L342" href="InterpolatingMicrosphere.html#L342">342</a> <em class="jxr_javadoccomment">         * Return a reference to the vector normal to this facet.</em>
+<a class="jxr_linenumber" name="L343" href="InterpolatingMicrosphere.html#L343">343</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L344" href="InterpolatingMicrosphere.html#L344">344</a> <em class="jxr_javadoccomment">         * @return the normal vector.</em>
+<a class="jxr_linenumber" name="L345" href="InterpolatingMicrosphere.html#L345">345</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L346" href="InterpolatingMicrosphere.html#L346">346</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getNormal() {
+<a class="jxr_linenumber" name="L347" href="InterpolatingMicrosphere.html#L347">347</a>             <strong class="jxr_keyword">return</strong> normal;
+<a class="jxr_linenumber" name="L348" href="InterpolatingMicrosphere.html#L348">348</a>         }
+<a class="jxr_linenumber" name="L349" href="InterpolatingMicrosphere.html#L349">349</a>     }
+<a class="jxr_linenumber" name="L350" href="InterpolatingMicrosphere.html#L350">350</a> 
+<a class="jxr_linenumber" name="L351" href="InterpolatingMicrosphere.html#L351">351</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L352" href="InterpolatingMicrosphere.html#L352">352</a> <em class="jxr_javadoccomment">     * Data associated with each {@link Facet}.</em>
+<a class="jxr_linenumber" name="L353" href="InterpolatingMicrosphere.html#L353">353</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L354" href="InterpolatingMicrosphere.html#L354">354</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="InterpolatingMicrosphere.html">FacetData</a> {
+<a class="jxr_linenumber" name="L355" href="InterpolatingMicrosphere.html#L355">355</a>         <em class="jxr_javadoccomment">/** Illumination received from the sample. */</em>
+<a class="jxr_linenumber" name="L356" href="InterpolatingMicrosphere.html#L356">356</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> illumination;
+<a class="jxr_linenumber" name="L357" href="InterpolatingMicrosphere.html#L357">357</a>         <em class="jxr_javadoccomment">/** Data value of the sample. */</em>
+<a class="jxr_linenumber" name="L358" href="InterpolatingMicrosphere.html#L358">358</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> sample;
+<a class="jxr_linenumber" name="L359" href="InterpolatingMicrosphere.html#L359">359</a> 
+<a class="jxr_linenumber" name="L360" href="InterpolatingMicrosphere.html#L360">360</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L361" href="InterpolatingMicrosphere.html#L361">361</a> <em class="jxr_javadoccomment">         * @param illumination Illumination.</em>
+<a class="jxr_linenumber" name="L362" href="InterpolatingMicrosphere.html#L362">362</a> <em class="jxr_javadoccomment">         * @param sample Data value.</em>
+<a class="jxr_linenumber" name="L363" href="InterpolatingMicrosphere.html#L363">363</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L364" href="InterpolatingMicrosphere.html#L364">364</a>         <a href="InterpolatingMicrosphere.html">FacetData</a>(<strong class="jxr_keyword">double</strong> illumination, <strong class="jxr_keyword">double</strong> sample) {
+<a class="jxr_linenumber" name="L365" href="InterpolatingMicrosphere.html#L365">365</a>             <strong class="jxr_keyword">this</strong>.illumination = illumination;
+<a class="jxr_linenumber" name="L366" href="InterpolatingMicrosphere.html#L366">366</a>             <strong class="jxr_keyword">this</strong>.sample = sample;
+<a class="jxr_linenumber" name="L367" href="InterpolatingMicrosphere.html#L367">367</a>         }
+<a class="jxr_linenumber" name="L368" href="InterpolatingMicrosphere.html#L368">368</a> 
+<a class="jxr_linenumber" name="L369" href="InterpolatingMicrosphere.html#L369">369</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L370" href="InterpolatingMicrosphere.html#L370">370</a> <em class="jxr_javadoccomment">         * Get the illumination.</em>
+<a class="jxr_linenumber" name="L371" href="InterpolatingMicrosphere.html#L371">371</a> <em class="jxr_javadoccomment">         * @return the illumination.</em>
+<a class="jxr_linenumber" name="L372" href="InterpolatingMicrosphere.html#L372">372</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L373" href="InterpolatingMicrosphere.html#L373">373</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> illumination() {
+<a class="jxr_linenumber" name="L374" href="InterpolatingMicrosphere.html#L374">374</a>             <strong class="jxr_keyword">return</strong> illumination;
+<a class="jxr_linenumber" name="L375" href="InterpolatingMicrosphere.html#L375">375</a>         }
+<a class="jxr_linenumber" name="L376" href="InterpolatingMicrosphere.html#L376">376</a> 
+<a class="jxr_linenumber" name="L377" href="InterpolatingMicrosphere.html#L377">377</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L378" href="InterpolatingMicrosphere.html#L378">378</a> <em class="jxr_javadoccomment">         * Get the data value.</em>
+<a class="jxr_linenumber" name="L379" href="InterpolatingMicrosphere.html#L379">379</a> <em class="jxr_javadoccomment">         * @return the data value.</em>
+<a class="jxr_linenumber" name="L380" href="InterpolatingMicrosphere.html#L380">380</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L381" href="InterpolatingMicrosphere.html#L381">381</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> sample() {
+<a class="jxr_linenumber" name="L382" href="InterpolatingMicrosphere.html#L382">382</a>             <strong class="jxr_keyword">return</strong> sample;
+<a class="jxr_linenumber" name="L383" href="InterpolatingMicrosphere.html#L383">383</a>         }
+<a class="jxr_linenumber" name="L384" href="InterpolatingMicrosphere.html#L384">384</a>     }
+<a class="jxr_linenumber" name="L385" href="InterpolatingMicrosphere.html#L385">385</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

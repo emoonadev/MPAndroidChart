@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>SparseFieldMatrix xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/linear/SparseFieldMatrix.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="SparseFieldMatrix.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="SparseFieldMatrix.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="SparseFieldMatrix.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="SparseFieldMatrix.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="SparseFieldMatrix.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="SparseFieldMatrix.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="SparseFieldMatrix.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="SparseFieldMatrix.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="SparseFieldMatrix.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="SparseFieldMatrix.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="SparseFieldMatrix.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="SparseFieldMatrix.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="SparseFieldMatrix.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="SparseFieldMatrix.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="SparseFieldMatrix.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="SparseFieldMatrix.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="SparseFieldMatrix.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.linear;
+<a class="jxr_linenumber" name="L18" href="SparseFieldMatrix.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="SparseFieldMatrix.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.Field;
+<a class="jxr_linenumber" name="L20" href="SparseFieldMatrix.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.FieldElement;
+<a class="jxr_linenumber" name="L21" href="SparseFieldMatrix.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.OpenIntToFieldHashMap;
+<a class="jxr_linenumber" name="L22" href="SparseFieldMatrix.html#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="SparseFieldMatrix.html#L23">23</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L24" href="SparseFieldMatrix.html#L24">24</a>  <em class="jxr_javadoccomment"> * Sparse matrix implementation based on an open addressed map.</em>
+<a class="jxr_linenumber" name="L25" href="SparseFieldMatrix.html#L25">25</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L26" href="SparseFieldMatrix.html#L26">26</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L27" href="SparseFieldMatrix.html#L27">27</a>  <em class="jxr_javadoccomment"> *  Caveat: This implementation assumes that, for any {@code x},</em>
+<a class="jxr_linenumber" name="L28" href="SparseFieldMatrix.html#L28">28</a>  <em class="jxr_javadoccomment"> *  the equality {@code x * 0d == 0d} holds. But it is is not true for</em>
+<a class="jxr_linenumber" name="L29" href="SparseFieldMatrix.html#L29">29</a>  <em class="jxr_javadoccomment"> *  {@code NaN}. Moreover, zero entries will lose their sign.</em>
+<a class="jxr_linenumber" name="L30" href="SparseFieldMatrix.html#L30">30</a>  <em class="jxr_javadoccomment"> *  Some operations (that involve {@code NaN} and/or infinities) may</em>
+<a class="jxr_linenumber" name="L31" href="SparseFieldMatrix.html#L31">31</a>  <em class="jxr_javadoccomment"> *  thus give incorrect results.</em>
+<a class="jxr_linenumber" name="L32" href="SparseFieldMatrix.html#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L33" href="SparseFieldMatrix.html#L33">33</a>  <em class="jxr_javadoccomment"> * @param &lt;T&gt; the type of the field elements</em>
+<a class="jxr_linenumber" name="L34" href="SparseFieldMatrix.html#L34">34</a>  <em class="jxr_javadoccomment"> * @since 2.0</em>
+<a class="jxr_linenumber" name="L35" href="SparseFieldMatrix.html#L35">35</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L36" href="SparseFieldMatrix.html#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> SparseFieldMatrix&lt;T <strong class="jxr_keyword">extends</strong> FieldElement&lt;T&gt;&gt; <strong class="jxr_keyword">extends</strong> AbstractFieldMatrix&lt;T&gt; {
+<a class="jxr_linenumber" name="L37" href="SparseFieldMatrix.html#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="SparseFieldMatrix.html#L38">38</a>      <em class="jxr_javadoccomment">/** Storage for (sparse) matrix elements. */</em>
+<a class="jxr_linenumber" name="L39" href="SparseFieldMatrix.html#L39">39</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> OpenIntToFieldHashMap&lt;T&gt; entries;
+<a class="jxr_linenumber" name="L40" href="SparseFieldMatrix.html#L40">40</a>      <em class="jxr_javadoccomment">/** Row dimension. */</em>
+<a class="jxr_linenumber" name="L41" href="SparseFieldMatrix.html#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> rows;
+<a class="jxr_linenumber" name="L42" href="SparseFieldMatrix.html#L42">42</a>      <em class="jxr_javadoccomment">/** Column dimension. */</em>
+<a class="jxr_linenumber" name="L43" href="SparseFieldMatrix.html#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> columns;
+<a class="jxr_linenumber" name="L44" href="SparseFieldMatrix.html#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="SparseFieldMatrix.html#L45">45</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L46" href="SparseFieldMatrix.html#L46">46</a>  <em class="jxr_javadoccomment">     * Create a matrix with no data.</em>
+<a class="jxr_linenumber" name="L47" href="SparseFieldMatrix.html#L47">47</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L48" href="SparseFieldMatrix.html#L48">48</a>  <em class="jxr_javadoccomment">     * @param field Field to which the elements belong.</em>
+<a class="jxr_linenumber" name="L49" href="SparseFieldMatrix.html#L49">49</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L50" href="SparseFieldMatrix.html#L50">50</a>      <strong class="jxr_keyword">public</strong> <a href="SparseFieldMatrix.html">SparseFieldMatrix</a>(<strong class="jxr_keyword">final</strong> Field&lt;T&gt; field) {
+<a class="jxr_linenumber" name="L51" href="SparseFieldMatrix.html#L51">51</a>          <strong class="jxr_keyword">super</strong>(field);
+<a class="jxr_linenumber" name="L52" href="SparseFieldMatrix.html#L52">52</a>          rows = 0;
+<a class="jxr_linenumber" name="L53" href="SparseFieldMatrix.html#L53">53</a>          columns= 0;
+<a class="jxr_linenumber" name="L54" href="SparseFieldMatrix.html#L54">54</a>          entries = <strong class="jxr_keyword">new</strong> OpenIntToFieldHashMap&lt;T&gt;(field);
+<a class="jxr_linenumber" name="L55" href="SparseFieldMatrix.html#L55">55</a>      }
+<a class="jxr_linenumber" name="L56" href="SparseFieldMatrix.html#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="SparseFieldMatrix.html#L57">57</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L58" href="SparseFieldMatrix.html#L58">58</a>  <em class="jxr_javadoccomment">     * Create a new SparseFieldMatrix&lt;T&gt; with the supplied row and column</em>
+<a class="jxr_linenumber" name="L59" href="SparseFieldMatrix.html#L59">59</a>  <em class="jxr_javadoccomment">     * dimensions.</em>
+<a class="jxr_linenumber" name="L60" href="SparseFieldMatrix.html#L60">60</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L61" href="SparseFieldMatrix.html#L61">61</a>  <em class="jxr_javadoccomment">     * @param field Field to which the elements belong.</em>
+<a class="jxr_linenumber" name="L62" href="SparseFieldMatrix.html#L62">62</a>  <em class="jxr_javadoccomment">     * @param rowDimension Number of rows in the new matrix.</em>
+<a class="jxr_linenumber" name="L63" href="SparseFieldMatrix.html#L63">63</a>  <em class="jxr_javadoccomment">     * @param columnDimension Number of columns in the new matrix.</em>
+<a class="jxr_linenumber" name="L64" href="SparseFieldMatrix.html#L64">64</a>  <em class="jxr_javadoccomment">     * @throws org.apache.commons.math4.exception.NotStrictlyPositiveException</em>
+<a class="jxr_linenumber" name="L65" href="SparseFieldMatrix.html#L65">65</a>  <em class="jxr_javadoccomment">     * if row or column dimension is not positive.</em>
+<a class="jxr_linenumber" name="L66" href="SparseFieldMatrix.html#L66">66</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L67" href="SparseFieldMatrix.html#L67">67</a>      <strong class="jxr_keyword">public</strong> <a href="SparseFieldMatrix.html">SparseFieldMatrix</a>(<strong class="jxr_keyword">final</strong> Field&lt;T&gt; field,
+<a class="jxr_linenumber" name="L68" href="SparseFieldMatrix.html#L68">68</a>                               <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> rowDimension, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> columnDimension) {
+<a class="jxr_linenumber" name="L69" href="SparseFieldMatrix.html#L69">69</a>          <strong class="jxr_keyword">super</strong>(field, rowDimension, columnDimension);
+<a class="jxr_linenumber" name="L70" href="SparseFieldMatrix.html#L70">70</a>          <strong class="jxr_keyword">this</strong>.rows = rowDimension;
+<a class="jxr_linenumber" name="L71" href="SparseFieldMatrix.html#L71">71</a>          <strong class="jxr_keyword">this</strong>.columns = columnDimension;
+<a class="jxr_linenumber" name="L72" href="SparseFieldMatrix.html#L72">72</a>          entries = <strong class="jxr_keyword">new</strong> OpenIntToFieldHashMap&lt;T&gt;(field);
+<a class="jxr_linenumber" name="L73" href="SparseFieldMatrix.html#L73">73</a>      }
+<a class="jxr_linenumber" name="L74" href="SparseFieldMatrix.html#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="SparseFieldMatrix.html#L75">75</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L76" href="SparseFieldMatrix.html#L76">76</a>  <em class="jxr_javadoccomment">     * Copy constructor.</em>
+<a class="jxr_linenumber" name="L77" href="SparseFieldMatrix.html#L77">77</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L78" href="SparseFieldMatrix.html#L78">78</a>  <em class="jxr_javadoccomment">     * @param other Instance to copy.</em>
+<a class="jxr_linenumber" name="L79" href="SparseFieldMatrix.html#L79">79</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L80" href="SparseFieldMatrix.html#L80">80</a>      <strong class="jxr_keyword">public</strong> <a href="SparseFieldMatrix.html">SparseFieldMatrix</a>(SparseFieldMatrix&lt;T&gt; other) {
+<a class="jxr_linenumber" name="L81" href="SparseFieldMatrix.html#L81">81</a>          <strong class="jxr_keyword">super</strong>(other.getField(), other.getRowDimension(), other.getColumnDimension());
+<a class="jxr_linenumber" name="L82" href="SparseFieldMatrix.html#L82">82</a>          rows = other.getRowDimension();
+<a class="jxr_linenumber" name="L83" href="SparseFieldMatrix.html#L83">83</a>          columns = other.getColumnDimension();
+<a class="jxr_linenumber" name="L84" href="SparseFieldMatrix.html#L84">84</a>          entries = <strong class="jxr_keyword">new</strong> OpenIntToFieldHashMap&lt;T&gt;(other.entries);
+<a class="jxr_linenumber" name="L85" href="SparseFieldMatrix.html#L85">85</a>      }
+<a class="jxr_linenumber" name="L86" href="SparseFieldMatrix.html#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="SparseFieldMatrix.html#L87">87</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L88" href="SparseFieldMatrix.html#L88">88</a>  <em class="jxr_javadoccomment">     * Generic copy constructor.</em>
+<a class="jxr_linenumber" name="L89" href="SparseFieldMatrix.html#L89">89</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L90" href="SparseFieldMatrix.html#L90">90</a>  <em class="jxr_javadoccomment">     * @param other Instance to copy.</em>
+<a class="jxr_linenumber" name="L91" href="SparseFieldMatrix.html#L91">91</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L92" href="SparseFieldMatrix.html#L92">92</a>      <strong class="jxr_keyword">public</strong> <a href="SparseFieldMatrix.html">SparseFieldMatrix</a>(FieldMatrix&lt;T&gt; other){
+<a class="jxr_linenumber" name="L93" href="SparseFieldMatrix.html#L93">93</a>          <strong class="jxr_keyword">super</strong>(other.getField(), other.getRowDimension(), other.getColumnDimension());
+<a class="jxr_linenumber" name="L94" href="SparseFieldMatrix.html#L94">94</a>          rows = other.getRowDimension();
+<a class="jxr_linenumber" name="L95" href="SparseFieldMatrix.html#L95">95</a>          columns = other.getColumnDimension();
+<a class="jxr_linenumber" name="L96" href="SparseFieldMatrix.html#L96">96</a>          entries = <strong class="jxr_keyword">new</strong> OpenIntToFieldHashMap&lt;T&gt;(getField());
+<a class="jxr_linenumber" name="L97" href="SparseFieldMatrix.html#L97">97</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; rows; i++) {
+<a class="jxr_linenumber" name="L98" href="SparseFieldMatrix.html#L98">98</a>              <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; columns; j++) {
+<a class="jxr_linenumber" name="L99" href="SparseFieldMatrix.html#L99">99</a>                  setEntry(i, j, other.getEntry(i, j));
+<a class="jxr_linenumber" name="L100" href="SparseFieldMatrix.html#L100">100</a>             }
+<a class="jxr_linenumber" name="L101" href="SparseFieldMatrix.html#L101">101</a>         }
+<a class="jxr_linenumber" name="L102" href="SparseFieldMatrix.html#L102">102</a>     }
+<a class="jxr_linenumber" name="L103" href="SparseFieldMatrix.html#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="SparseFieldMatrix.html#L104">104</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L105" href="SparseFieldMatrix.html#L105">105</a>     @Override
+<a class="jxr_linenumber" name="L106" href="SparseFieldMatrix.html#L106">106</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addToEntry(<strong class="jxr_keyword">int</strong> row, <strong class="jxr_keyword">int</strong> column, T increment) {
+<a class="jxr_linenumber" name="L107" href="SparseFieldMatrix.html#L107">107</a>         checkRowIndex(row);
+<a class="jxr_linenumber" name="L108" href="SparseFieldMatrix.html#L108">108</a>         checkColumnIndex(column);
+<a class="jxr_linenumber" name="L109" href="SparseFieldMatrix.html#L109">109</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> key = computeKey(row, column);
+<a class="jxr_linenumber" name="L110" href="SparseFieldMatrix.html#L110">110</a>         <strong class="jxr_keyword">final</strong> T value = entries.get(key).add(increment);
+<a class="jxr_linenumber" name="L111" href="SparseFieldMatrix.html#L111">111</a>         <strong class="jxr_keyword">if</strong> (getField().getZero().equals(value)) {
+<a class="jxr_linenumber" name="L112" href="SparseFieldMatrix.html#L112">112</a>             entries.remove(key);
+<a class="jxr_linenumber" name="L113" href="SparseFieldMatrix.html#L113">113</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L114" href="SparseFieldMatrix.html#L114">114</a>             entries.put(key, value);
+<a class="jxr_linenumber" name="L115" href="SparseFieldMatrix.html#L115">115</a>         }
+<a class="jxr_linenumber" name="L116" href="SparseFieldMatrix.html#L116">116</a>     }
+<a class="jxr_linenumber" name="L117" href="SparseFieldMatrix.html#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="SparseFieldMatrix.html#L118">118</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L119" href="SparseFieldMatrix.html#L119">119</a>     @Override
+<a class="jxr_linenumber" name="L120" href="SparseFieldMatrix.html#L120">120</a>     <strong class="jxr_keyword">public</strong> FieldMatrix&lt;T&gt; copy() {
+<a class="jxr_linenumber" name="L121" href="SparseFieldMatrix.html#L121">121</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> SparseFieldMatrix&lt;T&gt;(<strong class="jxr_keyword">this</strong>);
+<a class="jxr_linenumber" name="L122" href="SparseFieldMatrix.html#L122">122</a>     }
+<a class="jxr_linenumber" name="L123" href="SparseFieldMatrix.html#L123">123</a> 
+<a class="jxr_linenumber" name="L124" href="SparseFieldMatrix.html#L124">124</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L125" href="SparseFieldMatrix.html#L125">125</a>     @Override
+<a class="jxr_linenumber" name="L126" href="SparseFieldMatrix.html#L126">126</a>     <strong class="jxr_keyword">public</strong> FieldMatrix&lt;T&gt; createMatrix(<strong class="jxr_keyword">int</strong> rowDimension, <strong class="jxr_keyword">int</strong> columnDimension) {
+<a class="jxr_linenumber" name="L127" href="SparseFieldMatrix.html#L127">127</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> SparseFieldMatrix&lt;T&gt;(getField(), rowDimension, columnDimension);
+<a class="jxr_linenumber" name="L128" href="SparseFieldMatrix.html#L128">128</a>     }
+<a class="jxr_linenumber" name="L129" href="SparseFieldMatrix.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="SparseFieldMatrix.html#L130">130</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L131" href="SparseFieldMatrix.html#L131">131</a>     @Override
+<a class="jxr_linenumber" name="L132" href="SparseFieldMatrix.html#L132">132</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getColumnDimension() {
+<a class="jxr_linenumber" name="L133" href="SparseFieldMatrix.html#L133">133</a>         <strong class="jxr_keyword">return</strong> columns;
+<a class="jxr_linenumber" name="L134" href="SparseFieldMatrix.html#L134">134</a>     }
+<a class="jxr_linenumber" name="L135" href="SparseFieldMatrix.html#L135">135</a> 
+<a class="jxr_linenumber" name="L136" href="SparseFieldMatrix.html#L136">136</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L137" href="SparseFieldMatrix.html#L137">137</a>     @Override
+<a class="jxr_linenumber" name="L138" href="SparseFieldMatrix.html#L138">138</a>     <strong class="jxr_keyword">public</strong> T getEntry(<strong class="jxr_keyword">int</strong> row, <strong class="jxr_keyword">int</strong> column) {
+<a class="jxr_linenumber" name="L139" href="SparseFieldMatrix.html#L139">139</a>         checkRowIndex(row);
+<a class="jxr_linenumber" name="L140" href="SparseFieldMatrix.html#L140">140</a>         checkColumnIndex(column);
+<a class="jxr_linenumber" name="L141" href="SparseFieldMatrix.html#L141">141</a>         <strong class="jxr_keyword">return</strong> entries.get(computeKey(row, column));
+<a class="jxr_linenumber" name="L142" href="SparseFieldMatrix.html#L142">142</a>     }
+<a class="jxr_linenumber" name="L143" href="SparseFieldMatrix.html#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="SparseFieldMatrix.html#L144">144</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L145" href="SparseFieldMatrix.html#L145">145</a>     @Override
+<a class="jxr_linenumber" name="L146" href="SparseFieldMatrix.html#L146">146</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getRowDimension() {
+<a class="jxr_linenumber" name="L147" href="SparseFieldMatrix.html#L147">147</a>         <strong class="jxr_keyword">return</strong> rows;
+<a class="jxr_linenumber" name="L148" href="SparseFieldMatrix.html#L148">148</a>     }
+<a class="jxr_linenumber" name="L149" href="SparseFieldMatrix.html#L149">149</a> 
+<a class="jxr_linenumber" name="L150" href="SparseFieldMatrix.html#L150">150</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L151" href="SparseFieldMatrix.html#L151">151</a>     @Override
+<a class="jxr_linenumber" name="L152" href="SparseFieldMatrix.html#L152">152</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> multiplyEntry(<strong class="jxr_keyword">int</strong> row, <strong class="jxr_keyword">int</strong> column, T factor) {
+<a class="jxr_linenumber" name="L153" href="SparseFieldMatrix.html#L153">153</a>         checkRowIndex(row);
+<a class="jxr_linenumber" name="L154" href="SparseFieldMatrix.html#L154">154</a>         checkColumnIndex(column);
+<a class="jxr_linenumber" name="L155" href="SparseFieldMatrix.html#L155">155</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> key = computeKey(row, column);
+<a class="jxr_linenumber" name="L156" href="SparseFieldMatrix.html#L156">156</a>         <strong class="jxr_keyword">final</strong> T value = entries.get(key).multiply(factor);
+<a class="jxr_linenumber" name="L157" href="SparseFieldMatrix.html#L157">157</a>         <strong class="jxr_keyword">if</strong> (getField().getZero().equals(value)) {
+<a class="jxr_linenumber" name="L158" href="SparseFieldMatrix.html#L158">158</a>             entries.remove(key);
+<a class="jxr_linenumber" name="L159" href="SparseFieldMatrix.html#L159">159</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L160" href="SparseFieldMatrix.html#L160">160</a>             entries.put(key, value);
+<a class="jxr_linenumber" name="L161" href="SparseFieldMatrix.html#L161">161</a>         }
+<a class="jxr_linenumber" name="L162" href="SparseFieldMatrix.html#L162">162</a> 
+<a class="jxr_linenumber" name="L163" href="SparseFieldMatrix.html#L163">163</a>     }
+<a class="jxr_linenumber" name="L164" href="SparseFieldMatrix.html#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="SparseFieldMatrix.html#L165">165</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L166" href="SparseFieldMatrix.html#L166">166</a>     @Override
+<a class="jxr_linenumber" name="L167" href="SparseFieldMatrix.html#L167">167</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setEntry(<strong class="jxr_keyword">int</strong> row, <strong class="jxr_keyword">int</strong> column, T value) {
+<a class="jxr_linenumber" name="L168" href="SparseFieldMatrix.html#L168">168</a>         checkRowIndex(row);
+<a class="jxr_linenumber" name="L169" href="SparseFieldMatrix.html#L169">169</a>         checkColumnIndex(column);
+<a class="jxr_linenumber" name="L170" href="SparseFieldMatrix.html#L170">170</a>         <strong class="jxr_keyword">if</strong> (getField().getZero().equals(value)) {
+<a class="jxr_linenumber" name="L171" href="SparseFieldMatrix.html#L171">171</a>             entries.remove(computeKey(row, column));
+<a class="jxr_linenumber" name="L172" href="SparseFieldMatrix.html#L172">172</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L173" href="SparseFieldMatrix.html#L173">173</a>             entries.put(computeKey(row, column), value);
+<a class="jxr_linenumber" name="L174" href="SparseFieldMatrix.html#L174">174</a>         }
+<a class="jxr_linenumber" name="L175" href="SparseFieldMatrix.html#L175">175</a>     }
+<a class="jxr_linenumber" name="L176" href="SparseFieldMatrix.html#L176">176</a> 
+<a class="jxr_linenumber" name="L177" href="SparseFieldMatrix.html#L177">177</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L178" href="SparseFieldMatrix.html#L178">178</a> <em class="jxr_javadoccomment">     * Compute the key to access a matrix element.</em>
+<a class="jxr_linenumber" name="L179" href="SparseFieldMatrix.html#L179">179</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L180" href="SparseFieldMatrix.html#L180">180</a> <em class="jxr_javadoccomment">     * @param row Row index of the matrix element.</em>
+<a class="jxr_linenumber" name="L181" href="SparseFieldMatrix.html#L181">181</a> <em class="jxr_javadoccomment">     * @param column Column index of the matrix element.</em>
+<a class="jxr_linenumber" name="L182" href="SparseFieldMatrix.html#L182">182</a> <em class="jxr_javadoccomment">     * @return the key within the map to access the matrix element.</em>
+<a class="jxr_linenumber" name="L183" href="SparseFieldMatrix.html#L183">183</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L184" href="SparseFieldMatrix.html#L184">184</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> computeKey(<strong class="jxr_keyword">int</strong> row, <strong class="jxr_keyword">int</strong> column) {
+<a class="jxr_linenumber" name="L185" href="SparseFieldMatrix.html#L185">185</a>         <strong class="jxr_keyword">return</strong> row * columns + column;
+<a class="jxr_linenumber" name="L186" href="SparseFieldMatrix.html#L186">186</a>     }
+<a class="jxr_linenumber" name="L187" href="SparseFieldMatrix.html#L187">187</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

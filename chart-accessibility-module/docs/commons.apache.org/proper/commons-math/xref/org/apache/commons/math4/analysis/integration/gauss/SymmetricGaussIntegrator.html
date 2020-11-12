@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>SymmetricGaussIntegrator xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../../apidocs/org/apache/commons/math4/analysis/integration/gauss/SymmetricGaussIntegrator.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="SymmetricGaussIntegrator.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="SymmetricGaussIntegrator.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="SymmetricGaussIntegrator.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="SymmetricGaussIntegrator.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="SymmetricGaussIntegrator.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="SymmetricGaussIntegrator.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="SymmetricGaussIntegrator.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="SymmetricGaussIntegrator.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="SymmetricGaussIntegrator.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="SymmetricGaussIntegrator.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="SymmetricGaussIntegrator.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="SymmetricGaussIntegrator.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="SymmetricGaussIntegrator.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="SymmetricGaussIntegrator.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="SymmetricGaussIntegrator.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="SymmetricGaussIntegrator.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="SymmetricGaussIntegrator.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.integration.gauss;
+<a class="jxr_linenumber" name="L18" href="SymmetricGaussIntegrator.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="SymmetricGaussIntegrator.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.UnivariateFunction;
+<a class="jxr_linenumber" name="L20" href="SymmetricGaussIntegrator.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L21" href="SymmetricGaussIntegrator.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NonMonotonicSequenceException;
+<a class="jxr_linenumber" name="L22" href="SymmetricGaussIntegrator.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Pair;
+<a class="jxr_linenumber" name="L23" href="SymmetricGaussIntegrator.html#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="SymmetricGaussIntegrator.html#L24">24</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L25" href="SymmetricGaussIntegrator.html#L25">25</a>  <em class="jxr_javadoccomment"> * This class's implements {@link #integrate(UnivariateFunction) integrate}</em>
+<a class="jxr_linenumber" name="L26" href="SymmetricGaussIntegrator.html#L26">26</a>  <em class="jxr_javadoccomment"> * method assuming that the integral is symmetric about 0.</em>
+<a class="jxr_linenumber" name="L27" href="SymmetricGaussIntegrator.html#L27">27</a>  <em class="jxr_javadoccomment"> * This allows to reduce numerical errors.</em>
+<a class="jxr_linenumber" name="L28" href="SymmetricGaussIntegrator.html#L28">28</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L29" href="SymmetricGaussIntegrator.html#L29">29</a>  <em class="jxr_javadoccomment"> * @since 3.3</em>
+<a class="jxr_linenumber" name="L30" href="SymmetricGaussIntegrator.html#L30">30</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L31" href="SymmetricGaussIntegrator.html#L31">31</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="SymmetricGaussIntegrator.html">SymmetricGaussIntegrator</a> <strong class="jxr_keyword">extends</strong> <a href="GaussIntegrator.html">GaussIntegrator</a> {
+<a class="jxr_linenumber" name="L32" href="SymmetricGaussIntegrator.html#L32">32</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L33" href="SymmetricGaussIntegrator.html#L33">33</a>  <em class="jxr_javadoccomment">     * Creates an integrator from the given {@code points} and {@code weights}.</em>
+<a class="jxr_linenumber" name="L34" href="SymmetricGaussIntegrator.html#L34">34</a>  <em class="jxr_javadoccomment">     * The integration interval is defined by the first and last value of</em>
+<a class="jxr_linenumber" name="L35" href="SymmetricGaussIntegrator.html#L35">35</a>  <em class="jxr_javadoccomment">     * {@code points} which must be sorted in increasing order.</em>
+<a class="jxr_linenumber" name="L36" href="SymmetricGaussIntegrator.html#L36">36</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L37" href="SymmetricGaussIntegrator.html#L37">37</a>  <em class="jxr_javadoccomment">     * @param points Integration points.</em>
+<a class="jxr_linenumber" name="L38" href="SymmetricGaussIntegrator.html#L38">38</a>  <em class="jxr_javadoccomment">     * @param weights Weights of the corresponding integration nodes.</em>
+<a class="jxr_linenumber" name="L39" href="SymmetricGaussIntegrator.html#L39">39</a>  <em class="jxr_javadoccomment">     * @throws NonMonotonicSequenceException if the {@code points} are not</em>
+<a class="jxr_linenumber" name="L40" href="SymmetricGaussIntegrator.html#L40">40</a>  <em class="jxr_javadoccomment">     * sorted in increasing order.</em>
+<a class="jxr_linenumber" name="L41" href="SymmetricGaussIntegrator.html#L41">41</a>  <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if points and weights don't have the same length</em>
+<a class="jxr_linenumber" name="L42" href="SymmetricGaussIntegrator.html#L42">42</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L43" href="SymmetricGaussIntegrator.html#L43">43</a>      <strong class="jxr_keyword">public</strong> <a href="SymmetricGaussIntegrator.html">SymmetricGaussIntegrator</a>(<strong class="jxr_keyword">double</strong>[] points,
+<a class="jxr_linenumber" name="L44" href="SymmetricGaussIntegrator.html#L44">44</a>                                      <strong class="jxr_keyword">double</strong>[] weights)
+<a class="jxr_linenumber" name="L45" href="SymmetricGaussIntegrator.html#L45">45</a>          <strong class="jxr_keyword">throws</strong> NonMonotonicSequenceException, <a href="../../../exception/DimensionMismatchException.html">DimensionMismatchException</a> {
+<a class="jxr_linenumber" name="L46" href="SymmetricGaussIntegrator.html#L46">46</a>          <strong class="jxr_keyword">super</strong>(points, weights);
+<a class="jxr_linenumber" name="L47" href="SymmetricGaussIntegrator.html#L47">47</a>      }
+<a class="jxr_linenumber" name="L48" href="SymmetricGaussIntegrator.html#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="SymmetricGaussIntegrator.html#L49">49</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L50" href="SymmetricGaussIntegrator.html#L50">50</a>  <em class="jxr_javadoccomment">     * Creates an integrator from the given pair of points (first element of</em>
+<a class="jxr_linenumber" name="L51" href="SymmetricGaussIntegrator.html#L51">51</a>  <em class="jxr_javadoccomment">     * the pair) and weights (second element of the pair.</em>
+<a class="jxr_linenumber" name="L52" href="SymmetricGaussIntegrator.html#L52">52</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L53" href="SymmetricGaussIntegrator.html#L53">53</a>  <em class="jxr_javadoccomment">     * @param pointsAndWeights Integration points and corresponding weights.</em>
+<a class="jxr_linenumber" name="L54" href="SymmetricGaussIntegrator.html#L54">54</a>  <em class="jxr_javadoccomment">     * @throws NonMonotonicSequenceException if the {@code points} are not</em>
+<a class="jxr_linenumber" name="L55" href="SymmetricGaussIntegrator.html#L55">55</a>  <em class="jxr_javadoccomment">     * sorted in increasing order.</em>
+<a class="jxr_linenumber" name="L56" href="SymmetricGaussIntegrator.html#L56">56</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L57" href="SymmetricGaussIntegrator.html#L57">57</a>  <em class="jxr_javadoccomment">     * @see #SymmetricGaussIntegrator(double[], double[])</em>
+<a class="jxr_linenumber" name="L58" href="SymmetricGaussIntegrator.html#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L59" href="SymmetricGaussIntegrator.html#L59">59</a>      <strong class="jxr_keyword">public</strong> <a href="SymmetricGaussIntegrator.html">SymmetricGaussIntegrator</a>(Pair&lt;<strong class="jxr_keyword">double</strong>[], <strong class="jxr_keyword">double</strong>[]&gt; pointsAndWeights)
+<a class="jxr_linenumber" name="L60" href="SymmetricGaussIntegrator.html#L60">60</a>          <strong class="jxr_keyword">throws</strong> <a href="../../../exception/NonMonotonicSequenceException.html">NonMonotonicSequenceException</a> {
+<a class="jxr_linenumber" name="L61" href="SymmetricGaussIntegrator.html#L61">61</a>          <strong class="jxr_keyword">this</strong>(pointsAndWeights.getFirst(), pointsAndWeights.getSecond());
+<a class="jxr_linenumber" name="L62" href="SymmetricGaussIntegrator.html#L62">62</a>      }
+<a class="jxr_linenumber" name="L63" href="SymmetricGaussIntegrator.html#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="SymmetricGaussIntegrator.html#L64">64</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L65" href="SymmetricGaussIntegrator.html#L65">65</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L66" href="SymmetricGaussIntegrator.html#L66">66</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L67" href="SymmetricGaussIntegrator.html#L67">67</a>      @Override
+<a class="jxr_linenumber" name="L68" href="SymmetricGaussIntegrator.html#L68">68</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> integrate(<a href="../../UnivariateFunction.html">UnivariateFunction</a> f) {
+<a class="jxr_linenumber" name="L69" href="SymmetricGaussIntegrator.html#L69">69</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ruleLength = getNumberOfPoints();
+<a class="jxr_linenumber" name="L70" href="SymmetricGaussIntegrator.html#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="SymmetricGaussIntegrator.html#L71">71</a>          <strong class="jxr_keyword">if</strong> (ruleLength == 1) {
+<a class="jxr_linenumber" name="L72" href="SymmetricGaussIntegrator.html#L72">72</a>              <strong class="jxr_keyword">return</strong> getWeight(0) * f.value(0d);
+<a class="jxr_linenumber" name="L73" href="SymmetricGaussIntegrator.html#L73">73</a>          }
+<a class="jxr_linenumber" name="L74" href="SymmetricGaussIntegrator.html#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="SymmetricGaussIntegrator.html#L75">75</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> iMax = ruleLength / 2;
+<a class="jxr_linenumber" name="L76" href="SymmetricGaussIntegrator.html#L76">76</a>          <strong class="jxr_keyword">double</strong> s = 0;
+<a class="jxr_linenumber" name="L77" href="SymmetricGaussIntegrator.html#L77">77</a>          <strong class="jxr_keyword">double</strong> c = 0;
+<a class="jxr_linenumber" name="L78" href="SymmetricGaussIntegrator.html#L78">78</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; iMax; i++) {
+<a class="jxr_linenumber" name="L79" href="SymmetricGaussIntegrator.html#L79">79</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p = getPoint(i);
+<a class="jxr_linenumber" name="L80" href="SymmetricGaussIntegrator.html#L80">80</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> w = getWeight(i);
+<a class="jxr_linenumber" name="L81" href="SymmetricGaussIntegrator.html#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="SymmetricGaussIntegrator.html#L82">82</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> f1 = f.value(p);
+<a class="jxr_linenumber" name="L83" href="SymmetricGaussIntegrator.html#L83">83</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> f2 = f.value(-p);
+<a class="jxr_linenumber" name="L84" href="SymmetricGaussIntegrator.html#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="SymmetricGaussIntegrator.html#L85">85</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y = w * (f1 + f2) - c;
+<a class="jxr_linenumber" name="L86" href="SymmetricGaussIntegrator.html#L86">86</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> t = s + y;
+<a class="jxr_linenumber" name="L87" href="SymmetricGaussIntegrator.html#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="SymmetricGaussIntegrator.html#L88">88</a>              c = (t - s) - y;
+<a class="jxr_linenumber" name="L89" href="SymmetricGaussIntegrator.html#L89">89</a>              s = t;
+<a class="jxr_linenumber" name="L90" href="SymmetricGaussIntegrator.html#L90">90</a>          }
+<a class="jxr_linenumber" name="L91" href="SymmetricGaussIntegrator.html#L91">91</a>  
+<a class="jxr_linenumber" name="L92" href="SymmetricGaussIntegrator.html#L92">92</a>          <strong class="jxr_keyword">if</strong> (ruleLength % 2 != 0) {
+<a class="jxr_linenumber" name="L93" href="SymmetricGaussIntegrator.html#L93">93</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> w = getWeight(iMax);
+<a class="jxr_linenumber" name="L94" href="SymmetricGaussIntegrator.html#L94">94</a>  
+<a class="jxr_linenumber" name="L95" href="SymmetricGaussIntegrator.html#L95">95</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y = w * f.value(0d) - c;
+<a class="jxr_linenumber" name="L96" href="SymmetricGaussIntegrator.html#L96">96</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> t = s + y;
+<a class="jxr_linenumber" name="L97" href="SymmetricGaussIntegrator.html#L97">97</a>  
+<a class="jxr_linenumber" name="L98" href="SymmetricGaussIntegrator.html#L98">98</a>              s = t;
+<a class="jxr_linenumber" name="L99" href="SymmetricGaussIntegrator.html#L99">99</a>          }
+<a class="jxr_linenumber" name="L100" href="SymmetricGaussIntegrator.html#L100">100</a> 
+<a class="jxr_linenumber" name="L101" href="SymmetricGaussIntegrator.html#L101">101</a>         <strong class="jxr_keyword">return</strong> s;
+<a class="jxr_linenumber" name="L102" href="SymmetricGaussIntegrator.html#L102">102</a>     }
+<a class="jxr_linenumber" name="L103" href="SymmetricGaussIntegrator.html#L103">103</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

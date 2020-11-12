@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>BrentOptimizer xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/optim/univariate/BrentOptimizer.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="BrentOptimizer.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="BrentOptimizer.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="BrentOptimizer.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="BrentOptimizer.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="BrentOptimizer.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="BrentOptimizer.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="BrentOptimizer.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="BrentOptimizer.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="BrentOptimizer.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="BrentOptimizer.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="BrentOptimizer.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="BrentOptimizer.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="BrentOptimizer.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="BrentOptimizer.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="BrentOptimizer.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="BrentOptimizer.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="BrentOptimizer.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.optim.univariate;
+<a class="jxr_linenumber" name="L18" href="BrentOptimizer.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="BrentOptimizer.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L20" href="BrentOptimizer.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L21" href="BrentOptimizer.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.optim.ConvergenceChecker;
+<a class="jxr_linenumber" name="L22" href="BrentOptimizer.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.optim.nonlinear.scalar.GoalType;
+<a class="jxr_linenumber" name="L23" href="BrentOptimizer.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L24" href="BrentOptimizer.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Precision;
+<a class="jxr_linenumber" name="L25" href="BrentOptimizer.html#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="BrentOptimizer.html#L26">26</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L27" href="BrentOptimizer.html#L27">27</a>  <em class="jxr_javadoccomment"> * For a function defined on some interval {@code (lo, hi)}, this class</em>
+<a class="jxr_linenumber" name="L28" href="BrentOptimizer.html#L28">28</a>  <em class="jxr_javadoccomment"> * finds an approximation {@code x} to the point at which the function</em>
+<a class="jxr_linenumber" name="L29" href="BrentOptimizer.html#L29">29</a>  <em class="jxr_javadoccomment"> * attains its minimum.</em>
+<a class="jxr_linenumber" name="L30" href="BrentOptimizer.html#L30">30</a>  <em class="jxr_javadoccomment"> * It implements Richard Brent's algorithm (from his book "Algorithms for</em>
+<a class="jxr_linenumber" name="L31" href="BrentOptimizer.html#L31">31</a>  <em class="jxr_javadoccomment"> * Minimization without Derivatives", p. 79) for finding minima of real</em>
+<a class="jxr_linenumber" name="L32" href="BrentOptimizer.html#L32">32</a>  <em class="jxr_javadoccomment"> * univariate functions.</em>
+<a class="jxr_linenumber" name="L33" href="BrentOptimizer.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L34" href="BrentOptimizer.html#L34">34</a>  <em class="jxr_javadoccomment"> * This code is an adaptation, partly based on the Python code from SciPy</em>
+<a class="jxr_linenumber" name="L35" href="BrentOptimizer.html#L35">35</a>  <em class="jxr_javadoccomment"> * (module "optimize.py" v0.5); the original algorithm is also modified</em>
+<a class="jxr_linenumber" name="L36" href="BrentOptimizer.html#L36">36</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L37" href="BrentOptimizer.html#L37">37</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;to use an initial guess provided by the user,&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L38" href="BrentOptimizer.html#L38">38</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;to ensure that the best point encountered is the one returned.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L39" href="BrentOptimizer.html#L39">39</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L40" href="BrentOptimizer.html#L40">40</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L41" href="BrentOptimizer.html#L41">41</a>  <em class="jxr_javadoccomment"> * @since 2.0</em>
+<a class="jxr_linenumber" name="L42" href="BrentOptimizer.html#L42">42</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L43" href="BrentOptimizer.html#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="BrentOptimizer.html">BrentOptimizer</a> <strong class="jxr_keyword">extends</strong> <a href="UnivariateOptimizer.html">UnivariateOptimizer</a> {
+<a class="jxr_linenumber" name="L44" href="BrentOptimizer.html#L44">44</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L45" href="BrentOptimizer.html#L45">45</a>  <em class="jxr_javadoccomment">     * Golden section.</em>
+<a class="jxr_linenumber" name="L46" href="BrentOptimizer.html#L46">46</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L47" href="BrentOptimizer.html#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> GOLDEN_SECTION = 0.5 * (3 - FastMath.sqrt(5));
+<a class="jxr_linenumber" name="L48" href="BrentOptimizer.html#L48">48</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L49" href="BrentOptimizer.html#L49">49</a>  <em class="jxr_javadoccomment">     * Minimum relative tolerance.</em>
+<a class="jxr_linenumber" name="L50" href="BrentOptimizer.html#L50">50</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L51" href="BrentOptimizer.html#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> MIN_RELATIVE_TOLERANCE = 2 * FastMath.ulp(1d);
+<a class="jxr_linenumber" name="L52" href="BrentOptimizer.html#L52">52</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L53" href="BrentOptimizer.html#L53">53</a>  <em class="jxr_javadoccomment">     * Relative threshold.</em>
+<a class="jxr_linenumber" name="L54" href="BrentOptimizer.html#L54">54</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L55" href="BrentOptimizer.html#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> relativeThreshold;
+<a class="jxr_linenumber" name="L56" href="BrentOptimizer.html#L56">56</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L57" href="BrentOptimizer.html#L57">57</a>  <em class="jxr_javadoccomment">     * Absolute threshold.</em>
+<a class="jxr_linenumber" name="L58" href="BrentOptimizer.html#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L59" href="BrentOptimizer.html#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> absoluteThreshold;
+<a class="jxr_linenumber" name="L60" href="BrentOptimizer.html#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="BrentOptimizer.html#L61">61</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L62" href="BrentOptimizer.html#L62">62</a>  <em class="jxr_javadoccomment">     * The arguments are used implement the original stopping criterion</em>
+<a class="jxr_linenumber" name="L63" href="BrentOptimizer.html#L63">63</a>  <em class="jxr_javadoccomment">     * of Brent's algorithm.</em>
+<a class="jxr_linenumber" name="L64" href="BrentOptimizer.html#L64">64</a>  <em class="jxr_javadoccomment">     * {@code abs} and {@code rel} define a tolerance</em>
+<a class="jxr_linenumber" name="L65" href="BrentOptimizer.html#L65">65</a>  <em class="jxr_javadoccomment">     * {@code tol = rel |x| + abs}. {@code rel} should be no smaller than</em>
+<a class="jxr_linenumber" name="L66" href="BrentOptimizer.html#L66">66</a>  <em class="jxr_javadoccomment">     * &lt;em&gt;2 macheps&lt;/em&gt; and preferably not much less than &lt;em&gt;sqrt(macheps)&lt;/em&gt;,</em>
+<a class="jxr_linenumber" name="L67" href="BrentOptimizer.html#L67">67</a>  <em class="jxr_javadoccomment">     * where &lt;em&gt;macheps&lt;/em&gt; is the relative machine precision. {@code abs} must</em>
+<a class="jxr_linenumber" name="L68" href="BrentOptimizer.html#L68">68</a>  <em class="jxr_javadoccomment">     * be positive.</em>
+<a class="jxr_linenumber" name="L69" href="BrentOptimizer.html#L69">69</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L70" href="BrentOptimizer.html#L70">70</a>  <em class="jxr_javadoccomment">     * @param rel Relative threshold.</em>
+<a class="jxr_linenumber" name="L71" href="BrentOptimizer.html#L71">71</a>  <em class="jxr_javadoccomment">     * @param abs Absolute threshold.</em>
+<a class="jxr_linenumber" name="L72" href="BrentOptimizer.html#L72">72</a>  <em class="jxr_javadoccomment">     * @param checker Additional, user-defined, convergence checking</em>
+<a class="jxr_linenumber" name="L73" href="BrentOptimizer.html#L73">73</a>  <em class="jxr_javadoccomment">     * procedure.</em>
+<a class="jxr_linenumber" name="L74" href="BrentOptimizer.html#L74">74</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code abs &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L75" href="BrentOptimizer.html#L75">75</a>  <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code rel &lt; 2 * Math.ulp(1d)}.</em>
+<a class="jxr_linenumber" name="L76" href="BrentOptimizer.html#L76">76</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L77" href="BrentOptimizer.html#L77">77</a>      <strong class="jxr_keyword">public</strong> <a href="BrentOptimizer.html">BrentOptimizer</a>(<strong class="jxr_keyword">double</strong> rel,
+<a class="jxr_linenumber" name="L78" href="BrentOptimizer.html#L78">78</a>                            <strong class="jxr_keyword">double</strong> abs,
+<a class="jxr_linenumber" name="L79" href="BrentOptimizer.html#L79">79</a>                            ConvergenceChecker&lt;UnivariatePointValuePair&gt; checker) {
+<a class="jxr_linenumber" name="L80" href="BrentOptimizer.html#L80">80</a>          <strong class="jxr_keyword">super</strong>(checker);
+<a class="jxr_linenumber" name="L81" href="BrentOptimizer.html#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="BrentOptimizer.html#L82">82</a>          <strong class="jxr_keyword">if</strong> (rel &lt; MIN_RELATIVE_TOLERANCE) {
+<a class="jxr_linenumber" name="L83" href="BrentOptimizer.html#L83">83</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(rel, MIN_RELATIVE_TOLERANCE, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L84" href="BrentOptimizer.html#L84">84</a>          }
+<a class="jxr_linenumber" name="L85" href="BrentOptimizer.html#L85">85</a>          <strong class="jxr_keyword">if</strong> (abs &lt;= 0) {
+<a class="jxr_linenumber" name="L86" href="BrentOptimizer.html#L86">86</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(abs);
+<a class="jxr_linenumber" name="L87" href="BrentOptimizer.html#L87">87</a>          }
+<a class="jxr_linenumber" name="L88" href="BrentOptimizer.html#L88">88</a>  
+<a class="jxr_linenumber" name="L89" href="BrentOptimizer.html#L89">89</a>          relativeThreshold = rel;
+<a class="jxr_linenumber" name="L90" href="BrentOptimizer.html#L90">90</a>          absoluteThreshold = abs;
+<a class="jxr_linenumber" name="L91" href="BrentOptimizer.html#L91">91</a>      }
+<a class="jxr_linenumber" name="L92" href="BrentOptimizer.html#L92">92</a>  
+<a class="jxr_linenumber" name="L93" href="BrentOptimizer.html#L93">93</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L94" href="BrentOptimizer.html#L94">94</a>  <em class="jxr_javadoccomment">     * The arguments are used for implementing the original stopping criterion</em>
+<a class="jxr_linenumber" name="L95" href="BrentOptimizer.html#L95">95</a>  <em class="jxr_javadoccomment">     * of Brent's algorithm.</em>
+<a class="jxr_linenumber" name="L96" href="BrentOptimizer.html#L96">96</a>  <em class="jxr_javadoccomment">     * {@code abs} and {@code rel} define a tolerance</em>
+<a class="jxr_linenumber" name="L97" href="BrentOptimizer.html#L97">97</a>  <em class="jxr_javadoccomment">     * {@code tol = rel |x| + abs}. {@code rel} should be no smaller than</em>
+<a class="jxr_linenumber" name="L98" href="BrentOptimizer.html#L98">98</a>  <em class="jxr_javadoccomment">     * &lt;em&gt;2 macheps&lt;/em&gt; and preferably not much less than &lt;em&gt;sqrt(macheps)&lt;/em&gt;,</em>
+<a class="jxr_linenumber" name="L99" href="BrentOptimizer.html#L99">99</a>  <em class="jxr_javadoccomment">     * where &lt;em&gt;macheps&lt;/em&gt; is the relative machine precision. {@code abs} must</em>
+<a class="jxr_linenumber" name="L100" href="BrentOptimizer.html#L100">100</a> <em class="jxr_javadoccomment">     * be positive.</em>
+<a class="jxr_linenumber" name="L101" href="BrentOptimizer.html#L101">101</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L102" href="BrentOptimizer.html#L102">102</a> <em class="jxr_javadoccomment">     * @param rel Relative threshold.</em>
+<a class="jxr_linenumber" name="L103" href="BrentOptimizer.html#L103">103</a> <em class="jxr_javadoccomment">     * @param abs Absolute threshold.</em>
+<a class="jxr_linenumber" name="L104" href="BrentOptimizer.html#L104">104</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code abs &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L105" href="BrentOptimizer.html#L105">105</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code rel &lt; 2 * Math.ulp(1d)}.</em>
+<a class="jxr_linenumber" name="L106" href="BrentOptimizer.html#L106">106</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L107" href="BrentOptimizer.html#L107">107</a>     <strong class="jxr_keyword">public</strong> <a href="BrentOptimizer.html">BrentOptimizer</a>(<strong class="jxr_keyword">double</strong> rel,
+<a class="jxr_linenumber" name="L108" href="BrentOptimizer.html#L108">108</a>                           <strong class="jxr_keyword">double</strong> abs) {
+<a class="jxr_linenumber" name="L109" href="BrentOptimizer.html#L109">109</a>         <strong class="jxr_keyword">this</strong>(rel, abs, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L110" href="BrentOptimizer.html#L110">110</a>     }
+<a class="jxr_linenumber" name="L111" href="BrentOptimizer.html#L111">111</a> 
+<a class="jxr_linenumber" name="L112" href="BrentOptimizer.html#L112">112</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L113" href="BrentOptimizer.html#L113">113</a>     @Override
+<a class="jxr_linenumber" name="L114" href="BrentOptimizer.html#L114">114</a>     <strong class="jxr_keyword">protected</strong> <a href="UnivariatePointValuePair.html">UnivariatePointValuePair</a> doOptimize() {
+<a class="jxr_linenumber" name="L115" href="BrentOptimizer.html#L115">115</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isMinim = getGoalType() == GoalType.MINIMIZE;
+<a class="jxr_linenumber" name="L116" href="BrentOptimizer.html#L116">116</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lo = getMin();
+<a class="jxr_linenumber" name="L117" href="BrentOptimizer.html#L117">117</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> mid = getStartValue();
+<a class="jxr_linenumber" name="L118" href="BrentOptimizer.html#L118">118</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> hi = getMax();
+<a class="jxr_linenumber" name="L119" href="BrentOptimizer.html#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="BrentOptimizer.html#L120">120</a>         <em class="jxr_comment">// Optional additional convergence criteria.</em>
+<a class="jxr_linenumber" name="L121" href="BrentOptimizer.html#L121">121</a>         <strong class="jxr_keyword">final</strong> ConvergenceChecker&lt;UnivariatePointValuePair&gt; checker
+<a class="jxr_linenumber" name="L122" href="BrentOptimizer.html#L122">122</a>             = getConvergenceChecker();
+<a class="jxr_linenumber" name="L123" href="BrentOptimizer.html#L123">123</a> 
+<a class="jxr_linenumber" name="L124" href="BrentOptimizer.html#L124">124</a>         <strong class="jxr_keyword">double</strong> a;
+<a class="jxr_linenumber" name="L125" href="BrentOptimizer.html#L125">125</a>         <strong class="jxr_keyword">double</strong> b;
+<a class="jxr_linenumber" name="L126" href="BrentOptimizer.html#L126">126</a>         <strong class="jxr_keyword">if</strong> (lo &lt; hi) {
+<a class="jxr_linenumber" name="L127" href="BrentOptimizer.html#L127">127</a>             a = lo;
+<a class="jxr_linenumber" name="L128" href="BrentOptimizer.html#L128">128</a>             b = hi;
+<a class="jxr_linenumber" name="L129" href="BrentOptimizer.html#L129">129</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L130" href="BrentOptimizer.html#L130">130</a>             a = hi;
+<a class="jxr_linenumber" name="L131" href="BrentOptimizer.html#L131">131</a>             b = lo;
+<a class="jxr_linenumber" name="L132" href="BrentOptimizer.html#L132">132</a>         }
+<a class="jxr_linenumber" name="L133" href="BrentOptimizer.html#L133">133</a> 
+<a class="jxr_linenumber" name="L134" href="BrentOptimizer.html#L134">134</a>         <strong class="jxr_keyword">double</strong> x = mid;
+<a class="jxr_linenumber" name="L135" href="BrentOptimizer.html#L135">135</a>         <strong class="jxr_keyword">double</strong> v = x;
+<a class="jxr_linenumber" name="L136" href="BrentOptimizer.html#L136">136</a>         <strong class="jxr_keyword">double</strong> w = x;
+<a class="jxr_linenumber" name="L137" href="BrentOptimizer.html#L137">137</a>         <strong class="jxr_keyword">double</strong> d = 0;
+<a class="jxr_linenumber" name="L138" href="BrentOptimizer.html#L138">138</a>         <strong class="jxr_keyword">double</strong> e = 0;
+<a class="jxr_linenumber" name="L139" href="BrentOptimizer.html#L139">139</a>         <strong class="jxr_keyword">double</strong> fx = computeObjectiveValue(x);
+<a class="jxr_linenumber" name="L140" href="BrentOptimizer.html#L140">140</a>         <strong class="jxr_keyword">if</strong> (!isMinim) {
+<a class="jxr_linenumber" name="L141" href="BrentOptimizer.html#L141">141</a>             fx = -fx;
+<a class="jxr_linenumber" name="L142" href="BrentOptimizer.html#L142">142</a>         }
+<a class="jxr_linenumber" name="L143" href="BrentOptimizer.html#L143">143</a>         <strong class="jxr_keyword">double</strong> fv = fx;
+<a class="jxr_linenumber" name="L144" href="BrentOptimizer.html#L144">144</a>         <strong class="jxr_keyword">double</strong> fw = fx;
+<a class="jxr_linenumber" name="L145" href="BrentOptimizer.html#L145">145</a> 
+<a class="jxr_linenumber" name="L146" href="BrentOptimizer.html#L146">146</a>         <a href="UnivariatePointValuePair.html">UnivariatePointValuePair</a> previous = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L147" href="BrentOptimizer.html#L147">147</a>         <a href="UnivariatePointValuePair.html">UnivariatePointValuePair</a> current
+<a class="jxr_linenumber" name="L148" href="BrentOptimizer.html#L148">148</a>             = <strong class="jxr_keyword">new</strong> <a href="UnivariatePointValuePair.html">UnivariatePointValuePair</a>(x, isMinim ? fx : -fx);
+<a class="jxr_linenumber" name="L149" href="BrentOptimizer.html#L149">149</a>         <em class="jxr_comment">// Best point encountered so far (which is the initial guess).</em>
+<a class="jxr_linenumber" name="L150" href="BrentOptimizer.html#L150">150</a>         <a href="UnivariatePointValuePair.html">UnivariatePointValuePair</a> best = current;
+<a class="jxr_linenumber" name="L151" href="BrentOptimizer.html#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="BrentOptimizer.html#L152">152</a>         <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
+<a class="jxr_linenumber" name="L153" href="BrentOptimizer.html#L153">153</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> m = 0.5 * (a + b);
+<a class="jxr_linenumber" name="L154" href="BrentOptimizer.html#L154">154</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tol1 = relativeThreshold * FastMath.abs(x) + absoluteThreshold;
+<a class="jxr_linenumber" name="L155" href="BrentOptimizer.html#L155">155</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tol2 = 2 * tol1;
+<a class="jxr_linenumber" name="L156" href="BrentOptimizer.html#L156">156</a> 
+<a class="jxr_linenumber" name="L157" href="BrentOptimizer.html#L157">157</a>             <em class="jxr_comment">// Default stopping criterion.</em>
+<a class="jxr_linenumber" name="L158" href="BrentOptimizer.html#L158">158</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> stop = FastMath.abs(x - m) &lt;= tol2 - 0.5 * (b - a);
+<a class="jxr_linenumber" name="L159" href="BrentOptimizer.html#L159">159</a>             <strong class="jxr_keyword">if</strong> (!stop) {
+<a class="jxr_linenumber" name="L160" href="BrentOptimizer.html#L160">160</a>                 <strong class="jxr_keyword">double</strong> p = 0;
+<a class="jxr_linenumber" name="L161" href="BrentOptimizer.html#L161">161</a>                 <strong class="jxr_keyword">double</strong> q = 0;
+<a class="jxr_linenumber" name="L162" href="BrentOptimizer.html#L162">162</a>                 <strong class="jxr_keyword">double</strong> r = 0;
+<a class="jxr_linenumber" name="L163" href="BrentOptimizer.html#L163">163</a>                 <strong class="jxr_keyword">double</strong> u = 0;
+<a class="jxr_linenumber" name="L164" href="BrentOptimizer.html#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="BrentOptimizer.html#L165">165</a>                 <strong class="jxr_keyword">if</strong> (FastMath.abs(e) &gt; tol1) { <em class="jxr_comment">// Fit parabola.</em>
+<a class="jxr_linenumber" name="L166" href="BrentOptimizer.html#L166">166</a>                     r = (x - w) * (fx - fv);
+<a class="jxr_linenumber" name="L167" href="BrentOptimizer.html#L167">167</a>                     q = (x - v) * (fx - fw);
+<a class="jxr_linenumber" name="L168" href="BrentOptimizer.html#L168">168</a>                     p = (x - v) * q - (x - w) * r;
+<a class="jxr_linenumber" name="L169" href="BrentOptimizer.html#L169">169</a>                     q = 2 * (q - r);
+<a class="jxr_linenumber" name="L170" href="BrentOptimizer.html#L170">170</a> 
+<a class="jxr_linenumber" name="L171" href="BrentOptimizer.html#L171">171</a>                     <strong class="jxr_keyword">if</strong> (q &gt; 0) {
+<a class="jxr_linenumber" name="L172" href="BrentOptimizer.html#L172">172</a>                         p = -p;
+<a class="jxr_linenumber" name="L173" href="BrentOptimizer.html#L173">173</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L174" href="BrentOptimizer.html#L174">174</a>                         q = -q;
+<a class="jxr_linenumber" name="L175" href="BrentOptimizer.html#L175">175</a>                     }
+<a class="jxr_linenumber" name="L176" href="BrentOptimizer.html#L176">176</a> 
+<a class="jxr_linenumber" name="L177" href="BrentOptimizer.html#L177">177</a>                     r = e;
+<a class="jxr_linenumber" name="L178" href="BrentOptimizer.html#L178">178</a>                     e = d;
+<a class="jxr_linenumber" name="L179" href="BrentOptimizer.html#L179">179</a> 
+<a class="jxr_linenumber" name="L180" href="BrentOptimizer.html#L180">180</a>                     <strong class="jxr_keyword">if</strong> (p &gt; q * (a - x) &amp;&amp;
+<a class="jxr_linenumber" name="L181" href="BrentOptimizer.html#L181">181</a>                         p &lt; q * (b - x) &amp;&amp;
+<a class="jxr_linenumber" name="L182" href="BrentOptimizer.html#L182">182</a>                         FastMath.abs(p) &lt; FastMath.abs(0.5 * q * r)) {
+<a class="jxr_linenumber" name="L183" href="BrentOptimizer.html#L183">183</a>                         <em class="jxr_comment">// Parabolic interpolation step.</em>
+<a class="jxr_linenumber" name="L184" href="BrentOptimizer.html#L184">184</a>                         d = p / q;
+<a class="jxr_linenumber" name="L185" href="BrentOptimizer.html#L185">185</a>                         u = x + d;
+<a class="jxr_linenumber" name="L186" href="BrentOptimizer.html#L186">186</a> 
+<a class="jxr_linenumber" name="L187" href="BrentOptimizer.html#L187">187</a>                         <em class="jxr_comment">// f must not be evaluated too close to a or b.</em>
+<a class="jxr_linenumber" name="L188" href="BrentOptimizer.html#L188">188</a>                         <strong class="jxr_keyword">if</strong> (u - a &lt; tol2 || b - u &lt; tol2) {
+<a class="jxr_linenumber" name="L189" href="BrentOptimizer.html#L189">189</a>                             <strong class="jxr_keyword">if</strong> (x &lt;= m) {
+<a class="jxr_linenumber" name="L190" href="BrentOptimizer.html#L190">190</a>                                 d = tol1;
+<a class="jxr_linenumber" name="L191" href="BrentOptimizer.html#L191">191</a>                             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L192" href="BrentOptimizer.html#L192">192</a>                                 d = -tol1;
+<a class="jxr_linenumber" name="L193" href="BrentOptimizer.html#L193">193</a>                             }
+<a class="jxr_linenumber" name="L194" href="BrentOptimizer.html#L194">194</a>                         }
+<a class="jxr_linenumber" name="L195" href="BrentOptimizer.html#L195">195</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L196" href="BrentOptimizer.html#L196">196</a>                         <em class="jxr_comment">// Golden section step.</em>
+<a class="jxr_linenumber" name="L197" href="BrentOptimizer.html#L197">197</a>                         <strong class="jxr_keyword">if</strong> (x &lt; m) {
+<a class="jxr_linenumber" name="L198" href="BrentOptimizer.html#L198">198</a>                             e = b - x;
+<a class="jxr_linenumber" name="L199" href="BrentOptimizer.html#L199">199</a>                         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L200" href="BrentOptimizer.html#L200">200</a>                             e = a - x;
+<a class="jxr_linenumber" name="L201" href="BrentOptimizer.html#L201">201</a>                         }
+<a class="jxr_linenumber" name="L202" href="BrentOptimizer.html#L202">202</a>                         d = GOLDEN_SECTION * e;
+<a class="jxr_linenumber" name="L203" href="BrentOptimizer.html#L203">203</a>                     }
+<a class="jxr_linenumber" name="L204" href="BrentOptimizer.html#L204">204</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L205" href="BrentOptimizer.html#L205">205</a>                     <em class="jxr_comment">// Golden section step.</em>
+<a class="jxr_linenumber" name="L206" href="BrentOptimizer.html#L206">206</a>                     <strong class="jxr_keyword">if</strong> (x &lt; m) {
+<a class="jxr_linenumber" name="L207" href="BrentOptimizer.html#L207">207</a>                         e = b - x;
+<a class="jxr_linenumber" name="L208" href="BrentOptimizer.html#L208">208</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L209" href="BrentOptimizer.html#L209">209</a>                         e = a - x;
+<a class="jxr_linenumber" name="L210" href="BrentOptimizer.html#L210">210</a>                     }
+<a class="jxr_linenumber" name="L211" href="BrentOptimizer.html#L211">211</a>                     d = GOLDEN_SECTION * e;
+<a class="jxr_linenumber" name="L212" href="BrentOptimizer.html#L212">212</a>                 }
+<a class="jxr_linenumber" name="L213" href="BrentOptimizer.html#L213">213</a> 
+<a class="jxr_linenumber" name="L214" href="BrentOptimizer.html#L214">214</a>                 <em class="jxr_comment">// Update by at least "tol1".</em>
+<a class="jxr_linenumber" name="L215" href="BrentOptimizer.html#L215">215</a>                 <strong class="jxr_keyword">if</strong> (FastMath.abs(d) &lt; tol1) {
+<a class="jxr_linenumber" name="L216" href="BrentOptimizer.html#L216">216</a>                     <strong class="jxr_keyword">if</strong> (d &gt;= 0) {
+<a class="jxr_linenumber" name="L217" href="BrentOptimizer.html#L217">217</a>                         u = x + tol1;
+<a class="jxr_linenumber" name="L218" href="BrentOptimizer.html#L218">218</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L219" href="BrentOptimizer.html#L219">219</a>                         u = x - tol1;
+<a class="jxr_linenumber" name="L220" href="BrentOptimizer.html#L220">220</a>                     }
+<a class="jxr_linenumber" name="L221" href="BrentOptimizer.html#L221">221</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L222" href="BrentOptimizer.html#L222">222</a>                     u = x + d;
+<a class="jxr_linenumber" name="L223" href="BrentOptimizer.html#L223">223</a>                 }
+<a class="jxr_linenumber" name="L224" href="BrentOptimizer.html#L224">224</a> 
+<a class="jxr_linenumber" name="L225" href="BrentOptimizer.html#L225">225</a>                 <strong class="jxr_keyword">double</strong> fu = computeObjectiveValue(u);
+<a class="jxr_linenumber" name="L226" href="BrentOptimizer.html#L226">226</a>                 <strong class="jxr_keyword">if</strong> (!isMinim) {
+<a class="jxr_linenumber" name="L227" href="BrentOptimizer.html#L227">227</a>                     fu = -fu;
+<a class="jxr_linenumber" name="L228" href="BrentOptimizer.html#L228">228</a>                 }
+<a class="jxr_linenumber" name="L229" href="BrentOptimizer.html#L229">229</a> 
+<a class="jxr_linenumber" name="L230" href="BrentOptimizer.html#L230">230</a>                 <em class="jxr_comment">// User-defined convergence checker.</em>
+<a class="jxr_linenumber" name="L231" href="BrentOptimizer.html#L231">231</a>                 previous = current;
+<a class="jxr_linenumber" name="L232" href="BrentOptimizer.html#L232">232</a>                 current = <strong class="jxr_keyword">new</strong> <a href="UnivariatePointValuePair.html">UnivariatePointValuePair</a>(u, isMinim ? fu : -fu);
+<a class="jxr_linenumber" name="L233" href="BrentOptimizer.html#L233">233</a>                 best = best(best,
+<a class="jxr_linenumber" name="L234" href="BrentOptimizer.html#L234">234</a>                             best(previous,
+<a class="jxr_linenumber" name="L235" href="BrentOptimizer.html#L235">235</a>                                  current,
+<a class="jxr_linenumber" name="L236" href="BrentOptimizer.html#L236">236</a>                                  isMinim),
+<a class="jxr_linenumber" name="L237" href="BrentOptimizer.html#L237">237</a>                             isMinim);
+<a class="jxr_linenumber" name="L238" href="BrentOptimizer.html#L238">238</a> 
+<a class="jxr_linenumber" name="L239" href="BrentOptimizer.html#L239">239</a>                 <strong class="jxr_keyword">if</strong> (checker != <strong class="jxr_keyword">null</strong> &amp;&amp; checker.converged(getIterations(), previous, current)) {
+<a class="jxr_linenumber" name="L240" href="BrentOptimizer.html#L240">240</a>                     <strong class="jxr_keyword">return</strong> best;
+<a class="jxr_linenumber" name="L241" href="BrentOptimizer.html#L241">241</a>                 }
+<a class="jxr_linenumber" name="L242" href="BrentOptimizer.html#L242">242</a> 
+<a class="jxr_linenumber" name="L243" href="BrentOptimizer.html#L243">243</a>                 <em class="jxr_comment">// Update a, b, v, w and x.</em>
+<a class="jxr_linenumber" name="L244" href="BrentOptimizer.html#L244">244</a>                 <strong class="jxr_keyword">if</strong> (fu &lt;= fx) {
+<a class="jxr_linenumber" name="L245" href="BrentOptimizer.html#L245">245</a>                     <strong class="jxr_keyword">if</strong> (u &lt; x) {
+<a class="jxr_linenumber" name="L246" href="BrentOptimizer.html#L246">246</a>                         b = x;
+<a class="jxr_linenumber" name="L247" href="BrentOptimizer.html#L247">247</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L248" href="BrentOptimizer.html#L248">248</a>                         a = x;
+<a class="jxr_linenumber" name="L249" href="BrentOptimizer.html#L249">249</a>                     }
+<a class="jxr_linenumber" name="L250" href="BrentOptimizer.html#L250">250</a>                     v = w;
+<a class="jxr_linenumber" name="L251" href="BrentOptimizer.html#L251">251</a>                     fv = fw;
+<a class="jxr_linenumber" name="L252" href="BrentOptimizer.html#L252">252</a>                     w = x;
+<a class="jxr_linenumber" name="L253" href="BrentOptimizer.html#L253">253</a>                     fw = fx;
+<a class="jxr_linenumber" name="L254" href="BrentOptimizer.html#L254">254</a>                     x = u;
+<a class="jxr_linenumber" name="L255" href="BrentOptimizer.html#L255">255</a>                     fx = fu;
+<a class="jxr_linenumber" name="L256" href="BrentOptimizer.html#L256">256</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L257" href="BrentOptimizer.html#L257">257</a>                     <strong class="jxr_keyword">if</strong> (u &lt; x) {
+<a class="jxr_linenumber" name="L258" href="BrentOptimizer.html#L258">258</a>                         a = u;
+<a class="jxr_linenumber" name="L259" href="BrentOptimizer.html#L259">259</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L260" href="BrentOptimizer.html#L260">260</a>                         b = u;
+<a class="jxr_linenumber" name="L261" href="BrentOptimizer.html#L261">261</a>                     }
+<a class="jxr_linenumber" name="L262" href="BrentOptimizer.html#L262">262</a>                     <strong class="jxr_keyword">if</strong> (fu &lt;= fw ||
+<a class="jxr_linenumber" name="L263" href="BrentOptimizer.html#L263">263</a>                         Precision.equals(w, x)) {
+<a class="jxr_linenumber" name="L264" href="BrentOptimizer.html#L264">264</a>                         v = w;
+<a class="jxr_linenumber" name="L265" href="BrentOptimizer.html#L265">265</a>                         fv = fw;
+<a class="jxr_linenumber" name="L266" href="BrentOptimizer.html#L266">266</a>                         w = u;
+<a class="jxr_linenumber" name="L267" href="BrentOptimizer.html#L267">267</a>                         fw = fu;
+<a class="jxr_linenumber" name="L268" href="BrentOptimizer.html#L268">268</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (fu &lt;= fv ||
+<a class="jxr_linenumber" name="L269" href="BrentOptimizer.html#L269">269</a>                                Precision.equals(v, x) ||
+<a class="jxr_linenumber" name="L270" href="BrentOptimizer.html#L270">270</a>                                Precision.equals(v, w)) {
+<a class="jxr_linenumber" name="L271" href="BrentOptimizer.html#L271">271</a>                         v = u;
+<a class="jxr_linenumber" name="L272" href="BrentOptimizer.html#L272">272</a>                         fv = fu;
+<a class="jxr_linenumber" name="L273" href="BrentOptimizer.html#L273">273</a>                     }
+<a class="jxr_linenumber" name="L274" href="BrentOptimizer.html#L274">274</a>                 }
+<a class="jxr_linenumber" name="L275" href="BrentOptimizer.html#L275">275</a>             } <strong class="jxr_keyword">else</strong> { <em class="jxr_comment">// Default termination (Brent's criterion).</em>
+<a class="jxr_linenumber" name="L276" href="BrentOptimizer.html#L276">276</a>                 <strong class="jxr_keyword">return</strong> best(best,
+<a class="jxr_linenumber" name="L277" href="BrentOptimizer.html#L277">277</a>                             best(previous,
+<a class="jxr_linenumber" name="L278" href="BrentOptimizer.html#L278">278</a>                                  current,
+<a class="jxr_linenumber" name="L279" href="BrentOptimizer.html#L279">279</a>                                  isMinim),
+<a class="jxr_linenumber" name="L280" href="BrentOptimizer.html#L280">280</a>                             isMinim);
+<a class="jxr_linenumber" name="L281" href="BrentOptimizer.html#L281">281</a>             }
+<a class="jxr_linenumber" name="L282" href="BrentOptimizer.html#L282">282</a> 
+<a class="jxr_linenumber" name="L283" href="BrentOptimizer.html#L283">283</a>             incrementIterationCount();
+<a class="jxr_linenumber" name="L284" href="BrentOptimizer.html#L284">284</a>         }
+<a class="jxr_linenumber" name="L285" href="BrentOptimizer.html#L285">285</a>     }
+<a class="jxr_linenumber" name="L286" href="BrentOptimizer.html#L286">286</a> 
+<a class="jxr_linenumber" name="L287" href="BrentOptimizer.html#L287">287</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L288" href="BrentOptimizer.html#L288">288</a> <em class="jxr_javadoccomment">     * Selects the best of two points.</em>
+<a class="jxr_linenumber" name="L289" href="BrentOptimizer.html#L289">289</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L290" href="BrentOptimizer.html#L290">290</a> <em class="jxr_javadoccomment">     * @param a Point and value.</em>
+<a class="jxr_linenumber" name="L291" href="BrentOptimizer.html#L291">291</a> <em class="jxr_javadoccomment">     * @param b Point and value.</em>
+<a class="jxr_linenumber" name="L292" href="BrentOptimizer.html#L292">292</a> <em class="jxr_javadoccomment">     * @param isMinim {@code true} if the selected point must be the one with</em>
+<a class="jxr_linenumber" name="L293" href="BrentOptimizer.html#L293">293</a> <em class="jxr_javadoccomment">     * the lowest value.</em>
+<a class="jxr_linenumber" name="L294" href="BrentOptimizer.html#L294">294</a> <em class="jxr_javadoccomment">     * @return the best point, or {@code null} if {@code a} and {@code b} are</em>
+<a class="jxr_linenumber" name="L295" href="BrentOptimizer.html#L295">295</a> <em class="jxr_javadoccomment">     * both {@code null}. When {@code a} and {@code b} have the same function</em>
+<a class="jxr_linenumber" name="L296" href="BrentOptimizer.html#L296">296</a> <em class="jxr_javadoccomment">     * value, {@code a} is returned.</em>
+<a class="jxr_linenumber" name="L297" href="BrentOptimizer.html#L297">297</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L298" href="BrentOptimizer.html#L298">298</a>     <strong class="jxr_keyword">private</strong> <a href="UnivariatePointValuePair.html">UnivariatePointValuePair</a> best(<a href="UnivariatePointValuePair.html">UnivariatePointValuePair</a> a,
+<a class="jxr_linenumber" name="L299" href="BrentOptimizer.html#L299">299</a>                                           <a href="UnivariatePointValuePair.html">UnivariatePointValuePair</a> b,
+<a class="jxr_linenumber" name="L300" href="BrentOptimizer.html#L300">300</a>                                           <strong class="jxr_keyword">boolean</strong> isMinim) {
+<a class="jxr_linenumber" name="L301" href="BrentOptimizer.html#L301">301</a>         <strong class="jxr_keyword">if</strong> (a == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L302" href="BrentOptimizer.html#L302">302</a>             <strong class="jxr_keyword">return</strong> b;
+<a class="jxr_linenumber" name="L303" href="BrentOptimizer.html#L303">303</a>         }
+<a class="jxr_linenumber" name="L304" href="BrentOptimizer.html#L304">304</a>         <strong class="jxr_keyword">if</strong> (b == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L305" href="BrentOptimizer.html#L305">305</a>             <strong class="jxr_keyword">return</strong> a;
+<a class="jxr_linenumber" name="L306" href="BrentOptimizer.html#L306">306</a>         }
+<a class="jxr_linenumber" name="L307" href="BrentOptimizer.html#L307">307</a> 
+<a class="jxr_linenumber" name="L308" href="BrentOptimizer.html#L308">308</a>         <strong class="jxr_keyword">if</strong> (isMinim) {
+<a class="jxr_linenumber" name="L309" href="BrentOptimizer.html#L309">309</a>             <strong class="jxr_keyword">return</strong> a.getValue() &lt;= b.getValue() ? a : b;
+<a class="jxr_linenumber" name="L310" href="BrentOptimizer.html#L310">310</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L311" href="BrentOptimizer.html#L311">311</a>             <strong class="jxr_keyword">return</strong> a.getValue() &gt;= b.getValue() ? a : b;
+<a class="jxr_linenumber" name="L312" href="BrentOptimizer.html#L312">312</a>         }
+<a class="jxr_linenumber" name="L313" href="BrentOptimizer.html#L313">313</a>     }
+<a class="jxr_linenumber" name="L314" href="BrentOptimizer.html#L314">314</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

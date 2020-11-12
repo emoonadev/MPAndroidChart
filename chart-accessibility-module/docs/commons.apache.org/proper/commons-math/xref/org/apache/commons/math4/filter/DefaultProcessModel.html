@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>DefaultProcessModel xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/filter/DefaultProcessModel.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="DefaultProcessModel.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="DefaultProcessModel.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="DefaultProcessModel.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="DefaultProcessModel.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="DefaultProcessModel.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="DefaultProcessModel.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="DefaultProcessModel.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="DefaultProcessModel.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="DefaultProcessModel.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="DefaultProcessModel.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="DefaultProcessModel.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="DefaultProcessModel.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="DefaultProcessModel.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="DefaultProcessModel.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="DefaultProcessModel.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="DefaultProcessModel.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="DefaultProcessModel.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.filter;
+<a class="jxr_linenumber" name="L18" href="DefaultProcessModel.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="DefaultProcessModel.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L20" href="DefaultProcessModel.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoDataException;
+<a class="jxr_linenumber" name="L21" href="DefaultProcessModel.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NullArgumentException;
+<a class="jxr_linenumber" name="L22" href="DefaultProcessModel.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.Array2DRowRealMatrix;
+<a class="jxr_linenumber" name="L23" href="DefaultProcessModel.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.ArrayRealVector;
+<a class="jxr_linenumber" name="L24" href="DefaultProcessModel.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.RealMatrix;
+<a class="jxr_linenumber" name="L25" href="DefaultProcessModel.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.RealVector;
+<a class="jxr_linenumber" name="L26" href="DefaultProcessModel.html#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="DefaultProcessModel.html#L27">27</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L28" href="DefaultProcessModel.html#L28">28</a>  <em class="jxr_javadoccomment"> * Default implementation of a {@link ProcessModel} for the use with a {@link KalmanFilter}.</em>
+<a class="jxr_linenumber" name="L29" href="DefaultProcessModel.html#L29">29</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L30" href="DefaultProcessModel.html#L30">30</a>  <em class="jxr_javadoccomment"> * @since 3.0</em>
+<a class="jxr_linenumber" name="L31" href="DefaultProcessModel.html#L31">31</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L32" href="DefaultProcessModel.html#L32">32</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="DefaultProcessModel.html">DefaultProcessModel</a> <strong class="jxr_keyword">implements</strong> <a href="ProcessModel.html">ProcessModel</a> {
+<a class="jxr_linenumber" name="L33" href="DefaultProcessModel.html#L33">33</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L34" href="DefaultProcessModel.html#L34">34</a>  <em class="jxr_javadoccomment">     * The state transition matrix, used to advance the internal state estimation each time-step.</em>
+<a class="jxr_linenumber" name="L35" href="DefaultProcessModel.html#L35">35</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L36" href="DefaultProcessModel.html#L36">36</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> stateTransitionMatrix;
+<a class="jxr_linenumber" name="L37" href="DefaultProcessModel.html#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="DefaultProcessModel.html#L38">38</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L39" href="DefaultProcessModel.html#L39">39</a>  <em class="jxr_javadoccomment">     * The control matrix, used to integrate a control input into the state estimation.</em>
+<a class="jxr_linenumber" name="L40" href="DefaultProcessModel.html#L40">40</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L41" href="DefaultProcessModel.html#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> controlMatrix;
+<a class="jxr_linenumber" name="L42" href="DefaultProcessModel.html#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="DefaultProcessModel.html#L43">43</a>      <em class="jxr_javadoccomment">/** The process noise covariance matrix. */</em>
+<a class="jxr_linenumber" name="L44" href="DefaultProcessModel.html#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> processNoiseCovMatrix;
+<a class="jxr_linenumber" name="L45" href="DefaultProcessModel.html#L45">45</a>  
+<a class="jxr_linenumber" name="L46" href="DefaultProcessModel.html#L46">46</a>      <em class="jxr_javadoccomment">/** The initial state estimation of the observed process. */</em>
+<a class="jxr_linenumber" name="L47" href="DefaultProcessModel.html#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../linear/RealVector.html">RealVector</a> initialStateEstimateVector;
+<a class="jxr_linenumber" name="L48" href="DefaultProcessModel.html#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="DefaultProcessModel.html#L49">49</a>      <em class="jxr_javadoccomment">/** The initial error covariance matrix of the observed process. */</em>
+<a class="jxr_linenumber" name="L50" href="DefaultProcessModel.html#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> initialErrorCovMatrix;
+<a class="jxr_linenumber" name="L51" href="DefaultProcessModel.html#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="DefaultProcessModel.html#L52">52</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L53" href="DefaultProcessModel.html#L53">53</a>  <em class="jxr_javadoccomment">     * Create a new {@link ProcessModel}, taking double arrays as input parameters.</em>
+<a class="jxr_linenumber" name="L54" href="DefaultProcessModel.html#L54">54</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L55" href="DefaultProcessModel.html#L55">55</a>  <em class="jxr_javadoccomment">     * @param stateTransition</em>
+<a class="jxr_linenumber" name="L56" href="DefaultProcessModel.html#L56">56</a>  <em class="jxr_javadoccomment">     *            the state transition matrix</em>
+<a class="jxr_linenumber" name="L57" href="DefaultProcessModel.html#L57">57</a>  <em class="jxr_javadoccomment">     * @param control</em>
+<a class="jxr_linenumber" name="L58" href="DefaultProcessModel.html#L58">58</a>  <em class="jxr_javadoccomment">     *            the control matrix</em>
+<a class="jxr_linenumber" name="L59" href="DefaultProcessModel.html#L59">59</a>  <em class="jxr_javadoccomment">     * @param processNoise</em>
+<a class="jxr_linenumber" name="L60" href="DefaultProcessModel.html#L60">60</a>  <em class="jxr_javadoccomment">     *            the process noise matrix</em>
+<a class="jxr_linenumber" name="L61" href="DefaultProcessModel.html#L61">61</a>  <em class="jxr_javadoccomment">     * @param initialStateEstimate</em>
+<a class="jxr_linenumber" name="L62" href="DefaultProcessModel.html#L62">62</a>  <em class="jxr_javadoccomment">     *            the initial state estimate vector</em>
+<a class="jxr_linenumber" name="L63" href="DefaultProcessModel.html#L63">63</a>  <em class="jxr_javadoccomment">     * @param initialErrorCovariance</em>
+<a class="jxr_linenumber" name="L64" href="DefaultProcessModel.html#L64">64</a>  <em class="jxr_javadoccomment">     *            the initial error covariance matrix</em>
+<a class="jxr_linenumber" name="L65" href="DefaultProcessModel.html#L65">65</a>  <em class="jxr_javadoccomment">     * @throws NullArgumentException</em>
+<a class="jxr_linenumber" name="L66" href="DefaultProcessModel.html#L66">66</a>  <em class="jxr_javadoccomment">     *             if any of the input arrays is {@code null}</em>
+<a class="jxr_linenumber" name="L67" href="DefaultProcessModel.html#L67">67</a>  <em class="jxr_javadoccomment">     * @throws NoDataException</em>
+<a class="jxr_linenumber" name="L68" href="DefaultProcessModel.html#L68">68</a>  <em class="jxr_javadoccomment">     *             if any row / column dimension of the input matrices is zero</em>
+<a class="jxr_linenumber" name="L69" href="DefaultProcessModel.html#L69">69</a>  <em class="jxr_javadoccomment">     * @throws DimensionMismatchException</em>
+<a class="jxr_linenumber" name="L70" href="DefaultProcessModel.html#L70">70</a>  <em class="jxr_javadoccomment">     *             if any of the input matrices is non-rectangular</em>
+<a class="jxr_linenumber" name="L71" href="DefaultProcessModel.html#L71">71</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L72" href="DefaultProcessModel.html#L72">72</a>      <strong class="jxr_keyword">public</strong> <a href="DefaultProcessModel.html">DefaultProcessModel</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] stateTransition,
+<a class="jxr_linenumber" name="L73" href="DefaultProcessModel.html#L73">73</a>                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] control,
+<a class="jxr_linenumber" name="L74" href="DefaultProcessModel.html#L74">74</a>                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] processNoise,
+<a class="jxr_linenumber" name="L75" href="DefaultProcessModel.html#L75">75</a>                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] initialStateEstimate,
+<a class="jxr_linenumber" name="L76" href="DefaultProcessModel.html#L76">76</a>                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] initialErrorCovariance)
+<a class="jxr_linenumber" name="L77" href="DefaultProcessModel.html#L77">77</a>              <strong class="jxr_keyword">throws</strong> NullArgumentException, NoDataException, <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a> {
+<a class="jxr_linenumber" name="L78" href="DefaultProcessModel.html#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="DefaultProcessModel.html#L79">79</a>          <strong class="jxr_keyword">this</strong>(<strong class="jxr_keyword">new</strong> <a href="../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(stateTransition),
+<a class="jxr_linenumber" name="L80" href="DefaultProcessModel.html#L80">80</a>                  <strong class="jxr_keyword">new</strong> <a href="../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(control),
+<a class="jxr_linenumber" name="L81" href="DefaultProcessModel.html#L81">81</a>                  <strong class="jxr_keyword">new</strong> <a href="../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(processNoise),
+<a class="jxr_linenumber" name="L82" href="DefaultProcessModel.html#L82">82</a>                  <strong class="jxr_keyword">new</strong> <a href="../linear/ArrayRealVector.html">ArrayRealVector</a>(initialStateEstimate),
+<a class="jxr_linenumber" name="L83" href="DefaultProcessModel.html#L83">83</a>                  <strong class="jxr_keyword">new</strong> <a href="../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(initialErrorCovariance));
+<a class="jxr_linenumber" name="L84" href="DefaultProcessModel.html#L84">84</a>      }
+<a class="jxr_linenumber" name="L85" href="DefaultProcessModel.html#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="DefaultProcessModel.html#L86">86</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L87" href="DefaultProcessModel.html#L87">87</a>  <em class="jxr_javadoccomment">     * Create a new {@link ProcessModel}, taking double arrays as input parameters.</em>
+<a class="jxr_linenumber" name="L88" href="DefaultProcessModel.html#L88">88</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L89" href="DefaultProcessModel.html#L89">89</a>  <em class="jxr_javadoccomment">     * The initial state estimate and error covariance are omitted and will be initialized by the</em>
+<a class="jxr_linenumber" name="L90" href="DefaultProcessModel.html#L90">90</a>  <em class="jxr_javadoccomment">     * {@link KalmanFilter} to default values.</em>
+<a class="jxr_linenumber" name="L91" href="DefaultProcessModel.html#L91">91</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L92" href="DefaultProcessModel.html#L92">92</a>  <em class="jxr_javadoccomment">     * @param stateTransition</em>
+<a class="jxr_linenumber" name="L93" href="DefaultProcessModel.html#L93">93</a>  <em class="jxr_javadoccomment">     *            the state transition matrix</em>
+<a class="jxr_linenumber" name="L94" href="DefaultProcessModel.html#L94">94</a>  <em class="jxr_javadoccomment">     * @param control</em>
+<a class="jxr_linenumber" name="L95" href="DefaultProcessModel.html#L95">95</a>  <em class="jxr_javadoccomment">     *            the control matrix</em>
+<a class="jxr_linenumber" name="L96" href="DefaultProcessModel.html#L96">96</a>  <em class="jxr_javadoccomment">     * @param processNoise</em>
+<a class="jxr_linenumber" name="L97" href="DefaultProcessModel.html#L97">97</a>  <em class="jxr_javadoccomment">     *            the process noise matrix</em>
+<a class="jxr_linenumber" name="L98" href="DefaultProcessModel.html#L98">98</a>  <em class="jxr_javadoccomment">     * @throws NullArgumentException</em>
+<a class="jxr_linenumber" name="L99" href="DefaultProcessModel.html#L99">99</a>  <em class="jxr_javadoccomment">     *             if any of the input arrays is {@code null}</em>
+<a class="jxr_linenumber" name="L100" href="DefaultProcessModel.html#L100">100</a> <em class="jxr_javadoccomment">     * @throws NoDataException</em>
+<a class="jxr_linenumber" name="L101" href="DefaultProcessModel.html#L101">101</a> <em class="jxr_javadoccomment">     *             if any row / column dimension of the input matrices is zero</em>
+<a class="jxr_linenumber" name="L102" href="DefaultProcessModel.html#L102">102</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException</em>
+<a class="jxr_linenumber" name="L103" href="DefaultProcessModel.html#L103">103</a> <em class="jxr_javadoccomment">     *             if any of the input matrices is non-rectangular</em>
+<a class="jxr_linenumber" name="L104" href="DefaultProcessModel.html#L104">104</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L105" href="DefaultProcessModel.html#L105">105</a>     <strong class="jxr_keyword">public</strong> <a href="DefaultProcessModel.html">DefaultProcessModel</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] stateTransition,
+<a class="jxr_linenumber" name="L106" href="DefaultProcessModel.html#L106">106</a>                                <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] control,
+<a class="jxr_linenumber" name="L107" href="DefaultProcessModel.html#L107">107</a>                                <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] processNoise)
+<a class="jxr_linenumber" name="L108" href="DefaultProcessModel.html#L108">108</a>             <strong class="jxr_keyword">throws</strong> NullArgumentException, NoDataException, <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a> {
+<a class="jxr_linenumber" name="L109" href="DefaultProcessModel.html#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="DefaultProcessModel.html#L110">110</a>         <strong class="jxr_keyword">this</strong>(<strong class="jxr_keyword">new</strong> <a href="../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(stateTransition),
+<a class="jxr_linenumber" name="L111" href="DefaultProcessModel.html#L111">111</a>                 <strong class="jxr_keyword">new</strong> <a href="../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(control),
+<a class="jxr_linenumber" name="L112" href="DefaultProcessModel.html#L112">112</a>                 <strong class="jxr_keyword">new</strong> <a href="../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(processNoise), <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L113" href="DefaultProcessModel.html#L113">113</a>     }
+<a class="jxr_linenumber" name="L114" href="DefaultProcessModel.html#L114">114</a> 
+<a class="jxr_linenumber" name="L115" href="DefaultProcessModel.html#L115">115</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L116" href="DefaultProcessModel.html#L116">116</a> <em class="jxr_javadoccomment">     * Create a new {@link ProcessModel}, taking double arrays as input parameters.</em>
+<a class="jxr_linenumber" name="L117" href="DefaultProcessModel.html#L117">117</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L118" href="DefaultProcessModel.html#L118">118</a> <em class="jxr_javadoccomment">     * @param stateTransition</em>
+<a class="jxr_linenumber" name="L119" href="DefaultProcessModel.html#L119">119</a> <em class="jxr_javadoccomment">     *            the state transition matrix</em>
+<a class="jxr_linenumber" name="L120" href="DefaultProcessModel.html#L120">120</a> <em class="jxr_javadoccomment">     * @param control</em>
+<a class="jxr_linenumber" name="L121" href="DefaultProcessModel.html#L121">121</a> <em class="jxr_javadoccomment">     *            the control matrix</em>
+<a class="jxr_linenumber" name="L122" href="DefaultProcessModel.html#L122">122</a> <em class="jxr_javadoccomment">     * @param processNoise</em>
+<a class="jxr_linenumber" name="L123" href="DefaultProcessModel.html#L123">123</a> <em class="jxr_javadoccomment">     *            the process noise matrix</em>
+<a class="jxr_linenumber" name="L124" href="DefaultProcessModel.html#L124">124</a> <em class="jxr_javadoccomment">     * @param initialStateEstimate</em>
+<a class="jxr_linenumber" name="L125" href="DefaultProcessModel.html#L125">125</a> <em class="jxr_javadoccomment">     *            the initial state estimate vector</em>
+<a class="jxr_linenumber" name="L126" href="DefaultProcessModel.html#L126">126</a> <em class="jxr_javadoccomment">     * @param initialErrorCovariance</em>
+<a class="jxr_linenumber" name="L127" href="DefaultProcessModel.html#L127">127</a> <em class="jxr_javadoccomment">     *            the initial error covariance matrix</em>
+<a class="jxr_linenumber" name="L128" href="DefaultProcessModel.html#L128">128</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L129" href="DefaultProcessModel.html#L129">129</a>     <strong class="jxr_keyword">public</strong> <a href="DefaultProcessModel.html">DefaultProcessModel</a>(<strong class="jxr_keyword">final</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> stateTransition,
+<a class="jxr_linenumber" name="L130" href="DefaultProcessModel.html#L130">130</a>                                <strong class="jxr_keyword">final</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> control,
+<a class="jxr_linenumber" name="L131" href="DefaultProcessModel.html#L131">131</a>                                <strong class="jxr_keyword">final</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> processNoise,
+<a class="jxr_linenumber" name="L132" href="DefaultProcessModel.html#L132">132</a>                                <strong class="jxr_keyword">final</strong> <a href="../linear/RealVector.html">RealVector</a> initialStateEstimate,
+<a class="jxr_linenumber" name="L133" href="DefaultProcessModel.html#L133">133</a>                                <strong class="jxr_keyword">final</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> initialErrorCovariance) {
+<a class="jxr_linenumber" name="L134" href="DefaultProcessModel.html#L134">134</a>         <strong class="jxr_keyword">this</strong>.stateTransitionMatrix = stateTransition;
+<a class="jxr_linenumber" name="L135" href="DefaultProcessModel.html#L135">135</a>         <strong class="jxr_keyword">this</strong>.controlMatrix = control;
+<a class="jxr_linenumber" name="L136" href="DefaultProcessModel.html#L136">136</a>         <strong class="jxr_keyword">this</strong>.processNoiseCovMatrix = processNoise;
+<a class="jxr_linenumber" name="L137" href="DefaultProcessModel.html#L137">137</a>         <strong class="jxr_keyword">this</strong>.initialStateEstimateVector = initialStateEstimate;
+<a class="jxr_linenumber" name="L138" href="DefaultProcessModel.html#L138">138</a>         <strong class="jxr_keyword">this</strong>.initialErrorCovMatrix = initialErrorCovariance;
+<a class="jxr_linenumber" name="L139" href="DefaultProcessModel.html#L139">139</a>     }
+<a class="jxr_linenumber" name="L140" href="DefaultProcessModel.html#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="DefaultProcessModel.html#L141">141</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L142" href="DefaultProcessModel.html#L142">142</a>     @Override
+<a class="jxr_linenumber" name="L143" href="DefaultProcessModel.html#L143">143</a>     <strong class="jxr_keyword">public</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> getStateTransitionMatrix() {
+<a class="jxr_linenumber" name="L144" href="DefaultProcessModel.html#L144">144</a>         <strong class="jxr_keyword">return</strong> stateTransitionMatrix;
+<a class="jxr_linenumber" name="L145" href="DefaultProcessModel.html#L145">145</a>     }
+<a class="jxr_linenumber" name="L146" href="DefaultProcessModel.html#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="DefaultProcessModel.html#L147">147</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L148" href="DefaultProcessModel.html#L148">148</a>     @Override
+<a class="jxr_linenumber" name="L149" href="DefaultProcessModel.html#L149">149</a>     <strong class="jxr_keyword">public</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> getControlMatrix() {
+<a class="jxr_linenumber" name="L150" href="DefaultProcessModel.html#L150">150</a>         <strong class="jxr_keyword">return</strong> controlMatrix;
+<a class="jxr_linenumber" name="L151" href="DefaultProcessModel.html#L151">151</a>     }
+<a class="jxr_linenumber" name="L152" href="DefaultProcessModel.html#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="DefaultProcessModel.html#L153">153</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L154" href="DefaultProcessModel.html#L154">154</a>     @Override
+<a class="jxr_linenumber" name="L155" href="DefaultProcessModel.html#L155">155</a>     <strong class="jxr_keyword">public</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> getProcessNoise() {
+<a class="jxr_linenumber" name="L156" href="DefaultProcessModel.html#L156">156</a>         <strong class="jxr_keyword">return</strong> processNoiseCovMatrix;
+<a class="jxr_linenumber" name="L157" href="DefaultProcessModel.html#L157">157</a>     }
+<a class="jxr_linenumber" name="L158" href="DefaultProcessModel.html#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="DefaultProcessModel.html#L159">159</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L160" href="DefaultProcessModel.html#L160">160</a>     @Override
+<a class="jxr_linenumber" name="L161" href="DefaultProcessModel.html#L161">161</a>     <strong class="jxr_keyword">public</strong> <a href="../linear/RealVector.html">RealVector</a> getInitialStateEstimate() {
+<a class="jxr_linenumber" name="L162" href="DefaultProcessModel.html#L162">162</a>         <strong class="jxr_keyword">return</strong> initialStateEstimateVector;
+<a class="jxr_linenumber" name="L163" href="DefaultProcessModel.html#L163">163</a>     }
+<a class="jxr_linenumber" name="L164" href="DefaultProcessModel.html#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="DefaultProcessModel.html#L165">165</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L166" href="DefaultProcessModel.html#L166">166</a>     @Override
+<a class="jxr_linenumber" name="L167" href="DefaultProcessModel.html#L167">167</a>     <strong class="jxr_keyword">public</strong> <a href="../linear/RealMatrix.html">RealMatrix</a> getInitialErrorCovariance() {
+<a class="jxr_linenumber" name="L168" href="DefaultProcessModel.html#L168">168</a>         <strong class="jxr_keyword">return</strong> initialErrorCovMatrix;
+<a class="jxr_linenumber" name="L169" href="DefaultProcessModel.html#L169">169</a>     }
+<a class="jxr_linenumber" name="L170" href="DefaultProcessModel.html#L170">170</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

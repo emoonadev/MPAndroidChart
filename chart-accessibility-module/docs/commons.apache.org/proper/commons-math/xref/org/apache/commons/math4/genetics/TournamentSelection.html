@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>TournamentSelection xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/genetics/TournamentSelection.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="TournamentSelection.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="TournamentSelection.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="TournamentSelection.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="TournamentSelection.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="TournamentSelection.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="TournamentSelection.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="TournamentSelection.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="TournamentSelection.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="TournamentSelection.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="TournamentSelection.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="TournamentSelection.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="TournamentSelection.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="TournamentSelection.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="TournamentSelection.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="TournamentSelection.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="TournamentSelection.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="TournamentSelection.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.genetics;
+<a class="jxr_linenumber" name="L18" href="TournamentSelection.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="TournamentSelection.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L20" href="TournamentSelection.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L21" href="TournamentSelection.html#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="TournamentSelection.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L23" href="TournamentSelection.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L24" href="TournamentSelection.html#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="TournamentSelection.html#L25">25</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L26" href="TournamentSelection.html#L26">26</a>  <em class="jxr_javadoccomment"> * Tournament selection scheme. Each of the two selected chromosomes is selected</em>
+<a class="jxr_linenumber" name="L27" href="TournamentSelection.html#L27">27</a>  <em class="jxr_javadoccomment"> * based on n-ary tournament -- this is done by drawing {@link #arity} random</em>
+<a class="jxr_linenumber" name="L28" href="TournamentSelection.html#L28">28</a>  <em class="jxr_javadoccomment"> * chromosomes without replacement from the population, and then selecting the</em>
+<a class="jxr_linenumber" name="L29" href="TournamentSelection.html#L29">29</a>  <em class="jxr_javadoccomment"> * fittest chromosome among them.</em>
+<a class="jxr_linenumber" name="L30" href="TournamentSelection.html#L30">30</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L31" href="TournamentSelection.html#L31">31</a>  <em class="jxr_javadoccomment"> * @since 2.0</em>
+<a class="jxr_linenumber" name="L32" href="TournamentSelection.html#L32">32</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L33" href="TournamentSelection.html#L33">33</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="TournamentSelection.html">TournamentSelection</a> <strong class="jxr_keyword">implements</strong> <a href="SelectionPolicy.html">SelectionPolicy</a> {
+<a class="jxr_linenumber" name="L34" href="TournamentSelection.html#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="TournamentSelection.html#L35">35</a>      <em class="jxr_javadoccomment">/** number of chromosomes included in the tournament selections */</em>
+<a class="jxr_linenumber" name="L36" href="TournamentSelection.html#L36">36</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> arity;
+<a class="jxr_linenumber" name="L37" href="TournamentSelection.html#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="TournamentSelection.html#L38">38</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L39" href="TournamentSelection.html#L39">39</a>  <em class="jxr_javadoccomment">     * Creates a new TournamentSelection instance.</em>
+<a class="jxr_linenumber" name="L40" href="TournamentSelection.html#L40">40</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L41" href="TournamentSelection.html#L41">41</a>  <em class="jxr_javadoccomment">     * @param arity how many chromosomes will be drawn to the tournament</em>
+<a class="jxr_linenumber" name="L42" href="TournamentSelection.html#L42">42</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L43" href="TournamentSelection.html#L43">43</a>      <strong class="jxr_keyword">public</strong> <a href="TournamentSelection.html">TournamentSelection</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> arity) {
+<a class="jxr_linenumber" name="L44" href="TournamentSelection.html#L44">44</a>          <strong class="jxr_keyword">this</strong>.arity = arity;
+<a class="jxr_linenumber" name="L45" href="TournamentSelection.html#L45">45</a>      }
+<a class="jxr_linenumber" name="L46" href="TournamentSelection.html#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="TournamentSelection.html#L47">47</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L48" href="TournamentSelection.html#L48">48</a>  <em class="jxr_javadoccomment">     * Select two chromosomes from the population. Each of the two selected</em>
+<a class="jxr_linenumber" name="L49" href="TournamentSelection.html#L49">49</a>  <em class="jxr_javadoccomment">     * chromosomes is selected based on n-ary tournament -- this is done by</em>
+<a class="jxr_linenumber" name="L50" href="TournamentSelection.html#L50">50</a>  <em class="jxr_javadoccomment">     * drawing {@link #arity} random chromosomes without replacement from the</em>
+<a class="jxr_linenumber" name="L51" href="TournamentSelection.html#L51">51</a>  <em class="jxr_javadoccomment">     * population, and then selecting the fittest chromosome among them.</em>
+<a class="jxr_linenumber" name="L52" href="TournamentSelection.html#L52">52</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L53" href="TournamentSelection.html#L53">53</a>  <em class="jxr_javadoccomment">     * @param population the population from which the chromosomes are chosen.</em>
+<a class="jxr_linenumber" name="L54" href="TournamentSelection.html#L54">54</a>  <em class="jxr_javadoccomment">     * @return the selected chromosomes.</em>
+<a class="jxr_linenumber" name="L55" href="TournamentSelection.html#L55">55</a>  <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the tournament arity is bigger than the population size</em>
+<a class="jxr_linenumber" name="L56" href="TournamentSelection.html#L56">56</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L57" href="TournamentSelection.html#L57">57</a>      @Override
+<a class="jxr_linenumber" name="L58" href="TournamentSelection.html#L58">58</a>      <strong class="jxr_keyword">public</strong> <a href="ChromosomePair.html">ChromosomePair</a> select(<strong class="jxr_keyword">final</strong> <a href="Population.html">Population</a> population) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L59" href="TournamentSelection.html#L59">59</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="ChromosomePair.html">ChromosomePair</a>(tournament((ListPopulation) population),
+<a class="jxr_linenumber" name="L60" href="TournamentSelection.html#L60">60</a>                                    tournament((ListPopulation) population));
+<a class="jxr_linenumber" name="L61" href="TournamentSelection.html#L61">61</a>      }
+<a class="jxr_linenumber" name="L62" href="TournamentSelection.html#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="TournamentSelection.html#L63">63</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L64" href="TournamentSelection.html#L64">64</a>  <em class="jxr_javadoccomment">     * Helper for {@link #select(Population)}. Draw {@link #arity} random chromosomes without replacement from the</em>
+<a class="jxr_linenumber" name="L65" href="TournamentSelection.html#L65">65</a>  <em class="jxr_javadoccomment">     * population, and then select the fittest chromosome among them.</em>
+<a class="jxr_linenumber" name="L66" href="TournamentSelection.html#L66">66</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L67" href="TournamentSelection.html#L67">67</a>  <em class="jxr_javadoccomment">     * @param population the population from which the chromosomes are chosen.</em>
+<a class="jxr_linenumber" name="L68" href="TournamentSelection.html#L68">68</a>  <em class="jxr_javadoccomment">     * @return the selected chromosome.</em>
+<a class="jxr_linenumber" name="L69" href="TournamentSelection.html#L69">69</a>  <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the tournament arity is bigger than the population size</em>
+<a class="jxr_linenumber" name="L70" href="TournamentSelection.html#L70">70</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L71" href="TournamentSelection.html#L71">71</a>      <strong class="jxr_keyword">private</strong> <a href="Chromosome.html">Chromosome</a> tournament(<strong class="jxr_keyword">final</strong> <a href="ListPopulation.html">ListPopulation</a> population) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException {
+<a class="jxr_linenumber" name="L72" href="TournamentSelection.html#L72">72</a>          <strong class="jxr_keyword">if</strong> (population.getPopulationSize() &lt; <strong class="jxr_keyword">this</strong>.arity) {
+<a class="jxr_linenumber" name="L73" href="TournamentSelection.html#L73">73</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(LocalizedFormats.TOO_LARGE_TOURNAMENT_ARITY,
+<a class="jxr_linenumber" name="L74" href="TournamentSelection.html#L74">74</a>                                                     arity, population.getPopulationSize());
+<a class="jxr_linenumber" name="L75" href="TournamentSelection.html#L75">75</a>          }
+<a class="jxr_linenumber" name="L76" href="TournamentSelection.html#L76">76</a>          <em class="jxr_comment">// auxiliary population</em>
+<a class="jxr_linenumber" name="L77" href="TournamentSelection.html#L77">77</a>          <a href="ListPopulation.html">ListPopulation</a> tournamentPopulation = <strong class="jxr_keyword">new</strong> <a href="ListPopulation.html">ListPopulation</a>(<strong class="jxr_keyword">this</strong>.arity) {
+<a class="jxr_linenumber" name="L78" href="TournamentSelection.html#L78">78</a>              <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L79" href="TournamentSelection.html#L79">79</a>              @Override
+<a class="jxr_linenumber" name="L80" href="TournamentSelection.html#L80">80</a>              <strong class="jxr_keyword">public</strong> <a href="Population.html">Population</a> nextGeneration() {
+<a class="jxr_linenumber" name="L81" href="TournamentSelection.html#L81">81</a>                  <em class="jxr_comment">// not useful here</em>
+<a class="jxr_linenumber" name="L82" href="TournamentSelection.html#L82">82</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L83" href="TournamentSelection.html#L83">83</a>              }
+<a class="jxr_linenumber" name="L84" href="TournamentSelection.html#L84">84</a>          };
+<a class="jxr_linenumber" name="L85" href="TournamentSelection.html#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="TournamentSelection.html#L86">86</a>          <em class="jxr_comment">// create a copy of the chromosome list</em>
+<a class="jxr_linenumber" name="L87" href="TournamentSelection.html#L87">87</a>          List&lt;Chromosome&gt; chromosomes = <strong class="jxr_keyword">new</strong> ArrayList&lt;Chromosome&gt; (population.getChromosomes());
+<a class="jxr_linenumber" name="L88" href="TournamentSelection.html#L88">88</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i=0; i&lt;<strong class="jxr_keyword">this</strong>.arity; i++) {
+<a class="jxr_linenumber" name="L89" href="TournamentSelection.html#L89">89</a>              <em class="jxr_comment">// select a random individual and add it to the tournament</em>
+<a class="jxr_linenumber" name="L90" href="TournamentSelection.html#L90">90</a>              <strong class="jxr_keyword">int</strong> rind = GeneticAlgorithm.getRandomGenerator().nextInt(chromosomes.size());
+<a class="jxr_linenumber" name="L91" href="TournamentSelection.html#L91">91</a>              tournamentPopulation.addChromosome(chromosomes.get(rind));
+<a class="jxr_linenumber" name="L92" href="TournamentSelection.html#L92">92</a>              <em class="jxr_comment">// do not select it again</em>
+<a class="jxr_linenumber" name="L93" href="TournamentSelection.html#L93">93</a>              chromosomes.remove(rind);
+<a class="jxr_linenumber" name="L94" href="TournamentSelection.html#L94">94</a>          }
+<a class="jxr_linenumber" name="L95" href="TournamentSelection.html#L95">95</a>          <em class="jxr_comment">// the winner takes it all</em>
+<a class="jxr_linenumber" name="L96" href="TournamentSelection.html#L96">96</a>          <strong class="jxr_keyword">return</strong> tournamentPopulation.getFittestChromosome();
+<a class="jxr_linenumber" name="L97" href="TournamentSelection.html#L97">97</a>      }
+<a class="jxr_linenumber" name="L98" href="TournamentSelection.html#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="TournamentSelection.html#L99">99</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L100" href="TournamentSelection.html#L100">100</a> <em class="jxr_javadoccomment">     * Gets the arity (number of chromosomes drawn to the tournament).</em>
+<a class="jxr_linenumber" name="L101" href="TournamentSelection.html#L101">101</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L102" href="TournamentSelection.html#L102">102</a> <em class="jxr_javadoccomment">     * @return arity of the tournament</em>
+<a class="jxr_linenumber" name="L103" href="TournamentSelection.html#L103">103</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L104" href="TournamentSelection.html#L104">104</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getArity() {
+<a class="jxr_linenumber" name="L105" href="TournamentSelection.html#L105">105</a>         <strong class="jxr_keyword">return</strong> arity;
+<a class="jxr_linenumber" name="L106" href="TournamentSelection.html#L106">106</a>     }
+<a class="jxr_linenumber" name="L107" href="TournamentSelection.html#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="TournamentSelection.html#L108">108</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L109" href="TournamentSelection.html#L109">109</a> <em class="jxr_javadoccomment">     * Sets the arity (number of chromosomes drawn to the tournament).</em>
+<a class="jxr_linenumber" name="L110" href="TournamentSelection.html#L110">110</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L111" href="TournamentSelection.html#L111">111</a> <em class="jxr_javadoccomment">     * @param arity arity of the tournament</em>
+<a class="jxr_linenumber" name="L112" href="TournamentSelection.html#L112">112</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L113" href="TournamentSelection.html#L113">113</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setArity(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> arity) {
+<a class="jxr_linenumber" name="L114" href="TournamentSelection.html#L114">114</a>         <strong class="jxr_keyword">this</strong>.arity = arity;
+<a class="jxr_linenumber" name="L115" href="TournamentSelection.html#L115">115</a>     }
+<a class="jxr_linenumber" name="L116" href="TournamentSelection.html#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="TournamentSelection.html#L117">117</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

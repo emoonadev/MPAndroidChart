@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>RungeKuttaFieldStepInterpolator xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math4/ode/nonstiff/RungeKuttaFieldStepInterpolator.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="RungeKuttaFieldStepInterpolator.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="RungeKuttaFieldStepInterpolator.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="RungeKuttaFieldStepInterpolator.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="RungeKuttaFieldStepInterpolator.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="RungeKuttaFieldStepInterpolator.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="RungeKuttaFieldStepInterpolator.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="RungeKuttaFieldStepInterpolator.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="RungeKuttaFieldStepInterpolator.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="RungeKuttaFieldStepInterpolator.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="RungeKuttaFieldStepInterpolator.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="RungeKuttaFieldStepInterpolator.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="RungeKuttaFieldStepInterpolator.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="RungeKuttaFieldStepInterpolator.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="RungeKuttaFieldStepInterpolator.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="RungeKuttaFieldStepInterpolator.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="RungeKuttaFieldStepInterpolator.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="RungeKuttaFieldStepInterpolator.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="RungeKuttaFieldStepInterpolator.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.ode.nonstiff;
+<a class="jxr_linenumber" name="L19" href="RungeKuttaFieldStepInterpolator.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="RungeKuttaFieldStepInterpolator.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.Field;
+<a class="jxr_linenumber" name="L21" href="RungeKuttaFieldStepInterpolator.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.RealFieldElement;
+<a class="jxr_linenumber" name="L22" href="RungeKuttaFieldStepInterpolator.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.FieldEquationsMapper;
+<a class="jxr_linenumber" name="L23" href="RungeKuttaFieldStepInterpolator.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.FieldODEStateAndDerivative;
+<a class="jxr_linenumber" name="L24" href="RungeKuttaFieldStepInterpolator.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.sampling.AbstractFieldStepInterpolator;
+<a class="jxr_linenumber" name="L25" href="RungeKuttaFieldStepInterpolator.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L26" href="RungeKuttaFieldStepInterpolator.html#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="RungeKuttaFieldStepInterpolator.html#L27">27</a>  <em class="jxr_javadoccomment">/** This class represents an interpolator over the last step during an</em>
+<a class="jxr_linenumber" name="L28" href="RungeKuttaFieldStepInterpolator.html#L28">28</a>  <em class="jxr_javadoccomment"> * ODE integration for Runge-Kutta and embedded Runge-Kutta integrators.</em>
+<a class="jxr_linenumber" name="L29" href="RungeKuttaFieldStepInterpolator.html#L29">29</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L30" href="RungeKuttaFieldStepInterpolator.html#L30">30</a>  <em class="jxr_javadoccomment"> * @see RungeKuttaFieldIntegrator</em>
+<a class="jxr_linenumber" name="L31" href="RungeKuttaFieldStepInterpolator.html#L31">31</a>  <em class="jxr_javadoccomment"> * @see EmbeddedRungeKuttaFieldIntegrator</em>
+<a class="jxr_linenumber" name="L32" href="RungeKuttaFieldStepInterpolator.html#L32">32</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L33" href="RungeKuttaFieldStepInterpolator.html#L33">33</a>  <em class="jxr_javadoccomment"> * @param &lt;T&gt; the type of the field elements</em>
+<a class="jxr_linenumber" name="L34" href="RungeKuttaFieldStepInterpolator.html#L34">34</a>  <em class="jxr_javadoccomment"> * @since 3.6</em>
+<a class="jxr_linenumber" name="L35" href="RungeKuttaFieldStepInterpolator.html#L35">35</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L36" href="RungeKuttaFieldStepInterpolator.html#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="RungeKuttaFieldStepInterpolator.html#L37">37</a>  <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> RungeKuttaFieldStepInterpolator&lt;T <strong class="jxr_keyword">extends</strong> RealFieldElement&lt;T&gt;&gt;
+<a class="jxr_linenumber" name="L38" href="RungeKuttaFieldStepInterpolator.html#L38">38</a>      <strong class="jxr_keyword">extends</strong> AbstractFieldStepInterpolator&lt;T&gt; {
+<a class="jxr_linenumber" name="L39" href="RungeKuttaFieldStepInterpolator.html#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="RungeKuttaFieldStepInterpolator.html#L40">40</a>      <em class="jxr_javadoccomment">/** Field to which the time and state vector elements belong. */</em>
+<a class="jxr_linenumber" name="L41" href="RungeKuttaFieldStepInterpolator.html#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Field&lt;T&gt; field;
+<a class="jxr_linenumber" name="L42" href="RungeKuttaFieldStepInterpolator.html#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="RungeKuttaFieldStepInterpolator.html#L43">43</a>      <em class="jxr_javadoccomment">/** Slopes at the intermediate points. */</em>
+<a class="jxr_linenumber" name="L44" href="RungeKuttaFieldStepInterpolator.html#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> T[][] yDotK;
+<a class="jxr_linenumber" name="L45" href="RungeKuttaFieldStepInterpolator.html#L45">45</a>  
+<a class="jxr_linenumber" name="L46" href="RungeKuttaFieldStepInterpolator.html#L46">46</a>      <em class="jxr_javadoccomment">/** Simple constructor.</em>
+<a class="jxr_linenumber" name="L47" href="RungeKuttaFieldStepInterpolator.html#L47">47</a>  <em class="jxr_javadoccomment">     * @param field field to which the time and state vector elements belong</em>
+<a class="jxr_linenumber" name="L48" href="RungeKuttaFieldStepInterpolator.html#L48">48</a>  <em class="jxr_javadoccomment">     * @param forward integration direction indicator</em>
+<a class="jxr_linenumber" name="L49" href="RungeKuttaFieldStepInterpolator.html#L49">49</a>  <em class="jxr_javadoccomment">     * @param yDotK slopes at the intermediate points</em>
+<a class="jxr_linenumber" name="L50" href="RungeKuttaFieldStepInterpolator.html#L50">50</a>  <em class="jxr_javadoccomment">     * @param globalPreviousState start of the global step</em>
+<a class="jxr_linenumber" name="L51" href="RungeKuttaFieldStepInterpolator.html#L51">51</a>  <em class="jxr_javadoccomment">     * @param globalCurrentState end of the global step</em>
+<a class="jxr_linenumber" name="L52" href="RungeKuttaFieldStepInterpolator.html#L52">52</a>  <em class="jxr_javadoccomment">     * @param softPreviousState start of the restricted step</em>
+<a class="jxr_linenumber" name="L53" href="RungeKuttaFieldStepInterpolator.html#L53">53</a>  <em class="jxr_javadoccomment">     * @param softCurrentState end of the restricted step</em>
+<a class="jxr_linenumber" name="L54" href="RungeKuttaFieldStepInterpolator.html#L54">54</a>  <em class="jxr_javadoccomment">     * @param mapper equations mapper for the all equations</em>
+<a class="jxr_linenumber" name="L55" href="RungeKuttaFieldStepInterpolator.html#L55">55</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L56" href="RungeKuttaFieldStepInterpolator.html#L56">56</a>      <strong class="jxr_keyword">protected</strong> <a href="RungeKuttaFieldStepInterpolator.html">RungeKuttaFieldStepInterpolator</a>(<strong class="jxr_keyword">final</strong> Field&lt;T&gt; field, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> forward,
+<a class="jxr_linenumber" name="L57" href="RungeKuttaFieldStepInterpolator.html#L57">57</a>                                                <strong class="jxr_keyword">final</strong> T[][] yDotK,
+<a class="jxr_linenumber" name="L58" href="RungeKuttaFieldStepInterpolator.html#L58">58</a>                                                <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; globalPreviousState,
+<a class="jxr_linenumber" name="L59" href="RungeKuttaFieldStepInterpolator.html#L59">59</a>                                                <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; globalCurrentState,
+<a class="jxr_linenumber" name="L60" href="RungeKuttaFieldStepInterpolator.html#L60">60</a>                                                <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; softPreviousState,
+<a class="jxr_linenumber" name="L61" href="RungeKuttaFieldStepInterpolator.html#L61">61</a>                                                <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; softCurrentState,
+<a class="jxr_linenumber" name="L62" href="RungeKuttaFieldStepInterpolator.html#L62">62</a>                                                <strong class="jxr_keyword">final</strong> FieldEquationsMapper&lt;T&gt; mapper) {
+<a class="jxr_linenumber" name="L63" href="RungeKuttaFieldStepInterpolator.html#L63">63</a>          <strong class="jxr_keyword">super</strong>(forward, globalPreviousState, globalCurrentState, softPreviousState, softCurrentState, mapper);
+<a class="jxr_linenumber" name="L64" href="RungeKuttaFieldStepInterpolator.html#L64">64</a>          <strong class="jxr_keyword">this</strong>.field = field;
+<a class="jxr_linenumber" name="L65" href="RungeKuttaFieldStepInterpolator.html#L65">65</a>          <strong class="jxr_keyword">this</strong>.yDotK = MathArrays.buildArray(field, yDotK.length, -1);
+<a class="jxr_linenumber" name="L66" href="RungeKuttaFieldStepInterpolator.html#L66">66</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; yDotK.length; ++i) {
+<a class="jxr_linenumber" name="L67" href="RungeKuttaFieldStepInterpolator.html#L67">67</a>              <strong class="jxr_keyword">this</strong>.yDotK[i] = yDotK[i].clone();
+<a class="jxr_linenumber" name="L68" href="RungeKuttaFieldStepInterpolator.html#L68">68</a>          }
+<a class="jxr_linenumber" name="L69" href="RungeKuttaFieldStepInterpolator.html#L69">69</a>      }
+<a class="jxr_linenumber" name="L70" href="RungeKuttaFieldStepInterpolator.html#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="RungeKuttaFieldStepInterpolator.html#L71">71</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L72" href="RungeKuttaFieldStepInterpolator.html#L72">72</a>      @Override
+<a class="jxr_linenumber" name="L73" href="RungeKuttaFieldStepInterpolator.html#L73">73</a>      <strong class="jxr_keyword">protected</strong> RungeKuttaFieldStepInterpolator&lt;T&gt; create(<strong class="jxr_keyword">boolean</strong> newForward,
+<a class="jxr_linenumber" name="L74" href="RungeKuttaFieldStepInterpolator.html#L74">74</a>                                                          FieldODEStateAndDerivative&lt;T&gt; newGlobalPreviousState,
+<a class="jxr_linenumber" name="L75" href="RungeKuttaFieldStepInterpolator.html#L75">75</a>                                                          FieldODEStateAndDerivative&lt;T&gt; newGlobalCurrentState,
+<a class="jxr_linenumber" name="L76" href="RungeKuttaFieldStepInterpolator.html#L76">76</a>                                                          FieldODEStateAndDerivative&lt;T&gt; newSoftPreviousState,
+<a class="jxr_linenumber" name="L77" href="RungeKuttaFieldStepInterpolator.html#L77">77</a>                                                          FieldODEStateAndDerivative&lt;T&gt; newSoftCurrentState,
+<a class="jxr_linenumber" name="L78" href="RungeKuttaFieldStepInterpolator.html#L78">78</a>                                                          FieldEquationsMapper&lt;T&gt; newMapper) {
+<a class="jxr_linenumber" name="L79" href="RungeKuttaFieldStepInterpolator.html#L79">79</a>          <strong class="jxr_keyword">return</strong> create(field, newForward, yDotK,
+<a class="jxr_linenumber" name="L80" href="RungeKuttaFieldStepInterpolator.html#L80">80</a>                        newGlobalPreviousState, newGlobalCurrentState,
+<a class="jxr_linenumber" name="L81" href="RungeKuttaFieldStepInterpolator.html#L81">81</a>                        newSoftPreviousState, newSoftCurrentState,
+<a class="jxr_linenumber" name="L82" href="RungeKuttaFieldStepInterpolator.html#L82">82</a>                        newMapper);
+<a class="jxr_linenumber" name="L83" href="RungeKuttaFieldStepInterpolator.html#L83">83</a>      }
+<a class="jxr_linenumber" name="L84" href="RungeKuttaFieldStepInterpolator.html#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="RungeKuttaFieldStepInterpolator.html#L85">85</a>      <em class="jxr_javadoccomment">/** Create a new instance.</em>
+<a class="jxr_linenumber" name="L86" href="RungeKuttaFieldStepInterpolator.html#L86">86</a>  <em class="jxr_javadoccomment">     * @param newField field to which the time and state vector elements belong</em>
+<a class="jxr_linenumber" name="L87" href="RungeKuttaFieldStepInterpolator.html#L87">87</a>  <em class="jxr_javadoccomment">     * @param newForward integration direction indicator</em>
+<a class="jxr_linenumber" name="L88" href="RungeKuttaFieldStepInterpolator.html#L88">88</a>  <em class="jxr_javadoccomment">     * @param newYDotK slopes at the intermediate points</em>
+<a class="jxr_linenumber" name="L89" href="RungeKuttaFieldStepInterpolator.html#L89">89</a>  <em class="jxr_javadoccomment">     * @param newGlobalPreviousState start of the global step</em>
+<a class="jxr_linenumber" name="L90" href="RungeKuttaFieldStepInterpolator.html#L90">90</a>  <em class="jxr_javadoccomment">     * @param newGlobalCurrentState end of the global step</em>
+<a class="jxr_linenumber" name="L91" href="RungeKuttaFieldStepInterpolator.html#L91">91</a>  <em class="jxr_javadoccomment">     * @param newSoftPreviousState start of the restricted step</em>
+<a class="jxr_linenumber" name="L92" href="RungeKuttaFieldStepInterpolator.html#L92">92</a>  <em class="jxr_javadoccomment">     * @param newSoftCurrentState end of the restricted step</em>
+<a class="jxr_linenumber" name="L93" href="RungeKuttaFieldStepInterpolator.html#L93">93</a>  <em class="jxr_javadoccomment">     * @param newMapper equations mapper for the all equations</em>
+<a class="jxr_linenumber" name="L94" href="RungeKuttaFieldStepInterpolator.html#L94">94</a>  <em class="jxr_javadoccomment">     * @return a new instance</em>
+<a class="jxr_linenumber" name="L95" href="RungeKuttaFieldStepInterpolator.html#L95">95</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L96" href="RungeKuttaFieldStepInterpolator.html#L96">96</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> RungeKuttaFieldStepInterpolator&lt;T&gt; create(Field&lt;T&gt; newField, <strong class="jxr_keyword">boolean</strong> newForward, T[][] newYDotK,
+<a class="jxr_linenumber" name="L97" href="RungeKuttaFieldStepInterpolator.html#L97">97</a>                                                                   FieldODEStateAndDerivative&lt;T&gt; newGlobalPreviousState,
+<a class="jxr_linenumber" name="L98" href="RungeKuttaFieldStepInterpolator.html#L98">98</a>                                                                   FieldODEStateAndDerivative&lt;T&gt; newGlobalCurrentState,
+<a class="jxr_linenumber" name="L99" href="RungeKuttaFieldStepInterpolator.html#L99">99</a>                                                                   FieldODEStateAndDerivative&lt;T&gt; newSoftPreviousState,
+<a class="jxr_linenumber" name="L100" href="RungeKuttaFieldStepInterpolator.html#L100">100</a>                                                                  FieldODEStateAndDerivative&lt;T&gt; newSoftCurrentState,
+<a class="jxr_linenumber" name="L101" href="RungeKuttaFieldStepInterpolator.html#L101">101</a>                                                                  FieldEquationsMapper&lt;T&gt; newMapper);
+<a class="jxr_linenumber" name="L102" href="RungeKuttaFieldStepInterpolator.html#L102">102</a> 
+<a class="jxr_linenumber" name="L103" href="RungeKuttaFieldStepInterpolator.html#L103">103</a>     <em class="jxr_javadoccomment">/** Compute a state by linear combination added to previous state.</em>
+<a class="jxr_linenumber" name="L104" href="RungeKuttaFieldStepInterpolator.html#L104">104</a> <em class="jxr_javadoccomment">     * @param coefficients coefficients to apply to the method staged derivatives</em>
+<a class="jxr_linenumber" name="L105" href="RungeKuttaFieldStepInterpolator.html#L105">105</a> <em class="jxr_javadoccomment">     * @return combined state</em>
+<a class="jxr_linenumber" name="L106" href="RungeKuttaFieldStepInterpolator.html#L106">106</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L107" href="RungeKuttaFieldStepInterpolator.html#L107">107</a>     @SafeVarargs
+<a class="jxr_linenumber" name="L108" href="RungeKuttaFieldStepInterpolator.html#L108">108</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">final</strong> T[] previousStateLinearCombination(<strong class="jxr_keyword">final</strong> T ... coefficients) {
+<a class="jxr_linenumber" name="L109" href="RungeKuttaFieldStepInterpolator.html#L109">109</a>         <strong class="jxr_keyword">return</strong> combine(getPreviousState().getState(),
+<a class="jxr_linenumber" name="L110" href="RungeKuttaFieldStepInterpolator.html#L110">110</a>                        coefficients);
+<a class="jxr_linenumber" name="L111" href="RungeKuttaFieldStepInterpolator.html#L111">111</a>     }
+<a class="jxr_linenumber" name="L112" href="RungeKuttaFieldStepInterpolator.html#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="RungeKuttaFieldStepInterpolator.html#L113">113</a>     <em class="jxr_javadoccomment">/** Compute a state by linear combination added to current state.</em>
+<a class="jxr_linenumber" name="L114" href="RungeKuttaFieldStepInterpolator.html#L114">114</a> <em class="jxr_javadoccomment">     * @param coefficients coefficients to apply to the method staged derivatives</em>
+<a class="jxr_linenumber" name="L115" href="RungeKuttaFieldStepInterpolator.html#L115">115</a> <em class="jxr_javadoccomment">     * @return combined state</em>
+<a class="jxr_linenumber" name="L116" href="RungeKuttaFieldStepInterpolator.html#L116">116</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L117" href="RungeKuttaFieldStepInterpolator.html#L117">117</a>     @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L118" href="RungeKuttaFieldStepInterpolator.html#L118">118</a>     <strong class="jxr_keyword">protected</strong> T[] currentStateLinearCombination(<strong class="jxr_keyword">final</strong> T ... coefficients) {
+<a class="jxr_linenumber" name="L119" href="RungeKuttaFieldStepInterpolator.html#L119">119</a>         <strong class="jxr_keyword">return</strong> combine(getCurrentState().getState(),
+<a class="jxr_linenumber" name="L120" href="RungeKuttaFieldStepInterpolator.html#L120">120</a>                        coefficients);
+<a class="jxr_linenumber" name="L121" href="RungeKuttaFieldStepInterpolator.html#L121">121</a>     }
+<a class="jxr_linenumber" name="L122" href="RungeKuttaFieldStepInterpolator.html#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="RungeKuttaFieldStepInterpolator.html#L123">123</a>     <em class="jxr_javadoccomment">/** Compute a state derivative by linear combination.</em>
+<a class="jxr_linenumber" name="L124" href="RungeKuttaFieldStepInterpolator.html#L124">124</a> <em class="jxr_javadoccomment">     * @param coefficients coefficients to apply to the method staged derivatives</em>
+<a class="jxr_linenumber" name="L125" href="RungeKuttaFieldStepInterpolator.html#L125">125</a> <em class="jxr_javadoccomment">     * @return combined state</em>
+<a class="jxr_linenumber" name="L126" href="RungeKuttaFieldStepInterpolator.html#L126">126</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L127" href="RungeKuttaFieldStepInterpolator.html#L127">127</a>     @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L128" href="RungeKuttaFieldStepInterpolator.html#L128">128</a>     <strong class="jxr_keyword">protected</strong> T[] derivativeLinearCombination(<strong class="jxr_keyword">final</strong> T ... coefficients) {
+<a class="jxr_linenumber" name="L129" href="RungeKuttaFieldStepInterpolator.html#L129">129</a>         <strong class="jxr_keyword">return</strong> combine(MathArrays.buildArray(field, yDotK[0].length), coefficients);
+<a class="jxr_linenumber" name="L130" href="RungeKuttaFieldStepInterpolator.html#L130">130</a>     }
+<a class="jxr_linenumber" name="L131" href="RungeKuttaFieldStepInterpolator.html#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="RungeKuttaFieldStepInterpolator.html#L132">132</a>     <em class="jxr_javadoccomment">/** Linearly combine arrays.</em>
+<a class="jxr_linenumber" name="L133" href="RungeKuttaFieldStepInterpolator.html#L133">133</a> <em class="jxr_javadoccomment">     * @param a array to add to</em>
+<a class="jxr_linenumber" name="L134" href="RungeKuttaFieldStepInterpolator.html#L134">134</a> <em class="jxr_javadoccomment">     * @param coefficients coefficients to apply to the method staged derivatives</em>
+<a class="jxr_linenumber" name="L135" href="RungeKuttaFieldStepInterpolator.html#L135">135</a> <em class="jxr_javadoccomment">     * @return a itself, as a conveniency for fluent API</em>
+<a class="jxr_linenumber" name="L136" href="RungeKuttaFieldStepInterpolator.html#L136">136</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L137" href="RungeKuttaFieldStepInterpolator.html#L137">137</a>     @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L138" href="RungeKuttaFieldStepInterpolator.html#L138">138</a>     <strong class="jxr_keyword">private</strong> T[] combine(<strong class="jxr_keyword">final</strong> T[] a, <strong class="jxr_keyword">final</strong> T ... coefficients) {
+<a class="jxr_linenumber" name="L139" href="RungeKuttaFieldStepInterpolator.html#L139">139</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; a.length; ++i) {
+<a class="jxr_linenumber" name="L140" href="RungeKuttaFieldStepInterpolator.html#L140">140</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; coefficients.length; ++k) {
+<a class="jxr_linenumber" name="L141" href="RungeKuttaFieldStepInterpolator.html#L141">141</a>                 a[i] = a[i].add(coefficients[k].multiply(yDotK[k][i]));
+<a class="jxr_linenumber" name="L142" href="RungeKuttaFieldStepInterpolator.html#L142">142</a>             }
+<a class="jxr_linenumber" name="L143" href="RungeKuttaFieldStepInterpolator.html#L143">143</a>         }
+<a class="jxr_linenumber" name="L144" href="RungeKuttaFieldStepInterpolator.html#L144">144</a>         <strong class="jxr_keyword">return</strong> a;
+<a class="jxr_linenumber" name="L145" href="RungeKuttaFieldStepInterpolator.html#L145">145</a>     }
+<a class="jxr_linenumber" name="L146" href="RungeKuttaFieldStepInterpolator.html#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="RungeKuttaFieldStepInterpolator.html#L147">147</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

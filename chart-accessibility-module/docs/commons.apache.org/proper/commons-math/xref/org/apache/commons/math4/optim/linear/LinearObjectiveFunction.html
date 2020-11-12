@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>LinearObjectiveFunction xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/optim/linear/LinearObjectiveFunction.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="LinearObjectiveFunction.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="LinearObjectiveFunction.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="LinearObjectiveFunction.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="LinearObjectiveFunction.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="LinearObjectiveFunction.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="LinearObjectiveFunction.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="LinearObjectiveFunction.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="LinearObjectiveFunction.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="LinearObjectiveFunction.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="LinearObjectiveFunction.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="LinearObjectiveFunction.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="LinearObjectiveFunction.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="LinearObjectiveFunction.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="LinearObjectiveFunction.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="LinearObjectiveFunction.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="LinearObjectiveFunction.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="LinearObjectiveFunction.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.optim.linear;
+<a class="jxr_linenumber" name="L18" href="LinearObjectiveFunction.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="LinearObjectiveFunction.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L20" href="LinearObjectiveFunction.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.io.ObjectInputStream;
+<a class="jxr_linenumber" name="L21" href="LinearObjectiveFunction.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.io.ObjectOutputStream;
+<a class="jxr_linenumber" name="L22" href="LinearObjectiveFunction.html#L22">22</a>  <strong class="jxr_keyword">import</strong> java.io.Serializable;
+<a class="jxr_linenumber" name="L23" href="LinearObjectiveFunction.html#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="LinearObjectiveFunction.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.MultivariateFunction;
+<a class="jxr_linenumber" name="L25" href="LinearObjectiveFunction.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.ArrayRealVector;
+<a class="jxr_linenumber" name="L26" href="LinearObjectiveFunction.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.MatrixUtils;
+<a class="jxr_linenumber" name="L27" href="LinearObjectiveFunction.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.RealVector;
+<a class="jxr_linenumber" name="L28" href="LinearObjectiveFunction.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.optim.OptimizationData;
+<a class="jxr_linenumber" name="L29" href="LinearObjectiveFunction.html#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="LinearObjectiveFunction.html#L30">30</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L31" href="LinearObjectiveFunction.html#L31">31</a>  <em class="jxr_javadoccomment"> * An objective function for a linear optimization problem.</em>
+<a class="jxr_linenumber" name="L32" href="LinearObjectiveFunction.html#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L33" href="LinearObjectiveFunction.html#L33">33</a>  <em class="jxr_javadoccomment"> * A linear objective function has one the form:</em>
+<a class="jxr_linenumber" name="L34" href="LinearObjectiveFunction.html#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L35" href="LinearObjectiveFunction.html#L35">35</a>  <em class="jxr_javadoccomment"> * c&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... c&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + d</em>
+<a class="jxr_linenumber" name="L36" href="LinearObjectiveFunction.html#L36">36</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L37" href="LinearObjectiveFunction.html#L37">37</a>  <em class="jxr_javadoccomment"> * The c&lt;sub&gt;i&lt;/sub&gt; and d are the coefficients of the equation,</em>
+<a class="jxr_linenumber" name="L38" href="LinearObjectiveFunction.html#L38">38</a>  <em class="jxr_javadoccomment"> * the x&lt;sub&gt;i&lt;/sub&gt; are the coordinates of the current point.</em>
+<a class="jxr_linenumber" name="L39" href="LinearObjectiveFunction.html#L39">39</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L40" href="LinearObjectiveFunction.html#L40">40</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L41" href="LinearObjectiveFunction.html#L41">41</a>  <em class="jxr_javadoccomment"> * @since 2.0</em>
+<a class="jxr_linenumber" name="L42" href="LinearObjectiveFunction.html#L42">42</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L43" href="LinearObjectiveFunction.html#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="LinearObjectiveFunction.html">LinearObjectiveFunction</a>
+<a class="jxr_linenumber" name="L44" href="LinearObjectiveFunction.html#L44">44</a>      <strong class="jxr_keyword">implements</strong> MultivariateFunction,
+<a class="jxr_linenumber" name="L45" href="LinearObjectiveFunction.html#L45">45</a>                 OptimizationData,
+<a class="jxr_linenumber" name="L46" href="LinearObjectiveFunction.html#L46">46</a>                 Serializable {
+<a class="jxr_linenumber" name="L47" href="LinearObjectiveFunction.html#L47">47</a>      <em class="jxr_javadoccomment">/** Serializable version identifier. */</em>
+<a class="jxr_linenumber" name="L48" href="LinearObjectiveFunction.html#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = -4531815507568396090L;
+<a class="jxr_linenumber" name="L49" href="LinearObjectiveFunction.html#L49">49</a>      <em class="jxr_javadoccomment">/** Coefficients of the linear equation (c&lt;sub&gt;i&lt;/sub&gt;). */</em>
+<a class="jxr_linenumber" name="L50" href="LinearObjectiveFunction.html#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">transient</strong> <a href="../../linear/RealVector.html">RealVector</a> coefficients;
+<a class="jxr_linenumber" name="L51" href="LinearObjectiveFunction.html#L51">51</a>      <em class="jxr_javadoccomment">/** Constant term of the linear equation. */</em>
+<a class="jxr_linenumber" name="L52" href="LinearObjectiveFunction.html#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> constantTerm;
+<a class="jxr_linenumber" name="L53" href="LinearObjectiveFunction.html#L53">53</a>  
+<a class="jxr_linenumber" name="L54" href="LinearObjectiveFunction.html#L54">54</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L55" href="LinearObjectiveFunction.html#L55">55</a>  <em class="jxr_javadoccomment">     * @param coefficients Coefficients for the linear equation being optimized.</em>
+<a class="jxr_linenumber" name="L56" href="LinearObjectiveFunction.html#L56">56</a>  <em class="jxr_javadoccomment">     * @param constantTerm Constant term of the linear equation.</em>
+<a class="jxr_linenumber" name="L57" href="LinearObjectiveFunction.html#L57">57</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L58" href="LinearObjectiveFunction.html#L58">58</a>      <strong class="jxr_keyword">public</strong> <a href="LinearObjectiveFunction.html">LinearObjectiveFunction</a>(<strong class="jxr_keyword">double</strong>[] coefficients, <strong class="jxr_keyword">double</strong> constantTerm) {
+<a class="jxr_linenumber" name="L59" href="LinearObjectiveFunction.html#L59">59</a>          <strong class="jxr_keyword">this</strong>(<strong class="jxr_keyword">new</strong> <a href="../../linear/ArrayRealVector.html">ArrayRealVector</a>(coefficients), constantTerm);
+<a class="jxr_linenumber" name="L60" href="LinearObjectiveFunction.html#L60">60</a>      }
+<a class="jxr_linenumber" name="L61" href="LinearObjectiveFunction.html#L61">61</a>  
+<a class="jxr_linenumber" name="L62" href="LinearObjectiveFunction.html#L62">62</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L63" href="LinearObjectiveFunction.html#L63">63</a>  <em class="jxr_javadoccomment">     * @param coefficients Coefficients for the linear equation being optimized.</em>
+<a class="jxr_linenumber" name="L64" href="LinearObjectiveFunction.html#L64">64</a>  <em class="jxr_javadoccomment">     * @param constantTerm Constant term of the linear equation.</em>
+<a class="jxr_linenumber" name="L65" href="LinearObjectiveFunction.html#L65">65</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L66" href="LinearObjectiveFunction.html#L66">66</a>      <strong class="jxr_keyword">public</strong> <a href="LinearObjectiveFunction.html">LinearObjectiveFunction</a>(<a href="../../linear/RealVector.html">RealVector</a> coefficients, <strong class="jxr_keyword">double</strong> constantTerm) {
+<a class="jxr_linenumber" name="L67" href="LinearObjectiveFunction.html#L67">67</a>          <strong class="jxr_keyword">this</strong>.coefficients = coefficients;
+<a class="jxr_linenumber" name="L68" href="LinearObjectiveFunction.html#L68">68</a>          <strong class="jxr_keyword">this</strong>.constantTerm = constantTerm;
+<a class="jxr_linenumber" name="L69" href="LinearObjectiveFunction.html#L69">69</a>      }
+<a class="jxr_linenumber" name="L70" href="LinearObjectiveFunction.html#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="LinearObjectiveFunction.html#L71">71</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L72" href="LinearObjectiveFunction.html#L72">72</a>  <em class="jxr_javadoccomment">     * Gets the coefficients of the linear equation being optimized.</em>
+<a class="jxr_linenumber" name="L73" href="LinearObjectiveFunction.html#L73">73</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L74" href="LinearObjectiveFunction.html#L74">74</a>  <em class="jxr_javadoccomment">     * @return coefficients of the linear equation being optimized.</em>
+<a class="jxr_linenumber" name="L75" href="LinearObjectiveFunction.html#L75">75</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L76" href="LinearObjectiveFunction.html#L76">76</a>      <strong class="jxr_keyword">public</strong> <a href="../../linear/RealVector.html">RealVector</a> getCoefficients() {
+<a class="jxr_linenumber" name="L77" href="LinearObjectiveFunction.html#L77">77</a>          <strong class="jxr_keyword">return</strong> coefficients;
+<a class="jxr_linenumber" name="L78" href="LinearObjectiveFunction.html#L78">78</a>      }
+<a class="jxr_linenumber" name="L79" href="LinearObjectiveFunction.html#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="LinearObjectiveFunction.html#L80">80</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L81" href="LinearObjectiveFunction.html#L81">81</a>  <em class="jxr_javadoccomment">     * Gets the constant of the linear equation being optimized.</em>
+<a class="jxr_linenumber" name="L82" href="LinearObjectiveFunction.html#L82">82</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L83" href="LinearObjectiveFunction.html#L83">83</a>  <em class="jxr_javadoccomment">     * @return constant of the linear equation being optimized.</em>
+<a class="jxr_linenumber" name="L84" href="LinearObjectiveFunction.html#L84">84</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L85" href="LinearObjectiveFunction.html#L85">85</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getConstantTerm() {
+<a class="jxr_linenumber" name="L86" href="LinearObjectiveFunction.html#L86">86</a>          <strong class="jxr_keyword">return</strong> constantTerm;
+<a class="jxr_linenumber" name="L87" href="LinearObjectiveFunction.html#L87">87</a>      }
+<a class="jxr_linenumber" name="L88" href="LinearObjectiveFunction.html#L88">88</a>  
+<a class="jxr_linenumber" name="L89" href="LinearObjectiveFunction.html#L89">89</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L90" href="LinearObjectiveFunction.html#L90">90</a>  <em class="jxr_javadoccomment">     * Computes the value of the linear equation at the current point.</em>
+<a class="jxr_linenumber" name="L91" href="LinearObjectiveFunction.html#L91">91</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L92" href="LinearObjectiveFunction.html#L92">92</a>  <em class="jxr_javadoccomment">     * @param point Point at which linear equation must be evaluated.</em>
+<a class="jxr_linenumber" name="L93" href="LinearObjectiveFunction.html#L93">93</a>  <em class="jxr_javadoccomment">     * @return the value of the linear equation at the current point.</em>
+<a class="jxr_linenumber" name="L94" href="LinearObjectiveFunction.html#L94">94</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L95" href="LinearObjectiveFunction.html#L95">95</a>      @Override
+<a class="jxr_linenumber" name="L96" href="LinearObjectiveFunction.html#L96">96</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] point) {
+<a class="jxr_linenumber" name="L97" href="LinearObjectiveFunction.html#L97">97</a>          <strong class="jxr_keyword">return</strong> value(<strong class="jxr_keyword">new</strong> <a href="../../linear/ArrayRealVector.html">ArrayRealVector</a>(point, false));
+<a class="jxr_linenumber" name="L98" href="LinearObjectiveFunction.html#L98">98</a>      }
+<a class="jxr_linenumber" name="L99" href="LinearObjectiveFunction.html#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="LinearObjectiveFunction.html#L100">100</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L101" href="LinearObjectiveFunction.html#L101">101</a> <em class="jxr_javadoccomment">     * Computes the value of the linear equation at the current point.</em>
+<a class="jxr_linenumber" name="L102" href="LinearObjectiveFunction.html#L102">102</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L103" href="LinearObjectiveFunction.html#L103">103</a> <em class="jxr_javadoccomment">     * @param point Point at which linear equation must be evaluated.</em>
+<a class="jxr_linenumber" name="L104" href="LinearObjectiveFunction.html#L104">104</a> <em class="jxr_javadoccomment">     * @return the value of the linear equation at the current point.</em>
+<a class="jxr_linenumber" name="L105" href="LinearObjectiveFunction.html#L105">105</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L106" href="LinearObjectiveFunction.html#L106">106</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">final</strong> <a href="../../linear/RealVector.html">RealVector</a> point) {
+<a class="jxr_linenumber" name="L107" href="LinearObjectiveFunction.html#L107">107</a>         <strong class="jxr_keyword">return</strong> coefficients.dotProduct(point) + constantTerm;
+<a class="jxr_linenumber" name="L108" href="LinearObjectiveFunction.html#L108">108</a>     }
+<a class="jxr_linenumber" name="L109" href="LinearObjectiveFunction.html#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="LinearObjectiveFunction.html#L110">110</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L111" href="LinearObjectiveFunction.html#L111">111</a>     @Override
+<a class="jxr_linenumber" name="L112" href="LinearObjectiveFunction.html#L112">112</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equals(Object other) {
+<a class="jxr_linenumber" name="L113" href="LinearObjectiveFunction.html#L113">113</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong> == other) {
+<a class="jxr_linenumber" name="L114" href="LinearObjectiveFunction.html#L114">114</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L115" href="LinearObjectiveFunction.html#L115">115</a>         }
+<a class="jxr_linenumber" name="L116" href="LinearObjectiveFunction.html#L116">116</a>         <strong class="jxr_keyword">if</strong> (other instanceof LinearObjectiveFunction) {
+<a class="jxr_linenumber" name="L117" href="LinearObjectiveFunction.html#L117">117</a>             <a href="LinearObjectiveFunction.html">LinearObjectiveFunction</a> rhs = (LinearObjectiveFunction) other;
+<a class="jxr_linenumber" name="L118" href="LinearObjectiveFunction.html#L118">118</a>           <strong class="jxr_keyword">return</strong> (constantTerm == rhs.constantTerm) &amp;&amp; coefficients.equals(rhs.coefficients);
+<a class="jxr_linenumber" name="L119" href="LinearObjectiveFunction.html#L119">119</a>         }
+<a class="jxr_linenumber" name="L120" href="LinearObjectiveFunction.html#L120">120</a> 
+<a class="jxr_linenumber" name="L121" href="LinearObjectiveFunction.html#L121">121</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L122" href="LinearObjectiveFunction.html#L122">122</a>     }
+<a class="jxr_linenumber" name="L123" href="LinearObjectiveFunction.html#L123">123</a> 
+<a class="jxr_linenumber" name="L124" href="LinearObjectiveFunction.html#L124">124</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L125" href="LinearObjectiveFunction.html#L125">125</a>     @Override
+<a class="jxr_linenumber" name="L126" href="LinearObjectiveFunction.html#L126">126</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> hashCode() {
+<a class="jxr_linenumber" name="L127" href="LinearObjectiveFunction.html#L127">127</a>         <strong class="jxr_keyword">return</strong> Double.valueOf(constantTerm).hashCode() ^ coefficients.hashCode();
+<a class="jxr_linenumber" name="L128" href="LinearObjectiveFunction.html#L128">128</a>     }
+<a class="jxr_linenumber" name="L129" href="LinearObjectiveFunction.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="LinearObjectiveFunction.html#L130">130</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L131" href="LinearObjectiveFunction.html#L131">131</a> <em class="jxr_javadoccomment">     * Serialize the instance.</em>
+<a class="jxr_linenumber" name="L132" href="LinearObjectiveFunction.html#L132">132</a> <em class="jxr_javadoccomment">     * @param oos stream where object should be written</em>
+<a class="jxr_linenumber" name="L133" href="LinearObjectiveFunction.html#L133">133</a> <em class="jxr_javadoccomment">     * @throws IOException if object cannot be written to stream</em>
+<a class="jxr_linenumber" name="L134" href="LinearObjectiveFunction.html#L134">134</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L135" href="LinearObjectiveFunction.html#L135">135</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> writeObject(ObjectOutputStream oos)
+<a class="jxr_linenumber" name="L136" href="LinearObjectiveFunction.html#L136">136</a>         <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L137" href="LinearObjectiveFunction.html#L137">137</a>         oos.defaultWriteObject();
+<a class="jxr_linenumber" name="L138" href="LinearObjectiveFunction.html#L138">138</a>         MatrixUtils.serializeRealVector(coefficients, oos);
+<a class="jxr_linenumber" name="L139" href="LinearObjectiveFunction.html#L139">139</a>     }
+<a class="jxr_linenumber" name="L140" href="LinearObjectiveFunction.html#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="LinearObjectiveFunction.html#L141">141</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L142" href="LinearObjectiveFunction.html#L142">142</a> <em class="jxr_javadoccomment">     * Deserialize the instance.</em>
+<a class="jxr_linenumber" name="L143" href="LinearObjectiveFunction.html#L143">143</a> <em class="jxr_javadoccomment">     * @param ois stream from which the object should be read</em>
+<a class="jxr_linenumber" name="L144" href="LinearObjectiveFunction.html#L144">144</a> <em class="jxr_javadoccomment">     * @throws ClassNotFoundException if a class in the stream cannot be found</em>
+<a class="jxr_linenumber" name="L145" href="LinearObjectiveFunction.html#L145">145</a> <em class="jxr_javadoccomment">     * @throws IOException if object cannot be read from the stream</em>
+<a class="jxr_linenumber" name="L146" href="LinearObjectiveFunction.html#L146">146</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L147" href="LinearObjectiveFunction.html#L147">147</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> readObject(ObjectInputStream ois)
+<a class="jxr_linenumber" name="L148" href="LinearObjectiveFunction.html#L148">148</a>       <strong class="jxr_keyword">throws</strong> ClassNotFoundException, IOException {
+<a class="jxr_linenumber" name="L149" href="LinearObjectiveFunction.html#L149">149</a>         ois.defaultReadObject();
+<a class="jxr_linenumber" name="L150" href="LinearObjectiveFunction.html#L150">150</a>         MatrixUtils.deserializeRealVector(<strong class="jxr_keyword">this</strong>, <span class="jxr_string">"coefficients"</span>, ois);
+<a class="jxr_linenumber" name="L151" href="LinearObjectiveFunction.html#L151">151</a>     }
+<a class="jxr_linenumber" name="L152" href="LinearObjectiveFunction.html#L152">152</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

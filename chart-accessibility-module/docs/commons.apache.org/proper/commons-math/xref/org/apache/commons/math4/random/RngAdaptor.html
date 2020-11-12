@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>RngAdaptor xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/random/RngAdaptor.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="RngAdaptor.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="RngAdaptor.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="RngAdaptor.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="RngAdaptor.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="RngAdaptor.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="RngAdaptor.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="RngAdaptor.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="RngAdaptor.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="RngAdaptor.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="RngAdaptor.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="RngAdaptor.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="RngAdaptor.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="RngAdaptor.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="RngAdaptor.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="RngAdaptor.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="RngAdaptor.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="RngAdaptor.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.random;
+<a class="jxr_linenumber" name="L18" href="RngAdaptor.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="RngAdaptor.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.io.Serializable;
+<a class="jxr_linenumber" name="L20" href="RngAdaptor.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L21" href="RngAdaptor.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.io.ObjectOutputStream;
+<a class="jxr_linenumber" name="L22" href="RngAdaptor.html#L22">22</a>  <strong class="jxr_keyword">import</strong> java.io.ObjectInputStream;
+<a class="jxr_linenumber" name="L23" href="RngAdaptor.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L24" href="RngAdaptor.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L25" href="RngAdaptor.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.RandomSource;
+<a class="jxr_linenumber" name="L26" href="RngAdaptor.html#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="RngAdaptor.html#L27">27</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L28" href="RngAdaptor.html#L28">28</a>  <em class="jxr_javadoccomment"> * Adaptor that delegates to a {@link UniformRandomProvider} instance.</em>
+<a class="jxr_linenumber" name="L29" href="RngAdaptor.html#L29">29</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L30" href="RngAdaptor.html#L30">30</a>  <em class="jxr_javadoccomment"> * It is provided for users who wish to test the new RNG implementations</em>
+<a class="jxr_linenumber" name="L31" href="RngAdaptor.html#L31">31</a>  <em class="jxr_javadoccomment"> * the &lt;i&gt;current&lt;/i&gt; generators (up to version 3.6 of Commons Math) in</em>
+<a class="jxr_linenumber" name="L32" href="RngAdaptor.html#L32">32</a>  <em class="jxr_javadoccomment"> * codes that require the {@code RandomGenerator} interface.</em>
+<a class="jxr_linenumber" name="L33" href="RngAdaptor.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L34" href="RngAdaptor.html#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L35" href="RngAdaptor.html#L35">35</a>  <em class="jxr_javadoccomment"> * Applications should upgrade to use the new generators ASAP.</em>
+<a class="jxr_linenumber" name="L36" href="RngAdaptor.html#L36">36</a>  <em class="jxr_javadoccomment"> * If problems are found that jeopardize the upgrade, please report them</em>
+<a class="jxr_linenumber" name="L37" href="RngAdaptor.html#L37">37</a>  <em class="jxr_javadoccomment"> * on the project's</em>
+<a class="jxr_linenumber" name="L38" href="RngAdaptor.html#L38">38</a>  <em class="jxr_javadoccomment"> * &lt;a href="https://issues.apache.org/jira/browse/MATH"&gt;</em>
+<a class="jxr_linenumber" name="L39" href="RngAdaptor.html#L39">39</a>  <em class="jxr_javadoccomment"> *  issue tracking system&lt;/a&gt;.</em>
+<a class="jxr_linenumber" name="L40" href="RngAdaptor.html#L40">40</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L41" href="RngAdaptor.html#L41">41</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L42" href="RngAdaptor.html#L42">42</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L43" href="RngAdaptor.html#L43">43</a>  <em class="jxr_javadoccomment"> * &lt;b&gt;Notes:&lt;/b&gt;</em>
+<a class="jxr_linenumber" name="L44" href="RngAdaptor.html#L44">44</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L45" href="RngAdaptor.html#L45">45</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L46" href="RngAdaptor.html#L46">46</a>  <em class="jxr_javadoccomment"> *   The</em>
+<a class="jxr_linenumber" name="L47" href="RngAdaptor.html#L47">47</a>  <em class="jxr_javadoccomment"> *   {@link RandomGenerator#setSeed(int) setSeed(int)},</em>
+<a class="jxr_linenumber" name="L48" href="RngAdaptor.html#L48">48</a>  <em class="jxr_javadoccomment"> *   {@link RandomGenerator#setSeed(int[]) setSeed(int[])} and</em>
+<a class="jxr_linenumber" name="L49" href="RngAdaptor.html#L49">49</a>  <em class="jxr_javadoccomment"> *   {@link RandomGenerator#setSeed(long) setSeed(long)}</em>
+<a class="jxr_linenumber" name="L50" href="RngAdaptor.html#L50">50</a>  <em class="jxr_javadoccomment"> *   methods of the {@link RandomGenerator} are not part of the</em>
+<a class="jxr_linenumber" name="L51" href="RngAdaptor.html#L51">51</a>  <em class="jxr_javadoccomment"> *   {@link UniformRandomProvider new API}.</em>
+<a class="jxr_linenumber" name="L52" href="RngAdaptor.html#L52">52</a>  <em class="jxr_javadoccomment"> *  &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L53" href="RngAdaptor.html#L53">53</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L54" href="RngAdaptor.html#L54">54</a>  <em class="jxr_javadoccomment"> *   The new RNG implementations are not {@code Serializable}.</em>
+<a class="jxr_linenumber" name="L55" href="RngAdaptor.html#L55">55</a>  <em class="jxr_javadoccomment"> *   Use {@link RandomSource#saveState(UniformRandomProvider)}</em>
+<a class="jxr_linenumber" name="L56" href="RngAdaptor.html#L56">56</a>  <em class="jxr_javadoccomment"> *   instead.</em>
+<a class="jxr_linenumber" name="L57" href="RngAdaptor.html#L57">57</a>  <em class="jxr_javadoccomment"> *  &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L58" href="RngAdaptor.html#L58">58</a>  <em class="jxr_javadoccomment"> *  &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L59" href="RngAdaptor.html#L59">59</a>  <em class="jxr_javadoccomment"> *   {@link RandomGenerator#nextGaussian() nextGaussian()} is not</em>
+<a class="jxr_linenumber" name="L60" href="RngAdaptor.html#L60">60</a>  <em class="jxr_javadoccomment"> *   part of the {@link UniformRandomProvider new API} as it defines</em>
+<a class="jxr_linenumber" name="L61" href="RngAdaptor.html#L61">61</a>  <em class="jxr_javadoccomment"> *   a "post-processing" of the output of a &lt;i&gt;uniform&lt;/i&gt; RNG in</em>
+<a class="jxr_linenumber" name="L62" href="RngAdaptor.html#L62">62</a>  <em class="jxr_javadoccomment"> *   order to follow a different distribution.</em>
+<a class="jxr_linenumber" name="L63" href="RngAdaptor.html#L63">63</a>  <em class="jxr_javadoccomment"> *  &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L64" href="RngAdaptor.html#L64">64</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L65" href="RngAdaptor.html#L65">65</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L66" href="RngAdaptor.html#L66">66</a>  <em class="jxr_javadoccomment"> * @since 4.0</em>
+<a class="jxr_linenumber" name="L67" href="RngAdaptor.html#L67">67</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L68" href="RngAdaptor.html#L68">68</a>  <em class="jxr_javadoccomment"> * @deprecated As of 4.0. This class is made available for testing</em>
+<a class="jxr_linenumber" name="L69" href="RngAdaptor.html#L69">69</a>  <em class="jxr_javadoccomment"> * the {@link RandomSource new RNG implementations} in existing</em>
+<a class="jxr_linenumber" name="L70" href="RngAdaptor.html#L70">70</a>  <em class="jxr_javadoccomment"> * applications.</em>
+<a class="jxr_linenumber" name="L71" href="RngAdaptor.html#L71">71</a>  <em class="jxr_javadoccomment"> * It will be removed in the next major release.</em>
+<a class="jxr_linenumber" name="L72" href="RngAdaptor.html#L72">72</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L73" href="RngAdaptor.html#L73">73</a>  @Deprecated
+<a class="jxr_linenumber" name="L74" href="RngAdaptor.html#L74">74</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="RngAdaptor.html">RngAdaptor</a>
+<a class="jxr_linenumber" name="L75" href="RngAdaptor.html#L75">75</a>      <strong class="jxr_keyword">implements</strong> RandomGenerator,
+<a class="jxr_linenumber" name="L76" href="RngAdaptor.html#L76">76</a>                 Serializable {
+<a class="jxr_linenumber" name="L77" href="RngAdaptor.html#L77">77</a>      <em class="jxr_javadoccomment">/** Serializable version identifier. */</em>
+<a class="jxr_linenumber" name="L78" href="RngAdaptor.html#L78">78</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 12345L;
+<a class="jxr_linenumber" name="L79" href="RngAdaptor.html#L79">79</a>      <em class="jxr_javadoccomment">/** Source. */</em>
+<a class="jxr_linenumber" name="L80" href="RngAdaptor.html#L80">80</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> RandomSource source;
+<a class="jxr_linenumber" name="L81" href="RngAdaptor.html#L81">81</a>      <em class="jxr_javadoccomment">/** Delegate. */</em>
+<a class="jxr_linenumber" name="L82" href="RngAdaptor.html#L82">82</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> UniformRandomProvider delegate;
+<a class="jxr_linenumber" name="L83" href="RngAdaptor.html#L83">83</a>      <em class="jxr_javadoccomment">/** Next gaussian. */</em>
+<a class="jxr_linenumber" name="L84" href="RngAdaptor.html#L84">84</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> nextGaussian = Double.NaN;
+<a class="jxr_linenumber" name="L85" href="RngAdaptor.html#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="RngAdaptor.html#L86">86</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L87" href="RngAdaptor.html#L87">87</a>  <em class="jxr_javadoccomment">     * Creates a new instance.</em>
+<a class="jxr_linenumber" name="L88" href="RngAdaptor.html#L88">88</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L89" href="RngAdaptor.html#L89">89</a>  <em class="jxr_javadoccomment">     * @param source Source of randomness.</em>
+<a class="jxr_linenumber" name="L90" href="RngAdaptor.html#L90">90</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L91" href="RngAdaptor.html#L91">91</a>      <strong class="jxr_keyword">public</strong> <a href="RngAdaptor.html">RngAdaptor</a>(RandomSource source) {
+<a class="jxr_linenumber" name="L92" href="RngAdaptor.html#L92">92</a>          <strong class="jxr_keyword">this</strong>(source, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L93" href="RngAdaptor.html#L93">93</a>      }
+<a class="jxr_linenumber" name="L94" href="RngAdaptor.html#L94">94</a>  
+<a class="jxr_linenumber" name="L95" href="RngAdaptor.html#L95">95</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L96" href="RngAdaptor.html#L96">96</a>  <em class="jxr_javadoccomment">     * Creates a new instance.</em>
+<a class="jxr_linenumber" name="L97" href="RngAdaptor.html#L97">97</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L98" href="RngAdaptor.html#L98">98</a>  <em class="jxr_javadoccomment">     * @param source Source of randomness.</em>
+<a class="jxr_linenumber" name="L99" href="RngAdaptor.html#L99">99</a>  <em class="jxr_javadoccomment">     * @param seed Seed.  Can be {@code null}.</em>
+<a class="jxr_linenumber" name="L100" href="RngAdaptor.html#L100">100</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L101" href="RngAdaptor.html#L101">101</a>     <strong class="jxr_keyword">public</strong> <a href="RngAdaptor.html">RngAdaptor</a>(RandomSource source,
+<a class="jxr_linenumber" name="L102" href="RngAdaptor.html#L102">102</a>                       Object seed) {
+<a class="jxr_linenumber" name="L103" href="RngAdaptor.html#L103">103</a>         <strong class="jxr_keyword">this</strong>.source = source;
+<a class="jxr_linenumber" name="L104" href="RngAdaptor.html#L104">104</a>         delegate = RandomSource.create(source, seed);
+<a class="jxr_linenumber" name="L105" href="RngAdaptor.html#L105">105</a>     }
+<a class="jxr_linenumber" name="L106" href="RngAdaptor.html#L106">106</a> 
+<a class="jxr_linenumber" name="L107" href="RngAdaptor.html#L107">107</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L108" href="RngAdaptor.html#L108">108</a>     @Override
+<a class="jxr_linenumber" name="L109" href="RngAdaptor.html#L109">109</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setSeed(<strong class="jxr_keyword">int</strong> seed) {
+<a class="jxr_linenumber" name="L110" href="RngAdaptor.html#L110">110</a>         delegate = RandomSource.create(source, seed);
+<a class="jxr_linenumber" name="L111" href="RngAdaptor.html#L111">111</a>         clear();
+<a class="jxr_linenumber" name="L112" href="RngAdaptor.html#L112">112</a>     }
+<a class="jxr_linenumber" name="L113" href="RngAdaptor.html#L113">113</a> 
+<a class="jxr_linenumber" name="L114" href="RngAdaptor.html#L114">114</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L115" href="RngAdaptor.html#L115">115</a>     @Override
+<a class="jxr_linenumber" name="L116" href="RngAdaptor.html#L116">116</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setSeed(<strong class="jxr_keyword">int</strong>[] seed) {
+<a class="jxr_linenumber" name="L117" href="RngAdaptor.html#L117">117</a>         delegate = RandomSource.create(source, seed);
+<a class="jxr_linenumber" name="L118" href="RngAdaptor.html#L118">118</a>         clear();
+<a class="jxr_linenumber" name="L119" href="RngAdaptor.html#L119">119</a>     }
+<a class="jxr_linenumber" name="L120" href="RngAdaptor.html#L120">120</a> 
+<a class="jxr_linenumber" name="L121" href="RngAdaptor.html#L121">121</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L122" href="RngAdaptor.html#L122">122</a>     @Override
+<a class="jxr_linenumber" name="L123" href="RngAdaptor.html#L123">123</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setSeed(<strong class="jxr_keyword">long</strong> seed) {
+<a class="jxr_linenumber" name="L124" href="RngAdaptor.html#L124">124</a>         delegate = RandomSource.create(source, seed);
+<a class="jxr_linenumber" name="L125" href="RngAdaptor.html#L125">125</a>         clear();
+<a class="jxr_linenumber" name="L126" href="RngAdaptor.html#L126">126</a>     }
+<a class="jxr_linenumber" name="L127" href="RngAdaptor.html#L127">127</a> 
+<a class="jxr_linenumber" name="L128" href="RngAdaptor.html#L128">128</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L129" href="RngAdaptor.html#L129">129</a>     @Override
+<a class="jxr_linenumber" name="L130" href="RngAdaptor.html#L130">130</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> nextBoolean() {
+<a class="jxr_linenumber" name="L131" href="RngAdaptor.html#L131">131</a>         <strong class="jxr_keyword">return</strong> delegate.nextBoolean();
+<a class="jxr_linenumber" name="L132" href="RngAdaptor.html#L132">132</a>     }
+<a class="jxr_linenumber" name="L133" href="RngAdaptor.html#L133">133</a> 
+<a class="jxr_linenumber" name="L134" href="RngAdaptor.html#L134">134</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L135" href="RngAdaptor.html#L135">135</a>     @Override
+<a class="jxr_linenumber" name="L136" href="RngAdaptor.html#L136">136</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> nextBytes(byte[] bytes) {
+<a class="jxr_linenumber" name="L137" href="RngAdaptor.html#L137">137</a>         delegate.nextBytes(bytes);
+<a class="jxr_linenumber" name="L138" href="RngAdaptor.html#L138">138</a>     }
+<a class="jxr_linenumber" name="L139" href="RngAdaptor.html#L139">139</a> 
+<a class="jxr_linenumber" name="L140" href="RngAdaptor.html#L140">140</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L141" href="RngAdaptor.html#L141">141</a>     @Override
+<a class="jxr_linenumber" name="L142" href="RngAdaptor.html#L142">142</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> nextDouble() {
+<a class="jxr_linenumber" name="L143" href="RngAdaptor.html#L143">143</a>         <strong class="jxr_keyword">return</strong> delegate.nextDouble();
+<a class="jxr_linenumber" name="L144" href="RngAdaptor.html#L144">144</a>     }
+<a class="jxr_linenumber" name="L145" href="RngAdaptor.html#L145">145</a> 
+<a class="jxr_linenumber" name="L146" href="RngAdaptor.html#L146">146</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L147" href="RngAdaptor.html#L147">147</a>     @Override
+<a class="jxr_linenumber" name="L148" href="RngAdaptor.html#L148">148</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">float</strong> nextFloat() {
+<a class="jxr_linenumber" name="L149" href="RngAdaptor.html#L149">149</a>         <strong class="jxr_keyword">return</strong> delegate.nextFloat();
+<a class="jxr_linenumber" name="L150" href="RngAdaptor.html#L150">150</a>     }
+<a class="jxr_linenumber" name="L151" href="RngAdaptor.html#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="RngAdaptor.html#L152">152</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L153" href="RngAdaptor.html#L153">153</a>     @Override
+<a class="jxr_linenumber" name="L154" href="RngAdaptor.html#L154">154</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> nextGaussian() {
+<a class="jxr_linenumber" name="L155" href="RngAdaptor.html#L155">155</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> random;
+<a class="jxr_linenumber" name="L156" href="RngAdaptor.html#L156">156</a>         <strong class="jxr_keyword">if</strong> (Double.isNaN(nextGaussian)) {
+<a class="jxr_linenumber" name="L157" href="RngAdaptor.html#L157">157</a>             <em class="jxr_comment">// generate a new pair of gaussian numbers</em>
+<a class="jxr_linenumber" name="L158" href="RngAdaptor.html#L158">158</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x = nextDouble();
+<a class="jxr_linenumber" name="L159" href="RngAdaptor.html#L159">159</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y = nextDouble();
+<a class="jxr_linenumber" name="L160" href="RngAdaptor.html#L160">160</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> alpha = 2 * FastMath.PI * x;
+<a class="jxr_linenumber" name="L161" href="RngAdaptor.html#L161">161</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> r = FastMath.sqrt(-2 * FastMath.log(y));
+<a class="jxr_linenumber" name="L162" href="RngAdaptor.html#L162">162</a>             random = r * FastMath.cos(alpha);
+<a class="jxr_linenumber" name="L163" href="RngAdaptor.html#L163">163</a>             nextGaussian = r * FastMath.sin(alpha);
+<a class="jxr_linenumber" name="L164" href="RngAdaptor.html#L164">164</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L165" href="RngAdaptor.html#L165">165</a>             <em class="jxr_comment">// use the second element of the pair already generated</em>
+<a class="jxr_linenumber" name="L166" href="RngAdaptor.html#L166">166</a>             random = nextGaussian;
+<a class="jxr_linenumber" name="L167" href="RngAdaptor.html#L167">167</a>             nextGaussian = Double.NaN;
+<a class="jxr_linenumber" name="L168" href="RngAdaptor.html#L168">168</a>         }
+<a class="jxr_linenumber" name="L169" href="RngAdaptor.html#L169">169</a> 
+<a class="jxr_linenumber" name="L170" href="RngAdaptor.html#L170">170</a>         <strong class="jxr_keyword">return</strong> random;
+<a class="jxr_linenumber" name="L171" href="RngAdaptor.html#L171">171</a>     }
+<a class="jxr_linenumber" name="L172" href="RngAdaptor.html#L172">172</a> 
+<a class="jxr_linenumber" name="L173" href="RngAdaptor.html#L173">173</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L174" href="RngAdaptor.html#L174">174</a>     @Override
+<a class="jxr_linenumber" name="L175" href="RngAdaptor.html#L175">175</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> nextInt() {
+<a class="jxr_linenumber" name="L176" href="RngAdaptor.html#L176">176</a>         <strong class="jxr_keyword">return</strong> delegate.nextInt();
+<a class="jxr_linenumber" name="L177" href="RngAdaptor.html#L177">177</a>     }
+<a class="jxr_linenumber" name="L178" href="RngAdaptor.html#L178">178</a> 
+<a class="jxr_linenumber" name="L179" href="RngAdaptor.html#L179">179</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L180" href="RngAdaptor.html#L180">180</a>     @Override
+<a class="jxr_linenumber" name="L181" href="RngAdaptor.html#L181">181</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> nextInt(<strong class="jxr_keyword">int</strong> n) {
+<a class="jxr_linenumber" name="L182" href="RngAdaptor.html#L182">182</a>         <strong class="jxr_keyword">return</strong> delegate.nextInt(n);
+<a class="jxr_linenumber" name="L183" href="RngAdaptor.html#L183">183</a>     }
+<a class="jxr_linenumber" name="L184" href="RngAdaptor.html#L184">184</a> 
+<a class="jxr_linenumber" name="L185" href="RngAdaptor.html#L185">185</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L186" href="RngAdaptor.html#L186">186</a>     @Override
+<a class="jxr_linenumber" name="L187" href="RngAdaptor.html#L187">187</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> nextLong() {
+<a class="jxr_linenumber" name="L188" href="RngAdaptor.html#L188">188</a>         <strong class="jxr_keyword">return</strong> delegate.nextLong();
+<a class="jxr_linenumber" name="L189" href="RngAdaptor.html#L189">189</a>     }
+<a class="jxr_linenumber" name="L190" href="RngAdaptor.html#L190">190</a> 
+<a class="jxr_linenumber" name="L191" href="RngAdaptor.html#L191">191</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L192" href="RngAdaptor.html#L192">192</a> <em class="jxr_javadoccomment">     * Clears the cache used by the default implementation of</em>
+<a class="jxr_linenumber" name="L193" href="RngAdaptor.html#L193">193</a> <em class="jxr_javadoccomment">     * {@link #nextGaussian}.</em>
+<a class="jxr_linenumber" name="L194" href="RngAdaptor.html#L194">194</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L195" href="RngAdaptor.html#L195">195</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> clear() {
+<a class="jxr_linenumber" name="L196" href="RngAdaptor.html#L196">196</a>         nextGaussian = Double.NaN;
+<a class="jxr_linenumber" name="L197" href="RngAdaptor.html#L197">197</a>     }
+<a class="jxr_linenumber" name="L198" href="RngAdaptor.html#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="RngAdaptor.html#L199">199</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L200" href="RngAdaptor.html#L200">200</a> <em class="jxr_javadoccomment">     * @param out Output stream.</em>
+<a class="jxr_linenumber" name="L201" href="RngAdaptor.html#L201">201</a> <em class="jxr_javadoccomment">     * @throws IOException if an error occurs.</em>
+<a class="jxr_linenumber" name="L202" href="RngAdaptor.html#L202">202</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L203" href="RngAdaptor.html#L203">203</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> writeObject(ObjectOutputStream out)
+<a class="jxr_linenumber" name="L204" href="RngAdaptor.html#L204">204</a>         <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L205" href="RngAdaptor.html#L205">205</a>         <em class="jxr_comment">// Write non-transient fields.</em>
+<a class="jxr_linenumber" name="L206" href="RngAdaptor.html#L206">206</a>         out.defaultWriteObject();
+<a class="jxr_linenumber" name="L207" href="RngAdaptor.html#L207">207</a> 
+<a class="jxr_linenumber" name="L208" href="RngAdaptor.html#L208">208</a>         <em class="jxr_comment">// Save current state.</em>
+<a class="jxr_linenumber" name="L209" href="RngAdaptor.html#L209">209</a>         out.writeObject(RandomSource.saveState(delegate).getState());
+<a class="jxr_linenumber" name="L210" href="RngAdaptor.html#L210">210</a>    }
+<a class="jxr_linenumber" name="L211" href="RngAdaptor.html#L211">211</a> 
+<a class="jxr_linenumber" name="L212" href="RngAdaptor.html#L212">212</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L213" href="RngAdaptor.html#L213">213</a> <em class="jxr_javadoccomment">     * @param in Input stream.</em>
+<a class="jxr_linenumber" name="L214" href="RngAdaptor.html#L214">214</a> <em class="jxr_javadoccomment">     * @throws IOException if an error occurs.</em>
+<a class="jxr_linenumber" name="L215" href="RngAdaptor.html#L215">215</a> <em class="jxr_javadoccomment">     * @throws ClassNotFoundException if an error occurs.</em>
+<a class="jxr_linenumber" name="L216" href="RngAdaptor.html#L216">216</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L217" href="RngAdaptor.html#L217">217</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> readObject(ObjectInputStream in)
+<a class="jxr_linenumber" name="L218" href="RngAdaptor.html#L218">218</a>         <strong class="jxr_keyword">throws</strong> IOException,
+<a class="jxr_linenumber" name="L219" href="RngAdaptor.html#L219">219</a>                ClassNotFoundException {
+<a class="jxr_linenumber" name="L220" href="RngAdaptor.html#L220">220</a>         <em class="jxr_comment">// Read non-transient fields.</em>
+<a class="jxr_linenumber" name="L221" href="RngAdaptor.html#L221">221</a>         in.defaultReadObject();
+<a class="jxr_linenumber" name="L222" href="RngAdaptor.html#L222">222</a> 
+<a class="jxr_linenumber" name="L223" href="RngAdaptor.html#L223">223</a>         <em class="jxr_comment">// Recreate the "delegate" from serialized info.</em>
+<a class="jxr_linenumber" name="L224" href="RngAdaptor.html#L224">224</a>         delegate = RandomSource.create(source);
+<a class="jxr_linenumber" name="L225" href="RngAdaptor.html#L225">225</a>         <em class="jxr_comment">// And restore its state.</em>
+<a class="jxr_linenumber" name="L226" href="RngAdaptor.html#L226">226</a>         <strong class="jxr_keyword">final</strong> RandomSource.State state = <strong class="jxr_keyword">new</strong> RandomSource.State((byte[]) in.readObject());
+<a class="jxr_linenumber" name="L227" href="RngAdaptor.html#L227">227</a>         RandomSource.restoreState(delegate, state);
+<a class="jxr_linenumber" name="L228" href="RngAdaptor.html#L228">228</a>     }
+<a class="jxr_linenumber" name="L229" href="RngAdaptor.html#L229">229</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

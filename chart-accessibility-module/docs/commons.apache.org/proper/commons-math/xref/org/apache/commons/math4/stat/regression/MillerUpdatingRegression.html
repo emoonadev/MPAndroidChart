@@ -1,0 +1,1122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>MillerUpdatingRegression xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/stat/regression/MillerUpdatingRegression.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="MillerUpdatingRegression.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="MillerUpdatingRegression.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="MillerUpdatingRegression.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="MillerUpdatingRegression.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="MillerUpdatingRegression.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="MillerUpdatingRegression.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="MillerUpdatingRegression.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="MillerUpdatingRegression.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="MillerUpdatingRegression.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="MillerUpdatingRegression.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="MillerUpdatingRegression.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="MillerUpdatingRegression.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="MillerUpdatingRegression.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="MillerUpdatingRegression.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="MillerUpdatingRegression.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="MillerUpdatingRegression.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="MillerUpdatingRegression.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.stat.regression;
+<a class="jxr_linenumber" name="L18" href="MillerUpdatingRegression.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="MillerUpdatingRegression.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L20" href="MillerUpdatingRegression.html#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="MillerUpdatingRegression.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L22" href="MillerUpdatingRegression.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L23" href="MillerUpdatingRegression.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L24" href="MillerUpdatingRegression.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Precision;
+<a class="jxr_linenumber" name="L25" href="MillerUpdatingRegression.html#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="MillerUpdatingRegression.html#L26">26</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L27" href="MillerUpdatingRegression.html#L27">27</a>  <em class="jxr_javadoccomment"> * This class is a concrete implementation of the {@link UpdatingMultipleLinearRegression} interface.</em>
+<a class="jxr_linenumber" name="L28" href="MillerUpdatingRegression.html#L28">28</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L29" href="MillerUpdatingRegression.html#L29">29</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;The algorithm is described in: &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L30" href="MillerUpdatingRegression.html#L30">30</a>  <em class="jxr_javadoccomment"> * Algorithm AS 274: Least Squares Routines to Supplement Those of Gentleman</em>
+<a class="jxr_linenumber" name="L31" href="MillerUpdatingRegression.html#L31">31</a>  <em class="jxr_javadoccomment"> * Author(s): Alan J. Miller</em>
+<a class="jxr_linenumber" name="L32" href="MillerUpdatingRegression.html#L32">32</a>  <em class="jxr_javadoccomment"> * Source: Journal of the Royal Statistical Society.</em>
+<a class="jxr_linenumber" name="L33" href="MillerUpdatingRegression.html#L33">33</a>  <em class="jxr_javadoccomment"> * Series C (Applied Statistics), Vol. 41, No. 2</em>
+<a class="jxr_linenumber" name="L34" href="MillerUpdatingRegression.html#L34">34</a>  <em class="jxr_javadoccomment"> * (1992), pp. 458-478</em>
+<a class="jxr_linenumber" name="L35" href="MillerUpdatingRegression.html#L35">35</a>  <em class="jxr_javadoccomment"> * Published by: Blackwell Publishing for the Royal Statistical Society</em>
+<a class="jxr_linenumber" name="L36" href="MillerUpdatingRegression.html#L36">36</a>  <em class="jxr_javadoccomment"> * Stable URL: <a href="http://www.jstor.org/stable/2347583" target="alexandria_uri">http://www.jstor.org/stable/2347583</a> &lt;/pre&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L37" href="MillerUpdatingRegression.html#L37">37</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L38" href="MillerUpdatingRegression.html#L38">38</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This method for multiple regression forms the solution to the OLS problem</em>
+<a class="jxr_linenumber" name="L39" href="MillerUpdatingRegression.html#L39">39</a>  <em class="jxr_javadoccomment"> * by updating the QR decomposition as described by Gentleman.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L40" href="MillerUpdatingRegression.html#L40">40</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L41" href="MillerUpdatingRegression.html#L41">41</a>  <em class="jxr_javadoccomment"> * @since 3.0</em>
+<a class="jxr_linenumber" name="L42" href="MillerUpdatingRegression.html#L42">42</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L43" href="MillerUpdatingRegression.html#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="MillerUpdatingRegression.html">MillerUpdatingRegression</a> <strong class="jxr_keyword">implements</strong> <a href="UpdatingMultipleLinearRegression.html">UpdatingMultipleLinearRegression</a> {
+<a class="jxr_linenumber" name="L44" href="MillerUpdatingRegression.html#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="MillerUpdatingRegression.html#L45">45</a>      <em class="jxr_javadoccomment">/** number of variables in regression */</em>
+<a class="jxr_linenumber" name="L46" href="MillerUpdatingRegression.html#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nvars;
+<a class="jxr_linenumber" name="L47" href="MillerUpdatingRegression.html#L47">47</a>      <em class="jxr_javadoccomment">/** diagonals of cross products matrix */</em>
+<a class="jxr_linenumber" name="L48" href="MillerUpdatingRegression.html#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] d;
+<a class="jxr_linenumber" name="L49" href="MillerUpdatingRegression.html#L49">49</a>      <em class="jxr_javadoccomment">/** the elements of the R`Y */</em>
+<a class="jxr_linenumber" name="L50" href="MillerUpdatingRegression.html#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] rhs;
+<a class="jxr_linenumber" name="L51" href="MillerUpdatingRegression.html#L51">51</a>      <em class="jxr_javadoccomment">/** the off diagonal portion of the R matrix */</em>
+<a class="jxr_linenumber" name="L52" href="MillerUpdatingRegression.html#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] r;
+<a class="jxr_linenumber" name="L53" href="MillerUpdatingRegression.html#L53">53</a>      <em class="jxr_javadoccomment">/** the tolerance for each of the variables */</em>
+<a class="jxr_linenumber" name="L54" href="MillerUpdatingRegression.html#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] tol;
+<a class="jxr_linenumber" name="L55" href="MillerUpdatingRegression.html#L55">55</a>      <em class="jxr_javadoccomment">/** residual sum of squares for all nested regressions */</em>
+<a class="jxr_linenumber" name="L56" href="MillerUpdatingRegression.html#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] rss;
+<a class="jxr_linenumber" name="L57" href="MillerUpdatingRegression.html#L57">57</a>      <em class="jxr_javadoccomment">/** order of the regressors */</em>
+<a class="jxr_linenumber" name="L58" href="MillerUpdatingRegression.html#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] vorder;
+<a class="jxr_linenumber" name="L59" href="MillerUpdatingRegression.html#L59">59</a>      <em class="jxr_javadoccomment">/** scratch space for tolerance calc */</em>
+<a class="jxr_linenumber" name="L60" href="MillerUpdatingRegression.html#L60">60</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] work_tolset;
+<a class="jxr_linenumber" name="L61" href="MillerUpdatingRegression.html#L61">61</a>      <em class="jxr_javadoccomment">/** number of observations entered */</em>
+<a class="jxr_linenumber" name="L62" href="MillerUpdatingRegression.html#L62">62</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> nobs = 0;
+<a class="jxr_linenumber" name="L63" href="MillerUpdatingRegression.html#L63">63</a>      <em class="jxr_javadoccomment">/** sum of squared errors of largest regression */</em>
+<a class="jxr_linenumber" name="L64" href="MillerUpdatingRegression.html#L64">64</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> sserr = 0.0;
+<a class="jxr_linenumber" name="L65" href="MillerUpdatingRegression.html#L65">65</a>      <em class="jxr_javadoccomment">/** has rss been called? */</em>
+<a class="jxr_linenumber" name="L66" href="MillerUpdatingRegression.html#L66">66</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> rss_set = false;
+<a class="jxr_linenumber" name="L67" href="MillerUpdatingRegression.html#L67">67</a>      <em class="jxr_javadoccomment">/** has the tolerance setting method been called */</em>
+<a class="jxr_linenumber" name="L68" href="MillerUpdatingRegression.html#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> tol_set = false;
+<a class="jxr_linenumber" name="L69" href="MillerUpdatingRegression.html#L69">69</a>      <em class="jxr_javadoccomment">/** flags for variables with linear dependency problems */</em>
+<a class="jxr_linenumber" name="L70" href="MillerUpdatingRegression.html#L70">70</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong>[] lindep;
+<a class="jxr_linenumber" name="L71" href="MillerUpdatingRegression.html#L71">71</a>      <em class="jxr_javadoccomment">/** singular x values */</em>
+<a class="jxr_linenumber" name="L72" href="MillerUpdatingRegression.html#L72">72</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] x_sing;
+<a class="jxr_linenumber" name="L73" href="MillerUpdatingRegression.html#L73">73</a>      <em class="jxr_javadoccomment">/** workspace for singularity method */</em>
+<a class="jxr_linenumber" name="L74" href="MillerUpdatingRegression.html#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] work_sing;
+<a class="jxr_linenumber" name="L75" href="MillerUpdatingRegression.html#L75">75</a>      <em class="jxr_javadoccomment">/** summation of Y variable */</em>
+<a class="jxr_linenumber" name="L76" href="MillerUpdatingRegression.html#L76">76</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> sumy = 0.0;
+<a class="jxr_linenumber" name="L77" href="MillerUpdatingRegression.html#L77">77</a>      <em class="jxr_javadoccomment">/** summation of squared Y values */</em>
+<a class="jxr_linenumber" name="L78" href="MillerUpdatingRegression.html#L78">78</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> sumsqy = 0.0;
+<a class="jxr_linenumber" name="L79" href="MillerUpdatingRegression.html#L79">79</a>      <em class="jxr_javadoccomment">/** boolean flag whether a regression constant is added */</em>
+<a class="jxr_linenumber" name="L80" href="MillerUpdatingRegression.html#L80">80</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> hasIntercept;
+<a class="jxr_linenumber" name="L81" href="MillerUpdatingRegression.html#L81">81</a>      <em class="jxr_javadoccomment">/** zero tolerance */</em>
+<a class="jxr_linenumber" name="L82" href="MillerUpdatingRegression.html#L82">82</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> epsilon;
+<a class="jxr_linenumber" name="L83" href="MillerUpdatingRegression.html#L83">83</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L84" href="MillerUpdatingRegression.html#L84">84</a>  <em class="jxr_javadoccomment">     *  Set the default constructor to private access</em>
+<a class="jxr_linenumber" name="L85" href="MillerUpdatingRegression.html#L85">85</a>  <em class="jxr_javadoccomment">     *  to prevent inadvertent instantiation</em>
+<a class="jxr_linenumber" name="L86" href="MillerUpdatingRegression.html#L86">86</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L87" href="MillerUpdatingRegression.html#L87">87</a>      @SuppressWarnings(<span class="jxr_string">"unused"</span>)
+<a class="jxr_linenumber" name="L88" href="MillerUpdatingRegression.html#L88">88</a>      <strong class="jxr_keyword">private</strong> <a href="MillerUpdatingRegression.html">MillerUpdatingRegression</a>() {
+<a class="jxr_linenumber" name="L89" href="MillerUpdatingRegression.html#L89">89</a>          <strong class="jxr_keyword">this</strong>(-1, false, Double.NaN);
+<a class="jxr_linenumber" name="L90" href="MillerUpdatingRegression.html#L90">90</a>      }
+<a class="jxr_linenumber" name="L91" href="MillerUpdatingRegression.html#L91">91</a>  
+<a class="jxr_linenumber" name="L92" href="MillerUpdatingRegression.html#L92">92</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L93" href="MillerUpdatingRegression.html#L93">93</a>  <em class="jxr_javadoccomment">     * This is the augmented constructor for the MillerUpdatingRegression class.</em>
+<a class="jxr_linenumber" name="L94" href="MillerUpdatingRegression.html#L94">94</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L95" href="MillerUpdatingRegression.html#L95">95</a>  <em class="jxr_javadoccomment">     * @param numberOfVariables number of regressors to expect, not including constant</em>
+<a class="jxr_linenumber" name="L96" href="MillerUpdatingRegression.html#L96">96</a>  <em class="jxr_javadoccomment">     * @param includeConstant include a constant automatically</em>
+<a class="jxr_linenumber" name="L97" href="MillerUpdatingRegression.html#L97">97</a>  <em class="jxr_javadoccomment">     * @param errorTolerance  zero tolerance, how machine zero is determined</em>
+<a class="jxr_linenumber" name="L98" href="MillerUpdatingRegression.html#L98">98</a>  <em class="jxr_javadoccomment">     * @throws ModelSpecificationException if {@code numberOfVariables is less than 1}</em>
+<a class="jxr_linenumber" name="L99" href="MillerUpdatingRegression.html#L99">99</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L100" href="MillerUpdatingRegression.html#L100">100</a>     <strong class="jxr_keyword">public</strong> <a href="MillerUpdatingRegression.html">MillerUpdatingRegression</a>(<strong class="jxr_keyword">int</strong> numberOfVariables, <strong class="jxr_keyword">boolean</strong> includeConstant, <strong class="jxr_keyword">double</strong> errorTolerance)
+<a class="jxr_linenumber" name="L101" href="MillerUpdatingRegression.html#L101">101</a>             <strong class="jxr_keyword">throws</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a> {
+<a class="jxr_linenumber" name="L102" href="MillerUpdatingRegression.html#L102">102</a>         <strong class="jxr_keyword">if</strong> (numberOfVariables &lt; 1) {
+<a class="jxr_linenumber" name="L103" href="MillerUpdatingRegression.html#L103">103</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(LocalizedFormats.NO_REGRESSORS);
+<a class="jxr_linenumber" name="L104" href="MillerUpdatingRegression.html#L104">104</a>         }
+<a class="jxr_linenumber" name="L105" href="MillerUpdatingRegression.html#L105">105</a>         <strong class="jxr_keyword">if</strong> (includeConstant) {
+<a class="jxr_linenumber" name="L106" href="MillerUpdatingRegression.html#L106">106</a>             <strong class="jxr_keyword">this</strong>.nvars = numberOfVariables + 1;
+<a class="jxr_linenumber" name="L107" href="MillerUpdatingRegression.html#L107">107</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L108" href="MillerUpdatingRegression.html#L108">108</a>             <strong class="jxr_keyword">this</strong>.nvars = numberOfVariables;
+<a class="jxr_linenumber" name="L109" href="MillerUpdatingRegression.html#L109">109</a>         }
+<a class="jxr_linenumber" name="L110" href="MillerUpdatingRegression.html#L110">110</a>         <strong class="jxr_keyword">this</strong>.hasIntercept = includeConstant;
+<a class="jxr_linenumber" name="L111" href="MillerUpdatingRegression.html#L111">111</a>         <strong class="jxr_keyword">this</strong>.nobs = 0;
+<a class="jxr_linenumber" name="L112" href="MillerUpdatingRegression.html#L112">112</a>         <strong class="jxr_keyword">this</strong>.d = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[<strong class="jxr_keyword">this</strong>.nvars];
+<a class="jxr_linenumber" name="L113" href="MillerUpdatingRegression.html#L113">113</a>         <strong class="jxr_keyword">this</strong>.rhs = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[<strong class="jxr_keyword">this</strong>.nvars];
+<a class="jxr_linenumber" name="L114" href="MillerUpdatingRegression.html#L114">114</a>         <strong class="jxr_keyword">this</strong>.r = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[<strong class="jxr_keyword">this</strong>.nvars * (<strong class="jxr_keyword">this</strong>.nvars - 1) / 2];
+<a class="jxr_linenumber" name="L115" href="MillerUpdatingRegression.html#L115">115</a>         <strong class="jxr_keyword">this</strong>.tol = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[<strong class="jxr_keyword">this</strong>.nvars];
+<a class="jxr_linenumber" name="L116" href="MillerUpdatingRegression.html#L116">116</a>         <strong class="jxr_keyword">this</strong>.rss = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[<strong class="jxr_keyword">this</strong>.nvars];
+<a class="jxr_linenumber" name="L117" href="MillerUpdatingRegression.html#L117">117</a>         <strong class="jxr_keyword">this</strong>.vorder = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[<strong class="jxr_keyword">this</strong>.nvars];
+<a class="jxr_linenumber" name="L118" href="MillerUpdatingRegression.html#L118">118</a>         <strong class="jxr_keyword">this</strong>.x_sing = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[<strong class="jxr_keyword">this</strong>.nvars];
+<a class="jxr_linenumber" name="L119" href="MillerUpdatingRegression.html#L119">119</a>         <strong class="jxr_keyword">this</strong>.work_sing = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[<strong class="jxr_keyword">this</strong>.nvars];
+<a class="jxr_linenumber" name="L120" href="MillerUpdatingRegression.html#L120">120</a>         <strong class="jxr_keyword">this</strong>.work_tolset = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[<strong class="jxr_keyword">this</strong>.nvars];
+<a class="jxr_linenumber" name="L121" href="MillerUpdatingRegression.html#L121">121</a>         <strong class="jxr_keyword">this</strong>.lindep = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">boolean</strong>[<strong class="jxr_keyword">this</strong>.nvars];
+<a class="jxr_linenumber" name="L122" href="MillerUpdatingRegression.html#L122">122</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; <strong class="jxr_keyword">this</strong>.nvars; i++) {
+<a class="jxr_linenumber" name="L123" href="MillerUpdatingRegression.html#L123">123</a>             vorder[i] = i;
+<a class="jxr_linenumber" name="L124" href="MillerUpdatingRegression.html#L124">124</a>         }
+<a class="jxr_linenumber" name="L125" href="MillerUpdatingRegression.html#L125">125</a>         <strong class="jxr_keyword">if</strong> (errorTolerance &gt; 0) {
+<a class="jxr_linenumber" name="L126" href="MillerUpdatingRegression.html#L126">126</a>             <strong class="jxr_keyword">this</strong>.epsilon = errorTolerance;
+<a class="jxr_linenumber" name="L127" href="MillerUpdatingRegression.html#L127">127</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L128" href="MillerUpdatingRegression.html#L128">128</a>             <strong class="jxr_keyword">this</strong>.epsilon = -errorTolerance;
+<a class="jxr_linenumber" name="L129" href="MillerUpdatingRegression.html#L129">129</a>         }
+<a class="jxr_linenumber" name="L130" href="MillerUpdatingRegression.html#L130">130</a>     }
+<a class="jxr_linenumber" name="L131" href="MillerUpdatingRegression.html#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="MillerUpdatingRegression.html#L132">132</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L133" href="MillerUpdatingRegression.html#L133">133</a> <em class="jxr_javadoccomment">     * Primary constructor for the MillerUpdatingRegression.</em>
+<a class="jxr_linenumber" name="L134" href="MillerUpdatingRegression.html#L134">134</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L135" href="MillerUpdatingRegression.html#L135">135</a> <em class="jxr_javadoccomment">     * @param numberOfVariables maximum number of potential regressors</em>
+<a class="jxr_linenumber" name="L136" href="MillerUpdatingRegression.html#L136">136</a> <em class="jxr_javadoccomment">     * @param includeConstant include a constant automatically</em>
+<a class="jxr_linenumber" name="L137" href="MillerUpdatingRegression.html#L137">137</a> <em class="jxr_javadoccomment">     * @throws ModelSpecificationException if {@code numberOfVariables is less than 1}</em>
+<a class="jxr_linenumber" name="L138" href="MillerUpdatingRegression.html#L138">138</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L139" href="MillerUpdatingRegression.html#L139">139</a>     <strong class="jxr_keyword">public</strong> <a href="MillerUpdatingRegression.html">MillerUpdatingRegression</a>(<strong class="jxr_keyword">int</strong> numberOfVariables, <strong class="jxr_keyword">boolean</strong> includeConstant)
+<a class="jxr_linenumber" name="L140" href="MillerUpdatingRegression.html#L140">140</a>             <strong class="jxr_keyword">throws</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a> {
+<a class="jxr_linenumber" name="L141" href="MillerUpdatingRegression.html#L141">141</a>         <strong class="jxr_keyword">this</strong>(numberOfVariables, includeConstant, Precision.EPSILON);
+<a class="jxr_linenumber" name="L142" href="MillerUpdatingRegression.html#L142">142</a>     }
+<a class="jxr_linenumber" name="L143" href="MillerUpdatingRegression.html#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="MillerUpdatingRegression.html#L144">144</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L145" href="MillerUpdatingRegression.html#L145">145</a> <em class="jxr_javadoccomment">     * A getter method which determines whether a constant is included.</em>
+<a class="jxr_linenumber" name="L146" href="MillerUpdatingRegression.html#L146">146</a> <em class="jxr_javadoccomment">     * @return true regression has an intercept, false no intercept</em>
+<a class="jxr_linenumber" name="L147" href="MillerUpdatingRegression.html#L147">147</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L148" href="MillerUpdatingRegression.html#L148">148</a>     @Override
+<a class="jxr_linenumber" name="L149" href="MillerUpdatingRegression.html#L149">149</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> hasIntercept() {
+<a class="jxr_linenumber" name="L150" href="MillerUpdatingRegression.html#L150">150</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.hasIntercept;
+<a class="jxr_linenumber" name="L151" href="MillerUpdatingRegression.html#L151">151</a>     }
+<a class="jxr_linenumber" name="L152" href="MillerUpdatingRegression.html#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="MillerUpdatingRegression.html#L153">153</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L154" href="MillerUpdatingRegression.html#L154">154</a> <em class="jxr_javadoccomment">     * Gets the number of observations added to the regression model.</em>
+<a class="jxr_linenumber" name="L155" href="MillerUpdatingRegression.html#L155">155</a> <em class="jxr_javadoccomment">     * @return number of observations</em>
+<a class="jxr_linenumber" name="L156" href="MillerUpdatingRegression.html#L156">156</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L157" href="MillerUpdatingRegression.html#L157">157</a>     @Override
+<a class="jxr_linenumber" name="L158" href="MillerUpdatingRegression.html#L158">158</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getN() {
+<a class="jxr_linenumber" name="L159" href="MillerUpdatingRegression.html#L159">159</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.nobs;
+<a class="jxr_linenumber" name="L160" href="MillerUpdatingRegression.html#L160">160</a>     }
+<a class="jxr_linenumber" name="L161" href="MillerUpdatingRegression.html#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="MillerUpdatingRegression.html#L162">162</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L163" href="MillerUpdatingRegression.html#L163">163</a> <em class="jxr_javadoccomment">     * Adds an observation to the regression model.</em>
+<a class="jxr_linenumber" name="L164" href="MillerUpdatingRegression.html#L164">164</a> <em class="jxr_javadoccomment">     * @param x the array with regressor values</em>
+<a class="jxr_linenumber" name="L165" href="MillerUpdatingRegression.html#L165">165</a> <em class="jxr_javadoccomment">     * @param y  the value of dependent variable given these regressors</em>
+<a class="jxr_linenumber" name="L166" href="MillerUpdatingRegression.html#L166">166</a> <em class="jxr_javadoccomment">     * @exception ModelSpecificationException if the length of {@code x} does not equal</em>
+<a class="jxr_linenumber" name="L167" href="MillerUpdatingRegression.html#L167">167</a> <em class="jxr_javadoccomment">     * the number of independent variables in the model</em>
+<a class="jxr_linenumber" name="L168" href="MillerUpdatingRegression.html#L168">168</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L169" href="MillerUpdatingRegression.html#L169">169</a>     @Override
+<a class="jxr_linenumber" name="L170" href="MillerUpdatingRegression.html#L170">170</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addObservation(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] x, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y)
+<a class="jxr_linenumber" name="L171" href="MillerUpdatingRegression.html#L171">171</a>             <strong class="jxr_keyword">throws</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a> {
+<a class="jxr_linenumber" name="L172" href="MillerUpdatingRegression.html#L172">172</a> 
+<a class="jxr_linenumber" name="L173" href="MillerUpdatingRegression.html#L173">173</a>         <strong class="jxr_keyword">if</strong> ((!<strong class="jxr_keyword">this</strong>.hasIntercept &amp;&amp; x.length != nvars) ||
+<a class="jxr_linenumber" name="L174" href="MillerUpdatingRegression.html#L174">174</a>                (<strong class="jxr_keyword">this</strong>.hasIntercept &amp;&amp; x.length + 1 != nvars)) {
+<a class="jxr_linenumber" name="L175" href="MillerUpdatingRegression.html#L175">175</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(LocalizedFormats.INVALID_REGRESSION_OBSERVATION,
+<a class="jxr_linenumber" name="L176" href="MillerUpdatingRegression.html#L176">176</a>                     x.length, nvars);
+<a class="jxr_linenumber" name="L177" href="MillerUpdatingRegression.html#L177">177</a>         }
+<a class="jxr_linenumber" name="L178" href="MillerUpdatingRegression.html#L178">178</a>         <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>.hasIntercept) {
+<a class="jxr_linenumber" name="L179" href="MillerUpdatingRegression.html#L179">179</a>             include(MathArrays.copyOf(x, x.length), 1.0, y);
+<a class="jxr_linenumber" name="L180" href="MillerUpdatingRegression.html#L180">180</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L181" href="MillerUpdatingRegression.html#L181">181</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] tmp = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[x.length + 1];
+<a class="jxr_linenumber" name="L182" href="MillerUpdatingRegression.html#L182">182</a>             System.arraycopy(x, 0, tmp, 1, x.length);
+<a class="jxr_linenumber" name="L183" href="MillerUpdatingRegression.html#L183">183</a>             tmp[0] = 1.0;
+<a class="jxr_linenumber" name="L184" href="MillerUpdatingRegression.html#L184">184</a>             include(tmp, 1.0, y);
+<a class="jxr_linenumber" name="L185" href="MillerUpdatingRegression.html#L185">185</a>         }
+<a class="jxr_linenumber" name="L186" href="MillerUpdatingRegression.html#L186">186</a>         ++nobs;
+<a class="jxr_linenumber" name="L187" href="MillerUpdatingRegression.html#L187">187</a> 
+<a class="jxr_linenumber" name="L188" href="MillerUpdatingRegression.html#L188">188</a>     }
+<a class="jxr_linenumber" name="L189" href="MillerUpdatingRegression.html#L189">189</a> 
+<a class="jxr_linenumber" name="L190" href="MillerUpdatingRegression.html#L190">190</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L191" href="MillerUpdatingRegression.html#L191">191</a> <em class="jxr_javadoccomment">     * Adds multiple observations to the model.</em>
+<a class="jxr_linenumber" name="L192" href="MillerUpdatingRegression.html#L192">192</a> <em class="jxr_javadoccomment">     * @param x observations on the regressors</em>
+<a class="jxr_linenumber" name="L193" href="MillerUpdatingRegression.html#L193">193</a> <em class="jxr_javadoccomment">     * @param y observations on the regressand</em>
+<a class="jxr_linenumber" name="L194" href="MillerUpdatingRegression.html#L194">194</a> <em class="jxr_javadoccomment">     * @throws ModelSpecificationException if {@code x} is not rectangular, does not match</em>
+<a class="jxr_linenumber" name="L195" href="MillerUpdatingRegression.html#L195">195</a> <em class="jxr_javadoccomment">     * the length of {@code y} or does not contain sufficient data to estimate the model</em>
+<a class="jxr_linenumber" name="L196" href="MillerUpdatingRegression.html#L196">196</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L197" href="MillerUpdatingRegression.html#L197">197</a>     @Override
+<a class="jxr_linenumber" name="L198" href="MillerUpdatingRegression.html#L198">198</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addObservations(<strong class="jxr_keyword">double</strong>[][] x, <strong class="jxr_keyword">double</strong>[] y) <strong class="jxr_keyword">throws</strong> ModelSpecificationException {
+<a class="jxr_linenumber" name="L199" href="MillerUpdatingRegression.html#L199">199</a>         <strong class="jxr_keyword">if</strong> ((x == <strong class="jxr_keyword">null</strong>) || (y == <strong class="jxr_keyword">null</strong>) || (x.length != y.length)) {
+<a class="jxr_linenumber" name="L200" href="MillerUpdatingRegression.html#L200">200</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(
+<a class="jxr_linenumber" name="L201" href="MillerUpdatingRegression.html#L201">201</a>                   LocalizedFormats.DIMENSIONS_MISMATCH_SIMPLE,
+<a class="jxr_linenumber" name="L202" href="MillerUpdatingRegression.html#L202">202</a>                   (x == <strong class="jxr_keyword">null</strong>) ? 0 : x.length,
+<a class="jxr_linenumber" name="L203" href="MillerUpdatingRegression.html#L203">203</a>                   (y == <strong class="jxr_keyword">null</strong>) ? 0 : y.length);
+<a class="jxr_linenumber" name="L204" href="MillerUpdatingRegression.html#L204">204</a>         }
+<a class="jxr_linenumber" name="L205" href="MillerUpdatingRegression.html#L205">205</a>         <strong class="jxr_keyword">if</strong> (x.length == 0) {  <em class="jxr_comment">// Must be no y data either</em>
+<a class="jxr_linenumber" name="L206" href="MillerUpdatingRegression.html#L206">206</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(
+<a class="jxr_linenumber" name="L207" href="MillerUpdatingRegression.html#L207">207</a>                     LocalizedFormats.NO_DATA);
+<a class="jxr_linenumber" name="L208" href="MillerUpdatingRegression.html#L208">208</a>         }
+<a class="jxr_linenumber" name="L209" href="MillerUpdatingRegression.html#L209">209</a>         <strong class="jxr_keyword">if</strong> (x[0].length + 1 &gt; x.length) {
+<a class="jxr_linenumber" name="L210" href="MillerUpdatingRegression.html#L210">210</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(
+<a class="jxr_linenumber" name="L211" href="MillerUpdatingRegression.html#L211">211</a>                   LocalizedFormats.NOT_ENOUGH_DATA_FOR_NUMBER_OF_PREDICTORS,
+<a class="jxr_linenumber" name="L212" href="MillerUpdatingRegression.html#L212">212</a>                   x.length, x[0].length);
+<a class="jxr_linenumber" name="L213" href="MillerUpdatingRegression.html#L213">213</a>         }
+<a class="jxr_linenumber" name="L214" href="MillerUpdatingRegression.html#L214">214</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; x.length; i++) {
+<a class="jxr_linenumber" name="L215" href="MillerUpdatingRegression.html#L215">215</a>             addObservation(x[i], y[i]);
+<a class="jxr_linenumber" name="L216" href="MillerUpdatingRegression.html#L216">216</a>         }
+<a class="jxr_linenumber" name="L217" href="MillerUpdatingRegression.html#L217">217</a>     }
+<a class="jxr_linenumber" name="L218" href="MillerUpdatingRegression.html#L218">218</a> 
+<a class="jxr_linenumber" name="L219" href="MillerUpdatingRegression.html#L219">219</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L220" href="MillerUpdatingRegression.html#L220">220</a> <em class="jxr_javadoccomment">     * The include method is where the QR decomposition occurs. This statement forms all</em>
+<a class="jxr_linenumber" name="L221" href="MillerUpdatingRegression.html#L221">221</a> <em class="jxr_javadoccomment">     * intermediate data which will be used for all derivative measures.</em>
+<a class="jxr_linenumber" name="L222" href="MillerUpdatingRegression.html#L222">222</a> <em class="jxr_javadoccomment">     * According to the miller paper, note that in the original implementation the x vector</em>
+<a class="jxr_linenumber" name="L223" href="MillerUpdatingRegression.html#L223">223</a> <em class="jxr_javadoccomment">     * is overwritten. In this implementation, the include method is passed a copy of the</em>
+<a class="jxr_linenumber" name="L224" href="MillerUpdatingRegression.html#L224">224</a> <em class="jxr_javadoccomment">     * original data vector so that there is no contamination of the data. Additionally,</em>
+<a class="jxr_linenumber" name="L225" href="MillerUpdatingRegression.html#L225">225</a> <em class="jxr_javadoccomment">     * this method differs slightly from Gentleman's method, in that the assumption is</em>
+<a class="jxr_linenumber" name="L226" href="MillerUpdatingRegression.html#L226">226</a> <em class="jxr_javadoccomment">     * of dense design matrices, there is some advantage in using the original gentleman algorithm</em>
+<a class="jxr_linenumber" name="L227" href="MillerUpdatingRegression.html#L227">227</a> <em class="jxr_javadoccomment">     * on sparse matrices.</em>
+<a class="jxr_linenumber" name="L228" href="MillerUpdatingRegression.html#L228">228</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L229" href="MillerUpdatingRegression.html#L229">229</a> <em class="jxr_javadoccomment">     * @param x observations on the regressors</em>
+<a class="jxr_linenumber" name="L230" href="MillerUpdatingRegression.html#L230">230</a> <em class="jxr_javadoccomment">     * @param wi weight of the this observation (-1,1)</em>
+<a class="jxr_linenumber" name="L231" href="MillerUpdatingRegression.html#L231">231</a> <em class="jxr_javadoccomment">     * @param yi observation on the regressand</em>
+<a class="jxr_linenumber" name="L232" href="MillerUpdatingRegression.html#L232">232</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L233" href="MillerUpdatingRegression.html#L233">233</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> include(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] x, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> wi, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yi) {
+<a class="jxr_linenumber" name="L234" href="MillerUpdatingRegression.html#L234">234</a>         <strong class="jxr_keyword">int</strong> nextr = 0;
+<a class="jxr_linenumber" name="L235" href="MillerUpdatingRegression.html#L235">235</a>         <strong class="jxr_keyword">double</strong> w = wi;
+<a class="jxr_linenumber" name="L236" href="MillerUpdatingRegression.html#L236">236</a>         <strong class="jxr_keyword">double</strong> y = yi;
+<a class="jxr_linenumber" name="L237" href="MillerUpdatingRegression.html#L237">237</a>         <strong class="jxr_keyword">double</strong> xi;
+<a class="jxr_linenumber" name="L238" href="MillerUpdatingRegression.html#L238">238</a>         <strong class="jxr_keyword">double</strong> di;
+<a class="jxr_linenumber" name="L239" href="MillerUpdatingRegression.html#L239">239</a>         <strong class="jxr_keyword">double</strong> wxi;
+<a class="jxr_linenumber" name="L240" href="MillerUpdatingRegression.html#L240">240</a>         <strong class="jxr_keyword">double</strong> dpi;
+<a class="jxr_linenumber" name="L241" href="MillerUpdatingRegression.html#L241">241</a>         <strong class="jxr_keyword">double</strong> xk;
+<a class="jxr_linenumber" name="L242" href="MillerUpdatingRegression.html#L242">242</a>         <strong class="jxr_keyword">double</strong> _w;
+<a class="jxr_linenumber" name="L243" href="MillerUpdatingRegression.html#L243">243</a>         <strong class="jxr_keyword">this</strong>.rss_set = false;
+<a class="jxr_linenumber" name="L244" href="MillerUpdatingRegression.html#L244">244</a>         sumy = smartAdd(yi, sumy);
+<a class="jxr_linenumber" name="L245" href="MillerUpdatingRegression.html#L245">245</a>         sumsqy = smartAdd(sumsqy, yi * yi);
+<a class="jxr_linenumber" name="L246" href="MillerUpdatingRegression.html#L246">246</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; x.length; i++) {
+<a class="jxr_linenumber" name="L247" href="MillerUpdatingRegression.html#L247">247</a>             <strong class="jxr_keyword">if</strong> (w == 0.0) {
+<a class="jxr_linenumber" name="L248" href="MillerUpdatingRegression.html#L248">248</a>                 <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L249" href="MillerUpdatingRegression.html#L249">249</a>             }
+<a class="jxr_linenumber" name="L250" href="MillerUpdatingRegression.html#L250">250</a>             xi = x[i];
+<a class="jxr_linenumber" name="L251" href="MillerUpdatingRegression.html#L251">251</a> 
+<a class="jxr_linenumber" name="L252" href="MillerUpdatingRegression.html#L252">252</a>             <strong class="jxr_keyword">if</strong> (xi == 0.0) {
+<a class="jxr_linenumber" name="L253" href="MillerUpdatingRegression.html#L253">253</a>                 nextr += nvars - i - 1;
+<a class="jxr_linenumber" name="L254" href="MillerUpdatingRegression.html#L254">254</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L255" href="MillerUpdatingRegression.html#L255">255</a>             }
+<a class="jxr_linenumber" name="L256" href="MillerUpdatingRegression.html#L256">256</a>             di = d[i];
+<a class="jxr_linenumber" name="L257" href="MillerUpdatingRegression.html#L257">257</a>             wxi = w * xi;
+<a class="jxr_linenumber" name="L258" href="MillerUpdatingRegression.html#L258">258</a>             _w = w;
+<a class="jxr_linenumber" name="L259" href="MillerUpdatingRegression.html#L259">259</a>             <strong class="jxr_keyword">if</strong> (di != 0.0) {
+<a class="jxr_linenumber" name="L260" href="MillerUpdatingRegression.html#L260">260</a>                 dpi = smartAdd(di, wxi * xi);
+<a class="jxr_linenumber" name="L261" href="MillerUpdatingRegression.html#L261">261</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tmp = wxi * xi / di;
+<a class="jxr_linenumber" name="L262" href="MillerUpdatingRegression.html#L262">262</a>                 <strong class="jxr_keyword">if</strong> (FastMath.abs(tmp) &gt; Precision.EPSILON) {
+<a class="jxr_linenumber" name="L263" href="MillerUpdatingRegression.html#L263">263</a>                     w = (di * w) / dpi;
+<a class="jxr_linenumber" name="L264" href="MillerUpdatingRegression.html#L264">264</a>                 }
+<a class="jxr_linenumber" name="L265" href="MillerUpdatingRegression.html#L265">265</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L266" href="MillerUpdatingRegression.html#L266">266</a>                 dpi = wxi * xi;
+<a class="jxr_linenumber" name="L267" href="MillerUpdatingRegression.html#L267">267</a>                 w = 0.0;
+<a class="jxr_linenumber" name="L268" href="MillerUpdatingRegression.html#L268">268</a>             }
+<a class="jxr_linenumber" name="L269" href="MillerUpdatingRegression.html#L269">269</a>             d[i] = dpi;
+<a class="jxr_linenumber" name="L270" href="MillerUpdatingRegression.html#L270">270</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = i + 1; k &lt; nvars; k++) {
+<a class="jxr_linenumber" name="L271" href="MillerUpdatingRegression.html#L271">271</a>                 xk = x[k];
+<a class="jxr_linenumber" name="L272" href="MillerUpdatingRegression.html#L272">272</a>                 x[k] = smartAdd(xk, -xi * r[nextr]);
+<a class="jxr_linenumber" name="L273" href="MillerUpdatingRegression.html#L273">273</a>                 <strong class="jxr_keyword">if</strong> (di != 0.0) {
+<a class="jxr_linenumber" name="L274" href="MillerUpdatingRegression.html#L274">274</a>                     r[nextr] = smartAdd(di * r[nextr], (_w * xi) * xk) / dpi;
+<a class="jxr_linenumber" name="L275" href="MillerUpdatingRegression.html#L275">275</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L276" href="MillerUpdatingRegression.html#L276">276</a>                     r[nextr] = xk / xi;
+<a class="jxr_linenumber" name="L277" href="MillerUpdatingRegression.html#L277">277</a>                 }
+<a class="jxr_linenumber" name="L278" href="MillerUpdatingRegression.html#L278">278</a>                 ++nextr;
+<a class="jxr_linenumber" name="L279" href="MillerUpdatingRegression.html#L279">279</a>             }
+<a class="jxr_linenumber" name="L280" href="MillerUpdatingRegression.html#L280">280</a>             xk = y;
+<a class="jxr_linenumber" name="L281" href="MillerUpdatingRegression.html#L281">281</a>             y = smartAdd(xk, -xi * rhs[i]);
+<a class="jxr_linenumber" name="L282" href="MillerUpdatingRegression.html#L282">282</a>             <strong class="jxr_keyword">if</strong> (di != 0.0) {
+<a class="jxr_linenumber" name="L283" href="MillerUpdatingRegression.html#L283">283</a>                 rhs[i] = smartAdd(di * rhs[i], wxi * xk) / dpi;
+<a class="jxr_linenumber" name="L284" href="MillerUpdatingRegression.html#L284">284</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L285" href="MillerUpdatingRegression.html#L285">285</a>                 rhs[i] = xk / xi;
+<a class="jxr_linenumber" name="L286" href="MillerUpdatingRegression.html#L286">286</a>             }
+<a class="jxr_linenumber" name="L287" href="MillerUpdatingRegression.html#L287">287</a>         }
+<a class="jxr_linenumber" name="L288" href="MillerUpdatingRegression.html#L288">288</a>         sserr = smartAdd(sserr, w * y * y);
+<a class="jxr_linenumber" name="L289" href="MillerUpdatingRegression.html#L289">289</a>     }
+<a class="jxr_linenumber" name="L290" href="MillerUpdatingRegression.html#L290">290</a> 
+<a class="jxr_linenumber" name="L291" href="MillerUpdatingRegression.html#L291">291</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L292" href="MillerUpdatingRegression.html#L292">292</a> <em class="jxr_javadoccomment">     * Adds to number a and b such that the contamination due to</em>
+<a class="jxr_linenumber" name="L293" href="MillerUpdatingRegression.html#L293">293</a> <em class="jxr_javadoccomment">     * numerical smallness of one addend does not corrupt the sum.</em>
+<a class="jxr_linenumber" name="L294" href="MillerUpdatingRegression.html#L294">294</a> <em class="jxr_javadoccomment">     * @param a - an addend</em>
+<a class="jxr_linenumber" name="L295" href="MillerUpdatingRegression.html#L295">295</a> <em class="jxr_javadoccomment">     * @param b - an addend</em>
+<a class="jxr_linenumber" name="L296" href="MillerUpdatingRegression.html#L296">296</a> <em class="jxr_javadoccomment">     * @return the sum of the a and b</em>
+<a class="jxr_linenumber" name="L297" href="MillerUpdatingRegression.html#L297">297</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L298" href="MillerUpdatingRegression.html#L298">298</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> smartAdd(<strong class="jxr_keyword">double</strong> a, <strong class="jxr_keyword">double</strong> b) {
+<a class="jxr_linenumber" name="L299" href="MillerUpdatingRegression.html#L299">299</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> _a = FastMath.abs(a);
+<a class="jxr_linenumber" name="L300" href="MillerUpdatingRegression.html#L300">300</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> _b = FastMath.abs(b);
+<a class="jxr_linenumber" name="L301" href="MillerUpdatingRegression.html#L301">301</a>         <strong class="jxr_keyword">if</strong> (_a &gt; _b) {
+<a class="jxr_linenumber" name="L302" href="MillerUpdatingRegression.html#L302">302</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> eps = _a * Precision.EPSILON;
+<a class="jxr_linenumber" name="L303" href="MillerUpdatingRegression.html#L303">303</a>             <strong class="jxr_keyword">if</strong> (_b &gt; eps) {
+<a class="jxr_linenumber" name="L304" href="MillerUpdatingRegression.html#L304">304</a>                 <strong class="jxr_keyword">return</strong> a + b;
+<a class="jxr_linenumber" name="L305" href="MillerUpdatingRegression.html#L305">305</a>             }
+<a class="jxr_linenumber" name="L306" href="MillerUpdatingRegression.html#L306">306</a>             <strong class="jxr_keyword">return</strong> a;
+<a class="jxr_linenumber" name="L307" href="MillerUpdatingRegression.html#L307">307</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L308" href="MillerUpdatingRegression.html#L308">308</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> eps = _b * Precision.EPSILON;
+<a class="jxr_linenumber" name="L309" href="MillerUpdatingRegression.html#L309">309</a>             <strong class="jxr_keyword">if</strong> (_a &gt; eps) {
+<a class="jxr_linenumber" name="L310" href="MillerUpdatingRegression.html#L310">310</a>                 <strong class="jxr_keyword">return</strong> a + b;
+<a class="jxr_linenumber" name="L311" href="MillerUpdatingRegression.html#L311">311</a>             }
+<a class="jxr_linenumber" name="L312" href="MillerUpdatingRegression.html#L312">312</a>             <strong class="jxr_keyword">return</strong> b;
+<a class="jxr_linenumber" name="L313" href="MillerUpdatingRegression.html#L313">313</a>         }
+<a class="jxr_linenumber" name="L314" href="MillerUpdatingRegression.html#L314">314</a>     }
+<a class="jxr_linenumber" name="L315" href="MillerUpdatingRegression.html#L315">315</a> 
+<a class="jxr_linenumber" name="L316" href="MillerUpdatingRegression.html#L316">316</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L317" href="MillerUpdatingRegression.html#L317">317</a> <em class="jxr_javadoccomment">     * As the name suggests,  clear wipes the internals and reorders everything in the</em>
+<a class="jxr_linenumber" name="L318" href="MillerUpdatingRegression.html#L318">318</a> <em class="jxr_javadoccomment">     * canonical order.</em>
+<a class="jxr_linenumber" name="L319" href="MillerUpdatingRegression.html#L319">319</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L320" href="MillerUpdatingRegression.html#L320">320</a>     @Override
+<a class="jxr_linenumber" name="L321" href="MillerUpdatingRegression.html#L321">321</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> clear() {
+<a class="jxr_linenumber" name="L322" href="MillerUpdatingRegression.html#L322">322</a>         Arrays.fill(<strong class="jxr_keyword">this</strong>.d, 0.0);
+<a class="jxr_linenumber" name="L323" href="MillerUpdatingRegression.html#L323">323</a>         Arrays.fill(<strong class="jxr_keyword">this</strong>.rhs, 0.0);
+<a class="jxr_linenumber" name="L324" href="MillerUpdatingRegression.html#L324">324</a>         Arrays.fill(<strong class="jxr_keyword">this</strong>.r, 0.0);
+<a class="jxr_linenumber" name="L325" href="MillerUpdatingRegression.html#L325">325</a>         Arrays.fill(<strong class="jxr_keyword">this</strong>.tol, 0.0);
+<a class="jxr_linenumber" name="L326" href="MillerUpdatingRegression.html#L326">326</a>         Arrays.fill(<strong class="jxr_keyword">this</strong>.rss, 0.0);
+<a class="jxr_linenumber" name="L327" href="MillerUpdatingRegression.html#L327">327</a>         Arrays.fill(<strong class="jxr_keyword">this</strong>.work_tolset, 0.0);
+<a class="jxr_linenumber" name="L328" href="MillerUpdatingRegression.html#L328">328</a>         Arrays.fill(<strong class="jxr_keyword">this</strong>.work_sing, 0.0);
+<a class="jxr_linenumber" name="L329" href="MillerUpdatingRegression.html#L329">329</a>         Arrays.fill(<strong class="jxr_keyword">this</strong>.x_sing, 0.0);
+<a class="jxr_linenumber" name="L330" href="MillerUpdatingRegression.html#L330">330</a>         Arrays.fill(<strong class="jxr_keyword">this</strong>.lindep, false);
+<a class="jxr_linenumber" name="L331" href="MillerUpdatingRegression.html#L331">331</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nvars; i++) {
+<a class="jxr_linenumber" name="L332" href="MillerUpdatingRegression.html#L332">332</a>             <strong class="jxr_keyword">this</strong>.vorder[i] = i;
+<a class="jxr_linenumber" name="L333" href="MillerUpdatingRegression.html#L333">333</a>         }
+<a class="jxr_linenumber" name="L334" href="MillerUpdatingRegression.html#L334">334</a>         <strong class="jxr_keyword">this</strong>.nobs = 0;
+<a class="jxr_linenumber" name="L335" href="MillerUpdatingRegression.html#L335">335</a>         <strong class="jxr_keyword">this</strong>.sserr = 0.0;
+<a class="jxr_linenumber" name="L336" href="MillerUpdatingRegression.html#L336">336</a>         <strong class="jxr_keyword">this</strong>.sumy = 0.0;
+<a class="jxr_linenumber" name="L337" href="MillerUpdatingRegression.html#L337">337</a>         <strong class="jxr_keyword">this</strong>.sumsqy = 0.0;
+<a class="jxr_linenumber" name="L338" href="MillerUpdatingRegression.html#L338">338</a>         <strong class="jxr_keyword">this</strong>.rss_set = false;
+<a class="jxr_linenumber" name="L339" href="MillerUpdatingRegression.html#L339">339</a>         <strong class="jxr_keyword">this</strong>.tol_set = false;
+<a class="jxr_linenumber" name="L340" href="MillerUpdatingRegression.html#L340">340</a>     }
+<a class="jxr_linenumber" name="L341" href="MillerUpdatingRegression.html#L341">341</a> 
+<a class="jxr_linenumber" name="L342" href="MillerUpdatingRegression.html#L342">342</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L343" href="MillerUpdatingRegression.html#L343">343</a> <em class="jxr_javadoccomment">     * This sets up tolerances for singularity testing.</em>
+<a class="jxr_linenumber" name="L344" href="MillerUpdatingRegression.html#L344">344</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L345" href="MillerUpdatingRegression.html#L345">345</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> tolset() {
+<a class="jxr_linenumber" name="L346" href="MillerUpdatingRegression.html#L346">346</a>         <strong class="jxr_keyword">int</strong> pos;
+<a class="jxr_linenumber" name="L347" href="MillerUpdatingRegression.html#L347">347</a>         <strong class="jxr_keyword">double</strong> total;
+<a class="jxr_linenumber" name="L348" href="MillerUpdatingRegression.html#L348">348</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> eps = <strong class="jxr_keyword">this</strong>.epsilon;
+<a class="jxr_linenumber" name="L349" href="MillerUpdatingRegression.html#L349">349</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nvars; i++) {
+<a class="jxr_linenumber" name="L350" href="MillerUpdatingRegression.html#L350">350</a>             <strong class="jxr_keyword">this</strong>.work_tolset[i] = FastMath.sqrt(d[i]);
+<a class="jxr_linenumber" name="L351" href="MillerUpdatingRegression.html#L351">351</a>         }
+<a class="jxr_linenumber" name="L352" href="MillerUpdatingRegression.html#L352">352</a>         tol[0] = eps * <strong class="jxr_keyword">this</strong>.work_tolset[0];
+<a class="jxr_linenumber" name="L353" href="MillerUpdatingRegression.html#L353">353</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = 1; col &lt; nvars; col++) {
+<a class="jxr_linenumber" name="L354" href="MillerUpdatingRegression.html#L354">354</a>             pos = col - 1;
+<a class="jxr_linenumber" name="L355" href="MillerUpdatingRegression.html#L355">355</a>             total = work_tolset[col];
+<a class="jxr_linenumber" name="L356" href="MillerUpdatingRegression.html#L356">356</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = 0; row &lt; col; row++) {
+<a class="jxr_linenumber" name="L357" href="MillerUpdatingRegression.html#L357">357</a>                 total += FastMath.abs(r[pos]) * work_tolset[row];
+<a class="jxr_linenumber" name="L358" href="MillerUpdatingRegression.html#L358">358</a>                 pos += nvars - row - 2;
+<a class="jxr_linenumber" name="L359" href="MillerUpdatingRegression.html#L359">359</a>             }
+<a class="jxr_linenumber" name="L360" href="MillerUpdatingRegression.html#L360">360</a>             tol[col] = eps * total;
+<a class="jxr_linenumber" name="L361" href="MillerUpdatingRegression.html#L361">361</a>         }
+<a class="jxr_linenumber" name="L362" href="MillerUpdatingRegression.html#L362">362</a>         tol_set = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L363" href="MillerUpdatingRegression.html#L363">363</a>     }
+<a class="jxr_linenumber" name="L364" href="MillerUpdatingRegression.html#L364">364</a> 
+<a class="jxr_linenumber" name="L365" href="MillerUpdatingRegression.html#L365">365</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L366" href="MillerUpdatingRegression.html#L366">366</a> <em class="jxr_javadoccomment">     * The regcf method conducts the linear regression and extracts the</em>
+<a class="jxr_linenumber" name="L367" href="MillerUpdatingRegression.html#L367">367</a> <em class="jxr_javadoccomment">     * parameter vector. Notice that the algorithm can do subset regression</em>
+<a class="jxr_linenumber" name="L368" href="MillerUpdatingRegression.html#L368">368</a> <em class="jxr_javadoccomment">     * with no alteration.</em>
+<a class="jxr_linenumber" name="L369" href="MillerUpdatingRegression.html#L369">369</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L370" href="MillerUpdatingRegression.html#L370">370</a> <em class="jxr_javadoccomment">     * @param nreq how many of the regressors to include (either in canonical</em>
+<a class="jxr_linenumber" name="L371" href="MillerUpdatingRegression.html#L371">371</a> <em class="jxr_javadoccomment">     * order, or in the current reordered state)</em>
+<a class="jxr_linenumber" name="L372" href="MillerUpdatingRegression.html#L372">372</a> <em class="jxr_javadoccomment">     * @return an array with the estimated slope coefficients</em>
+<a class="jxr_linenumber" name="L373" href="MillerUpdatingRegression.html#L373">373</a> <em class="jxr_javadoccomment">     * @throws ModelSpecificationException if {@code nreq} is less than 1</em>
+<a class="jxr_linenumber" name="L374" href="MillerUpdatingRegression.html#L374">374</a> <em class="jxr_javadoccomment">     * or greater than the number of independent variables</em>
+<a class="jxr_linenumber" name="L375" href="MillerUpdatingRegression.html#L375">375</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L376" href="MillerUpdatingRegression.html#L376">376</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[] regcf(<strong class="jxr_keyword">int</strong> nreq) <strong class="jxr_keyword">throws</strong> ModelSpecificationException {
+<a class="jxr_linenumber" name="L377" href="MillerUpdatingRegression.html#L377">377</a>         <strong class="jxr_keyword">int</strong> nextr;
+<a class="jxr_linenumber" name="L378" href="MillerUpdatingRegression.html#L378">378</a>         <strong class="jxr_keyword">if</strong> (nreq &lt; 1) {
+<a class="jxr_linenumber" name="L379" href="MillerUpdatingRegression.html#L379">379</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(LocalizedFormats.NO_REGRESSORS);
+<a class="jxr_linenumber" name="L380" href="MillerUpdatingRegression.html#L380">380</a>         }
+<a class="jxr_linenumber" name="L381" href="MillerUpdatingRegression.html#L381">381</a>         <strong class="jxr_keyword">if</strong> (nreq &gt; <strong class="jxr_keyword">this</strong>.nvars) {
+<a class="jxr_linenumber" name="L382" href="MillerUpdatingRegression.html#L382">382</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(
+<a class="jxr_linenumber" name="L383" href="MillerUpdatingRegression.html#L383">383</a>                     LocalizedFormats.TOO_MANY_REGRESSORS, nreq, <strong class="jxr_keyword">this</strong>.nvars);
+<a class="jxr_linenumber" name="L384" href="MillerUpdatingRegression.html#L384">384</a>         }
+<a class="jxr_linenumber" name="L385" href="MillerUpdatingRegression.html#L385">385</a>         <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>.tol_set) {
+<a class="jxr_linenumber" name="L386" href="MillerUpdatingRegression.html#L386">386</a>             tolset();
+<a class="jxr_linenumber" name="L387" href="MillerUpdatingRegression.html#L387">387</a>         }
+<a class="jxr_linenumber" name="L388" href="MillerUpdatingRegression.html#L388">388</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] ret = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nreq];
+<a class="jxr_linenumber" name="L389" href="MillerUpdatingRegression.html#L389">389</a>         <strong class="jxr_keyword">boolean</strong> rankProblem = false;
+<a class="jxr_linenumber" name="L390" href="MillerUpdatingRegression.html#L390">390</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = nreq - 1; i &gt; -1; i--) {
+<a class="jxr_linenumber" name="L391" href="MillerUpdatingRegression.html#L391">391</a>             <strong class="jxr_keyword">if</strong> (FastMath.sqrt(d[i]) &lt; tol[i]) {
+<a class="jxr_linenumber" name="L392" href="MillerUpdatingRegression.html#L392">392</a>                 ret[i] = 0.0;
+<a class="jxr_linenumber" name="L393" href="MillerUpdatingRegression.html#L393">393</a>                 d[i] = 0.0;
+<a class="jxr_linenumber" name="L394" href="MillerUpdatingRegression.html#L394">394</a>                 rankProblem = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L395" href="MillerUpdatingRegression.html#L395">395</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L396" href="MillerUpdatingRegression.html#L396">396</a>                 ret[i] = rhs[i];
+<a class="jxr_linenumber" name="L397" href="MillerUpdatingRegression.html#L397">397</a>                 nextr = i * (nvars + nvars - i - 1) / 2;
+<a class="jxr_linenumber" name="L398" href="MillerUpdatingRegression.html#L398">398</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = i + 1; j &lt; nreq; j++) {
+<a class="jxr_linenumber" name="L399" href="MillerUpdatingRegression.html#L399">399</a>                     ret[i] = smartAdd(ret[i], -r[nextr] * ret[j]);
+<a class="jxr_linenumber" name="L400" href="MillerUpdatingRegression.html#L400">400</a>                     ++nextr;
+<a class="jxr_linenumber" name="L401" href="MillerUpdatingRegression.html#L401">401</a>                 }
+<a class="jxr_linenumber" name="L402" href="MillerUpdatingRegression.html#L402">402</a>             }
+<a class="jxr_linenumber" name="L403" href="MillerUpdatingRegression.html#L403">403</a>         }
+<a class="jxr_linenumber" name="L404" href="MillerUpdatingRegression.html#L404">404</a>         <strong class="jxr_keyword">if</strong> (rankProblem) {
+<a class="jxr_linenumber" name="L405" href="MillerUpdatingRegression.html#L405">405</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nreq; i++) {
+<a class="jxr_linenumber" name="L406" href="MillerUpdatingRegression.html#L406">406</a>                 <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.lindep[i]) {
+<a class="jxr_linenumber" name="L407" href="MillerUpdatingRegression.html#L407">407</a>                     ret[i] = Double.NaN;
+<a class="jxr_linenumber" name="L408" href="MillerUpdatingRegression.html#L408">408</a>                 }
+<a class="jxr_linenumber" name="L409" href="MillerUpdatingRegression.html#L409">409</a>             }
+<a class="jxr_linenumber" name="L410" href="MillerUpdatingRegression.html#L410">410</a>         }
+<a class="jxr_linenumber" name="L411" href="MillerUpdatingRegression.html#L411">411</a>         <strong class="jxr_keyword">return</strong> ret;
+<a class="jxr_linenumber" name="L412" href="MillerUpdatingRegression.html#L412">412</a>     }
+<a class="jxr_linenumber" name="L413" href="MillerUpdatingRegression.html#L413">413</a> 
+<a class="jxr_linenumber" name="L414" href="MillerUpdatingRegression.html#L414">414</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L415" href="MillerUpdatingRegression.html#L415">415</a> <em class="jxr_javadoccomment">     * The method which checks for singularities and then eliminates the offending</em>
+<a class="jxr_linenumber" name="L416" href="MillerUpdatingRegression.html#L416">416</a> <em class="jxr_javadoccomment">     * columns.</em>
+<a class="jxr_linenumber" name="L417" href="MillerUpdatingRegression.html#L417">417</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L418" href="MillerUpdatingRegression.html#L418">418</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> singcheck() {
+<a class="jxr_linenumber" name="L419" href="MillerUpdatingRegression.html#L419">419</a>         <strong class="jxr_keyword">int</strong> pos;
+<a class="jxr_linenumber" name="L420" href="MillerUpdatingRegression.html#L420">420</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nvars; i++) {
+<a class="jxr_linenumber" name="L421" href="MillerUpdatingRegression.html#L421">421</a>             work_sing[i] = FastMath.sqrt(d[i]);
+<a class="jxr_linenumber" name="L422" href="MillerUpdatingRegression.html#L422">422</a>         }
+<a class="jxr_linenumber" name="L423" href="MillerUpdatingRegression.html#L423">423</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = 0; col &lt; nvars; col++) {
+<a class="jxr_linenumber" name="L424" href="MillerUpdatingRegression.html#L424">424</a>             <em class="jxr_comment">// Set elements within R to zero if they are less than tol(col) in</em>
+<a class="jxr_linenumber" name="L425" href="MillerUpdatingRegression.html#L425">425</a>             <em class="jxr_comment">// absolute value after being scaled by the square root of their row</em>
+<a class="jxr_linenumber" name="L426" href="MillerUpdatingRegression.html#L426">426</a>             <em class="jxr_comment">// multiplier</em>
+<a class="jxr_linenumber" name="L427" href="MillerUpdatingRegression.html#L427">427</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> temp = tol[col];
+<a class="jxr_linenumber" name="L428" href="MillerUpdatingRegression.html#L428">428</a>             pos = col - 1;
+<a class="jxr_linenumber" name="L429" href="MillerUpdatingRegression.html#L429">429</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = 0; row &lt; col - 1; row++) {
+<a class="jxr_linenumber" name="L430" href="MillerUpdatingRegression.html#L430">430</a>                 <strong class="jxr_keyword">if</strong> (FastMath.abs(r[pos]) * work_sing[row] &lt; temp) {
+<a class="jxr_linenumber" name="L431" href="MillerUpdatingRegression.html#L431">431</a>                     r[pos] = 0.0;
+<a class="jxr_linenumber" name="L432" href="MillerUpdatingRegression.html#L432">432</a>                 }
+<a class="jxr_linenumber" name="L433" href="MillerUpdatingRegression.html#L433">433</a>                 pos += nvars - row - 2;
+<a class="jxr_linenumber" name="L434" href="MillerUpdatingRegression.html#L434">434</a>             }
+<a class="jxr_linenumber" name="L435" href="MillerUpdatingRegression.html#L435">435</a>             <em class="jxr_comment">// If diagonal element is near zero, set it to zero, set appropriate</em>
+<a class="jxr_linenumber" name="L436" href="MillerUpdatingRegression.html#L436">436</a>             <em class="jxr_comment">// element of LINDEP, and use INCLUD to augment the projections in</em>
+<a class="jxr_linenumber" name="L437" href="MillerUpdatingRegression.html#L437">437</a>             <em class="jxr_comment">// the lower rows of the orthogonalization.</em>
+<a class="jxr_linenumber" name="L438" href="MillerUpdatingRegression.html#L438">438</a>             lindep[col] = false;
+<a class="jxr_linenumber" name="L439" href="MillerUpdatingRegression.html#L439">439</a>             <strong class="jxr_keyword">if</strong> (work_sing[col] &lt; temp) {
+<a class="jxr_linenumber" name="L440" href="MillerUpdatingRegression.html#L440">440</a>                 lindep[col] = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L441" href="MillerUpdatingRegression.html#L441">441</a>                 <strong class="jxr_keyword">if</strong> (col &lt; nvars - 1) {
+<a class="jxr_linenumber" name="L442" href="MillerUpdatingRegression.html#L442">442</a>                     Arrays.fill(x_sing, 0.0);
+<a class="jxr_linenumber" name="L443" href="MillerUpdatingRegression.html#L443">443</a>                     <strong class="jxr_keyword">int</strong> _pi = col * (nvars + nvars - col - 1) / 2;
+<a class="jxr_linenumber" name="L444" href="MillerUpdatingRegression.html#L444">444</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> _xi = col + 1; _xi &lt; nvars; _xi++, _pi++) {
+<a class="jxr_linenumber" name="L445" href="MillerUpdatingRegression.html#L445">445</a>                         x_sing[_xi] = r[_pi];
+<a class="jxr_linenumber" name="L446" href="MillerUpdatingRegression.html#L446">446</a>                         r[_pi] = 0.0;
+<a class="jxr_linenumber" name="L447" href="MillerUpdatingRegression.html#L447">447</a>                     }
+<a class="jxr_linenumber" name="L448" href="MillerUpdatingRegression.html#L448">448</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y = rhs[col];
+<a class="jxr_linenumber" name="L449" href="MillerUpdatingRegression.html#L449">449</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> weight = d[col];
+<a class="jxr_linenumber" name="L450" href="MillerUpdatingRegression.html#L450">450</a>                     d[col] = 0.0;
+<a class="jxr_linenumber" name="L451" href="MillerUpdatingRegression.html#L451">451</a>                     rhs[col] = 0.0;
+<a class="jxr_linenumber" name="L452" href="MillerUpdatingRegression.html#L452">452</a>                     <strong class="jxr_keyword">this</strong>.include(x_sing, weight, y);
+<a class="jxr_linenumber" name="L453" href="MillerUpdatingRegression.html#L453">453</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L454" href="MillerUpdatingRegression.html#L454">454</a>                     sserr += d[col] * rhs[col] * rhs[col];
+<a class="jxr_linenumber" name="L455" href="MillerUpdatingRegression.html#L455">455</a>                 }
+<a class="jxr_linenumber" name="L456" href="MillerUpdatingRegression.html#L456">456</a>             }
+<a class="jxr_linenumber" name="L457" href="MillerUpdatingRegression.html#L457">457</a>         }
+<a class="jxr_linenumber" name="L458" href="MillerUpdatingRegression.html#L458">458</a>     }
+<a class="jxr_linenumber" name="L459" href="MillerUpdatingRegression.html#L459">459</a> 
+<a class="jxr_linenumber" name="L460" href="MillerUpdatingRegression.html#L460">460</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L461" href="MillerUpdatingRegression.html#L461">461</a> <em class="jxr_javadoccomment">     * Calculates the sum of squared errors for the full regression</em>
+<a class="jxr_linenumber" name="L462" href="MillerUpdatingRegression.html#L462">462</a> <em class="jxr_javadoccomment">     * and all subsets in the following manner: &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L463" href="MillerUpdatingRegression.html#L463">463</a> <em class="jxr_javadoccomment">     * rss[] ={</em>
+<a class="jxr_linenumber" name="L464" href="MillerUpdatingRegression.html#L464">464</a> <em class="jxr_javadoccomment">     * ResidualSumOfSquares_allNvars,</em>
+<a class="jxr_linenumber" name="L465" href="MillerUpdatingRegression.html#L465">465</a> <em class="jxr_javadoccomment">     * ResidualSumOfSquares_FirstNvars-1,</em>
+<a class="jxr_linenumber" name="L466" href="MillerUpdatingRegression.html#L466">466</a> <em class="jxr_javadoccomment">     * ResidualSumOfSquares_FirstNvars-2,</em>
+<a class="jxr_linenumber" name="L467" href="MillerUpdatingRegression.html#L467">467</a> <em class="jxr_javadoccomment">     * ..., ResidualSumOfSquares_FirstVariable} &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L468" href="MillerUpdatingRegression.html#L468">468</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L469" href="MillerUpdatingRegression.html#L469">469</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> ss() {
+<a class="jxr_linenumber" name="L470" href="MillerUpdatingRegression.html#L470">470</a>         <strong class="jxr_keyword">double</strong> total = sserr;
+<a class="jxr_linenumber" name="L471" href="MillerUpdatingRegression.html#L471">471</a>         rss[nvars - 1] = sserr;
+<a class="jxr_linenumber" name="L472" href="MillerUpdatingRegression.html#L472">472</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = nvars - 1; i &gt; 0; i--) {
+<a class="jxr_linenumber" name="L473" href="MillerUpdatingRegression.html#L473">473</a>             total += d[i] * rhs[i] * rhs[i];
+<a class="jxr_linenumber" name="L474" href="MillerUpdatingRegression.html#L474">474</a>             rss[i - 1] = total;
+<a class="jxr_linenumber" name="L475" href="MillerUpdatingRegression.html#L475">475</a>         }
+<a class="jxr_linenumber" name="L476" href="MillerUpdatingRegression.html#L476">476</a>         rss_set = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L477" href="MillerUpdatingRegression.html#L477">477</a>     }
+<a class="jxr_linenumber" name="L478" href="MillerUpdatingRegression.html#L478">478</a> 
+<a class="jxr_linenumber" name="L479" href="MillerUpdatingRegression.html#L479">479</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L480" href="MillerUpdatingRegression.html#L480">480</a> <em class="jxr_javadoccomment">     * Calculates the cov matrix assuming only the first nreq variables are</em>
+<a class="jxr_linenumber" name="L481" href="MillerUpdatingRegression.html#L481">481</a> <em class="jxr_javadoccomment">     * included in the calculation. The returned array contains a symmetric</em>
+<a class="jxr_linenumber" name="L482" href="MillerUpdatingRegression.html#L482">482</a> <em class="jxr_javadoccomment">     * matrix stored in lower triangular form. The matrix will have</em>
+<a class="jxr_linenumber" name="L483" href="MillerUpdatingRegression.html#L483">483</a> <em class="jxr_javadoccomment">     * ( nreq + 1 ) * nreq / 2 elements. For illustration &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L484" href="MillerUpdatingRegression.html#L484">484</a> <em class="jxr_javadoccomment">     * cov =</em>
+<a class="jxr_linenumber" name="L485" href="MillerUpdatingRegression.html#L485">485</a> <em class="jxr_javadoccomment">     * {</em>
+<a class="jxr_linenumber" name="L486" href="MillerUpdatingRegression.html#L486">486</a> <em class="jxr_javadoccomment">     *  cov_00,</em>
+<a class="jxr_linenumber" name="L487" href="MillerUpdatingRegression.html#L487">487</a> <em class="jxr_javadoccomment">     *  cov_10, cov_11,</em>
+<a class="jxr_linenumber" name="L488" href="MillerUpdatingRegression.html#L488">488</a> <em class="jxr_javadoccomment">     *  cov_20, cov_21, cov22,</em>
+<a class="jxr_linenumber" name="L489" href="MillerUpdatingRegression.html#L489">489</a> <em class="jxr_javadoccomment">     *  ...</em>
+<a class="jxr_linenumber" name="L490" href="MillerUpdatingRegression.html#L490">490</a> <em class="jxr_javadoccomment">     * } &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L491" href="MillerUpdatingRegression.html#L491">491</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L492" href="MillerUpdatingRegression.html#L492">492</a> <em class="jxr_javadoccomment">     * @param nreq how many of the regressors to include (either in canonical</em>
+<a class="jxr_linenumber" name="L493" href="MillerUpdatingRegression.html#L493">493</a> <em class="jxr_javadoccomment">     * order, or in the current reordered state)</em>
+<a class="jxr_linenumber" name="L494" href="MillerUpdatingRegression.html#L494">494</a> <em class="jxr_javadoccomment">     * @return an array with the variance covariance of the included</em>
+<a class="jxr_linenumber" name="L495" href="MillerUpdatingRegression.html#L495">495</a> <em class="jxr_javadoccomment">     * regressors in lower triangular form</em>
+<a class="jxr_linenumber" name="L496" href="MillerUpdatingRegression.html#L496">496</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L497" href="MillerUpdatingRegression.html#L497">497</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[] cov(<strong class="jxr_keyword">int</strong> nreq) {
+<a class="jxr_linenumber" name="L498" href="MillerUpdatingRegression.html#L498">498</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.nobs &lt;= nreq) {
+<a class="jxr_linenumber" name="L499" href="MillerUpdatingRegression.html#L499">499</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L500" href="MillerUpdatingRegression.html#L500">500</a>         }
+<a class="jxr_linenumber" name="L501" href="MillerUpdatingRegression.html#L501">501</a>         <strong class="jxr_keyword">double</strong> rnk = 0.0;
+<a class="jxr_linenumber" name="L502" href="MillerUpdatingRegression.html#L502">502</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nreq; i++) {
+<a class="jxr_linenumber" name="L503" href="MillerUpdatingRegression.html#L503">503</a>             <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>.lindep[i]) {
+<a class="jxr_linenumber" name="L504" href="MillerUpdatingRegression.html#L504">504</a>                 rnk += 1.0;
+<a class="jxr_linenumber" name="L505" href="MillerUpdatingRegression.html#L505">505</a>             }
+<a class="jxr_linenumber" name="L506" href="MillerUpdatingRegression.html#L506">506</a>         }
+<a class="jxr_linenumber" name="L507" href="MillerUpdatingRegression.html#L507">507</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> <strong class="jxr_keyword">var</strong> = rss[nreq - 1] / (nobs - rnk);
+<a class="jxr_linenumber" name="L508" href="MillerUpdatingRegression.html#L508">508</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] rinv = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nreq * (nreq - 1) / 2];
+<a class="jxr_linenumber" name="L509" href="MillerUpdatingRegression.html#L509">509</a>         inverse(rinv, nreq);
+<a class="jxr_linenumber" name="L510" href="MillerUpdatingRegression.html#L510">510</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] covmat = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nreq * (nreq + 1) / 2];
+<a class="jxr_linenumber" name="L511" href="MillerUpdatingRegression.html#L511">511</a>         Arrays.fill(covmat, Double.NaN);
+<a class="jxr_linenumber" name="L512" href="MillerUpdatingRegression.html#L512">512</a>         <strong class="jxr_keyword">int</strong> pos2;
+<a class="jxr_linenumber" name="L513" href="MillerUpdatingRegression.html#L513">513</a>         <strong class="jxr_keyword">int</strong> pos1;
+<a class="jxr_linenumber" name="L514" href="MillerUpdatingRegression.html#L514">514</a>         <strong class="jxr_keyword">int</strong> start = 0;
+<a class="jxr_linenumber" name="L515" href="MillerUpdatingRegression.html#L515">515</a>         <strong class="jxr_keyword">double</strong> total = 0;
+<a class="jxr_linenumber" name="L516" href="MillerUpdatingRegression.html#L516">516</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = 0; row &lt; nreq; row++) {
+<a class="jxr_linenumber" name="L517" href="MillerUpdatingRegression.html#L517">517</a>             pos2 = start;
+<a class="jxr_linenumber" name="L518" href="MillerUpdatingRegression.html#L518">518</a>             <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>.lindep[row]) {
+<a class="jxr_linenumber" name="L519" href="MillerUpdatingRegression.html#L519">519</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = row; col &lt; nreq; col++) {
+<a class="jxr_linenumber" name="L520" href="MillerUpdatingRegression.html#L520">520</a>                     <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>.lindep[col]) {
+<a class="jxr_linenumber" name="L521" href="MillerUpdatingRegression.html#L521">521</a>                         pos1 = start + col - row;
+<a class="jxr_linenumber" name="L522" href="MillerUpdatingRegression.html#L522">522</a>                         <strong class="jxr_keyword">if</strong> (row == col) {
+<a class="jxr_linenumber" name="L523" href="MillerUpdatingRegression.html#L523">523</a>                             total = 1.0 / d[col];
+<a class="jxr_linenumber" name="L524" href="MillerUpdatingRegression.html#L524">524</a>                         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L525" href="MillerUpdatingRegression.html#L525">525</a>                             total = rinv[pos1 - 1] / d[col];
+<a class="jxr_linenumber" name="L526" href="MillerUpdatingRegression.html#L526">526</a>                         }
+<a class="jxr_linenumber" name="L527" href="MillerUpdatingRegression.html#L527">527</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = col + 1; k &lt; nreq; k++) {
+<a class="jxr_linenumber" name="L528" href="MillerUpdatingRegression.html#L528">528</a>                             <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>.lindep[k]) {
+<a class="jxr_linenumber" name="L529" href="MillerUpdatingRegression.html#L529">529</a>                                 total += rinv[pos1] * rinv[pos2] / d[k];
+<a class="jxr_linenumber" name="L530" href="MillerUpdatingRegression.html#L530">530</a>                             }
+<a class="jxr_linenumber" name="L531" href="MillerUpdatingRegression.html#L531">531</a>                             ++pos1;
+<a class="jxr_linenumber" name="L532" href="MillerUpdatingRegression.html#L532">532</a>                             ++pos2;
+<a class="jxr_linenumber" name="L533" href="MillerUpdatingRegression.html#L533">533</a>                         }
+<a class="jxr_linenumber" name="L534" href="MillerUpdatingRegression.html#L534">534</a>                         covmat[ (col + 1) * col / 2 + row] = total * <strong class="jxr_keyword">var</strong>;
+<a class="jxr_linenumber" name="L535" href="MillerUpdatingRegression.html#L535">535</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L536" href="MillerUpdatingRegression.html#L536">536</a>                         pos2 += nreq - col - 1;
+<a class="jxr_linenumber" name="L537" href="MillerUpdatingRegression.html#L537">537</a>                     }
+<a class="jxr_linenumber" name="L538" href="MillerUpdatingRegression.html#L538">538</a>                 }
+<a class="jxr_linenumber" name="L539" href="MillerUpdatingRegression.html#L539">539</a>             }
+<a class="jxr_linenumber" name="L540" href="MillerUpdatingRegression.html#L540">540</a>             start += nreq - row - 1;
+<a class="jxr_linenumber" name="L541" href="MillerUpdatingRegression.html#L541">541</a>         }
+<a class="jxr_linenumber" name="L542" href="MillerUpdatingRegression.html#L542">542</a>         <strong class="jxr_keyword">return</strong> covmat;
+<a class="jxr_linenumber" name="L543" href="MillerUpdatingRegression.html#L543">543</a>     }
+<a class="jxr_linenumber" name="L544" href="MillerUpdatingRegression.html#L544">544</a> 
+<a class="jxr_linenumber" name="L545" href="MillerUpdatingRegression.html#L545">545</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L546" href="MillerUpdatingRegression.html#L546">546</a> <em class="jxr_javadoccomment">     * This internal method calculates the inverse of the upper-triangular portion</em>
+<a class="jxr_linenumber" name="L547" href="MillerUpdatingRegression.html#L547">547</a> <em class="jxr_javadoccomment">     * of the R matrix.</em>
+<a class="jxr_linenumber" name="L548" href="MillerUpdatingRegression.html#L548">548</a> <em class="jxr_javadoccomment">     * @param rinv  the storage for the inverse of r</em>
+<a class="jxr_linenumber" name="L549" href="MillerUpdatingRegression.html#L549">549</a> <em class="jxr_javadoccomment">     * @param nreq how many of the regressors to include (either in canonical</em>
+<a class="jxr_linenumber" name="L550" href="MillerUpdatingRegression.html#L550">550</a> <em class="jxr_javadoccomment">     * order, or in the current reordered state)</em>
+<a class="jxr_linenumber" name="L551" href="MillerUpdatingRegression.html#L551">551</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L552" href="MillerUpdatingRegression.html#L552">552</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> inverse(<strong class="jxr_keyword">double</strong>[] rinv, <strong class="jxr_keyword">int</strong> nreq) {
+<a class="jxr_linenumber" name="L553" href="MillerUpdatingRegression.html#L553">553</a>         <strong class="jxr_keyword">int</strong> pos = nreq * (nreq - 1) / 2 - 1;
+<a class="jxr_linenumber" name="L554" href="MillerUpdatingRegression.html#L554">554</a>         <strong class="jxr_keyword">int</strong> pos1 = -1;
+<a class="jxr_linenumber" name="L555" href="MillerUpdatingRegression.html#L555">555</a>         <strong class="jxr_keyword">int</strong> pos2 = -1;
+<a class="jxr_linenumber" name="L556" href="MillerUpdatingRegression.html#L556">556</a>         <strong class="jxr_keyword">double</strong> total = 0.0;
+<a class="jxr_linenumber" name="L557" href="MillerUpdatingRegression.html#L557">557</a>         Arrays.fill(rinv, Double.NaN);
+<a class="jxr_linenumber" name="L558" href="MillerUpdatingRegression.html#L558">558</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = nreq - 1; row &gt; 0; --row) {
+<a class="jxr_linenumber" name="L559" href="MillerUpdatingRegression.html#L559">559</a>             <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>.lindep[row]) {
+<a class="jxr_linenumber" name="L560" href="MillerUpdatingRegression.html#L560">560</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> start = (row - 1) * (nvars + nvars - row) / 2;
+<a class="jxr_linenumber" name="L561" href="MillerUpdatingRegression.html#L561">561</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = nreq; col &gt; row; --col) {
+<a class="jxr_linenumber" name="L562" href="MillerUpdatingRegression.html#L562">562</a>                     pos1 = start;
+<a class="jxr_linenumber" name="L563" href="MillerUpdatingRegression.html#L563">563</a>                     pos2 = pos;
+<a class="jxr_linenumber" name="L564" href="MillerUpdatingRegression.html#L564">564</a>                     total = 0.0;
+<a class="jxr_linenumber" name="L565" href="MillerUpdatingRegression.html#L565">565</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = row; k &lt; col - 1; k++) {
+<a class="jxr_linenumber" name="L566" href="MillerUpdatingRegression.html#L566">566</a>                         pos2 += nreq - k - 1;
+<a class="jxr_linenumber" name="L567" href="MillerUpdatingRegression.html#L567">567</a>                         <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>.lindep[k]) {
+<a class="jxr_linenumber" name="L568" href="MillerUpdatingRegression.html#L568">568</a>                             total += -r[pos1] * rinv[pos2];
+<a class="jxr_linenumber" name="L569" href="MillerUpdatingRegression.html#L569">569</a>                         }
+<a class="jxr_linenumber" name="L570" href="MillerUpdatingRegression.html#L570">570</a>                         ++pos1;
+<a class="jxr_linenumber" name="L571" href="MillerUpdatingRegression.html#L571">571</a>                     }
+<a class="jxr_linenumber" name="L572" href="MillerUpdatingRegression.html#L572">572</a>                     rinv[pos] = total - r[pos1];
+<a class="jxr_linenumber" name="L573" href="MillerUpdatingRegression.html#L573">573</a>                     --pos;
+<a class="jxr_linenumber" name="L574" href="MillerUpdatingRegression.html#L574">574</a>                 }
+<a class="jxr_linenumber" name="L575" href="MillerUpdatingRegression.html#L575">575</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L576" href="MillerUpdatingRegression.html#L576">576</a>                 pos -= nreq - row;
+<a class="jxr_linenumber" name="L577" href="MillerUpdatingRegression.html#L577">577</a>             }
+<a class="jxr_linenumber" name="L578" href="MillerUpdatingRegression.html#L578">578</a>         }
+<a class="jxr_linenumber" name="L579" href="MillerUpdatingRegression.html#L579">579</a>     }
+<a class="jxr_linenumber" name="L580" href="MillerUpdatingRegression.html#L580">580</a> 
+<a class="jxr_linenumber" name="L581" href="MillerUpdatingRegression.html#L581">581</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L582" href="MillerUpdatingRegression.html#L582">582</a> <em class="jxr_javadoccomment">     * In the original algorithm only the partial correlations of the regressors</em>
+<a class="jxr_linenumber" name="L583" href="MillerUpdatingRegression.html#L583">583</a> <em class="jxr_javadoccomment">     * is returned to the user. In this implementation, we have &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L584" href="MillerUpdatingRegression.html#L584">584</a> <em class="jxr_javadoccomment">     * corr =</em>
+<a class="jxr_linenumber" name="L585" href="MillerUpdatingRegression.html#L585">585</a> <em class="jxr_javadoccomment">     * {</em>
+<a class="jxr_linenumber" name="L586" href="MillerUpdatingRegression.html#L586">586</a> <em class="jxr_javadoccomment">     *   corrxx - lower triangular</em>
+<a class="jxr_linenumber" name="L587" href="MillerUpdatingRegression.html#L587">587</a> <em class="jxr_javadoccomment">     *   corrxy - bottom row of the matrix</em>
+<a class="jxr_linenumber" name="L588" href="MillerUpdatingRegression.html#L588">588</a> <em class="jxr_javadoccomment">     * }</em>
+<a class="jxr_linenumber" name="L589" href="MillerUpdatingRegression.html#L589">589</a> <em class="jxr_javadoccomment">     * Replaces subroutines PCORR and COR of:</em>
+<a class="jxr_linenumber" name="L590" href="MillerUpdatingRegression.html#L590">590</a> <em class="jxr_javadoccomment">     * ALGORITHM AS274  APPL. STATIST. (1992) VOL.41, NO. 2 &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L591" href="MillerUpdatingRegression.html#L591">591</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L592" href="MillerUpdatingRegression.html#L592">592</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Calculate partial correlations after the variables in rows</em>
+<a class="jxr_linenumber" name="L593" href="MillerUpdatingRegression.html#L593">593</a> <em class="jxr_javadoccomment">     * 1, 2, ..., IN have been forced into the regression.</em>
+<a class="jxr_linenumber" name="L594" href="MillerUpdatingRegression.html#L594">594</a> <em class="jxr_javadoccomment">     * If IN = 1, and the first row of R represents a constant in the</em>
+<a class="jxr_linenumber" name="L595" href="MillerUpdatingRegression.html#L595">595</a> <em class="jxr_javadoccomment">     * model, then the usual simple correlations are returned.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L596" href="MillerUpdatingRegression.html#L596">596</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L597" href="MillerUpdatingRegression.html#L597">597</a> <em class="jxr_javadoccomment">     * &lt;p&gt;If IN = 0, the value returned in array CORMAT for the correlation</em>
+<a class="jxr_linenumber" name="L598" href="MillerUpdatingRegression.html#L598">598</a> <em class="jxr_javadoccomment">     * of variables Xi &amp; Xj is: &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L599" href="MillerUpdatingRegression.html#L599">599</a> <em class="jxr_javadoccomment">     * sum ( Xi.Xj ) / Sqrt ( sum (Xi^2) . sum (Xj^2) )&lt;/pre&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L600" href="MillerUpdatingRegression.html#L600">600</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L601" href="MillerUpdatingRegression.html#L601">601</a> <em class="jxr_javadoccomment">     * &lt;p&gt;On return, array CORMAT contains the upper triangle of the matrix of</em>
+<a class="jxr_linenumber" name="L602" href="MillerUpdatingRegression.html#L602">602</a> <em class="jxr_javadoccomment">     * partial correlations stored by rows, excluding the 1's on the diagonal.</em>
+<a class="jxr_linenumber" name="L603" href="MillerUpdatingRegression.html#L603">603</a> <em class="jxr_javadoccomment">     * e.g. if IN = 2, the consecutive elements returned are:</em>
+<a class="jxr_linenumber" name="L604" href="MillerUpdatingRegression.html#L604">604</a> <em class="jxr_javadoccomment">     * (3,4) (3,5) ... (3,ncol), (4,5) (4,6) ... (4,ncol), etc.</em>
+<a class="jxr_linenumber" name="L605" href="MillerUpdatingRegression.html#L605">605</a> <em class="jxr_javadoccomment">     * Array YCORR stores the partial correlations with the Y-variable</em>
+<a class="jxr_linenumber" name="L606" href="MillerUpdatingRegression.html#L606">606</a> <em class="jxr_javadoccomment">     * starting with YCORR(IN+1) = partial correlation with the variable in</em>
+<a class="jxr_linenumber" name="L607" href="MillerUpdatingRegression.html#L607">607</a> <em class="jxr_javadoccomment">     * position (IN+1). &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L608" href="MillerUpdatingRegression.html#L608">608</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L609" href="MillerUpdatingRegression.html#L609">609</a> <em class="jxr_javadoccomment">     * @param in how many of the regressors to include (either in canonical</em>
+<a class="jxr_linenumber" name="L610" href="MillerUpdatingRegression.html#L610">610</a> <em class="jxr_javadoccomment">     * order, or in the current reordered state)</em>
+<a class="jxr_linenumber" name="L611" href="MillerUpdatingRegression.html#L611">611</a> <em class="jxr_javadoccomment">     * @return an array with the partial correlations of the remainder of</em>
+<a class="jxr_linenumber" name="L612" href="MillerUpdatingRegression.html#L612">612</a> <em class="jxr_javadoccomment">     * regressors with each other and the regressand, in lower triangular form</em>
+<a class="jxr_linenumber" name="L613" href="MillerUpdatingRegression.html#L613">613</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L614" href="MillerUpdatingRegression.html#L614">614</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getPartialCorrelations(<strong class="jxr_keyword">int</strong> in) {
+<a class="jxr_linenumber" name="L615" href="MillerUpdatingRegression.html#L615">615</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] output = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[(nvars - in + 1) * (nvars - in) / 2];
+<a class="jxr_linenumber" name="L616" href="MillerUpdatingRegression.html#L616">616</a>         <strong class="jxr_keyword">int</strong> pos;
+<a class="jxr_linenumber" name="L617" href="MillerUpdatingRegression.html#L617">617</a>         <strong class="jxr_keyword">int</strong> pos1;
+<a class="jxr_linenumber" name="L618" href="MillerUpdatingRegression.html#L618">618</a>         <strong class="jxr_keyword">int</strong> pos2;
+<a class="jxr_linenumber" name="L619" href="MillerUpdatingRegression.html#L619">619</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> rms_off = -in;
+<a class="jxr_linenumber" name="L620" href="MillerUpdatingRegression.html#L620">620</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> wrk_off = -(in + 1);
+<a class="jxr_linenumber" name="L621" href="MillerUpdatingRegression.html#L621">621</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] rms = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nvars - in];
+<a class="jxr_linenumber" name="L622" href="MillerUpdatingRegression.html#L622">622</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] work = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nvars - in - 1];
+<a class="jxr_linenumber" name="L623" href="MillerUpdatingRegression.html#L623">623</a>         <strong class="jxr_keyword">double</strong> sumxx;
+<a class="jxr_linenumber" name="L624" href="MillerUpdatingRegression.html#L624">624</a>         <strong class="jxr_keyword">double</strong> sumxy;
+<a class="jxr_linenumber" name="L625" href="MillerUpdatingRegression.html#L625">625</a>         <strong class="jxr_keyword">double</strong> sumyy;
+<a class="jxr_linenumber" name="L626" href="MillerUpdatingRegression.html#L626">626</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> offXX = (nvars - in) * (nvars - in - 1) / 2;
+<a class="jxr_linenumber" name="L627" href="MillerUpdatingRegression.html#L627">627</a>         <strong class="jxr_keyword">if</strong> (in &lt; -1 || in &gt;= nvars) {
+<a class="jxr_linenumber" name="L628" href="MillerUpdatingRegression.html#L628">628</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L629" href="MillerUpdatingRegression.html#L629">629</a>         }
+<a class="jxr_linenumber" name="L630" href="MillerUpdatingRegression.html#L630">630</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nvm = nvars - 1;
+<a class="jxr_linenumber" name="L631" href="MillerUpdatingRegression.html#L631">631</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> base_pos = r.length - (nvm - in) * (nvm - in + 1) / 2;
+<a class="jxr_linenumber" name="L632" href="MillerUpdatingRegression.html#L632">632</a>         <strong class="jxr_keyword">if</strong> (d[in] &gt; 0.0) {
+<a class="jxr_linenumber" name="L633" href="MillerUpdatingRegression.html#L633">633</a>             rms[in + rms_off] = 1.0 / FastMath.sqrt(d[in]);
+<a class="jxr_linenumber" name="L634" href="MillerUpdatingRegression.html#L634">634</a>         }
+<a class="jxr_linenumber" name="L635" href="MillerUpdatingRegression.html#L635">635</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = in + 1; col &lt; nvars; col++) {
+<a class="jxr_linenumber" name="L636" href="MillerUpdatingRegression.html#L636">636</a>             pos = base_pos + col - 1 - in;
+<a class="jxr_linenumber" name="L637" href="MillerUpdatingRegression.html#L637">637</a>             sumxx = d[col];
+<a class="jxr_linenumber" name="L638" href="MillerUpdatingRegression.html#L638">638</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = in; row &lt; col; row++) {
+<a class="jxr_linenumber" name="L639" href="MillerUpdatingRegression.html#L639">639</a>                 sumxx += d[row] * r[pos] * r[pos];
+<a class="jxr_linenumber" name="L640" href="MillerUpdatingRegression.html#L640">640</a>                 pos += nvars - row - 2;
+<a class="jxr_linenumber" name="L641" href="MillerUpdatingRegression.html#L641">641</a>             }
+<a class="jxr_linenumber" name="L642" href="MillerUpdatingRegression.html#L642">642</a>             <strong class="jxr_keyword">if</strong> (sumxx &gt; 0.0) {
+<a class="jxr_linenumber" name="L643" href="MillerUpdatingRegression.html#L643">643</a>                 rms[col + rms_off] = 1.0 / FastMath.sqrt(sumxx);
+<a class="jxr_linenumber" name="L644" href="MillerUpdatingRegression.html#L644">644</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L645" href="MillerUpdatingRegression.html#L645">645</a>                 rms[col + rms_off] = 0.0;
+<a class="jxr_linenumber" name="L646" href="MillerUpdatingRegression.html#L646">646</a>             }
+<a class="jxr_linenumber" name="L647" href="MillerUpdatingRegression.html#L647">647</a>         }
+<a class="jxr_linenumber" name="L648" href="MillerUpdatingRegression.html#L648">648</a>         sumyy = sserr;
+<a class="jxr_linenumber" name="L649" href="MillerUpdatingRegression.html#L649">649</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = in; row &lt; nvars; row++) {
+<a class="jxr_linenumber" name="L650" href="MillerUpdatingRegression.html#L650">650</a>             sumyy += d[row] * rhs[row] * rhs[row];
+<a class="jxr_linenumber" name="L651" href="MillerUpdatingRegression.html#L651">651</a>         }
+<a class="jxr_linenumber" name="L652" href="MillerUpdatingRegression.html#L652">652</a>         <strong class="jxr_keyword">if</strong> (sumyy &gt; 0.0) {
+<a class="jxr_linenumber" name="L653" href="MillerUpdatingRegression.html#L653">653</a>             sumyy = 1.0 / FastMath.sqrt(sumyy);
+<a class="jxr_linenumber" name="L654" href="MillerUpdatingRegression.html#L654">654</a>         }
+<a class="jxr_linenumber" name="L655" href="MillerUpdatingRegression.html#L655">655</a>         pos = 0;
+<a class="jxr_linenumber" name="L656" href="MillerUpdatingRegression.html#L656">656</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col1 = in; col1 &lt; nvars; col1++) {
+<a class="jxr_linenumber" name="L657" href="MillerUpdatingRegression.html#L657">657</a>             sumxy = 0.0;
+<a class="jxr_linenumber" name="L658" href="MillerUpdatingRegression.html#L658">658</a>             Arrays.fill(work, 0.0);
+<a class="jxr_linenumber" name="L659" href="MillerUpdatingRegression.html#L659">659</a>             pos1 = base_pos + col1 - in - 1;
+<a class="jxr_linenumber" name="L660" href="MillerUpdatingRegression.html#L660">660</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = in; row &lt; col1; row++) {
+<a class="jxr_linenumber" name="L661" href="MillerUpdatingRegression.html#L661">661</a>                 pos2 = pos1 + 1;
+<a class="jxr_linenumber" name="L662" href="MillerUpdatingRegression.html#L662">662</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col2 = col1 + 1; col2 &lt; nvars; col2++) {
+<a class="jxr_linenumber" name="L663" href="MillerUpdatingRegression.html#L663">663</a>                     work[col2 + wrk_off] += d[row] * r[pos1] * r[pos2];
+<a class="jxr_linenumber" name="L664" href="MillerUpdatingRegression.html#L664">664</a>                     pos2++;
+<a class="jxr_linenumber" name="L665" href="MillerUpdatingRegression.html#L665">665</a>                 }
+<a class="jxr_linenumber" name="L666" href="MillerUpdatingRegression.html#L666">666</a>                 sumxy += d[row] * r[pos1] * rhs[row];
+<a class="jxr_linenumber" name="L667" href="MillerUpdatingRegression.html#L667">667</a>                 pos1 += nvars - row - 2;
+<a class="jxr_linenumber" name="L668" href="MillerUpdatingRegression.html#L668">668</a>             }
+<a class="jxr_linenumber" name="L669" href="MillerUpdatingRegression.html#L669">669</a>             pos2 = pos1 + 1;
+<a class="jxr_linenumber" name="L670" href="MillerUpdatingRegression.html#L670">670</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col2 = col1 + 1; col2 &lt; nvars; col2++) {
+<a class="jxr_linenumber" name="L671" href="MillerUpdatingRegression.html#L671">671</a>                 work[col2 + wrk_off] += d[col1] * r[pos2];
+<a class="jxr_linenumber" name="L672" href="MillerUpdatingRegression.html#L672">672</a>                 ++pos2;
+<a class="jxr_linenumber" name="L673" href="MillerUpdatingRegression.html#L673">673</a>                 output[ (col2 - 1 - in) * (col2 - in) / 2 + col1 - in] =
+<a class="jxr_linenumber" name="L674" href="MillerUpdatingRegression.html#L674">674</a>                         work[col2 + wrk_off] * rms[col1 + rms_off] * rms[col2 + rms_off];
+<a class="jxr_linenumber" name="L675" href="MillerUpdatingRegression.html#L675">675</a>                 ++pos;
+<a class="jxr_linenumber" name="L676" href="MillerUpdatingRegression.html#L676">676</a>             }
+<a class="jxr_linenumber" name="L677" href="MillerUpdatingRegression.html#L677">677</a>             sumxy += d[col1] * rhs[col1];
+<a class="jxr_linenumber" name="L678" href="MillerUpdatingRegression.html#L678">678</a>             output[col1 + rms_off + offXX] = sumxy * rms[col1 + rms_off] * sumyy;
+<a class="jxr_linenumber" name="L679" href="MillerUpdatingRegression.html#L679">679</a>         }
+<a class="jxr_linenumber" name="L680" href="MillerUpdatingRegression.html#L680">680</a> 
+<a class="jxr_linenumber" name="L681" href="MillerUpdatingRegression.html#L681">681</a>         <strong class="jxr_keyword">return</strong> output;
+<a class="jxr_linenumber" name="L682" href="MillerUpdatingRegression.html#L682">682</a>     }
+<a class="jxr_linenumber" name="L683" href="MillerUpdatingRegression.html#L683">683</a> 
+<a class="jxr_linenumber" name="L684" href="MillerUpdatingRegression.html#L684">684</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L685" href="MillerUpdatingRegression.html#L685">685</a> <em class="jxr_javadoccomment">     * ALGORITHM AS274 APPL. STATIST. (1992) VOL.41, NO. 2.</em>
+<a class="jxr_linenumber" name="L686" href="MillerUpdatingRegression.html#L686">686</a> <em class="jxr_javadoccomment">     * Move variable from position FROM to position TO in an</em>
+<a class="jxr_linenumber" name="L687" href="MillerUpdatingRegression.html#L687">687</a> <em class="jxr_javadoccomment">     * orthogonal reduction produced by AS75.1.</em>
+<a class="jxr_linenumber" name="L688" href="MillerUpdatingRegression.html#L688">688</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L689" href="MillerUpdatingRegression.html#L689">689</a> <em class="jxr_javadoccomment">     * @param from initial position</em>
+<a class="jxr_linenumber" name="L690" href="MillerUpdatingRegression.html#L690">690</a> <em class="jxr_javadoccomment">     * @param to destination</em>
+<a class="jxr_linenumber" name="L691" href="MillerUpdatingRegression.html#L691">691</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L692" href="MillerUpdatingRegression.html#L692">692</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> vmove(<strong class="jxr_keyword">int</strong> from, <strong class="jxr_keyword">int</strong> to) {
+<a class="jxr_linenumber" name="L693" href="MillerUpdatingRegression.html#L693">693</a>         <strong class="jxr_keyword">double</strong> d1;
+<a class="jxr_linenumber" name="L694" href="MillerUpdatingRegression.html#L694">694</a>         <strong class="jxr_keyword">double</strong> d2;
+<a class="jxr_linenumber" name="L695" href="MillerUpdatingRegression.html#L695">695</a>         <strong class="jxr_keyword">double</strong> X;
+<a class="jxr_linenumber" name="L696" href="MillerUpdatingRegression.html#L696">696</a>         <strong class="jxr_keyword">double</strong> d1<strong class="jxr_keyword">new</strong>;
+<a class="jxr_linenumber" name="L697" href="MillerUpdatingRegression.html#L697">697</a>         <strong class="jxr_keyword">double</strong> d2<strong class="jxr_keyword">new</strong>;
+<a class="jxr_linenumber" name="L698" href="MillerUpdatingRegression.html#L698">698</a>         <strong class="jxr_keyword">double</strong> cbar;
+<a class="jxr_linenumber" name="L699" href="MillerUpdatingRegression.html#L699">699</a>         <strong class="jxr_keyword">double</strong> sbar;
+<a class="jxr_linenumber" name="L700" href="MillerUpdatingRegression.html#L700">700</a>         <strong class="jxr_keyword">double</strong> Y;
+<a class="jxr_linenumber" name="L701" href="MillerUpdatingRegression.html#L701">701</a>         <strong class="jxr_keyword">int</strong> first;
+<a class="jxr_linenumber" name="L702" href="MillerUpdatingRegression.html#L702">702</a>         <strong class="jxr_keyword">int</strong> inc;
+<a class="jxr_linenumber" name="L703" href="MillerUpdatingRegression.html#L703">703</a>         <strong class="jxr_keyword">int</strong> m1;
+<a class="jxr_linenumber" name="L704" href="MillerUpdatingRegression.html#L704">704</a>         <strong class="jxr_keyword">int</strong> m2;
+<a class="jxr_linenumber" name="L705" href="MillerUpdatingRegression.html#L705">705</a>         <strong class="jxr_keyword">int</strong> mp1;
+<a class="jxr_linenumber" name="L706" href="MillerUpdatingRegression.html#L706">706</a>         <strong class="jxr_keyword">int</strong> pos;
+<a class="jxr_linenumber" name="L707" href="MillerUpdatingRegression.html#L707">707</a>         <strong class="jxr_keyword">boolean</strong> bSkipTo40 = false;
+<a class="jxr_linenumber" name="L708" href="MillerUpdatingRegression.html#L708">708</a>         <strong class="jxr_keyword">if</strong> (from == to) {
+<a class="jxr_linenumber" name="L709" href="MillerUpdatingRegression.html#L709">709</a>             <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L710" href="MillerUpdatingRegression.html#L710">710</a>         }
+<a class="jxr_linenumber" name="L711" href="MillerUpdatingRegression.html#L711">711</a>         <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>.rss_set) {
+<a class="jxr_linenumber" name="L712" href="MillerUpdatingRegression.html#L712">712</a>             ss();
+<a class="jxr_linenumber" name="L713" href="MillerUpdatingRegression.html#L713">713</a>         }
+<a class="jxr_linenumber" name="L714" href="MillerUpdatingRegression.html#L714">714</a>         <strong class="jxr_keyword">int</strong> count = 0;
+<a class="jxr_linenumber" name="L715" href="MillerUpdatingRegression.html#L715">715</a>         <strong class="jxr_keyword">if</strong> (from &lt; to) {
+<a class="jxr_linenumber" name="L716" href="MillerUpdatingRegression.html#L716">716</a>             first = from;
+<a class="jxr_linenumber" name="L717" href="MillerUpdatingRegression.html#L717">717</a>             inc = 1;
+<a class="jxr_linenumber" name="L718" href="MillerUpdatingRegression.html#L718">718</a>             count = to - from;
+<a class="jxr_linenumber" name="L719" href="MillerUpdatingRegression.html#L719">719</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L720" href="MillerUpdatingRegression.html#L720">720</a>             first = from - 1;
+<a class="jxr_linenumber" name="L721" href="MillerUpdatingRegression.html#L721">721</a>             inc = -1;
+<a class="jxr_linenumber" name="L722" href="MillerUpdatingRegression.html#L722">722</a>             count = from - to;
+<a class="jxr_linenumber" name="L723" href="MillerUpdatingRegression.html#L723">723</a>         }
+<a class="jxr_linenumber" name="L724" href="MillerUpdatingRegression.html#L724">724</a> 
+<a class="jxr_linenumber" name="L725" href="MillerUpdatingRegression.html#L725">725</a>         <strong class="jxr_keyword">int</strong> m = first;
+<a class="jxr_linenumber" name="L726" href="MillerUpdatingRegression.html#L726">726</a>         <strong class="jxr_keyword">int</strong> idx = 0;
+<a class="jxr_linenumber" name="L727" href="MillerUpdatingRegression.html#L727">727</a>         <strong class="jxr_keyword">while</strong> (idx &lt; count) {
+<a class="jxr_linenumber" name="L728" href="MillerUpdatingRegression.html#L728">728</a>             m1 = m * (nvars + nvars - m - 1) / 2;
+<a class="jxr_linenumber" name="L729" href="MillerUpdatingRegression.html#L729">729</a>             m2 = m1 + nvars - m - 1;
+<a class="jxr_linenumber" name="L730" href="MillerUpdatingRegression.html#L730">730</a>             mp1 = m + 1;
+<a class="jxr_linenumber" name="L731" href="MillerUpdatingRegression.html#L731">731</a> 
+<a class="jxr_linenumber" name="L732" href="MillerUpdatingRegression.html#L732">732</a>             d1 = d[m];
+<a class="jxr_linenumber" name="L733" href="MillerUpdatingRegression.html#L733">733</a>             d2 = d[mp1];
+<a class="jxr_linenumber" name="L734" href="MillerUpdatingRegression.html#L734">734</a>             <em class="jxr_comment">// Special cases.</em>
+<a class="jxr_linenumber" name="L735" href="MillerUpdatingRegression.html#L735">735</a>             <strong class="jxr_keyword">if</strong> (d1 &gt; <strong class="jxr_keyword">this</strong>.epsilon || d2 &gt; <strong class="jxr_keyword">this</strong>.epsilon) {
+<a class="jxr_linenumber" name="L736" href="MillerUpdatingRegression.html#L736">736</a>                 X = r[m1];
+<a class="jxr_linenumber" name="L737" href="MillerUpdatingRegression.html#L737">737</a>                 <strong class="jxr_keyword">if</strong> (FastMath.abs(X) * FastMath.sqrt(d1) &lt; tol[mp1]) {
+<a class="jxr_linenumber" name="L738" href="MillerUpdatingRegression.html#L738">738</a>                     X = 0.0;
+<a class="jxr_linenumber" name="L739" href="MillerUpdatingRegression.html#L739">739</a>                 }
+<a class="jxr_linenumber" name="L740" href="MillerUpdatingRegression.html#L740">740</a>                 <strong class="jxr_keyword">if</strong> (d1 &lt; <strong class="jxr_keyword">this</strong>.epsilon || FastMath.abs(X) &lt; <strong class="jxr_keyword">this</strong>.epsilon) {
+<a class="jxr_linenumber" name="L741" href="MillerUpdatingRegression.html#L741">741</a>                     d[m] = d2;
+<a class="jxr_linenumber" name="L742" href="MillerUpdatingRegression.html#L742">742</a>                     d[mp1] = d1;
+<a class="jxr_linenumber" name="L743" href="MillerUpdatingRegression.html#L743">743</a>                     r[m1] = 0.0;
+<a class="jxr_linenumber" name="L744" href="MillerUpdatingRegression.html#L744">744</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = m + 2; col &lt; nvars; col++) {
+<a class="jxr_linenumber" name="L745" href="MillerUpdatingRegression.html#L745">745</a>                         ++m1;
+<a class="jxr_linenumber" name="L746" href="MillerUpdatingRegression.html#L746">746</a>                         X = r[m1];
+<a class="jxr_linenumber" name="L747" href="MillerUpdatingRegression.html#L747">747</a>                         r[m1] = r[m2];
+<a class="jxr_linenumber" name="L748" href="MillerUpdatingRegression.html#L748">748</a>                         r[m2] = X;
+<a class="jxr_linenumber" name="L749" href="MillerUpdatingRegression.html#L749">749</a>                         ++m2;
+<a class="jxr_linenumber" name="L750" href="MillerUpdatingRegression.html#L750">750</a>                     }
+<a class="jxr_linenumber" name="L751" href="MillerUpdatingRegression.html#L751">751</a>                     X = rhs[m];
+<a class="jxr_linenumber" name="L752" href="MillerUpdatingRegression.html#L752">752</a>                     rhs[m] = rhs[mp1];
+<a class="jxr_linenumber" name="L753" href="MillerUpdatingRegression.html#L753">753</a>                     rhs[mp1] = X;
+<a class="jxr_linenumber" name="L754" href="MillerUpdatingRegression.html#L754">754</a>                     bSkipTo40 = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L755" href="MillerUpdatingRegression.html#L755">755</a>                     <em class="jxr_comment">//break;</em>
+<a class="jxr_linenumber" name="L756" href="MillerUpdatingRegression.html#L756">756</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (d2 &lt; <strong class="jxr_keyword">this</strong>.epsilon) {
+<a class="jxr_linenumber" name="L757" href="MillerUpdatingRegression.html#L757">757</a>                     d[m] = d1 * X * X;
+<a class="jxr_linenumber" name="L758" href="MillerUpdatingRegression.html#L758">758</a>                     r[m1] = 1.0 / X;
+<a class="jxr_linenumber" name="L759" href="MillerUpdatingRegression.html#L759">759</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> _i = m1 + 1; _i &lt; m1 + nvars - m - 1; _i++) {
+<a class="jxr_linenumber" name="L760" href="MillerUpdatingRegression.html#L760">760</a>                         r[_i] /= X;
+<a class="jxr_linenumber" name="L761" href="MillerUpdatingRegression.html#L761">761</a>                     }
+<a class="jxr_linenumber" name="L762" href="MillerUpdatingRegression.html#L762">762</a>                     rhs[m] /= X;
+<a class="jxr_linenumber" name="L763" href="MillerUpdatingRegression.html#L763">763</a>                     bSkipTo40 = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L764" href="MillerUpdatingRegression.html#L764">764</a>                     <em class="jxr_comment">//break;</em>
+<a class="jxr_linenumber" name="L765" href="MillerUpdatingRegression.html#L765">765</a>                 }
+<a class="jxr_linenumber" name="L766" href="MillerUpdatingRegression.html#L766">766</a>                 <strong class="jxr_keyword">if</strong> (!bSkipTo40) {
+<a class="jxr_linenumber" name="L767" href="MillerUpdatingRegression.html#L767">767</a>                     d1<strong class="jxr_keyword">new</strong> = d2 + d1 * X * X;
+<a class="jxr_linenumber" name="L768" href="MillerUpdatingRegression.html#L768">768</a>                     cbar = d2 / d1<strong class="jxr_keyword">new</strong>;
+<a class="jxr_linenumber" name="L769" href="MillerUpdatingRegression.html#L769">769</a>                     sbar = X * d1 / d1<strong class="jxr_keyword">new</strong>;
+<a class="jxr_linenumber" name="L770" href="MillerUpdatingRegression.html#L770">770</a>                     d2<strong class="jxr_keyword">new</strong> = d1 * cbar;
+<a class="jxr_linenumber" name="L771" href="MillerUpdatingRegression.html#L771">771</a>                     d[m] = d1<strong class="jxr_keyword">new</strong>;
+<a class="jxr_linenumber" name="L772" href="MillerUpdatingRegression.html#L772">772</a>                     d[mp1] = d2<strong class="jxr_keyword">new</strong>;
+<a class="jxr_linenumber" name="L773" href="MillerUpdatingRegression.html#L773">773</a>                     r[m1] = sbar;
+<a class="jxr_linenumber" name="L774" href="MillerUpdatingRegression.html#L774">774</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = m + 2; col &lt; nvars; col++) {
+<a class="jxr_linenumber" name="L775" href="MillerUpdatingRegression.html#L775">775</a>                         ++m1;
+<a class="jxr_linenumber" name="L776" href="MillerUpdatingRegression.html#L776">776</a>                         Y = r[m1];
+<a class="jxr_linenumber" name="L777" href="MillerUpdatingRegression.html#L777">777</a>                         r[m1] = cbar * r[m2] + sbar * Y;
+<a class="jxr_linenumber" name="L778" href="MillerUpdatingRegression.html#L778">778</a>                         r[m2] = Y - X * r[m2];
+<a class="jxr_linenumber" name="L779" href="MillerUpdatingRegression.html#L779">779</a>                         ++m2;
+<a class="jxr_linenumber" name="L780" href="MillerUpdatingRegression.html#L780">780</a>                     }
+<a class="jxr_linenumber" name="L781" href="MillerUpdatingRegression.html#L781">781</a>                     Y = rhs[m];
+<a class="jxr_linenumber" name="L782" href="MillerUpdatingRegression.html#L782">782</a>                     rhs[m] = cbar * rhs[mp1] + sbar * Y;
+<a class="jxr_linenumber" name="L783" href="MillerUpdatingRegression.html#L783">783</a>                     rhs[mp1] = Y - X * rhs[mp1];
+<a class="jxr_linenumber" name="L784" href="MillerUpdatingRegression.html#L784">784</a>                 }
+<a class="jxr_linenumber" name="L785" href="MillerUpdatingRegression.html#L785">785</a>             }
+<a class="jxr_linenumber" name="L786" href="MillerUpdatingRegression.html#L786">786</a>             <strong class="jxr_keyword">if</strong> (m &gt; 0) {
+<a class="jxr_linenumber" name="L787" href="MillerUpdatingRegression.html#L787">787</a>                 pos = m;
+<a class="jxr_linenumber" name="L788" href="MillerUpdatingRegression.html#L788">788</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = 0; row &lt; m; row++) {
+<a class="jxr_linenumber" name="L789" href="MillerUpdatingRegression.html#L789">789</a>                     X = r[pos];
+<a class="jxr_linenumber" name="L790" href="MillerUpdatingRegression.html#L790">790</a>                     r[pos] = r[pos - 1];
+<a class="jxr_linenumber" name="L791" href="MillerUpdatingRegression.html#L791">791</a>                     r[pos - 1] = X;
+<a class="jxr_linenumber" name="L792" href="MillerUpdatingRegression.html#L792">792</a>                     pos += nvars - row - 2;
+<a class="jxr_linenumber" name="L793" href="MillerUpdatingRegression.html#L793">793</a>                 }
+<a class="jxr_linenumber" name="L794" href="MillerUpdatingRegression.html#L794">794</a>             }
+<a class="jxr_linenumber" name="L795" href="MillerUpdatingRegression.html#L795">795</a>             <em class="jxr_comment">// Adjust variable order (VORDER), the tolerances (TOL) and</em>
+<a class="jxr_linenumber" name="L796" href="MillerUpdatingRegression.html#L796">796</a>             <em class="jxr_comment">// the vector of residual sums of squares (RSS).</em>
+<a class="jxr_linenumber" name="L797" href="MillerUpdatingRegression.html#L797">797</a>             m1 = vorder[m];
+<a class="jxr_linenumber" name="L798" href="MillerUpdatingRegression.html#L798">798</a>             vorder[m] = vorder[mp1];
+<a class="jxr_linenumber" name="L799" href="MillerUpdatingRegression.html#L799">799</a>             vorder[mp1] = m1;
+<a class="jxr_linenumber" name="L800" href="MillerUpdatingRegression.html#L800">800</a>             X = tol[m];
+<a class="jxr_linenumber" name="L801" href="MillerUpdatingRegression.html#L801">801</a>             tol[m] = tol[mp1];
+<a class="jxr_linenumber" name="L802" href="MillerUpdatingRegression.html#L802">802</a>             tol[mp1] = X;
+<a class="jxr_linenumber" name="L803" href="MillerUpdatingRegression.html#L803">803</a>             rss[m] = rss[mp1] + d[mp1] * rhs[mp1] * rhs[mp1];
+<a class="jxr_linenumber" name="L804" href="MillerUpdatingRegression.html#L804">804</a> 
+<a class="jxr_linenumber" name="L805" href="MillerUpdatingRegression.html#L805">805</a>             m += inc;
+<a class="jxr_linenumber" name="L806" href="MillerUpdatingRegression.html#L806">806</a>             ++idx;
+<a class="jxr_linenumber" name="L807" href="MillerUpdatingRegression.html#L807">807</a>         }
+<a class="jxr_linenumber" name="L808" href="MillerUpdatingRegression.html#L808">808</a>     }
+<a class="jxr_linenumber" name="L809" href="MillerUpdatingRegression.html#L809">809</a> 
+<a class="jxr_linenumber" name="L810" href="MillerUpdatingRegression.html#L810">810</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L811" href="MillerUpdatingRegression.html#L811">811</a> <em class="jxr_javadoccomment">     * ALGORITHM AS274  APPL. STATIST. (1992) VOL.41, NO. 2</em>
+<a class="jxr_linenumber" name="L812" href="MillerUpdatingRegression.html#L812">812</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L813" href="MillerUpdatingRegression.html#L813">813</a> <em class="jxr_javadoccomment">     * &lt;p&gt; Re-order the variables in an orthogonal reduction produced by</em>
+<a class="jxr_linenumber" name="L814" href="MillerUpdatingRegression.html#L814">814</a> <em class="jxr_javadoccomment">     * AS75.1 so that the N variables in LIST start at position POS1,</em>
+<a class="jxr_linenumber" name="L815" href="MillerUpdatingRegression.html#L815">815</a> <em class="jxr_javadoccomment">     * though will not necessarily be in the same order as in LIST.</em>
+<a class="jxr_linenumber" name="L816" href="MillerUpdatingRegression.html#L816">816</a> <em class="jxr_javadoccomment">     * Any variables in VORDER before position POS1 are not moved.</em>
+<a class="jxr_linenumber" name="L817" href="MillerUpdatingRegression.html#L817">817</a> <em class="jxr_javadoccomment">     * Auxiliary routine called: VMOVE. &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L818" href="MillerUpdatingRegression.html#L818">818</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L819" href="MillerUpdatingRegression.html#L819">819</a> <em class="jxr_javadoccomment">     * &lt;p&gt;This internal method reorders the regressors.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L820" href="MillerUpdatingRegression.html#L820">820</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L821" href="MillerUpdatingRegression.html#L821">821</a> <em class="jxr_javadoccomment">     * @param list the regressors to move</em>
+<a class="jxr_linenumber" name="L822" href="MillerUpdatingRegression.html#L822">822</a> <em class="jxr_javadoccomment">     * @param pos1 where the list will be placed</em>
+<a class="jxr_linenumber" name="L823" href="MillerUpdatingRegression.html#L823">823</a> <em class="jxr_javadoccomment">     * @return -1 error, 0 everything ok</em>
+<a class="jxr_linenumber" name="L824" href="MillerUpdatingRegression.html#L824">824</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L825" href="MillerUpdatingRegression.html#L825">825</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> reorderRegressors(<strong class="jxr_keyword">int</strong>[] list, <strong class="jxr_keyword">int</strong> pos1) {
+<a class="jxr_linenumber" name="L826" href="MillerUpdatingRegression.html#L826">826</a>         <strong class="jxr_keyword">int</strong> next;
+<a class="jxr_linenumber" name="L827" href="MillerUpdatingRegression.html#L827">827</a>         <strong class="jxr_keyword">int</strong> i;
+<a class="jxr_linenumber" name="L828" href="MillerUpdatingRegression.html#L828">828</a>         <strong class="jxr_keyword">int</strong> l;
+<a class="jxr_linenumber" name="L829" href="MillerUpdatingRegression.html#L829">829</a>         <strong class="jxr_keyword">if</strong> (list.length &lt; 1 || list.length &gt; nvars + 1 - pos1) {
+<a class="jxr_linenumber" name="L830" href="MillerUpdatingRegression.html#L830">830</a>             <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L831" href="MillerUpdatingRegression.html#L831">831</a>         }
+<a class="jxr_linenumber" name="L832" href="MillerUpdatingRegression.html#L832">832</a>         next = pos1;
+<a class="jxr_linenumber" name="L833" href="MillerUpdatingRegression.html#L833">833</a>         i = pos1;
+<a class="jxr_linenumber" name="L834" href="MillerUpdatingRegression.html#L834">834</a>         <strong class="jxr_keyword">while</strong> (i &lt; nvars) {
+<a class="jxr_linenumber" name="L835" href="MillerUpdatingRegression.html#L835">835</a>             l = vorder[i];
+<a class="jxr_linenumber" name="L836" href="MillerUpdatingRegression.html#L836">836</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; list.length; j++) {
+<a class="jxr_linenumber" name="L837" href="MillerUpdatingRegression.html#L837">837</a>                 <strong class="jxr_keyword">if</strong> (l == list[j] &amp;&amp; i &gt; next) {
+<a class="jxr_linenumber" name="L838" href="MillerUpdatingRegression.html#L838">838</a>                     <strong class="jxr_keyword">this</strong>.vmove(i, next);
+<a class="jxr_linenumber" name="L839" href="MillerUpdatingRegression.html#L839">839</a>                     ++next;
+<a class="jxr_linenumber" name="L840" href="MillerUpdatingRegression.html#L840">840</a>                     <strong class="jxr_keyword">if</strong> (next &gt;= list.length + pos1) {
+<a class="jxr_linenumber" name="L841" href="MillerUpdatingRegression.html#L841">841</a>                         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L842" href="MillerUpdatingRegression.html#L842">842</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L843" href="MillerUpdatingRegression.html#L843">843</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L844" href="MillerUpdatingRegression.html#L844">844</a>                     }
+<a class="jxr_linenumber" name="L845" href="MillerUpdatingRegression.html#L845">845</a>                 }
+<a class="jxr_linenumber" name="L846" href="MillerUpdatingRegression.html#L846">846</a>             }
+<a class="jxr_linenumber" name="L847" href="MillerUpdatingRegression.html#L847">847</a>             ++i;
+<a class="jxr_linenumber" name="L848" href="MillerUpdatingRegression.html#L848">848</a>         }
+<a class="jxr_linenumber" name="L849" href="MillerUpdatingRegression.html#L849">849</a>         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L850" href="MillerUpdatingRegression.html#L850">850</a>     }
+<a class="jxr_linenumber" name="L851" href="MillerUpdatingRegression.html#L851">851</a> 
+<a class="jxr_linenumber" name="L852" href="MillerUpdatingRegression.html#L852">852</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L853" href="MillerUpdatingRegression.html#L853">853</a> <em class="jxr_javadoccomment">     * Gets the diagonal of the Hat matrix also known as the leverage matrix.</em>
+<a class="jxr_linenumber" name="L854" href="MillerUpdatingRegression.html#L854">854</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L855" href="MillerUpdatingRegression.html#L855">855</a> <em class="jxr_javadoccomment">     * @param  row_data returns the diagonal of the hat matrix for this observation</em>
+<a class="jxr_linenumber" name="L856" href="MillerUpdatingRegression.html#L856">856</a> <em class="jxr_javadoccomment">     * @return the diagonal element of the hatmatrix</em>
+<a class="jxr_linenumber" name="L857" href="MillerUpdatingRegression.html#L857">857</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L858" href="MillerUpdatingRegression.html#L858">858</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getDiagonalOfHatMatrix(<strong class="jxr_keyword">double</strong>[] row_data) {
+<a class="jxr_linenumber" name="L859" href="MillerUpdatingRegression.html#L859">859</a>         <strong class="jxr_keyword">double</strong>[] wk = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[<strong class="jxr_keyword">this</strong>.nvars];
+<a class="jxr_linenumber" name="L860" href="MillerUpdatingRegression.html#L860">860</a>         <strong class="jxr_keyword">int</strong> pos;
+<a class="jxr_linenumber" name="L861" href="MillerUpdatingRegression.html#L861">861</a>         <strong class="jxr_keyword">double</strong> total;
+<a class="jxr_linenumber" name="L862" href="MillerUpdatingRegression.html#L862">862</a> 
+<a class="jxr_linenumber" name="L863" href="MillerUpdatingRegression.html#L863">863</a>         <strong class="jxr_keyword">if</strong> (row_data.length &gt; nvars) {
+<a class="jxr_linenumber" name="L864" href="MillerUpdatingRegression.html#L864">864</a>             <strong class="jxr_keyword">return</strong> Double.NaN;
+<a class="jxr_linenumber" name="L865" href="MillerUpdatingRegression.html#L865">865</a>         }
+<a class="jxr_linenumber" name="L866" href="MillerUpdatingRegression.html#L866">866</a>         <strong class="jxr_keyword">double</strong>[] xrow;
+<a class="jxr_linenumber" name="L867" href="MillerUpdatingRegression.html#L867">867</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.hasIntercept) {
+<a class="jxr_linenumber" name="L868" href="MillerUpdatingRegression.html#L868">868</a>             xrow = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[row_data.length + 1];
+<a class="jxr_linenumber" name="L869" href="MillerUpdatingRegression.html#L869">869</a>             xrow[0] = 1.0;
+<a class="jxr_linenumber" name="L870" href="MillerUpdatingRegression.html#L870">870</a>             System.arraycopy(row_data, 0, xrow, 1, row_data.length);
+<a class="jxr_linenumber" name="L871" href="MillerUpdatingRegression.html#L871">871</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L872" href="MillerUpdatingRegression.html#L872">872</a>             xrow = row_data;
+<a class="jxr_linenumber" name="L873" href="MillerUpdatingRegression.html#L873">873</a>         }
+<a class="jxr_linenumber" name="L874" href="MillerUpdatingRegression.html#L874">874</a>         <strong class="jxr_keyword">double</strong> hii = 0.0;
+<a class="jxr_linenumber" name="L875" href="MillerUpdatingRegression.html#L875">875</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = 0; col &lt; xrow.length; col++) {
+<a class="jxr_linenumber" name="L876" href="MillerUpdatingRegression.html#L876">876</a>             <strong class="jxr_keyword">if</strong> (FastMath.sqrt(d[col]) &lt; tol[col]) {
+<a class="jxr_linenumber" name="L877" href="MillerUpdatingRegression.html#L877">877</a>                 wk[col] = 0.0;
+<a class="jxr_linenumber" name="L878" href="MillerUpdatingRegression.html#L878">878</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L879" href="MillerUpdatingRegression.html#L879">879</a>                 pos = col - 1;
+<a class="jxr_linenumber" name="L880" href="MillerUpdatingRegression.html#L880">880</a>                 total = xrow[col];
+<a class="jxr_linenumber" name="L881" href="MillerUpdatingRegression.html#L881">881</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = 0; row &lt; col; row++) {
+<a class="jxr_linenumber" name="L882" href="MillerUpdatingRegression.html#L882">882</a>                     total = smartAdd(total, -wk[row] * r[pos]);
+<a class="jxr_linenumber" name="L883" href="MillerUpdatingRegression.html#L883">883</a>                     pos += nvars - row - 2;
+<a class="jxr_linenumber" name="L884" href="MillerUpdatingRegression.html#L884">884</a>                 }
+<a class="jxr_linenumber" name="L885" href="MillerUpdatingRegression.html#L885">885</a>                 wk[col] = total;
+<a class="jxr_linenumber" name="L886" href="MillerUpdatingRegression.html#L886">886</a>                 hii = smartAdd(hii, (total * total) / d[col]);
+<a class="jxr_linenumber" name="L887" href="MillerUpdatingRegression.html#L887">887</a>             }
+<a class="jxr_linenumber" name="L888" href="MillerUpdatingRegression.html#L888">888</a>         }
+<a class="jxr_linenumber" name="L889" href="MillerUpdatingRegression.html#L889">889</a>         <strong class="jxr_keyword">return</strong> hii;
+<a class="jxr_linenumber" name="L890" href="MillerUpdatingRegression.html#L890">890</a>     }
+<a class="jxr_linenumber" name="L891" href="MillerUpdatingRegression.html#L891">891</a> 
+<a class="jxr_linenumber" name="L892" href="MillerUpdatingRegression.html#L892">892</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L893" href="MillerUpdatingRegression.html#L893">893</a> <em class="jxr_javadoccomment">     * Gets the order of the regressors, useful if some type of reordering</em>
+<a class="jxr_linenumber" name="L894" href="MillerUpdatingRegression.html#L894">894</a> <em class="jxr_javadoccomment">     * has been called. Calling regress with int[]{} args will trigger</em>
+<a class="jxr_linenumber" name="L895" href="MillerUpdatingRegression.html#L895">895</a> <em class="jxr_javadoccomment">     * a reordering.</em>
+<a class="jxr_linenumber" name="L896" href="MillerUpdatingRegression.html#L896">896</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L897" href="MillerUpdatingRegression.html#L897">897</a> <em class="jxr_javadoccomment">     * @return int[] with the current order of the regressors</em>
+<a class="jxr_linenumber" name="L898" href="MillerUpdatingRegression.html#L898">898</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L899" href="MillerUpdatingRegression.html#L899">899</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong>[] getOrderOfRegressors(){
+<a class="jxr_linenumber" name="L900" href="MillerUpdatingRegression.html#L900">900</a>         <strong class="jxr_keyword">return</strong> MathArrays.copyOf(vorder);
+<a class="jxr_linenumber" name="L901" href="MillerUpdatingRegression.html#L901">901</a>     }
+<a class="jxr_linenumber" name="L902" href="MillerUpdatingRegression.html#L902">902</a> 
+<a class="jxr_linenumber" name="L903" href="MillerUpdatingRegression.html#L903">903</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L904" href="MillerUpdatingRegression.html#L904">904</a> <em class="jxr_javadoccomment">     * Conducts a regression on the data in the model, using all regressors.</em>
+<a class="jxr_linenumber" name="L905" href="MillerUpdatingRegression.html#L905">905</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L906" href="MillerUpdatingRegression.html#L906">906</a> <em class="jxr_javadoccomment">     * @return RegressionResults the structure holding all regression results</em>
+<a class="jxr_linenumber" name="L907" href="MillerUpdatingRegression.html#L907">907</a> <em class="jxr_javadoccomment">     * @exception  ModelSpecificationException - thrown if number of observations is</em>
+<a class="jxr_linenumber" name="L908" href="MillerUpdatingRegression.html#L908">908</a> <em class="jxr_javadoccomment">     * less than the number of variables</em>
+<a class="jxr_linenumber" name="L909" href="MillerUpdatingRegression.html#L909">909</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L910" href="MillerUpdatingRegression.html#L910">910</a>     @Override
+<a class="jxr_linenumber" name="L911" href="MillerUpdatingRegression.html#L911">911</a>     <strong class="jxr_keyword">public</strong> <a href="RegressionResults.html">RegressionResults</a> regress() <strong class="jxr_keyword">throws</strong> ModelSpecificationException {
+<a class="jxr_linenumber" name="L912" href="MillerUpdatingRegression.html#L912">912</a>         <strong class="jxr_keyword">return</strong> regress(<strong class="jxr_keyword">this</strong>.nvars);
+<a class="jxr_linenumber" name="L913" href="MillerUpdatingRegression.html#L913">913</a>     }
+<a class="jxr_linenumber" name="L914" href="MillerUpdatingRegression.html#L914">914</a> 
+<a class="jxr_linenumber" name="L915" href="MillerUpdatingRegression.html#L915">915</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L916" href="MillerUpdatingRegression.html#L916">916</a> <em class="jxr_javadoccomment">     * Conducts a regression on the data in the model, using a subset of regressors.</em>
+<a class="jxr_linenumber" name="L917" href="MillerUpdatingRegression.html#L917">917</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L918" href="MillerUpdatingRegression.html#L918">918</a> <em class="jxr_javadoccomment">     * @param numberOfRegressors many of the regressors to include (either in canonical</em>
+<a class="jxr_linenumber" name="L919" href="MillerUpdatingRegression.html#L919">919</a> <em class="jxr_javadoccomment">     * order, or in the current reordered state)</em>
+<a class="jxr_linenumber" name="L920" href="MillerUpdatingRegression.html#L920">920</a> <em class="jxr_javadoccomment">     * @return RegressionResults the structure holding all regression results</em>
+<a class="jxr_linenumber" name="L921" href="MillerUpdatingRegression.html#L921">921</a> <em class="jxr_javadoccomment">     * @exception  ModelSpecificationException - thrown if number of observations is</em>
+<a class="jxr_linenumber" name="L922" href="MillerUpdatingRegression.html#L922">922</a> <em class="jxr_javadoccomment">     * less than the number of variables or number of regressors requested</em>
+<a class="jxr_linenumber" name="L923" href="MillerUpdatingRegression.html#L923">923</a> <em class="jxr_javadoccomment">     * is greater than the regressors in the model</em>
+<a class="jxr_linenumber" name="L924" href="MillerUpdatingRegression.html#L924">924</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L925" href="MillerUpdatingRegression.html#L925">925</a>     <strong class="jxr_keyword">public</strong> <a href="RegressionResults.html">RegressionResults</a> regress(<strong class="jxr_keyword">int</strong> numberOfRegressors) <strong class="jxr_keyword">throws</strong> ModelSpecificationException {
+<a class="jxr_linenumber" name="L926" href="MillerUpdatingRegression.html#L926">926</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.nobs &lt;= numberOfRegressors) {
+<a class="jxr_linenumber" name="L927" href="MillerUpdatingRegression.html#L927">927</a>            <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(
+<a class="jxr_linenumber" name="L928" href="MillerUpdatingRegression.html#L928">928</a>                    LocalizedFormats.NOT_ENOUGH_DATA_FOR_NUMBER_OF_PREDICTORS,
+<a class="jxr_linenumber" name="L929" href="MillerUpdatingRegression.html#L929">929</a>                    <strong class="jxr_keyword">this</strong>.nobs, numberOfRegressors);
+<a class="jxr_linenumber" name="L930" href="MillerUpdatingRegression.html#L930">930</a>         }
+<a class="jxr_linenumber" name="L931" href="MillerUpdatingRegression.html#L931">931</a>         <strong class="jxr_keyword">if</strong>( numberOfRegressors &gt; <strong class="jxr_keyword">this</strong>.nvars ){
+<a class="jxr_linenumber" name="L932" href="MillerUpdatingRegression.html#L932">932</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(
+<a class="jxr_linenumber" name="L933" href="MillerUpdatingRegression.html#L933">933</a>                     LocalizedFormats.TOO_MANY_REGRESSORS, numberOfRegressors, <strong class="jxr_keyword">this</strong>.nvars);
+<a class="jxr_linenumber" name="L934" href="MillerUpdatingRegression.html#L934">934</a>         }
+<a class="jxr_linenumber" name="L935" href="MillerUpdatingRegression.html#L935">935</a> 
+<a class="jxr_linenumber" name="L936" href="MillerUpdatingRegression.html#L936">936</a>         tolset();
+<a class="jxr_linenumber" name="L937" href="MillerUpdatingRegression.html#L937">937</a>         singcheck();
+<a class="jxr_linenumber" name="L938" href="MillerUpdatingRegression.html#L938">938</a> 
+<a class="jxr_linenumber" name="L939" href="MillerUpdatingRegression.html#L939">939</a>         <strong class="jxr_keyword">double</strong>[] beta = <strong class="jxr_keyword">this</strong>.regcf(numberOfRegressors);
+<a class="jxr_linenumber" name="L940" href="MillerUpdatingRegression.html#L940">940</a> 
+<a class="jxr_linenumber" name="L941" href="MillerUpdatingRegression.html#L941">941</a>         ss();
+<a class="jxr_linenumber" name="L942" href="MillerUpdatingRegression.html#L942">942</a> 
+<a class="jxr_linenumber" name="L943" href="MillerUpdatingRegression.html#L943">943</a>         <strong class="jxr_keyword">double</strong>[] cov = <strong class="jxr_keyword">this</strong>.cov(numberOfRegressors);
+<a class="jxr_linenumber" name="L944" href="MillerUpdatingRegression.html#L944">944</a> 
+<a class="jxr_linenumber" name="L945" href="MillerUpdatingRegression.html#L945">945</a>         <strong class="jxr_keyword">int</strong> rnk = 0;
+<a class="jxr_linenumber" name="L946" href="MillerUpdatingRegression.html#L946">946</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; <strong class="jxr_keyword">this</strong>.lindep.length; i++) {
+<a class="jxr_linenumber" name="L947" href="MillerUpdatingRegression.html#L947">947</a>             <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>.lindep[i]) {
+<a class="jxr_linenumber" name="L948" href="MillerUpdatingRegression.html#L948">948</a>                 ++rnk;
+<a class="jxr_linenumber" name="L949" href="MillerUpdatingRegression.html#L949">949</a>             }
+<a class="jxr_linenumber" name="L950" href="MillerUpdatingRegression.html#L950">950</a>         }
+<a class="jxr_linenumber" name="L951" href="MillerUpdatingRegression.html#L951">951</a> 
+<a class="jxr_linenumber" name="L952" href="MillerUpdatingRegression.html#L952">952</a>         <strong class="jxr_keyword">boolean</strong> needsReorder = false;
+<a class="jxr_linenumber" name="L953" href="MillerUpdatingRegression.html#L953">953</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; numberOfRegressors; i++) {
+<a class="jxr_linenumber" name="L954" href="MillerUpdatingRegression.html#L954">954</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.vorder[i] != i) {
+<a class="jxr_linenumber" name="L955" href="MillerUpdatingRegression.html#L955">955</a>                 needsReorder = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L956" href="MillerUpdatingRegression.html#L956">956</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L957" href="MillerUpdatingRegression.html#L957">957</a>             }
+<a class="jxr_linenumber" name="L958" href="MillerUpdatingRegression.html#L958">958</a>         }
+<a class="jxr_linenumber" name="L959" href="MillerUpdatingRegression.html#L959">959</a>         <strong class="jxr_keyword">if</strong> (!needsReorder) {
+<a class="jxr_linenumber" name="L960" href="MillerUpdatingRegression.html#L960">960</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="RegressionResults.html">RegressionResults</a>(
+<a class="jxr_linenumber" name="L961" href="MillerUpdatingRegression.html#L961">961</a>                     beta, <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][]{cov}, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">this</strong>.nobs, rnk,
+<a class="jxr_linenumber" name="L962" href="MillerUpdatingRegression.html#L962">962</a>                     <strong class="jxr_keyword">this</strong>.sumy, <strong class="jxr_keyword">this</strong>.sumsqy, <strong class="jxr_keyword">this</strong>.sserr, <strong class="jxr_keyword">this</strong>.hasIntercept, false);
+<a class="jxr_linenumber" name="L963" href="MillerUpdatingRegression.html#L963">963</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L964" href="MillerUpdatingRegression.html#L964">964</a>             <strong class="jxr_keyword">double</strong>[] betaNew = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[beta.length];
+<a class="jxr_linenumber" name="L965" href="MillerUpdatingRegression.html#L965">965</a>             <strong class="jxr_keyword">double</strong>[] covNew = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[cov.length];
+<a class="jxr_linenumber" name="L966" href="MillerUpdatingRegression.html#L966">966</a> 
+<a class="jxr_linenumber" name="L967" href="MillerUpdatingRegression.html#L967">967</a>             <strong class="jxr_keyword">int</strong>[] newIndices = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[beta.length];
+<a class="jxr_linenumber" name="L968" href="MillerUpdatingRegression.html#L968">968</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nvars; i++) {
+<a class="jxr_linenumber" name="L969" href="MillerUpdatingRegression.html#L969">969</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; numberOfRegressors; j++) {
+<a class="jxr_linenumber" name="L970" href="MillerUpdatingRegression.html#L970">970</a>                     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.vorder[j] == i) {
+<a class="jxr_linenumber" name="L971" href="MillerUpdatingRegression.html#L971">971</a>                         betaNew[i] = beta[ j];
+<a class="jxr_linenumber" name="L972" href="MillerUpdatingRegression.html#L972">972</a>                         newIndices[i] = j;
+<a class="jxr_linenumber" name="L973" href="MillerUpdatingRegression.html#L973">973</a>                     }
+<a class="jxr_linenumber" name="L974" href="MillerUpdatingRegression.html#L974">974</a>                 }
+<a class="jxr_linenumber" name="L975" href="MillerUpdatingRegression.html#L975">975</a>             }
+<a class="jxr_linenumber" name="L976" href="MillerUpdatingRegression.html#L976">976</a> 
+<a class="jxr_linenumber" name="L977" href="MillerUpdatingRegression.html#L977">977</a>             <strong class="jxr_keyword">int</strong> idx1 = 0;
+<a class="jxr_linenumber" name="L978" href="MillerUpdatingRegression.html#L978">978</a>             <strong class="jxr_keyword">int</strong> idx2;
+<a class="jxr_linenumber" name="L979" href="MillerUpdatingRegression.html#L979">979</a>             <strong class="jxr_keyword">int</strong> _i;
+<a class="jxr_linenumber" name="L980" href="MillerUpdatingRegression.html#L980">980</a>             <strong class="jxr_keyword">int</strong> _j;
+<a class="jxr_linenumber" name="L981" href="MillerUpdatingRegression.html#L981">981</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; beta.length; i++) {
+<a class="jxr_linenumber" name="L982" href="MillerUpdatingRegression.html#L982">982</a>                 _i = newIndices[i];
+<a class="jxr_linenumber" name="L983" href="MillerUpdatingRegression.html#L983">983</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt;= i; j++, idx1++) {
+<a class="jxr_linenumber" name="L984" href="MillerUpdatingRegression.html#L984">984</a>                     _j = newIndices[j];
+<a class="jxr_linenumber" name="L985" href="MillerUpdatingRegression.html#L985">985</a>                     <strong class="jxr_keyword">if</strong> (_i &gt; _j) {
+<a class="jxr_linenumber" name="L986" href="MillerUpdatingRegression.html#L986">986</a>                         idx2 = _i * (_i + 1) / 2 + _j;
+<a class="jxr_linenumber" name="L987" href="MillerUpdatingRegression.html#L987">987</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L988" href="MillerUpdatingRegression.html#L988">988</a>                         idx2 = _j * (_j + 1) / 2 + _i;
+<a class="jxr_linenumber" name="L989" href="MillerUpdatingRegression.html#L989">989</a>                     }
+<a class="jxr_linenumber" name="L990" href="MillerUpdatingRegression.html#L990">990</a>                     covNew[idx1] = cov[idx2];
+<a class="jxr_linenumber" name="L991" href="MillerUpdatingRegression.html#L991">991</a>                 }
+<a class="jxr_linenumber" name="L992" href="MillerUpdatingRegression.html#L992">992</a>             }
+<a class="jxr_linenumber" name="L993" href="MillerUpdatingRegression.html#L993">993</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="RegressionResults.html">RegressionResults</a>(
+<a class="jxr_linenumber" name="L994" href="MillerUpdatingRegression.html#L994">994</a>                     betaNew, <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][]{covNew}, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">this</strong>.nobs, rnk,
+<a class="jxr_linenumber" name="L995" href="MillerUpdatingRegression.html#L995">995</a>                     <strong class="jxr_keyword">this</strong>.sumy, <strong class="jxr_keyword">this</strong>.sumsqy, <strong class="jxr_keyword">this</strong>.sserr, <strong class="jxr_keyword">this</strong>.hasIntercept, false);
+<a class="jxr_linenumber" name="L996" href="MillerUpdatingRegression.html#L996">996</a>         }
+<a class="jxr_linenumber" name="L997" href="MillerUpdatingRegression.html#L997">997</a>     }
+<a class="jxr_linenumber" name="L998" href="MillerUpdatingRegression.html#L998">998</a> 
+<a class="jxr_linenumber" name="L999" href="MillerUpdatingRegression.html#L999">999</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1000" href="MillerUpdatingRegression.html#L1000">1000</a> <em class="jxr_javadoccomment">     * Conducts a regression on the data in the model, using regressors in array</em>
+<a class="jxr_linenumber" name="L1001" href="MillerUpdatingRegression.html#L1001">1001</a> <em class="jxr_javadoccomment">     * Calling this method will change the internal order of the regressors</em>
+<a class="jxr_linenumber" name="L1002" href="MillerUpdatingRegression.html#L1002">1002</a> <em class="jxr_javadoccomment">     * and care is required in interpreting the hatmatrix.</em>
+<a class="jxr_linenumber" name="L1003" href="MillerUpdatingRegression.html#L1003">1003</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L1004" href="MillerUpdatingRegression.html#L1004">1004</a> <em class="jxr_javadoccomment">     * @param  variablesToInclude array of variables to include in regression</em>
+<a class="jxr_linenumber" name="L1005" href="MillerUpdatingRegression.html#L1005">1005</a> <em class="jxr_javadoccomment">     * @return RegressionResults the structure holding all regression results</em>
+<a class="jxr_linenumber" name="L1006" href="MillerUpdatingRegression.html#L1006">1006</a> <em class="jxr_javadoccomment">     * @exception  ModelSpecificationException - thrown if number of observations is</em>
+<a class="jxr_linenumber" name="L1007" href="MillerUpdatingRegression.html#L1007">1007</a> <em class="jxr_javadoccomment">     * less than the number of variables, the number of regressors requested</em>
+<a class="jxr_linenumber" name="L1008" href="MillerUpdatingRegression.html#L1008">1008</a> <em class="jxr_javadoccomment">     * is greater than the regressors in the model or a regressor index in</em>
+<a class="jxr_linenumber" name="L1009" href="MillerUpdatingRegression.html#L1009">1009</a> <em class="jxr_javadoccomment">     * regressor array does not exist</em>
+<a class="jxr_linenumber" name="L1010" href="MillerUpdatingRegression.html#L1010">1010</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L1011" href="MillerUpdatingRegression.html#L1011">1011</a>     @Override
+<a class="jxr_linenumber" name="L1012" href="MillerUpdatingRegression.html#L1012">1012</a>     <strong class="jxr_keyword">public</strong> <a href="RegressionResults.html">RegressionResults</a> regress(<strong class="jxr_keyword">int</strong>[] variablesToInclude) <strong class="jxr_keyword">throws</strong> ModelSpecificationException {
+<a class="jxr_linenumber" name="L1013" href="MillerUpdatingRegression.html#L1013">1013</a>         <strong class="jxr_keyword">if</strong> (variablesToInclude.length &gt; <strong class="jxr_keyword">this</strong>.nvars) {
+<a class="jxr_linenumber" name="L1014" href="MillerUpdatingRegression.html#L1014">1014</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(
+<a class="jxr_linenumber" name="L1015" href="MillerUpdatingRegression.html#L1015">1015</a>                     LocalizedFormats.TOO_MANY_REGRESSORS, variablesToInclude.length, <strong class="jxr_keyword">this</strong>.nvars);
+<a class="jxr_linenumber" name="L1016" href="MillerUpdatingRegression.html#L1016">1016</a>         }
+<a class="jxr_linenumber" name="L1017" href="MillerUpdatingRegression.html#L1017">1017</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.nobs &lt;= <strong class="jxr_keyword">this</strong>.nvars) {
+<a class="jxr_linenumber" name="L1018" href="MillerUpdatingRegression.html#L1018">1018</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(
+<a class="jxr_linenumber" name="L1019" href="MillerUpdatingRegression.html#L1019">1019</a>                     LocalizedFormats.NOT_ENOUGH_DATA_FOR_NUMBER_OF_PREDICTORS,
+<a class="jxr_linenumber" name="L1020" href="MillerUpdatingRegression.html#L1020">1020</a>                     <strong class="jxr_keyword">this</strong>.nobs, <strong class="jxr_keyword">this</strong>.nvars);
+<a class="jxr_linenumber" name="L1021" href="MillerUpdatingRegression.html#L1021">1021</a>         }
+<a class="jxr_linenumber" name="L1022" href="MillerUpdatingRegression.html#L1022">1022</a>         Arrays.sort(variablesToInclude);
+<a class="jxr_linenumber" name="L1023" href="MillerUpdatingRegression.html#L1023">1023</a>         <strong class="jxr_keyword">int</strong> iExclude = 0;
+<a class="jxr_linenumber" name="L1024" href="MillerUpdatingRegression.html#L1024">1024</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; variablesToInclude.length; i++) {
+<a class="jxr_linenumber" name="L1025" href="MillerUpdatingRegression.html#L1025">1025</a>             <strong class="jxr_keyword">if</strong> (i &gt;= <strong class="jxr_keyword">this</strong>.nvars) {
+<a class="jxr_linenumber" name="L1026" href="MillerUpdatingRegression.html#L1026">1026</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(
+<a class="jxr_linenumber" name="L1027" href="MillerUpdatingRegression.html#L1027">1027</a>                         LocalizedFormats.INDEX_LARGER_THAN_MAX, i, <strong class="jxr_keyword">this</strong>.nvars);
+<a class="jxr_linenumber" name="L1028" href="MillerUpdatingRegression.html#L1028">1028</a>             }
+<a class="jxr_linenumber" name="L1029" href="MillerUpdatingRegression.html#L1029">1029</a>             <strong class="jxr_keyword">if</strong> (i &gt; 0 &amp;&amp; variablesToInclude[i] == variablesToInclude[i - 1]) {
+<a class="jxr_linenumber" name="L1030" href="MillerUpdatingRegression.html#L1030">1030</a>                 variablesToInclude[i] = -1;
+<a class="jxr_linenumber" name="L1031" href="MillerUpdatingRegression.html#L1031">1031</a>                 ++iExclude;
+<a class="jxr_linenumber" name="L1032" href="MillerUpdatingRegression.html#L1032">1032</a>             }
+<a class="jxr_linenumber" name="L1033" href="MillerUpdatingRegression.html#L1033">1033</a>         }
+<a class="jxr_linenumber" name="L1034" href="MillerUpdatingRegression.html#L1034">1034</a>         <strong class="jxr_keyword">int</strong>[] series;
+<a class="jxr_linenumber" name="L1035" href="MillerUpdatingRegression.html#L1035">1035</a>         <strong class="jxr_keyword">if</strong> (iExclude &gt; 0) {
+<a class="jxr_linenumber" name="L1036" href="MillerUpdatingRegression.html#L1036">1036</a>             <strong class="jxr_keyword">int</strong> j = 0;
+<a class="jxr_linenumber" name="L1037" href="MillerUpdatingRegression.html#L1037">1037</a>             series = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[variablesToInclude.length - iExclude];
+<a class="jxr_linenumber" name="L1038" href="MillerUpdatingRegression.html#L1038">1038</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; variablesToInclude.length; i++) {
+<a class="jxr_linenumber" name="L1039" href="MillerUpdatingRegression.html#L1039">1039</a>                 <strong class="jxr_keyword">if</strong> (variablesToInclude[i] &gt; -1) {
+<a class="jxr_linenumber" name="L1040" href="MillerUpdatingRegression.html#L1040">1040</a>                     series[j] = variablesToInclude[i];
+<a class="jxr_linenumber" name="L1041" href="MillerUpdatingRegression.html#L1041">1041</a>                     ++j;
+<a class="jxr_linenumber" name="L1042" href="MillerUpdatingRegression.html#L1042">1042</a>                 }
+<a class="jxr_linenumber" name="L1043" href="MillerUpdatingRegression.html#L1043">1043</a>             }
+<a class="jxr_linenumber" name="L1044" href="MillerUpdatingRegression.html#L1044">1044</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L1045" href="MillerUpdatingRegression.html#L1045">1045</a>             series = variablesToInclude;
+<a class="jxr_linenumber" name="L1046" href="MillerUpdatingRegression.html#L1046">1046</a>         }
+<a class="jxr_linenumber" name="L1047" href="MillerUpdatingRegression.html#L1047">1047</a> 
+<a class="jxr_linenumber" name="L1048" href="MillerUpdatingRegression.html#L1048">1048</a>         reorderRegressors(series, 0);
+<a class="jxr_linenumber" name="L1049" href="MillerUpdatingRegression.html#L1049">1049</a>         tolset();
+<a class="jxr_linenumber" name="L1050" href="MillerUpdatingRegression.html#L1050">1050</a>         singcheck();
+<a class="jxr_linenumber" name="L1051" href="MillerUpdatingRegression.html#L1051">1051</a> 
+<a class="jxr_linenumber" name="L1052" href="MillerUpdatingRegression.html#L1052">1052</a>         <strong class="jxr_keyword">double</strong>[] beta = <strong class="jxr_keyword">this</strong>.regcf(series.length);
+<a class="jxr_linenumber" name="L1053" href="MillerUpdatingRegression.html#L1053">1053</a> 
+<a class="jxr_linenumber" name="L1054" href="MillerUpdatingRegression.html#L1054">1054</a>         ss();
+<a class="jxr_linenumber" name="L1055" href="MillerUpdatingRegression.html#L1055">1055</a> 
+<a class="jxr_linenumber" name="L1056" href="MillerUpdatingRegression.html#L1056">1056</a>         <strong class="jxr_keyword">double</strong>[] cov = <strong class="jxr_keyword">this</strong>.cov(series.length);
+<a class="jxr_linenumber" name="L1057" href="MillerUpdatingRegression.html#L1057">1057</a> 
+<a class="jxr_linenumber" name="L1058" href="MillerUpdatingRegression.html#L1058">1058</a>         <strong class="jxr_keyword">int</strong> rnk = 0;
+<a class="jxr_linenumber" name="L1059" href="MillerUpdatingRegression.html#L1059">1059</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; <strong class="jxr_keyword">this</strong>.lindep.length; i++) {
+<a class="jxr_linenumber" name="L1060" href="MillerUpdatingRegression.html#L1060">1060</a>             <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">this</strong>.lindep[i]) {
+<a class="jxr_linenumber" name="L1061" href="MillerUpdatingRegression.html#L1061">1061</a>                 ++rnk;
+<a class="jxr_linenumber" name="L1062" href="MillerUpdatingRegression.html#L1062">1062</a>             }
+<a class="jxr_linenumber" name="L1063" href="MillerUpdatingRegression.html#L1063">1063</a>         }
+<a class="jxr_linenumber" name="L1064" href="MillerUpdatingRegression.html#L1064">1064</a> 
+<a class="jxr_linenumber" name="L1065" href="MillerUpdatingRegression.html#L1065">1065</a>         <strong class="jxr_keyword">boolean</strong> needsReorder = false;
+<a class="jxr_linenumber" name="L1066" href="MillerUpdatingRegression.html#L1066">1066</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; <strong class="jxr_keyword">this</strong>.nvars; i++) {
+<a class="jxr_linenumber" name="L1067" href="MillerUpdatingRegression.html#L1067">1067</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.vorder[i] != series[i]) {
+<a class="jxr_linenumber" name="L1068" href="MillerUpdatingRegression.html#L1068">1068</a>                 needsReorder = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L1069" href="MillerUpdatingRegression.html#L1069">1069</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L1070" href="MillerUpdatingRegression.html#L1070">1070</a>             }
+<a class="jxr_linenumber" name="L1071" href="MillerUpdatingRegression.html#L1071">1071</a>         }
+<a class="jxr_linenumber" name="L1072" href="MillerUpdatingRegression.html#L1072">1072</a>         <strong class="jxr_keyword">if</strong> (!needsReorder) {
+<a class="jxr_linenumber" name="L1073" href="MillerUpdatingRegression.html#L1073">1073</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="RegressionResults.html">RegressionResults</a>(
+<a class="jxr_linenumber" name="L1074" href="MillerUpdatingRegression.html#L1074">1074</a>                     beta, <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][]{cov}, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">this</strong>.nobs, rnk,
+<a class="jxr_linenumber" name="L1075" href="MillerUpdatingRegression.html#L1075">1075</a>                     <strong class="jxr_keyword">this</strong>.sumy, <strong class="jxr_keyword">this</strong>.sumsqy, <strong class="jxr_keyword">this</strong>.sserr, <strong class="jxr_keyword">this</strong>.hasIntercept, false);
+<a class="jxr_linenumber" name="L1076" href="MillerUpdatingRegression.html#L1076">1076</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L1077" href="MillerUpdatingRegression.html#L1077">1077</a>             <strong class="jxr_keyword">double</strong>[] betaNew = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[beta.length];
+<a class="jxr_linenumber" name="L1078" href="MillerUpdatingRegression.html#L1078">1078</a>             <strong class="jxr_keyword">int</strong>[] newIndices = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[beta.length];
+<a class="jxr_linenumber" name="L1079" href="MillerUpdatingRegression.html#L1079">1079</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; series.length; i++) {
+<a class="jxr_linenumber" name="L1080" href="MillerUpdatingRegression.html#L1080">1080</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; <strong class="jxr_keyword">this</strong>.vorder.length; j++) {
+<a class="jxr_linenumber" name="L1081" href="MillerUpdatingRegression.html#L1081">1081</a>                     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.vorder[j] == series[i]) {
+<a class="jxr_linenumber" name="L1082" href="MillerUpdatingRegression.html#L1082">1082</a>                         betaNew[i] = beta[ j];
+<a class="jxr_linenumber" name="L1083" href="MillerUpdatingRegression.html#L1083">1083</a>                         newIndices[i] = j;
+<a class="jxr_linenumber" name="L1084" href="MillerUpdatingRegression.html#L1084">1084</a>                     }
+<a class="jxr_linenumber" name="L1085" href="MillerUpdatingRegression.html#L1085">1085</a>                 }
+<a class="jxr_linenumber" name="L1086" href="MillerUpdatingRegression.html#L1086">1086</a>             }
+<a class="jxr_linenumber" name="L1087" href="MillerUpdatingRegression.html#L1087">1087</a>             <strong class="jxr_keyword">double</strong>[] covNew = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[cov.length];
+<a class="jxr_linenumber" name="L1088" href="MillerUpdatingRegression.html#L1088">1088</a>             <strong class="jxr_keyword">int</strong> idx1 = 0;
+<a class="jxr_linenumber" name="L1089" href="MillerUpdatingRegression.html#L1089">1089</a>             <strong class="jxr_keyword">int</strong> idx2;
+<a class="jxr_linenumber" name="L1090" href="MillerUpdatingRegression.html#L1090">1090</a>             <strong class="jxr_keyword">int</strong> _i;
+<a class="jxr_linenumber" name="L1091" href="MillerUpdatingRegression.html#L1091">1091</a>             <strong class="jxr_keyword">int</strong> _j;
+<a class="jxr_linenumber" name="L1092" href="MillerUpdatingRegression.html#L1092">1092</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; beta.length; i++) {
+<a class="jxr_linenumber" name="L1093" href="MillerUpdatingRegression.html#L1093">1093</a>                 _i = newIndices[i];
+<a class="jxr_linenumber" name="L1094" href="MillerUpdatingRegression.html#L1094">1094</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt;= i; j++, idx1++) {
+<a class="jxr_linenumber" name="L1095" href="MillerUpdatingRegression.html#L1095">1095</a>                     _j = newIndices[j];
+<a class="jxr_linenumber" name="L1096" href="MillerUpdatingRegression.html#L1096">1096</a>                     <strong class="jxr_keyword">if</strong> (_i &gt; _j) {
+<a class="jxr_linenumber" name="L1097" href="MillerUpdatingRegression.html#L1097">1097</a>                         idx2 = _i * (_i + 1) / 2 + _j;
+<a class="jxr_linenumber" name="L1098" href="MillerUpdatingRegression.html#L1098">1098</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L1099" href="MillerUpdatingRegression.html#L1099">1099</a>                         idx2 = _j * (_j + 1) / 2 + _i;
+<a class="jxr_linenumber" name="L1100" href="MillerUpdatingRegression.html#L1100">1100</a>                     }
+<a class="jxr_linenumber" name="L1101" href="MillerUpdatingRegression.html#L1101">1101</a>                     covNew[idx1] = cov[idx2];
+<a class="jxr_linenumber" name="L1102" href="MillerUpdatingRegression.html#L1102">1102</a>                 }
+<a class="jxr_linenumber" name="L1103" href="MillerUpdatingRegression.html#L1103">1103</a>             }
+<a class="jxr_linenumber" name="L1104" href="MillerUpdatingRegression.html#L1104">1104</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="RegressionResults.html">RegressionResults</a>(
+<a class="jxr_linenumber" name="L1105" href="MillerUpdatingRegression.html#L1105">1105</a>                     betaNew, <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][]{covNew}, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">this</strong>.nobs, rnk,
+<a class="jxr_linenumber" name="L1106" href="MillerUpdatingRegression.html#L1106">1106</a>                     <strong class="jxr_keyword">this</strong>.sumy, <strong class="jxr_keyword">this</strong>.sumsqy, <strong class="jxr_keyword">this</strong>.sserr, <strong class="jxr_keyword">this</strong>.hasIntercept, false);
+<a class="jxr_linenumber" name="L1107" href="MillerUpdatingRegression.html#L1107">1107</a>         }
+<a class="jxr_linenumber" name="L1108" href="MillerUpdatingRegression.html#L1108">1108</a>     }
+<a class="jxr_linenumber" name="L1109" href="MillerUpdatingRegression.html#L1109">1109</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

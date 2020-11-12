@@ -6,13 +6,11 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.highlight.PieHighlighter;
 import com.github.mikephil.charting.interfaces.datasets.IPieDataSet;
@@ -20,9 +18,10 @@ import com.github.mikephil.charting.renderer.PieChartRenderer;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.utils.Utils;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+
+import me.ishanjoshi.chart_accessibility_module.IDescriptor;
+import me.ishanjoshi.chart_accessibility_module.descriptors.PieChartDescriptor;
 
 /**
  * View that represents a pie chart. Draws cake like slices.
@@ -807,26 +806,54 @@ public class PieChart extends PieRadarChartBase<PieData> {
         super.onDetachedFromWindow();
     }
 
+    private String chartTitle = "";
+    private String categoryTitle = "";
+
+    public String getChartTitle() {
+        return chartTitle;
+    }
+
+    public void setChartTitle(String chartTitle) {
+        this.chartTitle = chartTitle;
+    }
+
+    public String getCategoryTitle() {
+        return categoryTitle;
+    }
+
+    public void setCategoryTitle(String categoryTitle) {
+        this.categoryTitle = categoryTitle;
+    }
+
     @Override
     public String getAccessibilityDescription() {
 
+        // Gather all relevant data from chart for the descriptor
         PieData pieData = getData();
+        IPieDataSet dataSet = pieData.getDataSetByIndex(0);
+        String categoryTitleDataset = dataSet.getLabel();
 
         int entryCount = pieData.getEntryCount();
 
-        StringBuilder builder = new StringBuilder();
-
-        builder.append(String.format(Locale.getDefault(), "The pie chart has %d entries.",
-                entryCount));
+        Object[] labels = new Object[entryCount];
+        Float[] proportions = new Float[entryCount];
 
         for (int i = 0; i < entryCount; i++) {
-            PieEntry entry = pieData.getDataSet().getEntryForIndex(i);
-            float percentage = (entry.getValue() / pieData.getYValueSum()) * 100;
-            builder.append(String.format(Locale.getDefault(), "%s has %.2f percent pie taken",
-                    (TextUtils.isEmpty(entry.getLabel()) ? "No Label" : entry.getLabel()),
-                    percentage));
+            PieEntry entry =dataSet.getEntryForIndex(i);
+            float percentage = (entry.getValue() / pieData.getYValueSum());
+            labels[i] = entry.getLabel();
+            proportions[i] = percentage;
         }
 
-        return builder.toString();
+        String categoryTitleMerged = categoryTitle.isEmpty() ? categoryTitleDataset : categoryTitle;
+
+
+        // Using chart state, generate the descriptor and describe it.
+        IDescriptor pieChartDescriptor = new PieChartDescriptor(
+                labels, proportions, categoryTitleMerged
+        );
+
+
+        return pieChartDescriptor.describe();
     }
 }

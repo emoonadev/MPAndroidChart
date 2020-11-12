@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>PolynomialCurveFitter xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/fitting/PolynomialCurveFitter.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="PolynomialCurveFitter.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="PolynomialCurveFitter.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="PolynomialCurveFitter.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="PolynomialCurveFitter.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="PolynomialCurveFitter.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="PolynomialCurveFitter.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="PolynomialCurveFitter.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="PolynomialCurveFitter.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="PolynomialCurveFitter.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="PolynomialCurveFitter.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="PolynomialCurveFitter.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="PolynomialCurveFitter.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="PolynomialCurveFitter.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="PolynomialCurveFitter.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="PolynomialCurveFitter.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="PolynomialCurveFitter.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="PolynomialCurveFitter.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.fitting;
+<a class="jxr_linenumber" name="L18" href="PolynomialCurveFitter.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="PolynomialCurveFitter.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.Collection;
+<a class="jxr_linenumber" name="L20" href="PolynomialCurveFitter.html#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="PolynomialCurveFitter.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.polynomials.PolynomialFunction;
+<a class="jxr_linenumber" name="L22" href="PolynomialCurveFitter.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathInternalError;
+<a class="jxr_linenumber" name="L23" href="PolynomialCurveFitter.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.fitting.leastsquares.LeastSquaresBuilder;
+<a class="jxr_linenumber" name="L24" href="PolynomialCurveFitter.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.fitting.leastsquares.LeastSquaresProblem;
+<a class="jxr_linenumber" name="L25" href="PolynomialCurveFitter.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.DiagonalMatrix;
+<a class="jxr_linenumber" name="L26" href="PolynomialCurveFitter.html#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="PolynomialCurveFitter.html#L27">27</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L28" href="PolynomialCurveFitter.html#L28">28</a>  <em class="jxr_javadoccomment"> * Fits points to a {@link</em>
+<a class="jxr_linenumber" name="L29" href="PolynomialCurveFitter.html#L29">29</a>  <em class="jxr_javadoccomment"> * org.apache.commons.math4.analysis.polynomials.PolynomialFunction.Parametric polynomial}</em>
+<a class="jxr_linenumber" name="L30" href="PolynomialCurveFitter.html#L30">30</a>  <em class="jxr_javadoccomment"> * function.</em>
+<a class="jxr_linenumber" name="L31" href="PolynomialCurveFitter.html#L31">31</a>  <em class="jxr_javadoccomment"> * &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L32" href="PolynomialCurveFitter.html#L32">32</a>  <em class="jxr_javadoccomment"> * The size of the {@link #withStartPoint(double[]) initial guess} array defines the</em>
+<a class="jxr_linenumber" name="L33" href="PolynomialCurveFitter.html#L33">33</a>  <em class="jxr_javadoccomment"> * degree of the polynomial to be fitted.</em>
+<a class="jxr_linenumber" name="L34" href="PolynomialCurveFitter.html#L34">34</a>  <em class="jxr_javadoccomment"> * They must be sorted in increasing order of the polynomial's degree.</em>
+<a class="jxr_linenumber" name="L35" href="PolynomialCurveFitter.html#L35">35</a>  <em class="jxr_javadoccomment"> * The optimal values of the coefficients will be returned in the same order.</em>
+<a class="jxr_linenumber" name="L36" href="PolynomialCurveFitter.html#L36">36</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L37" href="PolynomialCurveFitter.html#L37">37</a>  <em class="jxr_javadoccomment"> * @since 3.3</em>
+<a class="jxr_linenumber" name="L38" href="PolynomialCurveFitter.html#L38">38</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L39" href="PolynomialCurveFitter.html#L39">39</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="PolynomialCurveFitter.html">PolynomialCurveFitter</a> <strong class="jxr_keyword">extends</strong> <a href="AbstractCurveFitter.html">AbstractCurveFitter</a> {
+<a class="jxr_linenumber" name="L40" href="PolynomialCurveFitter.html#L40">40</a>      <em class="jxr_javadoccomment">/** Parametric function to be fitted. */</em>
+<a class="jxr_linenumber" name="L41" href="PolynomialCurveFitter.html#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> PolynomialFunction.Parametric FUNCTION = <strong class="jxr_keyword">new</strong> PolynomialFunction.Parametric();
+<a class="jxr_linenumber" name="L42" href="PolynomialCurveFitter.html#L42">42</a>      <em class="jxr_javadoccomment">/** Initial guess. */</em>
+<a class="jxr_linenumber" name="L43" href="PolynomialCurveFitter.html#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] initialGuess;
+<a class="jxr_linenumber" name="L44" href="PolynomialCurveFitter.html#L44">44</a>      <em class="jxr_javadoccomment">/** Maximum number of iterations of the optimization algorithm. */</em>
+<a class="jxr_linenumber" name="L45" href="PolynomialCurveFitter.html#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIter;
+<a class="jxr_linenumber" name="L46" href="PolynomialCurveFitter.html#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="PolynomialCurveFitter.html#L47">47</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L48" href="PolynomialCurveFitter.html#L48">48</a>  <em class="jxr_javadoccomment">     * Contructor used by the factory methods.</em>
+<a class="jxr_linenumber" name="L49" href="PolynomialCurveFitter.html#L49">49</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L50" href="PolynomialCurveFitter.html#L50">50</a>  <em class="jxr_javadoccomment">     * @param initialGuess Initial guess.</em>
+<a class="jxr_linenumber" name="L51" href="PolynomialCurveFitter.html#L51">51</a>  <em class="jxr_javadoccomment">     * @param maxIter Maximum number of iterations of the optimization algorithm.</em>
+<a class="jxr_linenumber" name="L52" href="PolynomialCurveFitter.html#L52">52</a>  <em class="jxr_javadoccomment">     * @throws MathInternalError if {@code initialGuess} is {@code null}.</em>
+<a class="jxr_linenumber" name="L53" href="PolynomialCurveFitter.html#L53">53</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L54" href="PolynomialCurveFitter.html#L54">54</a>      <strong class="jxr_keyword">private</strong> <a href="PolynomialCurveFitter.html">PolynomialCurveFitter</a>(<strong class="jxr_keyword">double</strong>[] initialGuess,
+<a class="jxr_linenumber" name="L55" href="PolynomialCurveFitter.html#L55">55</a>                                    <strong class="jxr_keyword">int</strong> maxIter) {
+<a class="jxr_linenumber" name="L56" href="PolynomialCurveFitter.html#L56">56</a>          <strong class="jxr_keyword">this</strong>.initialGuess = initialGuess;
+<a class="jxr_linenumber" name="L57" href="PolynomialCurveFitter.html#L57">57</a>          <strong class="jxr_keyword">this</strong>.maxIter = maxIter;
+<a class="jxr_linenumber" name="L58" href="PolynomialCurveFitter.html#L58">58</a>      }
+<a class="jxr_linenumber" name="L59" href="PolynomialCurveFitter.html#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="PolynomialCurveFitter.html#L60">60</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L61" href="PolynomialCurveFitter.html#L61">61</a>  <em class="jxr_javadoccomment">     * Creates a default curve fitter.</em>
+<a class="jxr_linenumber" name="L62" href="PolynomialCurveFitter.html#L62">62</a>  <em class="jxr_javadoccomment">     * Zero will be used as initial guess for the coefficients, and the maximum</em>
+<a class="jxr_linenumber" name="L63" href="PolynomialCurveFitter.html#L63">63</a>  <em class="jxr_javadoccomment">     * number of iterations of the optimization algorithm is set to</em>
+<a class="jxr_linenumber" name="L64" href="PolynomialCurveFitter.html#L64">64</a>  <em class="jxr_javadoccomment">     * {@link Integer#MAX_VALUE}.</em>
+<a class="jxr_linenumber" name="L65" href="PolynomialCurveFitter.html#L65">65</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L66" href="PolynomialCurveFitter.html#L66">66</a>  <em class="jxr_javadoccomment">     * @param degree Degree of the polynomial to be fitted.</em>
+<a class="jxr_linenumber" name="L67" href="PolynomialCurveFitter.html#L67">67</a>  <em class="jxr_javadoccomment">     * @return a curve fitter.</em>
+<a class="jxr_linenumber" name="L68" href="PolynomialCurveFitter.html#L68">68</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L69" href="PolynomialCurveFitter.html#L69">69</a>  <em class="jxr_javadoccomment">     * @see #withStartPoint(double[])</em>
+<a class="jxr_linenumber" name="L70" href="PolynomialCurveFitter.html#L70">70</a>  <em class="jxr_javadoccomment">     * @see #withMaxIterations(int)</em>
+<a class="jxr_linenumber" name="L71" href="PolynomialCurveFitter.html#L71">71</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L72" href="PolynomialCurveFitter.html#L72">72</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="PolynomialCurveFitter.html">PolynomialCurveFitter</a> create(<strong class="jxr_keyword">int</strong> degree) {
+<a class="jxr_linenumber" name="L73" href="PolynomialCurveFitter.html#L73">73</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="PolynomialCurveFitter.html">PolynomialCurveFitter</a>(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[degree + 1], Integer.MAX_VALUE);
+<a class="jxr_linenumber" name="L74" href="PolynomialCurveFitter.html#L74">74</a>      }
+<a class="jxr_linenumber" name="L75" href="PolynomialCurveFitter.html#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="PolynomialCurveFitter.html#L76">76</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L77" href="PolynomialCurveFitter.html#L77">77</a>  <em class="jxr_javadoccomment">     * Configure the start point (initial guess).</em>
+<a class="jxr_linenumber" name="L78" href="PolynomialCurveFitter.html#L78">78</a>  <em class="jxr_javadoccomment">     * @param newStart new start point (initial guess)</em>
+<a class="jxr_linenumber" name="L79" href="PolynomialCurveFitter.html#L79">79</a>  <em class="jxr_javadoccomment">     * @return a new instance.</em>
+<a class="jxr_linenumber" name="L80" href="PolynomialCurveFitter.html#L80">80</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L81" href="PolynomialCurveFitter.html#L81">81</a>      <strong class="jxr_keyword">public</strong> <a href="PolynomialCurveFitter.html">PolynomialCurveFitter</a> withStartPoint(<strong class="jxr_keyword">double</strong>[] newStart) {
+<a class="jxr_linenumber" name="L82" href="PolynomialCurveFitter.html#L82">82</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="PolynomialCurveFitter.html">PolynomialCurveFitter</a>(newStart.clone(),
+<a class="jxr_linenumber" name="L83" href="PolynomialCurveFitter.html#L83">83</a>                                           maxIter);
+<a class="jxr_linenumber" name="L84" href="PolynomialCurveFitter.html#L84">84</a>      }
+<a class="jxr_linenumber" name="L85" href="PolynomialCurveFitter.html#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="PolynomialCurveFitter.html#L86">86</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L87" href="PolynomialCurveFitter.html#L87">87</a>  <em class="jxr_javadoccomment">     * Configure the maximum number of iterations.</em>
+<a class="jxr_linenumber" name="L88" href="PolynomialCurveFitter.html#L88">88</a>  <em class="jxr_javadoccomment">     * @param newMaxIter maximum number of iterations</em>
+<a class="jxr_linenumber" name="L89" href="PolynomialCurveFitter.html#L89">89</a>  <em class="jxr_javadoccomment">     * @return a new instance.</em>
+<a class="jxr_linenumber" name="L90" href="PolynomialCurveFitter.html#L90">90</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L91" href="PolynomialCurveFitter.html#L91">91</a>      <strong class="jxr_keyword">public</strong> <a href="PolynomialCurveFitter.html">PolynomialCurveFitter</a> withMaxIterations(<strong class="jxr_keyword">int</strong> newMaxIter) {
+<a class="jxr_linenumber" name="L92" href="PolynomialCurveFitter.html#L92">92</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="PolynomialCurveFitter.html">PolynomialCurveFitter</a>(initialGuess,
+<a class="jxr_linenumber" name="L93" href="PolynomialCurveFitter.html#L93">93</a>                                           newMaxIter);
+<a class="jxr_linenumber" name="L94" href="PolynomialCurveFitter.html#L94">94</a>      }
+<a class="jxr_linenumber" name="L95" href="PolynomialCurveFitter.html#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="PolynomialCurveFitter.html#L96">96</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L97" href="PolynomialCurveFitter.html#L97">97</a>      @Override
+<a class="jxr_linenumber" name="L98" href="PolynomialCurveFitter.html#L98">98</a>      <strong class="jxr_keyword">protected</strong> <a href="leastsquares/LeastSquaresProblem.html">LeastSquaresProblem</a> getProblem(Collection&lt;WeightedObservedPoint&gt; observations) {
+<a class="jxr_linenumber" name="L99" href="PolynomialCurveFitter.html#L99">99</a>          <em class="jxr_comment">// Prepare least-squares problem.</em>
+<a class="jxr_linenumber" name="L100" href="PolynomialCurveFitter.html#L100">100</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> len = observations.size();
+<a class="jxr_linenumber" name="L101" href="PolynomialCurveFitter.html#L101">101</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] target  = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[len];
+<a class="jxr_linenumber" name="L102" href="PolynomialCurveFitter.html#L102">102</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] weights = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[len];
+<a class="jxr_linenumber" name="L103" href="PolynomialCurveFitter.html#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="PolynomialCurveFitter.html#L104">104</a>         <strong class="jxr_keyword">int</strong> i = 0;
+<a class="jxr_linenumber" name="L105" href="PolynomialCurveFitter.html#L105">105</a>         <strong class="jxr_keyword">for</strong> (WeightedObservedPoint obs : observations) {
+<a class="jxr_linenumber" name="L106" href="PolynomialCurveFitter.html#L106">106</a>             target[i]  = obs.getY();
+<a class="jxr_linenumber" name="L107" href="PolynomialCurveFitter.html#L107">107</a>             weights[i] = obs.getWeight();
+<a class="jxr_linenumber" name="L108" href="PolynomialCurveFitter.html#L108">108</a>             ++i;
+<a class="jxr_linenumber" name="L109" href="PolynomialCurveFitter.html#L109">109</a>         }
+<a class="jxr_linenumber" name="L110" href="PolynomialCurveFitter.html#L110">110</a> 
+<a class="jxr_linenumber" name="L111" href="PolynomialCurveFitter.html#L111">111</a>         <strong class="jxr_keyword">final</strong> AbstractCurveFitter.TheoreticalValuesFunction model =
+<a class="jxr_linenumber" name="L112" href="PolynomialCurveFitter.html#L112">112</a>                 <strong class="jxr_keyword">new</strong> AbstractCurveFitter.TheoreticalValuesFunction(FUNCTION, observations);
+<a class="jxr_linenumber" name="L113" href="PolynomialCurveFitter.html#L113">113</a> 
+<a class="jxr_linenumber" name="L114" href="PolynomialCurveFitter.html#L114">114</a>         <strong class="jxr_keyword">if</strong> (initialGuess == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L115" href="PolynomialCurveFitter.html#L115">115</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathInternalError.html">MathInternalError</a>();
+<a class="jxr_linenumber" name="L116" href="PolynomialCurveFitter.html#L116">116</a>         }
+<a class="jxr_linenumber" name="L117" href="PolynomialCurveFitter.html#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="PolynomialCurveFitter.html#L118">118</a>         <em class="jxr_comment">// Return a new least squares problem set up to fit a polynomial curve to the</em>
+<a class="jxr_linenumber" name="L119" href="PolynomialCurveFitter.html#L119">119</a>         <em class="jxr_comment">// observed points.</em>
+<a class="jxr_linenumber" name="L120" href="PolynomialCurveFitter.html#L120">120</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="leastsquares/LeastSquaresBuilder.html">LeastSquaresBuilder</a>().
+<a class="jxr_linenumber" name="L121" href="PolynomialCurveFitter.html#L121">121</a>                 maxEvaluations(Integer.MAX_VALUE).
+<a class="jxr_linenumber" name="L122" href="PolynomialCurveFitter.html#L122">122</a>                 maxIterations(maxIter).
+<a class="jxr_linenumber" name="L123" href="PolynomialCurveFitter.html#L123">123</a>                 start(initialGuess).
+<a class="jxr_linenumber" name="L124" href="PolynomialCurveFitter.html#L124">124</a>                 target(target).
+<a class="jxr_linenumber" name="L125" href="PolynomialCurveFitter.html#L125">125</a>                 weight(<strong class="jxr_keyword">new</strong> <a href="../linear/DiagonalMatrix.html">DiagonalMatrix</a>(weights)).
+<a class="jxr_linenumber" name="L126" href="PolynomialCurveFitter.html#L126">126</a>                 model(model.getModelFunction(), model.getModelFunctionJacobian()).
+<a class="jxr_linenumber" name="L127" href="PolynomialCurveFitter.html#L127">127</a>                 build();
+<a class="jxr_linenumber" name="L128" href="PolynomialCurveFitter.html#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="PolynomialCurveFitter.html#L129">129</a>     }
+<a class="jxr_linenumber" name="L130" href="PolynomialCurveFitter.html#L130">130</a> 
+<a class="jxr_linenumber" name="L131" href="PolynomialCurveFitter.html#L131">131</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

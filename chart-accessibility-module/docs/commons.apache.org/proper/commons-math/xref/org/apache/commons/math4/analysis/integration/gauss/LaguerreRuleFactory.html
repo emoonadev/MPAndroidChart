@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>LaguerreRuleFactory xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../../apidocs/org/apache/commons/math4/analysis/integration/gauss/LaguerreRuleFactory.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="LaguerreRuleFactory.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="LaguerreRuleFactory.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="LaguerreRuleFactory.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="LaguerreRuleFactory.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="LaguerreRuleFactory.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="LaguerreRuleFactory.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="LaguerreRuleFactory.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="LaguerreRuleFactory.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="LaguerreRuleFactory.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="LaguerreRuleFactory.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="LaguerreRuleFactory.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="LaguerreRuleFactory.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="LaguerreRuleFactory.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="LaguerreRuleFactory.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="LaguerreRuleFactory.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="LaguerreRuleFactory.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="LaguerreRuleFactory.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.integration.gauss;
+<a class="jxr_linenumber" name="L18" href="LaguerreRuleFactory.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="LaguerreRuleFactory.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L20" href="LaguerreRuleFactory.html#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="LaguerreRuleFactory.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.polynomials.PolynomialFunction;
+<a class="jxr_linenumber" name="L22" href="LaguerreRuleFactory.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.polynomials.PolynomialsUtils;
+<a class="jxr_linenumber" name="L23" href="LaguerreRuleFactory.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L24" href="LaguerreRuleFactory.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.EigenDecomposition;
+<a class="jxr_linenumber" name="L25" href="LaguerreRuleFactory.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.MatrixUtils;
+<a class="jxr_linenumber" name="L26" href="LaguerreRuleFactory.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.RealMatrix;
+<a class="jxr_linenumber" name="L27" href="LaguerreRuleFactory.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Pair;
+<a class="jxr_linenumber" name="L28" href="LaguerreRuleFactory.html#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="LaguerreRuleFactory.html#L29">29</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L30" href="LaguerreRuleFactory.html#L30">30</a>  <em class="jxr_javadoccomment"> * Factory that creates Gauss-type quadrature rule using Laguerre polynomials.</em>
+<a class="jxr_linenumber" name="L31" href="LaguerreRuleFactory.html#L31">31</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L32" href="LaguerreRuleFactory.html#L32">32</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/Gauss%E2%80%93Laguerre_quadrature" target="alexandria_uri">http://en.wikipedia.org/wiki/Gauss%E2%80%93Laguerre_quadrature</a>"&gt;Gauss-Laguerre quadrature (Wikipedia)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L33" href="LaguerreRuleFactory.html#L33">33</a>  <em class="jxr_javadoccomment"> * @since 4.0</em>
+<a class="jxr_linenumber" name="L34" href="LaguerreRuleFactory.html#L34">34</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L35" href="LaguerreRuleFactory.html#L35">35</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="LaguerreRuleFactory.html">LaguerreRuleFactory</a> <strong class="jxr_keyword">extends</strong> BaseRuleFactory&lt;Double&gt; {
+<a class="jxr_linenumber" name="L36" href="LaguerreRuleFactory.html#L36">36</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L37" href="LaguerreRuleFactory.html#L37">37</a>      @Override
+<a class="jxr_linenumber" name="L38" href="LaguerreRuleFactory.html#L38">38</a>      <strong class="jxr_keyword">protected</strong> Pair&lt;Double[], Double[]&gt; computeRule(<strong class="jxr_keyword">int</strong> numberOfPoints)
+<a class="jxr_linenumber" name="L39" href="LaguerreRuleFactory.html#L39">39</a>          <strong class="jxr_keyword">throws</strong> <a href="../../../exception/DimensionMismatchException.html">DimensionMismatchException</a> {
+<a class="jxr_linenumber" name="L40" href="LaguerreRuleFactory.html#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="LaguerreRuleFactory.html#L41">41</a>          <strong class="jxr_keyword">final</strong> <a href="../../../linear/RealMatrix.html">RealMatrix</a> companionMatrix = companionMatrix(numberOfPoints);
+<a class="jxr_linenumber" name="L42" href="LaguerreRuleFactory.html#L42">42</a>          <strong class="jxr_keyword">final</strong> <a href="../../../linear/EigenDecomposition.html">EigenDecomposition</a> eigen = <strong class="jxr_keyword">new</strong> <a href="../../../linear/EigenDecomposition.html">EigenDecomposition</a>(companionMatrix);
+<a class="jxr_linenumber" name="L43" href="LaguerreRuleFactory.html#L43">43</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] roots = eigen.getRealEigenvalues();
+<a class="jxr_linenumber" name="L44" href="LaguerreRuleFactory.html#L44">44</a>          Arrays.sort(roots);
+<a class="jxr_linenumber" name="L45" href="LaguerreRuleFactory.html#L45">45</a>  
+<a class="jxr_linenumber" name="L46" href="LaguerreRuleFactory.html#L46">46</a>          <strong class="jxr_keyword">final</strong> Double[] points = <strong class="jxr_keyword">new</strong> Double[numberOfPoints];
+<a class="jxr_linenumber" name="L47" href="LaguerreRuleFactory.html#L47">47</a>          <strong class="jxr_keyword">final</strong> Double[] weights = <strong class="jxr_keyword">new</strong> Double[numberOfPoints];
+<a class="jxr_linenumber" name="L48" href="LaguerreRuleFactory.html#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="LaguerreRuleFactory.html#L49">49</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n1 = numberOfPoints + 1;
+<a class="jxr_linenumber" name="L50" href="LaguerreRuleFactory.html#L50">50</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> n1Squared = n1 * (<strong class="jxr_keyword">long</strong>) n1;
+<a class="jxr_linenumber" name="L51" href="LaguerreRuleFactory.html#L51">51</a>          <strong class="jxr_keyword">final</strong> <a href="../../polynomials/PolynomialFunction.html">PolynomialFunction</a> laguerreN1 = PolynomialsUtils.createLaguerrePolynomial(n1);
+<a class="jxr_linenumber" name="L52" href="LaguerreRuleFactory.html#L52">52</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; numberOfPoints; i++) {
+<a class="jxr_linenumber" name="L53" href="LaguerreRuleFactory.html#L53">53</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xi = roots[i];
+<a class="jxr_linenumber" name="L54" href="LaguerreRuleFactory.html#L54">54</a>              points[i] = xi;
+<a class="jxr_linenumber" name="L55" href="LaguerreRuleFactory.html#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="LaguerreRuleFactory.html#L56">56</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> val = laguerreN1.value(xi);
+<a class="jxr_linenumber" name="L57" href="LaguerreRuleFactory.html#L57">57</a>              weights[i] = xi / n1Squared / (val * val);
+<a class="jxr_linenumber" name="L58" href="LaguerreRuleFactory.html#L58">58</a>          }
+<a class="jxr_linenumber" name="L59" href="LaguerreRuleFactory.html#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="LaguerreRuleFactory.html#L60">60</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;Double[], Double[]&gt;(points, weights);
+<a class="jxr_linenumber" name="L61" href="LaguerreRuleFactory.html#L61">61</a>      }
+<a class="jxr_linenumber" name="L62" href="LaguerreRuleFactory.html#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="LaguerreRuleFactory.html#L63">63</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L64" href="LaguerreRuleFactory.html#L64">64</a>  <em class="jxr_javadoccomment">     * @param degree Matrix dimension.</em>
+<a class="jxr_linenumber" name="L65" href="LaguerreRuleFactory.html#L65">65</a>  <em class="jxr_javadoccomment">     * @return a square matrix.</em>
+<a class="jxr_linenumber" name="L66" href="LaguerreRuleFactory.html#L66">66</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L67" href="LaguerreRuleFactory.html#L67">67</a>      <strong class="jxr_keyword">private</strong> <a href="../../../linear/RealMatrix.html">RealMatrix</a> companionMatrix(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> degree) {
+<a class="jxr_linenumber" name="L68" href="LaguerreRuleFactory.html#L68">68</a>          <strong class="jxr_keyword">final</strong> <a href="../../../linear/RealMatrix.html">RealMatrix</a> c = MatrixUtils.createRealMatrix(degree, degree);
+<a class="jxr_linenumber" name="L69" href="LaguerreRuleFactory.html#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="LaguerreRuleFactory.html#L70">70</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; degree; i++) {
+<a class="jxr_linenumber" name="L71" href="LaguerreRuleFactory.html#L71">71</a>              c.setEntry(i, i, 2 * i + 1);
+<a class="jxr_linenumber" name="L72" href="LaguerreRuleFactory.html#L72">72</a>              <strong class="jxr_keyword">if</strong> (i + 1 &lt; degree) {
+<a class="jxr_linenumber" name="L73" href="LaguerreRuleFactory.html#L73">73</a>                  <em class="jxr_comment">// subdiagonal</em>
+<a class="jxr_linenumber" name="L74" href="LaguerreRuleFactory.html#L74">74</a>                  c.setEntry(i+1, i, -(i + 1));
+<a class="jxr_linenumber" name="L75" href="LaguerreRuleFactory.html#L75">75</a>              }
+<a class="jxr_linenumber" name="L76" href="LaguerreRuleFactory.html#L76">76</a>              <strong class="jxr_keyword">if</strong> (i - 1 &gt;= 0) {
+<a class="jxr_linenumber" name="L77" href="LaguerreRuleFactory.html#L77">77</a>                  <em class="jxr_comment">// superdiagonal</em>
+<a class="jxr_linenumber" name="L78" href="LaguerreRuleFactory.html#L78">78</a>                  c.setEntry(i-1, i, -i);
+<a class="jxr_linenumber" name="L79" href="LaguerreRuleFactory.html#L79">79</a>              }
+<a class="jxr_linenumber" name="L80" href="LaguerreRuleFactory.html#L80">80</a>          }
+<a class="jxr_linenumber" name="L81" href="LaguerreRuleFactory.html#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="LaguerreRuleFactory.html#L82">82</a>          <strong class="jxr_keyword">return</strong> c;
+<a class="jxr_linenumber" name="L83" href="LaguerreRuleFactory.html#L83">83</a>      }
+<a class="jxr_linenumber" name="L84" href="LaguerreRuleFactory.html#L84">84</a>  }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

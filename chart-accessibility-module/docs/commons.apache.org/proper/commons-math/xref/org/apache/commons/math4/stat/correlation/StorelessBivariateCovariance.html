@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>StorelessBivariateCovariance xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math4/stat/correlation/StorelessBivariateCovariance.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="StorelessBivariateCovariance.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="StorelessBivariateCovariance.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="StorelessBivariateCovariance.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="StorelessBivariateCovariance.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="StorelessBivariateCovariance.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="StorelessBivariateCovariance.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="StorelessBivariateCovariance.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="StorelessBivariateCovariance.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="StorelessBivariateCovariance.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="StorelessBivariateCovariance.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="StorelessBivariateCovariance.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="StorelessBivariateCovariance.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="StorelessBivariateCovariance.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="StorelessBivariateCovariance.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="StorelessBivariateCovariance.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="StorelessBivariateCovariance.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="StorelessBivariateCovariance.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.stat.correlation;
+<a class="jxr_linenumber" name="L18" href="StorelessBivariateCovariance.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="StorelessBivariateCovariance.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L20" href="StorelessBivariateCovariance.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L21" href="StorelessBivariateCovariance.html#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="StorelessBivariateCovariance.html#L22">22</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L23" href="StorelessBivariateCovariance.html#L23">23</a>  <em class="jxr_javadoccomment"> * Bivariate Covariance implementation that does not require input data to be</em>
+<a class="jxr_linenumber" name="L24" href="StorelessBivariateCovariance.html#L24">24</a>  <em class="jxr_javadoccomment"> * stored in memory.</em>
+<a class="jxr_linenumber" name="L25" href="StorelessBivariateCovariance.html#L25">25</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L26" href="StorelessBivariateCovariance.html#L26">26</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This class is based on a paper written by Philippe P&amp;eacute;bay:</em>
+<a class="jxr_linenumber" name="L27" href="StorelessBivariateCovariance.html#L27">27</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://prod.sandia.gov/techlib/access-control.cgi/2008/086212.pdf" target="alexandria_uri">http://prod.sandia.gov/techlib/access-control.cgi/2008/086212.pdf</a>"&gt;</em>
+<a class="jxr_linenumber" name="L28" href="StorelessBivariateCovariance.html#L28">28</a>  <em class="jxr_javadoccomment"> * Formulas for Robust, One-Pass Parallel Computation of Covariances and</em>
+<a class="jxr_linenumber" name="L29" href="StorelessBivariateCovariance.html#L29">29</a>  <em class="jxr_javadoccomment"> * Arbitrary-Order Statistical Moments&lt;/a&gt;, 2008, Technical Report SAND2008-6212,</em>
+<a class="jxr_linenumber" name="L30" href="StorelessBivariateCovariance.html#L30">30</a>  <em class="jxr_javadoccomment"> * Sandia National Laboratories. It computes the covariance for a pair of variables.</em>
+<a class="jxr_linenumber" name="L31" href="StorelessBivariateCovariance.html#L31">31</a>  <em class="jxr_javadoccomment"> * Use {@link StorelessCovariance} to estimate an entire covariance matrix.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L32" href="StorelessBivariateCovariance.html#L32">32</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L33" href="StorelessBivariateCovariance.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Note: This class is package private as it is only used internally in</em>
+<a class="jxr_linenumber" name="L34" href="StorelessBivariateCovariance.html#L34">34</a>  <em class="jxr_javadoccomment"> * the {@link StorelessCovariance} class.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L35" href="StorelessBivariateCovariance.html#L35">35</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L36" href="StorelessBivariateCovariance.html#L36">36</a>  <em class="jxr_javadoccomment"> * @since 3.0</em>
+<a class="jxr_linenumber" name="L37" href="StorelessBivariateCovariance.html#L37">37</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L38" href="StorelessBivariateCovariance.html#L38">38</a>  <strong class="jxr_keyword">class</strong> <a href="StorelessBivariateCovariance.html">StorelessBivariateCovariance</a> {
+<a class="jxr_linenumber" name="L39" href="StorelessBivariateCovariance.html#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="StorelessBivariateCovariance.html#L40">40</a>      <em class="jxr_javadoccomment">/** the mean of variable x */</em>
+<a class="jxr_linenumber" name="L41" href="StorelessBivariateCovariance.html#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> meanX;
+<a class="jxr_linenumber" name="L42" href="StorelessBivariateCovariance.html#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="StorelessBivariateCovariance.html#L43">43</a>      <em class="jxr_javadoccomment">/** the mean of variable y */</em>
+<a class="jxr_linenumber" name="L44" href="StorelessBivariateCovariance.html#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> meanY;
+<a class="jxr_linenumber" name="L45" href="StorelessBivariateCovariance.html#L45">45</a>  
+<a class="jxr_linenumber" name="L46" href="StorelessBivariateCovariance.html#L46">46</a>      <em class="jxr_javadoccomment">/** number of observations */</em>
+<a class="jxr_linenumber" name="L47" href="StorelessBivariateCovariance.html#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> n;
+<a class="jxr_linenumber" name="L48" href="StorelessBivariateCovariance.html#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="StorelessBivariateCovariance.html#L49">49</a>      <em class="jxr_javadoccomment">/** the running covariance estimate */</em>
+<a class="jxr_linenumber" name="L50" href="StorelessBivariateCovariance.html#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> covarianceNumerator;
+<a class="jxr_linenumber" name="L51" href="StorelessBivariateCovariance.html#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="StorelessBivariateCovariance.html#L52">52</a>      <em class="jxr_javadoccomment">/** flag for bias correction */</em>
+<a class="jxr_linenumber" name="L53" href="StorelessBivariateCovariance.html#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> biasCorrected;
+<a class="jxr_linenumber" name="L54" href="StorelessBivariateCovariance.html#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="StorelessBivariateCovariance.html#L55">55</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L56" href="StorelessBivariateCovariance.html#L56">56</a>  <em class="jxr_javadoccomment">     * Create an empty {@link StorelessBivariateCovariance} instance with</em>
+<a class="jxr_linenumber" name="L57" href="StorelessBivariateCovariance.html#L57">57</a>  <em class="jxr_javadoccomment">     * bias correction.</em>
+<a class="jxr_linenumber" name="L58" href="StorelessBivariateCovariance.html#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L59" href="StorelessBivariateCovariance.html#L59">59</a>      <a href="StorelessBivariateCovariance.html">StorelessBivariateCovariance</a>() {
+<a class="jxr_linenumber" name="L60" href="StorelessBivariateCovariance.html#L60">60</a>          <strong class="jxr_keyword">this</strong>(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L61" href="StorelessBivariateCovariance.html#L61">61</a>      }
+<a class="jxr_linenumber" name="L62" href="StorelessBivariateCovariance.html#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="StorelessBivariateCovariance.html#L63">63</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L64" href="StorelessBivariateCovariance.html#L64">64</a>  <em class="jxr_javadoccomment">     * Create an empty {@link StorelessBivariateCovariance} instance.</em>
+<a class="jxr_linenumber" name="L65" href="StorelessBivariateCovariance.html#L65">65</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L66" href="StorelessBivariateCovariance.html#L66">66</a>  <em class="jxr_javadoccomment">     * @param biasCorrection if &lt;code&gt;true&lt;/code&gt; the covariance estimate is corrected</em>
+<a class="jxr_linenumber" name="L67" href="StorelessBivariateCovariance.html#L67">67</a>  <em class="jxr_javadoccomment">     * for bias, i.e. n-1 in the denominator, otherwise there is no bias correction,</em>
+<a class="jxr_linenumber" name="L68" href="StorelessBivariateCovariance.html#L68">68</a>  <em class="jxr_javadoccomment">     * i.e. n in the denominator.</em>
+<a class="jxr_linenumber" name="L69" href="StorelessBivariateCovariance.html#L69">69</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L70" href="StorelessBivariateCovariance.html#L70">70</a>      <a href="StorelessBivariateCovariance.html">StorelessBivariateCovariance</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> biasCorrection) {
+<a class="jxr_linenumber" name="L71" href="StorelessBivariateCovariance.html#L71">71</a>          meanX = meanY = 0.0;
+<a class="jxr_linenumber" name="L72" href="StorelessBivariateCovariance.html#L72">72</a>          n = 0;
+<a class="jxr_linenumber" name="L73" href="StorelessBivariateCovariance.html#L73">73</a>          covarianceNumerator = 0.0;
+<a class="jxr_linenumber" name="L74" href="StorelessBivariateCovariance.html#L74">74</a>          biasCorrected = biasCorrection;
+<a class="jxr_linenumber" name="L75" href="StorelessBivariateCovariance.html#L75">75</a>      }
+<a class="jxr_linenumber" name="L76" href="StorelessBivariateCovariance.html#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="StorelessBivariateCovariance.html#L77">77</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L78" href="StorelessBivariateCovariance.html#L78">78</a>  <em class="jxr_javadoccomment">     * Update the covariance estimation with a pair of variables (x, y).</em>
+<a class="jxr_linenumber" name="L79" href="StorelessBivariateCovariance.html#L79">79</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L80" href="StorelessBivariateCovariance.html#L80">80</a>  <em class="jxr_javadoccomment">     * @param x the x value</em>
+<a class="jxr_linenumber" name="L81" href="StorelessBivariateCovariance.html#L81">81</a>  <em class="jxr_javadoccomment">     * @param y the y value</em>
+<a class="jxr_linenumber" name="L82" href="StorelessBivariateCovariance.html#L82">82</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L83" href="StorelessBivariateCovariance.html#L83">83</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> increment(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y) {
+<a class="jxr_linenumber" name="L84" href="StorelessBivariateCovariance.html#L84">84</a>          n++;
+<a class="jxr_linenumber" name="L85" href="StorelessBivariateCovariance.html#L85">85</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> deltaX = x - meanX;
+<a class="jxr_linenumber" name="L86" href="StorelessBivariateCovariance.html#L86">86</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> deltaY = y - meanY;
+<a class="jxr_linenumber" name="L87" href="StorelessBivariateCovariance.html#L87">87</a>          meanX += deltaX / n;
+<a class="jxr_linenumber" name="L88" href="StorelessBivariateCovariance.html#L88">88</a>          meanY += deltaY / n;
+<a class="jxr_linenumber" name="L89" href="StorelessBivariateCovariance.html#L89">89</a>          covarianceNumerator += ((n - 1.0) / n) * deltaX * deltaY;
+<a class="jxr_linenumber" name="L90" href="StorelessBivariateCovariance.html#L90">90</a>      }
+<a class="jxr_linenumber" name="L91" href="StorelessBivariateCovariance.html#L91">91</a>  
+<a class="jxr_linenumber" name="L92" href="StorelessBivariateCovariance.html#L92">92</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L93" href="StorelessBivariateCovariance.html#L93">93</a>  <em class="jxr_javadoccomment">     * Appends another bivariate covariance calculation to this.</em>
+<a class="jxr_linenumber" name="L94" href="StorelessBivariateCovariance.html#L94">94</a>  <em class="jxr_javadoccomment">     * After this operation, statistics returned should be close to what would</em>
+<a class="jxr_linenumber" name="L95" href="StorelessBivariateCovariance.html#L95">95</a>  <em class="jxr_javadoccomment">     * have been obtained by by performing all of the {@link #increment(double, double)}</em>
+<a class="jxr_linenumber" name="L96" href="StorelessBivariateCovariance.html#L96">96</a>  <em class="jxr_javadoccomment">     * operations in {@code cov} directly on this.</em>
+<a class="jxr_linenumber" name="L97" href="StorelessBivariateCovariance.html#L97">97</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L98" href="StorelessBivariateCovariance.html#L98">98</a>  <em class="jxr_javadoccomment">     * @param cov StorelessBivariateCovariance instance to append.</em>
+<a class="jxr_linenumber" name="L99" href="StorelessBivariateCovariance.html#L99">99</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L100" href="StorelessBivariateCovariance.html#L100">100</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> append(<a href="StorelessBivariateCovariance.html">StorelessBivariateCovariance</a> cov) {
+<a class="jxr_linenumber" name="L101" href="StorelessBivariateCovariance.html#L101">101</a>         <strong class="jxr_keyword">double</strong> oldN = n;
+<a class="jxr_linenumber" name="L102" href="StorelessBivariateCovariance.html#L102">102</a>         n += cov.n;
+<a class="jxr_linenumber" name="L103" href="StorelessBivariateCovariance.html#L103">103</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> deltaX = cov.meanX - meanX;
+<a class="jxr_linenumber" name="L104" href="StorelessBivariateCovariance.html#L104">104</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> deltaY = cov.meanY - meanY;
+<a class="jxr_linenumber" name="L105" href="StorelessBivariateCovariance.html#L105">105</a>         meanX += deltaX * cov.n / n;
+<a class="jxr_linenumber" name="L106" href="StorelessBivariateCovariance.html#L106">106</a>         meanY += deltaY * cov.n / n;
+<a class="jxr_linenumber" name="L107" href="StorelessBivariateCovariance.html#L107">107</a>         covarianceNumerator += cov.covarianceNumerator + oldN * cov.n / n * deltaX * deltaY;
+<a class="jxr_linenumber" name="L108" href="StorelessBivariateCovariance.html#L108">108</a>     }
+<a class="jxr_linenumber" name="L109" href="StorelessBivariateCovariance.html#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="StorelessBivariateCovariance.html#L110">110</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L111" href="StorelessBivariateCovariance.html#L111">111</a> <em class="jxr_javadoccomment">     * Returns the number of observations.</em>
+<a class="jxr_linenumber" name="L112" href="StorelessBivariateCovariance.html#L112">112</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L113" href="StorelessBivariateCovariance.html#L113">113</a> <em class="jxr_javadoccomment">     * @return number of observations</em>
+<a class="jxr_linenumber" name="L114" href="StorelessBivariateCovariance.html#L114">114</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L115" href="StorelessBivariateCovariance.html#L115">115</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getN() {
+<a class="jxr_linenumber" name="L116" href="StorelessBivariateCovariance.html#L116">116</a>         <strong class="jxr_keyword">return</strong> n;
+<a class="jxr_linenumber" name="L117" href="StorelessBivariateCovariance.html#L117">117</a>     }
+<a class="jxr_linenumber" name="L118" href="StorelessBivariateCovariance.html#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="StorelessBivariateCovariance.html#L119">119</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L120" href="StorelessBivariateCovariance.html#L120">120</a> <em class="jxr_javadoccomment">     * Return the current covariance estimate.</em>
+<a class="jxr_linenumber" name="L121" href="StorelessBivariateCovariance.html#L121">121</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L122" href="StorelessBivariateCovariance.html#L122">122</a> <em class="jxr_javadoccomment">     * @return the current covariance</em>
+<a class="jxr_linenumber" name="L123" href="StorelessBivariateCovariance.html#L123">123</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if the number of observations</em>
+<a class="jxr_linenumber" name="L124" href="StorelessBivariateCovariance.html#L124">124</a> <em class="jxr_javadoccomment">     * is &amp;lt; 2</em>
+<a class="jxr_linenumber" name="L125" href="StorelessBivariateCovariance.html#L125">125</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L126" href="StorelessBivariateCovariance.html#L126">126</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getResult() <strong class="jxr_keyword">throws</strong> NumberIsTooSmallException {
+<a class="jxr_linenumber" name="L127" href="StorelessBivariateCovariance.html#L127">127</a>         <strong class="jxr_keyword">if</strong> (n &lt; 2) {
+<a class="jxr_linenumber" name="L128" href="StorelessBivariateCovariance.html#L128">128</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(LocalizedFormats.INSUFFICIENT_DIMENSION,
+<a class="jxr_linenumber" name="L129" href="StorelessBivariateCovariance.html#L129">129</a>                                                 n, 2, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L130" href="StorelessBivariateCovariance.html#L130">130</a>         }
+<a class="jxr_linenumber" name="L131" href="StorelessBivariateCovariance.html#L131">131</a>         <strong class="jxr_keyword">if</strong> (biasCorrected) {
+<a class="jxr_linenumber" name="L132" href="StorelessBivariateCovariance.html#L132">132</a>             <strong class="jxr_keyword">return</strong> covarianceNumerator / (n - 1d);
+<a class="jxr_linenumber" name="L133" href="StorelessBivariateCovariance.html#L133">133</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L134" href="StorelessBivariateCovariance.html#L134">134</a>             <strong class="jxr_keyword">return</strong> covarianceNumerator / n;
+<a class="jxr_linenumber" name="L135" href="StorelessBivariateCovariance.html#L135">135</a>         }
+<a class="jxr_linenumber" name="L136" href="StorelessBivariateCovariance.html#L136">136</a>     }
+<a class="jxr_linenumber" name="L137" href="StorelessBivariateCovariance.html#L137">137</a> }
+<a class="jxr_linenumber" name="L138" href="StorelessBivariateCovariance.html#L138">138</a> 
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

@@ -1,0 +1,901 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>SimpleRegression xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/stat/regression/SimpleRegression.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="SimpleRegression.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="SimpleRegression.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="SimpleRegression.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="SimpleRegression.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="SimpleRegression.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="SimpleRegression.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="SimpleRegression.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="SimpleRegression.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="SimpleRegression.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="SimpleRegression.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="SimpleRegression.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="SimpleRegression.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="SimpleRegression.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="SimpleRegression.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="SimpleRegression.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="SimpleRegression.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="SimpleRegression.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="SimpleRegression.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.stat.regression;
+<a class="jxr_linenumber" name="L19" href="SimpleRegression.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.io.Serializable;
+<a class="jxr_linenumber" name="L20" href="SimpleRegression.html#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="SimpleRegression.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.distribution.TDistribution;
+<a class="jxr_linenumber" name="L22" href="SimpleRegression.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L23" href="SimpleRegression.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoDataException;
+<a class="jxr_linenumber" name="L24" href="SimpleRegression.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L25" href="SimpleRegression.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L26" href="SimpleRegression.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L27" href="SimpleRegression.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Precision;
+<a class="jxr_linenumber" name="L28" href="SimpleRegression.html#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="SimpleRegression.html#L29">29</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L30" href="SimpleRegression.html#L30">30</a>  <em class="jxr_javadoccomment"> * Estimates an ordinary least squares regression model</em>
+<a class="jxr_linenumber" name="L31" href="SimpleRegression.html#L31">31</a>  <em class="jxr_javadoccomment"> * with one independent variable.</em>
+<a class="jxr_linenumber" name="L32" href="SimpleRegression.html#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L33" href="SimpleRegression.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;code&gt; y = intercept + slope * x  &lt;/code&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L34" href="SimpleRegression.html#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L35" href="SimpleRegression.html#L35">35</a>  <em class="jxr_javadoccomment"> * Standard errors for &lt;code&gt;intercept&lt;/code&gt; and &lt;code&gt;slope&lt;/code&gt; are</em>
+<a class="jxr_linenumber" name="L36" href="SimpleRegression.html#L36">36</a>  <em class="jxr_javadoccomment"> * available as well as ANOVA, r-square and Pearson's r statistics.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L37" href="SimpleRegression.html#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L38" href="SimpleRegression.html#L38">38</a>  <em class="jxr_javadoccomment"> * Observations (x,y pairs) can be added to the model one at a time or they</em>
+<a class="jxr_linenumber" name="L39" href="SimpleRegression.html#L39">39</a>  <em class="jxr_javadoccomment"> * can be provided in a 2-dimensional array.  The observations are not stored</em>
+<a class="jxr_linenumber" name="L40" href="SimpleRegression.html#L40">40</a>  <em class="jxr_javadoccomment"> * in memory, so there is no limit to the number of observations that can be</em>
+<a class="jxr_linenumber" name="L41" href="SimpleRegression.html#L41">41</a>  <em class="jxr_javadoccomment"> * added to the model.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L42" href="SimpleRegression.html#L42">42</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L43" href="SimpleRegression.html#L43">43</a>  <em class="jxr_javadoccomment"> * &lt;strong&gt;Usage Notes&lt;/strong&gt;: &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L44" href="SimpleRegression.html#L44">44</a>  <em class="jxr_javadoccomment"> * &lt;li&gt; When there are fewer than two observations in the model, or when</em>
+<a class="jxr_linenumber" name="L45" href="SimpleRegression.html#L45">45</a>  <em class="jxr_javadoccomment"> * there is no variation in the x values (i.e. all x values are the same)</em>
+<a class="jxr_linenumber" name="L46" href="SimpleRegression.html#L46">46</a>  <em class="jxr_javadoccomment"> * all statistics return &lt;code&gt;NaN&lt;/code&gt;. At least two observations with</em>
+<a class="jxr_linenumber" name="L47" href="SimpleRegression.html#L47">47</a>  <em class="jxr_javadoccomment"> * different x coordinates are required to estimate a bivariate regression</em>
+<a class="jxr_linenumber" name="L48" href="SimpleRegression.html#L48">48</a>  <em class="jxr_javadoccomment"> * model.</em>
+<a class="jxr_linenumber" name="L49" href="SimpleRegression.html#L49">49</a>  <em class="jxr_javadoccomment"> * &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L50" href="SimpleRegression.html#L50">50</a>  <em class="jxr_javadoccomment"> * &lt;li&gt; Getters for the statistics always compute values based on the current</em>
+<a class="jxr_linenumber" name="L51" href="SimpleRegression.html#L51">51</a>  <em class="jxr_javadoccomment"> * set of observations -- i.e., you can get statistics, then add more data</em>
+<a class="jxr_linenumber" name="L52" href="SimpleRegression.html#L52">52</a>  <em class="jxr_javadoccomment"> * and get updated statistics without using a new instance.  There is no</em>
+<a class="jxr_linenumber" name="L53" href="SimpleRegression.html#L53">53</a>  <em class="jxr_javadoccomment"> * "compute" method that updates all statistics.  Each of the getters performs</em>
+<a class="jxr_linenumber" name="L54" href="SimpleRegression.html#L54">54</a>  <em class="jxr_javadoccomment"> * the necessary computations to return the requested statistic.</em>
+<a class="jxr_linenumber" name="L55" href="SimpleRegression.html#L55">55</a>  <em class="jxr_javadoccomment"> * &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L56" href="SimpleRegression.html#L56">56</a>  <em class="jxr_javadoccomment"> * &lt;li&gt; The intercept term may be suppressed by passing {@code false} to</em>
+<a class="jxr_linenumber" name="L57" href="SimpleRegression.html#L57">57</a>  <em class="jxr_javadoccomment"> * the {@link #SimpleRegression(boolean)} constructor.  When the</em>
+<a class="jxr_linenumber" name="L58" href="SimpleRegression.html#L58">58</a>  <em class="jxr_javadoccomment"> * {@code hasIntercept} property is false, the model is estimated without a</em>
+<a class="jxr_linenumber" name="L59" href="SimpleRegression.html#L59">59</a>  <em class="jxr_javadoccomment"> * constant term and {@link #getIntercept()} returns {@code 0}.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L60" href="SimpleRegression.html#L60">60</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L61" href="SimpleRegression.html#L61">61</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L62" href="SimpleRegression.html#L62">62</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L63" href="SimpleRegression.html#L63">63</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="SimpleRegression.html">SimpleRegression</a> <strong class="jxr_keyword">implements</strong> Serializable, <a href="UpdatingMultipleLinearRegression.html">UpdatingMultipleLinearRegression</a> {
+<a class="jxr_linenumber" name="L64" href="SimpleRegression.html#L64">64</a>  
+<a class="jxr_linenumber" name="L65" href="SimpleRegression.html#L65">65</a>      <em class="jxr_javadoccomment">/** Serializable version identifier */</em>
+<a class="jxr_linenumber" name="L66" href="SimpleRegression.html#L66">66</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = -3004689053607543335L;
+<a class="jxr_linenumber" name="L67" href="SimpleRegression.html#L67">67</a>  
+<a class="jxr_linenumber" name="L68" href="SimpleRegression.html#L68">68</a>      <em class="jxr_javadoccomment">/** sum of x values */</em>
+<a class="jxr_linenumber" name="L69" href="SimpleRegression.html#L69">69</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> sumX = 0d;
+<a class="jxr_linenumber" name="L70" href="SimpleRegression.html#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="SimpleRegression.html#L71">71</a>      <em class="jxr_javadoccomment">/** total variation in x (sum of squared deviations from xbar) */</em>
+<a class="jxr_linenumber" name="L72" href="SimpleRegression.html#L72">72</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> sumXX = 0d;
+<a class="jxr_linenumber" name="L73" href="SimpleRegression.html#L73">73</a>  
+<a class="jxr_linenumber" name="L74" href="SimpleRegression.html#L74">74</a>      <em class="jxr_javadoccomment">/** sum of y values */</em>
+<a class="jxr_linenumber" name="L75" href="SimpleRegression.html#L75">75</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> sumY = 0d;
+<a class="jxr_linenumber" name="L76" href="SimpleRegression.html#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="SimpleRegression.html#L77">77</a>      <em class="jxr_javadoccomment">/** total variation in y (sum of squared deviations from ybar) */</em>
+<a class="jxr_linenumber" name="L78" href="SimpleRegression.html#L78">78</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> sumYY = 0d;
+<a class="jxr_linenumber" name="L79" href="SimpleRegression.html#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="SimpleRegression.html#L80">80</a>      <em class="jxr_javadoccomment">/** sum of products */</em>
+<a class="jxr_linenumber" name="L81" href="SimpleRegression.html#L81">81</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> sumXY = 0d;
+<a class="jxr_linenumber" name="L82" href="SimpleRegression.html#L82">82</a>  
+<a class="jxr_linenumber" name="L83" href="SimpleRegression.html#L83">83</a>      <em class="jxr_javadoccomment">/** number of observations */</em>
+<a class="jxr_linenumber" name="L84" href="SimpleRegression.html#L84">84</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> n = 0;
+<a class="jxr_linenumber" name="L85" href="SimpleRegression.html#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="SimpleRegression.html#L86">86</a>      <em class="jxr_javadoccomment">/** mean of accumulated x values, used in updating formulas */</em>
+<a class="jxr_linenumber" name="L87" href="SimpleRegression.html#L87">87</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> xbar = 0;
+<a class="jxr_linenumber" name="L88" href="SimpleRegression.html#L88">88</a>  
+<a class="jxr_linenumber" name="L89" href="SimpleRegression.html#L89">89</a>      <em class="jxr_javadoccomment">/** mean of accumulated y values, used in updating formulas */</em>
+<a class="jxr_linenumber" name="L90" href="SimpleRegression.html#L90">90</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> ybar = 0;
+<a class="jxr_linenumber" name="L91" href="SimpleRegression.html#L91">91</a>  
+<a class="jxr_linenumber" name="L92" href="SimpleRegression.html#L92">92</a>      <em class="jxr_javadoccomment">/** include an intercept or not */</em>
+<a class="jxr_linenumber" name="L93" href="SimpleRegression.html#L93">93</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> hasIntercept;
+<a class="jxr_linenumber" name="L94" href="SimpleRegression.html#L94">94</a>      <em class="jxr_comment">// ---------------------Public methods--------------------------------------</em>
+<a class="jxr_linenumber" name="L95" href="SimpleRegression.html#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="SimpleRegression.html#L96">96</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L97" href="SimpleRegression.html#L97">97</a>  <em class="jxr_javadoccomment">     * Create an empty SimpleRegression instance</em>
+<a class="jxr_linenumber" name="L98" href="SimpleRegression.html#L98">98</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L99" href="SimpleRegression.html#L99">99</a>      <strong class="jxr_keyword">public</strong> <a href="SimpleRegression.html">SimpleRegression</a>() {
+<a class="jxr_linenumber" name="L100" href="SimpleRegression.html#L100">100</a>         <strong class="jxr_keyword">this</strong>(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L101" href="SimpleRegression.html#L101">101</a>     }
+<a class="jxr_linenumber" name="L102" href="SimpleRegression.html#L102">102</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L103" href="SimpleRegression.html#L103">103</a> <em class="jxr_javadoccomment">    * Create a SimpleRegression instance, specifying whether or not to estimate</em>
+<a class="jxr_linenumber" name="L104" href="SimpleRegression.html#L104">104</a> <em class="jxr_javadoccomment">    * an intercept.</em>
+<a class="jxr_linenumber" name="L105" href="SimpleRegression.html#L105">105</a> <em class="jxr_javadoccomment">    *</em>
+<a class="jxr_linenumber" name="L106" href="SimpleRegression.html#L106">106</a> <em class="jxr_javadoccomment">    * &lt;p&gt;Use {@code false} to estimate a model with no intercept.  When the</em>
+<a class="jxr_linenumber" name="L107" href="SimpleRegression.html#L107">107</a> <em class="jxr_javadoccomment">    * {@code hasIntercept} property is false, the model is estimated without a</em>
+<a class="jxr_linenumber" name="L108" href="SimpleRegression.html#L108">108</a> <em class="jxr_javadoccomment">    * constant term and {@link #getIntercept()} returns {@code 0}.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L109" href="SimpleRegression.html#L109">109</a> <em class="jxr_javadoccomment">    *</em>
+<a class="jxr_linenumber" name="L110" href="SimpleRegression.html#L110">110</a> <em class="jxr_javadoccomment">    * @param includeIntercept whether or not to include an intercept term in</em>
+<a class="jxr_linenumber" name="L111" href="SimpleRegression.html#L111">111</a> <em class="jxr_javadoccomment">    * the regression model</em>
+<a class="jxr_linenumber" name="L112" href="SimpleRegression.html#L112">112</a> <em class="jxr_javadoccomment">    */</em>
+<a class="jxr_linenumber" name="L113" href="SimpleRegression.html#L113">113</a>     <strong class="jxr_keyword">public</strong> <a href="SimpleRegression.html">SimpleRegression</a>(<strong class="jxr_keyword">boolean</strong> includeIntercept) {
+<a class="jxr_linenumber" name="L114" href="SimpleRegression.html#L114">114</a>         <strong class="jxr_keyword">super</strong>();
+<a class="jxr_linenumber" name="L115" href="SimpleRegression.html#L115">115</a>         hasIntercept = includeIntercept;
+<a class="jxr_linenumber" name="L116" href="SimpleRegression.html#L116">116</a>     }
+<a class="jxr_linenumber" name="L117" href="SimpleRegression.html#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="SimpleRegression.html#L118">118</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L119" href="SimpleRegression.html#L119">119</a> <em class="jxr_javadoccomment">     * Adds the observation (x,y) to the regression data set.</em>
+<a class="jxr_linenumber" name="L120" href="SimpleRegression.html#L120">120</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L121" href="SimpleRegression.html#L121">121</a> <em class="jxr_javadoccomment">     * Uses updating formulas for means and sums of squares defined in</em>
+<a class="jxr_linenumber" name="L122" href="SimpleRegression.html#L122">122</a> <em class="jxr_javadoccomment">     * "Algorithms for Computing the Sample Variance: Analysis and</em>
+<a class="jxr_linenumber" name="L123" href="SimpleRegression.html#L123">123</a> <em class="jxr_javadoccomment">     * Recommendations", Chan, T.F., Golub, G.H., and LeVeque, R.J.</em>
+<a class="jxr_linenumber" name="L124" href="SimpleRegression.html#L124">124</a> <em class="jxr_javadoccomment">     * 1983, American Statistician, vol. 37, pp. 242-247, referenced in</em>
+<a class="jxr_linenumber" name="L125" href="SimpleRegression.html#L125">125</a> <em class="jxr_javadoccomment">     * Weisberg, S. "Applied Linear Regression". 2nd Ed. 1985.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L126" href="SimpleRegression.html#L126">126</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L127" href="SimpleRegression.html#L127">127</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L128" href="SimpleRegression.html#L128">128</a> <em class="jxr_javadoccomment">     * @param x independent variable value</em>
+<a class="jxr_linenumber" name="L129" href="SimpleRegression.html#L129">129</a> <em class="jxr_javadoccomment">     * @param y dependent variable value</em>
+<a class="jxr_linenumber" name="L130" href="SimpleRegression.html#L130">130</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L131" href="SimpleRegression.html#L131">131</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addData(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x,<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y) {
+<a class="jxr_linenumber" name="L132" href="SimpleRegression.html#L132">132</a>         <strong class="jxr_keyword">if</strong> (n == 0) {
+<a class="jxr_linenumber" name="L133" href="SimpleRegression.html#L133">133</a>             xbar = x;
+<a class="jxr_linenumber" name="L134" href="SimpleRegression.html#L134">134</a>             ybar = y;
+<a class="jxr_linenumber" name="L135" href="SimpleRegression.html#L135">135</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L136" href="SimpleRegression.html#L136">136</a>             <strong class="jxr_keyword">if</strong>( hasIntercept ){
+<a class="jxr_linenumber" name="L137" href="SimpleRegression.html#L137">137</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> fact1 = 1.0 + n;
+<a class="jxr_linenumber" name="L138" href="SimpleRegression.html#L138">138</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> fact2 = n / (1.0 + n);
+<a class="jxr_linenumber" name="L139" href="SimpleRegression.html#L139">139</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> dx = x - xbar;
+<a class="jxr_linenumber" name="L140" href="SimpleRegression.html#L140">140</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> dy = y - ybar;
+<a class="jxr_linenumber" name="L141" href="SimpleRegression.html#L141">141</a>                 sumXX += dx * dx * fact2;
+<a class="jxr_linenumber" name="L142" href="SimpleRegression.html#L142">142</a>                 sumYY += dy * dy * fact2;
+<a class="jxr_linenumber" name="L143" href="SimpleRegression.html#L143">143</a>                 sumXY += dx * dy * fact2;
+<a class="jxr_linenumber" name="L144" href="SimpleRegression.html#L144">144</a>                 xbar += dx / fact1;
+<a class="jxr_linenumber" name="L145" href="SimpleRegression.html#L145">145</a>                 ybar += dy / fact1;
+<a class="jxr_linenumber" name="L146" href="SimpleRegression.html#L146">146</a>             }
+<a class="jxr_linenumber" name="L147" href="SimpleRegression.html#L147">147</a>          }
+<a class="jxr_linenumber" name="L148" href="SimpleRegression.html#L148">148</a>         <strong class="jxr_keyword">if</strong>( !hasIntercept ){
+<a class="jxr_linenumber" name="L149" href="SimpleRegression.html#L149">149</a>             sumXX += x * x ;
+<a class="jxr_linenumber" name="L150" href="SimpleRegression.html#L150">150</a>             sumYY += y * y ;
+<a class="jxr_linenumber" name="L151" href="SimpleRegression.html#L151">151</a>             sumXY += x * y ;
+<a class="jxr_linenumber" name="L152" href="SimpleRegression.html#L152">152</a>         }
+<a class="jxr_linenumber" name="L153" href="SimpleRegression.html#L153">153</a>         sumX += x;
+<a class="jxr_linenumber" name="L154" href="SimpleRegression.html#L154">154</a>         sumY += y;
+<a class="jxr_linenumber" name="L155" href="SimpleRegression.html#L155">155</a>         n++;
+<a class="jxr_linenumber" name="L156" href="SimpleRegression.html#L156">156</a>     }
+<a class="jxr_linenumber" name="L157" href="SimpleRegression.html#L157">157</a> 
+<a class="jxr_linenumber" name="L158" href="SimpleRegression.html#L158">158</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L159" href="SimpleRegression.html#L159">159</a> <em class="jxr_javadoccomment">     * Appends data from another regression calculation to this one.</em>
+<a class="jxr_linenumber" name="L160" href="SimpleRegression.html#L160">160</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L161" href="SimpleRegression.html#L161">161</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The mean update formulae are based on a paper written by Philippe</em>
+<a class="jxr_linenumber" name="L162" href="SimpleRegression.html#L162">162</a> <em class="jxr_javadoccomment">     * P&amp;eacute;bay:</em>
+<a class="jxr_linenumber" name="L163" href="SimpleRegression.html#L163">163</a> <em class="jxr_javadoccomment">     * &lt;a</em>
+<a class="jxr_linenumber" name="L164" href="SimpleRegression.html#L164">164</a> <em class="jxr_javadoccomment">     * href="<a href="http://prod.sandia.gov/techlib/access-control.cgi/2008/086212.pdf" target="alexandria_uri">http://prod.sandia.gov/techlib/access-control.cgi/2008/086212.pdf</a>"&gt;</em>
+<a class="jxr_linenumber" name="L165" href="SimpleRegression.html#L165">165</a> <em class="jxr_javadoccomment">     * Formulas for Robust, One-Pass Parallel Computation of Covariances and</em>
+<a class="jxr_linenumber" name="L166" href="SimpleRegression.html#L166">166</a> <em class="jxr_javadoccomment">     * Arbitrary-Order Statistical Moments&lt;/a&gt;, 2008, Technical Report</em>
+<a class="jxr_linenumber" name="L167" href="SimpleRegression.html#L167">167</a> <em class="jxr_javadoccomment">     * SAND2008-6212, Sandia National Laboratories.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L168" href="SimpleRegression.html#L168">168</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L169" href="SimpleRegression.html#L169">169</a> <em class="jxr_javadoccomment">     * @param reg model to append data from</em>
+<a class="jxr_linenumber" name="L170" href="SimpleRegression.html#L170">170</a> <em class="jxr_javadoccomment">     * @since 3.3</em>
+<a class="jxr_linenumber" name="L171" href="SimpleRegression.html#L171">171</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L172" href="SimpleRegression.html#L172">172</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> append(<a href="SimpleRegression.html">SimpleRegression</a> reg) {
+<a class="jxr_linenumber" name="L173" href="SimpleRegression.html#L173">173</a>         <strong class="jxr_keyword">if</strong> (n == 0) {
+<a class="jxr_linenumber" name="L174" href="SimpleRegression.html#L174">174</a>             xbar = reg.xbar;
+<a class="jxr_linenumber" name="L175" href="SimpleRegression.html#L175">175</a>             ybar = reg.ybar;
+<a class="jxr_linenumber" name="L176" href="SimpleRegression.html#L176">176</a>             sumXX = reg.sumXX;
+<a class="jxr_linenumber" name="L177" href="SimpleRegression.html#L177">177</a>             sumYY = reg.sumYY;
+<a class="jxr_linenumber" name="L178" href="SimpleRegression.html#L178">178</a>             sumXY = reg.sumXY;
+<a class="jxr_linenumber" name="L179" href="SimpleRegression.html#L179">179</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L180" href="SimpleRegression.html#L180">180</a>             <strong class="jxr_keyword">if</strong> (hasIntercept) {
+<a class="jxr_linenumber" name="L181" href="SimpleRegression.html#L181">181</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> fact1 = reg.n / (<strong class="jxr_keyword">double</strong>) (reg.n + n);
+<a class="jxr_linenumber" name="L182" href="SimpleRegression.html#L182">182</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> fact2 = n * reg.n / (<strong class="jxr_keyword">double</strong>) (reg.n + n);
+<a class="jxr_linenumber" name="L183" href="SimpleRegression.html#L183">183</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> dx = reg.xbar - xbar;
+<a class="jxr_linenumber" name="L184" href="SimpleRegression.html#L184">184</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> dy = reg.ybar - ybar;
+<a class="jxr_linenumber" name="L185" href="SimpleRegression.html#L185">185</a>                 sumXX += reg.sumXX + dx * dx * fact2;
+<a class="jxr_linenumber" name="L186" href="SimpleRegression.html#L186">186</a>                 sumYY += reg.sumYY + dy * dy * fact2;
+<a class="jxr_linenumber" name="L187" href="SimpleRegression.html#L187">187</a>                 sumXY += reg.sumXY + dx * dy * fact2;
+<a class="jxr_linenumber" name="L188" href="SimpleRegression.html#L188">188</a>                 xbar += dx * fact1;
+<a class="jxr_linenumber" name="L189" href="SimpleRegression.html#L189">189</a>                 ybar += dy * fact1;
+<a class="jxr_linenumber" name="L190" href="SimpleRegression.html#L190">190</a>             }<strong class="jxr_keyword">else</strong>{
+<a class="jxr_linenumber" name="L191" href="SimpleRegression.html#L191">191</a>                 sumXX += reg.sumXX;
+<a class="jxr_linenumber" name="L192" href="SimpleRegression.html#L192">192</a>                 sumYY += reg.sumYY;
+<a class="jxr_linenumber" name="L193" href="SimpleRegression.html#L193">193</a>                 sumXY += reg.sumXY;
+<a class="jxr_linenumber" name="L194" href="SimpleRegression.html#L194">194</a>             }
+<a class="jxr_linenumber" name="L195" href="SimpleRegression.html#L195">195</a>         }
+<a class="jxr_linenumber" name="L196" href="SimpleRegression.html#L196">196</a>         sumX += reg.sumX;
+<a class="jxr_linenumber" name="L197" href="SimpleRegression.html#L197">197</a>         sumY += reg.sumY;
+<a class="jxr_linenumber" name="L198" href="SimpleRegression.html#L198">198</a>         n += reg.n;
+<a class="jxr_linenumber" name="L199" href="SimpleRegression.html#L199">199</a>     }
+<a class="jxr_linenumber" name="L200" href="SimpleRegression.html#L200">200</a> 
+<a class="jxr_linenumber" name="L201" href="SimpleRegression.html#L201">201</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L202" href="SimpleRegression.html#L202">202</a> <em class="jxr_javadoccomment">     * Removes the observation (x,y) from the regression data set.</em>
+<a class="jxr_linenumber" name="L203" href="SimpleRegression.html#L203">203</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L204" href="SimpleRegression.html#L204">204</a> <em class="jxr_javadoccomment">     * Mirrors the addData method.  This method permits the use of</em>
+<a class="jxr_linenumber" name="L205" href="SimpleRegression.html#L205">205</a> <em class="jxr_javadoccomment">     * SimpleRegression instances in streaming mode where the regression</em>
+<a class="jxr_linenumber" name="L206" href="SimpleRegression.html#L206">206</a> <em class="jxr_javadoccomment">     * is applied to a sliding "window" of observations, however the caller is</em>
+<a class="jxr_linenumber" name="L207" href="SimpleRegression.html#L207">207</a> <em class="jxr_javadoccomment">     * responsible for maintaining the set of observations in the window.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L208" href="SimpleRegression.html#L208">208</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L209" href="SimpleRegression.html#L209">209</a> <em class="jxr_javadoccomment">     * The method has no effect if there are no points of data (i.e. n=0)</em>
+<a class="jxr_linenumber" name="L210" href="SimpleRegression.html#L210">210</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L211" href="SimpleRegression.html#L211">211</a> <em class="jxr_javadoccomment">     * @param x independent variable value</em>
+<a class="jxr_linenumber" name="L212" href="SimpleRegression.html#L212">212</a> <em class="jxr_javadoccomment">     * @param y dependent variable value</em>
+<a class="jxr_linenumber" name="L213" href="SimpleRegression.html#L213">213</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L214" href="SimpleRegression.html#L214">214</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> removeData(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x,<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y) {
+<a class="jxr_linenumber" name="L215" href="SimpleRegression.html#L215">215</a>         <strong class="jxr_keyword">if</strong> (n &gt; 0) {
+<a class="jxr_linenumber" name="L216" href="SimpleRegression.html#L216">216</a>             <strong class="jxr_keyword">if</strong> (hasIntercept) {
+<a class="jxr_linenumber" name="L217" href="SimpleRegression.html#L217">217</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> fact1 = n - 1.0;
+<a class="jxr_linenumber" name="L218" href="SimpleRegression.html#L218">218</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> fact2 = n / (n - 1.0);
+<a class="jxr_linenumber" name="L219" href="SimpleRegression.html#L219">219</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> dx = x - xbar;
+<a class="jxr_linenumber" name="L220" href="SimpleRegression.html#L220">220</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> dy = y - ybar;
+<a class="jxr_linenumber" name="L221" href="SimpleRegression.html#L221">221</a>                 sumXX -= dx * dx * fact2;
+<a class="jxr_linenumber" name="L222" href="SimpleRegression.html#L222">222</a>                 sumYY -= dy * dy * fact2;
+<a class="jxr_linenumber" name="L223" href="SimpleRegression.html#L223">223</a>                 sumXY -= dx * dy * fact2;
+<a class="jxr_linenumber" name="L224" href="SimpleRegression.html#L224">224</a>                 xbar -= dx / fact1;
+<a class="jxr_linenumber" name="L225" href="SimpleRegression.html#L225">225</a>                 ybar -= dy / fact1;
+<a class="jxr_linenumber" name="L226" href="SimpleRegression.html#L226">226</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L227" href="SimpleRegression.html#L227">227</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> fact1 = n - 1.0;
+<a class="jxr_linenumber" name="L228" href="SimpleRegression.html#L228">228</a>                 sumXX -= x * x;
+<a class="jxr_linenumber" name="L229" href="SimpleRegression.html#L229">229</a>                 sumYY -= y * y;
+<a class="jxr_linenumber" name="L230" href="SimpleRegression.html#L230">230</a>                 sumXY -= x * y;
+<a class="jxr_linenumber" name="L231" href="SimpleRegression.html#L231">231</a>                 xbar -= x / fact1;
+<a class="jxr_linenumber" name="L232" href="SimpleRegression.html#L232">232</a>                 ybar -= y / fact1;
+<a class="jxr_linenumber" name="L233" href="SimpleRegression.html#L233">233</a>             }
+<a class="jxr_linenumber" name="L234" href="SimpleRegression.html#L234">234</a>              sumX -= x;
+<a class="jxr_linenumber" name="L235" href="SimpleRegression.html#L235">235</a>              sumY -= y;
+<a class="jxr_linenumber" name="L236" href="SimpleRegression.html#L236">236</a>              n--;
+<a class="jxr_linenumber" name="L237" href="SimpleRegression.html#L237">237</a>         }
+<a class="jxr_linenumber" name="L238" href="SimpleRegression.html#L238">238</a>     }
+<a class="jxr_linenumber" name="L239" href="SimpleRegression.html#L239">239</a> 
+<a class="jxr_linenumber" name="L240" href="SimpleRegression.html#L240">240</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L241" href="SimpleRegression.html#L241">241</a> <em class="jxr_javadoccomment">     * Adds the observations represented by the elements in</em>
+<a class="jxr_linenumber" name="L242" href="SimpleRegression.html#L242">242</a> <em class="jxr_javadoccomment">     * &lt;code&gt;data&lt;/code&gt;.</em>
+<a class="jxr_linenumber" name="L243" href="SimpleRegression.html#L243">243</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L244" href="SimpleRegression.html#L244">244</a> <em class="jxr_javadoccomment">     * &lt;code&gt;(data[0][0],data[0][1])&lt;/code&gt; will be the first observation, then</em>
+<a class="jxr_linenumber" name="L245" href="SimpleRegression.html#L245">245</a> <em class="jxr_javadoccomment">     * &lt;code&gt;(data[1][0],data[1][1])&lt;/code&gt;, etc.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L246" href="SimpleRegression.html#L246">246</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L247" href="SimpleRegression.html#L247">247</a> <em class="jxr_javadoccomment">     * This method does not replace data that has already been added.  The</em>
+<a class="jxr_linenumber" name="L248" href="SimpleRegression.html#L248">248</a> <em class="jxr_javadoccomment">     * observations represented by &lt;code&gt;data&lt;/code&gt; are added to the existing</em>
+<a class="jxr_linenumber" name="L249" href="SimpleRegression.html#L249">249</a> <em class="jxr_javadoccomment">     * dataset.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L250" href="SimpleRegression.html#L250">250</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L251" href="SimpleRegression.html#L251">251</a> <em class="jxr_javadoccomment">     * To replace all data, use &lt;code&gt;clear()&lt;/code&gt; before adding the new</em>
+<a class="jxr_linenumber" name="L252" href="SimpleRegression.html#L252">252</a> <em class="jxr_javadoccomment">     * data.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L253" href="SimpleRegression.html#L253">253</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L254" href="SimpleRegression.html#L254">254</a> <em class="jxr_javadoccomment">     * @param data array of observations to be added</em>
+<a class="jxr_linenumber" name="L255" href="SimpleRegression.html#L255">255</a> <em class="jxr_javadoccomment">     * @throws ModelSpecificationException if the length of {@code data[i]} is not</em>
+<a class="jxr_linenumber" name="L256" href="SimpleRegression.html#L256">256</a> <em class="jxr_javadoccomment">     * greater than or equal to 2</em>
+<a class="jxr_linenumber" name="L257" href="SimpleRegression.html#L257">257</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L258" href="SimpleRegression.html#L258">258</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addData(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] data) <strong class="jxr_keyword">throws</strong> ModelSpecificationException {
+<a class="jxr_linenumber" name="L259" href="SimpleRegression.html#L259">259</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; data.length; i++) {
+<a class="jxr_linenumber" name="L260" href="SimpleRegression.html#L260">260</a>             <strong class="jxr_keyword">if</strong>( data[i].length &lt; 2 ){
+<a class="jxr_linenumber" name="L261" href="SimpleRegression.html#L261">261</a>                <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(LocalizedFormats.INVALID_REGRESSION_OBSERVATION,
+<a class="jxr_linenumber" name="L262" href="SimpleRegression.html#L262">262</a>                     data[i].length, 2);
+<a class="jxr_linenumber" name="L263" href="SimpleRegression.html#L263">263</a>             }
+<a class="jxr_linenumber" name="L264" href="SimpleRegression.html#L264">264</a>             addData(data[i][0], data[i][1]);
+<a class="jxr_linenumber" name="L265" href="SimpleRegression.html#L265">265</a>         }
+<a class="jxr_linenumber" name="L266" href="SimpleRegression.html#L266">266</a>     }
+<a class="jxr_linenumber" name="L267" href="SimpleRegression.html#L267">267</a> 
+<a class="jxr_linenumber" name="L268" href="SimpleRegression.html#L268">268</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L269" href="SimpleRegression.html#L269">269</a> <em class="jxr_javadoccomment">     * Adds one observation to the regression model.</em>
+<a class="jxr_linenumber" name="L270" href="SimpleRegression.html#L270">270</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L271" href="SimpleRegression.html#L271">271</a> <em class="jxr_javadoccomment">     * @param x the independent variables which form the design matrix</em>
+<a class="jxr_linenumber" name="L272" href="SimpleRegression.html#L272">272</a> <em class="jxr_javadoccomment">     * @param y the dependent or response variable</em>
+<a class="jxr_linenumber" name="L273" href="SimpleRegression.html#L273">273</a> <em class="jxr_javadoccomment">     * @throws ModelSpecificationException if the length of {@code x} does not equal</em>
+<a class="jxr_linenumber" name="L274" href="SimpleRegression.html#L274">274</a> <em class="jxr_javadoccomment">     * the number of independent variables in the model</em>
+<a class="jxr_linenumber" name="L275" href="SimpleRegression.html#L275">275</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L276" href="SimpleRegression.html#L276">276</a>     @Override
+<a class="jxr_linenumber" name="L277" href="SimpleRegression.html#L277">277</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addObservation(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] x,<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y)
+<a class="jxr_linenumber" name="L278" href="SimpleRegression.html#L278">278</a>             <strong class="jxr_keyword">throws</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a> {
+<a class="jxr_linenumber" name="L279" href="SimpleRegression.html#L279">279</a>         <strong class="jxr_keyword">if</strong>( x == <strong class="jxr_keyword">null</strong> || x.length == 0 ){
+<a class="jxr_linenumber" name="L280" href="SimpleRegression.html#L280">280</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(LocalizedFormats.INVALID_REGRESSION_OBSERVATION,x!=<strong class="jxr_keyword">null</strong>?x.length:0, 1);
+<a class="jxr_linenumber" name="L281" href="SimpleRegression.html#L281">281</a>         }
+<a class="jxr_linenumber" name="L282" href="SimpleRegression.html#L282">282</a>         addData( x[0], y );
+<a class="jxr_linenumber" name="L283" href="SimpleRegression.html#L283">283</a>     }
+<a class="jxr_linenumber" name="L284" href="SimpleRegression.html#L284">284</a> 
+<a class="jxr_linenumber" name="L285" href="SimpleRegression.html#L285">285</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L286" href="SimpleRegression.html#L286">286</a> <em class="jxr_javadoccomment">     * Adds a series of observations to the regression model. The lengths of</em>
+<a class="jxr_linenumber" name="L287" href="SimpleRegression.html#L287">287</a> <em class="jxr_javadoccomment">     * x and y must be the same and x must be rectangular.</em>
+<a class="jxr_linenumber" name="L288" href="SimpleRegression.html#L288">288</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L289" href="SimpleRegression.html#L289">289</a> <em class="jxr_javadoccomment">     * @param x a series of observations on the independent variables</em>
+<a class="jxr_linenumber" name="L290" href="SimpleRegression.html#L290">290</a> <em class="jxr_javadoccomment">     * @param y a series of observations on the dependent variable</em>
+<a class="jxr_linenumber" name="L291" href="SimpleRegression.html#L291">291</a> <em class="jxr_javadoccomment">     * The length of x and y must be the same</em>
+<a class="jxr_linenumber" name="L292" href="SimpleRegression.html#L292">292</a> <em class="jxr_javadoccomment">     * @throws ModelSpecificationException if {@code x} is not rectangular, does not match</em>
+<a class="jxr_linenumber" name="L293" href="SimpleRegression.html#L293">293</a> <em class="jxr_javadoccomment">     * the length of {@code y} or does not contain sufficient data to estimate the model</em>
+<a class="jxr_linenumber" name="L294" href="SimpleRegression.html#L294">294</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L295" href="SimpleRegression.html#L295">295</a>     @Override
+<a class="jxr_linenumber" name="L296" href="SimpleRegression.html#L296">296</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addObservations(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] x,<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] y) <strong class="jxr_keyword">throws</strong> ModelSpecificationException {
+<a class="jxr_linenumber" name="L297" href="SimpleRegression.html#L297">297</a>         <strong class="jxr_keyword">if</strong> ((x == <strong class="jxr_keyword">null</strong>) || (y == <strong class="jxr_keyword">null</strong>) || (x.length != y.length)) {
+<a class="jxr_linenumber" name="L298" href="SimpleRegression.html#L298">298</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(
+<a class="jxr_linenumber" name="L299" href="SimpleRegression.html#L299">299</a>                   LocalizedFormats.DIMENSIONS_MISMATCH_SIMPLE,
+<a class="jxr_linenumber" name="L300" href="SimpleRegression.html#L300">300</a>                   (x == <strong class="jxr_keyword">null</strong>) ? 0 : x.length,
+<a class="jxr_linenumber" name="L301" href="SimpleRegression.html#L301">301</a>                   (y == <strong class="jxr_keyword">null</strong>) ? 0 : y.length);
+<a class="jxr_linenumber" name="L302" href="SimpleRegression.html#L302">302</a>         }
+<a class="jxr_linenumber" name="L303" href="SimpleRegression.html#L303">303</a>         <strong class="jxr_keyword">boolean</strong> obsOk=<strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L304" href="SimpleRegression.html#L304">304</a>         <strong class="jxr_keyword">for</strong>( <strong class="jxr_keyword">int</strong> i = 0 ; i &lt; x.length; i++){
+<a class="jxr_linenumber" name="L305" href="SimpleRegression.html#L305">305</a>             <strong class="jxr_keyword">if</strong>( x[i] == <strong class="jxr_keyword">null</strong> || x[i].length == 0 ){
+<a class="jxr_linenumber" name="L306" href="SimpleRegression.html#L306">306</a>                 obsOk = false;
+<a class="jxr_linenumber" name="L307" href="SimpleRegression.html#L307">307</a>             }
+<a class="jxr_linenumber" name="L308" href="SimpleRegression.html#L308">308</a>         }
+<a class="jxr_linenumber" name="L309" href="SimpleRegression.html#L309">309</a>         <strong class="jxr_keyword">if</strong>( !obsOk ){
+<a class="jxr_linenumber" name="L310" href="SimpleRegression.html#L310">310</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(
+<a class="jxr_linenumber" name="L311" href="SimpleRegression.html#L311">311</a>                   LocalizedFormats.NOT_ENOUGH_DATA_FOR_NUMBER_OF_PREDICTORS,
+<a class="jxr_linenumber" name="L312" href="SimpleRegression.html#L312">312</a>                   0, 1);
+<a class="jxr_linenumber" name="L313" href="SimpleRegression.html#L313">313</a>         }
+<a class="jxr_linenumber" name="L314" href="SimpleRegression.html#L314">314</a>         <strong class="jxr_keyword">for</strong>( <strong class="jxr_keyword">int</strong> i = 0 ; i &lt; x.length ; i++){
+<a class="jxr_linenumber" name="L315" href="SimpleRegression.html#L315">315</a>             addData( x[i][0], y[i] );
+<a class="jxr_linenumber" name="L316" href="SimpleRegression.html#L316">316</a>         }
+<a class="jxr_linenumber" name="L317" href="SimpleRegression.html#L317">317</a>     }
+<a class="jxr_linenumber" name="L318" href="SimpleRegression.html#L318">318</a> 
+<a class="jxr_linenumber" name="L319" href="SimpleRegression.html#L319">319</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L320" href="SimpleRegression.html#L320">320</a> <em class="jxr_javadoccomment">     * Removes observations represented by the elements in &lt;code&gt;data&lt;/code&gt;.</em>
+<a class="jxr_linenumber" name="L321" href="SimpleRegression.html#L321">321</a> <em class="jxr_javadoccomment">      * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L322" href="SimpleRegression.html#L322">322</a> <em class="jxr_javadoccomment">     * If the array is larger than the current n, only the first n elements are</em>
+<a class="jxr_linenumber" name="L323" href="SimpleRegression.html#L323">323</a> <em class="jxr_javadoccomment">     * processed.  This method permits the use of SimpleRegression instances in</em>
+<a class="jxr_linenumber" name="L324" href="SimpleRegression.html#L324">324</a> <em class="jxr_javadoccomment">     * streaming mode where the regression is applied to a sliding "window" of</em>
+<a class="jxr_linenumber" name="L325" href="SimpleRegression.html#L325">325</a> <em class="jxr_javadoccomment">     * observations, however the caller is responsible for maintaining the set</em>
+<a class="jxr_linenumber" name="L326" href="SimpleRegression.html#L326">326</a> <em class="jxr_javadoccomment">     * of observations in the window.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L327" href="SimpleRegression.html#L327">327</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L328" href="SimpleRegression.html#L328">328</a> <em class="jxr_javadoccomment">     * To remove all data, use &lt;code&gt;clear()&lt;/code&gt;.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L329" href="SimpleRegression.html#L329">329</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L330" href="SimpleRegression.html#L330">330</a> <em class="jxr_javadoccomment">     * @param data array of observations to be removed</em>
+<a class="jxr_linenumber" name="L331" href="SimpleRegression.html#L331">331</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L332" href="SimpleRegression.html#L332">332</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> removeData(<strong class="jxr_keyword">double</strong>[][] data) {
+<a class="jxr_linenumber" name="L333" href="SimpleRegression.html#L333">333</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; data.length &amp;&amp; n &gt; 0; i++) {
+<a class="jxr_linenumber" name="L334" href="SimpleRegression.html#L334">334</a>             removeData(data[i][0], data[i][1]);
+<a class="jxr_linenumber" name="L335" href="SimpleRegression.html#L335">335</a>         }
+<a class="jxr_linenumber" name="L336" href="SimpleRegression.html#L336">336</a>     }
+<a class="jxr_linenumber" name="L337" href="SimpleRegression.html#L337">337</a> 
+<a class="jxr_linenumber" name="L338" href="SimpleRegression.html#L338">338</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L339" href="SimpleRegression.html#L339">339</a> <em class="jxr_javadoccomment">     * Clears all data from the model.</em>
+<a class="jxr_linenumber" name="L340" href="SimpleRegression.html#L340">340</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L341" href="SimpleRegression.html#L341">341</a>     @Override
+<a class="jxr_linenumber" name="L342" href="SimpleRegression.html#L342">342</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> clear() {
+<a class="jxr_linenumber" name="L343" href="SimpleRegression.html#L343">343</a>         sumX = 0d;
+<a class="jxr_linenumber" name="L344" href="SimpleRegression.html#L344">344</a>         sumXX = 0d;
+<a class="jxr_linenumber" name="L345" href="SimpleRegression.html#L345">345</a>         sumY = 0d;
+<a class="jxr_linenumber" name="L346" href="SimpleRegression.html#L346">346</a>         sumYY = 0d;
+<a class="jxr_linenumber" name="L347" href="SimpleRegression.html#L347">347</a>         sumXY = 0d;
+<a class="jxr_linenumber" name="L348" href="SimpleRegression.html#L348">348</a>         n = 0;
+<a class="jxr_linenumber" name="L349" href="SimpleRegression.html#L349">349</a>     }
+<a class="jxr_linenumber" name="L350" href="SimpleRegression.html#L350">350</a> 
+<a class="jxr_linenumber" name="L351" href="SimpleRegression.html#L351">351</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L352" href="SimpleRegression.html#L352">352</a> <em class="jxr_javadoccomment">     * Returns the number of observations that have been added to the model.</em>
+<a class="jxr_linenumber" name="L353" href="SimpleRegression.html#L353">353</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L354" href="SimpleRegression.html#L354">354</a> <em class="jxr_javadoccomment">     * @return n number of observations that have been added.</em>
+<a class="jxr_linenumber" name="L355" href="SimpleRegression.html#L355">355</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L356" href="SimpleRegression.html#L356">356</a>     @Override
+<a class="jxr_linenumber" name="L357" href="SimpleRegression.html#L357">357</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getN() {
+<a class="jxr_linenumber" name="L358" href="SimpleRegression.html#L358">358</a>         <strong class="jxr_keyword">return</strong> n;
+<a class="jxr_linenumber" name="L359" href="SimpleRegression.html#L359">359</a>     }
+<a class="jxr_linenumber" name="L360" href="SimpleRegression.html#L360">360</a> 
+<a class="jxr_linenumber" name="L361" href="SimpleRegression.html#L361">361</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L362" href="SimpleRegression.html#L362">362</a> <em class="jxr_javadoccomment">     * Returns the "predicted" &lt;code&gt;y&lt;/code&gt; value associated with the</em>
+<a class="jxr_linenumber" name="L363" href="SimpleRegression.html#L363">363</a> <em class="jxr_javadoccomment">     * supplied &lt;code&gt;x&lt;/code&gt; value,  based on the data that has been</em>
+<a class="jxr_linenumber" name="L364" href="SimpleRegression.html#L364">364</a> <em class="jxr_javadoccomment">     * added to the model when this method is activated.</em>
+<a class="jxr_linenumber" name="L365" href="SimpleRegression.html#L365">365</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L366" href="SimpleRegression.html#L366">366</a> <em class="jxr_javadoccomment">     * &lt;code&gt; predict(x) = intercept + slope * x &lt;/code&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L367" href="SimpleRegression.html#L367">367</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L368" href="SimpleRegression.html#L368">368</a> <em class="jxr_javadoccomment">     * &lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L369" href="SimpleRegression.html#L369">369</a> <em class="jxr_javadoccomment">     * &lt;li&gt;At least two observations (with at least two different x values)</em>
+<a class="jxr_linenumber" name="L370" href="SimpleRegression.html#L370">370</a> <em class="jxr_javadoccomment">     * must have been added before invoking this method. If this method is</em>
+<a class="jxr_linenumber" name="L371" href="SimpleRegression.html#L371">371</a> <em class="jxr_javadoccomment">     * invoked before a model can be estimated, &lt;code&gt;Double,NaN&lt;/code&gt; is</em>
+<a class="jxr_linenumber" name="L372" href="SimpleRegression.html#L372">372</a> <em class="jxr_javadoccomment">     * returned.</em>
+<a class="jxr_linenumber" name="L373" href="SimpleRegression.html#L373">373</a> <em class="jxr_javadoccomment">     * &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L374" href="SimpleRegression.html#L374">374</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L375" href="SimpleRegression.html#L375">375</a> <em class="jxr_javadoccomment">     * @param x input &lt;code&gt;x&lt;/code&gt; value</em>
+<a class="jxr_linenumber" name="L376" href="SimpleRegression.html#L376">376</a> <em class="jxr_javadoccomment">     * @return predicted &lt;code&gt;y&lt;/code&gt; value</em>
+<a class="jxr_linenumber" name="L377" href="SimpleRegression.html#L377">377</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L378" href="SimpleRegression.html#L378">378</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> predict(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L379" href="SimpleRegression.html#L379">379</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> b1 = getSlope();
+<a class="jxr_linenumber" name="L380" href="SimpleRegression.html#L380">380</a>         <strong class="jxr_keyword">if</strong> (hasIntercept) {
+<a class="jxr_linenumber" name="L381" href="SimpleRegression.html#L381">381</a>             <strong class="jxr_keyword">return</strong> getIntercept(b1) + b1 * x;
+<a class="jxr_linenumber" name="L382" href="SimpleRegression.html#L382">382</a>         }
+<a class="jxr_linenumber" name="L383" href="SimpleRegression.html#L383">383</a>         <strong class="jxr_keyword">return</strong> b1 * x;
+<a class="jxr_linenumber" name="L384" href="SimpleRegression.html#L384">384</a>     }
+<a class="jxr_linenumber" name="L385" href="SimpleRegression.html#L385">385</a> 
+<a class="jxr_linenumber" name="L386" href="SimpleRegression.html#L386">386</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L387" href="SimpleRegression.html#L387">387</a> <em class="jxr_javadoccomment">     * Returns the intercept of the estimated regression line, if</em>
+<a class="jxr_linenumber" name="L388" href="SimpleRegression.html#L388">388</a> <em class="jxr_javadoccomment">     * {@link #hasIntercept()} is true; otherwise 0.</em>
+<a class="jxr_linenumber" name="L389" href="SimpleRegression.html#L389">389</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L390" href="SimpleRegression.html#L390">390</a> <em class="jxr_javadoccomment">     * The least squares estimate of the intercept is computed using the</em>
+<a class="jxr_linenumber" name="L391" href="SimpleRegression.html#L391">391</a> <em class="jxr_javadoccomment">     * &lt;a href="<a href="http://www.xycoon.com/estimation4.htm" target="alexandria_uri">http://www.xycoon.com/estimation4.htm</a>"&gt;normal equations&lt;/a&gt;.</em>
+<a class="jxr_linenumber" name="L392" href="SimpleRegression.html#L392">392</a> <em class="jxr_javadoccomment">     * The intercept is sometimes denoted b0.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L393" href="SimpleRegression.html#L393">393</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L394" href="SimpleRegression.html#L394">394</a> <em class="jxr_javadoccomment">     * &lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L395" href="SimpleRegression.html#L395">395</a> <em class="jxr_javadoccomment">     * &lt;li&gt;At least two observations (with at least two different x values)</em>
+<a class="jxr_linenumber" name="L396" href="SimpleRegression.html#L396">396</a> <em class="jxr_javadoccomment">     * must have been added before invoking this method. If this method is</em>
+<a class="jxr_linenumber" name="L397" href="SimpleRegression.html#L397">397</a> <em class="jxr_javadoccomment">     * invoked before a model can be estimated, &lt;code&gt;Double,NaN&lt;/code&gt; is</em>
+<a class="jxr_linenumber" name="L398" href="SimpleRegression.html#L398">398</a> <em class="jxr_javadoccomment">     * returned.</em>
+<a class="jxr_linenumber" name="L399" href="SimpleRegression.html#L399">399</a> <em class="jxr_javadoccomment">     * &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L400" href="SimpleRegression.html#L400">400</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L401" href="SimpleRegression.html#L401">401</a> <em class="jxr_javadoccomment">     * @return the intercept of the regression line if the model includes an</em>
+<a class="jxr_linenumber" name="L402" href="SimpleRegression.html#L402">402</a> <em class="jxr_javadoccomment">     * intercept; 0 otherwise</em>
+<a class="jxr_linenumber" name="L403" href="SimpleRegression.html#L403">403</a> <em class="jxr_javadoccomment">     * @see #SimpleRegression(boolean)</em>
+<a class="jxr_linenumber" name="L404" href="SimpleRegression.html#L404">404</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L405" href="SimpleRegression.html#L405">405</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getIntercept() {
+<a class="jxr_linenumber" name="L406" href="SimpleRegression.html#L406">406</a>         <strong class="jxr_keyword">return</strong> hasIntercept ? getIntercept(getSlope()) : 0.0;
+<a class="jxr_linenumber" name="L407" href="SimpleRegression.html#L407">407</a>     }
+<a class="jxr_linenumber" name="L408" href="SimpleRegression.html#L408">408</a> 
+<a class="jxr_linenumber" name="L409" href="SimpleRegression.html#L409">409</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L410" href="SimpleRegression.html#L410">410</a> <em class="jxr_javadoccomment">     * Returns true if the model includes an intercept term.</em>
+<a class="jxr_linenumber" name="L411" href="SimpleRegression.html#L411">411</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L412" href="SimpleRegression.html#L412">412</a> <em class="jxr_javadoccomment">     * @return true if the regression includes an intercept; false otherwise</em>
+<a class="jxr_linenumber" name="L413" href="SimpleRegression.html#L413">413</a> <em class="jxr_javadoccomment">     * @see #SimpleRegression(boolean)</em>
+<a class="jxr_linenumber" name="L414" href="SimpleRegression.html#L414">414</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L415" href="SimpleRegression.html#L415">415</a>     @Override
+<a class="jxr_linenumber" name="L416" href="SimpleRegression.html#L416">416</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> hasIntercept() {
+<a class="jxr_linenumber" name="L417" href="SimpleRegression.html#L417">417</a>         <strong class="jxr_keyword">return</strong> hasIntercept;
+<a class="jxr_linenumber" name="L418" href="SimpleRegression.html#L418">418</a>     }
+<a class="jxr_linenumber" name="L419" href="SimpleRegression.html#L419">419</a> 
+<a class="jxr_linenumber" name="L420" href="SimpleRegression.html#L420">420</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L421" href="SimpleRegression.html#L421">421</a> <em class="jxr_javadoccomment">    * Returns the slope of the estimated regression line.</em>
+<a class="jxr_linenumber" name="L422" href="SimpleRegression.html#L422">422</a> <em class="jxr_javadoccomment">    * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L423" href="SimpleRegression.html#L423">423</a> <em class="jxr_javadoccomment">    * The least squares estimate of the slope is computed using the</em>
+<a class="jxr_linenumber" name="L424" href="SimpleRegression.html#L424">424</a> <em class="jxr_javadoccomment">    * &lt;a href="<a href="http://www.xycoon.com/estimation4.htm" target="alexandria_uri">http://www.xycoon.com/estimation4.htm</a>"&gt;normal equations&lt;/a&gt;.</em>
+<a class="jxr_linenumber" name="L425" href="SimpleRegression.html#L425">425</a> <em class="jxr_javadoccomment">    * The slope is sometimes denoted b1.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L426" href="SimpleRegression.html#L426">426</a> <em class="jxr_javadoccomment">    * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L427" href="SimpleRegression.html#L427">427</a> <em class="jxr_javadoccomment">    * &lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L428" href="SimpleRegression.html#L428">428</a> <em class="jxr_javadoccomment">    * &lt;li&gt;At least two observations (with at least two different x values)</em>
+<a class="jxr_linenumber" name="L429" href="SimpleRegression.html#L429">429</a> <em class="jxr_javadoccomment">    * must have been added before invoking this method. If this method is</em>
+<a class="jxr_linenumber" name="L430" href="SimpleRegression.html#L430">430</a> <em class="jxr_javadoccomment">    * invoked before a model can be estimated, &lt;code&gt;Double.NaN&lt;/code&gt; is</em>
+<a class="jxr_linenumber" name="L431" href="SimpleRegression.html#L431">431</a> <em class="jxr_javadoccomment">    * returned.</em>
+<a class="jxr_linenumber" name="L432" href="SimpleRegression.html#L432">432</a> <em class="jxr_javadoccomment">    * &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L433" href="SimpleRegression.html#L433">433</a> <em class="jxr_javadoccomment">    *</em>
+<a class="jxr_linenumber" name="L434" href="SimpleRegression.html#L434">434</a> <em class="jxr_javadoccomment">    * @return the slope of the regression line</em>
+<a class="jxr_linenumber" name="L435" href="SimpleRegression.html#L435">435</a> <em class="jxr_javadoccomment">    */</em>
+<a class="jxr_linenumber" name="L436" href="SimpleRegression.html#L436">436</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSlope() {
+<a class="jxr_linenumber" name="L437" href="SimpleRegression.html#L437">437</a>         <strong class="jxr_keyword">if</strong> (n &lt; 2) {
+<a class="jxr_linenumber" name="L438" href="SimpleRegression.html#L438">438</a>             <strong class="jxr_keyword">return</strong> Double.NaN; <em class="jxr_comment">//not enough data</em>
+<a class="jxr_linenumber" name="L439" href="SimpleRegression.html#L439">439</a>         }
+<a class="jxr_linenumber" name="L440" href="SimpleRegression.html#L440">440</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(sumXX) &lt; 10 * Double.MIN_VALUE) {
+<a class="jxr_linenumber" name="L441" href="SimpleRegression.html#L441">441</a>             <strong class="jxr_keyword">return</strong> Double.NaN; <em class="jxr_comment">//not enough variation in x</em>
+<a class="jxr_linenumber" name="L442" href="SimpleRegression.html#L442">442</a>         }
+<a class="jxr_linenumber" name="L443" href="SimpleRegression.html#L443">443</a>         <strong class="jxr_keyword">return</strong> sumXY / sumXX;
+<a class="jxr_linenumber" name="L444" href="SimpleRegression.html#L444">444</a>     }
+<a class="jxr_linenumber" name="L445" href="SimpleRegression.html#L445">445</a> 
+<a class="jxr_linenumber" name="L446" href="SimpleRegression.html#L446">446</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L447" href="SimpleRegression.html#L447">447</a> <em class="jxr_javadoccomment">     * Returns the &lt;a href="<a href="http://www.xycoon.com/SumOfSquares.htm" target="alexandria_uri">http://www.xycoon.com/SumOfSquares.htm</a>"&gt;</em>
+<a class="jxr_linenumber" name="L448" href="SimpleRegression.html#L448">448</a> <em class="jxr_javadoccomment">     * sum of squared errors&lt;/a&gt; (SSE) associated with the regression</em>
+<a class="jxr_linenumber" name="L449" href="SimpleRegression.html#L449">449</a> <em class="jxr_javadoccomment">     * model.</em>
+<a class="jxr_linenumber" name="L450" href="SimpleRegression.html#L450">450</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L451" href="SimpleRegression.html#L451">451</a> <em class="jxr_javadoccomment">     * The sum is computed using the computational formula&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L452" href="SimpleRegression.html#L452">452</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L453" href="SimpleRegression.html#L453">453</a> <em class="jxr_javadoccomment">     * &lt;code&gt;SSE = SYY - (SXY * SXY / SXX)&lt;/code&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L454" href="SimpleRegression.html#L454">454</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L455" href="SimpleRegression.html#L455">455</a> <em class="jxr_javadoccomment">     * where &lt;code&gt;SYY&lt;/code&gt; is the sum of the squared deviations of the y</em>
+<a class="jxr_linenumber" name="L456" href="SimpleRegression.html#L456">456</a> <em class="jxr_javadoccomment">     * values about their mean, &lt;code&gt;SXX&lt;/code&gt; is similarly defined and</em>
+<a class="jxr_linenumber" name="L457" href="SimpleRegression.html#L457">457</a> <em class="jxr_javadoccomment">     * &lt;code&gt;SXY&lt;/code&gt; is the sum of the products of x and y mean deviations.</em>
+<a class="jxr_linenumber" name="L458" href="SimpleRegression.html#L458">458</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;&lt;p&gt;</em>
+<a class="jxr_linenumber" name="L459" href="SimpleRegression.html#L459">459</a> <em class="jxr_javadoccomment">     * The sums are accumulated using the updating algorithm referenced in</em>
+<a class="jxr_linenumber" name="L460" href="SimpleRegression.html#L460">460</a> <em class="jxr_javadoccomment">     * {@link #addData}.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L461" href="SimpleRegression.html#L461">461</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L462" href="SimpleRegression.html#L462">462</a> <em class="jxr_javadoccomment">     * The return value is constrained to be non-negative - i.e., if due to</em>
+<a class="jxr_linenumber" name="L463" href="SimpleRegression.html#L463">463</a> <em class="jxr_javadoccomment">     * rounding errors the computational formula returns a negative result,</em>
+<a class="jxr_linenumber" name="L464" href="SimpleRegression.html#L464">464</a> <em class="jxr_javadoccomment">     * 0 is returned.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L465" href="SimpleRegression.html#L465">465</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L466" href="SimpleRegression.html#L466">466</a> <em class="jxr_javadoccomment">     * &lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L467" href="SimpleRegression.html#L467">467</a> <em class="jxr_javadoccomment">     * &lt;li&gt;At least two observations (with at least two different x values)</em>
+<a class="jxr_linenumber" name="L468" href="SimpleRegression.html#L468">468</a> <em class="jxr_javadoccomment">     * must have been added before invoking this method. If this method is</em>
+<a class="jxr_linenumber" name="L469" href="SimpleRegression.html#L469">469</a> <em class="jxr_javadoccomment">     * invoked before a model can be estimated, &lt;code&gt;Double,NaN&lt;/code&gt; is</em>
+<a class="jxr_linenumber" name="L470" href="SimpleRegression.html#L470">470</a> <em class="jxr_javadoccomment">     * returned.</em>
+<a class="jxr_linenumber" name="L471" href="SimpleRegression.html#L471">471</a> <em class="jxr_javadoccomment">     * &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L472" href="SimpleRegression.html#L472">472</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L473" href="SimpleRegression.html#L473">473</a> <em class="jxr_javadoccomment">     * @return sum of squared errors associated with the regression model</em>
+<a class="jxr_linenumber" name="L474" href="SimpleRegression.html#L474">474</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L475" href="SimpleRegression.html#L475">475</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSumSquaredErrors() {
+<a class="jxr_linenumber" name="L476" href="SimpleRegression.html#L476">476</a>         <strong class="jxr_keyword">return</strong> FastMath.max(0d, sumYY - sumXY * sumXY / sumXX);
+<a class="jxr_linenumber" name="L477" href="SimpleRegression.html#L477">477</a>     }
+<a class="jxr_linenumber" name="L478" href="SimpleRegression.html#L478">478</a> 
+<a class="jxr_linenumber" name="L479" href="SimpleRegression.html#L479">479</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L480" href="SimpleRegression.html#L480">480</a> <em class="jxr_javadoccomment">     * Returns the sum of squared deviations of the y values about their mean.</em>
+<a class="jxr_linenumber" name="L481" href="SimpleRegression.html#L481">481</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L482" href="SimpleRegression.html#L482">482</a> <em class="jxr_javadoccomment">     * This is defined as SSTO</em>
+<a class="jxr_linenumber" name="L483" href="SimpleRegression.html#L483">483</a> <em class="jxr_javadoccomment">     * &lt;a href="<a href="http://www.xycoon.com/SumOfSquares.htm" target="alexandria_uri">http://www.xycoon.com/SumOfSquares.htm</a>"&gt;here&lt;/a&gt;.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L484" href="SimpleRegression.html#L484">484</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L485" href="SimpleRegression.html#L485">485</a> <em class="jxr_javadoccomment">     * If &lt;code&gt;n &lt; 2&lt;/code&gt;, this returns &lt;code&gt;Double.NaN&lt;/code&gt;.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L486" href="SimpleRegression.html#L486">486</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L487" href="SimpleRegression.html#L487">487</a> <em class="jxr_javadoccomment">     * @return sum of squared deviations of y values</em>
+<a class="jxr_linenumber" name="L488" href="SimpleRegression.html#L488">488</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L489" href="SimpleRegression.html#L489">489</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getTotalSumSquares() {
+<a class="jxr_linenumber" name="L490" href="SimpleRegression.html#L490">490</a>         <strong class="jxr_keyword">if</strong> (n &lt; 2) {
+<a class="jxr_linenumber" name="L491" href="SimpleRegression.html#L491">491</a>             <strong class="jxr_keyword">return</strong> Double.NaN;
+<a class="jxr_linenumber" name="L492" href="SimpleRegression.html#L492">492</a>         }
+<a class="jxr_linenumber" name="L493" href="SimpleRegression.html#L493">493</a>         <strong class="jxr_keyword">return</strong> sumYY;
+<a class="jxr_linenumber" name="L494" href="SimpleRegression.html#L494">494</a>     }
+<a class="jxr_linenumber" name="L495" href="SimpleRegression.html#L495">495</a> 
+<a class="jxr_linenumber" name="L496" href="SimpleRegression.html#L496">496</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L497" href="SimpleRegression.html#L497">497</a> <em class="jxr_javadoccomment">     * Returns the sum of squared deviations of the x values about their mean.</em>
+<a class="jxr_linenumber" name="L498" href="SimpleRegression.html#L498">498</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L499" href="SimpleRegression.html#L499">499</a> <em class="jxr_javadoccomment">     * If &lt;code&gt;n &lt; 2&lt;/code&gt;, this returns &lt;code&gt;Double.NaN&lt;/code&gt;.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L500" href="SimpleRegression.html#L500">500</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L501" href="SimpleRegression.html#L501">501</a> <em class="jxr_javadoccomment">     * @return sum of squared deviations of x values</em>
+<a class="jxr_linenumber" name="L502" href="SimpleRegression.html#L502">502</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L503" href="SimpleRegression.html#L503">503</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getXSumSquares() {
+<a class="jxr_linenumber" name="L504" href="SimpleRegression.html#L504">504</a>         <strong class="jxr_keyword">if</strong> (n &lt; 2) {
+<a class="jxr_linenumber" name="L505" href="SimpleRegression.html#L505">505</a>             <strong class="jxr_keyword">return</strong> Double.NaN;
+<a class="jxr_linenumber" name="L506" href="SimpleRegression.html#L506">506</a>         }
+<a class="jxr_linenumber" name="L507" href="SimpleRegression.html#L507">507</a>         <strong class="jxr_keyword">return</strong> sumXX;
+<a class="jxr_linenumber" name="L508" href="SimpleRegression.html#L508">508</a>     }
+<a class="jxr_linenumber" name="L509" href="SimpleRegression.html#L509">509</a> 
+<a class="jxr_linenumber" name="L510" href="SimpleRegression.html#L510">510</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L511" href="SimpleRegression.html#L511">511</a> <em class="jxr_javadoccomment">     * Returns the sum of crossproducts, x&lt;sub&gt;i&lt;/sub&gt;*y&lt;sub&gt;i&lt;/sub&gt;.</em>
+<a class="jxr_linenumber" name="L512" href="SimpleRegression.html#L512">512</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L513" href="SimpleRegression.html#L513">513</a> <em class="jxr_javadoccomment">     * @return sum of cross products</em>
+<a class="jxr_linenumber" name="L514" href="SimpleRegression.html#L514">514</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L515" href="SimpleRegression.html#L515">515</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSumOfCrossProducts() {
+<a class="jxr_linenumber" name="L516" href="SimpleRegression.html#L516">516</a>         <strong class="jxr_keyword">return</strong> sumXY;
+<a class="jxr_linenumber" name="L517" href="SimpleRegression.html#L517">517</a>     }
+<a class="jxr_linenumber" name="L518" href="SimpleRegression.html#L518">518</a> 
+<a class="jxr_linenumber" name="L519" href="SimpleRegression.html#L519">519</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L520" href="SimpleRegression.html#L520">520</a> <em class="jxr_javadoccomment">     * Returns the sum of squared deviations of the predicted y values about</em>
+<a class="jxr_linenumber" name="L521" href="SimpleRegression.html#L521">521</a> <em class="jxr_javadoccomment">     * their mean (which equals the mean of y).</em>
+<a class="jxr_linenumber" name="L522" href="SimpleRegression.html#L522">522</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L523" href="SimpleRegression.html#L523">523</a> <em class="jxr_javadoccomment">     * This is usually abbreviated SSR or SSM.  It is defined as SSM</em>
+<a class="jxr_linenumber" name="L524" href="SimpleRegression.html#L524">524</a> <em class="jxr_javadoccomment">     * &lt;a href="<a href="http://www.xycoon.com/SumOfSquares.htm" target="alexandria_uri">http://www.xycoon.com/SumOfSquares.htm</a>"&gt;here&lt;/a&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L525" href="SimpleRegression.html#L525">525</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L526" href="SimpleRegression.html#L526">526</a> <em class="jxr_javadoccomment">     * &lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L527" href="SimpleRegression.html#L527">527</a> <em class="jxr_javadoccomment">     * &lt;li&gt;At least two observations (with at least two different x values)</em>
+<a class="jxr_linenumber" name="L528" href="SimpleRegression.html#L528">528</a> <em class="jxr_javadoccomment">     * must have been added before invoking this method. If this method is</em>
+<a class="jxr_linenumber" name="L529" href="SimpleRegression.html#L529">529</a> <em class="jxr_javadoccomment">     * invoked before a model can be estimated, &lt;code&gt;Double.NaN&lt;/code&gt; is</em>
+<a class="jxr_linenumber" name="L530" href="SimpleRegression.html#L530">530</a> <em class="jxr_javadoccomment">     * returned.</em>
+<a class="jxr_linenumber" name="L531" href="SimpleRegression.html#L531">531</a> <em class="jxr_javadoccomment">     * &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L532" href="SimpleRegression.html#L532">532</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L533" href="SimpleRegression.html#L533">533</a> <em class="jxr_javadoccomment">     * @return sum of squared deviations of predicted y values</em>
+<a class="jxr_linenumber" name="L534" href="SimpleRegression.html#L534">534</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L535" href="SimpleRegression.html#L535">535</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getRegressionSumSquares() {
+<a class="jxr_linenumber" name="L536" href="SimpleRegression.html#L536">536</a>         <strong class="jxr_keyword">return</strong> getRegressionSumSquares(getSlope());
+<a class="jxr_linenumber" name="L537" href="SimpleRegression.html#L537">537</a>     }
+<a class="jxr_linenumber" name="L538" href="SimpleRegression.html#L538">538</a> 
+<a class="jxr_linenumber" name="L539" href="SimpleRegression.html#L539">539</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L540" href="SimpleRegression.html#L540">540</a> <em class="jxr_javadoccomment">     * Returns the sum of squared errors divided by the degrees of freedom,</em>
+<a class="jxr_linenumber" name="L541" href="SimpleRegression.html#L541">541</a> <em class="jxr_javadoccomment">     * usually abbreviated MSE.</em>
+<a class="jxr_linenumber" name="L542" href="SimpleRegression.html#L542">542</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L543" href="SimpleRegression.html#L543">543</a> <em class="jxr_javadoccomment">     * If there are fewer than &lt;strong&gt;three&lt;/strong&gt; data pairs in the model,</em>
+<a class="jxr_linenumber" name="L544" href="SimpleRegression.html#L544">544</a> <em class="jxr_javadoccomment">     * or if there is no variation in &lt;code&gt;x&lt;/code&gt;, this returns</em>
+<a class="jxr_linenumber" name="L545" href="SimpleRegression.html#L545">545</a> <em class="jxr_javadoccomment">     * &lt;code&gt;Double.NaN&lt;/code&gt;.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L546" href="SimpleRegression.html#L546">546</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L547" href="SimpleRegression.html#L547">547</a> <em class="jxr_javadoccomment">     * @return sum of squared deviations of y values</em>
+<a class="jxr_linenumber" name="L548" href="SimpleRegression.html#L548">548</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L549" href="SimpleRegression.html#L549">549</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getMeanSquareError() {
+<a class="jxr_linenumber" name="L550" href="SimpleRegression.html#L550">550</a>         <strong class="jxr_keyword">if</strong> (n &lt; 3) {
+<a class="jxr_linenumber" name="L551" href="SimpleRegression.html#L551">551</a>             <strong class="jxr_keyword">return</strong> Double.NaN;
+<a class="jxr_linenumber" name="L552" href="SimpleRegression.html#L552">552</a>         }
+<a class="jxr_linenumber" name="L553" href="SimpleRegression.html#L553">553</a>         <strong class="jxr_keyword">return</strong> hasIntercept ? (getSumSquaredErrors() / (n - 2)) : (getSumSquaredErrors() / (n - 1));
+<a class="jxr_linenumber" name="L554" href="SimpleRegression.html#L554">554</a>     }
+<a class="jxr_linenumber" name="L555" href="SimpleRegression.html#L555">555</a> 
+<a class="jxr_linenumber" name="L556" href="SimpleRegression.html#L556">556</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L557" href="SimpleRegression.html#L557">557</a> <em class="jxr_javadoccomment">     * Returns &lt;a href="<a href="http://mathworld.wolfram.com/CorrelationCoefficient.html" target="alexandria_uri">http://mathworld.wolfram.com/CorrelationCoefficient.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L558" href="SimpleRegression.html#L558">558</a> <em class="jxr_javadoccomment">     * Pearson's product moment correlation coefficient&lt;/a&gt;,</em>
+<a class="jxr_linenumber" name="L559" href="SimpleRegression.html#L559">559</a> <em class="jxr_javadoccomment">     * usually denoted r.</em>
+<a class="jxr_linenumber" name="L560" href="SimpleRegression.html#L560">560</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L561" href="SimpleRegression.html#L561">561</a> <em class="jxr_javadoccomment">     * &lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L562" href="SimpleRegression.html#L562">562</a> <em class="jxr_javadoccomment">     * &lt;li&gt;At least two observations (with at least two different x values)</em>
+<a class="jxr_linenumber" name="L563" href="SimpleRegression.html#L563">563</a> <em class="jxr_javadoccomment">     * must have been added before invoking this method. If this method is</em>
+<a class="jxr_linenumber" name="L564" href="SimpleRegression.html#L564">564</a> <em class="jxr_javadoccomment">     * invoked before a model can be estimated, &lt;code&gt;Double,NaN&lt;/code&gt; is</em>
+<a class="jxr_linenumber" name="L565" href="SimpleRegression.html#L565">565</a> <em class="jxr_javadoccomment">     * returned.</em>
+<a class="jxr_linenumber" name="L566" href="SimpleRegression.html#L566">566</a> <em class="jxr_javadoccomment">     * &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L567" href="SimpleRegression.html#L567">567</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L568" href="SimpleRegression.html#L568">568</a> <em class="jxr_javadoccomment">     * @return Pearson's r</em>
+<a class="jxr_linenumber" name="L569" href="SimpleRegression.html#L569">569</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L570" href="SimpleRegression.html#L570">570</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getR() {
+<a class="jxr_linenumber" name="L571" href="SimpleRegression.html#L571">571</a>         <strong class="jxr_keyword">double</strong> b1 = getSlope();
+<a class="jxr_linenumber" name="L572" href="SimpleRegression.html#L572">572</a>         <strong class="jxr_keyword">double</strong> result = FastMath.sqrt(getRSquare());
+<a class="jxr_linenumber" name="L573" href="SimpleRegression.html#L573">573</a>         <strong class="jxr_keyword">if</strong> (b1 &lt; 0) {
+<a class="jxr_linenumber" name="L574" href="SimpleRegression.html#L574">574</a>             result = -result;
+<a class="jxr_linenumber" name="L575" href="SimpleRegression.html#L575">575</a>         }
+<a class="jxr_linenumber" name="L576" href="SimpleRegression.html#L576">576</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L577" href="SimpleRegression.html#L577">577</a>     }
+<a class="jxr_linenumber" name="L578" href="SimpleRegression.html#L578">578</a> 
+<a class="jxr_linenumber" name="L579" href="SimpleRegression.html#L579">579</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L580" href="SimpleRegression.html#L580">580</a> <em class="jxr_javadoccomment">     * Returns the &lt;a href="<a href="http://www.xycoon.com/coefficient1.htm" target="alexandria_uri">http://www.xycoon.com/coefficient1.htm</a>"&gt;</em>
+<a class="jxr_linenumber" name="L581" href="SimpleRegression.html#L581">581</a> <em class="jxr_javadoccomment">     * coefficient of determination&lt;/a&gt;,</em>
+<a class="jxr_linenumber" name="L582" href="SimpleRegression.html#L582">582</a> <em class="jxr_javadoccomment">     * usually denoted r-square.</em>
+<a class="jxr_linenumber" name="L583" href="SimpleRegression.html#L583">583</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L584" href="SimpleRegression.html#L584">584</a> <em class="jxr_javadoccomment">     * &lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L585" href="SimpleRegression.html#L585">585</a> <em class="jxr_javadoccomment">     * &lt;li&gt;At least two observations (with at least two different x values)</em>
+<a class="jxr_linenumber" name="L586" href="SimpleRegression.html#L586">586</a> <em class="jxr_javadoccomment">     * must have been added before invoking this method. If this method is</em>
+<a class="jxr_linenumber" name="L587" href="SimpleRegression.html#L587">587</a> <em class="jxr_javadoccomment">     * invoked before a model can be estimated, &lt;code&gt;Double,NaN&lt;/code&gt; is</em>
+<a class="jxr_linenumber" name="L588" href="SimpleRegression.html#L588">588</a> <em class="jxr_javadoccomment">     * returned.</em>
+<a class="jxr_linenumber" name="L589" href="SimpleRegression.html#L589">589</a> <em class="jxr_javadoccomment">     * &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L590" href="SimpleRegression.html#L590">590</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L591" href="SimpleRegression.html#L591">591</a> <em class="jxr_javadoccomment">     * @return r-square</em>
+<a class="jxr_linenumber" name="L592" href="SimpleRegression.html#L592">592</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L593" href="SimpleRegression.html#L593">593</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getRSquare() {
+<a class="jxr_linenumber" name="L594" href="SimpleRegression.html#L594">594</a>         <strong class="jxr_keyword">double</strong> ssto = getTotalSumSquares();
+<a class="jxr_linenumber" name="L595" href="SimpleRegression.html#L595">595</a>         <strong class="jxr_keyword">return</strong> (ssto - getSumSquaredErrors()) / ssto;
+<a class="jxr_linenumber" name="L596" href="SimpleRegression.html#L596">596</a>     }
+<a class="jxr_linenumber" name="L597" href="SimpleRegression.html#L597">597</a> 
+<a class="jxr_linenumber" name="L598" href="SimpleRegression.html#L598">598</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L599" href="SimpleRegression.html#L599">599</a> <em class="jxr_javadoccomment">     * Returns the &lt;a href="<a href="http://www.xycoon.com/standarderrorb0.htm" target="alexandria_uri">http://www.xycoon.com/standarderrorb0.htm</a>"&gt;</em>
+<a class="jxr_linenumber" name="L600" href="SimpleRegression.html#L600">600</a> <em class="jxr_javadoccomment">     * standard error of the intercept estimate&lt;/a&gt;,</em>
+<a class="jxr_linenumber" name="L601" href="SimpleRegression.html#L601">601</a> <em class="jxr_javadoccomment">     * usually denoted s(b0).</em>
+<a class="jxr_linenumber" name="L602" href="SimpleRegression.html#L602">602</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L603" href="SimpleRegression.html#L603">603</a> <em class="jxr_javadoccomment">     * If there are fewer that &lt;strong&gt;three&lt;/strong&gt; observations in the</em>
+<a class="jxr_linenumber" name="L604" href="SimpleRegression.html#L604">604</a> <em class="jxr_javadoccomment">     * model, or if there is no variation in x, this returns</em>
+<a class="jxr_linenumber" name="L605" href="SimpleRegression.html#L605">605</a> <em class="jxr_javadoccomment">     * &lt;code&gt;Double.NaN&lt;/code&gt;.&lt;/p&gt; Additionally, a &lt;code&gt;Double.NaN&lt;/code&gt; is</em>
+<a class="jxr_linenumber" name="L606" href="SimpleRegression.html#L606">606</a> <em class="jxr_javadoccomment">     * returned when the intercept is constrained to be zero</em>
+<a class="jxr_linenumber" name="L607" href="SimpleRegression.html#L607">607</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L608" href="SimpleRegression.html#L608">608</a> <em class="jxr_javadoccomment">     * @return standard error associated with intercept estimate</em>
+<a class="jxr_linenumber" name="L609" href="SimpleRegression.html#L609">609</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L610" href="SimpleRegression.html#L610">610</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getInterceptStdErr() {
+<a class="jxr_linenumber" name="L611" href="SimpleRegression.html#L611">611</a>         <strong class="jxr_keyword">if</strong>( !hasIntercept ){
+<a class="jxr_linenumber" name="L612" href="SimpleRegression.html#L612">612</a>             <strong class="jxr_keyword">return</strong> Double.NaN;
+<a class="jxr_linenumber" name="L613" href="SimpleRegression.html#L613">613</a>         }
+<a class="jxr_linenumber" name="L614" href="SimpleRegression.html#L614">614</a>         <strong class="jxr_keyword">return</strong> FastMath.sqrt(
+<a class="jxr_linenumber" name="L615" href="SimpleRegression.html#L615">615</a>             getMeanSquareError() * ((1d / n) + (xbar * xbar) / sumXX));
+<a class="jxr_linenumber" name="L616" href="SimpleRegression.html#L616">616</a>     }
+<a class="jxr_linenumber" name="L617" href="SimpleRegression.html#L617">617</a> 
+<a class="jxr_linenumber" name="L618" href="SimpleRegression.html#L618">618</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L619" href="SimpleRegression.html#L619">619</a> <em class="jxr_javadoccomment">     * Returns the &lt;a href="<a href="http://www.xycoon.com/standerrorb(1).htm" target="alexandria_uri">http://www.xycoon.com/standerrorb(1).htm</a>"&gt;standard</em>
+<a class="jxr_linenumber" name="L620" href="SimpleRegression.html#L620">620</a> <em class="jxr_javadoccomment">     * error of the slope estimate&lt;/a&gt;,</em>
+<a class="jxr_linenumber" name="L621" href="SimpleRegression.html#L621">621</a> <em class="jxr_javadoccomment">     * usually denoted s(b1).</em>
+<a class="jxr_linenumber" name="L622" href="SimpleRegression.html#L622">622</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L623" href="SimpleRegression.html#L623">623</a> <em class="jxr_javadoccomment">     * If there are fewer that &lt;strong&gt;three&lt;/strong&gt; data pairs in the model,</em>
+<a class="jxr_linenumber" name="L624" href="SimpleRegression.html#L624">624</a> <em class="jxr_javadoccomment">     * or if there is no variation in x, this returns &lt;code&gt;Double.NaN&lt;/code&gt;.</em>
+<a class="jxr_linenumber" name="L625" href="SimpleRegression.html#L625">625</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L626" href="SimpleRegression.html#L626">626</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L627" href="SimpleRegression.html#L627">627</a> <em class="jxr_javadoccomment">     * @return standard error associated with slope estimate</em>
+<a class="jxr_linenumber" name="L628" href="SimpleRegression.html#L628">628</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L629" href="SimpleRegression.html#L629">629</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSlopeStdErr() {
+<a class="jxr_linenumber" name="L630" href="SimpleRegression.html#L630">630</a>         <strong class="jxr_keyword">return</strong> FastMath.sqrt(getMeanSquareError() / sumXX);
+<a class="jxr_linenumber" name="L631" href="SimpleRegression.html#L631">631</a>     }
+<a class="jxr_linenumber" name="L632" href="SimpleRegression.html#L632">632</a> 
+<a class="jxr_linenumber" name="L633" href="SimpleRegression.html#L633">633</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L634" href="SimpleRegression.html#L634">634</a> <em class="jxr_javadoccomment">     * Returns the half-width of a 95% confidence interval for the slope</em>
+<a class="jxr_linenumber" name="L635" href="SimpleRegression.html#L635">635</a> <em class="jxr_javadoccomment">     * estimate.</em>
+<a class="jxr_linenumber" name="L636" href="SimpleRegression.html#L636">636</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L637" href="SimpleRegression.html#L637">637</a> <em class="jxr_javadoccomment">     * The 95% confidence interval is&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L638" href="SimpleRegression.html#L638">638</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L639" href="SimpleRegression.html#L639">639</a> <em class="jxr_javadoccomment">     * &lt;code&gt;(getSlope() - getSlopeConfidenceInterval(),</em>
+<a class="jxr_linenumber" name="L640" href="SimpleRegression.html#L640">640</a> <em class="jxr_javadoccomment">     * getSlope() + getSlopeConfidenceInterval())&lt;/code&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L641" href="SimpleRegression.html#L641">641</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L642" href="SimpleRegression.html#L642">642</a> <em class="jxr_javadoccomment">     * If there are fewer that &lt;strong&gt;three&lt;/strong&gt; observations in the</em>
+<a class="jxr_linenumber" name="L643" href="SimpleRegression.html#L643">643</a> <em class="jxr_javadoccomment">     * model, or if there is no variation in x, this returns</em>
+<a class="jxr_linenumber" name="L644" href="SimpleRegression.html#L644">644</a> <em class="jxr_javadoccomment">     * &lt;code&gt;Double.NaN&lt;/code&gt;.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L645" href="SimpleRegression.html#L645">645</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L646" href="SimpleRegression.html#L646">646</a> <em class="jxr_javadoccomment">     * &lt;strong&gt;Usage Note&lt;/strong&gt;:&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L647" href="SimpleRegression.html#L647">647</a> <em class="jxr_javadoccomment">     * The validity of this statistic depends on the assumption that the</em>
+<a class="jxr_linenumber" name="L648" href="SimpleRegression.html#L648">648</a> <em class="jxr_javadoccomment">     * observations included in the model are drawn from a</em>
+<a class="jxr_linenumber" name="L649" href="SimpleRegression.html#L649">649</a> <em class="jxr_javadoccomment">     * &lt;a href="<a href="http://mathworld.wolfram.com/BivariateNormalDistribution.html" target="alexandria_uri">http://mathworld.wolfram.com/BivariateNormalDistribution.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L650" href="SimpleRegression.html#L650">650</a> <em class="jxr_javadoccomment">     * Bivariate Normal Distribution&lt;/a&gt;.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L651" href="SimpleRegression.html#L651">651</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L652" href="SimpleRegression.html#L652">652</a> <em class="jxr_javadoccomment">     * @return half-width of 95% confidence interval for the slope estimate</em>
+<a class="jxr_linenumber" name="L653" href="SimpleRegression.html#L653">653</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the confidence interval can not be computed.</em>
+<a class="jxr_linenumber" name="L654" href="SimpleRegression.html#L654">654</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L655" href="SimpleRegression.html#L655">655</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSlopeConfidenceInterval() <strong class="jxr_keyword">throws</strong> OutOfRangeException {
+<a class="jxr_linenumber" name="L656" href="SimpleRegression.html#L656">656</a>         <strong class="jxr_keyword">return</strong> getSlopeConfidenceInterval(0.05d);
+<a class="jxr_linenumber" name="L657" href="SimpleRegression.html#L657">657</a>     }
+<a class="jxr_linenumber" name="L658" href="SimpleRegression.html#L658">658</a> 
+<a class="jxr_linenumber" name="L659" href="SimpleRegression.html#L659">659</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L660" href="SimpleRegression.html#L660">660</a> <em class="jxr_javadoccomment">     * Returns the half-width of a (100-100*alpha)% confidence interval for</em>
+<a class="jxr_linenumber" name="L661" href="SimpleRegression.html#L661">661</a> <em class="jxr_javadoccomment">     * the slope estimate.</em>
+<a class="jxr_linenumber" name="L662" href="SimpleRegression.html#L662">662</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L663" href="SimpleRegression.html#L663">663</a> <em class="jxr_javadoccomment">     * The (100-100*alpha)% confidence interval is &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L664" href="SimpleRegression.html#L664">664</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L665" href="SimpleRegression.html#L665">665</a> <em class="jxr_javadoccomment">     * &lt;code&gt;(getSlope() - getSlopeConfidenceInterval(),</em>
+<a class="jxr_linenumber" name="L666" href="SimpleRegression.html#L666">666</a> <em class="jxr_javadoccomment">     * getSlope() + getSlopeConfidenceInterval())&lt;/code&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L667" href="SimpleRegression.html#L667">667</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L668" href="SimpleRegression.html#L668">668</a> <em class="jxr_javadoccomment">     * To request, for example, a 99% confidence interval, use</em>
+<a class="jxr_linenumber" name="L669" href="SimpleRegression.html#L669">669</a> <em class="jxr_javadoccomment">     * &lt;code&gt;alpha = .01&lt;/code&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L670" href="SimpleRegression.html#L670">670</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L671" href="SimpleRegression.html#L671">671</a> <em class="jxr_javadoccomment">     * &lt;strong&gt;Usage Note&lt;/strong&gt;:&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L672" href="SimpleRegression.html#L672">672</a> <em class="jxr_javadoccomment">     * The validity of this statistic depends on the assumption that the</em>
+<a class="jxr_linenumber" name="L673" href="SimpleRegression.html#L673">673</a> <em class="jxr_javadoccomment">     * observations included in the model are drawn from a</em>
+<a class="jxr_linenumber" name="L674" href="SimpleRegression.html#L674">674</a> <em class="jxr_javadoccomment">     * &lt;a href="<a href="http://mathworld.wolfram.com/BivariateNormalDistribution.html" target="alexandria_uri">http://mathworld.wolfram.com/BivariateNormalDistribution.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L675" href="SimpleRegression.html#L675">675</a> <em class="jxr_javadoccomment">     * Bivariate Normal Distribution&lt;/a&gt;.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L676" href="SimpleRegression.html#L676">676</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L677" href="SimpleRegression.html#L677">677</a> <em class="jxr_javadoccomment">     * &lt;strong&gt; Preconditions:&lt;/strong&gt;&lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L678" href="SimpleRegression.html#L678">678</a> <em class="jxr_javadoccomment">     * &lt;li&gt;If there are fewer that &lt;strong&gt;three&lt;/strong&gt; observations in the</em>
+<a class="jxr_linenumber" name="L679" href="SimpleRegression.html#L679">679</a> <em class="jxr_javadoccomment">     * model, or if there is no variation in x, this returns</em>
+<a class="jxr_linenumber" name="L680" href="SimpleRegression.html#L680">680</a> <em class="jxr_javadoccomment">     * &lt;code&gt;Double.NaN&lt;/code&gt;.</em>
+<a class="jxr_linenumber" name="L681" href="SimpleRegression.html#L681">681</a> <em class="jxr_javadoccomment">     * &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L682" href="SimpleRegression.html#L682">682</a> <em class="jxr_javadoccomment">     * &lt;li&gt;&lt;code&gt;(0 &lt; alpha &lt; 1)&lt;/code&gt;; otherwise an</em>
+<a class="jxr_linenumber" name="L683" href="SimpleRegression.html#L683">683</a> <em class="jxr_javadoccomment">     * &lt;code&gt;OutOfRangeException&lt;/code&gt; is thrown.</em>
+<a class="jxr_linenumber" name="L684" href="SimpleRegression.html#L684">684</a> <em class="jxr_javadoccomment">     * &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L685" href="SimpleRegression.html#L685">685</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L686" href="SimpleRegression.html#L686">686</a> <em class="jxr_javadoccomment">     * @param alpha the desired significance level</em>
+<a class="jxr_linenumber" name="L687" href="SimpleRegression.html#L687">687</a> <em class="jxr_javadoccomment">     * @return half-width of 95% confidence interval for the slope estimate</em>
+<a class="jxr_linenumber" name="L688" href="SimpleRegression.html#L688">688</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if the confidence interval can not be computed.</em>
+<a class="jxr_linenumber" name="L689" href="SimpleRegression.html#L689">689</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L690" href="SimpleRegression.html#L690">690</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSlopeConfidenceInterval(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> alpha)
+<a class="jxr_linenumber" name="L691" href="SimpleRegression.html#L691">691</a>     <strong class="jxr_keyword">throws</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a> {
+<a class="jxr_linenumber" name="L692" href="SimpleRegression.html#L692">692</a>         <strong class="jxr_keyword">if</strong> (n &lt; 3) {
+<a class="jxr_linenumber" name="L693" href="SimpleRegression.html#L693">693</a>             <strong class="jxr_keyword">return</strong> Double.NaN;
+<a class="jxr_linenumber" name="L694" href="SimpleRegression.html#L694">694</a>         }
+<a class="jxr_linenumber" name="L695" href="SimpleRegression.html#L695">695</a>         <strong class="jxr_keyword">if</strong> (alpha &gt;= 1 || alpha &lt;= 0) {
+<a class="jxr_linenumber" name="L696" href="SimpleRegression.html#L696">696</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>(LocalizedFormats.SIGNIFICANCE_LEVEL,
+<a class="jxr_linenumber" name="L697" href="SimpleRegression.html#L697">697</a>                                           alpha, 0, 1);
+<a class="jxr_linenumber" name="L698" href="SimpleRegression.html#L698">698</a>         }
+<a class="jxr_linenumber" name="L699" href="SimpleRegression.html#L699">699</a>         <em class="jxr_comment">// No advertised NotStrictlyPositiveException here - will return NaN above</em>
+<a class="jxr_linenumber" name="L700" href="SimpleRegression.html#L700">700</a>         <a href="../../distribution/TDistribution.html">TDistribution</a> distribution = <strong class="jxr_keyword">new</strong> <a href="../../distribution/TDistribution.html">TDistribution</a>(n - 2);
+<a class="jxr_linenumber" name="L701" href="SimpleRegression.html#L701">701</a>         <strong class="jxr_keyword">return</strong> getSlopeStdErr() *
+<a class="jxr_linenumber" name="L702" href="SimpleRegression.html#L702">702</a>             distribution.inverseCumulativeProbability(1d - alpha / 2d);
+<a class="jxr_linenumber" name="L703" href="SimpleRegression.html#L703">703</a>     }
+<a class="jxr_linenumber" name="L704" href="SimpleRegression.html#L704">704</a> 
+<a class="jxr_linenumber" name="L705" href="SimpleRegression.html#L705">705</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L706" href="SimpleRegression.html#L706">706</a> <em class="jxr_javadoccomment">     * Returns the significance level of the slope (equiv) correlation.</em>
+<a class="jxr_linenumber" name="L707" href="SimpleRegression.html#L707">707</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L708" href="SimpleRegression.html#L708">708</a> <em class="jxr_javadoccomment">     * Specifically, the returned value is the smallest &lt;code&gt;alpha&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L709" href="SimpleRegression.html#L709">709</a> <em class="jxr_javadoccomment">     * such that the slope confidence interval with significance level</em>
+<a class="jxr_linenumber" name="L710" href="SimpleRegression.html#L710">710</a> <em class="jxr_javadoccomment">     * equal to &lt;code&gt;alpha&lt;/code&gt; does not include &lt;code&gt;0&lt;/code&gt;.</em>
+<a class="jxr_linenumber" name="L711" href="SimpleRegression.html#L711">711</a> <em class="jxr_javadoccomment">     * On regression output, this is often denoted &lt;code&gt;Prob(|t| &gt; 0)&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L712" href="SimpleRegression.html#L712">712</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;&lt;p&gt;</em>
+<a class="jxr_linenumber" name="L713" href="SimpleRegression.html#L713">713</a> <em class="jxr_javadoccomment">     * &lt;strong&gt;Usage Note&lt;/strong&gt;:&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L714" href="SimpleRegression.html#L714">714</a> <em class="jxr_javadoccomment">     * The validity of this statistic depends on the assumption that the</em>
+<a class="jxr_linenumber" name="L715" href="SimpleRegression.html#L715">715</a> <em class="jxr_javadoccomment">     * observations included in the model are drawn from a</em>
+<a class="jxr_linenumber" name="L716" href="SimpleRegression.html#L716">716</a> <em class="jxr_javadoccomment">     * &lt;a href="<a href="http://mathworld.wolfram.com/BivariateNormalDistribution.html" target="alexandria_uri">http://mathworld.wolfram.com/BivariateNormalDistribution.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L717" href="SimpleRegression.html#L717">717</a> <em class="jxr_javadoccomment">     * Bivariate Normal Distribution&lt;/a&gt;.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L718" href="SimpleRegression.html#L718">718</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L719" href="SimpleRegression.html#L719">719</a> <em class="jxr_javadoccomment">     * If there are fewer that &lt;strong&gt;three&lt;/strong&gt; observations in the</em>
+<a class="jxr_linenumber" name="L720" href="SimpleRegression.html#L720">720</a> <em class="jxr_javadoccomment">     * model, or if there is no variation in x, this returns</em>
+<a class="jxr_linenumber" name="L721" href="SimpleRegression.html#L721">721</a> <em class="jxr_javadoccomment">     * &lt;code&gt;Double.NaN&lt;/code&gt;.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L722" href="SimpleRegression.html#L722">722</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L723" href="SimpleRegression.html#L723">723</a> <em class="jxr_javadoccomment">     * @return significance level for slope/correlation</em>
+<a class="jxr_linenumber" name="L724" href="SimpleRegression.html#L724">724</a> <em class="jxr_javadoccomment">     * @throws org.apache.commons.math4.exception.MaxCountExceededException</em>
+<a class="jxr_linenumber" name="L725" href="SimpleRegression.html#L725">725</a> <em class="jxr_javadoccomment">     * if the significance level can not be computed.</em>
+<a class="jxr_linenumber" name="L726" href="SimpleRegression.html#L726">726</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L727" href="SimpleRegression.html#L727">727</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSignificance() {
+<a class="jxr_linenumber" name="L728" href="SimpleRegression.html#L728">728</a>         <strong class="jxr_keyword">if</strong> (n &lt; 3) {
+<a class="jxr_linenumber" name="L729" href="SimpleRegression.html#L729">729</a>             <strong class="jxr_keyword">return</strong> Double.NaN;
+<a class="jxr_linenumber" name="L730" href="SimpleRegression.html#L730">730</a>         }
+<a class="jxr_linenumber" name="L731" href="SimpleRegression.html#L731">731</a>         <em class="jxr_comment">// No advertised NotStrictlyPositiveException here - will return NaN above</em>
+<a class="jxr_linenumber" name="L732" href="SimpleRegression.html#L732">732</a>         <a href="../../distribution/TDistribution.html">TDistribution</a> distribution = <strong class="jxr_keyword">new</strong> <a href="../../distribution/TDistribution.html">TDistribution</a>(n - 2);
+<a class="jxr_linenumber" name="L733" href="SimpleRegression.html#L733">733</a>         <strong class="jxr_keyword">return</strong> 2d * (1.0 - distribution.cumulativeProbability(
+<a class="jxr_linenumber" name="L734" href="SimpleRegression.html#L734">734</a>                     FastMath.abs(getSlope()) / getSlopeStdErr()));
+<a class="jxr_linenumber" name="L735" href="SimpleRegression.html#L735">735</a>     }
+<a class="jxr_linenumber" name="L736" href="SimpleRegression.html#L736">736</a> 
+<a class="jxr_linenumber" name="L737" href="SimpleRegression.html#L737">737</a>     <em class="jxr_comment">// ---------------------Private methods-----------------------------------</em>
+<a class="jxr_linenumber" name="L738" href="SimpleRegression.html#L738">738</a> 
+<a class="jxr_linenumber" name="L739" href="SimpleRegression.html#L739">739</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L740" href="SimpleRegression.html#L740">740</a> <em class="jxr_javadoccomment">    * Returns the intercept of the estimated regression line, given the slope.</em>
+<a class="jxr_linenumber" name="L741" href="SimpleRegression.html#L741">741</a> <em class="jxr_javadoccomment">    * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L742" href="SimpleRegression.html#L742">742</a> <em class="jxr_javadoccomment">    * Will return &lt;code&gt;NaN&lt;/code&gt; if slope is &lt;code&gt;NaN&lt;/code&gt;.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L743" href="SimpleRegression.html#L743">743</a> <em class="jxr_javadoccomment">    *</em>
+<a class="jxr_linenumber" name="L744" href="SimpleRegression.html#L744">744</a> <em class="jxr_javadoccomment">    * @param slope current slope</em>
+<a class="jxr_linenumber" name="L745" href="SimpleRegression.html#L745">745</a> <em class="jxr_javadoccomment">    * @return the intercept of the regression line</em>
+<a class="jxr_linenumber" name="L746" href="SimpleRegression.html#L746">746</a> <em class="jxr_javadoccomment">    */</em>
+<a class="jxr_linenumber" name="L747" href="SimpleRegression.html#L747">747</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> getIntercept(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> slope) {
+<a class="jxr_linenumber" name="L748" href="SimpleRegression.html#L748">748</a>       <strong class="jxr_keyword">if</strong>( hasIntercept){
+<a class="jxr_linenumber" name="L749" href="SimpleRegression.html#L749">749</a>         <strong class="jxr_keyword">return</strong> (sumY - slope * sumX) / n;
+<a class="jxr_linenumber" name="L750" href="SimpleRegression.html#L750">750</a>       }
+<a class="jxr_linenumber" name="L751" href="SimpleRegression.html#L751">751</a>       <strong class="jxr_keyword">return</strong> 0.0;
+<a class="jxr_linenumber" name="L752" href="SimpleRegression.html#L752">752</a>     }
+<a class="jxr_linenumber" name="L753" href="SimpleRegression.html#L753">753</a> 
+<a class="jxr_linenumber" name="L754" href="SimpleRegression.html#L754">754</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L755" href="SimpleRegression.html#L755">755</a> <em class="jxr_javadoccomment">     * Computes SSR from b1.</em>
+<a class="jxr_linenumber" name="L756" href="SimpleRegression.html#L756">756</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L757" href="SimpleRegression.html#L757">757</a> <em class="jxr_javadoccomment">     * @param slope regression slope estimate</em>
+<a class="jxr_linenumber" name="L758" href="SimpleRegression.html#L758">758</a> <em class="jxr_javadoccomment">     * @return sum of squared deviations of predicted y values</em>
+<a class="jxr_linenumber" name="L759" href="SimpleRegression.html#L759">759</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L760" href="SimpleRegression.html#L760">760</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> getRegressionSumSquares(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> slope) {
+<a class="jxr_linenumber" name="L761" href="SimpleRegression.html#L761">761</a>         <strong class="jxr_keyword">return</strong> slope * slope * sumXX;
+<a class="jxr_linenumber" name="L762" href="SimpleRegression.html#L762">762</a>     }
+<a class="jxr_linenumber" name="L763" href="SimpleRegression.html#L763">763</a> 
+<a class="jxr_linenumber" name="L764" href="SimpleRegression.html#L764">764</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L765" href="SimpleRegression.html#L765">765</a> <em class="jxr_javadoccomment">     * Performs a regression on data present in buffers and outputs a RegressionResults object.</em>
+<a class="jxr_linenumber" name="L766" href="SimpleRegression.html#L766">766</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L767" href="SimpleRegression.html#L767">767</a> <em class="jxr_javadoccomment">     * &lt;p&gt;If there are fewer than 3 observations in the model and {@code hasIntercept} is true</em>
+<a class="jxr_linenumber" name="L768" href="SimpleRegression.html#L768">768</a> <em class="jxr_javadoccomment">     * a {@code NoDataException} is thrown.  If there is no intercept term, the model must</em>
+<a class="jxr_linenumber" name="L769" href="SimpleRegression.html#L769">769</a> <em class="jxr_javadoccomment">     * contain at least 2 observations.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L770" href="SimpleRegression.html#L770">770</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L771" href="SimpleRegression.html#L771">771</a> <em class="jxr_javadoccomment">     * @return RegressionResults acts as a container of regression output</em>
+<a class="jxr_linenumber" name="L772" href="SimpleRegression.html#L772">772</a> <em class="jxr_javadoccomment">     * @throws ModelSpecificationException if the model is not correctly specified</em>
+<a class="jxr_linenumber" name="L773" href="SimpleRegression.html#L773">773</a> <em class="jxr_javadoccomment">     * @throws NoDataException if there is not sufficient data in the model to</em>
+<a class="jxr_linenumber" name="L774" href="SimpleRegression.html#L774">774</a> <em class="jxr_javadoccomment">     * estimate the regression parameters</em>
+<a class="jxr_linenumber" name="L775" href="SimpleRegression.html#L775">775</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L776" href="SimpleRegression.html#L776">776</a>     @Override
+<a class="jxr_linenumber" name="L777" href="SimpleRegression.html#L777">777</a>     <strong class="jxr_keyword">public</strong> <a href="RegressionResults.html">RegressionResults</a> regress() <strong class="jxr_keyword">throws</strong> ModelSpecificationException, NoDataException {
+<a class="jxr_linenumber" name="L778" href="SimpleRegression.html#L778">778</a>         <strong class="jxr_keyword">if</strong> (hasIntercept) {
+<a class="jxr_linenumber" name="L779" href="SimpleRegression.html#L779">779</a>             <strong class="jxr_keyword">if</strong> (n &lt; 3) {
+<a class="jxr_linenumber" name="L780" href="SimpleRegression.html#L780">780</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NoDataException.html">NoDataException</a>(LocalizedFormats.NOT_ENOUGH_DATA_REGRESSION);
+<a class="jxr_linenumber" name="L781" href="SimpleRegression.html#L781">781</a>             }
+<a class="jxr_linenumber" name="L782" href="SimpleRegression.html#L782">782</a>             <strong class="jxr_keyword">if</strong> (FastMath.abs(sumXX) &gt; Precision.SAFE_MIN) {
+<a class="jxr_linenumber" name="L783" href="SimpleRegression.html#L783">783</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] params = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { getIntercept(), getSlope() };
+<a class="jxr_linenumber" name="L784" href="SimpleRegression.html#L784">784</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> mse = getMeanSquareError();
+<a class="jxr_linenumber" name="L785" href="SimpleRegression.html#L785">785</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> _syy = sumYY + sumY * sumY / n;
+<a class="jxr_linenumber" name="L786" href="SimpleRegression.html#L786">786</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] vcv = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { mse * (xbar * xbar / sumXX + 1.0 / n), -xbar * mse / sumXX, mse / sumXX };
+<a class="jxr_linenumber" name="L787" href="SimpleRegression.html#L787">787</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="RegressionResults.html">RegressionResults</a>(params, <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] { vcv }, <strong class="jxr_keyword">true</strong>, n, 2, sumY, _syy, getSumSquaredErrors(), <strong class="jxr_keyword">true</strong>,
+<a class="jxr_linenumber" name="L788" href="SimpleRegression.html#L788">788</a>                         false);
+<a class="jxr_linenumber" name="L789" href="SimpleRegression.html#L789">789</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L790" href="SimpleRegression.html#L790">790</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] params = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { sumY / n, Double.NaN };
+<a class="jxr_linenumber" name="L791" href="SimpleRegression.html#L791">791</a>                 <em class="jxr_comment">// final double mse = getMeanSquareError();</em>
+<a class="jxr_linenumber" name="L792" href="SimpleRegression.html#L792">792</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] vcv = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { ybar / (n - 1.0), Double.NaN, Double.NaN };
+<a class="jxr_linenumber" name="L793" href="SimpleRegression.html#L793">793</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="RegressionResults.html">RegressionResults</a>(params, <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] { vcv }, <strong class="jxr_keyword">true</strong>, n, 1, sumY, sumYY, getSumSquaredErrors(), <strong class="jxr_keyword">true</strong>,
+<a class="jxr_linenumber" name="L794" href="SimpleRegression.html#L794">794</a>                         false);
+<a class="jxr_linenumber" name="L795" href="SimpleRegression.html#L795">795</a>             }
+<a class="jxr_linenumber" name="L796" href="SimpleRegression.html#L796">796</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L797" href="SimpleRegression.html#L797">797</a>             <strong class="jxr_keyword">if</strong> (n &lt; 2) {
+<a class="jxr_linenumber" name="L798" href="SimpleRegression.html#L798">798</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NoDataException.html">NoDataException</a>(LocalizedFormats.NOT_ENOUGH_DATA_REGRESSION);
+<a class="jxr_linenumber" name="L799" href="SimpleRegression.html#L799">799</a>             }
+<a class="jxr_linenumber" name="L800" href="SimpleRegression.html#L800">800</a>             <strong class="jxr_keyword">if</strong> (!Double.isNaN(sumXX)) {
+<a class="jxr_linenumber" name="L801" href="SimpleRegression.html#L801">801</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] vcv = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { getMeanSquareError() / sumXX };
+<a class="jxr_linenumber" name="L802" href="SimpleRegression.html#L802">802</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] params = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { sumXY / sumXX };
+<a class="jxr_linenumber" name="L803" href="SimpleRegression.html#L803">803</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="RegressionResults.html">RegressionResults</a>(params, <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] { vcv }, <strong class="jxr_keyword">true</strong>, n, 1, sumY, sumYY, getSumSquaredErrors(), false,
+<a class="jxr_linenumber" name="L804" href="SimpleRegression.html#L804">804</a>                         false);
+<a class="jxr_linenumber" name="L805" href="SimpleRegression.html#L805">805</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L806" href="SimpleRegression.html#L806">806</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] vcv = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { Double.NaN };
+<a class="jxr_linenumber" name="L807" href="SimpleRegression.html#L807">807</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] params = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { Double.NaN };
+<a class="jxr_linenumber" name="L808" href="SimpleRegression.html#L808">808</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="RegressionResults.html">RegressionResults</a>(params, <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] { vcv }, <strong class="jxr_keyword">true</strong>, n, 1, Double.NaN, Double.NaN, Double.NaN, false,
+<a class="jxr_linenumber" name="L809" href="SimpleRegression.html#L809">809</a>                         false);
+<a class="jxr_linenumber" name="L810" href="SimpleRegression.html#L810">810</a>             }
+<a class="jxr_linenumber" name="L811" href="SimpleRegression.html#L811">811</a>         }
+<a class="jxr_linenumber" name="L812" href="SimpleRegression.html#L812">812</a>     }
+<a class="jxr_linenumber" name="L813" href="SimpleRegression.html#L813">813</a> 
+<a class="jxr_linenumber" name="L814" href="SimpleRegression.html#L814">814</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L815" href="SimpleRegression.html#L815">815</a> <em class="jxr_javadoccomment">     * Performs a regression on data present in buffers including only regressors</em>
+<a class="jxr_linenumber" name="L816" href="SimpleRegression.html#L816">816</a> <em class="jxr_javadoccomment">     * indexed in variablesToInclude and outputs a RegressionResults object</em>
+<a class="jxr_linenumber" name="L817" href="SimpleRegression.html#L817">817</a> <em class="jxr_javadoccomment">     * @param variablesToInclude an array of indices of regressors to include</em>
+<a class="jxr_linenumber" name="L818" href="SimpleRegression.html#L818">818</a> <em class="jxr_javadoccomment">     * @return RegressionResults acts as a container of regression output</em>
+<a class="jxr_linenumber" name="L819" href="SimpleRegression.html#L819">819</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the variablesToInclude array is null or zero length</em>
+<a class="jxr_linenumber" name="L820" href="SimpleRegression.html#L820">820</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if a requested variable is not present in model</em>
+<a class="jxr_linenumber" name="L821" href="SimpleRegression.html#L821">821</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L822" href="SimpleRegression.html#L822">822</a>     @Override
+<a class="jxr_linenumber" name="L823" href="SimpleRegression.html#L823">823</a>     <strong class="jxr_keyword">public</strong> <a href="RegressionResults.html">RegressionResults</a> regress(<strong class="jxr_keyword">int</strong>[] variablesToInclude) <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException{
+<a class="jxr_linenumber" name="L824" href="SimpleRegression.html#L824">824</a>         <strong class="jxr_keyword">if</strong>( variablesToInclude == <strong class="jxr_keyword">null</strong> || variablesToInclude.length == 0){
+<a class="jxr_linenumber" name="L825" href="SimpleRegression.html#L825">825</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(LocalizedFormats.ARRAY_ZERO_LENGTH_OR_NULL_NOT_ALLOWED);
+<a class="jxr_linenumber" name="L826" href="SimpleRegression.html#L826">826</a>         }
+<a class="jxr_linenumber" name="L827" href="SimpleRegression.html#L827">827</a>         <strong class="jxr_keyword">if</strong>( variablesToInclude.length &gt; 2 || (variablesToInclude.length &gt; 1 &amp;&amp; !hasIntercept) ){
+<a class="jxr_linenumber" name="L828" href="SimpleRegression.html#L828">828</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(
+<a class="jxr_linenumber" name="L829" href="SimpleRegression.html#L829">829</a>                     LocalizedFormats.ARRAY_SIZE_EXCEEDS_MAX_VARIABLES,
+<a class="jxr_linenumber" name="L830" href="SimpleRegression.html#L830">830</a>                     (variablesToInclude.length &gt; 1 &amp;&amp; !hasIntercept) ? 1 : 2);
+<a class="jxr_linenumber" name="L831" href="SimpleRegression.html#L831">831</a>         }
+<a class="jxr_linenumber" name="L832" href="SimpleRegression.html#L832">832</a> 
+<a class="jxr_linenumber" name="L833" href="SimpleRegression.html#L833">833</a>         <strong class="jxr_keyword">if</strong>( hasIntercept ){
+<a class="jxr_linenumber" name="L834" href="SimpleRegression.html#L834">834</a>             <strong class="jxr_keyword">if</strong>( variablesToInclude.length == 2 ){
+<a class="jxr_linenumber" name="L835" href="SimpleRegression.html#L835">835</a>                 <strong class="jxr_keyword">if</strong>( variablesToInclude[0] == 1 ){
+<a class="jxr_linenumber" name="L836" href="SimpleRegression.html#L836">836</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="ModelSpecificationException.html">ModelSpecificationException</a>(LocalizedFormats.NOT_INCREASING_SEQUENCE);
+<a class="jxr_linenumber" name="L837" href="SimpleRegression.html#L837">837</a>                 }<strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong>( variablesToInclude[0] != 0 ){
+<a class="jxr_linenumber" name="L838" href="SimpleRegression.html#L838">838</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>( variablesToInclude[0], 0,1 );
+<a class="jxr_linenumber" name="L839" href="SimpleRegression.html#L839">839</a>                 }
+<a class="jxr_linenumber" name="L840" href="SimpleRegression.html#L840">840</a>                 <strong class="jxr_keyword">if</strong>( variablesToInclude[1] != 1){
+<a class="jxr_linenumber" name="L841" href="SimpleRegression.html#L841">841</a>                      <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>( variablesToInclude[0], 0,1 );
+<a class="jxr_linenumber" name="L842" href="SimpleRegression.html#L842">842</a>                 }
+<a class="jxr_linenumber" name="L843" href="SimpleRegression.html#L843">843</a>                 <strong class="jxr_keyword">return</strong> regress();
+<a class="jxr_linenumber" name="L844" href="SimpleRegression.html#L844">844</a>             }<strong class="jxr_keyword">else</strong>{
+<a class="jxr_linenumber" name="L845" href="SimpleRegression.html#L845">845</a>                 <strong class="jxr_keyword">if</strong>( variablesToInclude[0] != 1 &amp;&amp; variablesToInclude[0] != 0 ){
+<a class="jxr_linenumber" name="L846" href="SimpleRegression.html#L846">846</a>                      <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>( variablesToInclude[0],0,1 );
+<a class="jxr_linenumber" name="L847" href="SimpleRegression.html#L847">847</a>                 }
+<a class="jxr_linenumber" name="L848" href="SimpleRegression.html#L848">848</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> _mean = sumY * sumY / n;
+<a class="jxr_linenumber" name="L849" href="SimpleRegression.html#L849">849</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> _syy = sumYY + _mean;
+<a class="jxr_linenumber" name="L850" href="SimpleRegression.html#L850">850</a>                 <strong class="jxr_keyword">if</strong>( variablesToInclude[0] == 0 ){
+<a class="jxr_linenumber" name="L851" href="SimpleRegression.html#L851">851</a>                     <em class="jxr_comment">//just the mean</em>
+<a class="jxr_linenumber" name="L852" href="SimpleRegression.html#L852">852</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] vcv = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[]{ sumYY/(((n-1)*n)) };
+<a class="jxr_linenumber" name="L853" href="SimpleRegression.html#L853">853</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] params = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[]{ ybar };
+<a class="jxr_linenumber" name="L854" href="SimpleRegression.html#L854">854</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="RegressionResults.html">RegressionResults</a>(
+<a class="jxr_linenumber" name="L855" href="SimpleRegression.html#L855">855</a>                       params, <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][]{vcv}, <strong class="jxr_keyword">true</strong>, n, 1,
+<a class="jxr_linenumber" name="L856" href="SimpleRegression.html#L856">856</a>                       sumY, _syy+_mean, sumYY,<strong class="jxr_keyword">true</strong>,false);
+<a class="jxr_linenumber" name="L857" href="SimpleRegression.html#L857">857</a> 
+<a class="jxr_linenumber" name="L858" href="SimpleRegression.html#L858">858</a>                 }<strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong>( variablesToInclude[0] == 1){
+<a class="jxr_linenumber" name="L859" href="SimpleRegression.html#L859">859</a>                     <em class="jxr_comment">//final double _syy = sumYY + sumY * sumY / ((double) n);</em>
+<a class="jxr_linenumber" name="L860" href="SimpleRegression.html#L860">860</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> _sxx = sumXX + sumX * sumX / n;
+<a class="jxr_linenumber" name="L861" href="SimpleRegression.html#L861">861</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> _sxy = sumXY + sumX * sumY / n;
+<a class="jxr_linenumber" name="L862" href="SimpleRegression.html#L862">862</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> _sse = FastMath.max(0d, _syy - _sxy * _sxy / _sxx);
+<a class="jxr_linenumber" name="L863" href="SimpleRegression.html#L863">863</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> _mse = _sse/((n-1));
+<a class="jxr_linenumber" name="L864" href="SimpleRegression.html#L864">864</a>                     <strong class="jxr_keyword">if</strong>( !Double.isNaN(_sxx) ){
+<a class="jxr_linenumber" name="L865" href="SimpleRegression.html#L865">865</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] vcv = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[]{ _mse / _sxx };
+<a class="jxr_linenumber" name="L866" href="SimpleRegression.html#L866">866</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] params = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[]{ _sxy/_sxx };
+<a class="jxr_linenumber" name="L867" href="SimpleRegression.html#L867">867</a>                         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="RegressionResults.html">RegressionResults</a>(
+<a class="jxr_linenumber" name="L868" href="SimpleRegression.html#L868">868</a>                                     params, <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][]{vcv}, <strong class="jxr_keyword">true</strong>, n, 1,
+<a class="jxr_linenumber" name="L869" href="SimpleRegression.html#L869">869</a>                                     sumY, _syy, _sse,false,false);
+<a class="jxr_linenumber" name="L870" href="SimpleRegression.html#L870">870</a>                     }<strong class="jxr_keyword">else</strong>{
+<a class="jxr_linenumber" name="L871" href="SimpleRegression.html#L871">871</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] vcv = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[]{Double.NaN };
+<a class="jxr_linenumber" name="L872" href="SimpleRegression.html#L872">872</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] params = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[]{ Double.NaN };
+<a class="jxr_linenumber" name="L873" href="SimpleRegression.html#L873">873</a>                         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="RegressionResults.html">RegressionResults</a>(
+<a class="jxr_linenumber" name="L874" href="SimpleRegression.html#L874">874</a>                                     params, <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][]{vcv}, <strong class="jxr_keyword">true</strong>, n, 1,
+<a class="jxr_linenumber" name="L875" href="SimpleRegression.html#L875">875</a>                                     Double.NaN, Double.NaN, Double.NaN,false,false);
+<a class="jxr_linenumber" name="L876" href="SimpleRegression.html#L876">876</a>                     }
+<a class="jxr_linenumber" name="L877" href="SimpleRegression.html#L877">877</a>                 }
+<a class="jxr_linenumber" name="L878" href="SimpleRegression.html#L878">878</a>             }
+<a class="jxr_linenumber" name="L879" href="SimpleRegression.html#L879">879</a>         }<strong class="jxr_keyword">else</strong>{
+<a class="jxr_linenumber" name="L880" href="SimpleRegression.html#L880">880</a>             <strong class="jxr_keyword">if</strong>( variablesToInclude[0] != 0 ){
+<a class="jxr_linenumber" name="L881" href="SimpleRegression.html#L881">881</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>(variablesToInclude[0],0,0);
+<a class="jxr_linenumber" name="L882" href="SimpleRegression.html#L882">882</a>             }
+<a class="jxr_linenumber" name="L883" href="SimpleRegression.html#L883">883</a>             <strong class="jxr_keyword">return</strong> regress();
+<a class="jxr_linenumber" name="L884" href="SimpleRegression.html#L884">884</a>         }
+<a class="jxr_linenumber" name="L885" href="SimpleRegression.html#L885">885</a> 
+<a class="jxr_linenumber" name="L886" href="SimpleRegression.html#L886">886</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L887" href="SimpleRegression.html#L887">887</a>     }
+<a class="jxr_linenumber" name="L888" href="SimpleRegression.html#L888">888</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

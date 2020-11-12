@@ -1,0 +1,265 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Gaussian xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/analysis/function/Gaussian.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="Gaussian.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="Gaussian.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="Gaussian.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="Gaussian.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="Gaussian.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="Gaussian.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="Gaussian.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="Gaussian.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="Gaussian.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="Gaussian.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="Gaussian.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="Gaussian.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="Gaussian.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="Gaussian.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="Gaussian.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="Gaussian.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="Gaussian.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="Gaussian.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.function;
+<a class="jxr_linenumber" name="L19" href="Gaussian.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="Gaussian.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L21" href="Gaussian.html#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="Gaussian.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.ParametricUnivariateFunction;
+<a class="jxr_linenumber" name="L23" href="Gaussian.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.differentiation.DerivativeStructure;
+<a class="jxr_linenumber" name="L24" href="Gaussian.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.differentiation.UnivariateDifferentiableFunction;
+<a class="jxr_linenumber" name="L25" href="Gaussian.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L26" href="Gaussian.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L27" href="Gaussian.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NullArgumentException;
+<a class="jxr_linenumber" name="L28" href="Gaussian.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L29" href="Gaussian.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Precision;
+<a class="jxr_linenumber" name="L30" href="Gaussian.html#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="Gaussian.html#L31">31</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L32" href="Gaussian.html#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://en.wikipedia.org/wiki/Gaussian_function" target="alexandria_uri">http://en.wikipedia.org/wiki/Gaussian_function</a>"&gt;</em>
+<a class="jxr_linenumber" name="L33" href="Gaussian.html#L33">33</a>  <em class="jxr_javadoccomment"> *  Gaussian&lt;/a&gt; function.</em>
+<a class="jxr_linenumber" name="L34" href="Gaussian.html#L34">34</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L35" href="Gaussian.html#L35">35</a>  <em class="jxr_javadoccomment"> * @since 3.0</em>
+<a class="jxr_linenumber" name="L36" href="Gaussian.html#L36">36</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L37" href="Gaussian.html#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="Gaussian.html">Gaussian</a> <strong class="jxr_keyword">implements</strong> <a href="../differentiation/UnivariateDifferentiableFunction.html">UnivariateDifferentiableFunction</a> {
+<a class="jxr_linenumber" name="L38" href="Gaussian.html#L38">38</a>      <em class="jxr_javadoccomment">/** Mean. */</em>
+<a class="jxr_linenumber" name="L39" href="Gaussian.html#L39">39</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> mean;
+<a class="jxr_linenumber" name="L40" href="Gaussian.html#L40">40</a>      <em class="jxr_javadoccomment">/** Inverse of the standard deviation. */</em>
+<a class="jxr_linenumber" name="L41" href="Gaussian.html#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> is;
+<a class="jxr_linenumber" name="L42" href="Gaussian.html#L42">42</a>      <em class="jxr_javadoccomment">/** Inverse of twice the square of the standard deviation. */</em>
+<a class="jxr_linenumber" name="L43" href="Gaussian.html#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> i2s2;
+<a class="jxr_linenumber" name="L44" href="Gaussian.html#L44">44</a>      <em class="jxr_javadoccomment">/** Normalization factor. */</em>
+<a class="jxr_linenumber" name="L45" href="Gaussian.html#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> norm;
+<a class="jxr_linenumber" name="L46" href="Gaussian.html#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="Gaussian.html#L47">47</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L48" href="Gaussian.html#L48">48</a>  <em class="jxr_javadoccomment">     * Gaussian with given normalization factor, mean and standard deviation.</em>
+<a class="jxr_linenumber" name="L49" href="Gaussian.html#L49">49</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L50" href="Gaussian.html#L50">50</a>  <em class="jxr_javadoccomment">     * @param norm Normalization factor.</em>
+<a class="jxr_linenumber" name="L51" href="Gaussian.html#L51">51</a>  <em class="jxr_javadoccomment">     * @param mean Mean.</em>
+<a class="jxr_linenumber" name="L52" href="Gaussian.html#L52">52</a>  <em class="jxr_javadoccomment">     * @param sigma Standard deviation.</em>
+<a class="jxr_linenumber" name="L53" href="Gaussian.html#L53">53</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code sigma &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L54" href="Gaussian.html#L54">54</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L55" href="Gaussian.html#L55">55</a>      <strong class="jxr_keyword">public</strong> <a href="Gaussian.html">Gaussian</a>(<strong class="jxr_keyword">double</strong> norm,
+<a class="jxr_linenumber" name="L56" href="Gaussian.html#L56">56</a>                      <strong class="jxr_keyword">double</strong> mean,
+<a class="jxr_linenumber" name="L57" href="Gaussian.html#L57">57</a>                      <strong class="jxr_keyword">double</strong> sigma)
+<a class="jxr_linenumber" name="L58" href="Gaussian.html#L58">58</a>          <strong class="jxr_keyword">throws</strong> <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L59" href="Gaussian.html#L59">59</a>          <strong class="jxr_keyword">if</strong> (sigma &lt;= 0) {
+<a class="jxr_linenumber" name="L60" href="Gaussian.html#L60">60</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(sigma);
+<a class="jxr_linenumber" name="L61" href="Gaussian.html#L61">61</a>          }
+<a class="jxr_linenumber" name="L62" href="Gaussian.html#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="Gaussian.html#L63">63</a>          <strong class="jxr_keyword">this</strong>.norm = norm;
+<a class="jxr_linenumber" name="L64" href="Gaussian.html#L64">64</a>          <strong class="jxr_keyword">this</strong>.mean = mean;
+<a class="jxr_linenumber" name="L65" href="Gaussian.html#L65">65</a>          <strong class="jxr_keyword">this</strong>.is   = 1 / sigma;
+<a class="jxr_linenumber" name="L66" href="Gaussian.html#L66">66</a>          <strong class="jxr_keyword">this</strong>.i2s2 = 0.5 * is * is;
+<a class="jxr_linenumber" name="L67" href="Gaussian.html#L67">67</a>      }
+<a class="jxr_linenumber" name="L68" href="Gaussian.html#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="Gaussian.html#L69">69</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L70" href="Gaussian.html#L70">70</a>  <em class="jxr_javadoccomment">     * Normalized gaussian with given mean and standard deviation.</em>
+<a class="jxr_linenumber" name="L71" href="Gaussian.html#L71">71</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L72" href="Gaussian.html#L72">72</a>  <em class="jxr_javadoccomment">     * @param mean Mean.</em>
+<a class="jxr_linenumber" name="L73" href="Gaussian.html#L73">73</a>  <em class="jxr_javadoccomment">     * @param sigma Standard deviation.</em>
+<a class="jxr_linenumber" name="L74" href="Gaussian.html#L74">74</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code sigma &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L75" href="Gaussian.html#L75">75</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L76" href="Gaussian.html#L76">76</a>      <strong class="jxr_keyword">public</strong> <a href="Gaussian.html">Gaussian</a>(<strong class="jxr_keyword">double</strong> mean,
+<a class="jxr_linenumber" name="L77" href="Gaussian.html#L77">77</a>                      <strong class="jxr_keyword">double</strong> sigma)
+<a class="jxr_linenumber" name="L78" href="Gaussian.html#L78">78</a>          <strong class="jxr_keyword">throws</strong> <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L79" href="Gaussian.html#L79">79</a>          <strong class="jxr_keyword">this</strong>(1 / (sigma * FastMath.sqrt(2 * Math.PI)), mean, sigma);
+<a class="jxr_linenumber" name="L80" href="Gaussian.html#L80">80</a>      }
+<a class="jxr_linenumber" name="L81" href="Gaussian.html#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="Gaussian.html#L82">82</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L83" href="Gaussian.html#L83">83</a>  <em class="jxr_javadoccomment">     * Normalized gaussian with zero mean and unit standard deviation.</em>
+<a class="jxr_linenumber" name="L84" href="Gaussian.html#L84">84</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L85" href="Gaussian.html#L85">85</a>      <strong class="jxr_keyword">public</strong> <a href="Gaussian.html">Gaussian</a>() {
+<a class="jxr_linenumber" name="L86" href="Gaussian.html#L86">86</a>          <strong class="jxr_keyword">this</strong>(0, 1);
+<a class="jxr_linenumber" name="L87" href="Gaussian.html#L87">87</a>      }
+<a class="jxr_linenumber" name="L88" href="Gaussian.html#L88">88</a>  
+<a class="jxr_linenumber" name="L89" href="Gaussian.html#L89">89</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L90" href="Gaussian.html#L90">90</a>      @Override
+<a class="jxr_linenumber" name="L91" href="Gaussian.html#L91">91</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L92" href="Gaussian.html#L92">92</a>          <strong class="jxr_keyword">return</strong> value(x - mean, norm, i2s2);
+<a class="jxr_linenumber" name="L93" href="Gaussian.html#L93">93</a>      }
+<a class="jxr_linenumber" name="L94" href="Gaussian.html#L94">94</a>  
+<a class="jxr_linenumber" name="L95" href="Gaussian.html#L95">95</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L96" href="Gaussian.html#L96">96</a>  <em class="jxr_javadoccomment">     * Parametric function where the input array contains the parameters of</em>
+<a class="jxr_linenumber" name="L97" href="Gaussian.html#L97">97</a>  <em class="jxr_javadoccomment">     * the Gaussian, ordered as follows:</em>
+<a class="jxr_linenumber" name="L98" href="Gaussian.html#L98">98</a>  <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L99" href="Gaussian.html#L99">99</a>  <em class="jxr_javadoccomment">     *  &lt;li&gt;Norm&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L100" href="Gaussian.html#L100">100</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;Mean&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L101" href="Gaussian.html#L101">101</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;Standard deviation&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L102" href="Gaussian.html#L102">102</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L103" href="Gaussian.html#L103">103</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L104" href="Gaussian.html#L104">104</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="Logistic.html">Parametric</a> <strong class="jxr_keyword">implements</strong> <a href="../ParametricUnivariateFunction.html">ParametricUnivariateFunction</a> {
+<a class="jxr_linenumber" name="L105" href="Gaussian.html#L105">105</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L106" href="Gaussian.html#L106">106</a> <em class="jxr_javadoccomment">         * Computes the value of the Gaussian at {@code x}.</em>
+<a class="jxr_linenumber" name="L107" href="Gaussian.html#L107">107</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L108" href="Gaussian.html#L108">108</a> <em class="jxr_javadoccomment">         * @param x Value for which the function must be computed.</em>
+<a class="jxr_linenumber" name="L109" href="Gaussian.html#L109">109</a> <em class="jxr_javadoccomment">         * @param param Values of norm, mean and standard deviation.</em>
+<a class="jxr_linenumber" name="L110" href="Gaussian.html#L110">110</a> <em class="jxr_javadoccomment">         * @return the value of the function.</em>
+<a class="jxr_linenumber" name="L111" href="Gaussian.html#L111">111</a> <em class="jxr_javadoccomment">         * @throws NullArgumentException if {@code param} is {@code null}.</em>
+<a class="jxr_linenumber" name="L112" href="Gaussian.html#L112">112</a> <em class="jxr_javadoccomment">         * @throws DimensionMismatchException if the size of {@code param} is</em>
+<a class="jxr_linenumber" name="L113" href="Gaussian.html#L113">113</a> <em class="jxr_javadoccomment">         * not 3.</em>
+<a class="jxr_linenumber" name="L114" href="Gaussian.html#L114">114</a> <em class="jxr_javadoccomment">         * @throws NotStrictlyPositiveException if {@code param[2]} is negative.</em>
+<a class="jxr_linenumber" name="L115" href="Gaussian.html#L115">115</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L116" href="Gaussian.html#L116">116</a>         @Override
+<a class="jxr_linenumber" name="L117" href="Gaussian.html#L117">117</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> ... param)
+<a class="jxr_linenumber" name="L118" href="Gaussian.html#L118">118</a>             <strong class="jxr_keyword">throws</strong> NullArgumentException,
+<a class="jxr_linenumber" name="L119" href="Gaussian.html#L119">119</a>                    DimensionMismatchException,
+<a class="jxr_linenumber" name="L120" href="Gaussian.html#L120">120</a>                    <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L121" href="Gaussian.html#L121">121</a>             validateParameters(param);
+<a class="jxr_linenumber" name="L122" href="Gaussian.html#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="Gaussian.html#L123">123</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> diff = x - param[1];
+<a class="jxr_linenumber" name="L124" href="Gaussian.html#L124">124</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> i2s2 = 1 / (2 * param[2] * param[2]);
+<a class="jxr_linenumber" name="L125" href="Gaussian.html#L125">125</a>             <strong class="jxr_keyword">return</strong> Gaussian.value(diff, param[0], i2s2);
+<a class="jxr_linenumber" name="L126" href="Gaussian.html#L126">126</a>         }
+<a class="jxr_linenumber" name="L127" href="Gaussian.html#L127">127</a> 
+<a class="jxr_linenumber" name="L128" href="Gaussian.html#L128">128</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L129" href="Gaussian.html#L129">129</a> <em class="jxr_javadoccomment">         * Computes the value of the gradient at {@code x}.</em>
+<a class="jxr_linenumber" name="L130" href="Gaussian.html#L130">130</a> <em class="jxr_javadoccomment">         * The components of the gradient vector are the partial</em>
+<a class="jxr_linenumber" name="L131" href="Gaussian.html#L131">131</a> <em class="jxr_javadoccomment">         * derivatives of the function with respect to each of the</em>
+<a class="jxr_linenumber" name="L132" href="Gaussian.html#L132">132</a> <em class="jxr_javadoccomment">         * &lt;em&gt;parameters&lt;/em&gt; (norm, mean and standard deviation).</em>
+<a class="jxr_linenumber" name="L133" href="Gaussian.html#L133">133</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L134" href="Gaussian.html#L134">134</a> <em class="jxr_javadoccomment">         * @param x Value at which the gradient must be computed.</em>
+<a class="jxr_linenumber" name="L135" href="Gaussian.html#L135">135</a> <em class="jxr_javadoccomment">         * @param param Values of norm, mean and standard deviation.</em>
+<a class="jxr_linenumber" name="L136" href="Gaussian.html#L136">136</a> <em class="jxr_javadoccomment">         * @return the gradient vector at {@code x}.</em>
+<a class="jxr_linenumber" name="L137" href="Gaussian.html#L137">137</a> <em class="jxr_javadoccomment">         * @throws NullArgumentException if {@code param} is {@code null}.</em>
+<a class="jxr_linenumber" name="L138" href="Gaussian.html#L138">138</a> <em class="jxr_javadoccomment">         * @throws DimensionMismatchException if the size of {@code param} is</em>
+<a class="jxr_linenumber" name="L139" href="Gaussian.html#L139">139</a> <em class="jxr_javadoccomment">         * not 3.</em>
+<a class="jxr_linenumber" name="L140" href="Gaussian.html#L140">140</a> <em class="jxr_javadoccomment">         * @throws NotStrictlyPositiveException if {@code param[2]} is negative.</em>
+<a class="jxr_linenumber" name="L141" href="Gaussian.html#L141">141</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L142" href="Gaussian.html#L142">142</a>         @Override
+<a class="jxr_linenumber" name="L143" href="Gaussian.html#L143">143</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] gradient(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> ... param)
+<a class="jxr_linenumber" name="L144" href="Gaussian.html#L144">144</a>             <strong class="jxr_keyword">throws</strong> NullArgumentException,
+<a class="jxr_linenumber" name="L145" href="Gaussian.html#L145">145</a>                    DimensionMismatchException,
+<a class="jxr_linenumber" name="L146" href="Gaussian.html#L146">146</a>                    <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L147" href="Gaussian.html#L147">147</a>             validateParameters(param);
+<a class="jxr_linenumber" name="L148" href="Gaussian.html#L148">148</a> 
+<a class="jxr_linenumber" name="L149" href="Gaussian.html#L149">149</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> norm = param[0];
+<a class="jxr_linenumber" name="L150" href="Gaussian.html#L150">150</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> diff = x - param[1];
+<a class="jxr_linenumber" name="L151" href="Gaussian.html#L151">151</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> sigma = param[2];
+<a class="jxr_linenumber" name="L152" href="Gaussian.html#L152">152</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> i2s2 = 1 / (2 * sigma * sigma);
+<a class="jxr_linenumber" name="L153" href="Gaussian.html#L153">153</a> 
+<a class="jxr_linenumber" name="L154" href="Gaussian.html#L154">154</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> n = Gaussian.value(diff, 1, i2s2);
+<a class="jxr_linenumber" name="L155" href="Gaussian.html#L155">155</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> m = norm * n * 2 * i2s2 * diff;
+<a class="jxr_linenumber" name="L156" href="Gaussian.html#L156">156</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> s = m * diff / sigma;
+<a class="jxr_linenumber" name="L157" href="Gaussian.html#L157">157</a> 
+<a class="jxr_linenumber" name="L158" href="Gaussian.html#L158">158</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { n, m, s };
+<a class="jxr_linenumber" name="L159" href="Gaussian.html#L159">159</a>         }
+<a class="jxr_linenumber" name="L160" href="Gaussian.html#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="Gaussian.html#L161">161</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L162" href="Gaussian.html#L162">162</a> <em class="jxr_javadoccomment">         * Validates parameters to ensure they are appropriate for the evaluation of</em>
+<a class="jxr_linenumber" name="L163" href="Gaussian.html#L163">163</a> <em class="jxr_javadoccomment">         * the {@link #value(double,double[])} and {@link #gradient(double,double[])}</em>
+<a class="jxr_linenumber" name="L164" href="Gaussian.html#L164">164</a> <em class="jxr_javadoccomment">         * methods.</em>
+<a class="jxr_linenumber" name="L165" href="Gaussian.html#L165">165</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L166" href="Gaussian.html#L166">166</a> <em class="jxr_javadoccomment">         * @param param Values of norm, mean and standard deviation.</em>
+<a class="jxr_linenumber" name="L167" href="Gaussian.html#L167">167</a> <em class="jxr_javadoccomment">         * @throws NullArgumentException if {@code param} is {@code null}.</em>
+<a class="jxr_linenumber" name="L168" href="Gaussian.html#L168">168</a> <em class="jxr_javadoccomment">         * @throws DimensionMismatchException if the size of {@code param} is</em>
+<a class="jxr_linenumber" name="L169" href="Gaussian.html#L169">169</a> <em class="jxr_javadoccomment">         * not 3.</em>
+<a class="jxr_linenumber" name="L170" href="Gaussian.html#L170">170</a> <em class="jxr_javadoccomment">         * @throws NotStrictlyPositiveException if {@code param[2]} is negative.</em>
+<a class="jxr_linenumber" name="L171" href="Gaussian.html#L171">171</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L172" href="Gaussian.html#L172">172</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> validateParameters(<strong class="jxr_keyword">double</strong>[] param)
+<a class="jxr_linenumber" name="L173" href="Gaussian.html#L173">173</a>             <strong class="jxr_keyword">throws</strong> NullArgumentException,
+<a class="jxr_linenumber" name="L174" href="Gaussian.html#L174">174</a>                    DimensionMismatchException,
+<a class="jxr_linenumber" name="L175" href="Gaussian.html#L175">175</a>                    <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L176" href="Gaussian.html#L176">176</a>             <strong class="jxr_keyword">if</strong> (param == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L177" href="Gaussian.html#L177">177</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NullArgumentException.html">NullArgumentException</a>();
+<a class="jxr_linenumber" name="L178" href="Gaussian.html#L178">178</a>             }
+<a class="jxr_linenumber" name="L179" href="Gaussian.html#L179">179</a>             <strong class="jxr_keyword">if</strong> (param.length != 3) {
+<a class="jxr_linenumber" name="L180" href="Gaussian.html#L180">180</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(param.length, 3);
+<a class="jxr_linenumber" name="L181" href="Gaussian.html#L181">181</a>             }
+<a class="jxr_linenumber" name="L182" href="Gaussian.html#L182">182</a>             <strong class="jxr_keyword">if</strong> (param[2] &lt;= 0) {
+<a class="jxr_linenumber" name="L183" href="Gaussian.html#L183">183</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(param[2]);
+<a class="jxr_linenumber" name="L184" href="Gaussian.html#L184">184</a>             }
+<a class="jxr_linenumber" name="L185" href="Gaussian.html#L185">185</a>         }
+<a class="jxr_linenumber" name="L186" href="Gaussian.html#L186">186</a>     }
+<a class="jxr_linenumber" name="L187" href="Gaussian.html#L187">187</a> 
+<a class="jxr_linenumber" name="L188" href="Gaussian.html#L188">188</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L189" href="Gaussian.html#L189">189</a> <em class="jxr_javadoccomment">     * @param xMinusMean {@code x - mean}.</em>
+<a class="jxr_linenumber" name="L190" href="Gaussian.html#L190">190</a> <em class="jxr_javadoccomment">     * @param norm Normalization factor.</em>
+<a class="jxr_linenumber" name="L191" href="Gaussian.html#L191">191</a> <em class="jxr_javadoccomment">     * @param i2s2 Inverse of twice the square of the standard deviation.</em>
+<a class="jxr_linenumber" name="L192" href="Gaussian.html#L192">192</a> <em class="jxr_javadoccomment">     * @return the value of the Gaussian at {@code x}.</em>
+<a class="jxr_linenumber" name="L193" href="Gaussian.html#L193">193</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L194" href="Gaussian.html#L194">194</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong> xMinusMean,
+<a class="jxr_linenumber" name="L195" href="Gaussian.html#L195">195</a>                                 <strong class="jxr_keyword">double</strong> norm,
+<a class="jxr_linenumber" name="L196" href="Gaussian.html#L196">196</a>                                 <strong class="jxr_keyword">double</strong> i2s2) {
+<a class="jxr_linenumber" name="L197" href="Gaussian.html#L197">197</a>         <strong class="jxr_keyword">return</strong> norm * FastMath.exp(-xMinusMean * xMinusMean * i2s2);
+<a class="jxr_linenumber" name="L198" href="Gaussian.html#L198">198</a>     }
+<a class="jxr_linenumber" name="L199" href="Gaussian.html#L199">199</a> 
+<a class="jxr_linenumber" name="L200" href="Gaussian.html#L200">200</a>     <em class="jxr_javadoccomment">/** {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L201" href="Gaussian.html#L201">201</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L202" href="Gaussian.html#L202">202</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L203" href="Gaussian.html#L203">203</a>     @Override
+<a class="jxr_linenumber" name="L204" href="Gaussian.html#L204">204</a>     <strong class="jxr_keyword">public</strong> <a href="../differentiation/DerivativeStructure.html">DerivativeStructure</a> value(<strong class="jxr_keyword">final</strong> <a href="../differentiation/DerivativeStructure.html">DerivativeStructure</a> t)
+<a class="jxr_linenumber" name="L205" href="Gaussian.html#L205">205</a>         <strong class="jxr_keyword">throws</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a> {
+<a class="jxr_linenumber" name="L206" href="Gaussian.html#L206">206</a> 
+<a class="jxr_linenumber" name="L207" href="Gaussian.html#L207">207</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> u = is * (t.getValue() - mean);
+<a class="jxr_linenumber" name="L208" href="Gaussian.html#L208">208</a>         <strong class="jxr_keyword">double</strong>[] f = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[t.getOrder() + 1];
+<a class="jxr_linenumber" name="L209" href="Gaussian.html#L209">209</a> 
+<a class="jxr_linenumber" name="L210" href="Gaussian.html#L210">210</a>         <em class="jxr_comment">// the nth order derivative of the Gaussian has the form:</em>
+<a class="jxr_linenumber" name="L211" href="Gaussian.html#L211">211</a>         <em class="jxr_comment">// dn(g(x)/dxn = (norm / s^n) P_n(u) exp(-u^2/2) with u=(x-m)/s</em>
+<a class="jxr_linenumber" name="L212" href="Gaussian.html#L212">212</a>         <em class="jxr_comment">// where P_n(u) is a degree n polynomial with same parity as n</em>
+<a class="jxr_linenumber" name="L213" href="Gaussian.html#L213">213</a>         <em class="jxr_comment">// P_0(u) = 1, P_1(u) = -u, P_2(u) = u^2 - 1, P_3(u) = -u^3 + 3 u...</em>
+<a class="jxr_linenumber" name="L214" href="Gaussian.html#L214">214</a>         <em class="jxr_comment">// the general recurrence relation for P_n is:</em>
+<a class="jxr_linenumber" name="L215" href="Gaussian.html#L215">215</a>         <em class="jxr_comment">// P_n(u) = P_(n-1)'(u) - u P_(n-1)(u)</em>
+<a class="jxr_linenumber" name="L216" href="Gaussian.html#L216">216</a>         <em class="jxr_comment">// as per polynomial parity, we can store coefficients of both P_(n-1) and P_n in the same array</em>
+<a class="jxr_linenumber" name="L217" href="Gaussian.html#L217">217</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] p = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[f.length];
+<a class="jxr_linenumber" name="L218" href="Gaussian.html#L218">218</a>         p[0] = 1;
+<a class="jxr_linenumber" name="L219" href="Gaussian.html#L219">219</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> u2 = u * u;
+<a class="jxr_linenumber" name="L220" href="Gaussian.html#L220">220</a>         <strong class="jxr_keyword">double</strong> coeff = norm * FastMath.exp(-0.5 * u2);
+<a class="jxr_linenumber" name="L221" href="Gaussian.html#L221">221</a>         <strong class="jxr_keyword">if</strong> (coeff &lt;= Precision.SAFE_MIN) {
+<a class="jxr_linenumber" name="L222" href="Gaussian.html#L222">222</a>             Arrays.fill(f, 0.0);
+<a class="jxr_linenumber" name="L223" href="Gaussian.html#L223">223</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L224" href="Gaussian.html#L224">224</a>             f[0] = coeff;
+<a class="jxr_linenumber" name="L225" href="Gaussian.html#L225">225</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> n = 1; n &lt; f.length; ++n) {
+<a class="jxr_linenumber" name="L226" href="Gaussian.html#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="Gaussian.html#L227">227</a>                 <em class="jxr_comment">// update and evaluate polynomial P_n(x)</em>
+<a class="jxr_linenumber" name="L228" href="Gaussian.html#L228">228</a>                 <strong class="jxr_keyword">double</strong> v = 0;
+<a class="jxr_linenumber" name="L229" href="Gaussian.html#L229">229</a>                 p[n] = -p[n - 1];
+<a class="jxr_linenumber" name="L230" href="Gaussian.html#L230">230</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = n; k &gt;= 0; k -= 2) {
+<a class="jxr_linenumber" name="L231" href="Gaussian.html#L231">231</a>                     v = v * u2 + p[k];
+<a class="jxr_linenumber" name="L232" href="Gaussian.html#L232">232</a>                     <strong class="jxr_keyword">if</strong> (k &gt; 2) {
+<a class="jxr_linenumber" name="L233" href="Gaussian.html#L233">233</a>                         p[k - 2] = (k - 1) * p[k - 1] - p[k - 3];
+<a class="jxr_linenumber" name="L234" href="Gaussian.html#L234">234</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (k == 2) {
+<a class="jxr_linenumber" name="L235" href="Gaussian.html#L235">235</a>                         p[0] = p[1];
+<a class="jxr_linenumber" name="L236" href="Gaussian.html#L236">236</a>                     }
+<a class="jxr_linenumber" name="L237" href="Gaussian.html#L237">237</a>                 }
+<a class="jxr_linenumber" name="L238" href="Gaussian.html#L238">238</a>                 <strong class="jxr_keyword">if</strong> ((n &amp; 0x1) == 1) {
+<a class="jxr_linenumber" name="L239" href="Gaussian.html#L239">239</a>                     v *= u;
+<a class="jxr_linenumber" name="L240" href="Gaussian.html#L240">240</a>                 }
+<a class="jxr_linenumber" name="L241" href="Gaussian.html#L241">241</a> 
+<a class="jxr_linenumber" name="L242" href="Gaussian.html#L242">242</a>                 coeff *= is;
+<a class="jxr_linenumber" name="L243" href="Gaussian.html#L243">243</a>                 f[n] = coeff * v;
+<a class="jxr_linenumber" name="L244" href="Gaussian.html#L244">244</a> 
+<a class="jxr_linenumber" name="L245" href="Gaussian.html#L245">245</a>             }
+<a class="jxr_linenumber" name="L246" href="Gaussian.html#L246">246</a>         }
+<a class="jxr_linenumber" name="L247" href="Gaussian.html#L247">247</a> 
+<a class="jxr_linenumber" name="L248" href="Gaussian.html#L248">248</a>         <strong class="jxr_keyword">return</strong> t.compose(f);
+<a class="jxr_linenumber" name="L249" href="Gaussian.html#L249">249</a> 
+<a class="jxr_linenumber" name="L250" href="Gaussian.html#L250">250</a>     }
+<a class="jxr_linenumber" name="L251" href="Gaussian.html#L251">251</a> 
+<a class="jxr_linenumber" name="L252" href="Gaussian.html#L252">252</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

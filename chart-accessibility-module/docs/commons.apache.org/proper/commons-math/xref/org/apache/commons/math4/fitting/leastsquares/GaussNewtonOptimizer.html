@@ -1,0 +1,313 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>GaussNewtonOptimizer xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/fitting/leastsquares/GaussNewtonOptimizer.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="GaussNewtonOptimizer.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="GaussNewtonOptimizer.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="GaussNewtonOptimizer.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="GaussNewtonOptimizer.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="GaussNewtonOptimizer.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="GaussNewtonOptimizer.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="GaussNewtonOptimizer.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="GaussNewtonOptimizer.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="GaussNewtonOptimizer.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="GaussNewtonOptimizer.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="GaussNewtonOptimizer.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="GaussNewtonOptimizer.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="GaussNewtonOptimizer.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="GaussNewtonOptimizer.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="GaussNewtonOptimizer.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="GaussNewtonOptimizer.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="GaussNewtonOptimizer.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.fitting.leastsquares;
+<a class="jxr_linenumber" name="L18" href="GaussNewtonOptimizer.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="GaussNewtonOptimizer.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.ConvergenceException;
+<a class="jxr_linenumber" name="L20" href="GaussNewtonOptimizer.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NullArgumentException;
+<a class="jxr_linenumber" name="L21" href="GaussNewtonOptimizer.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L22" href="GaussNewtonOptimizer.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.fitting.leastsquares.LeastSquaresProblem.Evaluation;
+<a class="jxr_linenumber" name="L23" href="GaussNewtonOptimizer.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.ArrayRealVector;
+<a class="jxr_linenumber" name="L24" href="GaussNewtonOptimizer.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.CholeskyDecomposition;
+<a class="jxr_linenumber" name="L25" href="GaussNewtonOptimizer.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.LUDecomposition;
+<a class="jxr_linenumber" name="L26" href="GaussNewtonOptimizer.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.MatrixUtils;
+<a class="jxr_linenumber" name="L27" href="GaussNewtonOptimizer.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.NonPositiveDefiniteMatrixException;
+<a class="jxr_linenumber" name="L28" href="GaussNewtonOptimizer.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.QRDecomposition;
+<a class="jxr_linenumber" name="L29" href="GaussNewtonOptimizer.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.RealMatrix;
+<a class="jxr_linenumber" name="L30" href="GaussNewtonOptimizer.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.RealVector;
+<a class="jxr_linenumber" name="L31" href="GaussNewtonOptimizer.html#L31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.SingularMatrixException;
+<a class="jxr_linenumber" name="L32" href="GaussNewtonOptimizer.html#L32">32</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.SingularValueDecomposition;
+<a class="jxr_linenumber" name="L33" href="GaussNewtonOptimizer.html#L33">33</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.optim.ConvergenceChecker;
+<a class="jxr_linenumber" name="L34" href="GaussNewtonOptimizer.html#L34">34</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Incrementor;
+<a class="jxr_linenumber" name="L35" href="GaussNewtonOptimizer.html#L35">35</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Pair;
+<a class="jxr_linenumber" name="L36" href="GaussNewtonOptimizer.html#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="GaussNewtonOptimizer.html#L37">37</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L38" href="GaussNewtonOptimizer.html#L38">38</a>  <em class="jxr_javadoccomment"> * Gauss-Newton least-squares solver.</em>
+<a class="jxr_linenumber" name="L39" href="GaussNewtonOptimizer.html#L39">39</a>  <em class="jxr_javadoccomment"> * &lt;p&gt; This class solve a least-square problem by</em>
+<a class="jxr_linenumber" name="L40" href="GaussNewtonOptimizer.html#L40">40</a>  <em class="jxr_javadoccomment"> * solving the normal equations of the linearized problem at each iteration. Either LU</em>
+<a class="jxr_linenumber" name="L41" href="GaussNewtonOptimizer.html#L41">41</a>  <em class="jxr_javadoccomment"> * decomposition or Cholesky decomposition can be used to solve the normal equations,</em>
+<a class="jxr_linenumber" name="L42" href="GaussNewtonOptimizer.html#L42">42</a>  <em class="jxr_javadoccomment"> * or QR decomposition or SVD decomposition can be used to solve the linear system. LU</em>
+<a class="jxr_linenumber" name="L43" href="GaussNewtonOptimizer.html#L43">43</a>  <em class="jxr_javadoccomment"> * decomposition is faster but QR decomposition is more robust for difficult problems,</em>
+<a class="jxr_linenumber" name="L44" href="GaussNewtonOptimizer.html#L44">44</a>  <em class="jxr_javadoccomment"> * and SVD can compute a solution for rank-deficient problems.</em>
+<a class="jxr_linenumber" name="L45" href="GaussNewtonOptimizer.html#L45">45</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L46" href="GaussNewtonOptimizer.html#L46">46</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L47" href="GaussNewtonOptimizer.html#L47">47</a>  <em class="jxr_javadoccomment"> * @since 3.3</em>
+<a class="jxr_linenumber" name="L48" href="GaussNewtonOptimizer.html#L48">48</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L49" href="GaussNewtonOptimizer.html#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="GaussNewtonOptimizer.html">GaussNewtonOptimizer</a> <strong class="jxr_keyword">implements</strong> <a href="LeastSquaresOptimizer.html">LeastSquaresOptimizer</a> {
+<a class="jxr_linenumber" name="L50" href="GaussNewtonOptimizer.html#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="GaussNewtonOptimizer.html#L51">51</a>      <em class="jxr_javadoccomment">/** The decomposition algorithm to use to solve the normal equations. */</em>
+<a class="jxr_linenumber" name="L52" href="GaussNewtonOptimizer.html#L52">52</a>      <em class="jxr_comment">//TODO move to linear package and expand options?</em>
+<a class="jxr_linenumber" name="L53" href="GaussNewtonOptimizer.html#L53">53</a>      <strong class="jxr_keyword">public</strong> enum <a href="GaussNewtonOptimizer.html">Decomposition</a> {
+<a class="jxr_linenumber" name="L54" href="GaussNewtonOptimizer.html#L54">54</a>          <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L55" href="GaussNewtonOptimizer.html#L55">55</a>  <em class="jxr_javadoccomment">         * Solve by forming the normal equations (J&lt;sup&gt;T&lt;/sup&gt;Jx=J&lt;sup&gt;T&lt;/sup&gt;r) and</em>
+<a class="jxr_linenumber" name="L56" href="GaussNewtonOptimizer.html#L56">56</a>  <em class="jxr_javadoccomment">         * using the {@link LUDecomposition}.</em>
+<a class="jxr_linenumber" name="L57" href="GaussNewtonOptimizer.html#L57">57</a>  <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L58" href="GaussNewtonOptimizer.html#L58">58</a>  <em class="jxr_javadoccomment">         * &lt;p&gt; Theoretically this method takes mn&lt;sup&gt;2&lt;/sup&gt;/2 operations to compute the</em>
+<a class="jxr_linenumber" name="L59" href="GaussNewtonOptimizer.html#L59">59</a>  <em class="jxr_javadoccomment">         * normal matrix and n&lt;sup&gt;3&lt;/sup&gt;/3 operations (m &gt; n) to solve the system using</em>
+<a class="jxr_linenumber" name="L60" href="GaussNewtonOptimizer.html#L60">60</a>  <em class="jxr_javadoccomment">         * the LU decomposition. &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L61" href="GaussNewtonOptimizer.html#L61">61</a>  <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L62" href="GaussNewtonOptimizer.html#L62">62</a>          LU {
+<a class="jxr_linenumber" name="L63" href="GaussNewtonOptimizer.html#L63">63</a>              @Override
+<a class="jxr_linenumber" name="L64" href="GaussNewtonOptimizer.html#L64">64</a>              <strong class="jxr_keyword">protected</strong> <a href="../../linear/RealVector.html">RealVector</a> solve(<strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> jacobian,
+<a class="jxr_linenumber" name="L65" href="GaussNewtonOptimizer.html#L65">65</a>                                         <strong class="jxr_keyword">final</strong> <a href="../../linear/RealVector.html">RealVector</a> residuals) {
+<a class="jxr_linenumber" name="L66" href="GaussNewtonOptimizer.html#L66">66</a>                  <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L67" href="GaussNewtonOptimizer.html#L67">67</a>                      <strong class="jxr_keyword">final</strong> Pair&lt;RealMatrix, RealVector&gt; normalEquation =
+<a class="jxr_linenumber" name="L68" href="GaussNewtonOptimizer.html#L68">68</a>                              computeNormalMatrix(jacobian, residuals);
+<a class="jxr_linenumber" name="L69" href="GaussNewtonOptimizer.html#L69">69</a>                      <strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> normal = normalEquation.getFirst();
+<a class="jxr_linenumber" name="L70" href="GaussNewtonOptimizer.html#L70">70</a>                      <strong class="jxr_keyword">final</strong> <a href="../../linear/RealVector.html">RealVector</a> jTr = normalEquation.getSecond();
+<a class="jxr_linenumber" name="L71" href="GaussNewtonOptimizer.html#L71">71</a>                      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../linear/LUDecomposition.html">LUDecomposition</a>(normal, SINGULARITY_THRESHOLD)
+<a class="jxr_linenumber" name="L72" href="GaussNewtonOptimizer.html#L72">72</a>                              .getSolver()
+<a class="jxr_linenumber" name="L73" href="GaussNewtonOptimizer.html#L73">73</a>                              .solve(jTr);
+<a class="jxr_linenumber" name="L74" href="GaussNewtonOptimizer.html#L74">74</a>                  } <strong class="jxr_keyword">catch</strong> (SingularMatrixException e) {
+<a class="jxr_linenumber" name="L75" href="GaussNewtonOptimizer.html#L75">75</a>                      <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/ConvergenceException.html">ConvergenceException</a>(LocalizedFormats.UNABLE_TO_SOLVE_SINGULAR_PROBLEM, e);
+<a class="jxr_linenumber" name="L76" href="GaussNewtonOptimizer.html#L76">76</a>                  }
+<a class="jxr_linenumber" name="L77" href="GaussNewtonOptimizer.html#L77">77</a>              }
+<a class="jxr_linenumber" name="L78" href="GaussNewtonOptimizer.html#L78">78</a>          },
+<a class="jxr_linenumber" name="L79" href="GaussNewtonOptimizer.html#L79">79</a>          <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L80" href="GaussNewtonOptimizer.html#L80">80</a>  <em class="jxr_javadoccomment">         * Solve the linear least squares problem (Jx=r) using the {@link</em>
+<a class="jxr_linenumber" name="L81" href="GaussNewtonOptimizer.html#L81">81</a>  <em class="jxr_javadoccomment">         * QRDecomposition}.</em>
+<a class="jxr_linenumber" name="L82" href="GaussNewtonOptimizer.html#L82">82</a>  <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L83" href="GaussNewtonOptimizer.html#L83">83</a>  <em class="jxr_javadoccomment">         * &lt;p&gt; Theoretically this method takes mn&lt;sup&gt;2&lt;/sup&gt; - n&lt;sup&gt;3&lt;/sup&gt;/3 operations</em>
+<a class="jxr_linenumber" name="L84" href="GaussNewtonOptimizer.html#L84">84</a>  <em class="jxr_javadoccomment">         * (m &gt; n) and has better numerical accuracy than any method that forms the normal</em>
+<a class="jxr_linenumber" name="L85" href="GaussNewtonOptimizer.html#L85">85</a>  <em class="jxr_javadoccomment">         * equations. &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L86" href="GaussNewtonOptimizer.html#L86">86</a>  <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L87" href="GaussNewtonOptimizer.html#L87">87</a>          QR {
+<a class="jxr_linenumber" name="L88" href="GaussNewtonOptimizer.html#L88">88</a>              @Override
+<a class="jxr_linenumber" name="L89" href="GaussNewtonOptimizer.html#L89">89</a>              <strong class="jxr_keyword">protected</strong> <a href="../../linear/RealVector.html">RealVector</a> solve(<strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> jacobian,
+<a class="jxr_linenumber" name="L90" href="GaussNewtonOptimizer.html#L90">90</a>                                         <strong class="jxr_keyword">final</strong> <a href="../../linear/RealVector.html">RealVector</a> residuals) {
+<a class="jxr_linenumber" name="L91" href="GaussNewtonOptimizer.html#L91">91</a>                  <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L92" href="GaussNewtonOptimizer.html#L92">92</a>                      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../linear/QRDecomposition.html">QRDecomposition</a>(jacobian, SINGULARITY_THRESHOLD)
+<a class="jxr_linenumber" name="L93" href="GaussNewtonOptimizer.html#L93">93</a>                              .getSolver()
+<a class="jxr_linenumber" name="L94" href="GaussNewtonOptimizer.html#L94">94</a>                              .solve(residuals);
+<a class="jxr_linenumber" name="L95" href="GaussNewtonOptimizer.html#L95">95</a>                  } <strong class="jxr_keyword">catch</strong> (SingularMatrixException e) {
+<a class="jxr_linenumber" name="L96" href="GaussNewtonOptimizer.html#L96">96</a>                      <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/ConvergenceException.html">ConvergenceException</a>(LocalizedFormats.UNABLE_TO_SOLVE_SINGULAR_PROBLEM, e);
+<a class="jxr_linenumber" name="L97" href="GaussNewtonOptimizer.html#L97">97</a>                  }
+<a class="jxr_linenumber" name="L98" href="GaussNewtonOptimizer.html#L98">98</a>              }
+<a class="jxr_linenumber" name="L99" href="GaussNewtonOptimizer.html#L99">99</a>          },
+<a class="jxr_linenumber" name="L100" href="GaussNewtonOptimizer.html#L100">100</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L101" href="GaussNewtonOptimizer.html#L101">101</a> <em class="jxr_javadoccomment">         * Solve by forming the normal equations (J&lt;sup&gt;T&lt;/sup&gt;Jx=J&lt;sup&gt;T&lt;/sup&gt;r) and</em>
+<a class="jxr_linenumber" name="L102" href="GaussNewtonOptimizer.html#L102">102</a> <em class="jxr_javadoccomment">         * using the {@link CholeskyDecomposition}.</em>
+<a class="jxr_linenumber" name="L103" href="GaussNewtonOptimizer.html#L103">103</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L104" href="GaussNewtonOptimizer.html#L104">104</a> <em class="jxr_javadoccomment">         * &lt;p&gt; Theoretically this method takes mn&lt;sup&gt;2&lt;/sup&gt;/2 operations to compute the</em>
+<a class="jxr_linenumber" name="L105" href="GaussNewtonOptimizer.html#L105">105</a> <em class="jxr_javadoccomment">         * normal matrix and n&lt;sup&gt;3&lt;/sup&gt;/6 operations (m &gt; n) to solve the system using</em>
+<a class="jxr_linenumber" name="L106" href="GaussNewtonOptimizer.html#L106">106</a> <em class="jxr_javadoccomment">         * the Cholesky decomposition. &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L107" href="GaussNewtonOptimizer.html#L107">107</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L108" href="GaussNewtonOptimizer.html#L108">108</a>         CHOLESKY {
+<a class="jxr_linenumber" name="L109" href="GaussNewtonOptimizer.html#L109">109</a>             @Override
+<a class="jxr_linenumber" name="L110" href="GaussNewtonOptimizer.html#L110">110</a>             <strong class="jxr_keyword">protected</strong> <a href="../../linear/RealVector.html">RealVector</a> solve(<strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> jacobian,
+<a class="jxr_linenumber" name="L111" href="GaussNewtonOptimizer.html#L111">111</a>                                        <strong class="jxr_keyword">final</strong> <a href="../../linear/RealVector.html">RealVector</a> residuals) {
+<a class="jxr_linenumber" name="L112" href="GaussNewtonOptimizer.html#L112">112</a>                 <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L113" href="GaussNewtonOptimizer.html#L113">113</a>                     <strong class="jxr_keyword">final</strong> Pair&lt;RealMatrix, RealVector&gt; normalEquation =
+<a class="jxr_linenumber" name="L114" href="GaussNewtonOptimizer.html#L114">114</a>                             computeNormalMatrix(jacobian, residuals);
+<a class="jxr_linenumber" name="L115" href="GaussNewtonOptimizer.html#L115">115</a>                     <strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> normal = normalEquation.getFirst();
+<a class="jxr_linenumber" name="L116" href="GaussNewtonOptimizer.html#L116">116</a>                     <strong class="jxr_keyword">final</strong> <a href="../../linear/RealVector.html">RealVector</a> jTr = normalEquation.getSecond();
+<a class="jxr_linenumber" name="L117" href="GaussNewtonOptimizer.html#L117">117</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../linear/CholeskyDecomposition.html">CholeskyDecomposition</a>(
+<a class="jxr_linenumber" name="L118" href="GaussNewtonOptimizer.html#L118">118</a>                             normal, SINGULARITY_THRESHOLD, SINGULARITY_THRESHOLD)
+<a class="jxr_linenumber" name="L119" href="GaussNewtonOptimizer.html#L119">119</a>                             .getSolver()
+<a class="jxr_linenumber" name="L120" href="GaussNewtonOptimizer.html#L120">120</a>                             .solve(jTr);
+<a class="jxr_linenumber" name="L121" href="GaussNewtonOptimizer.html#L121">121</a>                 } <strong class="jxr_keyword">catch</strong> (NonPositiveDefiniteMatrixException e) {
+<a class="jxr_linenumber" name="L122" href="GaussNewtonOptimizer.html#L122">122</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/ConvergenceException.html">ConvergenceException</a>(LocalizedFormats.UNABLE_TO_SOLVE_SINGULAR_PROBLEM, e);
+<a class="jxr_linenumber" name="L123" href="GaussNewtonOptimizer.html#L123">123</a>                 }
+<a class="jxr_linenumber" name="L124" href="GaussNewtonOptimizer.html#L124">124</a>             }
+<a class="jxr_linenumber" name="L125" href="GaussNewtonOptimizer.html#L125">125</a>         },
+<a class="jxr_linenumber" name="L126" href="GaussNewtonOptimizer.html#L126">126</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L127" href="GaussNewtonOptimizer.html#L127">127</a> <em class="jxr_javadoccomment">         * Solve the linear least squares problem using the {@link</em>
+<a class="jxr_linenumber" name="L128" href="GaussNewtonOptimizer.html#L128">128</a> <em class="jxr_javadoccomment">         * SingularValueDecomposition}.</em>
+<a class="jxr_linenumber" name="L129" href="GaussNewtonOptimizer.html#L129">129</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L130" href="GaussNewtonOptimizer.html#L130">130</a> <em class="jxr_javadoccomment">         * &lt;p&gt; This method is slower, but can provide a solution for rank deficient and</em>
+<a class="jxr_linenumber" name="L131" href="GaussNewtonOptimizer.html#L131">131</a> <em class="jxr_javadoccomment">         * nearly singular systems.</em>
+<a class="jxr_linenumber" name="L132" href="GaussNewtonOptimizer.html#L132">132</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L133" href="GaussNewtonOptimizer.html#L133">133</a>         SVD {
+<a class="jxr_linenumber" name="L134" href="GaussNewtonOptimizer.html#L134">134</a>             @Override
+<a class="jxr_linenumber" name="L135" href="GaussNewtonOptimizer.html#L135">135</a>             <strong class="jxr_keyword">protected</strong> <a href="../../linear/RealVector.html">RealVector</a> solve(<strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> jacobian,
+<a class="jxr_linenumber" name="L136" href="GaussNewtonOptimizer.html#L136">136</a>                                        <strong class="jxr_keyword">final</strong> <a href="../../linear/RealVector.html">RealVector</a> residuals) {
+<a class="jxr_linenumber" name="L137" href="GaussNewtonOptimizer.html#L137">137</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../linear/SingularValueDecomposition.html">SingularValueDecomposition</a>(jacobian)
+<a class="jxr_linenumber" name="L138" href="GaussNewtonOptimizer.html#L138">138</a>                         .getSolver()
+<a class="jxr_linenumber" name="L139" href="GaussNewtonOptimizer.html#L139">139</a>                         .solve(residuals);
+<a class="jxr_linenumber" name="L140" href="GaussNewtonOptimizer.html#L140">140</a>             }
+<a class="jxr_linenumber" name="L141" href="GaussNewtonOptimizer.html#L141">141</a>         };
+<a class="jxr_linenumber" name="L142" href="GaussNewtonOptimizer.html#L142">142</a> 
+<a class="jxr_linenumber" name="L143" href="GaussNewtonOptimizer.html#L143">143</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L144" href="GaussNewtonOptimizer.html#L144">144</a> <em class="jxr_javadoccomment">         * Solve the linear least squares problem Jx=r.</em>
+<a class="jxr_linenumber" name="L145" href="GaussNewtonOptimizer.html#L145">145</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L146" href="GaussNewtonOptimizer.html#L146">146</a> <em class="jxr_javadoccomment">         * @param jacobian  the Jacobian matrix, J. the number of rows &gt;= the number or</em>
+<a class="jxr_linenumber" name="L147" href="GaussNewtonOptimizer.html#L147">147</a> <em class="jxr_javadoccomment">         *                  columns.</em>
+<a class="jxr_linenumber" name="L148" href="GaussNewtonOptimizer.html#L148">148</a> <em class="jxr_javadoccomment">         * @param residuals the computed residuals, r.</em>
+<a class="jxr_linenumber" name="L149" href="GaussNewtonOptimizer.html#L149">149</a> <em class="jxr_javadoccomment">         * @return the solution x, to the linear least squares problem Jx=r.</em>
+<a class="jxr_linenumber" name="L150" href="GaussNewtonOptimizer.html#L150">150</a> <em class="jxr_javadoccomment">         * @throws ConvergenceException if the matrix properties (e.g. singular) do not</em>
+<a class="jxr_linenumber" name="L151" href="GaussNewtonOptimizer.html#L151">151</a> <em class="jxr_javadoccomment">         *                              permit a solution.</em>
+<a class="jxr_linenumber" name="L152" href="GaussNewtonOptimizer.html#L152">152</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L153" href="GaussNewtonOptimizer.html#L153">153</a>         <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <a href="../../linear/RealVector.html">RealVector</a> solve(<a href="../../linear/RealMatrix.html">RealMatrix</a> jacobian,
+<a class="jxr_linenumber" name="L154" href="GaussNewtonOptimizer.html#L154">154</a>                                             <a href="../../linear/RealVector.html">RealVector</a> residuals);
+<a class="jxr_linenumber" name="L155" href="GaussNewtonOptimizer.html#L155">155</a>     }
+<a class="jxr_linenumber" name="L156" href="GaussNewtonOptimizer.html#L156">156</a> 
+<a class="jxr_linenumber" name="L157" href="GaussNewtonOptimizer.html#L157">157</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L158" href="GaussNewtonOptimizer.html#L158">158</a> <em class="jxr_javadoccomment">     * The singularity threshold for matrix decompositions. Determines when a {@link</em>
+<a class="jxr_linenumber" name="L159" href="GaussNewtonOptimizer.html#L159">159</a> <em class="jxr_javadoccomment">     * ConvergenceException} is thrown. The current value was the default value for {@link</em>
+<a class="jxr_linenumber" name="L160" href="GaussNewtonOptimizer.html#L160">160</a> <em class="jxr_javadoccomment">     * LUDecomposition}.</em>
+<a class="jxr_linenumber" name="L161" href="GaussNewtonOptimizer.html#L161">161</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L162" href="GaussNewtonOptimizer.html#L162">162</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> SINGULARITY_THRESHOLD = 1e-11;
+<a class="jxr_linenumber" name="L163" href="GaussNewtonOptimizer.html#L163">163</a> 
+<a class="jxr_linenumber" name="L164" href="GaussNewtonOptimizer.html#L164">164</a>     <em class="jxr_javadoccomment">/** Indicator for using LU decomposition. */</em>
+<a class="jxr_linenumber" name="L165" href="GaussNewtonOptimizer.html#L165">165</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="GaussNewtonOptimizer.html">Decomposition</a> decomposition;
+<a class="jxr_linenumber" name="L166" href="GaussNewtonOptimizer.html#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="GaussNewtonOptimizer.html#L167">167</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L168" href="GaussNewtonOptimizer.html#L168">168</a> <em class="jxr_javadoccomment">     * Creates a Gauss Newton optimizer.</em>
+<a class="jxr_linenumber" name="L169" href="GaussNewtonOptimizer.html#L169">169</a> <em class="jxr_javadoccomment">     * &lt;p/&gt;</em>
+<a class="jxr_linenumber" name="L170" href="GaussNewtonOptimizer.html#L170">170</a> <em class="jxr_javadoccomment">     * The default for the algorithm is to solve the normal equations using QR</em>
+<a class="jxr_linenumber" name="L171" href="GaussNewtonOptimizer.html#L171">171</a> <em class="jxr_javadoccomment">     * decomposition.</em>
+<a class="jxr_linenumber" name="L172" href="GaussNewtonOptimizer.html#L172">172</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L173" href="GaussNewtonOptimizer.html#L173">173</a>     <strong class="jxr_keyword">public</strong> <a href="GaussNewtonOptimizer.html">GaussNewtonOptimizer</a>() {
+<a class="jxr_linenumber" name="L174" href="GaussNewtonOptimizer.html#L174">174</a>         <strong class="jxr_keyword">this</strong>(Decomposition.QR);
+<a class="jxr_linenumber" name="L175" href="GaussNewtonOptimizer.html#L175">175</a>     }
+<a class="jxr_linenumber" name="L176" href="GaussNewtonOptimizer.html#L176">176</a> 
+<a class="jxr_linenumber" name="L177" href="GaussNewtonOptimizer.html#L177">177</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L178" href="GaussNewtonOptimizer.html#L178">178</a> <em class="jxr_javadoccomment">     * Create a Gauss Newton optimizer that uses the given decomposition algorithm to</em>
+<a class="jxr_linenumber" name="L179" href="GaussNewtonOptimizer.html#L179">179</a> <em class="jxr_javadoccomment">     * solve the normal equations.</em>
+<a class="jxr_linenumber" name="L180" href="GaussNewtonOptimizer.html#L180">180</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L181" href="GaussNewtonOptimizer.html#L181">181</a> <em class="jxr_javadoccomment">     * @param decomposition the {@link Decomposition} algorithm.</em>
+<a class="jxr_linenumber" name="L182" href="GaussNewtonOptimizer.html#L182">182</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L183" href="GaussNewtonOptimizer.html#L183">183</a>     <strong class="jxr_keyword">public</strong> <a href="GaussNewtonOptimizer.html">GaussNewtonOptimizer</a>(<strong class="jxr_keyword">final</strong> <a href="GaussNewtonOptimizer.html">Decomposition</a> decomposition) {
+<a class="jxr_linenumber" name="L184" href="GaussNewtonOptimizer.html#L184">184</a>         <strong class="jxr_keyword">this</strong>.decomposition = decomposition;
+<a class="jxr_linenumber" name="L185" href="GaussNewtonOptimizer.html#L185">185</a>     }
+<a class="jxr_linenumber" name="L186" href="GaussNewtonOptimizer.html#L186">186</a> 
+<a class="jxr_linenumber" name="L187" href="GaussNewtonOptimizer.html#L187">187</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L188" href="GaussNewtonOptimizer.html#L188">188</a> <em class="jxr_javadoccomment">     * Get the matrix decomposition algorithm used to solve the normal equations.</em>
+<a class="jxr_linenumber" name="L189" href="GaussNewtonOptimizer.html#L189">189</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L190" href="GaussNewtonOptimizer.html#L190">190</a> <em class="jxr_javadoccomment">     * @return the matrix {@link Decomposition} algoritm.</em>
+<a class="jxr_linenumber" name="L191" href="GaussNewtonOptimizer.html#L191">191</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L192" href="GaussNewtonOptimizer.html#L192">192</a>     <strong class="jxr_keyword">public</strong> <a href="GaussNewtonOptimizer.html">Decomposition</a> getDecomposition() {
+<a class="jxr_linenumber" name="L193" href="GaussNewtonOptimizer.html#L193">193</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.decomposition;
+<a class="jxr_linenumber" name="L194" href="GaussNewtonOptimizer.html#L194">194</a>     }
+<a class="jxr_linenumber" name="L195" href="GaussNewtonOptimizer.html#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="GaussNewtonOptimizer.html#L196">196</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L197" href="GaussNewtonOptimizer.html#L197">197</a> <em class="jxr_javadoccomment">     * Configure the decomposition algorithm.</em>
+<a class="jxr_linenumber" name="L198" href="GaussNewtonOptimizer.html#L198">198</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L199" href="GaussNewtonOptimizer.html#L199">199</a> <em class="jxr_javadoccomment">     * @param newDecomposition the {@link Decomposition} algorithm to use.</em>
+<a class="jxr_linenumber" name="L200" href="GaussNewtonOptimizer.html#L200">200</a> <em class="jxr_javadoccomment">     * @return a new instance.</em>
+<a class="jxr_linenumber" name="L201" href="GaussNewtonOptimizer.html#L201">201</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L202" href="GaussNewtonOptimizer.html#L202">202</a>     <strong class="jxr_keyword">public</strong> <a href="GaussNewtonOptimizer.html">GaussNewtonOptimizer</a> withDecomposition(<strong class="jxr_keyword">final</strong> <a href="GaussNewtonOptimizer.html">Decomposition</a> newDecomposition) {
+<a class="jxr_linenumber" name="L203" href="GaussNewtonOptimizer.html#L203">203</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="GaussNewtonOptimizer.html">GaussNewtonOptimizer</a>(newDecomposition);
+<a class="jxr_linenumber" name="L204" href="GaussNewtonOptimizer.html#L204">204</a>     }
+<a class="jxr_linenumber" name="L205" href="GaussNewtonOptimizer.html#L205">205</a> 
+<a class="jxr_linenumber" name="L206" href="GaussNewtonOptimizer.html#L206">206</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L207" href="GaussNewtonOptimizer.html#L207">207</a>     @Override
+<a class="jxr_linenumber" name="L208" href="GaussNewtonOptimizer.html#L208">208</a>     <strong class="jxr_keyword">public</strong> <a href="LeastSquaresOptimizer.html">Optimum</a> optimize(<strong class="jxr_keyword">final</strong> <a href="LeastSquaresProblem.html">LeastSquaresProblem</a> lsp) {
+<a class="jxr_linenumber" name="L209" href="GaussNewtonOptimizer.html#L209">209</a>         <em class="jxr_comment">//create local evaluation and iteration counts</em>
+<a class="jxr_linenumber" name="L210" href="GaussNewtonOptimizer.html#L210">210</a>         <strong class="jxr_keyword">final</strong> <a href="../../util/IntegerSequence.html">Incrementor</a> evaluationCounter = lsp.getEvaluationCounter();
+<a class="jxr_linenumber" name="L211" href="GaussNewtonOptimizer.html#L211">211</a>         <strong class="jxr_keyword">final</strong> <a href="../../util/IntegerSequence.html">Incrementor</a> iterationCounter = lsp.getIterationCounter();
+<a class="jxr_linenumber" name="L212" href="GaussNewtonOptimizer.html#L212">212</a>         <strong class="jxr_keyword">final</strong> ConvergenceChecker&lt;Evaluation&gt; checker
+<a class="jxr_linenumber" name="L213" href="GaussNewtonOptimizer.html#L213">213</a>                 = lsp.getConvergenceChecker();
+<a class="jxr_linenumber" name="L214" href="GaussNewtonOptimizer.html#L214">214</a> 
+<a class="jxr_linenumber" name="L215" href="GaussNewtonOptimizer.html#L215">215</a>         <em class="jxr_comment">// Computation will be useless without a checker (see "for-loop").</em>
+<a class="jxr_linenumber" name="L216" href="GaussNewtonOptimizer.html#L216">216</a>         <strong class="jxr_keyword">if</strong> (checker == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L217" href="GaussNewtonOptimizer.html#L217">217</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NullArgumentException.html">NullArgumentException</a>();
+<a class="jxr_linenumber" name="L218" href="GaussNewtonOptimizer.html#L218">218</a>         }
+<a class="jxr_linenumber" name="L219" href="GaussNewtonOptimizer.html#L219">219</a> 
+<a class="jxr_linenumber" name="L220" href="GaussNewtonOptimizer.html#L220">220</a>         <a href="../../linear/RealVector.html">RealVector</a> currentPoint = lsp.getStart();
+<a class="jxr_linenumber" name="L221" href="GaussNewtonOptimizer.html#L221">221</a> 
+<a class="jxr_linenumber" name="L222" href="GaussNewtonOptimizer.html#L222">222</a>         <em class="jxr_comment">// iterate until convergence is reached</em>
+<a class="jxr_linenumber" name="L223" href="GaussNewtonOptimizer.html#L223">223</a>         <a href="LeastSquaresProblem.html">Evaluation</a> current = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L224" href="GaussNewtonOptimizer.html#L224">224</a>         <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
+<a class="jxr_linenumber" name="L225" href="GaussNewtonOptimizer.html#L225">225</a>             iterationCounter.incrementCount();
+<a class="jxr_linenumber" name="L226" href="GaussNewtonOptimizer.html#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="GaussNewtonOptimizer.html#L227">227</a>             <em class="jxr_comment">// evaluate the objective function and its jacobian</em>
+<a class="jxr_linenumber" name="L228" href="GaussNewtonOptimizer.html#L228">228</a>             <a href="LeastSquaresProblem.html">Evaluation</a> previous = current;
+<a class="jxr_linenumber" name="L229" href="GaussNewtonOptimizer.html#L229">229</a>             <em class="jxr_comment">// Value of the objective function at "currentPoint".</em>
+<a class="jxr_linenumber" name="L230" href="GaussNewtonOptimizer.html#L230">230</a>             evaluationCounter.incrementCount();
+<a class="jxr_linenumber" name="L231" href="GaussNewtonOptimizer.html#L231">231</a>             current = lsp.evaluate(currentPoint);
+<a class="jxr_linenumber" name="L232" href="GaussNewtonOptimizer.html#L232">232</a>             <strong class="jxr_keyword">final</strong> <a href="../../linear/RealVector.html">RealVector</a> currentResiduals = current.getResiduals();
+<a class="jxr_linenumber" name="L233" href="GaussNewtonOptimizer.html#L233">233</a>             <strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> weightedJacobian = current.getJacobian();
+<a class="jxr_linenumber" name="L234" href="GaussNewtonOptimizer.html#L234">234</a>             currentPoint = current.getPoint();
+<a class="jxr_linenumber" name="L235" href="GaussNewtonOptimizer.html#L235">235</a> 
+<a class="jxr_linenumber" name="L236" href="GaussNewtonOptimizer.html#L236">236</a>             <em class="jxr_comment">// Check convergence.</em>
+<a class="jxr_linenumber" name="L237" href="GaussNewtonOptimizer.html#L237">237</a>             <strong class="jxr_keyword">if</strong> (previous != <strong class="jxr_keyword">null</strong> &amp;&amp;
+<a class="jxr_linenumber" name="L238" href="GaussNewtonOptimizer.html#L238">238</a>                 checker.converged(iterationCounter.getCount(), previous, current)) {
+<a class="jxr_linenumber" name="L239" href="GaussNewtonOptimizer.html#L239">239</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="OptimumImpl.html">OptimumImpl</a>(current,
+<a class="jxr_linenumber" name="L240" href="GaussNewtonOptimizer.html#L240">240</a>                                        evaluationCounter.getCount(),
+<a class="jxr_linenumber" name="L241" href="GaussNewtonOptimizer.html#L241">241</a>                                        iterationCounter.getCount());
+<a class="jxr_linenumber" name="L242" href="GaussNewtonOptimizer.html#L242">242</a>             }
+<a class="jxr_linenumber" name="L243" href="GaussNewtonOptimizer.html#L243">243</a> 
+<a class="jxr_linenumber" name="L244" href="GaussNewtonOptimizer.html#L244">244</a>             <em class="jxr_comment">// solve the linearized least squares problem</em>
+<a class="jxr_linenumber" name="L245" href="GaussNewtonOptimizer.html#L245">245</a>             <strong class="jxr_keyword">final</strong> <a href="../../linear/RealVector.html">RealVector</a> dX = <strong class="jxr_keyword">this</strong>.decomposition.solve(weightedJacobian, currentResiduals);
+<a class="jxr_linenumber" name="L246" href="GaussNewtonOptimizer.html#L246">246</a>             <em class="jxr_comment">// update the estimated parameters</em>
+<a class="jxr_linenumber" name="L247" href="GaussNewtonOptimizer.html#L247">247</a>             currentPoint = currentPoint.add(dX);
+<a class="jxr_linenumber" name="L248" href="GaussNewtonOptimizer.html#L248">248</a>         }
+<a class="jxr_linenumber" name="L249" href="GaussNewtonOptimizer.html#L249">249</a>     }
+<a class="jxr_linenumber" name="L250" href="GaussNewtonOptimizer.html#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="GaussNewtonOptimizer.html#L251">251</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L252" href="GaussNewtonOptimizer.html#L252">252</a>     @Override
+<a class="jxr_linenumber" name="L253" href="GaussNewtonOptimizer.html#L253">253</a>     <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L254" href="GaussNewtonOptimizer.html#L254">254</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">"GaussNewtonOptimizer{"</span> +
+<a class="jxr_linenumber" name="L255" href="GaussNewtonOptimizer.html#L255">255</a>                 <span class="jxr_string">"decomposition="</span> + decomposition +
+<a class="jxr_linenumber" name="L256" href="GaussNewtonOptimizer.html#L256">256</a>                 '}';
+<a class="jxr_linenumber" name="L257" href="GaussNewtonOptimizer.html#L257">257</a>     }
+<a class="jxr_linenumber" name="L258" href="GaussNewtonOptimizer.html#L258">258</a> 
+<a class="jxr_linenumber" name="L259" href="GaussNewtonOptimizer.html#L259">259</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L260" href="GaussNewtonOptimizer.html#L260">260</a> <em class="jxr_javadoccomment">     * Compute the normal matrix, J&lt;sup&gt;T&lt;/sup&gt;J.</em>
+<a class="jxr_linenumber" name="L261" href="GaussNewtonOptimizer.html#L261">261</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L262" href="GaussNewtonOptimizer.html#L262">262</a> <em class="jxr_javadoccomment">     * @param jacobian  the m by n jacobian matrix, J. Input.</em>
+<a class="jxr_linenumber" name="L263" href="GaussNewtonOptimizer.html#L263">263</a> <em class="jxr_javadoccomment">     * @param residuals the m by 1 residual vector, r. Input.</em>
+<a class="jxr_linenumber" name="L264" href="GaussNewtonOptimizer.html#L264">264</a> <em class="jxr_javadoccomment">     * @return  the n by n normal matrix and  the n by 1 J&lt;sup&gt;Tr vector.</em>
+<a class="jxr_linenumber" name="L265" href="GaussNewtonOptimizer.html#L265">265</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L266" href="GaussNewtonOptimizer.html#L266">266</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Pair&lt;RealMatrix, RealVector&gt; computeNormalMatrix(<strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> jacobian,
+<a class="jxr_linenumber" name="L267" href="GaussNewtonOptimizer.html#L267">267</a>                                                                     <strong class="jxr_keyword">final</strong> <a href="../../linear/RealVector.html">RealVector</a> residuals) {
+<a class="jxr_linenumber" name="L268" href="GaussNewtonOptimizer.html#L268">268</a>         <em class="jxr_comment">//since the normal matrix is symmetric, we only need to compute half of it.</em>
+<a class="jxr_linenumber" name="L269" href="GaussNewtonOptimizer.html#L269">269</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nR = jacobian.getRowDimension();
+<a class="jxr_linenumber" name="L270" href="GaussNewtonOptimizer.html#L270">270</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nC = jacobian.getColumnDimension();
+<a class="jxr_linenumber" name="L271" href="GaussNewtonOptimizer.html#L271">271</a>         <em class="jxr_comment">//allocate space for return values</em>
+<a class="jxr_linenumber" name="L272" href="GaussNewtonOptimizer.html#L272">272</a>         <strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> normal = MatrixUtils.createRealMatrix(nC, nC);
+<a class="jxr_linenumber" name="L273" href="GaussNewtonOptimizer.html#L273">273</a>         <strong class="jxr_keyword">final</strong> <a href="../../linear/RealVector.html">RealVector</a> jTr = <strong class="jxr_keyword">new</strong> <a href="../../linear/ArrayRealVector.html">ArrayRealVector</a>(nC);
+<a class="jxr_linenumber" name="L274" href="GaussNewtonOptimizer.html#L274">274</a>         <em class="jxr_comment">//for each measurement</em>
+<a class="jxr_linenumber" name="L275" href="GaussNewtonOptimizer.html#L275">275</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nR; ++i) {
+<a class="jxr_linenumber" name="L276" href="GaussNewtonOptimizer.html#L276">276</a>             <em class="jxr_comment">//compute JTr for measurement i</em>
+<a class="jxr_linenumber" name="L277" href="GaussNewtonOptimizer.html#L277">277</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; nC; j++) {
+<a class="jxr_linenumber" name="L278" href="GaussNewtonOptimizer.html#L278">278</a>                 jTr.setEntry(j, jTr.getEntry(j) +
+<a class="jxr_linenumber" name="L279" href="GaussNewtonOptimizer.html#L279">279</a>                         residuals.getEntry(i) * jacobian.getEntry(i, j));
+<a class="jxr_linenumber" name="L280" href="GaussNewtonOptimizer.html#L280">280</a>             }
+<a class="jxr_linenumber" name="L281" href="GaussNewtonOptimizer.html#L281">281</a> 
+<a class="jxr_linenumber" name="L282" href="GaussNewtonOptimizer.html#L282">282</a>             <em class="jxr_comment">// add the the contribution to the normal matrix for measurement i</em>
+<a class="jxr_linenumber" name="L283" href="GaussNewtonOptimizer.html#L283">283</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; nC; ++k) {
+<a class="jxr_linenumber" name="L284" href="GaussNewtonOptimizer.html#L284">284</a>                 <em class="jxr_comment">//only compute the upper triangular part</em>
+<a class="jxr_linenumber" name="L285" href="GaussNewtonOptimizer.html#L285">285</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> l = k; l &lt; nC; ++l) {
+<a class="jxr_linenumber" name="L286" href="GaussNewtonOptimizer.html#L286">286</a>                     normal.setEntry(k, l, normal.getEntry(k, l) +
+<a class="jxr_linenumber" name="L287" href="GaussNewtonOptimizer.html#L287">287</a>                             jacobian.getEntry(i, k) * jacobian.getEntry(i, l));
+<a class="jxr_linenumber" name="L288" href="GaussNewtonOptimizer.html#L288">288</a>                 }
+<a class="jxr_linenumber" name="L289" href="GaussNewtonOptimizer.html#L289">289</a>             }
+<a class="jxr_linenumber" name="L290" href="GaussNewtonOptimizer.html#L290">290</a>         }
+<a class="jxr_linenumber" name="L291" href="GaussNewtonOptimizer.html#L291">291</a>         <em class="jxr_comment">//copy the upper triangular part to the lower triangular part.</em>
+<a class="jxr_linenumber" name="L292" href="GaussNewtonOptimizer.html#L292">292</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nC; i++) {
+<a class="jxr_linenumber" name="L293" href="GaussNewtonOptimizer.html#L293">293</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; i; j++) {
+<a class="jxr_linenumber" name="L294" href="GaussNewtonOptimizer.html#L294">294</a>                 normal.setEntry(i, j, normal.getEntry(j, i));
+<a class="jxr_linenumber" name="L295" href="GaussNewtonOptimizer.html#L295">295</a>             }
+<a class="jxr_linenumber" name="L296" href="GaussNewtonOptimizer.html#L296">296</a>         }
+<a class="jxr_linenumber" name="L297" href="GaussNewtonOptimizer.html#L297">297</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;RealMatrix, RealVector&gt;(normal, jTr);
+<a class="jxr_linenumber" name="L298" href="GaussNewtonOptimizer.html#L298">298</a>     }
+<a class="jxr_linenumber" name="L299" href="GaussNewtonOptimizer.html#L299">299</a> 
+<a class="jxr_linenumber" name="L300" href="GaussNewtonOptimizer.html#L300">300</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

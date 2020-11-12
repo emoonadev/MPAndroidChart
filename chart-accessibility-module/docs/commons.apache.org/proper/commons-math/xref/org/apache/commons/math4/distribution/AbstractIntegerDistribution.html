@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>AbstractIntegerDistribution xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/distribution/AbstractIntegerDistribution.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="AbstractIntegerDistribution.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="AbstractIntegerDistribution.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="AbstractIntegerDistribution.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="AbstractIntegerDistribution.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="AbstractIntegerDistribution.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="AbstractIntegerDistribution.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="AbstractIntegerDistribution.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="AbstractIntegerDistribution.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="AbstractIntegerDistribution.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="AbstractIntegerDistribution.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="AbstractIntegerDistribution.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="AbstractIntegerDistribution.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="AbstractIntegerDistribution.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="AbstractIntegerDistribution.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="AbstractIntegerDistribution.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="AbstractIntegerDistribution.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="AbstractIntegerDistribution.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.distribution;
+<a class="jxr_linenumber" name="L18" href="AbstractIntegerDistribution.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="AbstractIntegerDistribution.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.io.Serializable;
+<a class="jxr_linenumber" name="L20" href="AbstractIntegerDistribution.html#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="AbstractIntegerDistribution.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathInternalError;
+<a class="jxr_linenumber" name="L22" href="AbstractIntegerDistribution.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooLargeException;
+<a class="jxr_linenumber" name="L23" href="AbstractIntegerDistribution.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L24" href="AbstractIntegerDistribution.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L25" href="AbstractIntegerDistribution.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L26" href="AbstractIntegerDistribution.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L27" href="AbstractIntegerDistribution.html#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="AbstractIntegerDistribution.html#L28">28</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L29" href="AbstractIntegerDistribution.html#L29">29</a>  <em class="jxr_javadoccomment"> * Base class for integer-valued discrete distributions.  Default</em>
+<a class="jxr_linenumber" name="L30" href="AbstractIntegerDistribution.html#L30">30</a>  <em class="jxr_javadoccomment"> * implementations are provided for some of the methods that do not vary</em>
+<a class="jxr_linenumber" name="L31" href="AbstractIntegerDistribution.html#L31">31</a>  <em class="jxr_javadoccomment"> * from distribution to distribution.</em>
+<a class="jxr_linenumber" name="L32" href="AbstractIntegerDistribution.html#L32">32</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L33" href="AbstractIntegerDistribution.html#L33">33</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L34" href="AbstractIntegerDistribution.html#L34">34</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="AbstractIntegerDistribution.html">AbstractIntegerDistribution</a> <strong class="jxr_keyword">implements</strong> IntegerDistribution, Serializable {
+<a class="jxr_linenumber" name="L35" href="AbstractIntegerDistribution.html#L35">35</a>      <em class="jxr_javadoccomment">/** Serializable version identifier */</em>
+<a class="jxr_linenumber" name="L36" href="AbstractIntegerDistribution.html#L36">36</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20160318L;
+<a class="jxr_linenumber" name="L37" href="AbstractIntegerDistribution.html#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="AbstractIntegerDistribution.html#L38">38</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L39" href="AbstractIntegerDistribution.html#L39">39</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L40" href="AbstractIntegerDistribution.html#L40">40</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L41" href="AbstractIntegerDistribution.html#L41">41</a>  <em class="jxr_javadoccomment">     * The default implementation uses the identity</em>
+<a class="jxr_linenumber" name="L42" href="AbstractIntegerDistribution.html#L42">42</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;{@code P(x0 &lt; X &lt;= x1) = P(X &lt;= x1) - P(X &lt;= x0)}&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L43" href="AbstractIntegerDistribution.html#L43">43</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L44" href="AbstractIntegerDistribution.html#L44">44</a>  <em class="jxr_javadoccomment">     * @since 4.0, was previously named cumulativeProbability</em>
+<a class="jxr_linenumber" name="L45" href="AbstractIntegerDistribution.html#L45">45</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L46" href="AbstractIntegerDistribution.html#L46">46</a>      @Override
+<a class="jxr_linenumber" name="L47" href="AbstractIntegerDistribution.html#L47">47</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> probability(<strong class="jxr_keyword">int</strong> x0, <strong class="jxr_keyword">int</strong> x1) <strong class="jxr_keyword">throws</strong> NumberIsTooLargeException {
+<a class="jxr_linenumber" name="L48" href="AbstractIntegerDistribution.html#L48">48</a>          <strong class="jxr_keyword">if</strong> (x1 &lt; x0) {
+<a class="jxr_linenumber" name="L49" href="AbstractIntegerDistribution.html#L49">49</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a>(LocalizedFormats.LOWER_ENDPOINT_ABOVE_UPPER_ENDPOINT,
+<a class="jxr_linenumber" name="L50" href="AbstractIntegerDistribution.html#L50">50</a>                      x0, x1, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L51" href="AbstractIntegerDistribution.html#L51">51</a>          }
+<a class="jxr_linenumber" name="L52" href="AbstractIntegerDistribution.html#L52">52</a>          <strong class="jxr_keyword">return</strong> cumulativeProbability(x1) - cumulativeProbability(x0);
+<a class="jxr_linenumber" name="L53" href="AbstractIntegerDistribution.html#L53">53</a>      }
+<a class="jxr_linenumber" name="L54" href="AbstractIntegerDistribution.html#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="AbstractIntegerDistribution.html#L55">55</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L56" href="AbstractIntegerDistribution.html#L56">56</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L57" href="AbstractIntegerDistribution.html#L57">57</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L58" href="AbstractIntegerDistribution.html#L58">58</a>  <em class="jxr_javadoccomment">     * The default implementation returns</em>
+<a class="jxr_linenumber" name="L59" href="AbstractIntegerDistribution.html#L59">59</a>  <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L60" href="AbstractIntegerDistribution.html#L60">60</a>  <em class="jxr_javadoccomment">     * &lt;li&gt;{@link #getSupportLowerBound()} for {@code p = 0},&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L61" href="AbstractIntegerDistribution.html#L61">61</a>  <em class="jxr_javadoccomment">     * &lt;li&gt;{@link #getSupportUpperBound()} for {@code p = 1}, and&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L62" href="AbstractIntegerDistribution.html#L62">62</a>  <em class="jxr_javadoccomment">     * &lt;li&gt;{@link #solveInverseCumulativeProbability(double, int, int)} for</em>
+<a class="jxr_linenumber" name="L63" href="AbstractIntegerDistribution.html#L63">63</a>  <em class="jxr_javadoccomment">     *     {@code 0 &lt; p &lt; 1}.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L64" href="AbstractIntegerDistribution.html#L64">64</a>  <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L65" href="AbstractIntegerDistribution.html#L65">65</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L66" href="AbstractIntegerDistribution.html#L66">66</a>      @Override
+<a class="jxr_linenumber" name="L67" href="AbstractIntegerDistribution.html#L67">67</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> inverseCumulativeProbability(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p) <strong class="jxr_keyword">throws</strong> OutOfRangeException {
+<a class="jxr_linenumber" name="L68" href="AbstractIntegerDistribution.html#L68">68</a>          <strong class="jxr_keyword">if</strong> (p &lt; 0.0 || p &gt; 1.0) {
+<a class="jxr_linenumber" name="L69" href="AbstractIntegerDistribution.html#L69">69</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/OutOfRangeException.html">OutOfRangeException</a>(p, 0, 1);
+<a class="jxr_linenumber" name="L70" href="AbstractIntegerDistribution.html#L70">70</a>          }
+<a class="jxr_linenumber" name="L71" href="AbstractIntegerDistribution.html#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="AbstractIntegerDistribution.html#L72">72</a>          <strong class="jxr_keyword">int</strong> lower = getSupportLowerBound();
+<a class="jxr_linenumber" name="L73" href="AbstractIntegerDistribution.html#L73">73</a>          <strong class="jxr_keyword">if</strong> (p == 0.0) {
+<a class="jxr_linenumber" name="L74" href="AbstractIntegerDistribution.html#L74">74</a>              <strong class="jxr_keyword">return</strong> lower;
+<a class="jxr_linenumber" name="L75" href="AbstractIntegerDistribution.html#L75">75</a>          }
+<a class="jxr_linenumber" name="L76" href="AbstractIntegerDistribution.html#L76">76</a>          <strong class="jxr_keyword">if</strong> (lower == Integer.MIN_VALUE) {
+<a class="jxr_linenumber" name="L77" href="AbstractIntegerDistribution.html#L77">77</a>              <strong class="jxr_keyword">if</strong> (checkedCumulativeProbability(lower) &gt;= p) {
+<a class="jxr_linenumber" name="L78" href="AbstractIntegerDistribution.html#L78">78</a>                  <strong class="jxr_keyword">return</strong> lower;
+<a class="jxr_linenumber" name="L79" href="AbstractIntegerDistribution.html#L79">79</a>              }
+<a class="jxr_linenumber" name="L80" href="AbstractIntegerDistribution.html#L80">80</a>          } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L81" href="AbstractIntegerDistribution.html#L81">81</a>              lower -= 1; <em class="jxr_comment">// this ensures cumulativeProbability(lower) &lt; p, which</em>
+<a class="jxr_linenumber" name="L82" href="AbstractIntegerDistribution.html#L82">82</a>                          <em class="jxr_comment">// is important for the solving step</em>
+<a class="jxr_linenumber" name="L83" href="AbstractIntegerDistribution.html#L83">83</a>          }
+<a class="jxr_linenumber" name="L84" href="AbstractIntegerDistribution.html#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="AbstractIntegerDistribution.html#L85">85</a>          <strong class="jxr_keyword">int</strong> upper = getSupportUpperBound();
+<a class="jxr_linenumber" name="L86" href="AbstractIntegerDistribution.html#L86">86</a>          <strong class="jxr_keyword">if</strong> (p == 1.0) {
+<a class="jxr_linenumber" name="L87" href="AbstractIntegerDistribution.html#L87">87</a>              <strong class="jxr_keyword">return</strong> upper;
+<a class="jxr_linenumber" name="L88" href="AbstractIntegerDistribution.html#L88">88</a>          }
+<a class="jxr_linenumber" name="L89" href="AbstractIntegerDistribution.html#L89">89</a>  
+<a class="jxr_linenumber" name="L90" href="AbstractIntegerDistribution.html#L90">90</a>          <em class="jxr_comment">// use the one-sided Chebyshev inequality to narrow the bracket</em>
+<a class="jxr_linenumber" name="L91" href="AbstractIntegerDistribution.html#L91">91</a>          <em class="jxr_comment">// cf. AbstractRealDistribution.inverseCumulativeProbability(double)</em>
+<a class="jxr_linenumber" name="L92" href="AbstractIntegerDistribution.html#L92">92</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> mu = getNumericalMean();
+<a class="jxr_linenumber" name="L93" href="AbstractIntegerDistribution.html#L93">93</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> sigma = FastMath.sqrt(getNumericalVariance());
+<a class="jxr_linenumber" name="L94" href="AbstractIntegerDistribution.html#L94">94</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> chebyshevApplies = !(Double.isInfinite(mu) || Double.isNaN(mu) ||
+<a class="jxr_linenumber" name="L95" href="AbstractIntegerDistribution.html#L95">95</a>                  Double.isInfinite(sigma) || Double.isNaN(sigma) || sigma == 0.0);
+<a class="jxr_linenumber" name="L96" href="AbstractIntegerDistribution.html#L96">96</a>          <strong class="jxr_keyword">if</strong> (chebyshevApplies) {
+<a class="jxr_linenumber" name="L97" href="AbstractIntegerDistribution.html#L97">97</a>              <strong class="jxr_keyword">double</strong> k = FastMath.sqrt((1.0 - p) / p);
+<a class="jxr_linenumber" name="L98" href="AbstractIntegerDistribution.html#L98">98</a>              <strong class="jxr_keyword">double</strong> tmp = mu - k * sigma;
+<a class="jxr_linenumber" name="L99" href="AbstractIntegerDistribution.html#L99">99</a>              <strong class="jxr_keyword">if</strong> (tmp &gt; lower) {
+<a class="jxr_linenumber" name="L100" href="AbstractIntegerDistribution.html#L100">100</a>                 lower = ((<strong class="jxr_keyword">int</strong>) FastMath.ceil(tmp)) - 1;
+<a class="jxr_linenumber" name="L101" href="AbstractIntegerDistribution.html#L101">101</a>             }
+<a class="jxr_linenumber" name="L102" href="AbstractIntegerDistribution.html#L102">102</a>             k = 1.0 / k;
+<a class="jxr_linenumber" name="L103" href="AbstractIntegerDistribution.html#L103">103</a>             tmp = mu + k * sigma;
+<a class="jxr_linenumber" name="L104" href="AbstractIntegerDistribution.html#L104">104</a>             <strong class="jxr_keyword">if</strong> (tmp &lt; upper) {
+<a class="jxr_linenumber" name="L105" href="AbstractIntegerDistribution.html#L105">105</a>                 upper = ((<strong class="jxr_keyword">int</strong>) FastMath.ceil(tmp)) - 1;
+<a class="jxr_linenumber" name="L106" href="AbstractIntegerDistribution.html#L106">106</a>             }
+<a class="jxr_linenumber" name="L107" href="AbstractIntegerDistribution.html#L107">107</a>         }
+<a class="jxr_linenumber" name="L108" href="AbstractIntegerDistribution.html#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="AbstractIntegerDistribution.html#L109">109</a>         <strong class="jxr_keyword">return</strong> solveInverseCumulativeProbability(p, lower, upper);
+<a class="jxr_linenumber" name="L110" href="AbstractIntegerDistribution.html#L110">110</a>     }
+<a class="jxr_linenumber" name="L111" href="AbstractIntegerDistribution.html#L111">111</a> 
+<a class="jxr_linenumber" name="L112" href="AbstractIntegerDistribution.html#L112">112</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L113" href="AbstractIntegerDistribution.html#L113">113</a> <em class="jxr_javadoccomment">     * This is a utility function used by {@link</em>
+<a class="jxr_linenumber" name="L114" href="AbstractIntegerDistribution.html#L114">114</a> <em class="jxr_javadoccomment">     * #inverseCumulativeProbability(double)}. It assumes {@code 0 &lt; p &lt; 1} and</em>
+<a class="jxr_linenumber" name="L115" href="AbstractIntegerDistribution.html#L115">115</a> <em class="jxr_javadoccomment">     * that the inverse cumulative probability lies in the bracket {@code</em>
+<a class="jxr_linenumber" name="L116" href="AbstractIntegerDistribution.html#L116">116</a> <em class="jxr_javadoccomment">     * (lower, upper]}. The implementation does simple bisection to find the</em>
+<a class="jxr_linenumber" name="L117" href="AbstractIntegerDistribution.html#L117">117</a> <em class="jxr_javadoccomment">     * smallest {@code p}-quantile &lt;code&gt;inf{x in Z | P(X&lt;=x) &gt;= p}&lt;/code&gt;.</em>
+<a class="jxr_linenumber" name="L118" href="AbstractIntegerDistribution.html#L118">118</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L119" href="AbstractIntegerDistribution.html#L119">119</a> <em class="jxr_javadoccomment">     * @param p the cumulative probability</em>
+<a class="jxr_linenumber" name="L120" href="AbstractIntegerDistribution.html#L120">120</a> <em class="jxr_javadoccomment">     * @param lower a value satisfying {@code cumulativeProbability(lower) &lt; p}</em>
+<a class="jxr_linenumber" name="L121" href="AbstractIntegerDistribution.html#L121">121</a> <em class="jxr_javadoccomment">     * @param upper a value satisfying {@code p &lt;= cumulativeProbability(upper)}</em>
+<a class="jxr_linenumber" name="L122" href="AbstractIntegerDistribution.html#L122">122</a> <em class="jxr_javadoccomment">     * @return the smallest {@code p}-quantile of this distribution</em>
+<a class="jxr_linenumber" name="L123" href="AbstractIntegerDistribution.html#L123">123</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L124" href="AbstractIntegerDistribution.html#L124">124</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">int</strong> solveInverseCumulativeProbability(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p, <strong class="jxr_keyword">int</strong> lower, <strong class="jxr_keyword">int</strong> upper) {
+<a class="jxr_linenumber" name="L125" href="AbstractIntegerDistribution.html#L125">125</a>         <strong class="jxr_keyword">while</strong> (lower + 1 &lt; upper) {
+<a class="jxr_linenumber" name="L126" href="AbstractIntegerDistribution.html#L126">126</a>             <strong class="jxr_keyword">int</strong> xm = (lower + upper) / 2;
+<a class="jxr_linenumber" name="L127" href="AbstractIntegerDistribution.html#L127">127</a>             <strong class="jxr_keyword">if</strong> (xm &lt; lower || xm &gt; upper) {
+<a class="jxr_linenumber" name="L128" href="AbstractIntegerDistribution.html#L128">128</a>                 <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L129" href="AbstractIntegerDistribution.html#L129">129</a> <em class="jxr_comment">                 * Overflow.</em>
+<a class="jxr_linenumber" name="L130" href="AbstractIntegerDistribution.html#L130">130</a> <em class="jxr_comment">                 * There will never be an overflow in both calculation methods</em>
+<a class="jxr_linenumber" name="L131" href="AbstractIntegerDistribution.html#L131">131</a> <em class="jxr_comment">                 * for xm at the same time</em>
+<a class="jxr_linenumber" name="L132" href="AbstractIntegerDistribution.html#L132">132</a> <em class="jxr_comment">                 */</em>
+<a class="jxr_linenumber" name="L133" href="AbstractIntegerDistribution.html#L133">133</a>                 xm = lower + (upper - lower) / 2;
+<a class="jxr_linenumber" name="L134" href="AbstractIntegerDistribution.html#L134">134</a>             }
+<a class="jxr_linenumber" name="L135" href="AbstractIntegerDistribution.html#L135">135</a> 
+<a class="jxr_linenumber" name="L136" href="AbstractIntegerDistribution.html#L136">136</a>             <strong class="jxr_keyword">double</strong> pm = checkedCumulativeProbability(xm);
+<a class="jxr_linenumber" name="L137" href="AbstractIntegerDistribution.html#L137">137</a>             <strong class="jxr_keyword">if</strong> (pm &gt;= p) {
+<a class="jxr_linenumber" name="L138" href="AbstractIntegerDistribution.html#L138">138</a>                 upper = xm;
+<a class="jxr_linenumber" name="L139" href="AbstractIntegerDistribution.html#L139">139</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L140" href="AbstractIntegerDistribution.html#L140">140</a>                 lower = xm;
+<a class="jxr_linenumber" name="L141" href="AbstractIntegerDistribution.html#L141">141</a>             }
+<a class="jxr_linenumber" name="L142" href="AbstractIntegerDistribution.html#L142">142</a>         }
+<a class="jxr_linenumber" name="L143" href="AbstractIntegerDistribution.html#L143">143</a>         <strong class="jxr_keyword">return</strong> upper;
+<a class="jxr_linenumber" name="L144" href="AbstractIntegerDistribution.html#L144">144</a>     }
+<a class="jxr_linenumber" name="L145" href="AbstractIntegerDistribution.html#L145">145</a> 
+<a class="jxr_linenumber" name="L146" href="AbstractIntegerDistribution.html#L146">146</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L147" href="AbstractIntegerDistribution.html#L147">147</a> <em class="jxr_javadoccomment">     * Computes the cumulative probability function and checks for {@code NaN}</em>
+<a class="jxr_linenumber" name="L148" href="AbstractIntegerDistribution.html#L148">148</a> <em class="jxr_javadoccomment">     * values returned. Throws {@code MathInternalError} if the value is</em>
+<a class="jxr_linenumber" name="L149" href="AbstractIntegerDistribution.html#L149">149</a> <em class="jxr_javadoccomment">     * {@code NaN}. Rethrows any exception encountered evaluating the cumulative</em>
+<a class="jxr_linenumber" name="L150" href="AbstractIntegerDistribution.html#L150">150</a> <em class="jxr_javadoccomment">     * probability function. Throws {@code MathInternalError} if the cumulative</em>
+<a class="jxr_linenumber" name="L151" href="AbstractIntegerDistribution.html#L151">151</a> <em class="jxr_javadoccomment">     * probability function returns {@code NaN}.</em>
+<a class="jxr_linenumber" name="L152" href="AbstractIntegerDistribution.html#L152">152</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L153" href="AbstractIntegerDistribution.html#L153">153</a> <em class="jxr_javadoccomment">     * @param argument input value</em>
+<a class="jxr_linenumber" name="L154" href="AbstractIntegerDistribution.html#L154">154</a> <em class="jxr_javadoccomment">     * @return the cumulative probability</em>
+<a class="jxr_linenumber" name="L155" href="AbstractIntegerDistribution.html#L155">155</a> <em class="jxr_javadoccomment">     * @throws MathInternalError if the cumulative probability is {@code NaN}</em>
+<a class="jxr_linenumber" name="L156" href="AbstractIntegerDistribution.html#L156">156</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L157" href="AbstractIntegerDistribution.html#L157">157</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> checkedCumulativeProbability(<strong class="jxr_keyword">int</strong> argument)
+<a class="jxr_linenumber" name="L158" href="AbstractIntegerDistribution.html#L158">158</a>         <strong class="jxr_keyword">throws</strong> <a href="../exception/MathInternalError.html">MathInternalError</a> {
+<a class="jxr_linenumber" name="L159" href="AbstractIntegerDistribution.html#L159">159</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> result = cumulativeProbability(argument);
+<a class="jxr_linenumber" name="L160" href="AbstractIntegerDistribution.html#L160">160</a>         <strong class="jxr_keyword">if</strong> (Double.isNaN(result)) {
+<a class="jxr_linenumber" name="L161" href="AbstractIntegerDistribution.html#L161">161</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathInternalError.html">MathInternalError</a>(<a href="../exception/util/LocalizedFormats.html">LocalizedFormats</a>
+<a class="jxr_linenumber" name="L162" href="AbstractIntegerDistribution.html#L162">162</a>                     .DISCRETE_CUMULATIVE_PROBABILITY_RETURNED_NAN, argument);
+<a class="jxr_linenumber" name="L163" href="AbstractIntegerDistribution.html#L163">163</a>         }
+<a class="jxr_linenumber" name="L164" href="AbstractIntegerDistribution.html#L164">164</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L165" href="AbstractIntegerDistribution.html#L165">165</a>     }
+<a class="jxr_linenumber" name="L166" href="AbstractIntegerDistribution.html#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="AbstractIntegerDistribution.html#L167">167</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L168" href="AbstractIntegerDistribution.html#L168">168</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L169" href="AbstractIntegerDistribution.html#L169">169</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L170" href="AbstractIntegerDistribution.html#L170">170</a> <em class="jxr_javadoccomment">     * The default implementation simply computes the logarithm of {@code probability(x)}.</em>
+<a class="jxr_linenumber" name="L171" href="AbstractIntegerDistribution.html#L171">171</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L172" href="AbstractIntegerDistribution.html#L172">172</a>     @Override
+<a class="jxr_linenumber" name="L173" href="AbstractIntegerDistribution.html#L173">173</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> logProbability(<strong class="jxr_keyword">int</strong> x) {
+<a class="jxr_linenumber" name="L174" href="AbstractIntegerDistribution.html#L174">174</a>         <strong class="jxr_keyword">return</strong> FastMath.log(probability(x));
+<a class="jxr_linenumber" name="L175" href="AbstractIntegerDistribution.html#L175">175</a>     }
+<a class="jxr_linenumber" name="L176" href="AbstractIntegerDistribution.html#L176">176</a> 
+<a class="jxr_linenumber" name="L177" href="AbstractIntegerDistribution.html#L177">177</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L178" href="AbstractIntegerDistribution.html#L178">178</a> <em class="jxr_javadoccomment">     * Utility function for allocating an array and filling it with {@code n}</em>
+<a class="jxr_linenumber" name="L179" href="AbstractIntegerDistribution.html#L179">179</a> <em class="jxr_javadoccomment">     * samples generated by the given {@code sampler}.</em>
+<a class="jxr_linenumber" name="L180" href="AbstractIntegerDistribution.html#L180">180</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L181" href="AbstractIntegerDistribution.html#L181">181</a> <em class="jxr_javadoccomment">     * @param n Number of samples.</em>
+<a class="jxr_linenumber" name="L182" href="AbstractIntegerDistribution.html#L182">182</a> <em class="jxr_javadoccomment">     * @param sampler Sampler.</em>
+<a class="jxr_linenumber" name="L183" href="AbstractIntegerDistribution.html#L183">183</a> <em class="jxr_javadoccomment">     * @return an array of size {@code n}.</em>
+<a class="jxr_linenumber" name="L184" href="AbstractIntegerDistribution.html#L184">184</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L185" href="AbstractIntegerDistribution.html#L185">185</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong>[] sample(<strong class="jxr_keyword">int</strong> n,
+<a class="jxr_linenumber" name="L186" href="AbstractIntegerDistribution.html#L186">186</a>                                IntegerDistribution.Sampler sampler) {
+<a class="jxr_linenumber" name="L187" href="AbstractIntegerDistribution.html#L187">187</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] samples = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[n];
+<a class="jxr_linenumber" name="L188" href="AbstractIntegerDistribution.html#L188">188</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L189" href="AbstractIntegerDistribution.html#L189">189</a>             samples[i] = sampler.sample();
+<a class="jxr_linenumber" name="L190" href="AbstractIntegerDistribution.html#L190">190</a>         }
+<a class="jxr_linenumber" name="L191" href="AbstractIntegerDistribution.html#L191">191</a>         <strong class="jxr_keyword">return</strong> samples;
+<a class="jxr_linenumber" name="L192" href="AbstractIntegerDistribution.html#L192">192</a>     }
+<a class="jxr_linenumber" name="L193" href="AbstractIntegerDistribution.html#L193">193</a> 
+<a class="jxr_linenumber" name="L194" href="AbstractIntegerDistribution.html#L194">194</a>     <em class="jxr_javadoccomment">/**{@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L195" href="AbstractIntegerDistribution.html#L195">195</a>     @Override
+<a class="jxr_linenumber" name="L196" href="AbstractIntegerDistribution.html#L196">196</a>     <strong class="jxr_keyword">public</strong> IntegerDistribution.Sampler createSampler(<strong class="jxr_keyword">final</strong> UniformRandomProvider rng) {
+<a class="jxr_linenumber" name="L197" href="AbstractIntegerDistribution.html#L197">197</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> IntegerDistribution.Sampler() {
+<a class="jxr_linenumber" name="L198" href="AbstractIntegerDistribution.html#L198">198</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L199" href="AbstractIntegerDistribution.html#L199">199</a>             @Override
+<a class="jxr_linenumber" name="L200" href="AbstractIntegerDistribution.html#L200">200</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> sample() {
+<a class="jxr_linenumber" name="L201" href="AbstractIntegerDistribution.html#L201">201</a>                 <strong class="jxr_keyword">return</strong> inverseCumulativeProbability(rng.nextDouble());
+<a class="jxr_linenumber" name="L202" href="AbstractIntegerDistribution.html#L202">202</a>             }
+<a class="jxr_linenumber" name="L203" href="AbstractIntegerDistribution.html#L203">203</a>         };
+<a class="jxr_linenumber" name="L204" href="AbstractIntegerDistribution.html#L204">204</a>     }
+<a class="jxr_linenumber" name="L205" href="AbstractIntegerDistribution.html#L205">205</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

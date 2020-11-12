@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/report.css" type="text/css"/><link rel="shortcut icon" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/report.gif" type="image/gif"/><title>TriangularDistribution.java</title><link rel="stylesheet" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/prettify.css" type="text/css"/><script type="text/javascript" src="https://commons.apache.org/proper/commons-math/jacoco/.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="https://commons.apache.org/proper/commons-math/jacoco/.sessions.html" class="el_session">Sessions</a></span><a href="https://commons.apache.org/proper/commons-math/jacoco/index.html" class="el_report">Apache Commons Math</a> &gt; <a href="https://commons.apache.org/proper/commons-math/jacoco/org.apache.commons.math4.distribution/index.source.html" class="el_package">org.apache.commons.math4.distribution</a> &gt; <span class="el_source">TriangularDistribution.java</span></div><h1>TriangularDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math4.distribution;
+
+import org.apache.commons.math4.exception.NumberIsTooLargeException;
+import org.apache.commons.math4.exception.NumberIsTooSmallException;
+import org.apache.commons.math4.exception.OutOfRangeException;
+import org.apache.commons.math4.exception.util.LocalizedFormats;
+import org.apache.commons.math4.util.FastMath;
+
+/**
+ * Implementation of the triangular real distribution.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Triangular_distribution&quot;&gt;
+ * Triangular distribution (Wikipedia)&lt;/a&gt;
+ *
+ * @since 3.0
+ */
+public class TriangularDistribution extends AbstractRealDistribution {
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 20160311L;
+    /** Lower limit of this distribution (inclusive). */
+    private final double a;
+    /** Upper limit of this distribution (inclusive). */
+    private final double b;
+    /** Mode of this distribution. */
+    private final double c;
+    /** Inverse cumulative probability accuracy. */
+    private final double solverAbsoluteAccuracy;
+
+    /**
+     * Creates a distribution.
+     *
+     * @param a Lower limit of this distribution (inclusive).
+     * @param b Upper limit of this distribution (inclusive).
+     * @param c Mode of this distribution.
+     * @throws NumberIsTooLargeException if {@code a &gt;= b} or if {@code c &gt; b}.
+     * @throws NumberIsTooSmallException if {@code c &lt; a}.
+     * @since 3.1
+     */
+    public TriangularDistribution(double a,
+                                  double c,
+                                  double b)
+        throws NumberIsTooLargeException,
+<span class="fc" id="L60">               NumberIsTooSmallException {</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        if (a &gt;= b) {</span>
+<span class="fc" id="L62">            throw new NumberIsTooLargeException(</span>
+                            LocalizedFormats.LOWER_BOUND_NOT_BELOW_UPPER_BOUND,
+<span class="fc" id="L64">                            a, b, false);</span>
+        }
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (c &lt; a) {</span>
+<span class="fc" id="L67">            throw new NumberIsTooSmallException(</span>
+<span class="fc" id="L68">                    LocalizedFormats.NUMBER_TOO_SMALL, c, a, true);</span>
+        }
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (c &gt; b) {</span>
+<span class="fc" id="L71">            throw new NumberIsTooLargeException(</span>
+<span class="fc" id="L72">                    LocalizedFormats.NUMBER_TOO_LARGE, c, b, true);</span>
+        }
+
+<span class="fc" id="L75">        this.a = a;</span>
+<span class="fc" id="L76">        this.c = c;</span>
+<span class="fc" id="L77">        this.b = b;</span>
+<span class="fc" id="L78">        solverAbsoluteAccuracy = FastMath.max(FastMath.ulp(a), FastMath.ulp(b));</span>
+<span class="fc" id="L79">    }</span>
+
+    /**
+     * Returns the mode {@code c} of this distribution.
+     *
+     * @return the mode {@code c} of this distribution
+     */
+    public double getMode() {
+<span class="nc" id="L87">        return c;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * &lt;p&gt;
+     * For this distribution, the returned value is not really meaningful,
+     * since exact formulas are implemented for the computation of the
+     * {@link #inverseCumulativeProbability(double)} (no solver is invoked).
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * For lower limit {@code a} and upper limit {@code b}, the current
+     * implementation returns {@code max(ulp(a), ulp(b)}.
+     * &lt;/p&gt;
+     */
+    @Override
+    protected double getSolverAbsoluteAccuracy() {
+<span class="nc" id="L105">        return solverAbsoluteAccuracy;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For lower limit {@code a}, upper limit {@code b} and mode {@code c}, the
+     * PDF is given by
+     * &lt;ul&gt;
+     * &lt;li&gt;{@code 2 * (x - a) / [(b - a) * (c - a)]} if {@code a &lt;= x &lt; c},&lt;/li&gt;
+     * &lt;li&gt;{@code 2 / (b - a)} if {@code x = c},&lt;/li&gt;
+     * &lt;li&gt;{@code 2 * (b - x) / [(b - a) * (b - c)]} if {@code c &lt; x &lt;= b},&lt;/li&gt;
+     * &lt;li&gt;{@code 0} otherwise.
+     * &lt;/ul&gt;
+     */
+    @Override
+    public double density(double x) {
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        if (x &lt; a) {</span>
+<span class="fc" id="L123">            return 0;</span>
+        }
+<span class="pc bpc" id="L125" title="1 of 4 branches missed.">        if (a &lt;= x &amp;&amp; x &lt; c) {</span>
+<span class="fc" id="L126">            double divident = 2 * (x - a);</span>
+<span class="fc" id="L127">            double divisor = (b - a) * (c - a);</span>
+<span class="fc" id="L128">            return divident / divisor;</span>
+        }
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        if (x == c) {</span>
+<span class="fc" id="L131">            return 2 / (b - a);</span>
+        }
+<span class="pc bpc" id="L133" title="1 of 4 branches missed.">        if (c &lt; x &amp;&amp; x &lt;= b) {</span>
+<span class="fc" id="L134">            double divident = 2 * (b - x);</span>
+<span class="fc" id="L135">            double divisor = (b - a) * (b - c);</span>
+<span class="fc" id="L136">            return divident / divisor;</span>
+        }
+<span class="fc" id="L138">        return 0;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For lower limit {@code a}, upper limit {@code b} and mode {@code c}, the
+     * CDF is given by
+     * &lt;ul&gt;
+     * &lt;li&gt;{@code 0} if {@code x &lt; a},&lt;/li&gt;
+     * &lt;li&gt;{@code (x - a)^2 / [(b - a) * (c - a)]} if {@code a &lt;= x &lt; c},&lt;/li&gt;
+     * &lt;li&gt;{@code (c - a) / (b - a)} if {@code x = c},&lt;/li&gt;
+     * &lt;li&gt;{@code 1 - (b - x)^2 / [(b - a) * (b - c)]} if {@code c &lt; x &lt;= b},&lt;/li&gt;
+     * &lt;li&gt;{@code 1} if {@code x &gt; b}.&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    @Override
+    public double cumulativeProbability(double x)  {
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        if (x &lt; a) {</span>
+<span class="fc" id="L157">            return 0;</span>
+        }
+<span class="pc bpc" id="L159" title="1 of 4 branches missed.">        if (a &lt;= x &amp;&amp; x &lt; c) {</span>
+<span class="fc" id="L160">            double divident = (x - a) * (x - a);</span>
+<span class="fc" id="L161">            double divisor = (b - a) * (c - a);</span>
+<span class="fc" id="L162">            return divident / divisor;</span>
+        }
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        if (x == c) {</span>
+<span class="fc" id="L165">            return (c - a) / (b - a);</span>
+        }
+<span class="pc bpc" id="L167" title="1 of 4 branches missed.">        if (c &lt; x &amp;&amp; x &lt;= b) {</span>
+<span class="fc" id="L168">            double divident = (b - x) * (b - x);</span>
+<span class="fc" id="L169">            double divisor = (b - a) * (b - c);</span>
+<span class="fc" id="L170">            return 1 - (divident / divisor);</span>
+        }
+<span class="fc" id="L172">        return 1;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For lower limit {@code a}, upper limit {@code b}, and mode {@code c},
+     * the mean is {@code (a + b + c) / 3}.
+     */
+    @Override
+    public double getNumericalMean() {
+<span class="fc" id="L183">        return (a + b + c) / 3;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For lower limit {@code a}, upper limit {@code b}, and mode {@code c},
+     * the variance is {@code (a^2 + b^2 + c^2 - a * b - a * c - b * c) / 18}.
+     */
+    @Override
+    public double getNumericalVariance() {
+<span class="fc" id="L194">        return (a * a + b * b + c * c - a * b - a * c - b * c) / 18;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The lower bound of the support is equal to the lower limit parameter
+     * {@code a} of the distribution.
+     *
+     * @return lower bound of the support
+     */
+    @Override
+    public double getSupportLowerBound() {
+<span class="fc" id="L207">        return a;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The upper bound of the support is equal to the upper limit parameter
+     * {@code b} of the distribution.
+     *
+     * @return upper bound of the support
+     */
+    @Override
+    public double getSupportUpperBound() {
+<span class="fc" id="L220">        return b;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The support of this distribution is connected.
+     *
+     * @return {@code true}
+     */
+    @Override
+    public boolean isSupportConnected() {
+<span class="nc" id="L232">        return true;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double inverseCumulativeProbability(double p)
+        throws OutOfRangeException {
+<span class="fc bfc" id="L239" title="All 4 branches covered.">        if (p &lt; 0 || p &gt; 1) {</span>
+<span class="fc" id="L240">            throw new OutOfRangeException(p, 0, 1);</span>
+        }
+<span class="fc bfc" id="L242" title="All 2 branches covered.">        if (p == 0) {</span>
+<span class="fc" id="L243">            return a;</span>
+        }
+<span class="fc bfc" id="L245" title="All 2 branches covered.">        if (p == 1) {</span>
+<span class="fc" id="L246">            return b;</span>
+        }
+<span class="fc bfc" id="L248" title="All 2 branches covered.">        if (p &lt; (c - a) / (b - a)) {</span>
+<span class="fc" id="L249">            return a + FastMath.sqrt(p * (b - a) * (c - a));</span>
+        }
+<span class="fc" id="L251">        return b - FastMath.sqrt((1 - p) * (b - a) * (b - c));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

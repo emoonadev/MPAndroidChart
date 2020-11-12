@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Region xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/geometry/partitioning/Region.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="Region.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="Region.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="Region.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="Region.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="Region.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="Region.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="Region.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="Region.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="Region.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="Region.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="Region.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="Region.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="Region.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="Region.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="Region.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="Region.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="Region.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.geometry.partitioning;
+<a class="jxr_linenumber" name="L18" href="Region.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="Region.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.Point;
+<a class="jxr_linenumber" name="L20" href="Region.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.Space;
+<a class="jxr_linenumber" name="L21" href="Region.html#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="Region.html#L22">22</a>  <em class="jxr_javadoccomment">/** This interface represents a region of a space as a partition.</em>
+<a class="jxr_linenumber" name="L23" href="Region.html#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="Region.html#L24">24</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Region are subsets of a space, they can be infinite (whole</em>
+<a class="jxr_linenumber" name="L25" href="Region.html#L25">25</a>  <em class="jxr_javadoccomment"> * space, half space, infinite stripe ...) or finite (polygons in 2D,</em>
+<a class="jxr_linenumber" name="L26" href="Region.html#L26">26</a>  <em class="jxr_javadoccomment"> * polyhedrons in 3D ...). Their main characteristic is to separate</em>
+<a class="jxr_linenumber" name="L27" href="Region.html#L27">27</a>  <em class="jxr_javadoccomment"> * points that are considered to be &lt;em&gt;inside&lt;/em&gt; the region from</em>
+<a class="jxr_linenumber" name="L28" href="Region.html#L28">28</a>  <em class="jxr_javadoccomment"> * points considered to be &lt;em&gt;outside&lt;/em&gt; of it. In between, there</em>
+<a class="jxr_linenumber" name="L29" href="Region.html#L29">29</a>  <em class="jxr_javadoccomment"> * may be points on the &lt;em&gt;boundary&lt;/em&gt; of the region.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L30" href="Region.html#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="Region.html#L31">31</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This implementation is limited to regions for which the boundary</em>
+<a class="jxr_linenumber" name="L32" href="Region.html#L32">32</a>  <em class="jxr_javadoccomment"> * is composed of several {@link SubHyperplane sub-hyperplanes},</em>
+<a class="jxr_linenumber" name="L33" href="Region.html#L33">33</a>  <em class="jxr_javadoccomment"> * including regions with no boundary at all: the whole space and the</em>
+<a class="jxr_linenumber" name="L34" href="Region.html#L34">34</a>  <em class="jxr_javadoccomment"> * empty region. They are not necessarily finite and not necessarily</em>
+<a class="jxr_linenumber" name="L35" href="Region.html#L35">35</a>  <em class="jxr_javadoccomment"> * path-connected. They can contain holes.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L36" href="Region.html#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="Region.html#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Regions can be combined using the traditional sets operations :</em>
+<a class="jxr_linenumber" name="L38" href="Region.html#L38">38</a>  <em class="jxr_javadoccomment"> * union, intersection, difference and symetric difference (exclusive</em>
+<a class="jxr_linenumber" name="L39" href="Region.html#L39">39</a>  <em class="jxr_javadoccomment"> * or) for the binary operations, complement for the unary</em>
+<a class="jxr_linenumber" name="L40" href="Region.html#L40">40</a>  <em class="jxr_javadoccomment"> * operation.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L41" href="Region.html#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="Region.html#L42">42</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L43" href="Region.html#L43">43</a>  <em class="jxr_javadoccomment"> * Note that this interface is &lt;em&gt;not&lt;/em&gt; intended to be implemented</em>
+<a class="jxr_linenumber" name="L44" href="Region.html#L44">44</a>  <em class="jxr_javadoccomment"> * by Apache Commons Math users, it is only intended to be implemented</em>
+<a class="jxr_linenumber" name="L45" href="Region.html#L45">45</a>  <em class="jxr_javadoccomment"> * within the library itself. New methods may be added even for minor</em>
+<a class="jxr_linenumber" name="L46" href="Region.html#L46">46</a>  <em class="jxr_javadoccomment"> * versions, which breaks compatibility for external implementations.</em>
+<a class="jxr_linenumber" name="L47" href="Region.html#L47">47</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L48" href="Region.html#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="Region.html#L49">49</a>  <em class="jxr_javadoccomment"> * @param &lt;S&gt; Type of the space.</em>
+<a class="jxr_linenumber" name="L50" href="Region.html#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="Region.html#L51">51</a>  <em class="jxr_javadoccomment"> * @since 3.0</em>
+<a class="jxr_linenumber" name="L52" href="Region.html#L52">52</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L53" href="Region.html#L53">53</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> Region&lt;S <strong class="jxr_keyword">extends</strong> Space&gt; {
+<a class="jxr_linenumber" name="L54" href="Region.html#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="Region.html#L55">55</a>      <em class="jxr_javadoccomment">/** Enumerate for the location of a point with respect to the region. */</em>
+<a class="jxr_linenumber" name="L56" href="Region.html#L56">56</a>      enum <a href="Region.html">Location</a> {
+<a class="jxr_linenumber" name="L57" href="Region.html#L57">57</a>          <em class="jxr_javadoccomment">/** Code for points inside the partition. */</em>
+<a class="jxr_linenumber" name="L58" href="Region.html#L58">58</a>          INSIDE,
+<a class="jxr_linenumber" name="L59" href="Region.html#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="Region.html#L60">60</a>          <em class="jxr_javadoccomment">/** Code for points outside of the partition. */</em>
+<a class="jxr_linenumber" name="L61" href="Region.html#L61">61</a>          OUTSIDE,
+<a class="jxr_linenumber" name="L62" href="Region.html#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="Region.html#L63">63</a>          <em class="jxr_javadoccomment">/** Code for points on the partition boundary. */</em>
+<a class="jxr_linenumber" name="L64" href="Region.html#L64">64</a>          BOUNDARY;
+<a class="jxr_linenumber" name="L65" href="Region.html#L65">65</a>      }
+<a class="jxr_linenumber" name="L66" href="Region.html#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="Region.html#L67">67</a>      <em class="jxr_javadoccomment">/** Build a region using the instance as a prototype.</em>
+<a class="jxr_linenumber" name="L68" href="Region.html#L68">68</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;This method allow to create new instances without knowing</em>
+<a class="jxr_linenumber" name="L69" href="Region.html#L69">69</a>  <em class="jxr_javadoccomment">     * exactly the type of the region. It is an application of the</em>
+<a class="jxr_linenumber" name="L70" href="Region.html#L70">70</a>  <em class="jxr_javadoccomment">     * prototype design pattern.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L71" href="Region.html#L71">71</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;The leaf nodes of the BSP tree &lt;em&gt;must&lt;/em&gt; have a</em>
+<a class="jxr_linenumber" name="L72" href="Region.html#L72">72</a>  <em class="jxr_javadoccomment">     * {@code Boolean} attribute representing the inside status of</em>
+<a class="jxr_linenumber" name="L73" href="Region.html#L73">73</a>  <em class="jxr_javadoccomment">     * the corresponding cell (true for inside cells, false for outside</em>
+<a class="jxr_linenumber" name="L74" href="Region.html#L74">74</a>  <em class="jxr_javadoccomment">     * cells). In order to avoid building too many small objects, it is</em>
+<a class="jxr_linenumber" name="L75" href="Region.html#L75">75</a>  <em class="jxr_javadoccomment">     * recommended to use the predefined constants</em>
+<a class="jxr_linenumber" name="L76" href="Region.html#L76">76</a>  <em class="jxr_javadoccomment">     * {@code Boolean.TRUE} and {@code Boolean.FALSE}. The</em>
+<a class="jxr_linenumber" name="L77" href="Region.html#L77">77</a>  <em class="jxr_javadoccomment">     * tree also &lt;em&gt;must&lt;/em&gt; have either null internal nodes or</em>
+<a class="jxr_linenumber" name="L78" href="Region.html#L78">78</a>  <em class="jxr_javadoccomment">     * internal nodes representing the boundary as specified in the</em>
+<a class="jxr_linenumber" name="L79" href="Region.html#L79">79</a>  <em class="jxr_javadoccomment">     * {@link #getTree getTree} method).&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L80" href="Region.html#L80">80</a>  <em class="jxr_javadoccomment">     * @param newTree inside/outside BSP tree representing the new region</em>
+<a class="jxr_linenumber" name="L81" href="Region.html#L81">81</a>  <em class="jxr_javadoccomment">     * @return the built region</em>
+<a class="jxr_linenumber" name="L82" href="Region.html#L82">82</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L83" href="Region.html#L83">83</a>      Region&lt;S&gt; buildNew(BSPTree&lt;S&gt; newTree);
+<a class="jxr_linenumber" name="L84" href="Region.html#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="Region.html#L85">85</a>      <em class="jxr_javadoccomment">/** Copy the instance.</em>
+<a class="jxr_linenumber" name="L86" href="Region.html#L86">86</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;The instance created is completely independant of the original</em>
+<a class="jxr_linenumber" name="L87" href="Region.html#L87">87</a>  <em class="jxr_javadoccomment">     * one. A deep copy is used, none of the underlying objects are</em>
+<a class="jxr_linenumber" name="L88" href="Region.html#L88">88</a>  <em class="jxr_javadoccomment">     * shared (except for the underlying tree {@code Boolean}</em>
+<a class="jxr_linenumber" name="L89" href="Region.html#L89">89</a>  <em class="jxr_javadoccomment">     * attributes and immutable objects).&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L90" href="Region.html#L90">90</a>  <em class="jxr_javadoccomment">     * @return a new region, copy of the instance</em>
+<a class="jxr_linenumber" name="L91" href="Region.html#L91">91</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L92" href="Region.html#L92">92</a>      Region&lt;S&gt; copySelf();
+<a class="jxr_linenumber" name="L93" href="Region.html#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="Region.html#L94">94</a>      <em class="jxr_javadoccomment">/** Check if the instance is empty.</em>
+<a class="jxr_linenumber" name="L95" href="Region.html#L95">95</a>  <em class="jxr_javadoccomment">     * @return true if the instance is empty</em>
+<a class="jxr_linenumber" name="L96" href="Region.html#L96">96</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L97" href="Region.html#L97">97</a>      <strong class="jxr_keyword">boolean</strong> isEmpty();
+<a class="jxr_linenumber" name="L98" href="Region.html#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="Region.html#L99">99</a>      <em class="jxr_javadoccomment">/** Check if the sub-tree starting at a given node is empty.</em>
+<a class="jxr_linenumber" name="L100" href="Region.html#L100">100</a> <em class="jxr_javadoccomment">     * @param node root node of the sub-tree (&lt;em&gt;must&lt;/em&gt; have {@link</em>
+<a class="jxr_linenumber" name="L101" href="Region.html#L101">101</a> <em class="jxr_javadoccomment">     * Region Region} tree semantics, i.e. the leaf nodes must have</em>
+<a class="jxr_linenumber" name="L102" href="Region.html#L102">102</a> <em class="jxr_javadoccomment">     * {@code Boolean} attributes representing an inside/outside</em>
+<a class="jxr_linenumber" name="L103" href="Region.html#L103">103</a> <em class="jxr_javadoccomment">     * property)</em>
+<a class="jxr_linenumber" name="L104" href="Region.html#L104">104</a> <em class="jxr_javadoccomment">     * @return true if the sub-tree starting at the given node is empty</em>
+<a class="jxr_linenumber" name="L105" href="Region.html#L105">105</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L106" href="Region.html#L106">106</a>     <strong class="jxr_keyword">boolean</strong> isEmpty(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; node);
+<a class="jxr_linenumber" name="L107" href="Region.html#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="Region.html#L108">108</a>     <em class="jxr_javadoccomment">/** Check if the instance covers the full space.</em>
+<a class="jxr_linenumber" name="L109" href="Region.html#L109">109</a> <em class="jxr_javadoccomment">     * @return true if the instance covers the full space</em>
+<a class="jxr_linenumber" name="L110" href="Region.html#L110">110</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L111" href="Region.html#L111">111</a>     <strong class="jxr_keyword">boolean</strong> isFull();
+<a class="jxr_linenumber" name="L112" href="Region.html#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="Region.html#L113">113</a>     <em class="jxr_javadoccomment">/** Check if the sub-tree starting at a given node covers the full space.</em>
+<a class="jxr_linenumber" name="L114" href="Region.html#L114">114</a> <em class="jxr_javadoccomment">     * @param node root node of the sub-tree (&lt;em&gt;must&lt;/em&gt; have {@link</em>
+<a class="jxr_linenumber" name="L115" href="Region.html#L115">115</a> <em class="jxr_javadoccomment">     * Region Region} tree semantics, i.e. the leaf nodes must have</em>
+<a class="jxr_linenumber" name="L116" href="Region.html#L116">116</a> <em class="jxr_javadoccomment">     * {@code Boolean} attributes representing an inside/outside</em>
+<a class="jxr_linenumber" name="L117" href="Region.html#L117">117</a> <em class="jxr_javadoccomment">     * property)</em>
+<a class="jxr_linenumber" name="L118" href="Region.html#L118">118</a> <em class="jxr_javadoccomment">     * @return true if the sub-tree starting at the given node covers the full space</em>
+<a class="jxr_linenumber" name="L119" href="Region.html#L119">119</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L120" href="Region.html#L120">120</a>     <strong class="jxr_keyword">boolean</strong> isFull(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; node);
+<a class="jxr_linenumber" name="L121" href="Region.html#L121">121</a> 
+<a class="jxr_linenumber" name="L122" href="Region.html#L122">122</a>     <em class="jxr_javadoccomment">/** Check if the instance entirely contains another region.</em>
+<a class="jxr_linenumber" name="L123" href="Region.html#L123">123</a> <em class="jxr_javadoccomment">     * @param region region to check against the instance</em>
+<a class="jxr_linenumber" name="L124" href="Region.html#L124">124</a> <em class="jxr_javadoccomment">     * @return true if the instance contains the specified tree</em>
+<a class="jxr_linenumber" name="L125" href="Region.html#L125">125</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L126" href="Region.html#L126">126</a>     <strong class="jxr_keyword">boolean</strong> contains(<strong class="jxr_keyword">final</strong> Region&lt;S&gt; region);
+<a class="jxr_linenumber" name="L127" href="Region.html#L127">127</a> 
+<a class="jxr_linenumber" name="L128" href="Region.html#L128">128</a>     <em class="jxr_javadoccomment">/** Check a point with respect to the region.</em>
+<a class="jxr_linenumber" name="L129" href="Region.html#L129">129</a> <em class="jxr_javadoccomment">     * @param point point to check</em>
+<a class="jxr_linenumber" name="L130" href="Region.html#L130">130</a> <em class="jxr_javadoccomment">     * @return a code representing the point status: either {@link</em>
+<a class="jxr_linenumber" name="L131" href="Region.html#L131">131</a> <em class="jxr_javadoccomment">     * Location#INSIDE}, {@link Location#OUTSIDE} or {@link Location#BOUNDARY}</em>
+<a class="jxr_linenumber" name="L132" href="Region.html#L132">132</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L133" href="Region.html#L133">133</a>     <a href="Region.html">Location</a> checkPoint(<strong class="jxr_keyword">final</strong> Point&lt;S&gt; point);
+<a class="jxr_linenumber" name="L134" href="Region.html#L134">134</a> 
+<a class="jxr_linenumber" name="L135" href="Region.html#L135">135</a>     <em class="jxr_javadoccomment">/** Project a point on the boundary of the region.</em>
+<a class="jxr_linenumber" name="L136" href="Region.html#L136">136</a> <em class="jxr_javadoccomment">     * @param point point to check</em>
+<a class="jxr_linenumber" name="L137" href="Region.html#L137">137</a> <em class="jxr_javadoccomment">     * @return projection of the point on the boundary</em>
+<a class="jxr_linenumber" name="L138" href="Region.html#L138">138</a> <em class="jxr_javadoccomment">     * @since 3.3</em>
+<a class="jxr_linenumber" name="L139" href="Region.html#L139">139</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L140" href="Region.html#L140">140</a>     BoundaryProjection&lt;S&gt; projectToBoundary(<strong class="jxr_keyword">final</strong> Point&lt;S&gt; point);
+<a class="jxr_linenumber" name="L141" href="Region.html#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="Region.html#L142">142</a>     <em class="jxr_javadoccomment">/** Get the underlying BSP tree.</em>
+<a class="jxr_linenumber" name="L143" href="Region.html#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="Region.html#L144">144</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Regions are represented by an underlying inside/outside BSP</em>
+<a class="jxr_linenumber" name="L145" href="Region.html#L145">145</a> <em class="jxr_javadoccomment">     * tree whose leaf attributes are {@code Boolean} instances</em>
+<a class="jxr_linenumber" name="L146" href="Region.html#L146">146</a> <em class="jxr_javadoccomment">     * representing inside leaf cells if the attribute value is</em>
+<a class="jxr_linenumber" name="L147" href="Region.html#L147">147</a> <em class="jxr_javadoccomment">     * {@code true} and outside leaf cells if the attribute is</em>
+<a class="jxr_linenumber" name="L148" href="Region.html#L148">148</a> <em class="jxr_javadoccomment">     * {@code false}. These leaf attributes are always present and</em>
+<a class="jxr_linenumber" name="L149" href="Region.html#L149">149</a> <em class="jxr_javadoccomment">     * guaranteed to be non null.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L150" href="Region.html#L150">150</a> 
+<a class="jxr_linenumber" name="L151" href="Region.html#L151">151</a> <em class="jxr_javadoccomment">     * &lt;p&gt;In addition to the leaf attributes, the internal nodes which</em>
+<a class="jxr_linenumber" name="L152" href="Region.html#L152">152</a> <em class="jxr_javadoccomment">     * correspond to cells split by cut sub-hyperplanes may contain</em>
+<a class="jxr_linenumber" name="L153" href="Region.html#L153">153</a> <em class="jxr_javadoccomment">     * {@link BoundaryAttribute BoundaryAttribute} objects representing</em>
+<a class="jxr_linenumber" name="L154" href="Region.html#L154">154</a> <em class="jxr_javadoccomment">     * the parts of the corresponding cut sub-hyperplane that belong to</em>
+<a class="jxr_linenumber" name="L155" href="Region.html#L155">155</a> <em class="jxr_javadoccomment">     * the boundary. When the boundary attributes have been computed,</em>
+<a class="jxr_linenumber" name="L156" href="Region.html#L156">156</a> <em class="jxr_javadoccomment">     * all internal nodes are guaranteed to have non-null</em>
+<a class="jxr_linenumber" name="L157" href="Region.html#L157">157</a> <em class="jxr_javadoccomment">     * attributes, however some {@link BoundaryAttribute</em>
+<a class="jxr_linenumber" name="L158" href="Region.html#L158">158</a> <em class="jxr_javadoccomment">     * BoundaryAttribute} instances may have their {@link</em>
+<a class="jxr_linenumber" name="L159" href="Region.html#L159">159</a> <em class="jxr_javadoccomment">     * BoundaryAttribute#getPlusInside() getPlusInside} and {@link</em>
+<a class="jxr_linenumber" name="L160" href="Region.html#L160">160</a> <em class="jxr_javadoccomment">     * BoundaryAttribute#getPlusOutside() getPlusOutside} methods both</em>
+<a class="jxr_linenumber" name="L161" href="Region.html#L161">161</a> <em class="jxr_javadoccomment">     * returning null if the corresponding cut sub-hyperplane does not</em>
+<a class="jxr_linenumber" name="L162" href="Region.html#L162">162</a> <em class="jxr_javadoccomment">     * have any parts belonging to the boundary.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L163" href="Region.html#L163">163</a> 
+<a class="jxr_linenumber" name="L164" href="Region.html#L164">164</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Since computing the boundary is not always required and can be</em>
+<a class="jxr_linenumber" name="L165" href="Region.html#L165">165</a> <em class="jxr_javadoccomment">     * time-consuming for large trees, these internal nodes attributes</em>
+<a class="jxr_linenumber" name="L166" href="Region.html#L166">166</a> <em class="jxr_javadoccomment">     * are computed using lazy evaluation only when required by setting</em>
+<a class="jxr_linenumber" name="L167" href="Region.html#L167">167</a> <em class="jxr_javadoccomment">     * the {@code includeBoundaryAttributes} argument to</em>
+<a class="jxr_linenumber" name="L168" href="Region.html#L168">168</a> <em class="jxr_javadoccomment">     * {@code true}. Once computed, these attributes remain in the</em>
+<a class="jxr_linenumber" name="L169" href="Region.html#L169">169</a> <em class="jxr_javadoccomment">     * tree, which implies that in this case, further calls to the</em>
+<a class="jxr_linenumber" name="L170" href="Region.html#L170">170</a> <em class="jxr_javadoccomment">     * method for the same region will always include these attributes</em>
+<a class="jxr_linenumber" name="L171" href="Region.html#L171">171</a> <em class="jxr_javadoccomment">     * regardless of the value of the</em>
+<a class="jxr_linenumber" name="L172" href="Region.html#L172">172</a> <em class="jxr_javadoccomment">     * {@code includeBoundaryAttributes} argument.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L173" href="Region.html#L173">173</a> 
+<a class="jxr_linenumber" name="L174" href="Region.html#L174">174</a> <em class="jxr_javadoccomment">     * @param includeBoundaryAttributes if true, the boundary attributes</em>
+<a class="jxr_linenumber" name="L175" href="Region.html#L175">175</a> <em class="jxr_javadoccomment">     * at internal nodes are guaranteed to be included (they may be</em>
+<a class="jxr_linenumber" name="L176" href="Region.html#L176">176</a> <em class="jxr_javadoccomment">     * included even if the argument is false, if they have already been</em>
+<a class="jxr_linenumber" name="L177" href="Region.html#L177">177</a> <em class="jxr_javadoccomment">     * computed due to a previous call)</em>
+<a class="jxr_linenumber" name="L178" href="Region.html#L178">178</a> <em class="jxr_javadoccomment">     * @return underlying BSP tree</em>
+<a class="jxr_linenumber" name="L179" href="Region.html#L179">179</a> <em class="jxr_javadoccomment">     * @see BoundaryAttribute</em>
+<a class="jxr_linenumber" name="L180" href="Region.html#L180">180</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L181" href="Region.html#L181">181</a>     BSPTree&lt;S&gt; getTree(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> includeBoundaryAttributes);
+<a class="jxr_linenumber" name="L182" href="Region.html#L182">182</a> 
+<a class="jxr_linenumber" name="L183" href="Region.html#L183">183</a>     <em class="jxr_javadoccomment">/** Get the size of the boundary.</em>
+<a class="jxr_linenumber" name="L184" href="Region.html#L184">184</a> <em class="jxr_javadoccomment">     * @return the size of the boundary (this is 0 in 1D, a length in</em>
+<a class="jxr_linenumber" name="L185" href="Region.html#L185">185</a> <em class="jxr_javadoccomment">     * 2D, an area in 3D ...)</em>
+<a class="jxr_linenumber" name="L186" href="Region.html#L186">186</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L187" href="Region.html#L187">187</a>     <strong class="jxr_keyword">double</strong> getBoundarySize();
+<a class="jxr_linenumber" name="L188" href="Region.html#L188">188</a> 
+<a class="jxr_linenumber" name="L189" href="Region.html#L189">189</a>     <em class="jxr_javadoccomment">/** Get the size of the instance.</em>
+<a class="jxr_linenumber" name="L190" href="Region.html#L190">190</a> <em class="jxr_javadoccomment">     * @return the size of the instance (this is a length in 1D, an area</em>
+<a class="jxr_linenumber" name="L191" href="Region.html#L191">191</a> <em class="jxr_javadoccomment">     * in 2D, a volume in 3D ...)</em>
+<a class="jxr_linenumber" name="L192" href="Region.html#L192">192</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L193" href="Region.html#L193">193</a>     <strong class="jxr_keyword">double</strong> getSize();
+<a class="jxr_linenumber" name="L194" href="Region.html#L194">194</a> 
+<a class="jxr_linenumber" name="L195" href="Region.html#L195">195</a>     <em class="jxr_javadoccomment">/** Get the barycenter of the instance.</em>
+<a class="jxr_linenumber" name="L196" href="Region.html#L196">196</a> <em class="jxr_javadoccomment">     * @return an object representing the barycenter</em>
+<a class="jxr_linenumber" name="L197" href="Region.html#L197">197</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L198" href="Region.html#L198">198</a>     Point&lt;S&gt; getBarycenter();
+<a class="jxr_linenumber" name="L199" href="Region.html#L199">199</a> 
+<a class="jxr_linenumber" name="L200" href="Region.html#L200">200</a>     <em class="jxr_javadoccomment">/** Get the parts of a sub-hyperplane that are contained in the region.</em>
+<a class="jxr_linenumber" name="L201" href="Region.html#L201">201</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The parts of the sub-hyperplane that belong to the boundary are</em>
+<a class="jxr_linenumber" name="L202" href="Region.html#L202">202</a> <em class="jxr_javadoccomment">     * &lt;em&gt;not&lt;/em&gt; included in the resulting parts.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L203" href="Region.html#L203">203</a> <em class="jxr_javadoccomment">     * @param sub sub-hyperplane traversing the region</em>
+<a class="jxr_linenumber" name="L204" href="Region.html#L204">204</a> <em class="jxr_javadoccomment">     * @return filtered sub-hyperplane</em>
+<a class="jxr_linenumber" name="L205" href="Region.html#L205">205</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L206" href="Region.html#L206">206</a>     SubHyperplane&lt;S&gt; intersection(<strong class="jxr_keyword">final</strong> SubHyperplane&lt;S&gt; sub);
+<a class="jxr_linenumber" name="L207" href="Region.html#L207">207</a> 
+<a class="jxr_linenumber" name="L208" href="Region.html#L208">208</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

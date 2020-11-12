@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>UniformIntegerDistribution xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/distribution/UniformIntegerDistribution.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="UniformIntegerDistribution.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="UniformIntegerDistribution.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="UniformIntegerDistribution.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="UniformIntegerDistribution.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="UniformIntegerDistribution.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="UniformIntegerDistribution.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="UniformIntegerDistribution.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="UniformIntegerDistribution.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="UniformIntegerDistribution.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="UniformIntegerDistribution.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="UniformIntegerDistribution.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="UniformIntegerDistribution.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="UniformIntegerDistribution.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="UniformIntegerDistribution.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="UniformIntegerDistribution.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="UniformIntegerDistribution.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="UniformIntegerDistribution.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="UniformIntegerDistribution.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.distribution;
+<a class="jxr_linenumber" name="L19" href="UniformIntegerDistribution.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="UniformIntegerDistribution.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooLargeException;
+<a class="jxr_linenumber" name="L21" href="UniformIntegerDistribution.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L22" href="UniformIntegerDistribution.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L23" href="UniformIntegerDistribution.html#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="UniformIntegerDistribution.html#L24">24</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L25" href="UniformIntegerDistribution.html#L25">25</a>  <em class="jxr_javadoccomment"> * Implementation of the uniform integer distribution.</em>
+<a class="jxr_linenumber" name="L26" href="UniformIntegerDistribution.html#L26">26</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L27" href="UniformIntegerDistribution.html#L27">27</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/Uniform_distribution_(discrete)" target="alexandria_uri">http://en.wikipedia.org/wiki/Uniform_distribution_(discrete)</a>"</em>
+<a class="jxr_linenumber" name="L28" href="UniformIntegerDistribution.html#L28">28</a>  <em class="jxr_javadoccomment"> * &gt;Uniform distribution (discrete), at Wikipedia&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L29" href="UniformIntegerDistribution.html#L29">29</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L30" href="UniformIntegerDistribution.html#L30">30</a>  <em class="jxr_javadoccomment"> * @since 3.0</em>
+<a class="jxr_linenumber" name="L31" href="UniformIntegerDistribution.html#L31">31</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L32" href="UniformIntegerDistribution.html#L32">32</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="UniformIntegerDistribution.html">UniformIntegerDistribution</a> <strong class="jxr_keyword">extends</strong> <a href="AbstractIntegerDistribution.html">AbstractIntegerDistribution</a> {
+<a class="jxr_linenumber" name="L33" href="UniformIntegerDistribution.html#L33">33</a>      <em class="jxr_javadoccomment">/** Serializable version identifier. */</em>
+<a class="jxr_linenumber" name="L34" href="UniformIntegerDistribution.html#L34">34</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20160308L;
+<a class="jxr_linenumber" name="L35" href="UniformIntegerDistribution.html#L35">35</a>      <em class="jxr_javadoccomment">/** Lower bound (inclusive) of this distribution. */</em>
+<a class="jxr_linenumber" name="L36" href="UniformIntegerDistribution.html#L36">36</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> lower;
+<a class="jxr_linenumber" name="L37" href="UniformIntegerDistribution.html#L37">37</a>      <em class="jxr_javadoccomment">/** Upper bound (inclusive) of this distribution. */</em>
+<a class="jxr_linenumber" name="L38" href="UniformIntegerDistribution.html#L38">38</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> upper;
+<a class="jxr_linenumber" name="L39" href="UniformIntegerDistribution.html#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="UniformIntegerDistribution.html#L40">40</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L41" href="UniformIntegerDistribution.html#L41">41</a>  <em class="jxr_javadoccomment">     * Creates a new uniform integer distribution using the given lower and</em>
+<a class="jxr_linenumber" name="L42" href="UniformIntegerDistribution.html#L42">42</a>  <em class="jxr_javadoccomment">     * upper bounds (both inclusive).</em>
+<a class="jxr_linenumber" name="L43" href="UniformIntegerDistribution.html#L43">43</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L44" href="UniformIntegerDistribution.html#L44">44</a>  <em class="jxr_javadoccomment">     * @param lower Lower bound (inclusive) of this distribution.</em>
+<a class="jxr_linenumber" name="L45" href="UniformIntegerDistribution.html#L45">45</a>  <em class="jxr_javadoccomment">     * @param upper Upper bound (inclusive) of this distribution.</em>
+<a class="jxr_linenumber" name="L46" href="UniformIntegerDistribution.html#L46">46</a>  <em class="jxr_javadoccomment">     * @throws NumberIsTooLargeException if {@code lower &gt; upper}.</em>
+<a class="jxr_linenumber" name="L47" href="UniformIntegerDistribution.html#L47">47</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L48" href="UniformIntegerDistribution.html#L48">48</a>      <strong class="jxr_keyword">public</strong> <a href="UniformIntegerDistribution.html">UniformIntegerDistribution</a>(<strong class="jxr_keyword">int</strong> lower,
+<a class="jxr_linenumber" name="L49" href="UniformIntegerDistribution.html#L49">49</a>                                        <strong class="jxr_keyword">int</strong> upper)
+<a class="jxr_linenumber" name="L50" href="UniformIntegerDistribution.html#L50">50</a>          <strong class="jxr_keyword">throws</strong> <a href="../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a> {
+<a class="jxr_linenumber" name="L51" href="UniformIntegerDistribution.html#L51">51</a>          <strong class="jxr_keyword">if</strong> (lower &gt; upper) {
+<a class="jxr_linenumber" name="L52" href="UniformIntegerDistribution.html#L52">52</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a>(
+<a class="jxr_linenumber" name="L53" href="UniformIntegerDistribution.html#L53">53</a>                              LocalizedFormats.LOWER_BOUND_NOT_BELOW_UPPER_BOUND,
+<a class="jxr_linenumber" name="L54" href="UniformIntegerDistribution.html#L54">54</a>                              lower, upper, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L55" href="UniformIntegerDistribution.html#L55">55</a>          }
+<a class="jxr_linenumber" name="L56" href="UniformIntegerDistribution.html#L56">56</a>          <strong class="jxr_keyword">this</strong>.lower = lower;
+<a class="jxr_linenumber" name="L57" href="UniformIntegerDistribution.html#L57">57</a>          <strong class="jxr_keyword">this</strong>.upper = upper;
+<a class="jxr_linenumber" name="L58" href="UniformIntegerDistribution.html#L58">58</a>      }
+<a class="jxr_linenumber" name="L59" href="UniformIntegerDistribution.html#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="UniformIntegerDistribution.html#L60">60</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L61" href="UniformIntegerDistribution.html#L61">61</a>      @Override
+<a class="jxr_linenumber" name="L62" href="UniformIntegerDistribution.html#L62">62</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> probability(<strong class="jxr_keyword">int</strong> x) {
+<a class="jxr_linenumber" name="L63" href="UniformIntegerDistribution.html#L63">63</a>          <strong class="jxr_keyword">if</strong> (x &lt; lower || x &gt; upper) {
+<a class="jxr_linenumber" name="L64" href="UniformIntegerDistribution.html#L64">64</a>              <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L65" href="UniformIntegerDistribution.html#L65">65</a>          }
+<a class="jxr_linenumber" name="L66" href="UniformIntegerDistribution.html#L66">66</a>          <strong class="jxr_keyword">return</strong> 1.0 / (upper - lower + 1);
+<a class="jxr_linenumber" name="L67" href="UniformIntegerDistribution.html#L67">67</a>      }
+<a class="jxr_linenumber" name="L68" href="UniformIntegerDistribution.html#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="UniformIntegerDistribution.html#L69">69</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L70" href="UniformIntegerDistribution.html#L70">70</a>      @Override
+<a class="jxr_linenumber" name="L71" href="UniformIntegerDistribution.html#L71">71</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> cumulativeProbability(<strong class="jxr_keyword">int</strong> x) {
+<a class="jxr_linenumber" name="L72" href="UniformIntegerDistribution.html#L72">72</a>          <strong class="jxr_keyword">if</strong> (x &lt; lower) {
+<a class="jxr_linenumber" name="L73" href="UniformIntegerDistribution.html#L73">73</a>              <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L74" href="UniformIntegerDistribution.html#L74">74</a>          }
+<a class="jxr_linenumber" name="L75" href="UniformIntegerDistribution.html#L75">75</a>          <strong class="jxr_keyword">if</strong> (x &gt; upper) {
+<a class="jxr_linenumber" name="L76" href="UniformIntegerDistribution.html#L76">76</a>              <strong class="jxr_keyword">return</strong> 1;
+<a class="jxr_linenumber" name="L77" href="UniformIntegerDistribution.html#L77">77</a>          }
+<a class="jxr_linenumber" name="L78" href="UniformIntegerDistribution.html#L78">78</a>          <strong class="jxr_keyword">return</strong> (x - lower + 1.0) / (upper - lower + 1.0);
+<a class="jxr_linenumber" name="L79" href="UniformIntegerDistribution.html#L79">79</a>      }
+<a class="jxr_linenumber" name="L80" href="UniformIntegerDistribution.html#L80">80</a>  
+<a class="jxr_linenumber" name="L81" href="UniformIntegerDistribution.html#L81">81</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L82" href="UniformIntegerDistribution.html#L82">82</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L83" href="UniformIntegerDistribution.html#L83">83</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L84" href="UniformIntegerDistribution.html#L84">84</a>  <em class="jxr_javadoccomment">     * For lower bound {@code lower} and upper bound {@code upper}, the mean is</em>
+<a class="jxr_linenumber" name="L85" href="UniformIntegerDistribution.html#L85">85</a>  <em class="jxr_javadoccomment">     * {@code 0.5 * (lower + upper)}.</em>
+<a class="jxr_linenumber" name="L86" href="UniformIntegerDistribution.html#L86">86</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L87" href="UniformIntegerDistribution.html#L87">87</a>      @Override
+<a class="jxr_linenumber" name="L88" href="UniformIntegerDistribution.html#L88">88</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalMean() {
+<a class="jxr_linenumber" name="L89" href="UniformIntegerDistribution.html#L89">89</a>          <strong class="jxr_keyword">return</strong> 0.5 * (lower + upper);
+<a class="jxr_linenumber" name="L90" href="UniformIntegerDistribution.html#L90">90</a>      }
+<a class="jxr_linenumber" name="L91" href="UniformIntegerDistribution.html#L91">91</a>  
+<a class="jxr_linenumber" name="L92" href="UniformIntegerDistribution.html#L92">92</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L93" href="UniformIntegerDistribution.html#L93">93</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L94" href="UniformIntegerDistribution.html#L94">94</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L95" href="UniformIntegerDistribution.html#L95">95</a>  <em class="jxr_javadoccomment">     * For lower bound {@code lower} and upper bound {@code upper}, and</em>
+<a class="jxr_linenumber" name="L96" href="UniformIntegerDistribution.html#L96">96</a>  <em class="jxr_javadoccomment">     * {@code n = upper - lower + 1}, the variance is {@code (n^2 - 1) / 12}.</em>
+<a class="jxr_linenumber" name="L97" href="UniformIntegerDistribution.html#L97">97</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L98" href="UniformIntegerDistribution.html#L98">98</a>      @Override
+<a class="jxr_linenumber" name="L99" href="UniformIntegerDistribution.html#L99">99</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalVariance() {
+<a class="jxr_linenumber" name="L100" href="UniformIntegerDistribution.html#L100">100</a>         <strong class="jxr_keyword">double</strong> n = upper - lower + 1;
+<a class="jxr_linenumber" name="L101" href="UniformIntegerDistribution.html#L101">101</a>         <strong class="jxr_keyword">return</strong> (n * n - 1) / 12.0;
+<a class="jxr_linenumber" name="L102" href="UniformIntegerDistribution.html#L102">102</a>     }
+<a class="jxr_linenumber" name="L103" href="UniformIntegerDistribution.html#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="UniformIntegerDistribution.html#L104">104</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L105" href="UniformIntegerDistribution.html#L105">105</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L106" href="UniformIntegerDistribution.html#L106">106</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L107" href="UniformIntegerDistribution.html#L107">107</a> <em class="jxr_javadoccomment">     * The lower bound of the support is equal to the lower bound parameter</em>
+<a class="jxr_linenumber" name="L108" href="UniformIntegerDistribution.html#L108">108</a> <em class="jxr_javadoccomment">     * of the distribution.</em>
+<a class="jxr_linenumber" name="L109" href="UniformIntegerDistribution.html#L109">109</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L110" href="UniformIntegerDistribution.html#L110">110</a> <em class="jxr_javadoccomment">     * @return lower bound of the support</em>
+<a class="jxr_linenumber" name="L111" href="UniformIntegerDistribution.html#L111">111</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L112" href="UniformIntegerDistribution.html#L112">112</a>     @Override
+<a class="jxr_linenumber" name="L113" href="UniformIntegerDistribution.html#L113">113</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getSupportLowerBound() {
+<a class="jxr_linenumber" name="L114" href="UniformIntegerDistribution.html#L114">114</a>         <strong class="jxr_keyword">return</strong> lower;
+<a class="jxr_linenumber" name="L115" href="UniformIntegerDistribution.html#L115">115</a>     }
+<a class="jxr_linenumber" name="L116" href="UniformIntegerDistribution.html#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="UniformIntegerDistribution.html#L117">117</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L118" href="UniformIntegerDistribution.html#L118">118</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L119" href="UniformIntegerDistribution.html#L119">119</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L120" href="UniformIntegerDistribution.html#L120">120</a> <em class="jxr_javadoccomment">     * The upper bound of the support is equal to the upper bound parameter</em>
+<a class="jxr_linenumber" name="L121" href="UniformIntegerDistribution.html#L121">121</a> <em class="jxr_javadoccomment">     * of the distribution.</em>
+<a class="jxr_linenumber" name="L122" href="UniformIntegerDistribution.html#L122">122</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L123" href="UniformIntegerDistribution.html#L123">123</a> <em class="jxr_javadoccomment">     * @return upper bound of the support</em>
+<a class="jxr_linenumber" name="L124" href="UniformIntegerDistribution.html#L124">124</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L125" href="UniformIntegerDistribution.html#L125">125</a>     @Override
+<a class="jxr_linenumber" name="L126" href="UniformIntegerDistribution.html#L126">126</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getSupportUpperBound() {
+<a class="jxr_linenumber" name="L127" href="UniformIntegerDistribution.html#L127">127</a>         <strong class="jxr_keyword">return</strong> upper;
+<a class="jxr_linenumber" name="L128" href="UniformIntegerDistribution.html#L128">128</a>     }
+<a class="jxr_linenumber" name="L129" href="UniformIntegerDistribution.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="UniformIntegerDistribution.html#L130">130</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L131" href="UniformIntegerDistribution.html#L131">131</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L132" href="UniformIntegerDistribution.html#L132">132</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L133" href="UniformIntegerDistribution.html#L133">133</a> <em class="jxr_javadoccomment">     * The support of this distribution is connected.</em>
+<a class="jxr_linenumber" name="L134" href="UniformIntegerDistribution.html#L134">134</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L135" href="UniformIntegerDistribution.html#L135">135</a> <em class="jxr_javadoccomment">     * @return {@code true}</em>
+<a class="jxr_linenumber" name="L136" href="UniformIntegerDistribution.html#L136">136</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L137" href="UniformIntegerDistribution.html#L137">137</a>     @Override
+<a class="jxr_linenumber" name="L138" href="UniformIntegerDistribution.html#L138">138</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isSupportConnected() {
+<a class="jxr_linenumber" name="L139" href="UniformIntegerDistribution.html#L139">139</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L140" href="UniformIntegerDistribution.html#L140">140</a>     }
+<a class="jxr_linenumber" name="L141" href="UniformIntegerDistribution.html#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="UniformIntegerDistribution.html#L142">142</a>     <em class="jxr_javadoccomment">/**{@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L143" href="UniformIntegerDistribution.html#L143">143</a>     @Override
+<a class="jxr_linenumber" name="L144" href="UniformIntegerDistribution.html#L144">144</a>     <strong class="jxr_keyword">public</strong> IntegerDistribution.Sampler createSampler(<strong class="jxr_keyword">final</strong> UniformRandomProvider rng) {
+<a class="jxr_linenumber" name="L145" href="UniformIntegerDistribution.html#L145">145</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> IntegerDistribution.Sampler() {
+<a class="jxr_linenumber" name="L146" href="UniformIntegerDistribution.html#L146">146</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L147" href="UniformIntegerDistribution.html#L147">147</a>             @Override
+<a class="jxr_linenumber" name="L148" href="UniformIntegerDistribution.html#L148">148</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> sample() {
+<a class="jxr_linenumber" name="L149" href="UniformIntegerDistribution.html#L149">149</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> max = (upper - lower) + 1;
+<a class="jxr_linenumber" name="L150" href="UniformIntegerDistribution.html#L150">150</a>                 <strong class="jxr_keyword">if</strong> (max &lt;= 0) {
+<a class="jxr_linenumber" name="L151" href="UniformIntegerDistribution.html#L151">151</a>                     <em class="jxr_comment">// The range is too wide to fit in a positive int (larger</em>
+<a class="jxr_linenumber" name="L152" href="UniformIntegerDistribution.html#L152">152</a>                     <em class="jxr_comment">// than 2^31); as it covers more than half the integer range,</em>
+<a class="jxr_linenumber" name="L153" href="UniformIntegerDistribution.html#L153">153</a>                     <em class="jxr_comment">// we use a simple rejection method.</em>
+<a class="jxr_linenumber" name="L154" href="UniformIntegerDistribution.html#L154">154</a>                     <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
+<a class="jxr_linenumber" name="L155" href="UniformIntegerDistribution.html#L155">155</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> r = rng.nextInt();
+<a class="jxr_linenumber" name="L156" href="UniformIntegerDistribution.html#L156">156</a>                         <strong class="jxr_keyword">if</strong> (r &gt;= lower &amp;&amp;
+<a class="jxr_linenumber" name="L157" href="UniformIntegerDistribution.html#L157">157</a>                             r &lt;= upper) {
+<a class="jxr_linenumber" name="L158" href="UniformIntegerDistribution.html#L158">158</a>                             <strong class="jxr_keyword">return</strong> r;
+<a class="jxr_linenumber" name="L159" href="UniformIntegerDistribution.html#L159">159</a>                         }
+<a class="jxr_linenumber" name="L160" href="UniformIntegerDistribution.html#L160">160</a>                     }
+<a class="jxr_linenumber" name="L161" href="UniformIntegerDistribution.html#L161">161</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L162" href="UniformIntegerDistribution.html#L162">162</a>                     <em class="jxr_comment">// We can shift the range and directly generate a positive int.</em>
+<a class="jxr_linenumber" name="L163" href="UniformIntegerDistribution.html#L163">163</a>                     <strong class="jxr_keyword">return</strong> lower + rng.nextInt(max);
+<a class="jxr_linenumber" name="L164" href="UniformIntegerDistribution.html#L164">164</a>                 }
+<a class="jxr_linenumber" name="L165" href="UniformIntegerDistribution.html#L165">165</a>             }
+<a class="jxr_linenumber" name="L166" href="UniformIntegerDistribution.html#L166">166</a>         };
+<a class="jxr_linenumber" name="L167" href="UniformIntegerDistribution.html#L167">167</a>     }
+<a class="jxr_linenumber" name="L168" href="UniformIntegerDistribution.html#L168">168</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

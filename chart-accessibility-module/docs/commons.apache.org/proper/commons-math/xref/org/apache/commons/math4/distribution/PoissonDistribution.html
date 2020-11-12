@@ -1,0 +1,369 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>PoissonDistribution xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/distribution/PoissonDistribution.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="PoissonDistribution.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="PoissonDistribution.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="PoissonDistribution.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="PoissonDistribution.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="PoissonDistribution.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="PoissonDistribution.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="PoissonDistribution.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="PoissonDistribution.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="PoissonDistribution.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="PoissonDistribution.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="PoissonDistribution.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="PoissonDistribution.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="PoissonDistribution.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="PoissonDistribution.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="PoissonDistribution.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="PoissonDistribution.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="PoissonDistribution.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.distribution;
+<a class="jxr_linenumber" name="L18" href="PoissonDistribution.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="PoissonDistribution.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L20" href="PoissonDistribution.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L21" href="PoissonDistribution.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.special.Gamma;
+<a class="jxr_linenumber" name="L22" href="PoissonDistribution.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.CombinatoricsUtils;
+<a class="jxr_linenumber" name="L23" href="PoissonDistribution.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L24" href="PoissonDistribution.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathUtils;
+<a class="jxr_linenumber" name="L25" href="PoissonDistribution.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L26" href="PoissonDistribution.html#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="PoissonDistribution.html#L27">27</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L28" href="PoissonDistribution.html#L28">28</a>  <em class="jxr_javadoccomment"> * Implementation of the Poisson distribution.</em>
+<a class="jxr_linenumber" name="L29" href="PoissonDistribution.html#L29">29</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L30" href="PoissonDistribution.html#L30">30</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/Poisson_distribution" target="alexandria_uri">http://en.wikipedia.org/wiki/Poisson_distribution</a>"&gt;Poisson distribution (Wikipedia)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L31" href="PoissonDistribution.html#L31">31</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://mathworld.wolfram.com/PoissonDistribution.html" target="alexandria_uri">http://mathworld.wolfram.com/PoissonDistribution.html</a>"&gt;Poisson distribution (MathWorld)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L32" href="PoissonDistribution.html#L32">32</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L33" href="PoissonDistribution.html#L33">33</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="PoissonDistribution.html">PoissonDistribution</a> <strong class="jxr_keyword">extends</strong> <a href="AbstractIntegerDistribution.html">AbstractIntegerDistribution</a> {
+<a class="jxr_linenumber" name="L34" href="PoissonDistribution.html#L34">34</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L35" href="PoissonDistribution.html#L35">35</a>  <em class="jxr_javadoccomment">     * Default maximum number of iterations for cumulative probability calculations.</em>
+<a class="jxr_linenumber" name="L36" href="PoissonDistribution.html#L36">36</a>  <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L37" href="PoissonDistribution.html#L37">37</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L38" href="PoissonDistribution.html#L38">38</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> DEFAULT_MAX_ITERATIONS = 10000000;
+<a class="jxr_linenumber" name="L39" href="PoissonDistribution.html#L39">39</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L40" href="PoissonDistribution.html#L40">40</a>  <em class="jxr_javadoccomment">     * Default convergence criterion.</em>
+<a class="jxr_linenumber" name="L41" href="PoissonDistribution.html#L41">41</a>  <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L42" href="PoissonDistribution.html#L42">42</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L43" href="PoissonDistribution.html#L43">43</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_EPSILON = 1e-12;
+<a class="jxr_linenumber" name="L44" href="PoissonDistribution.html#L44">44</a>      <em class="jxr_javadoccomment">/** Serializable version identifier. */</em>
+<a class="jxr_linenumber" name="L45" href="PoissonDistribution.html#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = -3349935121172596109L;
+<a class="jxr_linenumber" name="L46" href="PoissonDistribution.html#L46">46</a>      <em class="jxr_javadoccomment">/** Distribution used to compute normal approximation. */</em>
+<a class="jxr_linenumber" name="L47" href="PoissonDistribution.html#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="NormalDistribution.html">NormalDistribution</a> normal;
+<a class="jxr_linenumber" name="L48" href="PoissonDistribution.html#L48">48</a>      <em class="jxr_javadoccomment">/** Mean of the distribution. */</em>
+<a class="jxr_linenumber" name="L49" href="PoissonDistribution.html#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> mean;
+<a class="jxr_linenumber" name="L50" href="PoissonDistribution.html#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="PoissonDistribution.html#L51">51</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L52" href="PoissonDistribution.html#L52">52</a>  <em class="jxr_javadoccomment">     * Maximum number of iterations for cumulative probability. Cumulative</em>
+<a class="jxr_linenumber" name="L53" href="PoissonDistribution.html#L53">53</a>  <em class="jxr_javadoccomment">     * probabilities are estimated using either Lanczos series approximation</em>
+<a class="jxr_linenumber" name="L54" href="PoissonDistribution.html#L54">54</a>  <em class="jxr_javadoccomment">     * of {@link Gamma#regularizedGammaP(double, double, double, int)}</em>
+<a class="jxr_linenumber" name="L55" href="PoissonDistribution.html#L55">55</a>  <em class="jxr_javadoccomment">     * or continued fraction approximation of</em>
+<a class="jxr_linenumber" name="L56" href="PoissonDistribution.html#L56">56</a>  <em class="jxr_javadoccomment">     * {@link Gamma#regularizedGammaQ(double, double, double, int)}.</em>
+<a class="jxr_linenumber" name="L57" href="PoissonDistribution.html#L57">57</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L58" href="PoissonDistribution.html#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIterations;
+<a class="jxr_linenumber" name="L59" href="PoissonDistribution.html#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="PoissonDistribution.html#L60">60</a>      <em class="jxr_javadoccomment">/** Convergence criterion for cumulative probability. */</em>
+<a class="jxr_linenumber" name="L61" href="PoissonDistribution.html#L61">61</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> epsilon;
+<a class="jxr_linenumber" name="L62" href="PoissonDistribution.html#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="PoissonDistribution.html#L63">63</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L64" href="PoissonDistribution.html#L64">64</a>  <em class="jxr_javadoccomment">     * Creates a new Poisson distribution with specified mean.</em>
+<a class="jxr_linenumber" name="L65" href="PoissonDistribution.html#L65">65</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L66" href="PoissonDistribution.html#L66">66</a>  <em class="jxr_javadoccomment">     * @param p the Poisson mean</em>
+<a class="jxr_linenumber" name="L67" href="PoissonDistribution.html#L67">67</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code p &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L68" href="PoissonDistribution.html#L68">68</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L69" href="PoissonDistribution.html#L69">69</a>      <strong class="jxr_keyword">public</strong> <a href="PoissonDistribution.html">PoissonDistribution</a>(<strong class="jxr_keyword">double</strong> p)
+<a class="jxr_linenumber" name="L70" href="PoissonDistribution.html#L70">70</a>          <strong class="jxr_keyword">throws</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L71" href="PoissonDistribution.html#L71">71</a>          <strong class="jxr_keyword">this</strong>(p, DEFAULT_EPSILON, DEFAULT_MAX_ITERATIONS);
+<a class="jxr_linenumber" name="L72" href="PoissonDistribution.html#L72">72</a>      }
+<a class="jxr_linenumber" name="L73" href="PoissonDistribution.html#L73">73</a>  
+<a class="jxr_linenumber" name="L74" href="PoissonDistribution.html#L74">74</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L75" href="PoissonDistribution.html#L75">75</a>  <em class="jxr_javadoccomment">     * Creates a new Poisson distribution with specified mean, convergence</em>
+<a class="jxr_linenumber" name="L76" href="PoissonDistribution.html#L76">76</a>  <em class="jxr_javadoccomment">     * criterion and maximum number of iterations.</em>
+<a class="jxr_linenumber" name="L77" href="PoissonDistribution.html#L77">77</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L78" href="PoissonDistribution.html#L78">78</a>  <em class="jxr_javadoccomment">     * @param p Poisson mean.</em>
+<a class="jxr_linenumber" name="L79" href="PoissonDistribution.html#L79">79</a>  <em class="jxr_javadoccomment">     * @param epsilon Convergence criterion for cumulative probabilities.</em>
+<a class="jxr_linenumber" name="L80" href="PoissonDistribution.html#L80">80</a>  <em class="jxr_javadoccomment">     * @param maxIterations the maximum number of iterations for cumulative</em>
+<a class="jxr_linenumber" name="L81" href="PoissonDistribution.html#L81">81</a>  <em class="jxr_javadoccomment">     * probabilities.</em>
+<a class="jxr_linenumber" name="L82" href="PoissonDistribution.html#L82">82</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code p &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L83" href="PoissonDistribution.html#L83">83</a>  <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L84" href="PoissonDistribution.html#L84">84</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L85" href="PoissonDistribution.html#L85">85</a>      <strong class="jxr_keyword">public</strong> <a href="PoissonDistribution.html">PoissonDistribution</a>(<strong class="jxr_keyword">double</strong> p,
+<a class="jxr_linenumber" name="L86" href="PoissonDistribution.html#L86">86</a>                                 <strong class="jxr_keyword">double</strong> epsilon,
+<a class="jxr_linenumber" name="L87" href="PoissonDistribution.html#L87">87</a>                                 <strong class="jxr_keyword">int</strong> maxIterations)
+<a class="jxr_linenumber" name="L88" href="PoissonDistribution.html#L88">88</a>          <strong class="jxr_keyword">throws</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L89" href="PoissonDistribution.html#L89">89</a>          <strong class="jxr_keyword">if</strong> (p &lt;= 0) {
+<a class="jxr_linenumber" name="L90" href="PoissonDistribution.html#L90">90</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(LocalizedFormats.MEAN, p);
+<a class="jxr_linenumber" name="L91" href="PoissonDistribution.html#L91">91</a>          }
+<a class="jxr_linenumber" name="L92" href="PoissonDistribution.html#L92">92</a>          mean = p;
+<a class="jxr_linenumber" name="L93" href="PoissonDistribution.html#L93">93</a>          <strong class="jxr_keyword">this</strong>.epsilon = epsilon;
+<a class="jxr_linenumber" name="L94" href="PoissonDistribution.html#L94">94</a>          <strong class="jxr_keyword">this</strong>.maxIterations = maxIterations;
+<a class="jxr_linenumber" name="L95" href="PoissonDistribution.html#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="PoissonDistribution.html#L96">96</a>          normal = <strong class="jxr_keyword">new</strong> <a href="NormalDistribution.html">NormalDistribution</a>(p, FastMath.sqrt(p),
+<a class="jxr_linenumber" name="L97" href="PoissonDistribution.html#L97">97</a>                                          NormalDistribution.DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
+<a class="jxr_linenumber" name="L98" href="PoissonDistribution.html#L98">98</a>      }
+<a class="jxr_linenumber" name="L99" href="PoissonDistribution.html#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="PoissonDistribution.html#L100">100</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L101" href="PoissonDistribution.html#L101">101</a> <em class="jxr_javadoccomment">     * Creates a new Poisson distribution with the specified mean and</em>
+<a class="jxr_linenumber" name="L102" href="PoissonDistribution.html#L102">102</a> <em class="jxr_javadoccomment">     * convergence criterion.</em>
+<a class="jxr_linenumber" name="L103" href="PoissonDistribution.html#L103">103</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L104" href="PoissonDistribution.html#L104">104</a> <em class="jxr_javadoccomment">     * @param p Poisson mean.</em>
+<a class="jxr_linenumber" name="L105" href="PoissonDistribution.html#L105">105</a> <em class="jxr_javadoccomment">     * @param epsilon Convergence criterion for cumulative probabilities.</em>
+<a class="jxr_linenumber" name="L106" href="PoissonDistribution.html#L106">106</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code p &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L107" href="PoissonDistribution.html#L107">107</a> <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L108" href="PoissonDistribution.html#L108">108</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L109" href="PoissonDistribution.html#L109">109</a>     <strong class="jxr_keyword">public</strong> <a href="PoissonDistribution.html">PoissonDistribution</a>(<strong class="jxr_keyword">double</strong> p, <strong class="jxr_keyword">double</strong> epsilon)
+<a class="jxr_linenumber" name="L110" href="PoissonDistribution.html#L110">110</a>         <strong class="jxr_keyword">throws</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L111" href="PoissonDistribution.html#L111">111</a>         <strong class="jxr_keyword">this</strong>(p, epsilon, DEFAULT_MAX_ITERATIONS);
+<a class="jxr_linenumber" name="L112" href="PoissonDistribution.html#L112">112</a>     }
+<a class="jxr_linenumber" name="L113" href="PoissonDistribution.html#L113">113</a> 
+<a class="jxr_linenumber" name="L114" href="PoissonDistribution.html#L114">114</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L115" href="PoissonDistribution.html#L115">115</a> <em class="jxr_javadoccomment">     * Creates a new Poisson distribution with the specified mean and maximum</em>
+<a class="jxr_linenumber" name="L116" href="PoissonDistribution.html#L116">116</a> <em class="jxr_javadoccomment">     * number of iterations.</em>
+<a class="jxr_linenumber" name="L117" href="PoissonDistribution.html#L117">117</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L118" href="PoissonDistribution.html#L118">118</a> <em class="jxr_javadoccomment">     * @param p Poisson mean.</em>
+<a class="jxr_linenumber" name="L119" href="PoissonDistribution.html#L119">119</a> <em class="jxr_javadoccomment">     * @param maxIterations Maximum number of iterations for cumulative</em>
+<a class="jxr_linenumber" name="L120" href="PoissonDistribution.html#L120">120</a> <em class="jxr_javadoccomment">     * probabilities.</em>
+<a class="jxr_linenumber" name="L121" href="PoissonDistribution.html#L121">121</a> <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L122" href="PoissonDistribution.html#L122">122</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L123" href="PoissonDistribution.html#L123">123</a>     <strong class="jxr_keyword">public</strong> <a href="PoissonDistribution.html">PoissonDistribution</a>(<strong class="jxr_keyword">double</strong> p, <strong class="jxr_keyword">int</strong> maxIterations) {
+<a class="jxr_linenumber" name="L124" href="PoissonDistribution.html#L124">124</a>         <strong class="jxr_keyword">this</strong>(p, DEFAULT_EPSILON, maxIterations);
+<a class="jxr_linenumber" name="L125" href="PoissonDistribution.html#L125">125</a>     }
+<a class="jxr_linenumber" name="L126" href="PoissonDistribution.html#L126">126</a> 
+<a class="jxr_linenumber" name="L127" href="PoissonDistribution.html#L127">127</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L128" href="PoissonDistribution.html#L128">128</a> <em class="jxr_javadoccomment">     * Get the mean for the distribution.</em>
+<a class="jxr_linenumber" name="L129" href="PoissonDistribution.html#L129">129</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L130" href="PoissonDistribution.html#L130">130</a> <em class="jxr_javadoccomment">     * @return the mean for the distribution.</em>
+<a class="jxr_linenumber" name="L131" href="PoissonDistribution.html#L131">131</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L132" href="PoissonDistribution.html#L132">132</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getMean() {
+<a class="jxr_linenumber" name="L133" href="PoissonDistribution.html#L133">133</a>         <strong class="jxr_keyword">return</strong> mean;
+<a class="jxr_linenumber" name="L134" href="PoissonDistribution.html#L134">134</a>     }
+<a class="jxr_linenumber" name="L135" href="PoissonDistribution.html#L135">135</a> 
+<a class="jxr_linenumber" name="L136" href="PoissonDistribution.html#L136">136</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L137" href="PoissonDistribution.html#L137">137</a>     @Override
+<a class="jxr_linenumber" name="L138" href="PoissonDistribution.html#L138">138</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> probability(<strong class="jxr_keyword">int</strong> x) {
+<a class="jxr_linenumber" name="L139" href="PoissonDistribution.html#L139">139</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> logProbability = logProbability(x);
+<a class="jxr_linenumber" name="L140" href="PoissonDistribution.html#L140">140</a>         <strong class="jxr_keyword">return</strong> logProbability == Double.NEGATIVE_INFINITY ? 0 : FastMath.exp(logProbability);
+<a class="jxr_linenumber" name="L141" href="PoissonDistribution.html#L141">141</a>     }
+<a class="jxr_linenumber" name="L142" href="PoissonDistribution.html#L142">142</a> 
+<a class="jxr_linenumber" name="L143" href="PoissonDistribution.html#L143">143</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L144" href="PoissonDistribution.html#L144">144</a>     @Override
+<a class="jxr_linenumber" name="L145" href="PoissonDistribution.html#L145">145</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> logProbability(<strong class="jxr_keyword">int</strong> x) {
+<a class="jxr_linenumber" name="L146" href="PoissonDistribution.html#L146">146</a>         <strong class="jxr_keyword">double</strong> ret;
+<a class="jxr_linenumber" name="L147" href="PoissonDistribution.html#L147">147</a>         <strong class="jxr_keyword">if</strong> (x &lt; 0 || x == Integer.MAX_VALUE) {
+<a class="jxr_linenumber" name="L148" href="PoissonDistribution.html#L148">148</a>             ret = Double.NEGATIVE_INFINITY;
+<a class="jxr_linenumber" name="L149" href="PoissonDistribution.html#L149">149</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (x == 0) {
+<a class="jxr_linenumber" name="L150" href="PoissonDistribution.html#L150">150</a>             ret = -mean;
+<a class="jxr_linenumber" name="L151" href="PoissonDistribution.html#L151">151</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L152" href="PoissonDistribution.html#L152">152</a>             ret = -SaddlePointExpansion.getStirlingError(x) -
+<a class="jxr_linenumber" name="L153" href="PoissonDistribution.html#L153">153</a>                   SaddlePointExpansion.getDeviancePart(x, mean) -
+<a class="jxr_linenumber" name="L154" href="PoissonDistribution.html#L154">154</a>                   0.5 * FastMath.log(MathUtils.TWO_PI) - 0.5 * FastMath.log(x);
+<a class="jxr_linenumber" name="L155" href="PoissonDistribution.html#L155">155</a>         }
+<a class="jxr_linenumber" name="L156" href="PoissonDistribution.html#L156">156</a>         <strong class="jxr_keyword">return</strong> ret;
+<a class="jxr_linenumber" name="L157" href="PoissonDistribution.html#L157">157</a>     }
+<a class="jxr_linenumber" name="L158" href="PoissonDistribution.html#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="PoissonDistribution.html#L159">159</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L160" href="PoissonDistribution.html#L160">160</a>     @Override
+<a class="jxr_linenumber" name="L161" href="PoissonDistribution.html#L161">161</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> cumulativeProbability(<strong class="jxr_keyword">int</strong> x) {
+<a class="jxr_linenumber" name="L162" href="PoissonDistribution.html#L162">162</a>         <strong class="jxr_keyword">if</strong> (x &lt; 0) {
+<a class="jxr_linenumber" name="L163" href="PoissonDistribution.html#L163">163</a>             <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L164" href="PoissonDistribution.html#L164">164</a>         }
+<a class="jxr_linenumber" name="L165" href="PoissonDistribution.html#L165">165</a>         <strong class="jxr_keyword">if</strong> (x == Integer.MAX_VALUE) {
+<a class="jxr_linenumber" name="L166" href="PoissonDistribution.html#L166">166</a>             <strong class="jxr_keyword">return</strong> 1;
+<a class="jxr_linenumber" name="L167" href="PoissonDistribution.html#L167">167</a>         }
+<a class="jxr_linenumber" name="L168" href="PoissonDistribution.html#L168">168</a>         <strong class="jxr_keyword">return</strong> Gamma.regularizedGammaQ((<strong class="jxr_keyword">double</strong>) x + 1, mean, epsilon,
+<a class="jxr_linenumber" name="L169" href="PoissonDistribution.html#L169">169</a>                                        maxIterations);
+<a class="jxr_linenumber" name="L170" href="PoissonDistribution.html#L170">170</a>     }
+<a class="jxr_linenumber" name="L171" href="PoissonDistribution.html#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="PoissonDistribution.html#L172">172</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L173" href="PoissonDistribution.html#L173">173</a> <em class="jxr_javadoccomment">     * Calculates the Poisson distribution function using a normal</em>
+<a class="jxr_linenumber" name="L174" href="PoissonDistribution.html#L174">174</a> <em class="jxr_javadoccomment">     * approximation. The {@code N(mean, sqrt(mean))} distribution is used</em>
+<a class="jxr_linenumber" name="L175" href="PoissonDistribution.html#L175">175</a> <em class="jxr_javadoccomment">     * to approximate the Poisson distribution. The computation uses</em>
+<a class="jxr_linenumber" name="L176" href="PoissonDistribution.html#L176">176</a> <em class="jxr_javadoccomment">     * "half-correction" (evaluating the normal distribution function at</em>
+<a class="jxr_linenumber" name="L177" href="PoissonDistribution.html#L177">177</a> <em class="jxr_javadoccomment">     * {@code x + 0.5}).</em>
+<a class="jxr_linenumber" name="L178" href="PoissonDistribution.html#L178">178</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L179" href="PoissonDistribution.html#L179">179</a> <em class="jxr_javadoccomment">     * @param x Upper bound, inclusive.</em>
+<a class="jxr_linenumber" name="L180" href="PoissonDistribution.html#L180">180</a> <em class="jxr_javadoccomment">     * @return the distribution function value calculated using a normal</em>
+<a class="jxr_linenumber" name="L181" href="PoissonDistribution.html#L181">181</a> <em class="jxr_javadoccomment">     * approximation.</em>
+<a class="jxr_linenumber" name="L182" href="PoissonDistribution.html#L182">182</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L183" href="PoissonDistribution.html#L183">183</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> normalApproximateProbability(<strong class="jxr_keyword">int</strong> x)  {
+<a class="jxr_linenumber" name="L184" href="PoissonDistribution.html#L184">184</a>         <em class="jxr_comment">// calculate the probability using half-correction</em>
+<a class="jxr_linenumber" name="L185" href="PoissonDistribution.html#L185">185</a>         <strong class="jxr_keyword">return</strong> normal.cumulativeProbability(x + 0.5);
+<a class="jxr_linenumber" name="L186" href="PoissonDistribution.html#L186">186</a>     }
+<a class="jxr_linenumber" name="L187" href="PoissonDistribution.html#L187">187</a> 
+<a class="jxr_linenumber" name="L188" href="PoissonDistribution.html#L188">188</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L189" href="PoissonDistribution.html#L189">189</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L190" href="PoissonDistribution.html#L190">190</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L191" href="PoissonDistribution.html#L191">191</a> <em class="jxr_javadoccomment">     * For mean parameter {@code p}, the mean is {@code p}.</em>
+<a class="jxr_linenumber" name="L192" href="PoissonDistribution.html#L192">192</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L193" href="PoissonDistribution.html#L193">193</a>     @Override
+<a class="jxr_linenumber" name="L194" href="PoissonDistribution.html#L194">194</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalMean() {
+<a class="jxr_linenumber" name="L195" href="PoissonDistribution.html#L195">195</a>         <strong class="jxr_keyword">return</strong> getMean();
+<a class="jxr_linenumber" name="L196" href="PoissonDistribution.html#L196">196</a>     }
+<a class="jxr_linenumber" name="L197" href="PoissonDistribution.html#L197">197</a> 
+<a class="jxr_linenumber" name="L198" href="PoissonDistribution.html#L198">198</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L199" href="PoissonDistribution.html#L199">199</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L200" href="PoissonDistribution.html#L200">200</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L201" href="PoissonDistribution.html#L201">201</a> <em class="jxr_javadoccomment">     * For mean parameter {@code p}, the variance is {@code p}.</em>
+<a class="jxr_linenumber" name="L202" href="PoissonDistribution.html#L202">202</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L203" href="PoissonDistribution.html#L203">203</a>     @Override
+<a class="jxr_linenumber" name="L204" href="PoissonDistribution.html#L204">204</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalVariance() {
+<a class="jxr_linenumber" name="L205" href="PoissonDistribution.html#L205">205</a>         <strong class="jxr_keyword">return</strong> getMean();
+<a class="jxr_linenumber" name="L206" href="PoissonDistribution.html#L206">206</a>     }
+<a class="jxr_linenumber" name="L207" href="PoissonDistribution.html#L207">207</a> 
+<a class="jxr_linenumber" name="L208" href="PoissonDistribution.html#L208">208</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L209" href="PoissonDistribution.html#L209">209</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L210" href="PoissonDistribution.html#L210">210</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L211" href="PoissonDistribution.html#L211">211</a> <em class="jxr_javadoccomment">     * The lower bound of the support is always 0 no matter the mean parameter.</em>
+<a class="jxr_linenumber" name="L212" href="PoissonDistribution.html#L212">212</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L213" href="PoissonDistribution.html#L213">213</a> <em class="jxr_javadoccomment">     * @return lower bound of the support (always 0)</em>
+<a class="jxr_linenumber" name="L214" href="PoissonDistribution.html#L214">214</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L215" href="PoissonDistribution.html#L215">215</a>     @Override
+<a class="jxr_linenumber" name="L216" href="PoissonDistribution.html#L216">216</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getSupportLowerBound() {
+<a class="jxr_linenumber" name="L217" href="PoissonDistribution.html#L217">217</a>         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L218" href="PoissonDistribution.html#L218">218</a>     }
+<a class="jxr_linenumber" name="L219" href="PoissonDistribution.html#L219">219</a> 
+<a class="jxr_linenumber" name="L220" href="PoissonDistribution.html#L220">220</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L221" href="PoissonDistribution.html#L221">221</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L222" href="PoissonDistribution.html#L222">222</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L223" href="PoissonDistribution.html#L223">223</a> <em class="jxr_javadoccomment">     * The upper bound of the support is positive infinity,</em>
+<a class="jxr_linenumber" name="L224" href="PoissonDistribution.html#L224">224</a> <em class="jxr_javadoccomment">     * regardless of the parameter values. There is no integer infinity,</em>
+<a class="jxr_linenumber" name="L225" href="PoissonDistribution.html#L225">225</a> <em class="jxr_javadoccomment">     * so this method returns {@code Integer.MAX_VALUE}.</em>
+<a class="jxr_linenumber" name="L226" href="PoissonDistribution.html#L226">226</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L227" href="PoissonDistribution.html#L227">227</a> <em class="jxr_javadoccomment">     * @return upper bound of the support (always {@code Integer.MAX_VALUE} for</em>
+<a class="jxr_linenumber" name="L228" href="PoissonDistribution.html#L228">228</a> <em class="jxr_javadoccomment">     * positive infinity)</em>
+<a class="jxr_linenumber" name="L229" href="PoissonDistribution.html#L229">229</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L230" href="PoissonDistribution.html#L230">230</a>     @Override
+<a class="jxr_linenumber" name="L231" href="PoissonDistribution.html#L231">231</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getSupportUpperBound() {
+<a class="jxr_linenumber" name="L232" href="PoissonDistribution.html#L232">232</a>         <strong class="jxr_keyword">return</strong> Integer.MAX_VALUE;
+<a class="jxr_linenumber" name="L233" href="PoissonDistribution.html#L233">233</a>     }
+<a class="jxr_linenumber" name="L234" href="PoissonDistribution.html#L234">234</a> 
+<a class="jxr_linenumber" name="L235" href="PoissonDistribution.html#L235">235</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L236" href="PoissonDistribution.html#L236">236</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L237" href="PoissonDistribution.html#L237">237</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L238" href="PoissonDistribution.html#L238">238</a> <em class="jxr_javadoccomment">     * The support of this distribution is connected.</em>
+<a class="jxr_linenumber" name="L239" href="PoissonDistribution.html#L239">239</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L240" href="PoissonDistribution.html#L240">240</a> <em class="jxr_javadoccomment">     * @return {@code true}</em>
+<a class="jxr_linenumber" name="L241" href="PoissonDistribution.html#L241">241</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L242" href="PoissonDistribution.html#L242">242</a>     @Override
+<a class="jxr_linenumber" name="L243" href="PoissonDistribution.html#L243">243</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isSupportConnected() {
+<a class="jxr_linenumber" name="L244" href="PoissonDistribution.html#L244">244</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L245" href="PoissonDistribution.html#L245">245</a>     }
+<a class="jxr_linenumber" name="L246" href="PoissonDistribution.html#L246">246</a> 
+<a class="jxr_linenumber" name="L247" href="PoissonDistribution.html#L247">247</a>     <em class="jxr_javadoccomment">/**{@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L248" href="PoissonDistribution.html#L248">248</a>     @Override
+<a class="jxr_linenumber" name="L249" href="PoissonDistribution.html#L249">249</a>     <strong class="jxr_keyword">public</strong> IntegerDistribution.Sampler createSampler(<strong class="jxr_keyword">final</strong> UniformRandomProvider rng) {
+<a class="jxr_linenumber" name="L250" href="PoissonDistribution.html#L250">250</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> IntegerDistribution.Sampler() {
+<a class="jxr_linenumber" name="L251" href="PoissonDistribution.html#L251">251</a>             <em class="jxr_javadoccomment">/** Exponential distribution. */</em>
+<a class="jxr_linenumber" name="L252" href="PoissonDistribution.html#L252">252</a>             <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> RealDistribution.Sampler exponentialSampler
+<a class="jxr_linenumber" name="L253" href="PoissonDistribution.html#L253">253</a>                 = <strong class="jxr_keyword">new</strong> <a href="ExponentialDistribution.html">ExponentialDistribution</a>(1).createSampler(rng);
+<a class="jxr_linenumber" name="L254" href="PoissonDistribution.html#L254">254</a>             <em class="jxr_javadoccomment">/** Gaussian distribution. */</em>
+<a class="jxr_linenumber" name="L255" href="PoissonDistribution.html#L255">255</a>             <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> RealDistribution.Sampler gaussianSampler
+<a class="jxr_linenumber" name="L256" href="PoissonDistribution.html#L256">256</a>                 = <strong class="jxr_keyword">new</strong> <a href="NormalDistribution.html">NormalDistribution</a>().createSampler(rng);
+<a class="jxr_linenumber" name="L257" href="PoissonDistribution.html#L257">257</a> 
+<a class="jxr_linenumber" name="L258" href="PoissonDistribution.html#L258">258</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L259" href="PoissonDistribution.html#L259">259</a>             @Override
+<a class="jxr_linenumber" name="L260" href="PoissonDistribution.html#L260">260</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> sample() {
+<a class="jxr_linenumber" name="L261" href="PoissonDistribution.html#L261">261</a>                 <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) FastMath.min(nextPoisson(mean),
+<a class="jxr_linenumber" name="L262" href="PoissonDistribution.html#L262">262</a>                                           Integer.MAX_VALUE);
+<a class="jxr_linenumber" name="L263" href="PoissonDistribution.html#L263">263</a>             }
+<a class="jxr_linenumber" name="L264" href="PoissonDistribution.html#L264">264</a> 
+<a class="jxr_linenumber" name="L265" href="PoissonDistribution.html#L265">265</a>             <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L266" href="PoissonDistribution.html#L266">266</a> <em class="jxr_javadoccomment">             * @param meanPoisson Mean of the Poisson distribution.</em>
+<a class="jxr_linenumber" name="L267" href="PoissonDistribution.html#L267">267</a> <em class="jxr_javadoccomment">             * @return the next sample.</em>
+<a class="jxr_linenumber" name="L268" href="PoissonDistribution.html#L268">268</a> <em class="jxr_javadoccomment">             */</em>
+<a class="jxr_linenumber" name="L269" href="PoissonDistribution.html#L269">269</a>             <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> nextPoisson(<strong class="jxr_keyword">double</strong> meanPoisson) {
+<a class="jxr_linenumber" name="L270" href="PoissonDistribution.html#L270">270</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> pivot = 40.0d;
+<a class="jxr_linenumber" name="L271" href="PoissonDistribution.html#L271">271</a>                 <strong class="jxr_keyword">if</strong> (meanPoisson &lt; pivot) {
+<a class="jxr_linenumber" name="L272" href="PoissonDistribution.html#L272">272</a>                     <strong class="jxr_keyword">double</strong> p = FastMath.exp(-meanPoisson);
+<a class="jxr_linenumber" name="L273" href="PoissonDistribution.html#L273">273</a>                     <strong class="jxr_keyword">long</strong> n = 0;
+<a class="jxr_linenumber" name="L274" href="PoissonDistribution.html#L274">274</a>                     <strong class="jxr_keyword">double</strong> r = 1.0d;
+<a class="jxr_linenumber" name="L275" href="PoissonDistribution.html#L275">275</a>                     <strong class="jxr_keyword">double</strong> rnd = 1.0d;
+<a class="jxr_linenumber" name="L276" href="PoissonDistribution.html#L276">276</a> 
+<a class="jxr_linenumber" name="L277" href="PoissonDistribution.html#L277">277</a>                     <strong class="jxr_keyword">while</strong> (n &lt; 1000 * meanPoisson) {
+<a class="jxr_linenumber" name="L278" href="PoissonDistribution.html#L278">278</a>                         rnd = rng.nextDouble();
+<a class="jxr_linenumber" name="L279" href="PoissonDistribution.html#L279">279</a>                         r *= rnd;
+<a class="jxr_linenumber" name="L280" href="PoissonDistribution.html#L280">280</a>                         <strong class="jxr_keyword">if</strong> (r &gt;= p) {
+<a class="jxr_linenumber" name="L281" href="PoissonDistribution.html#L281">281</a>                             n++;
+<a class="jxr_linenumber" name="L282" href="PoissonDistribution.html#L282">282</a>                         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L283" href="PoissonDistribution.html#L283">283</a>                             <strong class="jxr_keyword">return</strong> n;
+<a class="jxr_linenumber" name="L284" href="PoissonDistribution.html#L284">284</a>                         }
+<a class="jxr_linenumber" name="L285" href="PoissonDistribution.html#L285">285</a>                     }
+<a class="jxr_linenumber" name="L286" href="PoissonDistribution.html#L286">286</a>                     <strong class="jxr_keyword">return</strong> n;
+<a class="jxr_linenumber" name="L287" href="PoissonDistribution.html#L287">287</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L288" href="PoissonDistribution.html#L288">288</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lambda = FastMath.floor(meanPoisson);
+<a class="jxr_linenumber" name="L289" href="PoissonDistribution.html#L289">289</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lambdaFractional = meanPoisson - lambda;
+<a class="jxr_linenumber" name="L290" href="PoissonDistribution.html#L290">290</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> logLambda = FastMath.log(lambda);
+<a class="jxr_linenumber" name="L291" href="PoissonDistribution.html#L291">291</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> logLambdaFactorial = CombinatoricsUtils.factorialLog((<strong class="jxr_keyword">int</strong>) lambda);
+<a class="jxr_linenumber" name="L292" href="PoissonDistribution.html#L292">292</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> y2 = lambdaFractional &lt; Double.MIN_VALUE ? 0 : nextPoisson(lambdaFractional);
+<a class="jxr_linenumber" name="L293" href="PoissonDistribution.html#L293">293</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> delta = FastMath.sqrt(lambda * FastMath.log(32 * lambda / FastMath.PI + 1));
+<a class="jxr_linenumber" name="L294" href="PoissonDistribution.html#L294">294</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> halfDelta = delta / 2;
+<a class="jxr_linenumber" name="L295" href="PoissonDistribution.html#L295">295</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> twolpd = 2 * lambda + delta;
+<a class="jxr_linenumber" name="L296" href="PoissonDistribution.html#L296">296</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> a1 = FastMath.sqrt(FastMath.PI * twolpd) * FastMath.exp(1 / (8 * lambda));
+<a class="jxr_linenumber" name="L297" href="PoissonDistribution.html#L297">297</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> a2 = (twolpd / delta) * FastMath.exp(-delta * (1 + delta) / twolpd);
+<a class="jxr_linenumber" name="L298" href="PoissonDistribution.html#L298">298</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> aSum = a1 + a2 + 1;
+<a class="jxr_linenumber" name="L299" href="PoissonDistribution.html#L299">299</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p1 = a1 / aSum;
+<a class="jxr_linenumber" name="L300" href="PoissonDistribution.html#L300">300</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p2 = a2 / aSum;
+<a class="jxr_linenumber" name="L301" href="PoissonDistribution.html#L301">301</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> c1 = 1 / (8 * lambda);
+<a class="jxr_linenumber" name="L302" href="PoissonDistribution.html#L302">302</a> 
+<a class="jxr_linenumber" name="L303" href="PoissonDistribution.html#L303">303</a>                     <strong class="jxr_keyword">double</strong> x = 0;
+<a class="jxr_linenumber" name="L304" href="PoissonDistribution.html#L304">304</a>                     <strong class="jxr_keyword">double</strong> y = 0;
+<a class="jxr_linenumber" name="L305" href="PoissonDistribution.html#L305">305</a>                     <strong class="jxr_keyword">double</strong> v = 0;
+<a class="jxr_linenumber" name="L306" href="PoissonDistribution.html#L306">306</a>                     <strong class="jxr_keyword">int</strong> a = 0;
+<a class="jxr_linenumber" name="L307" href="PoissonDistribution.html#L307">307</a>                     <strong class="jxr_keyword">double</strong> t = 0;
+<a class="jxr_linenumber" name="L308" href="PoissonDistribution.html#L308">308</a>                     <strong class="jxr_keyword">double</strong> qr = 0;
+<a class="jxr_linenumber" name="L309" href="PoissonDistribution.html#L309">309</a>                     <strong class="jxr_keyword">double</strong> qa = 0;
+<a class="jxr_linenumber" name="L310" href="PoissonDistribution.html#L310">310</a>                     <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
+<a class="jxr_linenumber" name="L311" href="PoissonDistribution.html#L311">311</a>                         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> u = rng.nextDouble();
+<a class="jxr_linenumber" name="L312" href="PoissonDistribution.html#L312">312</a>                         <strong class="jxr_keyword">if</strong> (u &lt;= p1) {
+<a class="jxr_linenumber" name="L313" href="PoissonDistribution.html#L313">313</a>                             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> n = gaussianSampler.sample();
+<a class="jxr_linenumber" name="L314" href="PoissonDistribution.html#L314">314</a>                             x = n * FastMath.sqrt(lambda + halfDelta) - 0.5d;
+<a class="jxr_linenumber" name="L315" href="PoissonDistribution.html#L315">315</a>                             <strong class="jxr_keyword">if</strong> (x &gt; delta || x &lt; -lambda) {
+<a class="jxr_linenumber" name="L316" href="PoissonDistribution.html#L316">316</a>                                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L317" href="PoissonDistribution.html#L317">317</a>                             }
+<a class="jxr_linenumber" name="L318" href="PoissonDistribution.html#L318">318</a>                             y = x &lt; 0 ? FastMath.floor(x) : FastMath.ceil(x);
+<a class="jxr_linenumber" name="L319" href="PoissonDistribution.html#L319">319</a>                             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> e = exponentialSampler.sample();
+<a class="jxr_linenumber" name="L320" href="PoissonDistribution.html#L320">320</a>                             v = -e - (n * n / 2) + c1;
+<a class="jxr_linenumber" name="L321" href="PoissonDistribution.html#L321">321</a>                         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L322" href="PoissonDistribution.html#L322">322</a>                             <strong class="jxr_keyword">if</strong> (u &gt; p1 + p2) {
+<a class="jxr_linenumber" name="L323" href="PoissonDistribution.html#L323">323</a>                                 y = lambda;
+<a class="jxr_linenumber" name="L324" href="PoissonDistribution.html#L324">324</a>                                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L325" href="PoissonDistribution.html#L325">325</a>                             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L326" href="PoissonDistribution.html#L326">326</a>                                 x = delta + (twolpd / delta) * exponentialSampler.sample();
+<a class="jxr_linenumber" name="L327" href="PoissonDistribution.html#L327">327</a>                                 y = FastMath.ceil(x);
+<a class="jxr_linenumber" name="L328" href="PoissonDistribution.html#L328">328</a>                                 v = -exponentialSampler.sample() - delta * (x + 1) / twolpd;
+<a class="jxr_linenumber" name="L329" href="PoissonDistribution.html#L329">329</a>                             }
+<a class="jxr_linenumber" name="L330" href="PoissonDistribution.html#L330">330</a>                         }
+<a class="jxr_linenumber" name="L331" href="PoissonDistribution.html#L331">331</a>                         a = x &lt; 0 ? 1 : 0;
+<a class="jxr_linenumber" name="L332" href="PoissonDistribution.html#L332">332</a>                         t = y * (y + 1) / (2 * lambda);
+<a class="jxr_linenumber" name="L333" href="PoissonDistribution.html#L333">333</a>                         <strong class="jxr_keyword">if</strong> (v &lt; -t &amp;&amp; a == 0) {
+<a class="jxr_linenumber" name="L334" href="PoissonDistribution.html#L334">334</a>                             y = lambda + y;
+<a class="jxr_linenumber" name="L335" href="PoissonDistribution.html#L335">335</a>                             <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L336" href="PoissonDistribution.html#L336">336</a>                         }
+<a class="jxr_linenumber" name="L337" href="PoissonDistribution.html#L337">337</a>                         qr = t * ((2 * y + 1) / (6 * lambda) - 1);
+<a class="jxr_linenumber" name="L338" href="PoissonDistribution.html#L338">338</a>                         qa = qr - (t * t) / (3 * (lambda + a * (y + 1)));
+<a class="jxr_linenumber" name="L339" href="PoissonDistribution.html#L339">339</a>                         <strong class="jxr_keyword">if</strong> (v &lt; qa) {
+<a class="jxr_linenumber" name="L340" href="PoissonDistribution.html#L340">340</a>                             y = lambda + y;
+<a class="jxr_linenumber" name="L341" href="PoissonDistribution.html#L341">341</a>                             <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L342" href="PoissonDistribution.html#L342">342</a>                         }
+<a class="jxr_linenumber" name="L343" href="PoissonDistribution.html#L343">343</a>                         <strong class="jxr_keyword">if</strong> (v &gt; qr) {
+<a class="jxr_linenumber" name="L344" href="PoissonDistribution.html#L344">344</a>                             <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L345" href="PoissonDistribution.html#L345">345</a>                         }
+<a class="jxr_linenumber" name="L346" href="PoissonDistribution.html#L346">346</a>                         <strong class="jxr_keyword">if</strong> (v &lt; y * logLambda - CombinatoricsUtils.factorialLog((<strong class="jxr_keyword">int</strong>) (y + lambda)) + logLambdaFactorial) {
+<a class="jxr_linenumber" name="L347" href="PoissonDistribution.html#L347">347</a>                             y = lambda + y;
+<a class="jxr_linenumber" name="L348" href="PoissonDistribution.html#L348">348</a>                             <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L349" href="PoissonDistribution.html#L349">349</a>                         }
+<a class="jxr_linenumber" name="L350" href="PoissonDistribution.html#L350">350</a>                     }
+<a class="jxr_linenumber" name="L351" href="PoissonDistribution.html#L351">351</a>                     <strong class="jxr_keyword">return</strong> y2 + (<strong class="jxr_keyword">long</strong>) y;
+<a class="jxr_linenumber" name="L352" href="PoissonDistribution.html#L352">352</a>                 }
+<a class="jxr_linenumber" name="L353" href="PoissonDistribution.html#L353">353</a>             }
+<a class="jxr_linenumber" name="L354" href="PoissonDistribution.html#L354">354</a>         };
+<a class="jxr_linenumber" name="L355" href="PoissonDistribution.html#L355">355</a>     }
+<a class="jxr_linenumber" name="L356" href="PoissonDistribution.html#L356">356</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

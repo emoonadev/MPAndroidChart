@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>GaussIntegrator xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../../apidocs/org/apache/commons/math4/analysis/integration/gauss/GaussIntegrator.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="GaussIntegrator.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="GaussIntegrator.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="GaussIntegrator.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="GaussIntegrator.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="GaussIntegrator.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="GaussIntegrator.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="GaussIntegrator.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="GaussIntegrator.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="GaussIntegrator.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="GaussIntegrator.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="GaussIntegrator.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="GaussIntegrator.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="GaussIntegrator.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="GaussIntegrator.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="GaussIntegrator.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="GaussIntegrator.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="GaussIntegrator.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.integration.gauss;
+<a class="jxr_linenumber" name="L18" href="GaussIntegrator.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="GaussIntegrator.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.UnivariateFunction;
+<a class="jxr_linenumber" name="L20" href="GaussIntegrator.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L21" href="GaussIntegrator.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NonMonotonicSequenceException;
+<a class="jxr_linenumber" name="L22" href="GaussIntegrator.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L23" href="GaussIntegrator.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Pair;
+<a class="jxr_linenumber" name="L24" href="GaussIntegrator.html#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="GaussIntegrator.html#L25">25</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L26" href="GaussIntegrator.html#L26">26</a>  <em class="jxr_javadoccomment"> * Class that implements the Gaussian rule for</em>
+<a class="jxr_linenumber" name="L27" href="GaussIntegrator.html#L27">27</a>  <em class="jxr_javadoccomment"> * {@link #integrate(UnivariateFunction) integrating} a weighted</em>
+<a class="jxr_linenumber" name="L28" href="GaussIntegrator.html#L28">28</a>  <em class="jxr_javadoccomment"> * function.</em>
+<a class="jxr_linenumber" name="L29" href="GaussIntegrator.html#L29">29</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L30" href="GaussIntegrator.html#L30">30</a>  <em class="jxr_javadoccomment"> * @since 3.1</em>
+<a class="jxr_linenumber" name="L31" href="GaussIntegrator.html#L31">31</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L32" href="GaussIntegrator.html#L32">32</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="GaussIntegrator.html">GaussIntegrator</a> {
+<a class="jxr_linenumber" name="L33" href="GaussIntegrator.html#L33">33</a>      <em class="jxr_javadoccomment">/** Nodes. */</em>
+<a class="jxr_linenumber" name="L34" href="GaussIntegrator.html#L34">34</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] points;
+<a class="jxr_linenumber" name="L35" href="GaussIntegrator.html#L35">35</a>      <em class="jxr_javadoccomment">/** Nodes weights. */</em>
+<a class="jxr_linenumber" name="L36" href="GaussIntegrator.html#L36">36</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] weights;
+<a class="jxr_linenumber" name="L37" href="GaussIntegrator.html#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="GaussIntegrator.html#L38">38</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L39" href="GaussIntegrator.html#L39">39</a>  <em class="jxr_javadoccomment">     * Creates an integrator from the given {@code points} and {@code weights}.</em>
+<a class="jxr_linenumber" name="L40" href="GaussIntegrator.html#L40">40</a>  <em class="jxr_javadoccomment">     * The integration interval is defined by the first and last value of</em>
+<a class="jxr_linenumber" name="L41" href="GaussIntegrator.html#L41">41</a>  <em class="jxr_javadoccomment">     * {@code points} which must be sorted in increasing order.</em>
+<a class="jxr_linenumber" name="L42" href="GaussIntegrator.html#L42">42</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L43" href="GaussIntegrator.html#L43">43</a>  <em class="jxr_javadoccomment">     * @param points Integration points.</em>
+<a class="jxr_linenumber" name="L44" href="GaussIntegrator.html#L44">44</a>  <em class="jxr_javadoccomment">     * @param weights Weights of the corresponding integration nodes.</em>
+<a class="jxr_linenumber" name="L45" href="GaussIntegrator.html#L45">45</a>  <em class="jxr_javadoccomment">     * @throws NonMonotonicSequenceException if the {@code points} are not</em>
+<a class="jxr_linenumber" name="L46" href="GaussIntegrator.html#L46">46</a>  <em class="jxr_javadoccomment">     * sorted in increasing order.</em>
+<a class="jxr_linenumber" name="L47" href="GaussIntegrator.html#L47">47</a>  <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if points and weights don't have the same length</em>
+<a class="jxr_linenumber" name="L48" href="GaussIntegrator.html#L48">48</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L49" href="GaussIntegrator.html#L49">49</a>      <strong class="jxr_keyword">public</strong> <a href="GaussIntegrator.html">GaussIntegrator</a>(<strong class="jxr_keyword">double</strong>[] points,
+<a class="jxr_linenumber" name="L50" href="GaussIntegrator.html#L50">50</a>                             <strong class="jxr_keyword">double</strong>[] weights)
+<a class="jxr_linenumber" name="L51" href="GaussIntegrator.html#L51">51</a>          <strong class="jxr_keyword">throws</strong> NonMonotonicSequenceException, <a href="../../../exception/DimensionMismatchException.html">DimensionMismatchException</a> {
+<a class="jxr_linenumber" name="L52" href="GaussIntegrator.html#L52">52</a>          <strong class="jxr_keyword">if</strong> (points.length != weights.length) {
+<a class="jxr_linenumber" name="L53" href="GaussIntegrator.html#L53">53</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(points.length,
+<a class="jxr_linenumber" name="L54" href="GaussIntegrator.html#L54">54</a>                                                   weights.length);
+<a class="jxr_linenumber" name="L55" href="GaussIntegrator.html#L55">55</a>          }
+<a class="jxr_linenumber" name="L56" href="GaussIntegrator.html#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="GaussIntegrator.html#L57">57</a>          MathArrays.checkOrder(points, MathArrays.OrderDirection.INCREASING, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L58" href="GaussIntegrator.html#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="GaussIntegrator.html#L59">59</a>          <strong class="jxr_keyword">this</strong>.points = points.clone();
+<a class="jxr_linenumber" name="L60" href="GaussIntegrator.html#L60">60</a>          <strong class="jxr_keyword">this</strong>.weights = weights.clone();
+<a class="jxr_linenumber" name="L61" href="GaussIntegrator.html#L61">61</a>      }
+<a class="jxr_linenumber" name="L62" href="GaussIntegrator.html#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="GaussIntegrator.html#L63">63</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L64" href="GaussIntegrator.html#L64">64</a>  <em class="jxr_javadoccomment">     * Creates an integrator from the given pair of points (first element of</em>
+<a class="jxr_linenumber" name="L65" href="GaussIntegrator.html#L65">65</a>  <em class="jxr_javadoccomment">     * the pair) and weights (second element of the pair.</em>
+<a class="jxr_linenumber" name="L66" href="GaussIntegrator.html#L66">66</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L67" href="GaussIntegrator.html#L67">67</a>  <em class="jxr_javadoccomment">     * @param pointsAndWeights Integration points and corresponding weights.</em>
+<a class="jxr_linenumber" name="L68" href="GaussIntegrator.html#L68">68</a>  <em class="jxr_javadoccomment">     * @throws NonMonotonicSequenceException if the {@code points} are not</em>
+<a class="jxr_linenumber" name="L69" href="GaussIntegrator.html#L69">69</a>  <em class="jxr_javadoccomment">     * sorted in increasing order.</em>
+<a class="jxr_linenumber" name="L70" href="GaussIntegrator.html#L70">70</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L71" href="GaussIntegrator.html#L71">71</a>  <em class="jxr_javadoccomment">     * @see #GaussIntegrator(double[], double[])</em>
+<a class="jxr_linenumber" name="L72" href="GaussIntegrator.html#L72">72</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L73" href="GaussIntegrator.html#L73">73</a>      <strong class="jxr_keyword">public</strong> <a href="GaussIntegrator.html">GaussIntegrator</a>(Pair&lt;<strong class="jxr_keyword">double</strong>[], <strong class="jxr_keyword">double</strong>[]&gt; pointsAndWeights)
+<a class="jxr_linenumber" name="L74" href="GaussIntegrator.html#L74">74</a>          <strong class="jxr_keyword">throws</strong> <a href="../../../exception/NonMonotonicSequenceException.html">NonMonotonicSequenceException</a> {
+<a class="jxr_linenumber" name="L75" href="GaussIntegrator.html#L75">75</a>          <strong class="jxr_keyword">this</strong>(pointsAndWeights.getFirst(), pointsAndWeights.getSecond());
+<a class="jxr_linenumber" name="L76" href="GaussIntegrator.html#L76">76</a>      }
+<a class="jxr_linenumber" name="L77" href="GaussIntegrator.html#L77">77</a>  
+<a class="jxr_linenumber" name="L78" href="GaussIntegrator.html#L78">78</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L79" href="GaussIntegrator.html#L79">79</a>  <em class="jxr_javadoccomment">     * Returns an estimate of the integral of {@code f(x) * w(x)},</em>
+<a class="jxr_linenumber" name="L80" href="GaussIntegrator.html#L80">80</a>  <em class="jxr_javadoccomment">     * where {@code w} is a weight function that depends on the actual</em>
+<a class="jxr_linenumber" name="L81" href="GaussIntegrator.html#L81">81</a>  <em class="jxr_javadoccomment">     * flavor of the Gauss integration scheme.</em>
+<a class="jxr_linenumber" name="L82" href="GaussIntegrator.html#L82">82</a>  <em class="jxr_javadoccomment">     * The algorithm uses the points and associated weights, as passed</em>
+<a class="jxr_linenumber" name="L83" href="GaussIntegrator.html#L83">83</a>  <em class="jxr_javadoccomment">     * to the {@link #GaussIntegrator(double[],double[]) constructor}.</em>
+<a class="jxr_linenumber" name="L84" href="GaussIntegrator.html#L84">84</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L85" href="GaussIntegrator.html#L85">85</a>  <em class="jxr_javadoccomment">     * @param f Function to integrate.</em>
+<a class="jxr_linenumber" name="L86" href="GaussIntegrator.html#L86">86</a>  <em class="jxr_javadoccomment">     * @return the integral of the weighted function.</em>
+<a class="jxr_linenumber" name="L87" href="GaussIntegrator.html#L87">87</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L88" href="GaussIntegrator.html#L88">88</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> integrate(<a href="../../UnivariateFunction.html">UnivariateFunction</a> f) {
+<a class="jxr_linenumber" name="L89" href="GaussIntegrator.html#L89">89</a>          <strong class="jxr_keyword">double</strong> s = 0;
+<a class="jxr_linenumber" name="L90" href="GaussIntegrator.html#L90">90</a>          <strong class="jxr_keyword">double</strong> c = 0;
+<a class="jxr_linenumber" name="L91" href="GaussIntegrator.html#L91">91</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; points.length; i++) {
+<a class="jxr_linenumber" name="L92" href="GaussIntegrator.html#L92">92</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x = points[i];
+<a class="jxr_linenumber" name="L93" href="GaussIntegrator.html#L93">93</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> w = weights[i];
+<a class="jxr_linenumber" name="L94" href="GaussIntegrator.html#L94">94</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y = w * f.value(x) - c;
+<a class="jxr_linenumber" name="L95" href="GaussIntegrator.html#L95">95</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> t = s + y;
+<a class="jxr_linenumber" name="L96" href="GaussIntegrator.html#L96">96</a>              c = (t - s) - y;
+<a class="jxr_linenumber" name="L97" href="GaussIntegrator.html#L97">97</a>              s = t;
+<a class="jxr_linenumber" name="L98" href="GaussIntegrator.html#L98">98</a>          }
+<a class="jxr_linenumber" name="L99" href="GaussIntegrator.html#L99">99</a>          <strong class="jxr_keyword">return</strong> s;
+<a class="jxr_linenumber" name="L100" href="GaussIntegrator.html#L100">100</a>     }
+<a class="jxr_linenumber" name="L101" href="GaussIntegrator.html#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="GaussIntegrator.html#L102">102</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L103" href="GaussIntegrator.html#L103">103</a> <em class="jxr_javadoccomment">     * @return the order of the integration rule (the number of integration</em>
+<a class="jxr_linenumber" name="L104" href="GaussIntegrator.html#L104">104</a> <em class="jxr_javadoccomment">     * points).</em>
+<a class="jxr_linenumber" name="L105" href="GaussIntegrator.html#L105">105</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L106" href="GaussIntegrator.html#L106">106</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getNumberOfPoints() {
+<a class="jxr_linenumber" name="L107" href="GaussIntegrator.html#L107">107</a>         <strong class="jxr_keyword">return</strong> points.length;
+<a class="jxr_linenumber" name="L108" href="GaussIntegrator.html#L108">108</a>     }
+<a class="jxr_linenumber" name="L109" href="GaussIntegrator.html#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="GaussIntegrator.html#L110">110</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L111" href="GaussIntegrator.html#L111">111</a> <em class="jxr_javadoccomment">     * Gets the integration point at the given index.</em>
+<a class="jxr_linenumber" name="L112" href="GaussIntegrator.html#L112">112</a> <em class="jxr_javadoccomment">     * The index must be in the valid range but no check is performed.</em>
+<a class="jxr_linenumber" name="L113" href="GaussIntegrator.html#L113">113</a> <em class="jxr_javadoccomment">     * @param index index of the integration point</em>
+<a class="jxr_linenumber" name="L114" href="GaussIntegrator.html#L114">114</a> <em class="jxr_javadoccomment">     * @return the integration point.</em>
+<a class="jxr_linenumber" name="L115" href="GaussIntegrator.html#L115">115</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L116" href="GaussIntegrator.html#L116">116</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getPoint(<strong class="jxr_keyword">int</strong> index) {
+<a class="jxr_linenumber" name="L117" href="GaussIntegrator.html#L117">117</a>         <strong class="jxr_keyword">return</strong> points[index];
+<a class="jxr_linenumber" name="L118" href="GaussIntegrator.html#L118">118</a>     }
+<a class="jxr_linenumber" name="L119" href="GaussIntegrator.html#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="GaussIntegrator.html#L120">120</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L121" href="GaussIntegrator.html#L121">121</a> <em class="jxr_javadoccomment">     * Gets the weight of the integration point at the given index.</em>
+<a class="jxr_linenumber" name="L122" href="GaussIntegrator.html#L122">122</a> <em class="jxr_javadoccomment">     * The index must be in the valid range but no check is performed.</em>
+<a class="jxr_linenumber" name="L123" href="GaussIntegrator.html#L123">123</a> <em class="jxr_javadoccomment">     * @param index index of the integration point</em>
+<a class="jxr_linenumber" name="L124" href="GaussIntegrator.html#L124">124</a> <em class="jxr_javadoccomment">     * @return the weight.</em>
+<a class="jxr_linenumber" name="L125" href="GaussIntegrator.html#L125">125</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L126" href="GaussIntegrator.html#L126">126</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getWeight(<strong class="jxr_keyword">int</strong> index) {
+<a class="jxr_linenumber" name="L127" href="GaussIntegrator.html#L127">127</a>         <strong class="jxr_keyword">return</strong> weights[index];
+<a class="jxr_linenumber" name="L128" href="GaussIntegrator.html#L128">128</a>     }
+<a class="jxr_linenumber" name="L129" href="GaussIntegrator.html#L129">129</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

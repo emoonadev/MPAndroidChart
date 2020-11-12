@@ -1,0 +1,339 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>BaseAbstractUnivariateSolver xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/analysis/solvers/BaseAbstractUnivariateSolver.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="BaseAbstractUnivariateSolver.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="BaseAbstractUnivariateSolver.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="BaseAbstractUnivariateSolver.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="BaseAbstractUnivariateSolver.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="BaseAbstractUnivariateSolver.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="BaseAbstractUnivariateSolver.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="BaseAbstractUnivariateSolver.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="BaseAbstractUnivariateSolver.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="BaseAbstractUnivariateSolver.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="BaseAbstractUnivariateSolver.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="BaseAbstractUnivariateSolver.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="BaseAbstractUnivariateSolver.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="BaseAbstractUnivariateSolver.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="BaseAbstractUnivariateSolver.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="BaseAbstractUnivariateSolver.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="BaseAbstractUnivariateSolver.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="BaseAbstractUnivariateSolver.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="BaseAbstractUnivariateSolver.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.solvers;
+<a class="jxr_linenumber" name="L19" href="BaseAbstractUnivariateSolver.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="BaseAbstractUnivariateSolver.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.UnivariateFunction;
+<a class="jxr_linenumber" name="L21" href="BaseAbstractUnivariateSolver.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MaxCountExceededException;
+<a class="jxr_linenumber" name="L22" href="BaseAbstractUnivariateSolver.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoBracketingException;
+<a class="jxr_linenumber" name="L23" href="BaseAbstractUnivariateSolver.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NullArgumentException;
+<a class="jxr_linenumber" name="L24" href="BaseAbstractUnivariateSolver.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooLargeException;
+<a class="jxr_linenumber" name="L25" href="BaseAbstractUnivariateSolver.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.TooManyEvaluationsException;
+<a class="jxr_linenumber" name="L26" href="BaseAbstractUnivariateSolver.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Incrementor;
+<a class="jxr_linenumber" name="L27" href="BaseAbstractUnivariateSolver.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathUtils;
+<a class="jxr_linenumber" name="L28" href="BaseAbstractUnivariateSolver.html#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="BaseAbstractUnivariateSolver.html#L29">29</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L30" href="BaseAbstractUnivariateSolver.html#L30">30</a>  <em class="jxr_javadoccomment"> * Provide a default implementation for several functions useful to generic</em>
+<a class="jxr_linenumber" name="L31" href="BaseAbstractUnivariateSolver.html#L31">31</a>  <em class="jxr_javadoccomment"> * solvers.</em>
+<a class="jxr_linenumber" name="L32" href="BaseAbstractUnivariateSolver.html#L32">32</a>  <em class="jxr_javadoccomment"> * The default values for relative and function tolerances are 1e-14</em>
+<a class="jxr_linenumber" name="L33" href="BaseAbstractUnivariateSolver.html#L33">33</a>  <em class="jxr_javadoccomment"> * and 1e-15, respectively. It is however highly recommended to not</em>
+<a class="jxr_linenumber" name="L34" href="BaseAbstractUnivariateSolver.html#L34">34</a>  <em class="jxr_javadoccomment"> * rely on the default, but rather carefully consider values that match</em>
+<a class="jxr_linenumber" name="L35" href="BaseAbstractUnivariateSolver.html#L35">35</a>  <em class="jxr_javadoccomment"> * user's expectations, as well as the specifics of each implementation.</em>
+<a class="jxr_linenumber" name="L36" href="BaseAbstractUnivariateSolver.html#L36">36</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L37" href="BaseAbstractUnivariateSolver.html#L37">37</a>  <em class="jxr_javadoccomment"> * @param &lt;FUNC&gt; Type of function to solve.</em>
+<a class="jxr_linenumber" name="L38" href="BaseAbstractUnivariateSolver.html#L38">38</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L39" href="BaseAbstractUnivariateSolver.html#L39">39</a>  <em class="jxr_javadoccomment"> * @since 2.0</em>
+<a class="jxr_linenumber" name="L40" href="BaseAbstractUnivariateSolver.html#L40">40</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L41" href="BaseAbstractUnivariateSolver.html#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> BaseAbstractUnivariateSolver&lt;FUNC <strong class="jxr_keyword">extends</strong> UnivariateFunction&gt;
+<a class="jxr_linenumber" name="L42" href="BaseAbstractUnivariateSolver.html#L42">42</a>      <strong class="jxr_keyword">implements</strong> BaseUnivariateSolver&lt;FUNC&gt; {
+<a class="jxr_linenumber" name="L43" href="BaseAbstractUnivariateSolver.html#L43">43</a>      <em class="jxr_javadoccomment">/** Default relative accuracy. */</em>
+<a class="jxr_linenumber" name="L44" href="BaseAbstractUnivariateSolver.html#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_RELATIVE_ACCURACY = 1e-14;
+<a class="jxr_linenumber" name="L45" href="BaseAbstractUnivariateSolver.html#L45">45</a>      <em class="jxr_javadoccomment">/** Default function value accuracy. */</em>
+<a class="jxr_linenumber" name="L46" href="BaseAbstractUnivariateSolver.html#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_FUNCTION_VALUE_ACCURACY = 1e-15;
+<a class="jxr_linenumber" name="L47" href="BaseAbstractUnivariateSolver.html#L47">47</a>      <em class="jxr_javadoccomment">/** Function value accuracy. */</em>
+<a class="jxr_linenumber" name="L48" href="BaseAbstractUnivariateSolver.html#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> functionValueAccuracy;
+<a class="jxr_linenumber" name="L49" href="BaseAbstractUnivariateSolver.html#L49">49</a>      <em class="jxr_javadoccomment">/** Absolute accuracy. */</em>
+<a class="jxr_linenumber" name="L50" href="BaseAbstractUnivariateSolver.html#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> absoluteAccuracy;
+<a class="jxr_linenumber" name="L51" href="BaseAbstractUnivariateSolver.html#L51">51</a>      <em class="jxr_javadoccomment">/** Relative accuracy. */</em>
+<a class="jxr_linenumber" name="L52" href="BaseAbstractUnivariateSolver.html#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> relativeAccuracy;
+<a class="jxr_linenumber" name="L53" href="BaseAbstractUnivariateSolver.html#L53">53</a>      <em class="jxr_javadoccomment">/** Evaluations counter. */</em>
+<a class="jxr_linenumber" name="L54" href="BaseAbstractUnivariateSolver.html#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../util/IntegerSequence.html">Incrementor</a> evaluations = <strong class="jxr_keyword">new</strong> <a href="../../util/IntegerSequence.html">Incrementor</a>();
+<a class="jxr_linenumber" name="L55" href="BaseAbstractUnivariateSolver.html#L55">55</a>      <em class="jxr_javadoccomment">/** Lower end of search interval. */</em>
+<a class="jxr_linenumber" name="L56" href="BaseAbstractUnivariateSolver.html#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> searchMin;
+<a class="jxr_linenumber" name="L57" href="BaseAbstractUnivariateSolver.html#L57">57</a>      <em class="jxr_javadoccomment">/** Higher end of search interval. */</em>
+<a class="jxr_linenumber" name="L58" href="BaseAbstractUnivariateSolver.html#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> searchMax;
+<a class="jxr_linenumber" name="L59" href="BaseAbstractUnivariateSolver.html#L59">59</a>      <em class="jxr_javadoccomment">/** Initial guess. */</em>
+<a class="jxr_linenumber" name="L60" href="BaseAbstractUnivariateSolver.html#L60">60</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> searchStart;
+<a class="jxr_linenumber" name="L61" href="BaseAbstractUnivariateSolver.html#L61">61</a>      <em class="jxr_javadoccomment">/** Function to solve. */</em>
+<a class="jxr_linenumber" name="L62" href="BaseAbstractUnivariateSolver.html#L62">62</a>      <strong class="jxr_keyword">private</strong> FUNC function;
+<a class="jxr_linenumber" name="L63" href="BaseAbstractUnivariateSolver.html#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="BaseAbstractUnivariateSolver.html#L64">64</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L65" href="BaseAbstractUnivariateSolver.html#L65">65</a>  <em class="jxr_javadoccomment">     * Construct a solver with given absolute accuracy.</em>
+<a class="jxr_linenumber" name="L66" href="BaseAbstractUnivariateSolver.html#L66">66</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L67" href="BaseAbstractUnivariateSolver.html#L67">67</a>  <em class="jxr_javadoccomment">     * @param absoluteAccuracy Maximum absolute error.</em>
+<a class="jxr_linenumber" name="L68" href="BaseAbstractUnivariateSolver.html#L68">68</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L69" href="BaseAbstractUnivariateSolver.html#L69">69</a>      <strong class="jxr_keyword">protected</strong> <a href="BaseAbstractUnivariateSolver.html">BaseAbstractUnivariateSolver</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> absoluteAccuracy) {
+<a class="jxr_linenumber" name="L70" href="BaseAbstractUnivariateSolver.html#L70">70</a>          <strong class="jxr_keyword">this</strong>(DEFAULT_RELATIVE_ACCURACY,
+<a class="jxr_linenumber" name="L71" href="BaseAbstractUnivariateSolver.html#L71">71</a>               absoluteAccuracy,
+<a class="jxr_linenumber" name="L72" href="BaseAbstractUnivariateSolver.html#L72">72</a>               DEFAULT_FUNCTION_VALUE_ACCURACY);
+<a class="jxr_linenumber" name="L73" href="BaseAbstractUnivariateSolver.html#L73">73</a>      }
+<a class="jxr_linenumber" name="L74" href="BaseAbstractUnivariateSolver.html#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="BaseAbstractUnivariateSolver.html#L75">75</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L76" href="BaseAbstractUnivariateSolver.html#L76">76</a>  <em class="jxr_javadoccomment">     * Construct a solver with given accuracies.</em>
+<a class="jxr_linenumber" name="L77" href="BaseAbstractUnivariateSolver.html#L77">77</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L78" href="BaseAbstractUnivariateSolver.html#L78">78</a>  <em class="jxr_javadoccomment">     * @param relativeAccuracy Maximum relative error.</em>
+<a class="jxr_linenumber" name="L79" href="BaseAbstractUnivariateSolver.html#L79">79</a>  <em class="jxr_javadoccomment">     * @param absoluteAccuracy Maximum absolute error.</em>
+<a class="jxr_linenumber" name="L80" href="BaseAbstractUnivariateSolver.html#L80">80</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L81" href="BaseAbstractUnivariateSolver.html#L81">81</a>      <strong class="jxr_keyword">protected</strong> <a href="BaseAbstractUnivariateSolver.html">BaseAbstractUnivariateSolver</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> relativeAccuracy,
+<a class="jxr_linenumber" name="L82" href="BaseAbstractUnivariateSolver.html#L82">82</a>                                             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> absoluteAccuracy) {
+<a class="jxr_linenumber" name="L83" href="BaseAbstractUnivariateSolver.html#L83">83</a>          <strong class="jxr_keyword">this</strong>(relativeAccuracy,
+<a class="jxr_linenumber" name="L84" href="BaseAbstractUnivariateSolver.html#L84">84</a>               absoluteAccuracy,
+<a class="jxr_linenumber" name="L85" href="BaseAbstractUnivariateSolver.html#L85">85</a>               DEFAULT_FUNCTION_VALUE_ACCURACY);
+<a class="jxr_linenumber" name="L86" href="BaseAbstractUnivariateSolver.html#L86">86</a>      }
+<a class="jxr_linenumber" name="L87" href="BaseAbstractUnivariateSolver.html#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="BaseAbstractUnivariateSolver.html#L88">88</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L89" href="BaseAbstractUnivariateSolver.html#L89">89</a>  <em class="jxr_javadoccomment">     * Construct a solver with given accuracies.</em>
+<a class="jxr_linenumber" name="L90" href="BaseAbstractUnivariateSolver.html#L90">90</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L91" href="BaseAbstractUnivariateSolver.html#L91">91</a>  <em class="jxr_javadoccomment">     * @param relativeAccuracy Maximum relative error.</em>
+<a class="jxr_linenumber" name="L92" href="BaseAbstractUnivariateSolver.html#L92">92</a>  <em class="jxr_javadoccomment">     * @param absoluteAccuracy Maximum absolute error.</em>
+<a class="jxr_linenumber" name="L93" href="BaseAbstractUnivariateSolver.html#L93">93</a>  <em class="jxr_javadoccomment">     * @param functionValueAccuracy Maximum function value error.</em>
+<a class="jxr_linenumber" name="L94" href="BaseAbstractUnivariateSolver.html#L94">94</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L95" href="BaseAbstractUnivariateSolver.html#L95">95</a>      <strong class="jxr_keyword">protected</strong> <a href="BaseAbstractUnivariateSolver.html">BaseAbstractUnivariateSolver</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> relativeAccuracy,
+<a class="jxr_linenumber" name="L96" href="BaseAbstractUnivariateSolver.html#L96">96</a>                                             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> absoluteAccuracy,
+<a class="jxr_linenumber" name="L97" href="BaseAbstractUnivariateSolver.html#L97">97</a>                                             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> functionValueAccuracy) {
+<a class="jxr_linenumber" name="L98" href="BaseAbstractUnivariateSolver.html#L98">98</a>          <strong class="jxr_keyword">this</strong>.absoluteAccuracy = absoluteAccuracy;
+<a class="jxr_linenumber" name="L99" href="BaseAbstractUnivariateSolver.html#L99">99</a>          <strong class="jxr_keyword">this</strong>.relativeAccuracy = relativeAccuracy;
+<a class="jxr_linenumber" name="L100" href="BaseAbstractUnivariateSolver.html#L100">100</a>         <strong class="jxr_keyword">this</strong>.functionValueAccuracy = functionValueAccuracy;
+<a class="jxr_linenumber" name="L101" href="BaseAbstractUnivariateSolver.html#L101">101</a>     }
+<a class="jxr_linenumber" name="L102" href="BaseAbstractUnivariateSolver.html#L102">102</a> 
+<a class="jxr_linenumber" name="L103" href="BaseAbstractUnivariateSolver.html#L103">103</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L104" href="BaseAbstractUnivariateSolver.html#L104">104</a>     @Override
+<a class="jxr_linenumber" name="L105" href="BaseAbstractUnivariateSolver.html#L105">105</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getMaxEvaluations() {
+<a class="jxr_linenumber" name="L106" href="BaseAbstractUnivariateSolver.html#L106">106</a>         <strong class="jxr_keyword">return</strong> evaluations.getMaximalCount();
+<a class="jxr_linenumber" name="L107" href="BaseAbstractUnivariateSolver.html#L107">107</a>     }
+<a class="jxr_linenumber" name="L108" href="BaseAbstractUnivariateSolver.html#L108">108</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L109" href="BaseAbstractUnivariateSolver.html#L109">109</a>     @Override
+<a class="jxr_linenumber" name="L110" href="BaseAbstractUnivariateSolver.html#L110">110</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getEvaluations() {
+<a class="jxr_linenumber" name="L111" href="BaseAbstractUnivariateSolver.html#L111">111</a>         <strong class="jxr_keyword">return</strong> evaluations.getCount();
+<a class="jxr_linenumber" name="L112" href="BaseAbstractUnivariateSolver.html#L112">112</a>     }
+<a class="jxr_linenumber" name="L113" href="BaseAbstractUnivariateSolver.html#L113">113</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L114" href="BaseAbstractUnivariateSolver.html#L114">114</a> <em class="jxr_javadoccomment">     * @return the lower end of the search interval.</em>
+<a class="jxr_linenumber" name="L115" href="BaseAbstractUnivariateSolver.html#L115">115</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L116" href="BaseAbstractUnivariateSolver.html#L116">116</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getMin() {
+<a class="jxr_linenumber" name="L117" href="BaseAbstractUnivariateSolver.html#L117">117</a>         <strong class="jxr_keyword">return</strong> searchMin;
+<a class="jxr_linenumber" name="L118" href="BaseAbstractUnivariateSolver.html#L118">118</a>     }
+<a class="jxr_linenumber" name="L119" href="BaseAbstractUnivariateSolver.html#L119">119</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L120" href="BaseAbstractUnivariateSolver.html#L120">120</a> <em class="jxr_javadoccomment">     * @return the higher end of the search interval.</em>
+<a class="jxr_linenumber" name="L121" href="BaseAbstractUnivariateSolver.html#L121">121</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L122" href="BaseAbstractUnivariateSolver.html#L122">122</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getMax() {
+<a class="jxr_linenumber" name="L123" href="BaseAbstractUnivariateSolver.html#L123">123</a>         <strong class="jxr_keyword">return</strong> searchMax;
+<a class="jxr_linenumber" name="L124" href="BaseAbstractUnivariateSolver.html#L124">124</a>     }
+<a class="jxr_linenumber" name="L125" href="BaseAbstractUnivariateSolver.html#L125">125</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L126" href="BaseAbstractUnivariateSolver.html#L126">126</a> <em class="jxr_javadoccomment">     * @return the initial guess.</em>
+<a class="jxr_linenumber" name="L127" href="BaseAbstractUnivariateSolver.html#L127">127</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L128" href="BaseAbstractUnivariateSolver.html#L128">128</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getStartValue() {
+<a class="jxr_linenumber" name="L129" href="BaseAbstractUnivariateSolver.html#L129">129</a>         <strong class="jxr_keyword">return</strong> searchStart;
+<a class="jxr_linenumber" name="L130" href="BaseAbstractUnivariateSolver.html#L130">130</a>     }
+<a class="jxr_linenumber" name="L131" href="BaseAbstractUnivariateSolver.html#L131">131</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L132" href="BaseAbstractUnivariateSolver.html#L132">132</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L133" href="BaseAbstractUnivariateSolver.html#L133">133</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L134" href="BaseAbstractUnivariateSolver.html#L134">134</a>     @Override
+<a class="jxr_linenumber" name="L135" href="BaseAbstractUnivariateSolver.html#L135">135</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getAbsoluteAccuracy() {
+<a class="jxr_linenumber" name="L136" href="BaseAbstractUnivariateSolver.html#L136">136</a>         <strong class="jxr_keyword">return</strong> absoluteAccuracy;
+<a class="jxr_linenumber" name="L137" href="BaseAbstractUnivariateSolver.html#L137">137</a>     }
+<a class="jxr_linenumber" name="L138" href="BaseAbstractUnivariateSolver.html#L138">138</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L139" href="BaseAbstractUnivariateSolver.html#L139">139</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L140" href="BaseAbstractUnivariateSolver.html#L140">140</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L141" href="BaseAbstractUnivariateSolver.html#L141">141</a>     @Override
+<a class="jxr_linenumber" name="L142" href="BaseAbstractUnivariateSolver.html#L142">142</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getRelativeAccuracy() {
+<a class="jxr_linenumber" name="L143" href="BaseAbstractUnivariateSolver.html#L143">143</a>         <strong class="jxr_keyword">return</strong> relativeAccuracy;
+<a class="jxr_linenumber" name="L144" href="BaseAbstractUnivariateSolver.html#L144">144</a>     }
+<a class="jxr_linenumber" name="L145" href="BaseAbstractUnivariateSolver.html#L145">145</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L146" href="BaseAbstractUnivariateSolver.html#L146">146</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L147" href="BaseAbstractUnivariateSolver.html#L147">147</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L148" href="BaseAbstractUnivariateSolver.html#L148">148</a>     @Override
+<a class="jxr_linenumber" name="L149" href="BaseAbstractUnivariateSolver.html#L149">149</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getFunctionValueAccuracy() {
+<a class="jxr_linenumber" name="L150" href="BaseAbstractUnivariateSolver.html#L150">150</a>         <strong class="jxr_keyword">return</strong> functionValueAccuracy;
+<a class="jxr_linenumber" name="L151" href="BaseAbstractUnivariateSolver.html#L151">151</a>     }
+<a class="jxr_linenumber" name="L152" href="BaseAbstractUnivariateSolver.html#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="BaseAbstractUnivariateSolver.html#L153">153</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L154" href="BaseAbstractUnivariateSolver.html#L154">154</a> <em class="jxr_javadoccomment">     * Compute the objective function value.</em>
+<a class="jxr_linenumber" name="L155" href="BaseAbstractUnivariateSolver.html#L155">155</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L156" href="BaseAbstractUnivariateSolver.html#L156">156</a> <em class="jxr_javadoccomment">     * @param point Point at which the objective function must be evaluated.</em>
+<a class="jxr_linenumber" name="L157" href="BaseAbstractUnivariateSolver.html#L157">157</a> <em class="jxr_javadoccomment">     * @return the objective function value at specified point.</em>
+<a class="jxr_linenumber" name="L158" href="BaseAbstractUnivariateSolver.html#L158">158</a> <em class="jxr_javadoccomment">     * @throws TooManyEvaluationsException if the maximal number of evaluations</em>
+<a class="jxr_linenumber" name="L159" href="BaseAbstractUnivariateSolver.html#L159">159</a> <em class="jxr_javadoccomment">     * is exceeded.</em>
+<a class="jxr_linenumber" name="L160" href="BaseAbstractUnivariateSolver.html#L160">160</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L161" href="BaseAbstractUnivariateSolver.html#L161">161</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> computeObjectiveValue(<strong class="jxr_keyword">double</strong> point)
+<a class="jxr_linenumber" name="L162" href="BaseAbstractUnivariateSolver.html#L162">162</a>         <strong class="jxr_keyword">throws</strong> <a href="../../exception/TooManyEvaluationsException.html">TooManyEvaluationsException</a> {
+<a class="jxr_linenumber" name="L163" href="BaseAbstractUnivariateSolver.html#L163">163</a>         incrementEvaluationCount();
+<a class="jxr_linenumber" name="L164" href="BaseAbstractUnivariateSolver.html#L164">164</a>         <strong class="jxr_keyword">return</strong> function.value(point);
+<a class="jxr_linenumber" name="L165" href="BaseAbstractUnivariateSolver.html#L165">165</a>     }
+<a class="jxr_linenumber" name="L166" href="BaseAbstractUnivariateSolver.html#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="BaseAbstractUnivariateSolver.html#L167">167</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L168" href="BaseAbstractUnivariateSolver.html#L168">168</a> <em class="jxr_javadoccomment">     * Prepare for computation.</em>
+<a class="jxr_linenumber" name="L169" href="BaseAbstractUnivariateSolver.html#L169">169</a> <em class="jxr_javadoccomment">     * Subclasses must call this method if they override any of the</em>
+<a class="jxr_linenumber" name="L170" href="BaseAbstractUnivariateSolver.html#L170">170</a> <em class="jxr_javadoccomment">     * {@code solve} methods.</em>
+<a class="jxr_linenumber" name="L171" href="BaseAbstractUnivariateSolver.html#L171">171</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L172" href="BaseAbstractUnivariateSolver.html#L172">172</a> <em class="jxr_javadoccomment">     * @param f Function to solve.</em>
+<a class="jxr_linenumber" name="L173" href="BaseAbstractUnivariateSolver.html#L173">173</a> <em class="jxr_javadoccomment">     * @param min Lower bound for the interval.</em>
+<a class="jxr_linenumber" name="L174" href="BaseAbstractUnivariateSolver.html#L174">174</a> <em class="jxr_javadoccomment">     * @param max Upper bound for the interval.</em>
+<a class="jxr_linenumber" name="L175" href="BaseAbstractUnivariateSolver.html#L175">175</a> <em class="jxr_javadoccomment">     * @param startValue Start value to use.</em>
+<a class="jxr_linenumber" name="L176" href="BaseAbstractUnivariateSolver.html#L176">176</a> <em class="jxr_javadoccomment">     * @param maxEval Maximum number of evaluations.</em>
+<a class="jxr_linenumber" name="L177" href="BaseAbstractUnivariateSolver.html#L177">177</a> <em class="jxr_javadoccomment">     * @exception NullArgumentException if f is null</em>
+<a class="jxr_linenumber" name="L178" href="BaseAbstractUnivariateSolver.html#L178">178</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L179" href="BaseAbstractUnivariateSolver.html#L179">179</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> setup(<strong class="jxr_keyword">int</strong> maxEval,
+<a class="jxr_linenumber" name="L180" href="BaseAbstractUnivariateSolver.html#L180">180</a>                          FUNC f,
+<a class="jxr_linenumber" name="L181" href="BaseAbstractUnivariateSolver.html#L181">181</a>                          <strong class="jxr_keyword">double</strong> min, <strong class="jxr_keyword">double</strong> max,
+<a class="jxr_linenumber" name="L182" href="BaseAbstractUnivariateSolver.html#L182">182</a>                          <strong class="jxr_keyword">double</strong> startValue)
+<a class="jxr_linenumber" name="L183" href="BaseAbstractUnivariateSolver.html#L183">183</a>         <strong class="jxr_keyword">throws</strong> <a href="../../exception/NullArgumentException.html">NullArgumentException</a> {
+<a class="jxr_linenumber" name="L184" href="BaseAbstractUnivariateSolver.html#L184">184</a>         <em class="jxr_comment">// Checks.</em>
+<a class="jxr_linenumber" name="L185" href="BaseAbstractUnivariateSolver.html#L185">185</a>         MathUtils.checkNotNull(f);
+<a class="jxr_linenumber" name="L186" href="BaseAbstractUnivariateSolver.html#L186">186</a> 
+<a class="jxr_linenumber" name="L187" href="BaseAbstractUnivariateSolver.html#L187">187</a>         <em class="jxr_comment">// Reset.</em>
+<a class="jxr_linenumber" name="L188" href="BaseAbstractUnivariateSolver.html#L188">188</a>         searchMin = min;
+<a class="jxr_linenumber" name="L189" href="BaseAbstractUnivariateSolver.html#L189">189</a>         searchMax = max;
+<a class="jxr_linenumber" name="L190" href="BaseAbstractUnivariateSolver.html#L190">190</a>         searchStart = startValue;
+<a class="jxr_linenumber" name="L191" href="BaseAbstractUnivariateSolver.html#L191">191</a>         function = f;
+<a class="jxr_linenumber" name="L192" href="BaseAbstractUnivariateSolver.html#L192">192</a>         evaluations.setMaximalCount(maxEval);
+<a class="jxr_linenumber" name="L193" href="BaseAbstractUnivariateSolver.html#L193">193</a>         evaluations.resetCount();
+<a class="jxr_linenumber" name="L194" href="BaseAbstractUnivariateSolver.html#L194">194</a>     }
+<a class="jxr_linenumber" name="L195" href="BaseAbstractUnivariateSolver.html#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="BaseAbstractUnivariateSolver.html#L196">196</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L197" href="BaseAbstractUnivariateSolver.html#L197">197</a>     @Override
+<a class="jxr_linenumber" name="L198" href="BaseAbstractUnivariateSolver.html#L198">198</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> solve(<strong class="jxr_keyword">int</strong> maxEval, FUNC f, <strong class="jxr_keyword">double</strong> min, <strong class="jxr_keyword">double</strong> max, <strong class="jxr_keyword">double</strong> startValue)
+<a class="jxr_linenumber" name="L199" href="BaseAbstractUnivariateSolver.html#L199">199</a>         <strong class="jxr_keyword">throws</strong> TooManyEvaluationsException,
+<a class="jxr_linenumber" name="L200" href="BaseAbstractUnivariateSolver.html#L200">200</a>                <a href="../../exception/NoBracketingException.html">NoBracketingException</a> {
+<a class="jxr_linenumber" name="L201" href="BaseAbstractUnivariateSolver.html#L201">201</a>         <em class="jxr_comment">// Initialization.</em>
+<a class="jxr_linenumber" name="L202" href="BaseAbstractUnivariateSolver.html#L202">202</a>         setup(maxEval, f, min, max, startValue);
+<a class="jxr_linenumber" name="L203" href="BaseAbstractUnivariateSolver.html#L203">203</a> 
+<a class="jxr_linenumber" name="L204" href="BaseAbstractUnivariateSolver.html#L204">204</a>         <em class="jxr_comment">// Perform computation.</em>
+<a class="jxr_linenumber" name="L205" href="BaseAbstractUnivariateSolver.html#L205">205</a>         <strong class="jxr_keyword">return</strong> doSolve();
+<a class="jxr_linenumber" name="L206" href="BaseAbstractUnivariateSolver.html#L206">206</a>     }
+<a class="jxr_linenumber" name="L207" href="BaseAbstractUnivariateSolver.html#L207">207</a> 
+<a class="jxr_linenumber" name="L208" href="BaseAbstractUnivariateSolver.html#L208">208</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L209" href="BaseAbstractUnivariateSolver.html#L209">209</a>     @Override
+<a class="jxr_linenumber" name="L210" href="BaseAbstractUnivariateSolver.html#L210">210</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> solve(<strong class="jxr_keyword">int</strong> maxEval, FUNC f, <strong class="jxr_keyword">double</strong> min, <strong class="jxr_keyword">double</strong> max) {
+<a class="jxr_linenumber" name="L211" href="BaseAbstractUnivariateSolver.html#L211">211</a>         <strong class="jxr_keyword">return</strong> solve(maxEval, f, min, max, min + 0.5 * (max - min));
+<a class="jxr_linenumber" name="L212" href="BaseAbstractUnivariateSolver.html#L212">212</a>     }
+<a class="jxr_linenumber" name="L213" href="BaseAbstractUnivariateSolver.html#L213">213</a> 
+<a class="jxr_linenumber" name="L214" href="BaseAbstractUnivariateSolver.html#L214">214</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L215" href="BaseAbstractUnivariateSolver.html#L215">215</a>     @Override
+<a class="jxr_linenumber" name="L216" href="BaseAbstractUnivariateSolver.html#L216">216</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> solve(<strong class="jxr_keyword">int</strong> maxEval, FUNC f, <strong class="jxr_keyword">double</strong> startValue)
+<a class="jxr_linenumber" name="L217" href="BaseAbstractUnivariateSolver.html#L217">217</a>         <strong class="jxr_keyword">throws</strong> TooManyEvaluationsException,
+<a class="jxr_linenumber" name="L218" href="BaseAbstractUnivariateSolver.html#L218">218</a>                <a href="../../exception/NoBracketingException.html">NoBracketingException</a> {
+<a class="jxr_linenumber" name="L219" href="BaseAbstractUnivariateSolver.html#L219">219</a>         <strong class="jxr_keyword">return</strong> solve(maxEval, f, Double.NaN, Double.NaN, startValue);
+<a class="jxr_linenumber" name="L220" href="BaseAbstractUnivariateSolver.html#L220">220</a>     }
+<a class="jxr_linenumber" name="L221" href="BaseAbstractUnivariateSolver.html#L221">221</a> 
+<a class="jxr_linenumber" name="L222" href="BaseAbstractUnivariateSolver.html#L222">222</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L223" href="BaseAbstractUnivariateSolver.html#L223">223</a> <em class="jxr_javadoccomment">     * Method for implementing actual optimization algorithms in derived</em>
+<a class="jxr_linenumber" name="L224" href="BaseAbstractUnivariateSolver.html#L224">224</a> <em class="jxr_javadoccomment">     * classes.</em>
+<a class="jxr_linenumber" name="L225" href="BaseAbstractUnivariateSolver.html#L225">225</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L226" href="BaseAbstractUnivariateSolver.html#L226">226</a> <em class="jxr_javadoccomment">     * @return the root.</em>
+<a class="jxr_linenumber" name="L227" href="BaseAbstractUnivariateSolver.html#L227">227</a> <em class="jxr_javadoccomment">     * @throws TooManyEvaluationsException if the maximal number of evaluations</em>
+<a class="jxr_linenumber" name="L228" href="BaseAbstractUnivariateSolver.html#L228">228</a> <em class="jxr_javadoccomment">     * is exceeded.</em>
+<a class="jxr_linenumber" name="L229" href="BaseAbstractUnivariateSolver.html#L229">229</a> <em class="jxr_javadoccomment">     * @throws NoBracketingException if the initial search interval does not bracket</em>
+<a class="jxr_linenumber" name="L230" href="BaseAbstractUnivariateSolver.html#L230">230</a> <em class="jxr_javadoccomment">     * a root and the solver requires it.</em>
+<a class="jxr_linenumber" name="L231" href="BaseAbstractUnivariateSolver.html#L231">231</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L232" href="BaseAbstractUnivariateSolver.html#L232">232</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">double</strong> doSolve()
+<a class="jxr_linenumber" name="L233" href="BaseAbstractUnivariateSolver.html#L233">233</a>         <strong class="jxr_keyword">throws</strong> TooManyEvaluationsException, NoBracketingException;
+<a class="jxr_linenumber" name="L234" href="BaseAbstractUnivariateSolver.html#L234">234</a> 
+<a class="jxr_linenumber" name="L235" href="BaseAbstractUnivariateSolver.html#L235">235</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L236" href="BaseAbstractUnivariateSolver.html#L236">236</a> <em class="jxr_javadoccomment">     * Check whether the function takes opposite signs at the endpoints.</em>
+<a class="jxr_linenumber" name="L237" href="BaseAbstractUnivariateSolver.html#L237">237</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L238" href="BaseAbstractUnivariateSolver.html#L238">238</a> <em class="jxr_javadoccomment">     * @param lower Lower endpoint.</em>
+<a class="jxr_linenumber" name="L239" href="BaseAbstractUnivariateSolver.html#L239">239</a> <em class="jxr_javadoccomment">     * @param upper Upper endpoint.</em>
+<a class="jxr_linenumber" name="L240" href="BaseAbstractUnivariateSolver.html#L240">240</a> <em class="jxr_javadoccomment">     * @return {@code true} if the function values have opposite signs at the</em>
+<a class="jxr_linenumber" name="L241" href="BaseAbstractUnivariateSolver.html#L241">241</a> <em class="jxr_javadoccomment">     * given points.</em>
+<a class="jxr_linenumber" name="L242" href="BaseAbstractUnivariateSolver.html#L242">242</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L243" href="BaseAbstractUnivariateSolver.html#L243">243</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">boolean</strong> isBracketing(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lower,
+<a class="jxr_linenumber" name="L244" href="BaseAbstractUnivariateSolver.html#L244">244</a>                                    <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> upper) {
+<a class="jxr_linenumber" name="L245" href="BaseAbstractUnivariateSolver.html#L245">245</a>         <strong class="jxr_keyword">return</strong> UnivariateSolverUtils.isBracketing(function, lower, upper);
+<a class="jxr_linenumber" name="L246" href="BaseAbstractUnivariateSolver.html#L246">246</a>     }
+<a class="jxr_linenumber" name="L247" href="BaseAbstractUnivariateSolver.html#L247">247</a> 
+<a class="jxr_linenumber" name="L248" href="BaseAbstractUnivariateSolver.html#L248">248</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L249" href="BaseAbstractUnivariateSolver.html#L249">249</a> <em class="jxr_javadoccomment">     * Check whether the arguments form a (strictly) increasing sequence.</em>
+<a class="jxr_linenumber" name="L250" href="BaseAbstractUnivariateSolver.html#L250">250</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L251" href="BaseAbstractUnivariateSolver.html#L251">251</a> <em class="jxr_javadoccomment">     * @param start First number.</em>
+<a class="jxr_linenumber" name="L252" href="BaseAbstractUnivariateSolver.html#L252">252</a> <em class="jxr_javadoccomment">     * @param mid Second number.</em>
+<a class="jxr_linenumber" name="L253" href="BaseAbstractUnivariateSolver.html#L253">253</a> <em class="jxr_javadoccomment">     * @param end Third number.</em>
+<a class="jxr_linenumber" name="L254" href="BaseAbstractUnivariateSolver.html#L254">254</a> <em class="jxr_javadoccomment">     * @return {@code true} if the arguments form an increasing sequence.</em>
+<a class="jxr_linenumber" name="L255" href="BaseAbstractUnivariateSolver.html#L255">255</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L256" href="BaseAbstractUnivariateSolver.html#L256">256</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">boolean</strong> isSequence(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> start,
+<a class="jxr_linenumber" name="L257" href="BaseAbstractUnivariateSolver.html#L257">257</a>                                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> mid,
+<a class="jxr_linenumber" name="L258" href="BaseAbstractUnivariateSolver.html#L258">258</a>                                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> end) {
+<a class="jxr_linenumber" name="L259" href="BaseAbstractUnivariateSolver.html#L259">259</a>         <strong class="jxr_keyword">return</strong> UnivariateSolverUtils.isSequence(start, mid, end);
+<a class="jxr_linenumber" name="L260" href="BaseAbstractUnivariateSolver.html#L260">260</a>     }
+<a class="jxr_linenumber" name="L261" href="BaseAbstractUnivariateSolver.html#L261">261</a> 
+<a class="jxr_linenumber" name="L262" href="BaseAbstractUnivariateSolver.html#L262">262</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L263" href="BaseAbstractUnivariateSolver.html#L263">263</a> <em class="jxr_javadoccomment">     * Check that the endpoints specify an interval.</em>
+<a class="jxr_linenumber" name="L264" href="BaseAbstractUnivariateSolver.html#L264">264</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L265" href="BaseAbstractUnivariateSolver.html#L265">265</a> <em class="jxr_javadoccomment">     * @param lower Lower endpoint.</em>
+<a class="jxr_linenumber" name="L266" href="BaseAbstractUnivariateSolver.html#L266">266</a> <em class="jxr_javadoccomment">     * @param upper Upper endpoint.</em>
+<a class="jxr_linenumber" name="L267" href="BaseAbstractUnivariateSolver.html#L267">267</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooLargeException if {@code lower &gt;= upper}.</em>
+<a class="jxr_linenumber" name="L268" href="BaseAbstractUnivariateSolver.html#L268">268</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L269" href="BaseAbstractUnivariateSolver.html#L269">269</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> verifyInterval(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lower,
+<a class="jxr_linenumber" name="L270" href="BaseAbstractUnivariateSolver.html#L270">270</a>                                   <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> upper)
+<a class="jxr_linenumber" name="L271" href="BaseAbstractUnivariateSolver.html#L271">271</a>         <strong class="jxr_keyword">throws</strong> <a href="../../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a> {
+<a class="jxr_linenumber" name="L272" href="BaseAbstractUnivariateSolver.html#L272">272</a>         UnivariateSolverUtils.verifyInterval(lower, upper);
+<a class="jxr_linenumber" name="L273" href="BaseAbstractUnivariateSolver.html#L273">273</a>     }
+<a class="jxr_linenumber" name="L274" href="BaseAbstractUnivariateSolver.html#L274">274</a> 
+<a class="jxr_linenumber" name="L275" href="BaseAbstractUnivariateSolver.html#L275">275</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L276" href="BaseAbstractUnivariateSolver.html#L276">276</a> <em class="jxr_javadoccomment">     * Check that {@code lower &lt; initial &lt; upper}.</em>
+<a class="jxr_linenumber" name="L277" href="BaseAbstractUnivariateSolver.html#L277">277</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L278" href="BaseAbstractUnivariateSolver.html#L278">278</a> <em class="jxr_javadoccomment">     * @param lower Lower endpoint.</em>
+<a class="jxr_linenumber" name="L279" href="BaseAbstractUnivariateSolver.html#L279">279</a> <em class="jxr_javadoccomment">     * @param initial Initial value.</em>
+<a class="jxr_linenumber" name="L280" href="BaseAbstractUnivariateSolver.html#L280">280</a> <em class="jxr_javadoccomment">     * @param upper Upper endpoint.</em>
+<a class="jxr_linenumber" name="L281" href="BaseAbstractUnivariateSolver.html#L281">281</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooLargeException if {@code lower &gt;= initial} or</em>
+<a class="jxr_linenumber" name="L282" href="BaseAbstractUnivariateSolver.html#L282">282</a> <em class="jxr_javadoccomment">     * {@code initial &gt;= upper}.</em>
+<a class="jxr_linenumber" name="L283" href="BaseAbstractUnivariateSolver.html#L283">283</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L284" href="BaseAbstractUnivariateSolver.html#L284">284</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> verifySequence(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lower,
+<a class="jxr_linenumber" name="L285" href="BaseAbstractUnivariateSolver.html#L285">285</a>                                   <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> initial,
+<a class="jxr_linenumber" name="L286" href="BaseAbstractUnivariateSolver.html#L286">286</a>                                   <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> upper)
+<a class="jxr_linenumber" name="L287" href="BaseAbstractUnivariateSolver.html#L287">287</a>         <strong class="jxr_keyword">throws</strong> <a href="../../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a> {
+<a class="jxr_linenumber" name="L288" href="BaseAbstractUnivariateSolver.html#L288">288</a>         UnivariateSolverUtils.verifySequence(lower, initial, upper);
+<a class="jxr_linenumber" name="L289" href="BaseAbstractUnivariateSolver.html#L289">289</a>     }
+<a class="jxr_linenumber" name="L290" href="BaseAbstractUnivariateSolver.html#L290">290</a> 
+<a class="jxr_linenumber" name="L291" href="BaseAbstractUnivariateSolver.html#L291">291</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L292" href="BaseAbstractUnivariateSolver.html#L292">292</a> <em class="jxr_javadoccomment">     * Check that the endpoints specify an interval and the function takes</em>
+<a class="jxr_linenumber" name="L293" href="BaseAbstractUnivariateSolver.html#L293">293</a> <em class="jxr_javadoccomment">     * opposite signs at the endpoints.</em>
+<a class="jxr_linenumber" name="L294" href="BaseAbstractUnivariateSolver.html#L294">294</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L295" href="BaseAbstractUnivariateSolver.html#L295">295</a> <em class="jxr_javadoccomment">     * @param lower Lower endpoint.</em>
+<a class="jxr_linenumber" name="L296" href="BaseAbstractUnivariateSolver.html#L296">296</a> <em class="jxr_javadoccomment">     * @param upper Upper endpoint.</em>
+<a class="jxr_linenumber" name="L297" href="BaseAbstractUnivariateSolver.html#L297">297</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if the function has not been set.</em>
+<a class="jxr_linenumber" name="L298" href="BaseAbstractUnivariateSolver.html#L298">298</a> <em class="jxr_javadoccomment">     * @throws NoBracketingException if the function has the same sign at</em>
+<a class="jxr_linenumber" name="L299" href="BaseAbstractUnivariateSolver.html#L299">299</a> <em class="jxr_javadoccomment">     * the endpoints.</em>
+<a class="jxr_linenumber" name="L300" href="BaseAbstractUnivariateSolver.html#L300">300</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L301" href="BaseAbstractUnivariateSolver.html#L301">301</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> verifyBracketing(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lower,
+<a class="jxr_linenumber" name="L302" href="BaseAbstractUnivariateSolver.html#L302">302</a>                                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> upper)
+<a class="jxr_linenumber" name="L303" href="BaseAbstractUnivariateSolver.html#L303">303</a>         <strong class="jxr_keyword">throws</strong> NullArgumentException,
+<a class="jxr_linenumber" name="L304" href="BaseAbstractUnivariateSolver.html#L304">304</a>                <a href="../../exception/NoBracketingException.html">NoBracketingException</a> {
+<a class="jxr_linenumber" name="L305" href="BaseAbstractUnivariateSolver.html#L305">305</a>         UnivariateSolverUtils.verifyBracketing(function, lower, upper);
+<a class="jxr_linenumber" name="L306" href="BaseAbstractUnivariateSolver.html#L306">306</a>     }
+<a class="jxr_linenumber" name="L307" href="BaseAbstractUnivariateSolver.html#L307">307</a> 
+<a class="jxr_linenumber" name="L308" href="BaseAbstractUnivariateSolver.html#L308">308</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L309" href="BaseAbstractUnivariateSolver.html#L309">309</a> <em class="jxr_javadoccomment">     * Increment the evaluation count by one.</em>
+<a class="jxr_linenumber" name="L310" href="BaseAbstractUnivariateSolver.html#L310">310</a> <em class="jxr_javadoccomment">     * Method {@link #computeObjectiveValue(double)} calls this method internally.</em>
+<a class="jxr_linenumber" name="L311" href="BaseAbstractUnivariateSolver.html#L311">311</a> <em class="jxr_javadoccomment">     * It is provided for subclasses that do not exclusively use</em>
+<a class="jxr_linenumber" name="L312" href="BaseAbstractUnivariateSolver.html#L312">312</a> <em class="jxr_javadoccomment">     * {@code computeObjectiveValue} to solve the function.</em>
+<a class="jxr_linenumber" name="L313" href="BaseAbstractUnivariateSolver.html#L313">313</a> <em class="jxr_javadoccomment">     * See e.g. {@link AbstractUnivariateDifferentiableSolver}.</em>
+<a class="jxr_linenumber" name="L314" href="BaseAbstractUnivariateSolver.html#L314">314</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L315" href="BaseAbstractUnivariateSolver.html#L315">315</a> <em class="jxr_javadoccomment">     * @throws TooManyEvaluationsException when the allowed number of function</em>
+<a class="jxr_linenumber" name="L316" href="BaseAbstractUnivariateSolver.html#L316">316</a> <em class="jxr_javadoccomment">     * evaluations has been exhausted.</em>
+<a class="jxr_linenumber" name="L317" href="BaseAbstractUnivariateSolver.html#L317">317</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L318" href="BaseAbstractUnivariateSolver.html#L318">318</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> incrementEvaluationCount()
+<a class="jxr_linenumber" name="L319" href="BaseAbstractUnivariateSolver.html#L319">319</a>         <strong class="jxr_keyword">throws</strong> <a href="../../exception/TooManyEvaluationsException.html">TooManyEvaluationsException</a> {
+<a class="jxr_linenumber" name="L320" href="BaseAbstractUnivariateSolver.html#L320">320</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L321" href="BaseAbstractUnivariateSolver.html#L321">321</a>             evaluations.incrementCount();
+<a class="jxr_linenumber" name="L322" href="BaseAbstractUnivariateSolver.html#L322">322</a>         } <strong class="jxr_keyword">catch</strong> (MaxCountExceededException e) {
+<a class="jxr_linenumber" name="L323" href="BaseAbstractUnivariateSolver.html#L323">323</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/TooManyEvaluationsException.html">TooManyEvaluationsException</a>(e.getMax());
+<a class="jxr_linenumber" name="L324" href="BaseAbstractUnivariateSolver.html#L324">324</a>         }
+<a class="jxr_linenumber" name="L325" href="BaseAbstractUnivariateSolver.html#L325">325</a>     }
+<a class="jxr_linenumber" name="L326" href="BaseAbstractUnivariateSolver.html#L326">326</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

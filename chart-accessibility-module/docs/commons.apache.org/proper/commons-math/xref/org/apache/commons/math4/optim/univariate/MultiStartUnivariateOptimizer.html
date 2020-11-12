@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>MultiStartUnivariateOptimizer xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/optim/univariate/MultiStartUnivariateOptimizer.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="MultiStartUnivariateOptimizer.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="MultiStartUnivariateOptimizer.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="MultiStartUnivariateOptimizer.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="MultiStartUnivariateOptimizer.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="MultiStartUnivariateOptimizer.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="MultiStartUnivariateOptimizer.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="MultiStartUnivariateOptimizer.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="MultiStartUnivariateOptimizer.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="MultiStartUnivariateOptimizer.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="MultiStartUnivariateOptimizer.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="MultiStartUnivariateOptimizer.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="MultiStartUnivariateOptimizer.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="MultiStartUnivariateOptimizer.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="MultiStartUnivariateOptimizer.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="MultiStartUnivariateOptimizer.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="MultiStartUnivariateOptimizer.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="MultiStartUnivariateOptimizer.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="MultiStartUnivariateOptimizer.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.optim.univariate;
+<a class="jxr_linenumber" name="L19" href="MultiStartUnivariateOptimizer.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="MultiStartUnivariateOptimizer.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L21" href="MultiStartUnivariateOptimizer.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.Comparator;
+<a class="jxr_linenumber" name="L22" href="MultiStartUnivariateOptimizer.html#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="MultiStartUnivariateOptimizer.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalStateException;
+<a class="jxr_linenumber" name="L24" href="MultiStartUnivariateOptimizer.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L25" href="MultiStartUnivariateOptimizer.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L26" href="MultiStartUnivariateOptimizer.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.optim.MaxEval;
+<a class="jxr_linenumber" name="L27" href="MultiStartUnivariateOptimizer.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.optim.OptimizationData;
+<a class="jxr_linenumber" name="L28" href="MultiStartUnivariateOptimizer.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.optim.nonlinear.scalar.GoalType;
+<a class="jxr_linenumber" name="L29" href="MultiStartUnivariateOptimizer.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L30" href="MultiStartUnivariateOptimizer.html#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="MultiStartUnivariateOptimizer.html#L31">31</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L32" href="MultiStartUnivariateOptimizer.html#L32">32</a>  <em class="jxr_javadoccomment"> * Special implementation of the {@link UnivariateOptimizer} interface</em>
+<a class="jxr_linenumber" name="L33" href="MultiStartUnivariateOptimizer.html#L33">33</a>  <em class="jxr_javadoccomment"> * adding multi-start features to an existing optimizer.</em>
+<a class="jxr_linenumber" name="L34" href="MultiStartUnivariateOptimizer.html#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L35" href="MultiStartUnivariateOptimizer.html#L35">35</a>  <em class="jxr_javadoccomment"> * This class wraps an optimizer in order to use it several times in</em>
+<a class="jxr_linenumber" name="L36" href="MultiStartUnivariateOptimizer.html#L36">36</a>  <em class="jxr_javadoccomment"> * turn with different starting points (trying to avoid being trapped</em>
+<a class="jxr_linenumber" name="L37" href="MultiStartUnivariateOptimizer.html#L37">37</a>  <em class="jxr_javadoccomment"> * in a local extremum when looking for a global one).</em>
+<a class="jxr_linenumber" name="L38" href="MultiStartUnivariateOptimizer.html#L38">38</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L39" href="MultiStartUnivariateOptimizer.html#L39">39</a>  <em class="jxr_javadoccomment"> * @since 3.0</em>
+<a class="jxr_linenumber" name="L40" href="MultiStartUnivariateOptimizer.html#L40">40</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L41" href="MultiStartUnivariateOptimizer.html#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="MultiStartUnivariateOptimizer.html">MultiStartUnivariateOptimizer</a>
+<a class="jxr_linenumber" name="L42" href="MultiStartUnivariateOptimizer.html#L42">42</a>      <strong class="jxr_keyword">extends</strong> <a href="UnivariateOptimizer.html">UnivariateOptimizer</a> {
+<a class="jxr_linenumber" name="L43" href="MultiStartUnivariateOptimizer.html#L43">43</a>      <em class="jxr_javadoccomment">/** Underlying classical optimizer. */</em>
+<a class="jxr_linenumber" name="L44" href="MultiStartUnivariateOptimizer.html#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="UnivariateOptimizer.html">UnivariateOptimizer</a> optimizer;
+<a class="jxr_linenumber" name="L45" href="MultiStartUnivariateOptimizer.html#L45">45</a>      <em class="jxr_javadoccomment">/** Number of evaluations already performed for all starts. */</em>
+<a class="jxr_linenumber" name="L46" href="MultiStartUnivariateOptimizer.html#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> totalEvaluations;
+<a class="jxr_linenumber" name="L47" href="MultiStartUnivariateOptimizer.html#L47">47</a>      <em class="jxr_javadoccomment">/** Number of starts to go. */</em>
+<a class="jxr_linenumber" name="L48" href="MultiStartUnivariateOptimizer.html#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> starts;
+<a class="jxr_linenumber" name="L49" href="MultiStartUnivariateOptimizer.html#L49">49</a>      <em class="jxr_javadoccomment">/** Random generator for multi-start. */</em>
+<a class="jxr_linenumber" name="L50" href="MultiStartUnivariateOptimizer.html#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> UniformRandomProvider generator;
+<a class="jxr_linenumber" name="L51" href="MultiStartUnivariateOptimizer.html#L51">51</a>      <em class="jxr_javadoccomment">/** Found optima. */</em>
+<a class="jxr_linenumber" name="L52" href="MultiStartUnivariateOptimizer.html#L52">52</a>      <strong class="jxr_keyword">private</strong> <a href="UnivariatePointValuePair.html">UnivariatePointValuePair</a>[] optima;
+<a class="jxr_linenumber" name="L53" href="MultiStartUnivariateOptimizer.html#L53">53</a>      <em class="jxr_javadoccomment">/** Optimization data. */</em>
+<a class="jxr_linenumber" name="L54" href="MultiStartUnivariateOptimizer.html#L54">54</a>      <strong class="jxr_keyword">private</strong> <a href="../OptimizationData.html">OptimizationData</a>[] optimData;
+<a class="jxr_linenumber" name="L55" href="MultiStartUnivariateOptimizer.html#L55">55</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L56" href="MultiStartUnivariateOptimizer.html#L56">56</a>  <em class="jxr_javadoccomment">     * Location in {@link #optimData} where the updated maximum</em>
+<a class="jxr_linenumber" name="L57" href="MultiStartUnivariateOptimizer.html#L57">57</a>  <em class="jxr_javadoccomment">     * number of evaluations will be stored.</em>
+<a class="jxr_linenumber" name="L58" href="MultiStartUnivariateOptimizer.html#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L59" href="MultiStartUnivariateOptimizer.html#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> maxEvalIndex = -1;
+<a class="jxr_linenumber" name="L60" href="MultiStartUnivariateOptimizer.html#L60">60</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L61" href="MultiStartUnivariateOptimizer.html#L61">61</a>  <em class="jxr_javadoccomment">     * Location in {@link #optimData} where the updated start value</em>
+<a class="jxr_linenumber" name="L62" href="MultiStartUnivariateOptimizer.html#L62">62</a>  <em class="jxr_javadoccomment">     * will be stored.</em>
+<a class="jxr_linenumber" name="L63" href="MultiStartUnivariateOptimizer.html#L63">63</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L64" href="MultiStartUnivariateOptimizer.html#L64">64</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> searchIntervalIndex = -1;
+<a class="jxr_linenumber" name="L65" href="MultiStartUnivariateOptimizer.html#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="MultiStartUnivariateOptimizer.html#L66">66</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L67" href="MultiStartUnivariateOptimizer.html#L67">67</a>  <em class="jxr_javadoccomment">     * Create a multi-start optimizer from a single-start optimizer.</em>
+<a class="jxr_linenumber" name="L68" href="MultiStartUnivariateOptimizer.html#L68">68</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L69" href="MultiStartUnivariateOptimizer.html#L69">69</a>  <em class="jxr_javadoccomment">     * @param optimizer Single-start optimizer to wrap.</em>
+<a class="jxr_linenumber" name="L70" href="MultiStartUnivariateOptimizer.html#L70">70</a>  <em class="jxr_javadoccomment">     * @param starts Number of starts to perform. If {@code starts == 1},</em>
+<a class="jxr_linenumber" name="L71" href="MultiStartUnivariateOptimizer.html#L71">71</a>  <em class="jxr_javadoccomment">     * the {@code optimize} methods will return the same solution as</em>
+<a class="jxr_linenumber" name="L72" href="MultiStartUnivariateOptimizer.html#L72">72</a>  <em class="jxr_javadoccomment">     * {@code optimizer} would.</em>
+<a class="jxr_linenumber" name="L73" href="MultiStartUnivariateOptimizer.html#L73">73</a>  <em class="jxr_javadoccomment">     * @param generator Random generator to use for restarts.</em>
+<a class="jxr_linenumber" name="L74" href="MultiStartUnivariateOptimizer.html#L74">74</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code starts &lt; 1}.</em>
+<a class="jxr_linenumber" name="L75" href="MultiStartUnivariateOptimizer.html#L75">75</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L76" href="MultiStartUnivariateOptimizer.html#L76">76</a>      <strong class="jxr_keyword">public</strong> <a href="MultiStartUnivariateOptimizer.html">MultiStartUnivariateOptimizer</a>(<strong class="jxr_keyword">final</strong> <a href="UnivariateOptimizer.html">UnivariateOptimizer</a> optimizer,
+<a class="jxr_linenumber" name="L77" href="MultiStartUnivariateOptimizer.html#L77">77</a>                                           <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> starts,
+<a class="jxr_linenumber" name="L78" href="MultiStartUnivariateOptimizer.html#L78">78</a>                                           <strong class="jxr_keyword">final</strong> UniformRandomProvider generator) {
+<a class="jxr_linenumber" name="L79" href="MultiStartUnivariateOptimizer.html#L79">79</a>          <strong class="jxr_keyword">super</strong>(optimizer.getConvergenceChecker());
+<a class="jxr_linenumber" name="L80" href="MultiStartUnivariateOptimizer.html#L80">80</a>  
+<a class="jxr_linenumber" name="L81" href="MultiStartUnivariateOptimizer.html#L81">81</a>          <strong class="jxr_keyword">if</strong> (starts &lt; 1) {
+<a class="jxr_linenumber" name="L82" href="MultiStartUnivariateOptimizer.html#L82">82</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(starts);
+<a class="jxr_linenumber" name="L83" href="MultiStartUnivariateOptimizer.html#L83">83</a>          }
+<a class="jxr_linenumber" name="L84" href="MultiStartUnivariateOptimizer.html#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="MultiStartUnivariateOptimizer.html#L85">85</a>          <strong class="jxr_keyword">this</strong>.optimizer = optimizer;
+<a class="jxr_linenumber" name="L86" href="MultiStartUnivariateOptimizer.html#L86">86</a>          <strong class="jxr_keyword">this</strong>.starts = starts;
+<a class="jxr_linenumber" name="L87" href="MultiStartUnivariateOptimizer.html#L87">87</a>          <strong class="jxr_keyword">this</strong>.generator = generator;
+<a class="jxr_linenumber" name="L88" href="MultiStartUnivariateOptimizer.html#L88">88</a>      }
+<a class="jxr_linenumber" name="L89" href="MultiStartUnivariateOptimizer.html#L89">89</a>  
+<a class="jxr_linenumber" name="L90" href="MultiStartUnivariateOptimizer.html#L90">90</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L91" href="MultiStartUnivariateOptimizer.html#L91">91</a>      @Override
+<a class="jxr_linenumber" name="L92" href="MultiStartUnivariateOptimizer.html#L92">92</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getEvaluations() {
+<a class="jxr_linenumber" name="L93" href="MultiStartUnivariateOptimizer.html#L93">93</a>          <strong class="jxr_keyword">return</strong> totalEvaluations;
+<a class="jxr_linenumber" name="L94" href="MultiStartUnivariateOptimizer.html#L94">94</a>      }
+<a class="jxr_linenumber" name="L95" href="MultiStartUnivariateOptimizer.html#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="MultiStartUnivariateOptimizer.html#L96">96</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L97" href="MultiStartUnivariateOptimizer.html#L97">97</a>  <em class="jxr_javadoccomment">     * Gets all the optima found during the last call to {@code optimize}.</em>
+<a class="jxr_linenumber" name="L98" href="MultiStartUnivariateOptimizer.html#L98">98</a>  <em class="jxr_javadoccomment">     * The optimizer stores all the optima found during a set of</em>
+<a class="jxr_linenumber" name="L99" href="MultiStartUnivariateOptimizer.html#L99">99</a>  <em class="jxr_javadoccomment">     * restarts. The {@code optimize} method returns the best point only.</em>
+<a class="jxr_linenumber" name="L100" href="MultiStartUnivariateOptimizer.html#L100">100</a> <em class="jxr_javadoccomment">     * This method returns all the points found at the end of each starts,</em>
+<a class="jxr_linenumber" name="L101" href="MultiStartUnivariateOptimizer.html#L101">101</a> <em class="jxr_javadoccomment">     * including the best one already returned by the {@code optimize} method.</em>
+<a class="jxr_linenumber" name="L102" href="MultiStartUnivariateOptimizer.html#L102">102</a> <em class="jxr_javadoccomment">     * &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L103" href="MultiStartUnivariateOptimizer.html#L103">103</a> <em class="jxr_javadoccomment">     * The returned array as one element for each start as specified</em>
+<a class="jxr_linenumber" name="L104" href="MultiStartUnivariateOptimizer.html#L104">104</a> <em class="jxr_javadoccomment">     * in the constructor. It is ordered with the results from the</em>
+<a class="jxr_linenumber" name="L105" href="MultiStartUnivariateOptimizer.html#L105">105</a> <em class="jxr_javadoccomment">     * runs that did converge first, sorted from best to worst</em>
+<a class="jxr_linenumber" name="L106" href="MultiStartUnivariateOptimizer.html#L106">106</a> <em class="jxr_javadoccomment">     * objective value (i.e in ascending order if minimizing and in</em>
+<a class="jxr_linenumber" name="L107" href="MultiStartUnivariateOptimizer.html#L107">107</a> <em class="jxr_javadoccomment">     * descending order if maximizing), followed by {@code null} elements</em>
+<a class="jxr_linenumber" name="L108" href="MultiStartUnivariateOptimizer.html#L108">108</a> <em class="jxr_javadoccomment">     * corresponding to the runs that did not converge. This means all</em>
+<a class="jxr_linenumber" name="L109" href="MultiStartUnivariateOptimizer.html#L109">109</a> <em class="jxr_javadoccomment">     * elements will be {@code null} if the {@code optimize} method did throw</em>
+<a class="jxr_linenumber" name="L110" href="MultiStartUnivariateOptimizer.html#L110">110</a> <em class="jxr_javadoccomment">     * an exception.</em>
+<a class="jxr_linenumber" name="L111" href="MultiStartUnivariateOptimizer.html#L111">111</a> <em class="jxr_javadoccomment">     * This also means that if the first element is not {@code null}, it is</em>
+<a class="jxr_linenumber" name="L112" href="MultiStartUnivariateOptimizer.html#L112">112</a> <em class="jxr_javadoccomment">     * the best point found across all starts.</em>
+<a class="jxr_linenumber" name="L113" href="MultiStartUnivariateOptimizer.html#L113">113</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L114" href="MultiStartUnivariateOptimizer.html#L114">114</a> <em class="jxr_javadoccomment">     * @return an array containing the optima.</em>
+<a class="jxr_linenumber" name="L115" href="MultiStartUnivariateOptimizer.html#L115">115</a> <em class="jxr_javadoccomment">     * @throws MathIllegalStateException if {@link #optimize(OptimizationData[])</em>
+<a class="jxr_linenumber" name="L116" href="MultiStartUnivariateOptimizer.html#L116">116</a> <em class="jxr_javadoccomment">     * optimize} has not been called.</em>
+<a class="jxr_linenumber" name="L117" href="MultiStartUnivariateOptimizer.html#L117">117</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L118" href="MultiStartUnivariateOptimizer.html#L118">118</a>     <strong class="jxr_keyword">public</strong> <a href="UnivariatePointValuePair.html">UnivariatePointValuePair</a>[] getOptima() {
+<a class="jxr_linenumber" name="L119" href="MultiStartUnivariateOptimizer.html#L119">119</a>         <strong class="jxr_keyword">if</strong> (optima == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L120" href="MultiStartUnivariateOptimizer.html#L120">120</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/MathIllegalStateException.html">MathIllegalStateException</a>(LocalizedFormats.NO_OPTIMUM_COMPUTED_YET);
+<a class="jxr_linenumber" name="L121" href="MultiStartUnivariateOptimizer.html#L121">121</a>         }
+<a class="jxr_linenumber" name="L122" href="MultiStartUnivariateOptimizer.html#L122">122</a>         <strong class="jxr_keyword">return</strong> optima.clone();
+<a class="jxr_linenumber" name="L123" href="MultiStartUnivariateOptimizer.html#L123">123</a>     }
+<a class="jxr_linenumber" name="L124" href="MultiStartUnivariateOptimizer.html#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="MultiStartUnivariateOptimizer.html#L125">125</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L126" href="MultiStartUnivariateOptimizer.html#L126">126</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L127" href="MultiStartUnivariateOptimizer.html#L127">127</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L128" href="MultiStartUnivariateOptimizer.html#L128">128</a> <em class="jxr_javadoccomment">     * @throws MathIllegalStateException if {@code optData} does not contain an</em>
+<a class="jxr_linenumber" name="L129" href="MultiStartUnivariateOptimizer.html#L129">129</a> <em class="jxr_javadoccomment">     * instance of {@link MaxEval} or {@link SearchInterval}.</em>
+<a class="jxr_linenumber" name="L130" href="MultiStartUnivariateOptimizer.html#L130">130</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L131" href="MultiStartUnivariateOptimizer.html#L131">131</a>     @Override
+<a class="jxr_linenumber" name="L132" href="MultiStartUnivariateOptimizer.html#L132">132</a>     <strong class="jxr_keyword">public</strong> <a href="UnivariatePointValuePair.html">UnivariatePointValuePair</a> optimize(OptimizationData... optData) {
+<a class="jxr_linenumber" name="L133" href="MultiStartUnivariateOptimizer.html#L133">133</a>         <em class="jxr_comment">// Store arguments in order to pass them to the internal optimizer.</em>
+<a class="jxr_linenumber" name="L134" href="MultiStartUnivariateOptimizer.html#L134">134</a>        optimData = optData;
+<a class="jxr_linenumber" name="L135" href="MultiStartUnivariateOptimizer.html#L135">135</a>         <em class="jxr_comment">// Set up base class and perform computations.</em>
+<a class="jxr_linenumber" name="L136" href="MultiStartUnivariateOptimizer.html#L136">136</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.optimize(optData);
+<a class="jxr_linenumber" name="L137" href="MultiStartUnivariateOptimizer.html#L137">137</a>     }
+<a class="jxr_linenumber" name="L138" href="MultiStartUnivariateOptimizer.html#L138">138</a> 
+<a class="jxr_linenumber" name="L139" href="MultiStartUnivariateOptimizer.html#L139">139</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L140" href="MultiStartUnivariateOptimizer.html#L140">140</a>     @Override
+<a class="jxr_linenumber" name="L141" href="MultiStartUnivariateOptimizer.html#L141">141</a>     <strong class="jxr_keyword">protected</strong> <a href="UnivariatePointValuePair.html">UnivariatePointValuePair</a> doOptimize() {
+<a class="jxr_linenumber" name="L142" href="MultiStartUnivariateOptimizer.html#L142">142</a>         <em class="jxr_comment">// Remove all instances of "MaxEval" and "SearchInterval" from the</em>
+<a class="jxr_linenumber" name="L143" href="MultiStartUnivariateOptimizer.html#L143">143</a>         <em class="jxr_comment">// array that will be passed to the internal optimizer.</em>
+<a class="jxr_linenumber" name="L144" href="MultiStartUnivariateOptimizer.html#L144">144</a>         <em class="jxr_comment">// The former is to enforce smaller numbers of allowed evaluations</em>
+<a class="jxr_linenumber" name="L145" href="MultiStartUnivariateOptimizer.html#L145">145</a>         <em class="jxr_comment">// (according to how many have been used up already), and the latter</em>
+<a class="jxr_linenumber" name="L146" href="MultiStartUnivariateOptimizer.html#L146">146</a>         <em class="jxr_comment">// to impose a different start value for each start.</em>
+<a class="jxr_linenumber" name="L147" href="MultiStartUnivariateOptimizer.html#L147">147</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; optimData.length; i++) {
+<a class="jxr_linenumber" name="L148" href="MultiStartUnivariateOptimizer.html#L148">148</a>             <strong class="jxr_keyword">if</strong> (optimData[i] instanceof MaxEval) {
+<a class="jxr_linenumber" name="L149" href="MultiStartUnivariateOptimizer.html#L149">149</a>                 optimData[i] = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L150" href="MultiStartUnivariateOptimizer.html#L150">150</a>                 maxEvalIndex = i;
+<a class="jxr_linenumber" name="L151" href="MultiStartUnivariateOptimizer.html#L151">151</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L152" href="MultiStartUnivariateOptimizer.html#L152">152</a>             }
+<a class="jxr_linenumber" name="L153" href="MultiStartUnivariateOptimizer.html#L153">153</a>             <strong class="jxr_keyword">if</strong> (optimData[i] instanceof SearchInterval) {
+<a class="jxr_linenumber" name="L154" href="MultiStartUnivariateOptimizer.html#L154">154</a>                 optimData[i] = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L155" href="MultiStartUnivariateOptimizer.html#L155">155</a>                 searchIntervalIndex = i;
+<a class="jxr_linenumber" name="L156" href="MultiStartUnivariateOptimizer.html#L156">156</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L157" href="MultiStartUnivariateOptimizer.html#L157">157</a>             }
+<a class="jxr_linenumber" name="L158" href="MultiStartUnivariateOptimizer.html#L158">158</a>         }
+<a class="jxr_linenumber" name="L159" href="MultiStartUnivariateOptimizer.html#L159">159</a>         <strong class="jxr_keyword">if</strong> (maxEvalIndex == -1) {
+<a class="jxr_linenumber" name="L160" href="MultiStartUnivariateOptimizer.html#L160">160</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/MathIllegalStateException.html">MathIllegalStateException</a>();
+<a class="jxr_linenumber" name="L161" href="MultiStartUnivariateOptimizer.html#L161">161</a>         }
+<a class="jxr_linenumber" name="L162" href="MultiStartUnivariateOptimizer.html#L162">162</a>         <strong class="jxr_keyword">if</strong> (searchIntervalIndex == -1) {
+<a class="jxr_linenumber" name="L163" href="MultiStartUnivariateOptimizer.html#L163">163</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/MathIllegalStateException.html">MathIllegalStateException</a>();
+<a class="jxr_linenumber" name="L164" href="MultiStartUnivariateOptimizer.html#L164">164</a>         }
+<a class="jxr_linenumber" name="L165" href="MultiStartUnivariateOptimizer.html#L165">165</a> 
+<a class="jxr_linenumber" name="L166" href="MultiStartUnivariateOptimizer.html#L166">166</a>         RuntimeException lastException = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L167" href="MultiStartUnivariateOptimizer.html#L167">167</a>         optima = <strong class="jxr_keyword">new</strong> <a href="UnivariatePointValuePair.html">UnivariatePointValuePair</a>[starts];
+<a class="jxr_linenumber" name="L168" href="MultiStartUnivariateOptimizer.html#L168">168</a>         totalEvaluations = 0;
+<a class="jxr_linenumber" name="L169" href="MultiStartUnivariateOptimizer.html#L169">169</a> 
+<a class="jxr_linenumber" name="L170" href="MultiStartUnivariateOptimizer.html#L170">170</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxEval = getMaxEvaluations();
+<a class="jxr_linenumber" name="L171" href="MultiStartUnivariateOptimizer.html#L171">171</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> min = getMin();
+<a class="jxr_linenumber" name="L172" href="MultiStartUnivariateOptimizer.html#L172">172</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> max = getMax();
+<a class="jxr_linenumber" name="L173" href="MultiStartUnivariateOptimizer.html#L173">173</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> startValue = getStartValue();
+<a class="jxr_linenumber" name="L174" href="MultiStartUnivariateOptimizer.html#L174">174</a> 
+<a class="jxr_linenumber" name="L175" href="MultiStartUnivariateOptimizer.html#L175">175</a>         <em class="jxr_comment">// Multi-start loop.</em>
+<a class="jxr_linenumber" name="L176" href="MultiStartUnivariateOptimizer.html#L176">176</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; starts; i++) {
+<a class="jxr_linenumber" name="L177" href="MultiStartUnivariateOptimizer.html#L177">177</a>             <em class="jxr_comment">// CHECKSTYLE: stop IllegalCatch</em>
+<a class="jxr_linenumber" name="L178" href="MultiStartUnivariateOptimizer.html#L178">178</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L179" href="MultiStartUnivariateOptimizer.html#L179">179</a>                 <em class="jxr_comment">// Decrease number of allowed evaluations.</em>
+<a class="jxr_linenumber" name="L180" href="MultiStartUnivariateOptimizer.html#L180">180</a>                 optimData[maxEvalIndex] = <strong class="jxr_keyword">new</strong> <a href="../MaxEval.html">MaxEval</a>(maxEval - totalEvaluations);
+<a class="jxr_linenumber" name="L181" href="MultiStartUnivariateOptimizer.html#L181">181</a>                 <em class="jxr_comment">// New start value.</em>
+<a class="jxr_linenumber" name="L182" href="MultiStartUnivariateOptimizer.html#L182">182</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> s = (i == 0) ?
+<a class="jxr_linenumber" name="L183" href="MultiStartUnivariateOptimizer.html#L183">183</a>                     startValue :
+<a class="jxr_linenumber" name="L184" href="MultiStartUnivariateOptimizer.html#L184">184</a>                     min + generator.nextDouble() * (max - min);
+<a class="jxr_linenumber" name="L185" href="MultiStartUnivariateOptimizer.html#L185">185</a>                 optimData[searchIntervalIndex] = <strong class="jxr_keyword">new</strong> <a href="SearchInterval.html">SearchInterval</a>(min, max, s);
+<a class="jxr_linenumber" name="L186" href="MultiStartUnivariateOptimizer.html#L186">186</a>                 <em class="jxr_comment">// Optimize.</em>
+<a class="jxr_linenumber" name="L187" href="MultiStartUnivariateOptimizer.html#L187">187</a>                 optima[i] = optimizer.optimize(optimData);
+<a class="jxr_linenumber" name="L188" href="MultiStartUnivariateOptimizer.html#L188">188</a>             } <strong class="jxr_keyword">catch</strong> (RuntimeException mue) {
+<a class="jxr_linenumber" name="L189" href="MultiStartUnivariateOptimizer.html#L189">189</a>                 lastException = mue;
+<a class="jxr_linenumber" name="L190" href="MultiStartUnivariateOptimizer.html#L190">190</a>                 optima[i] = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L191" href="MultiStartUnivariateOptimizer.html#L191">191</a>             }
+<a class="jxr_linenumber" name="L192" href="MultiStartUnivariateOptimizer.html#L192">192</a>             <em class="jxr_comment">// CHECKSTYLE: resume IllegalCatch</em>
+<a class="jxr_linenumber" name="L193" href="MultiStartUnivariateOptimizer.html#L193">193</a> 
+<a class="jxr_linenumber" name="L194" href="MultiStartUnivariateOptimizer.html#L194">194</a>             totalEvaluations += optimizer.getEvaluations();
+<a class="jxr_linenumber" name="L195" href="MultiStartUnivariateOptimizer.html#L195">195</a>         }
+<a class="jxr_linenumber" name="L196" href="MultiStartUnivariateOptimizer.html#L196">196</a> 
+<a class="jxr_linenumber" name="L197" href="MultiStartUnivariateOptimizer.html#L197">197</a>         sortPairs(getGoalType());
+<a class="jxr_linenumber" name="L198" href="MultiStartUnivariateOptimizer.html#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="MultiStartUnivariateOptimizer.html#L199">199</a>         <strong class="jxr_keyword">if</strong> (optima[0] == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L200" href="MultiStartUnivariateOptimizer.html#L200">200</a>             <strong class="jxr_keyword">throw</strong> lastException; <em class="jxr_comment">// Cannot be null if starts &gt;= 1.</em>
+<a class="jxr_linenumber" name="L201" href="MultiStartUnivariateOptimizer.html#L201">201</a>         }
+<a class="jxr_linenumber" name="L202" href="MultiStartUnivariateOptimizer.html#L202">202</a> 
+<a class="jxr_linenumber" name="L203" href="MultiStartUnivariateOptimizer.html#L203">203</a>         <em class="jxr_comment">// Return the point with the best objective function value.</em>
+<a class="jxr_linenumber" name="L204" href="MultiStartUnivariateOptimizer.html#L204">204</a>         <strong class="jxr_keyword">return</strong> optima[0];
+<a class="jxr_linenumber" name="L205" href="MultiStartUnivariateOptimizer.html#L205">205</a>     }
+<a class="jxr_linenumber" name="L206" href="MultiStartUnivariateOptimizer.html#L206">206</a> 
+<a class="jxr_linenumber" name="L207" href="MultiStartUnivariateOptimizer.html#L207">207</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L208" href="MultiStartUnivariateOptimizer.html#L208">208</a> <em class="jxr_javadoccomment">     * Sort the optima from best to worst, followed by {@code null} elements.</em>
+<a class="jxr_linenumber" name="L209" href="MultiStartUnivariateOptimizer.html#L209">209</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L210" href="MultiStartUnivariateOptimizer.html#L210">210</a> <em class="jxr_javadoccomment">     * @param goal Goal type.</em>
+<a class="jxr_linenumber" name="L211" href="MultiStartUnivariateOptimizer.html#L211">211</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L212" href="MultiStartUnivariateOptimizer.html#L212">212</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> sortPairs(<strong class="jxr_keyword">final</strong> <a href="../nonlinear/scalar/GoalType.html">GoalType</a> goal) {
+<a class="jxr_linenumber" name="L213" href="MultiStartUnivariateOptimizer.html#L213">213</a>         Arrays.sort(optima, <strong class="jxr_keyword">new</strong> Comparator&lt;UnivariatePointValuePair&gt;() {
+<a class="jxr_linenumber" name="L214" href="MultiStartUnivariateOptimizer.html#L214">214</a>                 <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L215" href="MultiStartUnivariateOptimizer.html#L215">215</a>                 @Override
+<a class="jxr_linenumber" name="L216" href="MultiStartUnivariateOptimizer.html#L216">216</a>                 <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compare(<strong class="jxr_keyword">final</strong> <a href="UnivariatePointValuePair.html">UnivariatePointValuePair</a> o1,
+<a class="jxr_linenumber" name="L217" href="MultiStartUnivariateOptimizer.html#L217">217</a>                                    <strong class="jxr_keyword">final</strong> <a href="UnivariatePointValuePair.html">UnivariatePointValuePair</a> o2) {
+<a class="jxr_linenumber" name="L218" href="MultiStartUnivariateOptimizer.html#L218">218</a>                     <strong class="jxr_keyword">if</strong> (o1 == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L219" href="MultiStartUnivariateOptimizer.html#L219">219</a>                         <strong class="jxr_keyword">return</strong> (o2 == <strong class="jxr_keyword">null</strong>) ? 0 : 1;
+<a class="jxr_linenumber" name="L220" href="MultiStartUnivariateOptimizer.html#L220">220</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (o2 == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L221" href="MultiStartUnivariateOptimizer.html#L221">221</a>                         <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L222" href="MultiStartUnivariateOptimizer.html#L222">222</a>                     }
+<a class="jxr_linenumber" name="L223" href="MultiStartUnivariateOptimizer.html#L223">223</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> v1 = o1.getValue();
+<a class="jxr_linenumber" name="L224" href="MultiStartUnivariateOptimizer.html#L224">224</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> v2 = o2.getValue();
+<a class="jxr_linenumber" name="L225" href="MultiStartUnivariateOptimizer.html#L225">225</a>                     <strong class="jxr_keyword">return</strong> (goal == GoalType.MINIMIZE) ?
+<a class="jxr_linenumber" name="L226" href="MultiStartUnivariateOptimizer.html#L226">226</a>                         Double.compare(v1, v2) : Double.compare(v2, v1);
+<a class="jxr_linenumber" name="L227" href="MultiStartUnivariateOptimizer.html#L227">227</a>                 }
+<a class="jxr_linenumber" name="L228" href="MultiStartUnivariateOptimizer.html#L228">228</a>             });
+<a class="jxr_linenumber" name="L229" href="MultiStartUnivariateOptimizer.html#L229">229</a>     }
+<a class="jxr_linenumber" name="L230" href="MultiStartUnivariateOptimizer.html#L230">230</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

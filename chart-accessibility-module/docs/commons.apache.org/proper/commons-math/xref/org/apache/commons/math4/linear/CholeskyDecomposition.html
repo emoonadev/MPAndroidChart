@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>CholeskyDecomposition xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/linear/CholeskyDecomposition.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="CholeskyDecomposition.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="CholeskyDecomposition.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="CholeskyDecomposition.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="CholeskyDecomposition.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="CholeskyDecomposition.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="CholeskyDecomposition.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="CholeskyDecomposition.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="CholeskyDecomposition.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="CholeskyDecomposition.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="CholeskyDecomposition.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="CholeskyDecomposition.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="CholeskyDecomposition.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="CholeskyDecomposition.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="CholeskyDecomposition.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="CholeskyDecomposition.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="CholeskyDecomposition.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="CholeskyDecomposition.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="CholeskyDecomposition.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.linear;
+<a class="jxr_linenumber" name="L19" href="CholeskyDecomposition.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="CholeskyDecomposition.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L21" href="CholeskyDecomposition.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L22" href="CholeskyDecomposition.html#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="CholeskyDecomposition.html#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="CholeskyDecomposition.html#L24">24</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L25" href="CholeskyDecomposition.html#L25">25</a>  <em class="jxr_javadoccomment"> * Calculates the Cholesky decomposition of a matrix.</em>
+<a class="jxr_linenumber" name="L26" href="CholeskyDecomposition.html#L26">26</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;The Cholesky decomposition of a real symmetric positive-definite</em>
+<a class="jxr_linenumber" name="L27" href="CholeskyDecomposition.html#L27">27</a>  <em class="jxr_javadoccomment"> * matrix A consists of a lower triangular matrix L with same size such</em>
+<a class="jxr_linenumber" name="L28" href="CholeskyDecomposition.html#L28">28</a>  <em class="jxr_javadoccomment"> * that: A = LL&lt;sup&gt;T&lt;/sup&gt;. In a sense, this is the square root of A.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L29" href="CholeskyDecomposition.html#L29">29</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This class is based on the class with similar name from the</em>
+<a class="jxr_linenumber" name="L30" href="CholeskyDecomposition.html#L30">30</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://math.nist.gov/javanumerics/jama/" target="alexandria_uri">http://math.nist.gov/javanumerics/jama/</a>"&gt;JAMA&lt;/a&gt; library, with the</em>
+<a class="jxr_linenumber" name="L31" href="CholeskyDecomposition.html#L31">31</a>  <em class="jxr_javadoccomment"> * following changes:&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L32" href="CholeskyDecomposition.html#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L33" href="CholeskyDecomposition.html#L33">33</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;a {@link #getLT() getLT} method has been added,&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L34" href="CholeskyDecomposition.html#L34">34</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;the {@code isspd} method has been removed, since the constructor of</em>
+<a class="jxr_linenumber" name="L35" href="CholeskyDecomposition.html#L35">35</a>  <em class="jxr_javadoccomment"> *   this class throws a {@link NonPositiveDefiniteMatrixException} when a</em>
+<a class="jxr_linenumber" name="L36" href="CholeskyDecomposition.html#L36">36</a>  <em class="jxr_javadoccomment"> *   matrix cannot be decomposed,&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L37" href="CholeskyDecomposition.html#L37">37</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;a {@link #getDeterminant() getDeterminant} method has been added,&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L38" href="CholeskyDecomposition.html#L38">38</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;the {@code solve} method has been replaced by a {@link #getSolver()</em>
+<a class="jxr_linenumber" name="L39" href="CholeskyDecomposition.html#L39">39</a>  <em class="jxr_javadoccomment"> *   getSolver} method and the equivalent method provided by the returned</em>
+<a class="jxr_linenumber" name="L40" href="CholeskyDecomposition.html#L40">40</a>  <em class="jxr_javadoccomment"> *   {@link DecompositionSolver}.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L41" href="CholeskyDecomposition.html#L41">41</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L42" href="CholeskyDecomposition.html#L42">42</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L43" href="CholeskyDecomposition.html#L43">43</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://mathworld.wolfram.com/CholeskyDecomposition.html" target="alexandria_uri">http://mathworld.wolfram.com/CholeskyDecomposition.html</a>"&gt;MathWorld&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L44" href="CholeskyDecomposition.html#L44">44</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/Cholesky_decomposition" target="alexandria_uri">http://en.wikipedia.org/wiki/Cholesky_decomposition</a>"&gt;Wikipedia&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L45" href="CholeskyDecomposition.html#L45">45</a>  <em class="jxr_javadoccomment"> * @since 2.0 (changed to concrete class in 3.0)</em>
+<a class="jxr_linenumber" name="L46" href="CholeskyDecomposition.html#L46">46</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L47" href="CholeskyDecomposition.html#L47">47</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="CholeskyDecomposition.html">CholeskyDecomposition</a> {
+<a class="jxr_linenumber" name="L48" href="CholeskyDecomposition.html#L48">48</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L49" href="CholeskyDecomposition.html#L49">49</a>  <em class="jxr_javadoccomment">     * Default threshold above which off-diagonal elements are considered too different</em>
+<a class="jxr_linenumber" name="L50" href="CholeskyDecomposition.html#L50">50</a>  <em class="jxr_javadoccomment">     * and matrix not symmetric.</em>
+<a class="jxr_linenumber" name="L51" href="CholeskyDecomposition.html#L51">51</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L52" href="CholeskyDecomposition.html#L52">52</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_RELATIVE_SYMMETRY_THRESHOLD = 1.0e-15;
+<a class="jxr_linenumber" name="L53" href="CholeskyDecomposition.html#L53">53</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L54" href="CholeskyDecomposition.html#L54">54</a>  <em class="jxr_javadoccomment">     * Default threshold below which diagonal elements are considered null</em>
+<a class="jxr_linenumber" name="L55" href="CholeskyDecomposition.html#L55">55</a>  <em class="jxr_javadoccomment">     * and matrix not positive definite.</em>
+<a class="jxr_linenumber" name="L56" href="CholeskyDecomposition.html#L56">56</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L57" href="CholeskyDecomposition.html#L57">57</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_ABSOLUTE_POSITIVITY_THRESHOLD = 1.0e-10;
+<a class="jxr_linenumber" name="L58" href="CholeskyDecomposition.html#L58">58</a>      <em class="jxr_javadoccomment">/** Row-oriented storage for L&lt;sup&gt;T&lt;/sup&gt; matrix data. */</em>
+<a class="jxr_linenumber" name="L59" href="CholeskyDecomposition.html#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] lTData;
+<a class="jxr_linenumber" name="L60" href="CholeskyDecomposition.html#L60">60</a>      <em class="jxr_javadoccomment">/** Cached value of L. */</em>
+<a class="jxr_linenumber" name="L61" href="CholeskyDecomposition.html#L61">61</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedL;
+<a class="jxr_linenumber" name="L62" href="CholeskyDecomposition.html#L62">62</a>      <em class="jxr_javadoccomment">/** Cached value of LT. */</em>
+<a class="jxr_linenumber" name="L63" href="CholeskyDecomposition.html#L63">63</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedLT;
+<a class="jxr_linenumber" name="L64" href="CholeskyDecomposition.html#L64">64</a>  
+<a class="jxr_linenumber" name="L65" href="CholeskyDecomposition.html#L65">65</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L66" href="CholeskyDecomposition.html#L66">66</a>  <em class="jxr_javadoccomment">     * Calculates the Cholesky decomposition of the given matrix.</em>
+<a class="jxr_linenumber" name="L67" href="CholeskyDecomposition.html#L67">67</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L68" href="CholeskyDecomposition.html#L68">68</a>  <em class="jxr_javadoccomment">     * Calling this constructor is equivalent to call {@link</em>
+<a class="jxr_linenumber" name="L69" href="CholeskyDecomposition.html#L69">69</a>  <em class="jxr_javadoccomment">     * #CholeskyDecomposition(RealMatrix, double, double)} with the</em>
+<a class="jxr_linenumber" name="L70" href="CholeskyDecomposition.html#L70">70</a>  <em class="jxr_javadoccomment">     * thresholds set to the default values {@link</em>
+<a class="jxr_linenumber" name="L71" href="CholeskyDecomposition.html#L71">71</a>  <em class="jxr_javadoccomment">     * #DEFAULT_RELATIVE_SYMMETRY_THRESHOLD} and {@link</em>
+<a class="jxr_linenumber" name="L72" href="CholeskyDecomposition.html#L72">72</a>  <em class="jxr_javadoccomment">     * #DEFAULT_ABSOLUTE_POSITIVITY_THRESHOLD}</em>
+<a class="jxr_linenumber" name="L73" href="CholeskyDecomposition.html#L73">73</a>  <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L74" href="CholeskyDecomposition.html#L74">74</a>  <em class="jxr_javadoccomment">     * @param matrix the matrix to decompose</em>
+<a class="jxr_linenumber" name="L75" href="CholeskyDecomposition.html#L75">75</a>  <em class="jxr_javadoccomment">     * @throws NonSquareMatrixException if the matrix is not square.</em>
+<a class="jxr_linenumber" name="L76" href="CholeskyDecomposition.html#L76">76</a>  <em class="jxr_javadoccomment">     * @throws NonSymmetricMatrixException if the matrix is not symmetric.</em>
+<a class="jxr_linenumber" name="L77" href="CholeskyDecomposition.html#L77">77</a>  <em class="jxr_javadoccomment">     * @throws NonPositiveDefiniteMatrixException if the matrix is not</em>
+<a class="jxr_linenumber" name="L78" href="CholeskyDecomposition.html#L78">78</a>  <em class="jxr_javadoccomment">     * strictly positive definite.</em>
+<a class="jxr_linenumber" name="L79" href="CholeskyDecomposition.html#L79">79</a>  <em class="jxr_javadoccomment">     * @see #CholeskyDecomposition(RealMatrix, double, double)</em>
+<a class="jxr_linenumber" name="L80" href="CholeskyDecomposition.html#L80">80</a>  <em class="jxr_javadoccomment">     * @see #DEFAULT_RELATIVE_SYMMETRY_THRESHOLD</em>
+<a class="jxr_linenumber" name="L81" href="CholeskyDecomposition.html#L81">81</a>  <em class="jxr_javadoccomment">     * @see #DEFAULT_ABSOLUTE_POSITIVITY_THRESHOLD</em>
+<a class="jxr_linenumber" name="L82" href="CholeskyDecomposition.html#L82">82</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L83" href="CholeskyDecomposition.html#L83">83</a>      <strong class="jxr_keyword">public</strong> <a href="CholeskyDecomposition.html">CholeskyDecomposition</a>(<strong class="jxr_keyword">final</strong> <a href="RealMatrix.html">RealMatrix</a> matrix) {
+<a class="jxr_linenumber" name="L84" href="CholeskyDecomposition.html#L84">84</a>          <strong class="jxr_keyword">this</strong>(matrix, DEFAULT_RELATIVE_SYMMETRY_THRESHOLD,
+<a class="jxr_linenumber" name="L85" href="CholeskyDecomposition.html#L85">85</a>               DEFAULT_ABSOLUTE_POSITIVITY_THRESHOLD);
+<a class="jxr_linenumber" name="L86" href="CholeskyDecomposition.html#L86">86</a>      }
+<a class="jxr_linenumber" name="L87" href="CholeskyDecomposition.html#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="CholeskyDecomposition.html#L88">88</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L89" href="CholeskyDecomposition.html#L89">89</a>  <em class="jxr_javadoccomment">     * Calculates the Cholesky decomposition of the given matrix.</em>
+<a class="jxr_linenumber" name="L90" href="CholeskyDecomposition.html#L90">90</a>  <em class="jxr_javadoccomment">     * @param matrix the matrix to decompose</em>
+<a class="jxr_linenumber" name="L91" href="CholeskyDecomposition.html#L91">91</a>  <em class="jxr_javadoccomment">     * @param relativeSymmetryThreshold threshold above which off-diagonal</em>
+<a class="jxr_linenumber" name="L92" href="CholeskyDecomposition.html#L92">92</a>  <em class="jxr_javadoccomment">     * elements are considered too different and matrix not symmetric</em>
+<a class="jxr_linenumber" name="L93" href="CholeskyDecomposition.html#L93">93</a>  <em class="jxr_javadoccomment">     * @param absolutePositivityThreshold threshold below which diagonal</em>
+<a class="jxr_linenumber" name="L94" href="CholeskyDecomposition.html#L94">94</a>  <em class="jxr_javadoccomment">     * elements are considered null and matrix not positive definite</em>
+<a class="jxr_linenumber" name="L95" href="CholeskyDecomposition.html#L95">95</a>  <em class="jxr_javadoccomment">     * @throws NonSquareMatrixException if the matrix is not square.</em>
+<a class="jxr_linenumber" name="L96" href="CholeskyDecomposition.html#L96">96</a>  <em class="jxr_javadoccomment">     * @throws NonSymmetricMatrixException if the matrix is not symmetric.</em>
+<a class="jxr_linenumber" name="L97" href="CholeskyDecomposition.html#L97">97</a>  <em class="jxr_javadoccomment">     * @throws NonPositiveDefiniteMatrixException if the matrix is not</em>
+<a class="jxr_linenumber" name="L98" href="CholeskyDecomposition.html#L98">98</a>  <em class="jxr_javadoccomment">     * strictly positive definite.</em>
+<a class="jxr_linenumber" name="L99" href="CholeskyDecomposition.html#L99">99</a>  <em class="jxr_javadoccomment">     * @see #CholeskyDecomposition(RealMatrix)</em>
+<a class="jxr_linenumber" name="L100" href="CholeskyDecomposition.html#L100">100</a> <em class="jxr_javadoccomment">     * @see #DEFAULT_RELATIVE_SYMMETRY_THRESHOLD</em>
+<a class="jxr_linenumber" name="L101" href="CholeskyDecomposition.html#L101">101</a> <em class="jxr_javadoccomment">     * @see #DEFAULT_ABSOLUTE_POSITIVITY_THRESHOLD</em>
+<a class="jxr_linenumber" name="L102" href="CholeskyDecomposition.html#L102">102</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L103" href="CholeskyDecomposition.html#L103">103</a>     <strong class="jxr_keyword">public</strong> <a href="CholeskyDecomposition.html">CholeskyDecomposition</a>(<strong class="jxr_keyword">final</strong> <a href="RealMatrix.html">RealMatrix</a> matrix,
+<a class="jxr_linenumber" name="L104" href="CholeskyDecomposition.html#L104">104</a>                                      <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> relativeSymmetryThreshold,
+<a class="jxr_linenumber" name="L105" href="CholeskyDecomposition.html#L105">105</a>                                      <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> absolutePositivityThreshold) {
+<a class="jxr_linenumber" name="L106" href="CholeskyDecomposition.html#L106">106</a>         <strong class="jxr_keyword">if</strong> (!matrix.isSquare()) {
+<a class="jxr_linenumber" name="L107" href="CholeskyDecomposition.html#L107">107</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="NonSquareMatrixException.html">NonSquareMatrixException</a>(matrix.getRowDimension(),
+<a class="jxr_linenumber" name="L108" href="CholeskyDecomposition.html#L108">108</a>                                                matrix.getColumnDimension());
+<a class="jxr_linenumber" name="L109" href="CholeskyDecomposition.html#L109">109</a>         }
+<a class="jxr_linenumber" name="L110" href="CholeskyDecomposition.html#L110">110</a> 
+<a class="jxr_linenumber" name="L111" href="CholeskyDecomposition.html#L111">111</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> order = matrix.getRowDimension();
+<a class="jxr_linenumber" name="L112" href="CholeskyDecomposition.html#L112">112</a>         lTData   = matrix.getData();
+<a class="jxr_linenumber" name="L113" href="CholeskyDecomposition.html#L113">113</a>         cachedL  = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L114" href="CholeskyDecomposition.html#L114">114</a>         cachedLT = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L115" href="CholeskyDecomposition.html#L115">115</a> 
+<a class="jxr_linenumber" name="L116" href="CholeskyDecomposition.html#L116">116</a>         <em class="jxr_comment">// check the matrix before transformation</em>
+<a class="jxr_linenumber" name="L117" href="CholeskyDecomposition.html#L117">117</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; order; ++i) {
+<a class="jxr_linenumber" name="L118" href="CholeskyDecomposition.html#L118">118</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] lI = lTData[i];
+<a class="jxr_linenumber" name="L119" href="CholeskyDecomposition.html#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="CholeskyDecomposition.html#L120">120</a>             <em class="jxr_comment">// check off-diagonal elements (and reset them to 0)</em>
+<a class="jxr_linenumber" name="L121" href="CholeskyDecomposition.html#L121">121</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = i + 1; j &lt; order; ++j) {
+<a class="jxr_linenumber" name="L122" href="CholeskyDecomposition.html#L122">122</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] lJ = lTData[j];
+<a class="jxr_linenumber" name="L123" href="CholeskyDecomposition.html#L123">123</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lIJ = lI[j];
+<a class="jxr_linenumber" name="L124" href="CholeskyDecomposition.html#L124">124</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lJI = lJ[i];
+<a class="jxr_linenumber" name="L125" href="CholeskyDecomposition.html#L125">125</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> maxDelta =
+<a class="jxr_linenumber" name="L126" href="CholeskyDecomposition.html#L126">126</a>                     relativeSymmetryThreshold * FastMath.max(FastMath.abs(lIJ), FastMath.abs(lJI));
+<a class="jxr_linenumber" name="L127" href="CholeskyDecomposition.html#L127">127</a>                 <strong class="jxr_keyword">if</strong> (FastMath.abs(lIJ - lJI) &gt; maxDelta) {
+<a class="jxr_linenumber" name="L128" href="CholeskyDecomposition.html#L128">128</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="NonSymmetricMatrixException.html">NonSymmetricMatrixException</a>(i, j, relativeSymmetryThreshold);
+<a class="jxr_linenumber" name="L129" href="CholeskyDecomposition.html#L129">129</a>                 }
+<a class="jxr_linenumber" name="L130" href="CholeskyDecomposition.html#L130">130</a>                 lJ[i] = 0;
+<a class="jxr_linenumber" name="L131" href="CholeskyDecomposition.html#L131">131</a>            }
+<a class="jxr_linenumber" name="L132" href="CholeskyDecomposition.html#L132">132</a>         }
+<a class="jxr_linenumber" name="L133" href="CholeskyDecomposition.html#L133">133</a> 
+<a class="jxr_linenumber" name="L134" href="CholeskyDecomposition.html#L134">134</a>         <em class="jxr_comment">// transform the matrix</em>
+<a class="jxr_linenumber" name="L135" href="CholeskyDecomposition.html#L135">135</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; order; ++i) {
+<a class="jxr_linenumber" name="L136" href="CholeskyDecomposition.html#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="CholeskyDecomposition.html#L137">137</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] ltI = lTData[i];
+<a class="jxr_linenumber" name="L138" href="CholeskyDecomposition.html#L138">138</a> 
+<a class="jxr_linenumber" name="L139" href="CholeskyDecomposition.html#L139">139</a>             <em class="jxr_comment">// check diagonal element</em>
+<a class="jxr_linenumber" name="L140" href="CholeskyDecomposition.html#L140">140</a>             <strong class="jxr_keyword">if</strong> (ltI[i] &lt;= absolutePositivityThreshold) {
+<a class="jxr_linenumber" name="L141" href="CholeskyDecomposition.html#L141">141</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="NonPositiveDefiniteMatrixException.html">NonPositiveDefiniteMatrixException</a>(ltI[i], i, absolutePositivityThreshold);
+<a class="jxr_linenumber" name="L142" href="CholeskyDecomposition.html#L142">142</a>             }
+<a class="jxr_linenumber" name="L143" href="CholeskyDecomposition.html#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="CholeskyDecomposition.html#L144">144</a>             ltI[i] = FastMath.sqrt(ltI[i]);
+<a class="jxr_linenumber" name="L145" href="CholeskyDecomposition.html#L145">145</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> inverse = 1.0 / ltI[i];
+<a class="jxr_linenumber" name="L146" href="CholeskyDecomposition.html#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="CholeskyDecomposition.html#L147">147</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> q = order - 1; q &gt; i; --q) {
+<a class="jxr_linenumber" name="L148" href="CholeskyDecomposition.html#L148">148</a>                 ltI[q] *= inverse;
+<a class="jxr_linenumber" name="L149" href="CholeskyDecomposition.html#L149">149</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] ltQ = lTData[q];
+<a class="jxr_linenumber" name="L150" href="CholeskyDecomposition.html#L150">150</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> p = q; p &lt; order; ++p) {
+<a class="jxr_linenumber" name="L151" href="CholeskyDecomposition.html#L151">151</a>                     ltQ[p] -= ltI[q] * ltI[p];
+<a class="jxr_linenumber" name="L152" href="CholeskyDecomposition.html#L152">152</a>                 }
+<a class="jxr_linenumber" name="L153" href="CholeskyDecomposition.html#L153">153</a>             }
+<a class="jxr_linenumber" name="L154" href="CholeskyDecomposition.html#L154">154</a>         }
+<a class="jxr_linenumber" name="L155" href="CholeskyDecomposition.html#L155">155</a>     }
+<a class="jxr_linenumber" name="L156" href="CholeskyDecomposition.html#L156">156</a> 
+<a class="jxr_linenumber" name="L157" href="CholeskyDecomposition.html#L157">157</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L158" href="CholeskyDecomposition.html#L158">158</a> <em class="jxr_javadoccomment">     * Returns the matrix L of the decomposition.</em>
+<a class="jxr_linenumber" name="L159" href="CholeskyDecomposition.html#L159">159</a> <em class="jxr_javadoccomment">     * &lt;p&gt;L is an lower-triangular matrix&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L160" href="CholeskyDecomposition.html#L160">160</a> <em class="jxr_javadoccomment">     * @return the L matrix</em>
+<a class="jxr_linenumber" name="L161" href="CholeskyDecomposition.html#L161">161</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L162" href="CholeskyDecomposition.html#L162">162</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getL() {
+<a class="jxr_linenumber" name="L163" href="CholeskyDecomposition.html#L163">163</a>         <strong class="jxr_keyword">if</strong> (cachedL == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L164" href="CholeskyDecomposition.html#L164">164</a>             cachedL = getLT().transpose();
+<a class="jxr_linenumber" name="L165" href="CholeskyDecomposition.html#L165">165</a>         }
+<a class="jxr_linenumber" name="L166" href="CholeskyDecomposition.html#L166">166</a>         <strong class="jxr_keyword">return</strong> cachedL;
+<a class="jxr_linenumber" name="L167" href="CholeskyDecomposition.html#L167">167</a>     }
+<a class="jxr_linenumber" name="L168" href="CholeskyDecomposition.html#L168">168</a> 
+<a class="jxr_linenumber" name="L169" href="CholeskyDecomposition.html#L169">169</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L170" href="CholeskyDecomposition.html#L170">170</a> <em class="jxr_javadoccomment">     * Returns the transpose of the matrix L of the decomposition.</em>
+<a class="jxr_linenumber" name="L171" href="CholeskyDecomposition.html#L171">171</a> <em class="jxr_javadoccomment">     * &lt;p&gt;L&lt;sup&gt;T&lt;/sup&gt; is an upper-triangular matrix&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L172" href="CholeskyDecomposition.html#L172">172</a> <em class="jxr_javadoccomment">     * @return the transpose of the matrix L of the decomposition</em>
+<a class="jxr_linenumber" name="L173" href="CholeskyDecomposition.html#L173">173</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L174" href="CholeskyDecomposition.html#L174">174</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getLT() {
+<a class="jxr_linenumber" name="L175" href="CholeskyDecomposition.html#L175">175</a> 
+<a class="jxr_linenumber" name="L176" href="CholeskyDecomposition.html#L176">176</a>         <strong class="jxr_keyword">if</strong> (cachedLT == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L177" href="CholeskyDecomposition.html#L177">177</a>             cachedLT = MatrixUtils.createRealMatrix(lTData);
+<a class="jxr_linenumber" name="L178" href="CholeskyDecomposition.html#L178">178</a>         }
+<a class="jxr_linenumber" name="L179" href="CholeskyDecomposition.html#L179">179</a> 
+<a class="jxr_linenumber" name="L180" href="CholeskyDecomposition.html#L180">180</a>         <em class="jxr_comment">// return the cached matrix</em>
+<a class="jxr_linenumber" name="L181" href="CholeskyDecomposition.html#L181">181</a>         <strong class="jxr_keyword">return</strong> cachedLT;
+<a class="jxr_linenumber" name="L182" href="CholeskyDecomposition.html#L182">182</a>     }
+<a class="jxr_linenumber" name="L183" href="CholeskyDecomposition.html#L183">183</a> 
+<a class="jxr_linenumber" name="L184" href="CholeskyDecomposition.html#L184">184</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L185" href="CholeskyDecomposition.html#L185">185</a> <em class="jxr_javadoccomment">     * Return the determinant of the matrix</em>
+<a class="jxr_linenumber" name="L186" href="CholeskyDecomposition.html#L186">186</a> <em class="jxr_javadoccomment">     * @return determinant of the matrix</em>
+<a class="jxr_linenumber" name="L187" href="CholeskyDecomposition.html#L187">187</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L188" href="CholeskyDecomposition.html#L188">188</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getDeterminant() {
+<a class="jxr_linenumber" name="L189" href="CholeskyDecomposition.html#L189">189</a>         <strong class="jxr_keyword">double</strong> determinant = 1.0;
+<a class="jxr_linenumber" name="L190" href="CholeskyDecomposition.html#L190">190</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; lTData.length; ++i) {
+<a class="jxr_linenumber" name="L191" href="CholeskyDecomposition.html#L191">191</a>             <strong class="jxr_keyword">double</strong> lTii = lTData[i][i];
+<a class="jxr_linenumber" name="L192" href="CholeskyDecomposition.html#L192">192</a>             determinant *= lTii * lTii;
+<a class="jxr_linenumber" name="L193" href="CholeskyDecomposition.html#L193">193</a>         }
+<a class="jxr_linenumber" name="L194" href="CholeskyDecomposition.html#L194">194</a>         <strong class="jxr_keyword">return</strong> determinant;
+<a class="jxr_linenumber" name="L195" href="CholeskyDecomposition.html#L195">195</a>     }
+<a class="jxr_linenumber" name="L196" href="CholeskyDecomposition.html#L196">196</a> 
+<a class="jxr_linenumber" name="L197" href="CholeskyDecomposition.html#L197">197</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L198" href="CholeskyDecomposition.html#L198">198</a> <em class="jxr_javadoccomment">     * Get a solver for finding the A &amp;times; X = B solution in least square sense.</em>
+<a class="jxr_linenumber" name="L199" href="CholeskyDecomposition.html#L199">199</a> <em class="jxr_javadoccomment">     * @return a solver</em>
+<a class="jxr_linenumber" name="L200" href="CholeskyDecomposition.html#L200">200</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L201" href="CholeskyDecomposition.html#L201">201</a>     <strong class="jxr_keyword">public</strong> <a href="DecompositionSolver.html">DecompositionSolver</a> getSolver() {
+<a class="jxr_linenumber" name="L202" href="CholeskyDecomposition.html#L202">202</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="RRQRDecomposition.html">Solver</a>(lTData);
+<a class="jxr_linenumber" name="L203" href="CholeskyDecomposition.html#L203">203</a>     }
+<a class="jxr_linenumber" name="L204" href="CholeskyDecomposition.html#L204">204</a> 
+<a class="jxr_linenumber" name="L205" href="CholeskyDecomposition.html#L205">205</a>     <em class="jxr_javadoccomment">/** Specialized solver. */</em>
+<a class="jxr_linenumber" name="L206" href="CholeskyDecomposition.html#L206">206</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="RRQRDecomposition.html">Solver</a> <strong class="jxr_keyword">implements</strong> <a href="DecompositionSolver.html">DecompositionSolver</a> {
+<a class="jxr_linenumber" name="L207" href="CholeskyDecomposition.html#L207">207</a>         <em class="jxr_javadoccomment">/** Row-oriented storage for L&lt;sup&gt;T&lt;/sup&gt; matrix data. */</em>
+<a class="jxr_linenumber" name="L208" href="CholeskyDecomposition.html#L208">208</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] lTData;
+<a class="jxr_linenumber" name="L209" href="CholeskyDecomposition.html#L209">209</a> 
+<a class="jxr_linenumber" name="L210" href="CholeskyDecomposition.html#L210">210</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L211" href="CholeskyDecomposition.html#L211">211</a> <em class="jxr_javadoccomment">         * Build a solver from decomposed matrix.</em>
+<a class="jxr_linenumber" name="L212" href="CholeskyDecomposition.html#L212">212</a> <em class="jxr_javadoccomment">         * @param lTData row-oriented storage for L&lt;sup&gt;T&lt;/sup&gt; matrix data</em>
+<a class="jxr_linenumber" name="L213" href="CholeskyDecomposition.html#L213">213</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L214" href="CholeskyDecomposition.html#L214">214</a>         <strong class="jxr_keyword">private</strong> <a href="RRQRDecomposition.html">Solver</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] lTData) {
+<a class="jxr_linenumber" name="L215" href="CholeskyDecomposition.html#L215">215</a>             <strong class="jxr_keyword">this</strong>.lTData = lTData;
+<a class="jxr_linenumber" name="L216" href="CholeskyDecomposition.html#L216">216</a>         }
+<a class="jxr_linenumber" name="L217" href="CholeskyDecomposition.html#L217">217</a> 
+<a class="jxr_linenumber" name="L218" href="CholeskyDecomposition.html#L218">218</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L219" href="CholeskyDecomposition.html#L219">219</a>         @Override
+<a class="jxr_linenumber" name="L220" href="CholeskyDecomposition.html#L220">220</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isNonSingular() {
+<a class="jxr_linenumber" name="L221" href="CholeskyDecomposition.html#L221">221</a>             <em class="jxr_comment">// if we get this far, the matrix was positive definite, hence non-singular</em>
+<a class="jxr_linenumber" name="L222" href="CholeskyDecomposition.html#L222">222</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L223" href="CholeskyDecomposition.html#L223">223</a>         }
+<a class="jxr_linenumber" name="L224" href="CholeskyDecomposition.html#L224">224</a> 
+<a class="jxr_linenumber" name="L225" href="CholeskyDecomposition.html#L225">225</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L226" href="CholeskyDecomposition.html#L226">226</a>         @Override
+<a class="jxr_linenumber" name="L227" href="CholeskyDecomposition.html#L227">227</a>         <strong class="jxr_keyword">public</strong> <a href="RealVector.html">RealVector</a> solve(<strong class="jxr_keyword">final</strong> <a href="RealVector.html">RealVector</a> b) {
+<a class="jxr_linenumber" name="L228" href="CholeskyDecomposition.html#L228">228</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = lTData.length;
+<a class="jxr_linenumber" name="L229" href="CholeskyDecomposition.html#L229">229</a>             <strong class="jxr_keyword">if</strong> (b.getDimension() != m) {
+<a class="jxr_linenumber" name="L230" href="CholeskyDecomposition.html#L230">230</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a>(b.getDimension(), m);
+<a class="jxr_linenumber" name="L231" href="CholeskyDecomposition.html#L231">231</a>             }
+<a class="jxr_linenumber" name="L232" href="CholeskyDecomposition.html#L232">232</a> 
+<a class="jxr_linenumber" name="L233" href="CholeskyDecomposition.html#L233">233</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] x = b.toArray();
+<a class="jxr_linenumber" name="L234" href="CholeskyDecomposition.html#L234">234</a> 
+<a class="jxr_linenumber" name="L235" href="CholeskyDecomposition.html#L235">235</a>             <em class="jxr_comment">// Solve LY = b</em>
+<a class="jxr_linenumber" name="L236" href="CholeskyDecomposition.html#L236">236</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; m; j++) {
+<a class="jxr_linenumber" name="L237" href="CholeskyDecomposition.html#L237">237</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] lJ = lTData[j];
+<a class="jxr_linenumber" name="L238" href="CholeskyDecomposition.html#L238">238</a>                 x[j] /= lJ[j];
+<a class="jxr_linenumber" name="L239" href="CholeskyDecomposition.html#L239">239</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xJ = x[j];
+<a class="jxr_linenumber" name="L240" href="CholeskyDecomposition.html#L240">240</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = j + 1; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L241" href="CholeskyDecomposition.html#L241">241</a>                     x[i] -= xJ * lJ[i];
+<a class="jxr_linenumber" name="L242" href="CholeskyDecomposition.html#L242">242</a>                 }
+<a class="jxr_linenumber" name="L243" href="CholeskyDecomposition.html#L243">243</a>             }
+<a class="jxr_linenumber" name="L244" href="CholeskyDecomposition.html#L244">244</a> 
+<a class="jxr_linenumber" name="L245" href="CholeskyDecomposition.html#L245">245</a>             <em class="jxr_comment">// Solve LTX = Y</em>
+<a class="jxr_linenumber" name="L246" href="CholeskyDecomposition.html#L246">246</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = m - 1; j &gt;= 0; j--) {
+<a class="jxr_linenumber" name="L247" href="CholeskyDecomposition.html#L247">247</a>                 x[j] /= lTData[j][j];
+<a class="jxr_linenumber" name="L248" href="CholeskyDecomposition.html#L248">248</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xJ = x[j];
+<a class="jxr_linenumber" name="L249" href="CholeskyDecomposition.html#L249">249</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; j; i++) {
+<a class="jxr_linenumber" name="L250" href="CholeskyDecomposition.html#L250">250</a>                     x[i] -= xJ * lTData[i][j];
+<a class="jxr_linenumber" name="L251" href="CholeskyDecomposition.html#L251">251</a>                 }
+<a class="jxr_linenumber" name="L252" href="CholeskyDecomposition.html#L252">252</a>             }
+<a class="jxr_linenumber" name="L253" href="CholeskyDecomposition.html#L253">253</a> 
+<a class="jxr_linenumber" name="L254" href="CholeskyDecomposition.html#L254">254</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="ArrayRealVector.html">ArrayRealVector</a>(x, false);
+<a class="jxr_linenumber" name="L255" href="CholeskyDecomposition.html#L255">255</a>         }
+<a class="jxr_linenumber" name="L256" href="CholeskyDecomposition.html#L256">256</a> 
+<a class="jxr_linenumber" name="L257" href="CholeskyDecomposition.html#L257">257</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L258" href="CholeskyDecomposition.html#L258">258</a>         @Override
+<a class="jxr_linenumber" name="L259" href="CholeskyDecomposition.html#L259">259</a>         <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> solve(<a href="RealMatrix.html">RealMatrix</a> b) {
+<a class="jxr_linenumber" name="L260" href="CholeskyDecomposition.html#L260">260</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = lTData.length;
+<a class="jxr_linenumber" name="L261" href="CholeskyDecomposition.html#L261">261</a>             <strong class="jxr_keyword">if</strong> (b.getRowDimension() != m) {
+<a class="jxr_linenumber" name="L262" href="CholeskyDecomposition.html#L262">262</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/DimensionMismatchException.html">DimensionMismatchException</a>(b.getRowDimension(), m);
+<a class="jxr_linenumber" name="L263" href="CholeskyDecomposition.html#L263">263</a>             }
+<a class="jxr_linenumber" name="L264" href="CholeskyDecomposition.html#L264">264</a> 
+<a class="jxr_linenumber" name="L265" href="CholeskyDecomposition.html#L265">265</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nColB = b.getColumnDimension();
+<a class="jxr_linenumber" name="L266" href="CholeskyDecomposition.html#L266">266</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] x = b.getData();
+<a class="jxr_linenumber" name="L267" href="CholeskyDecomposition.html#L267">267</a> 
+<a class="jxr_linenumber" name="L268" href="CholeskyDecomposition.html#L268">268</a>             <em class="jxr_comment">// Solve LY = b</em>
+<a class="jxr_linenumber" name="L269" href="CholeskyDecomposition.html#L269">269</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; m; j++) {
+<a class="jxr_linenumber" name="L270" href="CholeskyDecomposition.html#L270">270</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] lJ = lTData[j];
+<a class="jxr_linenumber" name="L271" href="CholeskyDecomposition.html#L271">271</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lJJ = lJ[j];
+<a class="jxr_linenumber" name="L272" href="CholeskyDecomposition.html#L272">272</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xJ = x[j];
+<a class="jxr_linenumber" name="L273" href="CholeskyDecomposition.html#L273">273</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; nColB; ++k) {
+<a class="jxr_linenumber" name="L274" href="CholeskyDecomposition.html#L274">274</a>                     xJ[k] /= lJJ;
+<a class="jxr_linenumber" name="L275" href="CholeskyDecomposition.html#L275">275</a>                 }
+<a class="jxr_linenumber" name="L276" href="CholeskyDecomposition.html#L276">276</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = j + 1; i &lt; m; i++) {
+<a class="jxr_linenumber" name="L277" href="CholeskyDecomposition.html#L277">277</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xI = x[i];
+<a class="jxr_linenumber" name="L278" href="CholeskyDecomposition.html#L278">278</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lJI = lJ[i];
+<a class="jxr_linenumber" name="L279" href="CholeskyDecomposition.html#L279">279</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; nColB; ++k) {
+<a class="jxr_linenumber" name="L280" href="CholeskyDecomposition.html#L280">280</a>                         xI[k] -= xJ[k] * lJI;
+<a class="jxr_linenumber" name="L281" href="CholeskyDecomposition.html#L281">281</a>                     }
+<a class="jxr_linenumber" name="L282" href="CholeskyDecomposition.html#L282">282</a>                 }
+<a class="jxr_linenumber" name="L283" href="CholeskyDecomposition.html#L283">283</a>             }
+<a class="jxr_linenumber" name="L284" href="CholeskyDecomposition.html#L284">284</a> 
+<a class="jxr_linenumber" name="L285" href="CholeskyDecomposition.html#L285">285</a>             <em class="jxr_comment">// Solve LTX = Y</em>
+<a class="jxr_linenumber" name="L286" href="CholeskyDecomposition.html#L286">286</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = m - 1; j &gt;= 0; j--) {
+<a class="jxr_linenumber" name="L287" href="CholeskyDecomposition.html#L287">287</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lJJ = lTData[j][j];
+<a class="jxr_linenumber" name="L288" href="CholeskyDecomposition.html#L288">288</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xJ = x[j];
+<a class="jxr_linenumber" name="L289" href="CholeskyDecomposition.html#L289">289</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; nColB; ++k) {
+<a class="jxr_linenumber" name="L290" href="CholeskyDecomposition.html#L290">290</a>                     xJ[k] /= lJJ;
+<a class="jxr_linenumber" name="L291" href="CholeskyDecomposition.html#L291">291</a>                 }
+<a class="jxr_linenumber" name="L292" href="CholeskyDecomposition.html#L292">292</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; j; i++) {
+<a class="jxr_linenumber" name="L293" href="CholeskyDecomposition.html#L293">293</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xI = x[i];
+<a class="jxr_linenumber" name="L294" href="CholeskyDecomposition.html#L294">294</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lIJ = lTData[i][j];
+<a class="jxr_linenumber" name="L295" href="CholeskyDecomposition.html#L295">295</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; nColB; ++k) {
+<a class="jxr_linenumber" name="L296" href="CholeskyDecomposition.html#L296">296</a>                         xI[k] -= xJ[k] * lIJ;
+<a class="jxr_linenumber" name="L297" href="CholeskyDecomposition.html#L297">297</a>                     }
+<a class="jxr_linenumber" name="L298" href="CholeskyDecomposition.html#L298">298</a>                 }
+<a class="jxr_linenumber" name="L299" href="CholeskyDecomposition.html#L299">299</a>             }
+<a class="jxr_linenumber" name="L300" href="CholeskyDecomposition.html#L300">300</a> 
+<a class="jxr_linenumber" name="L301" href="CholeskyDecomposition.html#L301">301</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(x);
+<a class="jxr_linenumber" name="L302" href="CholeskyDecomposition.html#L302">302</a>         }
+<a class="jxr_linenumber" name="L303" href="CholeskyDecomposition.html#L303">303</a> 
+<a class="jxr_linenumber" name="L304" href="CholeskyDecomposition.html#L304">304</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L305" href="CholeskyDecomposition.html#L305">305</a> <em class="jxr_javadoccomment">         * Get the inverse of the decomposed matrix.</em>
+<a class="jxr_linenumber" name="L306" href="CholeskyDecomposition.html#L306">306</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L307" href="CholeskyDecomposition.html#L307">307</a> <em class="jxr_javadoccomment">         * @return the inverse matrix.</em>
+<a class="jxr_linenumber" name="L308" href="CholeskyDecomposition.html#L308">308</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L309" href="CholeskyDecomposition.html#L309">309</a>         @Override
+<a class="jxr_linenumber" name="L310" href="CholeskyDecomposition.html#L310">310</a>         <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getInverse() {
+<a class="jxr_linenumber" name="L311" href="CholeskyDecomposition.html#L311">311</a>             <strong class="jxr_keyword">return</strong> solve(MatrixUtils.createRealIdentityMatrix(lTData.length));
+<a class="jxr_linenumber" name="L312" href="CholeskyDecomposition.html#L312">312</a>         }
+<a class="jxr_linenumber" name="L313" href="CholeskyDecomposition.html#L313">313</a>     }
+<a class="jxr_linenumber" name="L314" href="CholeskyDecomposition.html#L314">314</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>IterationManager xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/util/IterationManager.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="IterationManager.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="IterationManager.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="IterationManager.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="IterationManager.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="IterationManager.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="IterationManager.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="IterationManager.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="IterationManager.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="IterationManager.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="IterationManager.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="IterationManager.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="IterationManager.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="IterationManager.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="IterationManager.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="IterationManager.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="IterationManager.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="IterationManager.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.util;
+<a class="jxr_linenumber" name="L18" href="IterationManager.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="IterationManager.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.Collection;
+<a class="jxr_linenumber" name="L20" href="IterationManager.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.concurrent.CopyOnWriteArrayList;
+<a class="jxr_linenumber" name="L21" href="IterationManager.html#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="IterationManager.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MaxCountExceededException;
+<a class="jxr_linenumber" name="L23" href="IterationManager.html#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="IterationManager.html#L24">24</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L25" href="IterationManager.html#L25">25</a>  <em class="jxr_javadoccomment"> * This abstract class provides a general framework for managing iterative</em>
+<a class="jxr_linenumber" name="L26" href="IterationManager.html#L26">26</a>  <em class="jxr_javadoccomment"> * algorithms. The maximum number of iterations can be set, and methods are</em>
+<a class="jxr_linenumber" name="L27" href="IterationManager.html#L27">27</a>  <em class="jxr_javadoccomment"> * provided to monitor the current iteration count. A lightweight event</em>
+<a class="jxr_linenumber" name="L28" href="IterationManager.html#L28">28</a>  <em class="jxr_javadoccomment"> * framework is also provided.</em>
+<a class="jxr_linenumber" name="L29" href="IterationManager.html#L29">29</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L30" href="IterationManager.html#L30">30</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L31" href="IterationManager.html#L31">31</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="IterationManager.html">IterationManager</a> {
+<a class="jxr_linenumber" name="L32" href="IterationManager.html#L32">32</a>  
+<a class="jxr_linenumber" name="L33" href="IterationManager.html#L33">33</a>      <em class="jxr_javadoccomment">/** Keeps a count of the number of iterations. */</em>
+<a class="jxr_linenumber" name="L34" href="IterationManager.html#L34">34</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="IntegerSequence.html">Incrementor</a> iterations;
+<a class="jxr_linenumber" name="L35" href="IterationManager.html#L35">35</a>  
+<a class="jxr_linenumber" name="L36" href="IterationManager.html#L36">36</a>      <em class="jxr_javadoccomment">/** The collection of all listeners attached to this iterative algorithm. */</em>
+<a class="jxr_linenumber" name="L37" href="IterationManager.html#L37">37</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Collection&lt;IterationListener&gt; listeners;
+<a class="jxr_linenumber" name="L38" href="IterationManager.html#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="IterationManager.html#L39">39</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L40" href="IterationManager.html#L40">40</a>  <em class="jxr_javadoccomment">     * Creates a new instance of this class.</em>
+<a class="jxr_linenumber" name="L41" href="IterationManager.html#L41">41</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L42" href="IterationManager.html#L42">42</a>  <em class="jxr_javadoccomment">     * @param maxIterations the maximum number of iterations</em>
+<a class="jxr_linenumber" name="L43" href="IterationManager.html#L43">43</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L44" href="IterationManager.html#L44">44</a>      <strong class="jxr_keyword">public</strong> <a href="IterationManager.html">IterationManager</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIterations) {
+<a class="jxr_linenumber" name="L45" href="IterationManager.html#L45">45</a>          <strong class="jxr_keyword">this</strong>.iterations = <strong class="jxr_keyword">new</strong> <a href="IntegerSequence.html">Incrementor</a>(maxIterations);
+<a class="jxr_linenumber" name="L46" href="IterationManager.html#L46">46</a>          <strong class="jxr_keyword">this</strong>.listeners = <strong class="jxr_keyword">new</strong> CopyOnWriteArrayList&lt;IterationListener&gt;();
+<a class="jxr_linenumber" name="L47" href="IterationManager.html#L47">47</a>      }
+<a class="jxr_linenumber" name="L48" href="IterationManager.html#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="IterationManager.html#L49">49</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L50" href="IterationManager.html#L50">50</a>  <em class="jxr_javadoccomment">     * Creates a new instance of this class.</em>
+<a class="jxr_linenumber" name="L51" href="IterationManager.html#L51">51</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L52" href="IterationManager.html#L52">52</a>  <em class="jxr_javadoccomment">     * @param maxIterations the maximum number of iterations</em>
+<a class="jxr_linenumber" name="L53" href="IterationManager.html#L53">53</a>  <em class="jxr_javadoccomment">     * @param callBack the function to be called when the maximum number of</em>
+<a class="jxr_linenumber" name="L54" href="IterationManager.html#L54">54</a>  <em class="jxr_javadoccomment">     * iterations has been reached</em>
+<a class="jxr_linenumber" name="L55" href="IterationManager.html#L55">55</a>  <em class="jxr_javadoccomment">     * @throws org.apache.commons.math4.exception.NullArgumentException if {@code callBack} is {@code null}</em>
+<a class="jxr_linenumber" name="L56" href="IterationManager.html#L56">56</a>  <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L57" href="IterationManager.html#L57">57</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L58" href="IterationManager.html#L58">58</a>      <strong class="jxr_keyword">public</strong> <a href="IterationManager.html">IterationManager</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIterations,
+<a class="jxr_linenumber" name="L59" href="IterationManager.html#L59">59</a>                              <strong class="jxr_keyword">final</strong> Incrementor.MaxCountExceededCallback callBack) {
+<a class="jxr_linenumber" name="L60" href="IterationManager.html#L60">60</a>          <strong class="jxr_keyword">this</strong>.iterations = <strong class="jxr_keyword">new</strong> <a href="IntegerSequence.html">Incrementor</a>(maxIterations, callBack);
+<a class="jxr_linenumber" name="L61" href="IterationManager.html#L61">61</a>          <strong class="jxr_keyword">this</strong>.listeners = <strong class="jxr_keyword">new</strong> CopyOnWriteArrayList&lt;IterationListener&gt;();
+<a class="jxr_linenumber" name="L62" href="IterationManager.html#L62">62</a>      }
+<a class="jxr_linenumber" name="L63" href="IterationManager.html#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="IterationManager.html#L64">64</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L65" href="IterationManager.html#L65">65</a>  <em class="jxr_javadoccomment">     * Attaches a listener to this manager.</em>
+<a class="jxr_linenumber" name="L66" href="IterationManager.html#L66">66</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L67" href="IterationManager.html#L67">67</a>  <em class="jxr_javadoccomment">     * @param listener A {@code IterationListener} object.</em>
+<a class="jxr_linenumber" name="L68" href="IterationManager.html#L68">68</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L69" href="IterationManager.html#L69">69</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> addIterationListener(<strong class="jxr_keyword">final</strong> <a href="IterationListener.html">IterationListener</a> listener) {
+<a class="jxr_linenumber" name="L70" href="IterationManager.html#L70">70</a>          listeners.add(listener);
+<a class="jxr_linenumber" name="L71" href="IterationManager.html#L71">71</a>      }
+<a class="jxr_linenumber" name="L72" href="IterationManager.html#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="IterationManager.html#L73">73</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L74" href="IterationManager.html#L74">74</a>  <em class="jxr_javadoccomment">     * Informs all registered listeners that the initial phase (prior to the</em>
+<a class="jxr_linenumber" name="L75" href="IterationManager.html#L75">75</a>  <em class="jxr_javadoccomment">     * main iteration loop) has been completed.</em>
+<a class="jxr_linenumber" name="L76" href="IterationManager.html#L76">76</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L77" href="IterationManager.html#L77">77</a>  <em class="jxr_javadoccomment">     * @param e The {@link IterationEvent} object.</em>
+<a class="jxr_linenumber" name="L78" href="IterationManager.html#L78">78</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L79" href="IterationManager.html#L79">79</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> fireInitializationEvent(<strong class="jxr_keyword">final</strong> <a href="IterationEvent.html">IterationEvent</a> e) {
+<a class="jxr_linenumber" name="L80" href="IterationManager.html#L80">80</a>          <strong class="jxr_keyword">for</strong> (IterationListener l : listeners) {
+<a class="jxr_linenumber" name="L81" href="IterationManager.html#L81">81</a>              l.initializationPerformed(e);
+<a class="jxr_linenumber" name="L82" href="IterationManager.html#L82">82</a>          }
+<a class="jxr_linenumber" name="L83" href="IterationManager.html#L83">83</a>      }
+<a class="jxr_linenumber" name="L84" href="IterationManager.html#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="IterationManager.html#L85">85</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L86" href="IterationManager.html#L86">86</a>  <em class="jxr_javadoccomment">     * Informs all registered listeners that a new iteration (in the main</em>
+<a class="jxr_linenumber" name="L87" href="IterationManager.html#L87">87</a>  <em class="jxr_javadoccomment">     * iteration loop) has been performed.</em>
+<a class="jxr_linenumber" name="L88" href="IterationManager.html#L88">88</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L89" href="IterationManager.html#L89">89</a>  <em class="jxr_javadoccomment">     * @param e The {@link IterationEvent} object.</em>
+<a class="jxr_linenumber" name="L90" href="IterationManager.html#L90">90</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L91" href="IterationManager.html#L91">91</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> fireIterationPerformedEvent(<strong class="jxr_keyword">final</strong> <a href="IterationEvent.html">IterationEvent</a> e) {
+<a class="jxr_linenumber" name="L92" href="IterationManager.html#L92">92</a>          <strong class="jxr_keyword">for</strong> (IterationListener l : listeners) {
+<a class="jxr_linenumber" name="L93" href="IterationManager.html#L93">93</a>              l.iterationPerformed(e);
+<a class="jxr_linenumber" name="L94" href="IterationManager.html#L94">94</a>          }
+<a class="jxr_linenumber" name="L95" href="IterationManager.html#L95">95</a>      }
+<a class="jxr_linenumber" name="L96" href="IterationManager.html#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="IterationManager.html#L97">97</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L98" href="IterationManager.html#L98">98</a>  <em class="jxr_javadoccomment">     * Informs all registered listeners that a new iteration (in the main</em>
+<a class="jxr_linenumber" name="L99" href="IterationManager.html#L99">99</a>  <em class="jxr_javadoccomment">     * iteration loop) has been started.</em>
+<a class="jxr_linenumber" name="L100" href="IterationManager.html#L100">100</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L101" href="IterationManager.html#L101">101</a> <em class="jxr_javadoccomment">     * @param e The {@link IterationEvent} object.</em>
+<a class="jxr_linenumber" name="L102" href="IterationManager.html#L102">102</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L103" href="IterationManager.html#L103">103</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> fireIterationStartedEvent(<strong class="jxr_keyword">final</strong> <a href="IterationEvent.html">IterationEvent</a> e) {
+<a class="jxr_linenumber" name="L104" href="IterationManager.html#L104">104</a>         <strong class="jxr_keyword">for</strong> (IterationListener l : listeners) {
+<a class="jxr_linenumber" name="L105" href="IterationManager.html#L105">105</a>             l.iterationStarted(e);
+<a class="jxr_linenumber" name="L106" href="IterationManager.html#L106">106</a>         }
+<a class="jxr_linenumber" name="L107" href="IterationManager.html#L107">107</a>     }
+<a class="jxr_linenumber" name="L108" href="IterationManager.html#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="IterationManager.html#L109">109</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L110" href="IterationManager.html#L110">110</a> <em class="jxr_javadoccomment">     * Informs all registered listeners that the final phase (post-iterations)</em>
+<a class="jxr_linenumber" name="L111" href="IterationManager.html#L111">111</a> <em class="jxr_javadoccomment">     * has been completed.</em>
+<a class="jxr_linenumber" name="L112" href="IterationManager.html#L112">112</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L113" href="IterationManager.html#L113">113</a> <em class="jxr_javadoccomment">     * @param e The {@link IterationEvent} object.</em>
+<a class="jxr_linenumber" name="L114" href="IterationManager.html#L114">114</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L115" href="IterationManager.html#L115">115</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> fireTerminationEvent(<strong class="jxr_keyword">final</strong> <a href="IterationEvent.html">IterationEvent</a> e) {
+<a class="jxr_linenumber" name="L116" href="IterationManager.html#L116">116</a>         <strong class="jxr_keyword">for</strong> (IterationListener l : listeners) {
+<a class="jxr_linenumber" name="L117" href="IterationManager.html#L117">117</a>             l.terminationPerformed(e);
+<a class="jxr_linenumber" name="L118" href="IterationManager.html#L118">118</a>         }
+<a class="jxr_linenumber" name="L119" href="IterationManager.html#L119">119</a>     }
+<a class="jxr_linenumber" name="L120" href="IterationManager.html#L120">120</a> 
+<a class="jxr_linenumber" name="L121" href="IterationManager.html#L121">121</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L122" href="IterationManager.html#L122">122</a> <em class="jxr_javadoccomment">     * Returns the number of iterations of this solver, 0 if no iterations has</em>
+<a class="jxr_linenumber" name="L123" href="IterationManager.html#L123">123</a> <em class="jxr_javadoccomment">     * been performed yet.</em>
+<a class="jxr_linenumber" name="L124" href="IterationManager.html#L124">124</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L125" href="IterationManager.html#L125">125</a> <em class="jxr_javadoccomment">     * @return the number of iterations.</em>
+<a class="jxr_linenumber" name="L126" href="IterationManager.html#L126">126</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L127" href="IterationManager.html#L127">127</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getIterations() {
+<a class="jxr_linenumber" name="L128" href="IterationManager.html#L128">128</a>         <strong class="jxr_keyword">return</strong> iterations.getCount();
+<a class="jxr_linenumber" name="L129" href="IterationManager.html#L129">129</a>     }
+<a class="jxr_linenumber" name="L130" href="IterationManager.html#L130">130</a> 
+<a class="jxr_linenumber" name="L131" href="IterationManager.html#L131">131</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L132" href="IterationManager.html#L132">132</a> <em class="jxr_javadoccomment">     * Returns the maximum number of iterations.</em>
+<a class="jxr_linenumber" name="L133" href="IterationManager.html#L133">133</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L134" href="IterationManager.html#L134">134</a> <em class="jxr_javadoccomment">     * @return the maximum number of iterations.</em>
+<a class="jxr_linenumber" name="L135" href="IterationManager.html#L135">135</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L136" href="IterationManager.html#L136">136</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getMaxIterations() {
+<a class="jxr_linenumber" name="L137" href="IterationManager.html#L137">137</a>         <strong class="jxr_keyword">return</strong> iterations.getMaximalCount();
+<a class="jxr_linenumber" name="L138" href="IterationManager.html#L138">138</a>     }
+<a class="jxr_linenumber" name="L139" href="IterationManager.html#L139">139</a> 
+<a class="jxr_linenumber" name="L140" href="IterationManager.html#L140">140</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L141" href="IterationManager.html#L141">141</a> <em class="jxr_javadoccomment">     * Increments the iteration count by one, and throws an exception if the</em>
+<a class="jxr_linenumber" name="L142" href="IterationManager.html#L142">142</a> <em class="jxr_javadoccomment">     * maximum number of iterations is reached. This method should be called at</em>
+<a class="jxr_linenumber" name="L143" href="IterationManager.html#L143">143</a> <em class="jxr_javadoccomment">     * the beginning of a new iteration.</em>
+<a class="jxr_linenumber" name="L144" href="IterationManager.html#L144">144</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L145" href="IterationManager.html#L145">145</a> <em class="jxr_javadoccomment">     * @throws MaxCountExceededException if the maximum number of iterations is</em>
+<a class="jxr_linenumber" name="L146" href="IterationManager.html#L146">146</a> <em class="jxr_javadoccomment">     * reached.</em>
+<a class="jxr_linenumber" name="L147" href="IterationManager.html#L147">147</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L148" href="IterationManager.html#L148">148</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> incrementIterationCount()
+<a class="jxr_linenumber" name="L149" href="IterationManager.html#L149">149</a>         <strong class="jxr_keyword">throws</strong> <a href="../exception/MaxCountExceededException.html">MaxCountExceededException</a> {
+<a class="jxr_linenumber" name="L150" href="IterationManager.html#L150">150</a>         iterations.incrementCount();
+<a class="jxr_linenumber" name="L151" href="IterationManager.html#L151">151</a>     }
+<a class="jxr_linenumber" name="L152" href="IterationManager.html#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="IterationManager.html#L153">153</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L154" href="IterationManager.html#L154">154</a> <em class="jxr_javadoccomment">     * Removes the specified iteration listener from the list of listeners</em>
+<a class="jxr_linenumber" name="L155" href="IterationManager.html#L155">155</a> <em class="jxr_javadoccomment">     * currently attached to {@code this} object. Attempting to remove a</em>
+<a class="jxr_linenumber" name="L156" href="IterationManager.html#L156">156</a> <em class="jxr_javadoccomment">     * listener which was &lt;em&gt;not&lt;/em&gt; previously registered does not cause any</em>
+<a class="jxr_linenumber" name="L157" href="IterationManager.html#L157">157</a> <em class="jxr_javadoccomment">     * error.</em>
+<a class="jxr_linenumber" name="L158" href="IterationManager.html#L158">158</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L159" href="IterationManager.html#L159">159</a> <em class="jxr_javadoccomment">     * @param listener The {@link IterationListener} to be removed.</em>
+<a class="jxr_linenumber" name="L160" href="IterationManager.html#L160">160</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L161" href="IterationManager.html#L161">161</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> removeIterationListener(<strong class="jxr_keyword">final</strong> <a href="IterationListener.html">IterationListener</a> listener) {
+<a class="jxr_linenumber" name="L162" href="IterationManager.html#L162">162</a>         listeners.remove(listener);
+<a class="jxr_linenumber" name="L163" href="IterationManager.html#L163">163</a>     }
+<a class="jxr_linenumber" name="L164" href="IterationManager.html#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="IterationManager.html#L165">165</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L166" href="IterationManager.html#L166">166</a> <em class="jxr_javadoccomment">     * Sets the iteration count to 0. This method must be called during the</em>
+<a class="jxr_linenumber" name="L167" href="IterationManager.html#L167">167</a> <em class="jxr_javadoccomment">     * initial phase.</em>
+<a class="jxr_linenumber" name="L168" href="IterationManager.html#L168">168</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L169" href="IterationManager.html#L169">169</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> resetIterationCount() {
+<a class="jxr_linenumber" name="L170" href="IterationManager.html#L170">170</a>         iterations.resetCount();
+<a class="jxr_linenumber" name="L171" href="IterationManager.html#L171">171</a>     }
+<a class="jxr_linenumber" name="L172" href="IterationManager.html#L172">172</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

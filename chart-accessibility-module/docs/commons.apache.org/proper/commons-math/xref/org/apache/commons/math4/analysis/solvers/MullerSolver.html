@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>MullerSolver xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/analysis/solvers/MullerSolver.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="MullerSolver.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="MullerSolver.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="MullerSolver.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="MullerSolver.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="MullerSolver.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="MullerSolver.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="MullerSolver.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="MullerSolver.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="MullerSolver.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="MullerSolver.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="MullerSolver.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="MullerSolver.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="MullerSolver.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="MullerSolver.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="MullerSolver.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="MullerSolver.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="MullerSolver.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.solvers;
+<a class="jxr_linenumber" name="L18" href="MullerSolver.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="MullerSolver.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoBracketingException;
+<a class="jxr_linenumber" name="L20" href="MullerSolver.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooLargeException;
+<a class="jxr_linenumber" name="L21" href="MullerSolver.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.TooManyEvaluationsException;
+<a class="jxr_linenumber" name="L22" href="MullerSolver.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L23" href="MullerSolver.html#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="MullerSolver.html#L24">24</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L25" href="MullerSolver.html#L25">25</a>  <em class="jxr_javadoccomment"> * This class implements the &lt;a href="<a href="http://mathworld.wolfram.com/MullersMethod.html" target="alexandria_uri">http://mathworld.wolfram.com/MullersMethod.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L26" href="MullerSolver.html#L26">26</a>  <em class="jxr_javadoccomment"> * Muller's Method&lt;/a&gt; for root finding of real univariate functions. For</em>
+<a class="jxr_linenumber" name="L27" href="MullerSolver.html#L27">27</a>  <em class="jxr_javadoccomment"> * reference, see &lt;b&gt;Elementary Numerical Analysis&lt;/b&gt;, ISBN 0070124477,</em>
+<a class="jxr_linenumber" name="L28" href="MullerSolver.html#L28">28</a>  <em class="jxr_javadoccomment"> * chapter 3.</em>
+<a class="jxr_linenumber" name="L29" href="MullerSolver.html#L29">29</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L30" href="MullerSolver.html#L30">30</a>  <em class="jxr_javadoccomment"> * Muller's method applies to both real and complex functions, but here we</em>
+<a class="jxr_linenumber" name="L31" href="MullerSolver.html#L31">31</a>  <em class="jxr_javadoccomment"> * restrict ourselves to real functions.</em>
+<a class="jxr_linenumber" name="L32" href="MullerSolver.html#L32">32</a>  <em class="jxr_javadoccomment"> * This class differs from {@link MullerSolver} in the way it avoids complex</em>
+<a class="jxr_linenumber" name="L33" href="MullerSolver.html#L33">33</a>  <em class="jxr_javadoccomment"> * operations.&lt;/p&gt;&lt;p&gt;</em>
+<a class="jxr_linenumber" name="L34" href="MullerSolver.html#L34">34</a>  <em class="jxr_javadoccomment"> * Muller's original method would have function evaluation at complex point.</em>
+<a class="jxr_linenumber" name="L35" href="MullerSolver.html#L35">35</a>  <em class="jxr_javadoccomment"> * Since our f(x) is real, we have to find ways to avoid that. Bracketing</em>
+<a class="jxr_linenumber" name="L36" href="MullerSolver.html#L36">36</a>  <em class="jxr_javadoccomment"> * condition is one way to go: by requiring bracketing in every iteration,</em>
+<a class="jxr_linenumber" name="L37" href="MullerSolver.html#L37">37</a>  <em class="jxr_javadoccomment"> * the newly computed approximation is guaranteed to be real.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L38" href="MullerSolver.html#L38">38</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L39" href="MullerSolver.html#L39">39</a>  <em class="jxr_javadoccomment"> * Normally Muller's method converges quadratically in the vicinity of a</em>
+<a class="jxr_linenumber" name="L40" href="MullerSolver.html#L40">40</a>  <em class="jxr_javadoccomment"> * zero, however it may be very slow in regions far away from zeros. For</em>
+<a class="jxr_linenumber" name="L41" href="MullerSolver.html#L41">41</a>  <em class="jxr_javadoccomment"> * example, f(x) = exp(x) - 1, min = -50, max = 100. In such case we use</em>
+<a class="jxr_linenumber" name="L42" href="MullerSolver.html#L42">42</a>  <em class="jxr_javadoccomment"> * bisection as a safety backup if it performs very poorly.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L43" href="MullerSolver.html#L43">43</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L44" href="MullerSolver.html#L44">44</a>  <em class="jxr_javadoccomment"> * The formulas here use divided differences directly.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L45" href="MullerSolver.html#L45">45</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L46" href="MullerSolver.html#L46">46</a>  <em class="jxr_javadoccomment"> * @since 1.2</em>
+<a class="jxr_linenumber" name="L47" href="MullerSolver.html#L47">47</a>  <em class="jxr_javadoccomment"> * @see MullerSolver2</em>
+<a class="jxr_linenumber" name="L48" href="MullerSolver.html#L48">48</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L49" href="MullerSolver.html#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="MullerSolver.html">MullerSolver</a> <strong class="jxr_keyword">extends</strong> <a href="AbstractUnivariateSolver.html">AbstractUnivariateSolver</a> {
+<a class="jxr_linenumber" name="L50" href="MullerSolver.html#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="MullerSolver.html#L51">51</a>      <em class="jxr_javadoccomment">/** Default absolute accuracy. */</em>
+<a class="jxr_linenumber" name="L52" href="MullerSolver.html#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_ABSOLUTE_ACCURACY = 1e-6;
+<a class="jxr_linenumber" name="L53" href="MullerSolver.html#L53">53</a>  
+<a class="jxr_linenumber" name="L54" href="MullerSolver.html#L54">54</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L55" href="MullerSolver.html#L55">55</a>  <em class="jxr_javadoccomment">     * Construct a solver with default accuracy (1e-6).</em>
+<a class="jxr_linenumber" name="L56" href="MullerSolver.html#L56">56</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L57" href="MullerSolver.html#L57">57</a>      <strong class="jxr_keyword">public</strong> <a href="MullerSolver.html">MullerSolver</a>() {
+<a class="jxr_linenumber" name="L58" href="MullerSolver.html#L58">58</a>          <strong class="jxr_keyword">this</strong>(DEFAULT_ABSOLUTE_ACCURACY);
+<a class="jxr_linenumber" name="L59" href="MullerSolver.html#L59">59</a>      }
+<a class="jxr_linenumber" name="L60" href="MullerSolver.html#L60">60</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L61" href="MullerSolver.html#L61">61</a>  <em class="jxr_javadoccomment">     * Construct a solver.</em>
+<a class="jxr_linenumber" name="L62" href="MullerSolver.html#L62">62</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L63" href="MullerSolver.html#L63">63</a>  <em class="jxr_javadoccomment">     * @param absoluteAccuracy Absolute accuracy.</em>
+<a class="jxr_linenumber" name="L64" href="MullerSolver.html#L64">64</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L65" href="MullerSolver.html#L65">65</a>      <strong class="jxr_keyword">public</strong> <a href="MullerSolver.html">MullerSolver</a>(<strong class="jxr_keyword">double</strong> absoluteAccuracy) {
+<a class="jxr_linenumber" name="L66" href="MullerSolver.html#L66">66</a>          <strong class="jxr_keyword">super</strong>(absoluteAccuracy);
+<a class="jxr_linenumber" name="L67" href="MullerSolver.html#L67">67</a>      }
+<a class="jxr_linenumber" name="L68" href="MullerSolver.html#L68">68</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L69" href="MullerSolver.html#L69">69</a>  <em class="jxr_javadoccomment">     * Construct a solver.</em>
+<a class="jxr_linenumber" name="L70" href="MullerSolver.html#L70">70</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L71" href="MullerSolver.html#L71">71</a>  <em class="jxr_javadoccomment">     * @param relativeAccuracy Relative accuracy.</em>
+<a class="jxr_linenumber" name="L72" href="MullerSolver.html#L72">72</a>  <em class="jxr_javadoccomment">     * @param absoluteAccuracy Absolute accuracy.</em>
+<a class="jxr_linenumber" name="L73" href="MullerSolver.html#L73">73</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L74" href="MullerSolver.html#L74">74</a>      <strong class="jxr_keyword">public</strong> <a href="MullerSolver.html">MullerSolver</a>(<strong class="jxr_keyword">double</strong> relativeAccuracy,
+<a class="jxr_linenumber" name="L75" href="MullerSolver.html#L75">75</a>                          <strong class="jxr_keyword">double</strong> absoluteAccuracy) {
+<a class="jxr_linenumber" name="L76" href="MullerSolver.html#L76">76</a>          <strong class="jxr_keyword">super</strong>(relativeAccuracy, absoluteAccuracy);
+<a class="jxr_linenumber" name="L77" href="MullerSolver.html#L77">77</a>      }
+<a class="jxr_linenumber" name="L78" href="MullerSolver.html#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="MullerSolver.html#L79">79</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L80" href="MullerSolver.html#L80">80</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L81" href="MullerSolver.html#L81">81</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L82" href="MullerSolver.html#L82">82</a>      @Override
+<a class="jxr_linenumber" name="L83" href="MullerSolver.html#L83">83</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> doSolve()
+<a class="jxr_linenumber" name="L84" href="MullerSolver.html#L84">84</a>          <strong class="jxr_keyword">throws</strong> TooManyEvaluationsException,
+<a class="jxr_linenumber" name="L85" href="MullerSolver.html#L85">85</a>                 NumberIsTooLargeException,
+<a class="jxr_linenumber" name="L86" href="MullerSolver.html#L86">86</a>                 <a href="../../exception/NoBracketingException.html">NoBracketingException</a> {
+<a class="jxr_linenumber" name="L87" href="MullerSolver.html#L87">87</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> min = getMin();
+<a class="jxr_linenumber" name="L88" href="MullerSolver.html#L88">88</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> max = getMax();
+<a class="jxr_linenumber" name="L89" href="MullerSolver.html#L89">89</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> initial = getStartValue();
+<a class="jxr_linenumber" name="L90" href="MullerSolver.html#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="MullerSolver.html#L91">91</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> functionValueAccuracy = getFunctionValueAccuracy();
+<a class="jxr_linenumber" name="L92" href="MullerSolver.html#L92">92</a>  
+<a class="jxr_linenumber" name="L93" href="MullerSolver.html#L93">93</a>          verifySequence(min, initial, max);
+<a class="jxr_linenumber" name="L94" href="MullerSolver.html#L94">94</a>  
+<a class="jxr_linenumber" name="L95" href="MullerSolver.html#L95">95</a>          <em class="jxr_comment">// check for zeros before verifying bracketing</em>
+<a class="jxr_linenumber" name="L96" href="MullerSolver.html#L96">96</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> fMin = computeObjectiveValue(min);
+<a class="jxr_linenumber" name="L97" href="MullerSolver.html#L97">97</a>          <strong class="jxr_keyword">if</strong> (FastMath.abs(fMin) &lt; functionValueAccuracy) {
+<a class="jxr_linenumber" name="L98" href="MullerSolver.html#L98">98</a>              <strong class="jxr_keyword">return</strong> min;
+<a class="jxr_linenumber" name="L99" href="MullerSolver.html#L99">99</a>          }
+<a class="jxr_linenumber" name="L100" href="MullerSolver.html#L100">100</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> fMax = computeObjectiveValue(max);
+<a class="jxr_linenumber" name="L101" href="MullerSolver.html#L101">101</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(fMax) &lt; functionValueAccuracy) {
+<a class="jxr_linenumber" name="L102" href="MullerSolver.html#L102">102</a>             <strong class="jxr_keyword">return</strong> max;
+<a class="jxr_linenumber" name="L103" href="MullerSolver.html#L103">103</a>         }
+<a class="jxr_linenumber" name="L104" href="MullerSolver.html#L104">104</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> fInitial = computeObjectiveValue(initial);
+<a class="jxr_linenumber" name="L105" href="MullerSolver.html#L105">105</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(fInitial) &lt;  functionValueAccuracy) {
+<a class="jxr_linenumber" name="L106" href="MullerSolver.html#L106">106</a>             <strong class="jxr_keyword">return</strong> initial;
+<a class="jxr_linenumber" name="L107" href="MullerSolver.html#L107">107</a>         }
+<a class="jxr_linenumber" name="L108" href="MullerSolver.html#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="MullerSolver.html#L109">109</a>         verifyBracketing(min, max);
+<a class="jxr_linenumber" name="L110" href="MullerSolver.html#L110">110</a> 
+<a class="jxr_linenumber" name="L111" href="MullerSolver.html#L111">111</a>         <strong class="jxr_keyword">if</strong> (isBracketing(min, initial)) {
+<a class="jxr_linenumber" name="L112" href="MullerSolver.html#L112">112</a>             <strong class="jxr_keyword">return</strong> solve(min, initial, fMin, fInitial);
+<a class="jxr_linenumber" name="L113" href="MullerSolver.html#L113">113</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L114" href="MullerSolver.html#L114">114</a>             <strong class="jxr_keyword">return</strong> solve(initial, max, fInitial, fMax);
+<a class="jxr_linenumber" name="L115" href="MullerSolver.html#L115">115</a>         }
+<a class="jxr_linenumber" name="L116" href="MullerSolver.html#L116">116</a>     }
+<a class="jxr_linenumber" name="L117" href="MullerSolver.html#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="MullerSolver.html#L118">118</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L119" href="MullerSolver.html#L119">119</a> <em class="jxr_javadoccomment">     * Find a real root in the given interval.</em>
+<a class="jxr_linenumber" name="L120" href="MullerSolver.html#L120">120</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L121" href="MullerSolver.html#L121">121</a> <em class="jxr_javadoccomment">     * @param min Lower bound for the interval.</em>
+<a class="jxr_linenumber" name="L122" href="MullerSolver.html#L122">122</a> <em class="jxr_javadoccomment">     * @param max Upper bound for the interval.</em>
+<a class="jxr_linenumber" name="L123" href="MullerSolver.html#L123">123</a> <em class="jxr_javadoccomment">     * @param fMin function value at the lower bound.</em>
+<a class="jxr_linenumber" name="L124" href="MullerSolver.html#L124">124</a> <em class="jxr_javadoccomment">     * @param fMax function value at the upper bound.</em>
+<a class="jxr_linenumber" name="L125" href="MullerSolver.html#L125">125</a> <em class="jxr_javadoccomment">     * @return the point at which the function value is zero.</em>
+<a class="jxr_linenumber" name="L126" href="MullerSolver.html#L126">126</a> <em class="jxr_javadoccomment">     * @throws TooManyEvaluationsException if the allowed number of calls to</em>
+<a class="jxr_linenumber" name="L127" href="MullerSolver.html#L127">127</a> <em class="jxr_javadoccomment">     * the function to be solved has been exhausted.</em>
+<a class="jxr_linenumber" name="L128" href="MullerSolver.html#L128">128</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L129" href="MullerSolver.html#L129">129</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> solve(<strong class="jxr_keyword">double</strong> min, <strong class="jxr_keyword">double</strong> max,
+<a class="jxr_linenumber" name="L130" href="MullerSolver.html#L130">130</a>                          <strong class="jxr_keyword">double</strong> fMin, <strong class="jxr_keyword">double</strong> fMax)
+<a class="jxr_linenumber" name="L131" href="MullerSolver.html#L131">131</a>         <strong class="jxr_keyword">throws</strong> <a href="../../exception/TooManyEvaluationsException.html">TooManyEvaluationsException</a> {
+<a class="jxr_linenumber" name="L132" href="MullerSolver.html#L132">132</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> relativeAccuracy = getRelativeAccuracy();
+<a class="jxr_linenumber" name="L133" href="MullerSolver.html#L133">133</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> absoluteAccuracy = getAbsoluteAccuracy();
+<a class="jxr_linenumber" name="L134" href="MullerSolver.html#L134">134</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> functionValueAccuracy = getFunctionValueAccuracy();
+<a class="jxr_linenumber" name="L135" href="MullerSolver.html#L135">135</a> 
+<a class="jxr_linenumber" name="L136" href="MullerSolver.html#L136">136</a>         <em class="jxr_comment">// [x0, x2] is the bracketing interval in each iteration</em>
+<a class="jxr_linenumber" name="L137" href="MullerSolver.html#L137">137</a>         <em class="jxr_comment">// x1 is the last approximation and an interpolation point in (x0, x2)</em>
+<a class="jxr_linenumber" name="L138" href="MullerSolver.html#L138">138</a>         <em class="jxr_comment">// x is the new root approximation and new x1 for next round</em>
+<a class="jxr_linenumber" name="L139" href="MullerSolver.html#L139">139</a>         <em class="jxr_comment">// d01, d12, d012 are divided differences</em>
+<a class="jxr_linenumber" name="L140" href="MullerSolver.html#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="MullerSolver.html#L141">141</a>         <strong class="jxr_keyword">double</strong> x0 = min;
+<a class="jxr_linenumber" name="L142" href="MullerSolver.html#L142">142</a>         <strong class="jxr_keyword">double</strong> y0 = fMin;
+<a class="jxr_linenumber" name="L143" href="MullerSolver.html#L143">143</a>         <strong class="jxr_keyword">double</strong> x2 = max;
+<a class="jxr_linenumber" name="L144" href="MullerSolver.html#L144">144</a>         <strong class="jxr_keyword">double</strong> y2 = fMax;
+<a class="jxr_linenumber" name="L145" href="MullerSolver.html#L145">145</a>         <strong class="jxr_keyword">double</strong> x1 = 0.5 * (x0 + x2);
+<a class="jxr_linenumber" name="L146" href="MullerSolver.html#L146">146</a>         <strong class="jxr_keyword">double</strong> y1 = computeObjectiveValue(x1);
+<a class="jxr_linenumber" name="L147" href="MullerSolver.html#L147">147</a> 
+<a class="jxr_linenumber" name="L148" href="MullerSolver.html#L148">148</a>         <strong class="jxr_keyword">double</strong> oldx = Double.POSITIVE_INFINITY;
+<a class="jxr_linenumber" name="L149" href="MullerSolver.html#L149">149</a>         <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) {
+<a class="jxr_linenumber" name="L150" href="MullerSolver.html#L150">150</a>             <em class="jxr_comment">// Muller's method employs quadratic interpolation through</em>
+<a class="jxr_linenumber" name="L151" href="MullerSolver.html#L151">151</a>             <em class="jxr_comment">// x0, x1, x2 and x is the zero of the interpolating parabola.</em>
+<a class="jxr_linenumber" name="L152" href="MullerSolver.html#L152">152</a>             <em class="jxr_comment">// Due to bracketing condition, this parabola must have two</em>
+<a class="jxr_linenumber" name="L153" href="MullerSolver.html#L153">153</a>             <em class="jxr_comment">// real roots and we choose one in [x0, x2] to be x.</em>
+<a class="jxr_linenumber" name="L154" href="MullerSolver.html#L154">154</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> d01 = (y1 - y0) / (x1 - x0);
+<a class="jxr_linenumber" name="L155" href="MullerSolver.html#L155">155</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> d12 = (y2 - y1) / (x2 - x1);
+<a class="jxr_linenumber" name="L156" href="MullerSolver.html#L156">156</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> d012 = (d12 - d01) / (x2 - x0);
+<a class="jxr_linenumber" name="L157" href="MullerSolver.html#L157">157</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> c1 = d01 + (x1 - x0) * d012;
+<a class="jxr_linenumber" name="L158" href="MullerSolver.html#L158">158</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> delta = c1 * c1 - 4 * y1 * d012;
+<a class="jxr_linenumber" name="L159" href="MullerSolver.html#L159">159</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xplus = x1 + (-2.0 * y1) / (c1 + FastMath.sqrt(delta));
+<a class="jxr_linenumber" name="L160" href="MullerSolver.html#L160">160</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xminus = x1 + (-2.0 * y1) / (c1 - FastMath.sqrt(delta));
+<a class="jxr_linenumber" name="L161" href="MullerSolver.html#L161">161</a>             <em class="jxr_comment">// xplus and xminus are two roots of parabola and at least</em>
+<a class="jxr_linenumber" name="L162" href="MullerSolver.html#L162">162</a>             <em class="jxr_comment">// one of them should lie in (x0, x2)</em>
+<a class="jxr_linenumber" name="L163" href="MullerSolver.html#L163">163</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x = isSequence(x0, xplus, x2) ? xplus : xminus;
+<a class="jxr_linenumber" name="L164" href="MullerSolver.html#L164">164</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y = computeObjectiveValue(x);
+<a class="jxr_linenumber" name="L165" href="MullerSolver.html#L165">165</a> 
+<a class="jxr_linenumber" name="L166" href="MullerSolver.html#L166">166</a>             <em class="jxr_comment">// check for convergence</em>
+<a class="jxr_linenumber" name="L167" href="MullerSolver.html#L167">167</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tolerance = FastMath.max(relativeAccuracy * FastMath.abs(x), absoluteAccuracy);
+<a class="jxr_linenumber" name="L168" href="MullerSolver.html#L168">168</a>             <strong class="jxr_keyword">if</strong> (FastMath.abs(x - oldx) &lt;= tolerance ||
+<a class="jxr_linenumber" name="L169" href="MullerSolver.html#L169">169</a>                 FastMath.abs(y) &lt;= functionValueAccuracy) {
+<a class="jxr_linenumber" name="L170" href="MullerSolver.html#L170">170</a>                 <strong class="jxr_keyword">return</strong> x;
+<a class="jxr_linenumber" name="L171" href="MullerSolver.html#L171">171</a>             }
+<a class="jxr_linenumber" name="L172" href="MullerSolver.html#L172">172</a> 
+<a class="jxr_linenumber" name="L173" href="MullerSolver.html#L173">173</a>             <em class="jxr_comment">// Bisect if convergence is too slow. Bisection would waste</em>
+<a class="jxr_linenumber" name="L174" href="MullerSolver.html#L174">174</a>             <em class="jxr_comment">// our calculation of x, hopefully it won't happen often.</em>
+<a class="jxr_linenumber" name="L175" href="MullerSolver.html#L175">175</a>             <em class="jxr_comment">// the real number equality test x == x1 is intentional and</em>
+<a class="jxr_linenumber" name="L176" href="MullerSolver.html#L176">176</a>             <em class="jxr_comment">// completes the proximity tests above it</em>
+<a class="jxr_linenumber" name="L177" href="MullerSolver.html#L177">177</a>             <strong class="jxr_keyword">boolean</strong> bisect = (x &lt; x1 &amp;&amp; (x1 - x0) &gt; 0.95 * (x2 - x0)) ||
+<a class="jxr_linenumber" name="L178" href="MullerSolver.html#L178">178</a>                              (x &gt; x1 &amp;&amp; (x2 - x1) &gt; 0.95 * (x2 - x0)) ||
+<a class="jxr_linenumber" name="L179" href="MullerSolver.html#L179">179</a>                              (x == x1);
+<a class="jxr_linenumber" name="L180" href="MullerSolver.html#L180">180</a>             <em class="jxr_comment">// prepare the new bracketing interval for next iteration</em>
+<a class="jxr_linenumber" name="L181" href="MullerSolver.html#L181">181</a>             <strong class="jxr_keyword">if</strong> (!bisect) {
+<a class="jxr_linenumber" name="L182" href="MullerSolver.html#L182">182</a>                 x0 = x &lt; x1 ? x0 : x1;
+<a class="jxr_linenumber" name="L183" href="MullerSolver.html#L183">183</a>                 y0 = x &lt; x1 ? y0 : y1;
+<a class="jxr_linenumber" name="L184" href="MullerSolver.html#L184">184</a>                 x2 = x &gt; x1 ? x2 : x1;
+<a class="jxr_linenumber" name="L185" href="MullerSolver.html#L185">185</a>                 y2 = x &gt; x1 ? y2 : y1;
+<a class="jxr_linenumber" name="L186" href="MullerSolver.html#L186">186</a>                 x1 = x; y1 = y;
+<a class="jxr_linenumber" name="L187" href="MullerSolver.html#L187">187</a>                 oldx = x;
+<a class="jxr_linenumber" name="L188" href="MullerSolver.html#L188">188</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L189" href="MullerSolver.html#L189">189</a>                 <strong class="jxr_keyword">double</strong> xm = 0.5 * (x0 + x2);
+<a class="jxr_linenumber" name="L190" href="MullerSolver.html#L190">190</a>                 <strong class="jxr_keyword">double</strong> ym = computeObjectiveValue(xm);
+<a class="jxr_linenumber" name="L191" href="MullerSolver.html#L191">191</a>                 <strong class="jxr_keyword">if</strong> (FastMath.signum(y0) + FastMath.signum(ym) == 0.0) {
+<a class="jxr_linenumber" name="L192" href="MullerSolver.html#L192">192</a>                     x2 = xm; y2 = ym;
+<a class="jxr_linenumber" name="L193" href="MullerSolver.html#L193">193</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L194" href="MullerSolver.html#L194">194</a>                     x0 = xm; y0 = ym;
+<a class="jxr_linenumber" name="L195" href="MullerSolver.html#L195">195</a>                 }
+<a class="jxr_linenumber" name="L196" href="MullerSolver.html#L196">196</a>                 x1 = 0.5 * (x0 + x2);
+<a class="jxr_linenumber" name="L197" href="MullerSolver.html#L197">197</a>                 y1 = computeObjectiveValue(x1);
+<a class="jxr_linenumber" name="L198" href="MullerSolver.html#L198">198</a>                 oldx = Double.POSITIVE_INFINITY;
+<a class="jxr_linenumber" name="L199" href="MullerSolver.html#L199">199</a>             }
+<a class="jxr_linenumber" name="L200" href="MullerSolver.html#L200">200</a>         }
+<a class="jxr_linenumber" name="L201" href="MullerSolver.html#L201">201</a>     }
+<a class="jxr_linenumber" name="L202" href="MullerSolver.html#L202">202</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

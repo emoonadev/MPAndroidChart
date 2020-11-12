@@ -1,0 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>HessenbergTransformer xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math4/linear/HessenbergTransformer.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="HessenbergTransformer.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="HessenbergTransformer.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="HessenbergTransformer.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="HessenbergTransformer.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="HessenbergTransformer.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="HessenbergTransformer.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="HessenbergTransformer.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="HessenbergTransformer.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="HessenbergTransformer.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="HessenbergTransformer.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="HessenbergTransformer.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="HessenbergTransformer.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="HessenbergTransformer.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="HessenbergTransformer.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="HessenbergTransformer.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="HessenbergTransformer.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="HessenbergTransformer.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="HessenbergTransformer.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.linear;
+<a class="jxr_linenumber" name="L19" href="HessenbergTransformer.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="HessenbergTransformer.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L21" href="HessenbergTransformer.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Precision;
+<a class="jxr_linenumber" name="L22" href="HessenbergTransformer.html#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="HessenbergTransformer.html#L23">23</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L24" href="HessenbergTransformer.html#L24">24</a>  <em class="jxr_javadoccomment"> * Class transforming a general real matrix to Hessenberg form.</em>
+<a class="jxr_linenumber" name="L25" href="HessenbergTransformer.html#L25">25</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;A m &amp;times; m matrix A can be written as the product of three matrices: A = P</em>
+<a class="jxr_linenumber" name="L26" href="HessenbergTransformer.html#L26">26</a>  <em class="jxr_javadoccomment"> * &amp;times; H &amp;times; P&lt;sup&gt;T&lt;/sup&gt; with P an orthogonal matrix and H a Hessenberg</em>
+<a class="jxr_linenumber" name="L27" href="HessenbergTransformer.html#L27">27</a>  <em class="jxr_javadoccomment"> * matrix. Both P and H are m &amp;times; m matrices.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L28" href="HessenbergTransformer.html#L28">28</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Transformation to Hessenberg form is often not a goal by itself, but it is an</em>
+<a class="jxr_linenumber" name="L29" href="HessenbergTransformer.html#L29">29</a>  <em class="jxr_javadoccomment"> * intermediate step in more general decomposition algorithms like</em>
+<a class="jxr_linenumber" name="L30" href="HessenbergTransformer.html#L30">30</a>  <em class="jxr_javadoccomment"> * {@link EigenDecomposition eigen decomposition}. This class is therefore</em>
+<a class="jxr_linenumber" name="L31" href="HessenbergTransformer.html#L31">31</a>  <em class="jxr_javadoccomment"> * intended for internal use by the library and is not public. As a consequence</em>
+<a class="jxr_linenumber" name="L32" href="HessenbergTransformer.html#L32">32</a>  <em class="jxr_javadoccomment"> * of this explicitly limited scope, many methods directly returns references to</em>
+<a class="jxr_linenumber" name="L33" href="HessenbergTransformer.html#L33">33</a>  <em class="jxr_javadoccomment"> * internal arrays, not copies.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L34" href="HessenbergTransformer.html#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This class is based on the method orthes in class EigenvalueDecomposition</em>
+<a class="jxr_linenumber" name="L35" href="HessenbergTransformer.html#L35">35</a>  <em class="jxr_javadoccomment"> * from the &lt;a href="<a href="http://math.nist.gov/javanumerics/jama/" target="alexandria_uri">http://math.nist.gov/javanumerics/jama/</a>"&gt;JAMA&lt;/a&gt; library.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L36" href="HessenbergTransformer.html#L36">36</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L37" href="HessenbergTransformer.html#L37">37</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://mathworld.wolfram.com/HessenbergDecomposition.html" target="alexandria_uri">http://mathworld.wolfram.com/HessenbergDecomposition.html</a>"&gt;MathWorld&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L38" href="HessenbergTransformer.html#L38">38</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/Householder_transformation" target="alexandria_uri">http://en.wikipedia.org/wiki/Householder_transformation</a>"&gt;Householder Transformations&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L39" href="HessenbergTransformer.html#L39">39</a>  <em class="jxr_javadoccomment"> * @since 3.1</em>
+<a class="jxr_linenumber" name="L40" href="HessenbergTransformer.html#L40">40</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L41" href="HessenbergTransformer.html#L41">41</a>  <strong class="jxr_keyword">class</strong> <a href="HessenbergTransformer.html">HessenbergTransformer</a> {
+<a class="jxr_linenumber" name="L42" href="HessenbergTransformer.html#L42">42</a>      <em class="jxr_javadoccomment">/** Householder vectors. */</em>
+<a class="jxr_linenumber" name="L43" href="HessenbergTransformer.html#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> householderVectors[][];
+<a class="jxr_linenumber" name="L44" href="HessenbergTransformer.html#L44">44</a>      <em class="jxr_javadoccomment">/** Temporary storage vector. */</em>
+<a class="jxr_linenumber" name="L45" href="HessenbergTransformer.html#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> ort[];
+<a class="jxr_linenumber" name="L46" href="HessenbergTransformer.html#L46">46</a>      <em class="jxr_javadoccomment">/** Cached value of P. */</em>
+<a class="jxr_linenumber" name="L47" href="HessenbergTransformer.html#L47">47</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedP;
+<a class="jxr_linenumber" name="L48" href="HessenbergTransformer.html#L48">48</a>      <em class="jxr_javadoccomment">/** Cached value of Pt. */</em>
+<a class="jxr_linenumber" name="L49" href="HessenbergTransformer.html#L49">49</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedPt;
+<a class="jxr_linenumber" name="L50" href="HessenbergTransformer.html#L50">50</a>      <em class="jxr_javadoccomment">/** Cached value of H. */</em>
+<a class="jxr_linenumber" name="L51" href="HessenbergTransformer.html#L51">51</a>      <strong class="jxr_keyword">private</strong> <a href="RealMatrix.html">RealMatrix</a> cachedH;
+<a class="jxr_linenumber" name="L52" href="HessenbergTransformer.html#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="HessenbergTransformer.html#L53">53</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L54" href="HessenbergTransformer.html#L54">54</a>  <em class="jxr_javadoccomment">     * Build the transformation to Hessenberg form of a general matrix.</em>
+<a class="jxr_linenumber" name="L55" href="HessenbergTransformer.html#L55">55</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L56" href="HessenbergTransformer.html#L56">56</a>  <em class="jxr_javadoccomment">     * @param matrix matrix to transform</em>
+<a class="jxr_linenumber" name="L57" href="HessenbergTransformer.html#L57">57</a>  <em class="jxr_javadoccomment">     * @throws NonSquareMatrixException if the matrix is not square</em>
+<a class="jxr_linenumber" name="L58" href="HessenbergTransformer.html#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L59" href="HessenbergTransformer.html#L59">59</a>      <a href="HessenbergTransformer.html">HessenbergTransformer</a>(<strong class="jxr_keyword">final</strong> <a href="RealMatrix.html">RealMatrix</a> matrix) {
+<a class="jxr_linenumber" name="L60" href="HessenbergTransformer.html#L60">60</a>          <strong class="jxr_keyword">if</strong> (!matrix.isSquare()) {
+<a class="jxr_linenumber" name="L61" href="HessenbergTransformer.html#L61">61</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="NonSquareMatrixException.html">NonSquareMatrixException</a>(matrix.getRowDimension(),
+<a class="jxr_linenumber" name="L62" href="HessenbergTransformer.html#L62">62</a>                      matrix.getColumnDimension());
+<a class="jxr_linenumber" name="L63" href="HessenbergTransformer.html#L63">63</a>          }
+<a class="jxr_linenumber" name="L64" href="HessenbergTransformer.html#L64">64</a>  
+<a class="jxr_linenumber" name="L65" href="HessenbergTransformer.html#L65">65</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = matrix.getRowDimension();
+<a class="jxr_linenumber" name="L66" href="HessenbergTransformer.html#L66">66</a>          householderVectors = matrix.getData();
+<a class="jxr_linenumber" name="L67" href="HessenbergTransformer.html#L67">67</a>          ort = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[m];
+<a class="jxr_linenumber" name="L68" href="HessenbergTransformer.html#L68">68</a>          cachedP = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L69" href="HessenbergTransformer.html#L69">69</a>          cachedPt = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L70" href="HessenbergTransformer.html#L70">70</a>          cachedH = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L71" href="HessenbergTransformer.html#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="HessenbergTransformer.html#L72">72</a>          <em class="jxr_comment">// transform matrix</em>
+<a class="jxr_linenumber" name="L73" href="HessenbergTransformer.html#L73">73</a>          transform();
+<a class="jxr_linenumber" name="L74" href="HessenbergTransformer.html#L74">74</a>      }
+<a class="jxr_linenumber" name="L75" href="HessenbergTransformer.html#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="HessenbergTransformer.html#L76">76</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L77" href="HessenbergTransformer.html#L77">77</a>  <em class="jxr_javadoccomment">     * Returns the matrix P of the transform.</em>
+<a class="jxr_linenumber" name="L78" href="HessenbergTransformer.html#L78">78</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;P is an orthogonal matrix, i.e. its inverse is also its transpose.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L79" href="HessenbergTransformer.html#L79">79</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L80" href="HessenbergTransformer.html#L80">80</a>  <em class="jxr_javadoccomment">     * @return the P matrix</em>
+<a class="jxr_linenumber" name="L81" href="HessenbergTransformer.html#L81">81</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L82" href="HessenbergTransformer.html#L82">82</a>      <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getP() {
+<a class="jxr_linenumber" name="L83" href="HessenbergTransformer.html#L83">83</a>          <strong class="jxr_keyword">if</strong> (cachedP == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L84" href="HessenbergTransformer.html#L84">84</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = householderVectors.length;
+<a class="jxr_linenumber" name="L85" href="HessenbergTransformer.html#L85">85</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> high = n - 1;
+<a class="jxr_linenumber" name="L86" href="HessenbergTransformer.html#L86">86</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] pa = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n][n];
+<a class="jxr_linenumber" name="L87" href="HessenbergTransformer.html#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="HessenbergTransformer.html#L88">88</a>              <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L89" href="HessenbergTransformer.html#L89">89</a>                  <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; n; j++) {
+<a class="jxr_linenumber" name="L90" href="HessenbergTransformer.html#L90">90</a>                      pa[i][j] = (i == j) ? 1 : 0;
+<a class="jxr_linenumber" name="L91" href="HessenbergTransformer.html#L91">91</a>                  }
+<a class="jxr_linenumber" name="L92" href="HessenbergTransformer.html#L92">92</a>              }
+<a class="jxr_linenumber" name="L93" href="HessenbergTransformer.html#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="HessenbergTransformer.html#L94">94</a>              <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> m = high - 1; m &gt;= 1; m--) {
+<a class="jxr_linenumber" name="L95" href="HessenbergTransformer.html#L95">95</a>                  <strong class="jxr_keyword">if</strong> (householderVectors[m][m - 1] != 0.0) {
+<a class="jxr_linenumber" name="L96" href="HessenbergTransformer.html#L96">96</a>                      <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = m + 1; i &lt;= high; i++) {
+<a class="jxr_linenumber" name="L97" href="HessenbergTransformer.html#L97">97</a>                          ort[i] = householderVectors[i][m - 1];
+<a class="jxr_linenumber" name="L98" href="HessenbergTransformer.html#L98">98</a>                      }
+<a class="jxr_linenumber" name="L99" href="HessenbergTransformer.html#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="HessenbergTransformer.html#L100">100</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = m; j &lt;= high; j++) {
+<a class="jxr_linenumber" name="L101" href="HessenbergTransformer.html#L101">101</a>                         <strong class="jxr_keyword">double</strong> g = 0.0;
+<a class="jxr_linenumber" name="L102" href="HessenbergTransformer.html#L102">102</a> 
+<a class="jxr_linenumber" name="L103" href="HessenbergTransformer.html#L103">103</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = m; i &lt;= high; i++) {
+<a class="jxr_linenumber" name="L104" href="HessenbergTransformer.html#L104">104</a>                             g += ort[i] * pa[i][j];
+<a class="jxr_linenumber" name="L105" href="HessenbergTransformer.html#L105">105</a>                         }
+<a class="jxr_linenumber" name="L106" href="HessenbergTransformer.html#L106">106</a> 
+<a class="jxr_linenumber" name="L107" href="HessenbergTransformer.html#L107">107</a>                         <em class="jxr_comment">// Double division avoids possible underflow</em>
+<a class="jxr_linenumber" name="L108" href="HessenbergTransformer.html#L108">108</a>                         g = (g / ort[m]) / householderVectors[m][m - 1];
+<a class="jxr_linenumber" name="L109" href="HessenbergTransformer.html#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="HessenbergTransformer.html#L110">110</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = m; i &lt;= high; i++) {
+<a class="jxr_linenumber" name="L111" href="HessenbergTransformer.html#L111">111</a>                             pa[i][j] += g * ort[i];
+<a class="jxr_linenumber" name="L112" href="HessenbergTransformer.html#L112">112</a>                         }
+<a class="jxr_linenumber" name="L113" href="HessenbergTransformer.html#L113">113</a>                     }
+<a class="jxr_linenumber" name="L114" href="HessenbergTransformer.html#L114">114</a>                 }
+<a class="jxr_linenumber" name="L115" href="HessenbergTransformer.html#L115">115</a>             }
+<a class="jxr_linenumber" name="L116" href="HessenbergTransformer.html#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="HessenbergTransformer.html#L117">117</a>             cachedP = MatrixUtils.createRealMatrix(pa);
+<a class="jxr_linenumber" name="L118" href="HessenbergTransformer.html#L118">118</a>         }
+<a class="jxr_linenumber" name="L119" href="HessenbergTransformer.html#L119">119</a>         <strong class="jxr_keyword">return</strong> cachedP;
+<a class="jxr_linenumber" name="L120" href="HessenbergTransformer.html#L120">120</a>     }
+<a class="jxr_linenumber" name="L121" href="HessenbergTransformer.html#L121">121</a> 
+<a class="jxr_linenumber" name="L122" href="HessenbergTransformer.html#L122">122</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L123" href="HessenbergTransformer.html#L123">123</a> <em class="jxr_javadoccomment">     * Returns the transpose of the matrix P of the transform.</em>
+<a class="jxr_linenumber" name="L124" href="HessenbergTransformer.html#L124">124</a> <em class="jxr_javadoccomment">     * &lt;p&gt;P is an orthogonal matrix, i.e. its inverse is also its transpose.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L125" href="HessenbergTransformer.html#L125">125</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L126" href="HessenbergTransformer.html#L126">126</a> <em class="jxr_javadoccomment">     * @return the transpose of the P matrix</em>
+<a class="jxr_linenumber" name="L127" href="HessenbergTransformer.html#L127">127</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L128" href="HessenbergTransformer.html#L128">128</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getPT() {
+<a class="jxr_linenumber" name="L129" href="HessenbergTransformer.html#L129">129</a>         <strong class="jxr_keyword">if</strong> (cachedPt == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L130" href="HessenbergTransformer.html#L130">130</a>             cachedPt = getP().transpose();
+<a class="jxr_linenumber" name="L131" href="HessenbergTransformer.html#L131">131</a>         }
+<a class="jxr_linenumber" name="L132" href="HessenbergTransformer.html#L132">132</a> 
+<a class="jxr_linenumber" name="L133" href="HessenbergTransformer.html#L133">133</a>         <em class="jxr_comment">// return the cached matrix</em>
+<a class="jxr_linenumber" name="L134" href="HessenbergTransformer.html#L134">134</a>         <strong class="jxr_keyword">return</strong> cachedPt;
+<a class="jxr_linenumber" name="L135" href="HessenbergTransformer.html#L135">135</a>     }
+<a class="jxr_linenumber" name="L136" href="HessenbergTransformer.html#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="HessenbergTransformer.html#L137">137</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L138" href="HessenbergTransformer.html#L138">138</a> <em class="jxr_javadoccomment">     * Returns the Hessenberg matrix H of the transform.</em>
+<a class="jxr_linenumber" name="L139" href="HessenbergTransformer.html#L139">139</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L140" href="HessenbergTransformer.html#L140">140</a> <em class="jxr_javadoccomment">     * @return the H matrix</em>
+<a class="jxr_linenumber" name="L141" href="HessenbergTransformer.html#L141">141</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L142" href="HessenbergTransformer.html#L142">142</a>     <strong class="jxr_keyword">public</strong> <a href="RealMatrix.html">RealMatrix</a> getH() {
+<a class="jxr_linenumber" name="L143" href="HessenbergTransformer.html#L143">143</a>         <strong class="jxr_keyword">if</strong> (cachedH == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L144" href="HessenbergTransformer.html#L144">144</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = householderVectors.length;
+<a class="jxr_linenumber" name="L145" href="HessenbergTransformer.html#L145">145</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] h = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[m][m];
+<a class="jxr_linenumber" name="L146" href="HessenbergTransformer.html#L146">146</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; m; ++i) {
+<a class="jxr_linenumber" name="L147" href="HessenbergTransformer.html#L147">147</a>                 <strong class="jxr_keyword">if</strong> (i &gt; 0) {
+<a class="jxr_linenumber" name="L148" href="HessenbergTransformer.html#L148">148</a>                     <em class="jxr_comment">// copy the entry of the lower sub-diagonal</em>
+<a class="jxr_linenumber" name="L149" href="HessenbergTransformer.html#L149">149</a>                     h[i][i - 1] = householderVectors[i][i - 1];
+<a class="jxr_linenumber" name="L150" href="HessenbergTransformer.html#L150">150</a>                 }
+<a class="jxr_linenumber" name="L151" href="HessenbergTransformer.html#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="HessenbergTransformer.html#L152">152</a>                 <em class="jxr_comment">// copy upper triangular part of the matrix</em>
+<a class="jxr_linenumber" name="L153" href="HessenbergTransformer.html#L153">153</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = i; j &lt; m; ++j) {
+<a class="jxr_linenumber" name="L154" href="HessenbergTransformer.html#L154">154</a>                     h[i][j] = householderVectors[i][j];
+<a class="jxr_linenumber" name="L155" href="HessenbergTransformer.html#L155">155</a>                 }
+<a class="jxr_linenumber" name="L156" href="HessenbergTransformer.html#L156">156</a>             }
+<a class="jxr_linenumber" name="L157" href="HessenbergTransformer.html#L157">157</a>             cachedH = MatrixUtils.createRealMatrix(h);
+<a class="jxr_linenumber" name="L158" href="HessenbergTransformer.html#L158">158</a>         }
+<a class="jxr_linenumber" name="L159" href="HessenbergTransformer.html#L159">159</a> 
+<a class="jxr_linenumber" name="L160" href="HessenbergTransformer.html#L160">160</a>         <em class="jxr_comment">// return the cached matrix</em>
+<a class="jxr_linenumber" name="L161" href="HessenbergTransformer.html#L161">161</a>         <strong class="jxr_keyword">return</strong> cachedH;
+<a class="jxr_linenumber" name="L162" href="HessenbergTransformer.html#L162">162</a>     }
+<a class="jxr_linenumber" name="L163" href="HessenbergTransformer.html#L163">163</a> 
+<a class="jxr_linenumber" name="L164" href="HessenbergTransformer.html#L164">164</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L165" href="HessenbergTransformer.html#L165">165</a> <em class="jxr_javadoccomment">     * Get the Householder vectors of the transform.</em>
+<a class="jxr_linenumber" name="L166" href="HessenbergTransformer.html#L166">166</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Note that since this class is only intended for internal use, it returns</em>
+<a class="jxr_linenumber" name="L167" href="HessenbergTransformer.html#L167">167</a> <em class="jxr_javadoccomment">     * directly a reference to its internal arrays, not a copy.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L168" href="HessenbergTransformer.html#L168">168</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L169" href="HessenbergTransformer.html#L169">169</a> <em class="jxr_javadoccomment">     * @return the main diagonal elements of the B matrix</em>
+<a class="jxr_linenumber" name="L170" href="HessenbergTransformer.html#L170">170</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L171" href="HessenbergTransformer.html#L171">171</a>     <strong class="jxr_keyword">double</strong>[][] getHouseholderVectorsRef() {
+<a class="jxr_linenumber" name="L172" href="HessenbergTransformer.html#L172">172</a>         <strong class="jxr_keyword">return</strong> householderVectors;
+<a class="jxr_linenumber" name="L173" href="HessenbergTransformer.html#L173">173</a>     }
+<a class="jxr_linenumber" name="L174" href="HessenbergTransformer.html#L174">174</a> 
+<a class="jxr_linenumber" name="L175" href="HessenbergTransformer.html#L175">175</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L176" href="HessenbergTransformer.html#L176">176</a> <em class="jxr_javadoccomment">     * Transform original matrix to Hessenberg form.</em>
+<a class="jxr_linenumber" name="L177" href="HessenbergTransformer.html#L177">177</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Transformation is done using Householder transforms.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L178" href="HessenbergTransformer.html#L178">178</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L179" href="HessenbergTransformer.html#L179">179</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> transform() {
+<a class="jxr_linenumber" name="L180" href="HessenbergTransformer.html#L180">180</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = householderVectors.length;
+<a class="jxr_linenumber" name="L181" href="HessenbergTransformer.html#L181">181</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> high = n - 1;
+<a class="jxr_linenumber" name="L182" href="HessenbergTransformer.html#L182">182</a> 
+<a class="jxr_linenumber" name="L183" href="HessenbergTransformer.html#L183">183</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> m = 1; m &lt;= high - 1; m++) {
+<a class="jxr_linenumber" name="L184" href="HessenbergTransformer.html#L184">184</a>             <em class="jxr_comment">// Scale column.</em>
+<a class="jxr_linenumber" name="L185" href="HessenbergTransformer.html#L185">185</a>             <strong class="jxr_keyword">double</strong> scale = 0;
+<a class="jxr_linenumber" name="L186" href="HessenbergTransformer.html#L186">186</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = m; i &lt;= high; i++) {
+<a class="jxr_linenumber" name="L187" href="HessenbergTransformer.html#L187">187</a>                 scale += FastMath.abs(householderVectors[i][m - 1]);
+<a class="jxr_linenumber" name="L188" href="HessenbergTransformer.html#L188">188</a>             }
+<a class="jxr_linenumber" name="L189" href="HessenbergTransformer.html#L189">189</a> 
+<a class="jxr_linenumber" name="L190" href="HessenbergTransformer.html#L190">190</a>             <strong class="jxr_keyword">if</strong> (!Precision.equals(scale, 0)) {
+<a class="jxr_linenumber" name="L191" href="HessenbergTransformer.html#L191">191</a>                 <em class="jxr_comment">// Compute Householder transformation.</em>
+<a class="jxr_linenumber" name="L192" href="HessenbergTransformer.html#L192">192</a>                 <strong class="jxr_keyword">double</strong> h = 0;
+<a class="jxr_linenumber" name="L193" href="HessenbergTransformer.html#L193">193</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = high; i &gt;= m; i--) {
+<a class="jxr_linenumber" name="L194" href="HessenbergTransformer.html#L194">194</a>                     ort[i] = householderVectors[i][m - 1] / scale;
+<a class="jxr_linenumber" name="L195" href="HessenbergTransformer.html#L195">195</a>                     h += ort[i] * ort[i];
+<a class="jxr_linenumber" name="L196" href="HessenbergTransformer.html#L196">196</a>                 }
+<a class="jxr_linenumber" name="L197" href="HessenbergTransformer.html#L197">197</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> g = (ort[m] &gt; 0) ? -FastMath.sqrt(h) : FastMath.sqrt(h);
+<a class="jxr_linenumber" name="L198" href="HessenbergTransformer.html#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="HessenbergTransformer.html#L199">199</a>                 h -= ort[m] * g;
+<a class="jxr_linenumber" name="L200" href="HessenbergTransformer.html#L200">200</a>                 ort[m] -= g;
+<a class="jxr_linenumber" name="L201" href="HessenbergTransformer.html#L201">201</a> 
+<a class="jxr_linenumber" name="L202" href="HessenbergTransformer.html#L202">202</a>                 <em class="jxr_comment">// Apply Householder similarity transformation</em>
+<a class="jxr_linenumber" name="L203" href="HessenbergTransformer.html#L203">203</a>                 <em class="jxr_comment">// H = (I - u*u' / h) * H * (I - u*u' / h)</em>
+<a class="jxr_linenumber" name="L204" href="HessenbergTransformer.html#L204">204</a> 
+<a class="jxr_linenumber" name="L205" href="HessenbergTransformer.html#L205">205</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = m; j &lt; n; j++) {
+<a class="jxr_linenumber" name="L206" href="HessenbergTransformer.html#L206">206</a>                     <strong class="jxr_keyword">double</strong> f = 0;
+<a class="jxr_linenumber" name="L207" href="HessenbergTransformer.html#L207">207</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = high; i &gt;= m; i--) {
+<a class="jxr_linenumber" name="L208" href="HessenbergTransformer.html#L208">208</a>                         f += ort[i] * householderVectors[i][j];
+<a class="jxr_linenumber" name="L209" href="HessenbergTransformer.html#L209">209</a>                     }
+<a class="jxr_linenumber" name="L210" href="HessenbergTransformer.html#L210">210</a>                     f /= h;
+<a class="jxr_linenumber" name="L211" href="HessenbergTransformer.html#L211">211</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = m; i &lt;= high; i++) {
+<a class="jxr_linenumber" name="L212" href="HessenbergTransformer.html#L212">212</a>                         householderVectors[i][j] -= f * ort[i];
+<a class="jxr_linenumber" name="L213" href="HessenbergTransformer.html#L213">213</a>                     }
+<a class="jxr_linenumber" name="L214" href="HessenbergTransformer.html#L214">214</a>                 }
+<a class="jxr_linenumber" name="L215" href="HessenbergTransformer.html#L215">215</a> 
+<a class="jxr_linenumber" name="L216" href="HessenbergTransformer.html#L216">216</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt;= high; i++) {
+<a class="jxr_linenumber" name="L217" href="HessenbergTransformer.html#L217">217</a>                     <strong class="jxr_keyword">double</strong> f = 0;
+<a class="jxr_linenumber" name="L218" href="HessenbergTransformer.html#L218">218</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = high; j &gt;= m; j--) {
+<a class="jxr_linenumber" name="L219" href="HessenbergTransformer.html#L219">219</a>                         f += ort[j] * householderVectors[i][j];
+<a class="jxr_linenumber" name="L220" href="HessenbergTransformer.html#L220">220</a>                     }
+<a class="jxr_linenumber" name="L221" href="HessenbergTransformer.html#L221">221</a>                     f /= h;
+<a class="jxr_linenumber" name="L222" href="HessenbergTransformer.html#L222">222</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = m; j &lt;= high; j++) {
+<a class="jxr_linenumber" name="L223" href="HessenbergTransformer.html#L223">223</a>                         householderVectors[i][j] -= f * ort[j];
+<a class="jxr_linenumber" name="L224" href="HessenbergTransformer.html#L224">224</a>                     }
+<a class="jxr_linenumber" name="L225" href="HessenbergTransformer.html#L225">225</a>                 }
+<a class="jxr_linenumber" name="L226" href="HessenbergTransformer.html#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="HessenbergTransformer.html#L227">227</a>                 ort[m] = scale * ort[m];
+<a class="jxr_linenumber" name="L228" href="HessenbergTransformer.html#L228">228</a>                 householderVectors[m][m - 1] = scale * g;
+<a class="jxr_linenumber" name="L229" href="HessenbergTransformer.html#L229">229</a>             }
+<a class="jxr_linenumber" name="L230" href="HessenbergTransformer.html#L230">230</a>         }
+<a class="jxr_linenumber" name="L231" href="HessenbergTransformer.html#L231">231</a>     }
+<a class="jxr_linenumber" name="L232" href="HessenbergTransformer.html#L232">232</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

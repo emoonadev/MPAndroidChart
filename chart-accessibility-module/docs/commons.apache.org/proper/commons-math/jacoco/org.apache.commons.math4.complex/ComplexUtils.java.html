@@ -1,0 +1,2230 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/report.css" type="text/css"/><link rel="shortcut icon" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/report.gif" type="image/gif"/><title>ComplexUtils.java</title><link rel="stylesheet" href="https://commons.apache.org/proper/commons-math/jacoco/.resources/prettify.css" type="text/css"/><script type="text/javascript" src="https://commons.apache.org/proper/commons-math/jacoco/.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="https://commons.apache.org/proper/commons-math/jacoco/.sessions.html" class="el_session">Sessions</a></span><a href="https://commons.apache.org/proper/commons-math/jacoco/index.html" class="el_report">Apache Commons Math</a> &gt; <a href="https://commons.apache.org/proper/commons-math/jacoco/org.apache.commons.math4.complex/index.source.html" class="el_package">org.apache.commons.math4.complex</a> &gt; <span class="el_source">ComplexUtils.java</span></div><h1>ComplexUtils.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math4.complex;
+
+import org.apache.commons.math4.exception.MathIllegalArgumentException;
+import org.apache.commons.math4.exception.OutOfRangeException;
+import org.apache.commons.math4.exception.util.LocalizedFormats;
+import org.apache.commons.math4.util.FastMath;
+import org.apache.commons.math4.util.IntegerSequence;
+import org.apache.commons.math4.util.IntegerSequence.Range;
+
+/**
+ * Static implementations of common {@link Complex} utilities functions.
+ */
+public class ComplexUtils {
+
+    /**
+     * Utility class.
+     */
+<span class="nc" id="L35">    private ComplexUtils() {}</span>
+
+    /**
+     * Creates a complex number from the given polar representation.
+     * &lt;p&gt;
+     * If either {@code r} or {@code theta} is NaN, or {@code theta} is
+     * infinite, {@link Complex#NaN} is returned.
+     * &lt;p&gt;
+     * If {@code r} is infinite and {@code theta} is finite, infinite or NaN
+     * values may be returned in parts of the result, following the rules for
+     * double arithmetic.
+     *
+     * &lt;pre&gt;
+     * Examples:
+     * {@code
+     * polar2Complex(INFINITY, \(\pi\)) = INFINITY + INFINITY i
+     * polar2Complex(INFINITY, 0) = INFINITY + NaN i
+     * polar2Complex(INFINITY, \(-\frac{\pi}{4}\)) = INFINITY - INFINITY i
+     * polar2Complex(INFINITY, \(5\frac{\pi}{4}\)) = -INFINITY - INFINITY i }
+     * &lt;/pre&gt;
+     *
+     * @param r the modulus of the complex number to create
+     * @param theta the argument of the complex number to create
+     * @return {@code Complex}
+     * @throws MathIllegalArgumentException  if {@code r} is negative.
+     * @since 1.1
+     */
+    public static Complex polar2Complex(double r, double theta) throws MathIllegalArgumentException {
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (r &lt; 0) {</span>
+<span class="fc" id="L64">            throw new MathIllegalArgumentException(LocalizedFormats.NEGATIVE_COMPLEX_MODULE, r);</span>
+        }
+<span class="fc" id="L66">        return new Complex(r * FastMath.cos(theta), r * FastMath.sin(theta));</span>
+    }
+
+    /**
+     * Creates {@code Complex[]} array given {@code double[]} arrays of r and
+     * theta.
+     *
+     * @param r {@code double[]} of moduli
+     * @param theta {@code double[]} of arguments
+     * @return {@code Complex[]}
+     * @throws MathIllegalArgumentException
+     *             if {@code r} is negative.
+     * @since 4.0
+     */
+    public static Complex[] polar2Complex(double[] r, double[] theta) throws MathIllegalArgumentException {
+<span class="nc" id="L81">        final int length = r.length;</span>
+<span class="nc" id="L82">        final Complex[] c = new Complex[length];</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        for (int x = 0; x &lt; length; x++) {</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">            if (r[x] &lt; 0) {</span>
+<span class="nc" id="L85">                throw new MathIllegalArgumentException(LocalizedFormats.NEGATIVE_COMPLEX_MODULE, r[x]);</span>
+            }
+<span class="nc" id="L87">            c[x] = new Complex(r[x] * FastMath.cos(theta[x]), r[x] * FastMath.sin(theta[x]));</span>
+        }
+<span class="nc" id="L89">        return c;</span>
+    }
+
+    /**
+     * Creates {@code Complex[][]} array given {@code double[][]} arrays of r
+     * and theta.
+     *
+     * @param r {@code double[]} of moduli
+     * @param theta {@code double[]} of arguments
+     * @return {@code Complex[][]}
+     * @throws MathIllegalArgumentException
+     *             if {@code r} is negative.
+     * @since 4.0
+     */
+    public static Complex[][] polar2Complex(double[][] r, double[][] theta) throws MathIllegalArgumentException {
+<span class="nc" id="L104">        final int length = r.length;</span>
+<span class="nc" id="L105">        final Complex[][] c = new Complex[length][];</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        for (int x = 0; x &lt; length; x++) {</span>
+<span class="nc" id="L107">            c[x] = polar2Complex(r[x], theta[x]);</span>
+        }
+<span class="nc" id="L109">        return c;</span>
+    }
+
+    /**
+     * Creates {@code Complex[][][]} array given {@code double[][][]} arrays of
+     * r and theta.
+     *
+     * @param r array of moduli
+     * @param theta array of arguments
+     * @return {@code Complex}
+     * @throws MathIllegalArgumentException  if {@code r} is negative.
+     * @since 4.0
+     */
+    public static Complex[][][] polar2Complex(double[][][] r, double[][][] theta) throws MathIllegalArgumentException {
+<span class="nc" id="L123">        final int length = r.length;</span>
+<span class="nc" id="L124">        final Complex[][][] c = new Complex[length][][];</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        for (int x = 0; x &lt; length; x++) {</span>
+<span class="nc" id="L126">            c[x] = polar2Complex(r[x], theta[x]);</span>
+        }
+<span class="nc" id="L128">        return c;</span>
+    }
+
+    /**
+     * Returns double from array {@code real[]} at entry {@code index} as a
+     * {@code Complex}.
+     *
+     * @param real array of real numbers
+     * @param index location in the array
+     * @return {@code Complex}.
+     *
+     * @since 4.0
+     */
+    public static Complex extractComplexFromRealArray(double[] real, int index) {
+<span class="fc" id="L142">        return new Complex(real[index]);</span>
+    }
+
+    /**
+     * Returns float from array {@code real[]} at entry {@code index} as a
+     * {@code Complex}.
+     *
+     * @param real array of real numbers
+     * @param index location in the array
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex extractComplexFromRealArray(float[] real, int index) {
+<span class="fc" id="L156">        return new Complex(real[index]);</span>
+    }
+
+    /**
+     * Returns double from array {@code imaginary[]} at entry {@code index} as a
+     * {@code Complex}.
+     *
+     * @param imaginary array of imaginary numbers
+     * @param index location in the array
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex extractComplexFromImaginaryArray(double[] imaginary, int index) {
+<span class="fc" id="L170">        return new Complex(0, imaginary[index]);</span>
+    }
+
+    /**
+     * Returns float from array {@code imaginary[]} at entry {@code index} as a
+     * {@code Complex}.
+     *
+     * @param imaginary array of imaginary numbers
+     * @param index location in the array
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex extractComplexFromImaginaryArray(float[] imaginary, int index) {
+<span class="fc" id="L184">        return new Complex(0, imaginary[index]);</span>
+    }
+
+    /**
+     * Returns real component of Complex from array {@code Complex[]} at entry
+     * {@code index} as a {@code double}.
+     *
+     * @param complex array of complex numbers
+     * @param index location in the array
+     * @return {@code double}.
+     *
+     * @since 4.0
+     */
+    public static double extractRealFromComplexArray(Complex[] complex, int index) {
+<span class="fc" id="L198">        return complex[index].getReal();</span>
+    }
+
+    /**
+     * Returns real component of array {@code Complex[]} at entry {@code index}
+     * as a {@code float}.
+     *
+     * @param complex array of complex numbers
+     * @param index location in the array
+     * @return {@code float}.
+     *
+     * @since 4.0
+     */
+    public static float extractRealFloatFromComplexArray(Complex[] complex, int index) {
+<span class="fc" id="L212">        return (float) complex[index].getReal();</span>
+    }
+
+    /**
+     * Returns imaginary component of Complex from array {@code Complex[]} at
+     * entry {@code index} as a {@code double}.
+     *
+     * @param complex array of complex numbers
+     * @param index location in the array
+     * @return {@code double}.
+     *
+     * @since 4.0
+     */
+    public static double extractImaginaryFromComplexArray(Complex[] complex, int index) {
+<span class="fc" id="L226">        return complex[index].getImaginary();</span>
+    }
+
+    /**
+     * Returns imaginary component of array {@code Complex[]} at entry
+     * {@code index} as a {@code float}.
+     *
+     * @param complex array of complex numbers
+     * @param index location in the array
+     * @return {@code float}.
+     *
+     * @since 4.0
+     */
+    public static float extractImaginaryFloatFromComplexArray(Complex[] complex, int index) {
+<span class="fc" id="L240">        return (float) complex[index].getImaginary();</span>
+    }
+
+    /**
+     * Returns a Complex object from interleaved {@code double[]} array at entry
+     * {@code index}.
+     *
+     * @param d array of interleaved complex numbers alternating real and imaginary values
+     * @param index location in the array This is the location by complex number, e.g. index number 5 in the array will return {@code new Complex(d[10], d[11])}
+     * @return {@code Complex}.
+     *
+     * @since 4.0
+     */
+    public static Complex extractComplexFromInterleavedArray(double[] d, int index) {
+<span class="fc" id="L254">        return new Complex(d[index * 2], d[index * 2 + 1]);</span>
+    }
+
+    /**
+     * Returns a Complex object from interleaved {@code float[]} array at entry
+     * {@code index}.
+     *
+     * @param f float array of interleaved complex numbers alternating real and imaginary values
+     * @param index location in the array This is the location by complex number, e.g. index number 5 in the {@code float[]} array will return new {@code Complex(d[10], d[11])}
+     * @return {@code Complex}.
+     *
+     * @since 4.0
+     */
+    public static Complex extractComplexFromInterleavedArray(float[] f, int index) {
+<span class="fc" id="L268">        return new Complex(f[index * 2], f[index * 2 + 1]);</span>
+    }
+
+    /**
+     * Returns values of Complex object from array {@code Complex[]} at entry
+     * {@code index} as a size 2 {@code double} of the form {real, imag}.
+     *
+     * @param complex array of complex numbers
+     * @param index location in the array
+     * @return size 2 array.
+     *
+     * @since 4.0
+     */
+    public static double[] extractInterleavedFromComplexArray(Complex[] complex, int index) {
+<span class="fc" id="L282">        return new double[] { complex[index].getReal(), complex[index].getImaginary() };</span>
+    }
+
+    /**
+     * Returns Complex object from array {@code Complex[]} at entry
+     * {@code index} as a size 2 {@code float} of the form {real, imag}.
+     *
+     * @param complex {@code Complex} array
+     * @param index location in the array
+     * @return size 2 {@code float[]}.
+     *
+     * @since 4.0
+     */
+    public static float[] extractInterleavedFloatFromComplexArray(Complex[] complex, int index) {
+<span class="nc" id="L296">        return new float[] { (float) complex[index].getReal(), (float) complex[index].getImaginary() };</span>
+    }
+
+    /**
+     * Converts a {@code double[]} array to a {@code Complex[]} array for the
+     * range {@code start} - {@code end}.
+     *
+     * @param real array of real numbers to be converted to their {@code Complex} equivalent
+     * @param start start index
+     * @param end end index
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] real2Complex(double[] real, int start, int end) {
+<span class="fc" id="L311">        final Range range = IntegerSequence.range(start, end);</span>
+<span class="fc" id="L312">        int index = 0;</span>
+<span class="fc" id="L313">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L314" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L315">            c[index] = extractComplexFromRealArray(real, i);</span>
+<span class="fc" id="L316">            index++;</span>
+<span class="fc" id="L317">        }</span>
+<span class="fc" id="L318">        return c;</span>
+    }
+
+    /**
+     * Converts a {@code float[]} array to a {@code Complex[]} array for the
+     * range {@code start} - {@code end}.
+     *
+     * @param real array of real numbers to be converted to their {@code Complex} equivalent
+     * @param start start index
+     * @param end end index
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] real2Complex(float[] real, int start, int end) {
+<span class="fc" id="L333">        final Range range = IntegerSequence.range(start, end);</span>
+<span class="fc" id="L334">        int index = 0;</span>
+<span class="fc" id="L335">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L336" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L337">            c[index] = extractComplexFromRealArray(real, i);</span>
+<span class="fc" id="L338">            index++;</span>
+<span class="fc" id="L339">        }</span>
+<span class="fc" id="L340">        return c;</span>
+    }
+
+    /**
+     * Converts a {@code double[]} array to a {@code Complex[]} array for the
+     * range {@code start} - {@code end} by {@code increment}.
+     *
+     * @param real array of numbers to be converted to their {@code Complex} equivalent
+     * @param start start index
+     * @param end end index
+     * @param increment range increment
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] real2Complex(double[] real, int start, int end, int increment) {
+<span class="fc" id="L356">        final Range range = IntegerSequence.range(start, end, increment);</span>
+<span class="fc" id="L357">        int index = 0;</span>
+<span class="fc" id="L358">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L359" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L360">            c[index] = extractComplexFromRealArray(real, i);</span>
+<span class="fc" id="L361">            index++;</span>
+<span class="fc" id="L362">        }</span>
+<span class="fc" id="L363">        return c;</span>
+    }
+
+    /**
+     * Converts a {@code float[]} array to a {@code Complex[]} array for the
+     * range {@code start} - {@code end} by {@code increment}.
+     *
+     * @param real array of numbers to be converted to their {@code Complex} equivalent
+     * @param start start index
+     * @param end end index
+     * @param increment range increment
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] real2Complex(float[] real, int start, int end, int increment) {
+<span class="fc" id="L379">        final Range range = IntegerSequence.range(start, end, increment);</span>
+<span class="fc" id="L380">        int index = 0;</span>
+<span class="fc" id="L381">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L382" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L383">            c[index] = extractComplexFromRealArray(real, i);</span>
+<span class="fc" id="L384">            index++;</span>
+<span class="fc" id="L385">        }</span>
+<span class="fc" id="L386">        return c;</span>
+    }
+
+    /**
+     * Converts a {@code double[]} array to a {@code Complex[]} array for the
+     * {@code IntegerSequence} range.
+     *
+     * @param real array of numbers to be converted to their {@code Complex} equivalent
+     * @param range an {@code Iterable&lt;Integer&gt;} object returned by {@code IntegerSequence.range()}
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] real2Complex(double[] real, Range range) {
+<span class="fc" id="L400">        int index = 0;</span>
+<span class="fc" id="L401">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L402" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L403">            c[index] = extractComplexFromRealArray(real, i);</span>
+<span class="fc" id="L404">            index++;</span>
+<span class="fc" id="L405">        }</span>
+<span class="fc" id="L406">        return c;</span>
+    }
+
+    /**
+     * Converts a {@code float[]} array to a {@code Complex[]} array for the
+     * {@code IntegerSequence} range.
+     *
+     * @param real array of numbers to be converted to their {@code Complex} equivalent
+     * @param range an {@code Iterable&lt;Integer&gt;} object returned by {@code IntegerSequence.range()}
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] real2Complex(float[] real, Range range) {
+<span class="fc" id="L420">        int index = 0;</span>
+<span class="fc" id="L421">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L422" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L423">            c[index] = extractComplexFromRealArray(real, i);</span>
+<span class="fc" id="L424">            index++;</span>
+<span class="fc" id="L425">        }</span>
+<span class="fc" id="L426">        return c;</span>
+    }
+
+    /**
+     * Converts a {@code double[]} array to a {@code Complex[]} array.
+     *
+     * @param real array of numbers to be converted to their {@code Complex} equivalent
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] real2Complex(double[] real) {
+<span class="fc" id="L438">        int index = 0;</span>
+<span class="fc" id="L439">        final Complex c[] = new Complex[real.length];</span>
+<span class="fc bfc" id="L440" title="All 2 branches covered.">        for (double d : real) {</span>
+<span class="fc" id="L441">            c[index] = new Complex(d);</span>
+<span class="fc" id="L442">            index++;</span>
+        }
+<span class="fc" id="L444">        return c;</span>
+    }
+
+    /**
+     * Converts a {@code float[]} array to a {@code Complex[]} array.
+     *
+     * @param real array of numbers to be converted to their {@code Complex} equivalent
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] real2Complex(float[] real) {
+<span class="fc" id="L456">        int index = 0;</span>
+<span class="fc" id="L457">        final Complex c[] = new Complex[real.length];</span>
+<span class="fc bfc" id="L458" title="All 2 branches covered.">        for (float d : real) {</span>
+<span class="fc" id="L459">            c[index] = new Complex(d);</span>
+<span class="fc" id="L460">            index++;</span>
+        }
+<span class="fc" id="L462">        return c;</span>
+    }
+
+    /**
+     * Converts a 2D real {@code double[][]} array to a 2D {@code Complex[][]}
+     * array.
+     *
+     * @param d 2D array
+     * @return 2D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[][] real2Complex(double[][] d) {
+<span class="nc" id="L475">        final int width = d.length;</span>
+<span class="nc" id="L476">        final Complex[][] c = new Complex[width][];</span>
+<span class="nc bnc" id="L477" title="All 2 branches missed.">        for (int n = 0; n &lt; width; n++) {</span>
+<span class="nc" id="L478">            c[n] = ComplexUtils.real2Complex(d[n]);</span>
+        }
+<span class="nc" id="L480">        return c;</span>
+    }
+
+    /**
+     * Converts a 3D real {@code double[][][]} array to a {@code Complex [][][]}
+     * array.
+     *
+     * @param d 3D complex interleaved array
+     * @return 3D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[][][] real2Complex(double[][][] d) {
+<span class="nc" id="L493">        final int width = d.length;</span>
+<span class="nc" id="L494">        final Complex[][][] c = new Complex[width][][];</span>
+<span class="nc bnc" id="L495" title="All 2 branches missed.">        for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc" id="L496">            c[x] = ComplexUtils.real2Complex(d[x]);</span>
+        }
+<span class="nc" id="L498">        return c;</span>
+    }
+
+    /**
+     * Converts a {@code Complex[]} array to a {@code double[]} array for the
+     * range {@code start} - {@code end}.
+     *
+     * @param c {@code Complex} array
+     * @param start start index
+     * @param end end index
+     * @return array of the real component
+     *
+     * @since 4.0
+     */
+    public static double[] complex2Real(Complex[] c, int start, int end) {
+<span class="fc" id="L513">        final Range range = IntegerSequence.range(start, end);</span>
+<span class="fc" id="L514">        int index = 0;</span>
+<span class="fc" id="L515">        final double d[] = new double[range.size()];</span>
+<span class="fc bfc" id="L516" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L517">            d[index] = extractRealFromComplexArray(c, i);</span>
+<span class="fc" id="L518">            index++;</span>
+<span class="fc" id="L519">        }</span>
+<span class="fc" id="L520">        return d;</span>
+    }
+
+    /**
+     * Converts a {@code Complex[]} array to a {@code float[]} array for the
+     * range {@code start} - {@code end}.
+     *
+     * @param c {@code Complex} array
+     * @param start start index
+     * @param end end index
+     * @return {@code float[]} array of the real component
+     *
+     * @since 4.0
+     */
+    public static float[] complex2RealFloat(Complex[] c, int start, int end) {
+<span class="fc" id="L535">        final Range range = IntegerSequence.range(start, end);</span>
+<span class="fc" id="L536">        int index = 0;</span>
+<span class="fc" id="L537">        final float f[] = new float[range.size()];</span>
+<span class="fc bfc" id="L538" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L539">            f[index] = extractRealFloatFromComplexArray(c, i);</span>
+<span class="fc" id="L540">            index++;</span>
+<span class="fc" id="L541">        }</span>
+<span class="fc" id="L542">        return f;</span>
+    }
+
+    /**
+     * Converts a {@code Complex[]} array to a {@code double[]} array for the
+     * range {@code start} - {@code end} by {@code increment}.
+     *
+     * @param c {@code Complex} array
+     * @param start start index
+     * @param end end index
+     * @param increment range increment
+     * @return array of the real component
+     *
+     * @since 4.0
+     */
+    public static double[] complex2Real(Complex[] c, int start, int end, int increment) {
+<span class="fc" id="L558">        final Range range = IntegerSequence.range(start, end, increment);</span>
+<span class="fc" id="L559">        int index = 0;</span>
+<span class="fc" id="L560">        final double d[] = new double[range.size()];</span>
+<span class="fc bfc" id="L561" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L562">            d[index] = extractRealFromComplexArray(c, i);</span>
+<span class="fc" id="L563">            index++;</span>
+<span class="fc" id="L564">        }</span>
+<span class="fc" id="L565">        return d;</span>
+    }
+
+    /**
+     * Converts a {@code Complex[]} array to a {@code float[]} array for the
+     * range {@code start} - {@code end} by {@code increment}.
+     *
+     * @param c {@code Complex} array
+     * @param start start index
+     * @param end end index
+     * @param increment range increment
+     * @return {@code float[]} array of the real component
+     *
+     * @since 4.0
+     */
+    public static float[] complex2RealFloat(Complex[] c, int start, int end, int increment) {
+<span class="fc" id="L581">        final Range range = IntegerSequence.range(start, end, increment);</span>
+<span class="fc" id="L582">        int index = 0;</span>
+<span class="fc" id="L583">        final float f[] = new float[range.size()];</span>
+<span class="fc bfc" id="L584" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L585">            f[index] = extractRealFloatFromComplexArray(c, i);</span>
+<span class="fc" id="L586">            index++;</span>
+<span class="fc" id="L587">        }</span>
+<span class="fc" id="L588">        return f;</span>
+    }
+
+    /**
+     * Converts a {@code Complex[]} array to a {@code double[]} array for the
+     * {@code IntegerSequence} range.
+     *
+     * @param c {@code Complex} array
+     * @param range an {@code Iterable&lt;Integer&gt;} object returned by {@code IntegerSequence.range()}
+     * @return array of the real component
+     *
+     * @since 4.0
+     */
+    public static double[] complex2Real(Complex[] c, Range range) {
+<span class="fc" id="L602">        int index = 0;</span>
+<span class="fc" id="L603">        final double d[] = new double[range.size()];</span>
+<span class="fc bfc" id="L604" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L605">            d[index] = extractRealFromComplexArray(c, i);</span>
+<span class="fc" id="L606">            index++;</span>
+<span class="fc" id="L607">        }</span>
+<span class="fc" id="L608">        return d;</span>
+    }
+
+    /**
+     * Converts a {@code Complex[]} array to a {@code float[]} array for the
+     * {@code IntegerSequence} range.
+     *
+     * @param c {@code Complex} array
+     * @param range an {@code Iterable&lt;Integer&gt;} object returned by {@code IntegerSequence.range()}
+     * @return {@code float[]} array of the real component
+     *
+     * @since 4.0
+     */
+    public static float[] complex2RealFloat(Complex[] c, Range range) {
+<span class="fc" id="L622">        int index = 0;</span>
+<span class="fc" id="L623">        final float f[] = new float[range.size()];</span>
+<span class="fc bfc" id="L624" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L625">            f[index] = extractRealFloatFromComplexArray(c, i);</span>
+<span class="fc" id="L626">            index++;</span>
+<span class="fc" id="L627">        }</span>
+<span class="fc" id="L628">        return f;</span>
+    }
+
+    /**
+     * Converts real component of {@code Complex[]} array to a {@code double[]}
+     * array.
+     *
+     * @param c {@code Complex} array
+     * @return array of the real component
+     *
+     * @since 4.0
+     */
+    public static double[] complex2Real(Complex[] c) {
+<span class="fc" id="L641">        int index = 0;</span>
+<span class="fc" id="L642">        final double d[] = new double[c.length];</span>
+<span class="fc bfc" id="L643" title="All 2 branches covered.">        for (Complex cc : c) {</span>
+<span class="fc" id="L644">            d[index] = cc.getReal();</span>
+<span class="fc" id="L645">            index++;</span>
+        }
+<span class="fc" id="L647">        return d;</span>
+    }
+
+    /**
+     * Converts real component of {@code Complex[]} array to a {@code float[]}
+     * array.
+     *
+     * @param c {@code Complex} array
+     * @return {@code float[]} array of the real component
+     *
+     * @since 4.0
+     */
+    public static float[] complex2RealFloat(Complex[] c) {
+<span class="fc" id="L660">        int index = 0;</span>
+<span class="fc" id="L661">        final float f[] = new float[c.length];</span>
+<span class="fc bfc" id="L662" title="All 2 branches covered.">        for (Complex cc : c) {</span>
+<span class="fc" id="L663">            f[index] = (float) cc.getReal();</span>
+<span class="fc" id="L664">            index++;</span>
+        }
+<span class="fc" id="L666">        return f;</span>
+    }
+
+    /**
+     * Converts real component of a 2D {@code Complex[][]} array to a 2D
+     * {@code double[][]} array.
+     *
+     * @param c 2D {@code Complex} array
+     * @return {@code double[][]} of real component
+     * @since 4.0
+     */
+    public static double[][] complex2Real(Complex[][] c) {
+<span class="nc" id="L678">        final int length = c.length;</span>
+<span class="nc" id="L679">        double[][] d = new double[length][];</span>
+<span class="nc bnc" id="L680" title="All 2 branches missed.">        for (int n = 0; n &lt; length; n++) {</span>
+<span class="nc" id="L681">            d[n] = complex2Real(c[n]);</span>
+        }
+<span class="nc" id="L683">        return d;</span>
+    }
+
+    /**
+     * Converts real component of a 2D {@code Complex[][]} array to a 2D
+     * {@code float[][]} array.
+     *
+     * @param c 2D {@code Complex} array
+     * @return {@code float[][]} of real component
+     * @since 4.0
+     */
+    public static float[][] complex2RealFloat(Complex[][] c) {
+<span class="nc" id="L695">        final int length = c.length;</span>
+<span class="nc" id="L696">        float[][] f = new float[length][];</span>
+<span class="nc bnc" id="L697" title="All 2 branches missed.">        for (int n = 0; n &lt; length; n++) {</span>
+<span class="nc" id="L698">            f[n] = complex2RealFloat(c[n]);</span>
+        }
+<span class="nc" id="L700">        return f;</span>
+    }
+
+    /**
+     * Converts real component of a 3D {@code Complex[][][]} array to a 3D
+     * {@code double[][][]} array.
+     *
+     * @param c 3D complex interleaved array
+     * @return array of real component
+     *
+     * @since 4.0
+     */
+    public static double[][][] complex2Real(Complex[][][] c) {
+<span class="nc" id="L713">        final int length = c.length;</span>
+<span class="nc" id="L714">        double[][][] d = new double[length][][];</span>
+<span class="nc bnc" id="L715" title="All 2 branches missed.">        for (int n = 0; n &lt; length; n++) {</span>
+<span class="nc" id="L716">            d[n] = complex2Real(c[n]);</span>
+        }
+<span class="nc" id="L718">        return d;</span>
+    }
+
+    /**
+     * Converts real component of a 3D {@code Complex[][][]} array to a 3D
+     * {@code float[][][]} array.
+     *
+     * @param c 3D {@code Complex} array
+     * @return {@code float[][][]} of real component
+     * @since 4.0
+     */
+    public static float[][][] complex2RealFloat(Complex[][][] c) {
+<span class="nc" id="L730">        final int length = c.length;</span>
+<span class="nc" id="L731">        float[][][] f = new float[length][][];</span>
+<span class="nc bnc" id="L732" title="All 2 branches missed.">        for (int n = 0; n &lt; length; n++) {</span>
+<span class="nc" id="L733">            f[n] = complex2RealFloat(c[n]);</span>
+        }
+<span class="nc" id="L735">        return f;</span>
+    }
+
+    /**
+     * Converts a {@code double[]} array to an imaginary {@code Complex[]} array
+     * for the range {@code start} - {@code end}.
+     *
+     * @param imaginary array of imaginary numbers to be converted to their {@code Complex} equivalent
+     * @param start start index
+     * @param end end index
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] imaginary2Complex(double[] imaginary, int start, int end) {
+<span class="fc" id="L750">        final Range range = IntegerSequence.range(start, end);</span>
+<span class="fc" id="L751">        int index = 0;</span>
+<span class="fc" id="L752">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L753" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L754">            c[index] = extractComplexFromImaginaryArray(imaginary, i);</span>
+<span class="fc" id="L755">            index++;</span>
+<span class="fc" id="L756">        }</span>
+<span class="fc" id="L757">        return c;</span>
+    }
+
+    /**
+     * Converts a {@code float[]} array to an imaginary {@code Complex[]} array
+     * for the range {@code start} - {@code end}.
+     *
+     * @param imaginary array of imaginary numbers to be converted to their {@code Complex} equivalent
+     * @param start start index
+     * @param end end index
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] imaginary2Complex(float[] imaginary, int start, int end) {
+<span class="fc" id="L772">        final Range range = IntegerSequence.range(start, end);</span>
+<span class="fc" id="L773">        int index = 0;</span>
+<span class="fc" id="L774">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L775" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L776">            c[index] = extractComplexFromImaginaryArray(imaginary, i);</span>
+<span class="fc" id="L777">            index++;</span>
+<span class="fc" id="L778">        }</span>
+<span class="fc" id="L779">        return c;</span>
+    }
+
+    /**
+     * Converts a {@code double[]} array to an imaginary {@code Complex[]} array
+     * for the range {@code start} - {@code end} by {@code increment}.
+     *
+     * @param imaginary array of numbers to be converted to their {@code Complex} equivalent
+     * @param start start index
+     * @param end end index
+     * @param increment range increment
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] imaginary2Complex(double[] imaginary, int start, int end, int increment) {
+<span class="fc" id="L795">        final Range range = IntegerSequence.range(start, end, increment);</span>
+<span class="fc" id="L796">        int index = 0;</span>
+<span class="fc" id="L797">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L798" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L799">            c[index] = extractComplexFromImaginaryArray(imaginary, i);</span>
+<span class="fc" id="L800">            index++;</span>
+<span class="fc" id="L801">        }</span>
+<span class="fc" id="L802">        return c;</span>
+    }
+
+    /**
+     * Converts a {@code float[]} array to an imaginary {@code Complex[]} array
+     * for the range {@code start} - {@code end} by {@code increment}.
+     *
+     * @param imaginary array of numbers to be converted to their {@code Complex} equivalent
+     * @param start start index
+     * @param end end index
+     * @param increment range increment
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] imaginary2Complex(float[] imaginary, int start, int end, int increment) {
+<span class="fc" id="L818">        final Range range = IntegerSequence.range(start, end, increment);</span>
+<span class="fc" id="L819">        int index = 0;</span>
+<span class="fc" id="L820">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L821" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L822">            c[index] = extractComplexFromImaginaryArray(imaginary, i);</span>
+<span class="fc" id="L823">            index++;</span>
+<span class="fc" id="L824">        }</span>
+<span class="fc" id="L825">        return c;</span>
+    }
+
+    /**
+     * Converts a {@code double[]} array to an imaginary {@code Complex[]} array
+     * for the {@code IntegerSequence} range.
+     *
+     * @param imaginary array of numbers to be converted to their {@code Complex} equivalent
+     * @param range an {@code Iterable&lt;Integer&gt;} object returned by {@code IntegerSequence.range()}
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] imaginary2Complex(double[] imaginary, Range range) {
+<span class="fc" id="L839">        int index = 0;</span>
+<span class="fc" id="L840">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L841" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L842">            c[index] = extractComplexFromImaginaryArray(imaginary, i);</span>
+<span class="fc" id="L843">            index++;</span>
+<span class="fc" id="L844">        }</span>
+<span class="fc" id="L845">        return c;</span>
+    }
+
+    /**
+     * Converts a {@code float[]} array to an imaginary {@code Complex[]} array
+     * for the {@code IntegerSequence} range.
+     *
+     * @param imaginary array of numbers to be converted to their {@code Complex} equivalent
+     * @param range an {@code Iterable&lt;Integer&gt;} object returned by {@code IntegerSequence.range()}
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] imaginary2Complex(float[] imaginary, Range range) {
+<span class="fc" id="L859">        int index = 0;</span>
+<span class="fc" id="L860">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L861" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L862">            c[index] = extractComplexFromImaginaryArray(imaginary, i);</span>
+<span class="fc" id="L863">            index++;</span>
+<span class="fc" id="L864">        }</span>
+<span class="fc" id="L865">        return c;</span>
+    }
+
+    /**
+     * Converts a {@code double[]} array to an imaginary {@code Complex[]}
+     * array.
+     *
+     * @param imaginary array of numbers to be converted to their {@code Complex} equivalent
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] imaginary2Complex(double[] imaginary) {
+<span class="fc" id="L878">        int index = 0;</span>
+<span class="fc" id="L879">        final Complex c[] = new Complex[imaginary.length];</span>
+<span class="fc bfc" id="L880" title="All 2 branches covered.">        for (double d : imaginary) {</span>
+<span class="fc" id="L881">            c[index] = new Complex(0, d);</span>
+<span class="fc" id="L882">            index++;</span>
+        }
+<span class="fc" id="L884">        return c;</span>
+    }
+
+    /**
+     * Converts a {@code float[]} array to an imaginary {@code Complex[]} array.
+     *
+     * @param imaginary array of numbers to be converted to their {@code Complex} equivalent
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] imaginary2Complex(float[] imaginary) {
+<span class="fc" id="L896">        int index = 0;</span>
+<span class="fc" id="L897">        final Complex c[] = new Complex[imaginary.length];</span>
+<span class="fc bfc" id="L898" title="All 2 branches covered.">        for (float d : imaginary) {</span>
+<span class="fc" id="L899">            c[index] = new Complex(0, d);</span>
+<span class="fc" id="L900">            index++;</span>
+        }
+<span class="fc" id="L902">        return c;</span>
+    }
+
+    /**
+     * Converts a 2D imaginary array {@code double[][]} to a 2D
+     * {@code Complex[][]} array.
+     *
+     * @param d 2D array
+     * @return 2D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[][] imaginary2Complex(double[][] d) {
+<span class="nc" id="L915">        int width = d.length;</span>
+<span class="nc" id="L916">        int height = d[0].length;</span>
+<span class="nc" id="L917">        Complex[][] c = new Complex[width][height];</span>
+<span class="nc bnc" id="L918" title="All 2 branches missed.">        for (int n = 0; n &lt; width; n++) {</span>
+<span class="nc" id="L919">            c[n] = ComplexUtils.imaginary2Complex(d[n]);</span>
+        }
+<span class="nc" id="L921">        return c;</span>
+    }
+
+    /**
+     * Converts a 3D imaginary array {@code double[][][]} to a {@code Complex[]}
+     * array.
+     *
+     * @param d 3D complex imaginary array
+     * @return 3D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[][][] imaginary2Complex(double[][][] d) {
+<span class="nc" id="L934">        int width = d.length;</span>
+<span class="nc" id="L935">        int height = d[0].length;</span>
+<span class="nc" id="L936">        int depth = d[0].length;</span>
+<span class="nc" id="L937">        Complex[][][] c = new Complex[width][height][depth];</span>
+<span class="nc bnc" id="L938" title="All 2 branches missed.">        for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L939" title="All 2 branches missed.">            for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc" id="L940">                c[x][y] = ComplexUtils.imaginary2Complex(d[x][y]);</span>
+            }
+        }
+<span class="nc" id="L943">        return c;</span>
+    }
+
+    /**
+     * Converts imaginary part of {@code Complex[]} array to a {@code double[]}
+     * array for the range {@code start} - {@code end}.
+     *
+     * @param c {@code Complex} array.
+     * @param start start index
+     * @param end end index
+     * @return array of the imaginary component
+     *
+     * @since 4.0
+     */
+    public static double[] complex2Imaginary(Complex[] c, int start, int end) {
+<span class="fc" id="L958">        final Range range = IntegerSequence.range(start, end);</span>
+<span class="fc" id="L959">        int index = 0;</span>
+<span class="fc" id="L960">        final double d[] = new double[range.size()];</span>
+<span class="fc bfc" id="L961" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L962">            d[index] = extractImaginaryFromComplexArray(c, i);</span>
+<span class="fc" id="L963">            index++;</span>
+<span class="fc" id="L964">        }</span>
+<span class="fc" id="L965">        return d;</span>
+    }
+
+    /**
+     * Converts imaginary part of a {@code Complex[]} array to a {@code float[]}
+     * array for the range {@code start} - {@code end}.
+     *
+     * @param c Complex array
+     * @param start start index
+     * @param end end index
+     * @return {@code float[]} array of the imaginary component
+     *
+     * @since 4.0
+     */
+    public static float[] complex2ImaginaryFloat(Complex[] c, int start, int end) {
+<span class="fc" id="L980">        final Range range = IntegerSequence.range(start, end);</span>
+<span class="fc" id="L981">        int index = 0;</span>
+<span class="fc" id="L982">        final float f[] = new float[range.size()];</span>
+<span class="fc bfc" id="L983" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L984">            f[index] = extractImaginaryFloatFromComplexArray(c, i);</span>
+<span class="fc" id="L985">            index++;</span>
+<span class="fc" id="L986">        }</span>
+<span class="fc" id="L987">        return f;</span>
+    }
+
+    /**
+     * Converts imaginary part of a {@code Complex[]} array to a
+     * {@code double[]} array for the range {@code start} - {@code end} by
+     * {@code increment}.
+     *
+     * @param c {@code Complex} array.
+     * @param start start index
+     * @param end end index
+     * @param increment range increment
+     * @return array of the imaginary component
+     *
+     * @since 4.0
+     */
+    public static double[] complex2Imaginary(Complex[] c, int start, int end, int increment) {
+<span class="fc" id="L1004">        final Range range = IntegerSequence.range(start, end, increment);</span>
+<span class="fc" id="L1005">        int index = 0;</span>
+<span class="fc" id="L1006">        final double d[] = new double[range.size()];</span>
+<span class="fc bfc" id="L1007" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L1008">            d[index] = extractImaginaryFromComplexArray(c, i);</span>
+<span class="fc" id="L1009">            index++;</span>
+<span class="fc" id="L1010">        }</span>
+<span class="fc" id="L1011">        return d;</span>
+    }
+
+    /**
+     * Converts imaginary part of a {@code Complex[]} array to a {@code float[]}
+     * array for the range {@code start} - {@code end} by {@code increment}.
+     *
+     * @param c {@code Complex} array.
+     * @param start start index
+     * @param end end index
+     * @param increment range increment
+     * @return {@code float[]} array of the imaginary component
+     *
+     * @since 4.0
+     */
+    public static float[] complex2ImaginaryFloat(Complex[] c, int start, int end, int increment) {
+<span class="fc" id="L1027">        final Range range = IntegerSequence.range(start, end, increment);</span>
+<span class="fc" id="L1028">        int index = 0;</span>
+<span class="fc" id="L1029">        final float f[] = new float[range.size()];</span>
+<span class="fc bfc" id="L1030" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L1031">            f[index] = extractImaginaryFloatFromComplexArray(c, i);</span>
+<span class="fc" id="L1032">            index++;</span>
+<span class="fc" id="L1033">        }</span>
+<span class="fc" id="L1034">        return f;</span>
+    }
+
+    /**
+     * Converts imaginary part of a {@code Complex[]} array to a
+     * {@code double[]} array for the {@code IntegerSequence} range.
+     *
+     * @param c {@code Complex} array.
+     * @param range an {@code Iterable&lt;Integer&gt;} object returned by {@code IntegerSequence.range()}
+     * @return array of the imaginary component
+     *
+     * @since 4.0
+     */
+    public static double[] complex2Imaginary(Complex[] c, Range range) {
+<span class="fc" id="L1048">        int index = 0;</span>
+<span class="fc" id="L1049">        final double d[] = new double[range.size()];</span>
+<span class="fc bfc" id="L1050" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L1051">            d[index] = extractImaginaryFromComplexArray(c, i);</span>
+<span class="fc" id="L1052">            index++;</span>
+<span class="fc" id="L1053">        }</span>
+<span class="fc" id="L1054">        return d;</span>
+    }
+
+    /**
+     * Converts imaginary part of a {@code Complex[]} array to a {@code float[]}
+     * array for the {@code IntegerSequence} range.
+     *
+     * @param c {@code Complex} array.
+     * @param range an {@code Iterable&lt;Integer&gt;} object returned by {@code IntegerSequence.range()}
+     * @return {@code float[]} array of the imaginary component
+     *
+     * @since 4.0
+     */
+    public static float[] complex2ImaginaryFloat(Complex[] c, Range range) {
+<span class="fc" id="L1068">        int index = 0;</span>
+<span class="fc" id="L1069">        final float f[] = new float[range.size()];</span>
+<span class="fc bfc" id="L1070" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L1071">            f[index] = extractImaginaryFloatFromComplexArray(c, i);</span>
+<span class="fc" id="L1072">            index++;</span>
+<span class="fc" id="L1073">        }</span>
+<span class="fc" id="L1074">        return f;</span>
+    }
+
+    /**
+     * Converts imaginary part of a {@code Complex[]} array to a
+     * {@code double[]} array.
+     *
+     * @param c {@code Complex} array.
+     * @return array of the imaginary component
+     *
+     * @since 4.0
+     */
+    public static double[] complex2Imaginary(Complex[] c) {
+<span class="fc" id="L1087">        int index = 0;</span>
+<span class="fc" id="L1088">        final double d[] = new double[c.length];</span>
+<span class="fc bfc" id="L1089" title="All 2 branches covered.">        for (Complex cc : c) {</span>
+<span class="fc" id="L1090">            d[index] = cc.getImaginary();</span>
+<span class="fc" id="L1091">            index++;</span>
+        }
+<span class="fc" id="L1093">        return d;</span>
+    }
+
+    /**
+     * Converts imaginary component of a {@code Complex[]} array to a
+     * {@code float[]} array.
+     *
+     * @param c {@code Complex} array.
+     * @return {@code float[]} array of the imaginary component
+     *
+     * @since 4.0
+     */
+    public static float[] complex2ImaginaryFloat(Complex[] c) {
+<span class="fc" id="L1106">        int index = 0;</span>
+<span class="fc" id="L1107">        final float f[] = new float[c.length];</span>
+<span class="fc bfc" id="L1108" title="All 2 branches covered.">        for (Complex cc : c) {</span>
+<span class="fc" id="L1109">            f[index] = (float) cc.getImaginary();</span>
+<span class="fc" id="L1110">            index++;</span>
+        }
+<span class="fc" id="L1112">        return f;</span>
+    }
+
+    /**
+     * Converts imaginary component of a 2D {@code Complex[][]} array to a 2D
+     * {@code double[][]} array.
+     *
+     * @param c 2D {@code Complex} array
+     * @return {@code double[][]} of imaginary component
+     * @since 4.0
+     */
+    public static double[][] complex2Imaginary(Complex[][] c) {
+<span class="nc" id="L1124">        final int length = c.length;</span>
+<span class="nc" id="L1125">        double[][] d = new double[length][];</span>
+<span class="nc bnc" id="L1126" title="All 2 branches missed.">        for (int n = 0; n &lt; length; n++) {</span>
+<span class="nc" id="L1127">            d[n] = complex2Imaginary(c[n]);</span>
+        }
+<span class="nc" id="L1129">        return d;</span>
+    }
+
+    /**
+     * Converts imaginary component of a 2D {@code Complex[][]} array to a 2D
+     * {@code float[][]} array.
+     *
+     * @param c 2D {@code Complex} array
+     * @return {@code float[][]} of imaginary component
+     * @since 4.0
+     */
+    public static float[][] complex2ImaginaryFloat(Complex[][] c) {
+<span class="nc" id="L1141">        final int length = c.length;</span>
+<span class="nc" id="L1142">        float[][] f = new float[length][];</span>
+<span class="nc bnc" id="L1143" title="All 2 branches missed.">        for (int n = 0; n &lt; length; n++) {</span>
+<span class="nc" id="L1144">            f[n] = complex2ImaginaryFloat(c[n]);</span>
+        }
+<span class="nc" id="L1146">        return f;</span>
+    }
+
+    /**
+     * Converts imaginary component of a 3D {@code Complex[][][]} array to a 3D
+     * {@code double[][][]} array.
+     *
+     * @param c 3D complex interleaved array
+     * @return 3D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static double[][][] complex2Imaginary(Complex[][][] c) {
+<span class="nc" id="L1159">        final int length = c.length;</span>
+<span class="nc" id="L1160">        double[][][] d = new double[length][][];</span>
+<span class="nc bnc" id="L1161" title="All 2 branches missed.">        for (int n = 0; n &lt; length; n++) {</span>
+<span class="nc" id="L1162">            d[n] = complex2Imaginary(c[n]);</span>
+        }
+<span class="nc" id="L1164">        return d;</span>
+    }
+
+    /**
+     * Converts imaginary component of a 3D {@code Complex[][][]} array to a 3D
+     * {@code float[][][]} array.
+     *
+     * @param c 3D {@code Complex} array
+     * @return {@code float[][][]} of imaginary component
+     * @since 4.0
+     */
+    public static float[][][] complex2ImaginaryFloat(Complex[][][] c) {
+<span class="nc" id="L1176">        final int length = c.length;</span>
+<span class="nc" id="L1177">        float[][][] f = new float[length][][];</span>
+<span class="nc bnc" id="L1178" title="All 2 branches missed.">        for (int n = 0; n &lt; length; n++) {</span>
+<span class="nc" id="L1179">            f[n] = complex2ImaginaryFloat(c[n]);</span>
+        }
+<span class="nc" id="L1181">        return f;</span>
+    }
+
+    // INTERLEAVED METHODS
+
+    /**
+     * Converts a complex interleaved {@code double[]} array to a
+     * {@code Complex[]} array for the range {@code start} - {@code end}.
+     *
+     * @param interleaved array of numbers to be converted to their {@code Complex} equivalent
+     * @param start start index
+     * @param end end index
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] interleaved2Complex(double[] interleaved, int start, int end) {
+<span class="fc" id="L1198">        final Range range = IntegerSequence.range(start, end);</span>
+<span class="fc" id="L1199">        int index = 0;</span>
+<span class="fc" id="L1200">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L1201" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L1202">            c[index] = extractComplexFromInterleavedArray(interleaved, i);</span>
+<span class="fc" id="L1203">            index++;</span>
+<span class="fc" id="L1204">        }</span>
+<span class="fc" id="L1205">        return c;</span>
+    }
+
+    /**
+     * Converts a complex interleaved {@code float[]} array to a
+     * {@code Complex[]} array for the range {@code start} - {@code end}.
+     *
+     * @param interleaved float array of numbers to be converted to their {@code Complex} equivalent
+     * @param start start index
+     * @param end end index
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] interleaved2Complex(float[] interleaved, int start, int end) {
+<span class="fc" id="L1220">        final Range range = IntegerSequence.range(start, end);</span>
+<span class="fc" id="L1221">        int index = 0;</span>
+<span class="fc" id="L1222">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L1223" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L1224">            c[index] = extractComplexFromInterleavedArray(interleaved, i);</span>
+<span class="fc" id="L1225">            index++;</span>
+<span class="fc" id="L1226">        }</span>
+<span class="fc" id="L1227">        return c;</span>
+    }
+
+    /**
+     * Converts a complex interleaved {@code double[]} array to a
+     * {@code Complex[]} array for the range {@code start} - {@code end} by
+     * {@code increment}.
+     *
+     * @param interleaved array of numbers to be converted to their {@code Complex} equivalent
+     * @param start start index
+     * @param end end index
+     * @param increment range increment
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] interleaved2Complex(double[] interleaved, int start, int end, int increment) {
+<span class="fc" id="L1244">        final Range range = IntegerSequence.range(start, end, increment);</span>
+<span class="fc" id="L1245">        int index = 0;</span>
+<span class="fc" id="L1246">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L1247" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L1248">            c[index] = extractComplexFromInterleavedArray(interleaved, i);</span>
+<span class="fc" id="L1249">            index++;</span>
+<span class="fc" id="L1250">        }</span>
+<span class="fc" id="L1251">        return c;</span>
+    }
+
+    /**
+     * Converts a complex interleaved {@code float[]} array to a
+     * {@code Complex[]} array for the range {@code start} - {@code end} by
+     * {@code increment}.
+     *
+     * @param interleaved float array of numbers to be converted to their {@code Complex} equivalent
+     * @param start start index
+     * @param end end index
+     * @param increment range increment
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] interleaved2Complex(float[] interleaved, int start, int end, int increment) {
+<span class="fc" id="L1268">        final Range range = IntegerSequence.range(start, end, increment);</span>
+<span class="fc" id="L1269">        int index = 0;</span>
+<span class="fc" id="L1270">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L1271" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L1272">            c[index] = extractComplexFromInterleavedArray(interleaved, i);</span>
+<span class="fc" id="L1273">            index++;</span>
+<span class="fc" id="L1274">        }</span>
+<span class="fc" id="L1275">        return c;</span>
+    }
+
+    /**
+     * Converts a complex interleaved {@code double[]} array to a
+     * {@code Complex[]} array for the {@code IntegerSequence} range.
+     *
+     * @param interleaved array of numbers to be converted to their {@code Complex} equivalent
+     * @param range an {@code Iterable&lt;Integer&gt;} object returned by {@code IntegerSequence.range()}
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] interleaved2Complex(double[] interleaved, Range range) {
+<span class="fc" id="L1289">        int index = 0;</span>
+<span class="fc" id="L1290">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L1291" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L1292">            c[index] = extractComplexFromInterleavedArray(interleaved, i);</span>
+<span class="fc" id="L1293">            index++;</span>
+<span class="fc" id="L1294">        }</span>
+<span class="fc" id="L1295">        return c;</span>
+    }
+
+    /**
+     * Converts a complex interleaved {@code float[]} array to a
+     * {@code Complex[]} array for the {@code IntegerSequence} range.
+     *
+     * @param interleaved float array of numbers to be converted to their {@code Complex} equivalent
+     * @param range an {@code Iterable&lt;Integer&gt;} object returned by {@code IntegerSequence.range()}
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] interleaved2Complex(float[] interleaved, Range range) {
+<span class="fc" id="L1309">        int index = 0;</span>
+<span class="fc" id="L1310">        final Complex c[] = new Complex[range.size()];</span>
+<span class="fc bfc" id="L1311" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L1312">            c[index] = extractComplexFromInterleavedArray(interleaved, i);</span>
+<span class="fc" id="L1313">            index++;</span>
+<span class="fc" id="L1314">        }</span>
+<span class="fc" id="L1315">        return c;</span>
+    }
+
+    /**
+     * Converts a complex interleaved {@code double[]} array to a
+     * {@code Complex[]} array
+     *
+     * @param interleaved array of numbers to be converted to their {@code Complex} equivalent
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] interleaved2Complex(double[] interleaved) {
+<span class="fc" id="L1328">        final int length = interleaved.length / 2;</span>
+<span class="fc" id="L1329">        final Complex c[] = new Complex[length];</span>
+<span class="fc bfc" id="L1330" title="All 2 branches covered.">        for (int n = 0; n &lt; length; n++) {</span>
+<span class="fc" id="L1331">            c[n] = new Complex(interleaved[n * 2], interleaved[n * 2 + 1]);</span>
+        }
+<span class="fc" id="L1333">        return c;</span>
+    }
+
+    /**
+     * Converts a complex interleaved {@code float[]} array to a
+     * {@code Complex[]} array
+     *
+     * @param interleaved float[] array of numbers to be converted to their {@code Complex} equivalent
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] interleaved2Complex(float[] interleaved) {
+<span class="fc" id="L1346">        final int length = interleaved.length / 2;</span>
+<span class="fc" id="L1347">        final Complex c[] = new Complex[length];</span>
+<span class="fc bfc" id="L1348" title="All 2 branches covered.">        for (int n = 0; n &lt; length; n++) {</span>
+<span class="fc" id="L1349">            c[n] = new Complex(interleaved[n * 2], interleaved[n * 2 + 1]);</span>
+        }
+<span class="fc" id="L1351">        return c;</span>
+    }
+
+    /**
+     * Converts a {@code Complex[]} array to an interleaved complex
+     * {@code double[]} array for the range {@code start} - {@code end}.
+     *
+     * @param c Complex array
+     * @param start start index
+     * @param end end index
+     * @return complex interleaved array alternating real and
+     *         imaginary values
+     *
+     * @since 4.0
+     */
+    public static double[] complex2Interleaved(Complex[] c, int start, int end) {
+<span class="fc" id="L1367">        final Range range = IntegerSequence.range(start, end);</span>
+<span class="fc" id="L1368">        int index = 0;</span>
+<span class="fc" id="L1369">        final double d[] = new double[range.size() * 2];</span>
+<span class="fc bfc" id="L1370" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L1371">            int real = index * 2;</span>
+<span class="fc" id="L1372">            int imag = index * 2 + 1;</span>
+<span class="fc" id="L1373">            d[real] = c[i].getReal();</span>
+<span class="fc" id="L1374">            d[imag] = c[i].getImaginary();</span>
+<span class="fc" id="L1375">            index++;</span>
+<span class="fc" id="L1376">        }</span>
+<span class="fc" id="L1377">        return d;</span>
+    }
+
+    /**
+     * Converts a {@code Complex[]} array to an interleaved complex
+     * {@code float[]} array for the range {@code start} - {@code end}.
+     *
+     * @param c Complex array
+     * @param start start index
+     * @param end end index
+     * @return complex interleaved {@code float[]} alternating real and
+     *         imaginary values
+     *
+     * @since 4.0
+     */
+    public static float[] complex2InterleavedFloat(Complex[] c, int start, int end) {
+<span class="fc" id="L1393">        final Range range = IntegerSequence.range(start, end);</span>
+<span class="fc" id="L1394">        int index = 0;</span>
+<span class="fc" id="L1395">        final float f[] = new float[range.size() * 2];</span>
+<span class="fc bfc" id="L1396" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L1397">            int real = index * 2;</span>
+<span class="fc" id="L1398">            int imag = index * 2 + 1;</span>
+<span class="fc" id="L1399">            f[real] = (float) c[i].getReal();</span>
+<span class="fc" id="L1400">            f[imag] = (float) c[i].getImaginary();</span>
+<span class="fc" id="L1401">            index++;</span>
+<span class="fc" id="L1402">        }</span>
+<span class="fc" id="L1403">        return f;</span>
+    }
+
+    /**
+     * Converts a {@code Complex[]} array to an interleaved complex
+     * {@code double[]} array for the range {@code start} - {@code end} by
+     * {@code increment}.
+     *
+     * @param c Complex array
+     * @param start start index
+     * @param end end index
+     * @param increment range increment
+     * @return complex interleaved array alternating real and
+     *         imaginary values
+     *
+     * @since 4.0
+     */
+    public static double[] complex2Interleaved(Complex[] c, int start, int end, int increment) {
+<span class="fc" id="L1421">        final Range range = IntegerSequence.range(start, end, increment);</span>
+<span class="fc" id="L1422">        int index = 0;</span>
+<span class="fc" id="L1423">        final double d[] = new double[range.size() * 2];</span>
+<span class="fc bfc" id="L1424" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L1425">            int real = index * 2;</span>
+<span class="fc" id="L1426">            int imag = index * 2 + 1;</span>
+<span class="fc" id="L1427">            d[real] = c[i].getReal();</span>
+<span class="fc" id="L1428">            d[imag] = c[i].getImaginary();</span>
+<span class="fc" id="L1429">            index++;</span>
+<span class="fc" id="L1430">        }</span>
+<span class="fc" id="L1431">        return d;</span>
+    }
+
+    /**
+     * Converts a {@code Complex[]} array to an interleaved complex
+     * {@code float[]} array for the range {@code start} - {@code end} by
+     * {@code increment}.
+     *
+     * @param c Complex array
+     * @param start start index
+     * @param end end index
+     * @param increment range increment
+     * @return complex interleaved {@code float[]} alternating real and
+     *         imaginary values
+     *
+     * @since 4.0
+     */
+    public static float[] complex2InterleavedFloat(Complex[] c, int start, int end, int increment) {
+<span class="fc" id="L1449">        final Range range = IntegerSequence.range(start, end, increment);</span>
+<span class="fc" id="L1450">        int index = 0;</span>
+<span class="fc" id="L1451">        final float f[] = new float[range.size() * 2];</span>
+<span class="fc bfc" id="L1452" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L1453">            int real = index * 2;</span>
+<span class="fc" id="L1454">            int imag = index * 2 + 1;</span>
+<span class="fc" id="L1455">            f[real] = (float) c[i].getReal();</span>
+<span class="fc" id="L1456">            f[imag] = (float) c[i].getImaginary();</span>
+<span class="fc" id="L1457">            index++;</span>
+<span class="fc" id="L1458">        }</span>
+<span class="fc" id="L1459">        return f;</span>
+    }
+
+    /**
+     * Converts a {@code Complex[]} array to an interleaved complex
+     * {@code double[]} array for the {@code IntegerSequence} range.
+     *
+     * @param c Complex array
+     * @param range an {@code Iterable&lt;Integer&gt;} object returned by {@code IntegerSequence.range()}
+     * @return complex interleaved array alternating real and
+     *         imaginary values
+     *
+     * @since 4.0
+     */
+    public static double[] complex2Interleaved(Complex[] c, Range range) {
+<span class="fc" id="L1474">        int index = 0;</span>
+<span class="fc" id="L1475">        final double d[] = new double[range.size() * 2];</span>
+<span class="fc bfc" id="L1476" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L1477">            int real = index * 2;</span>
+<span class="fc" id="L1478">            int imag = index * 2 + 1;</span>
+<span class="fc" id="L1479">            d[real] = c[i].getReal();</span>
+<span class="fc" id="L1480">            d[imag] = c[i].getImaginary();</span>
+<span class="fc" id="L1481">            index++;</span>
+<span class="fc" id="L1482">        }</span>
+<span class="fc" id="L1483">        return d;</span>
+    }
+
+    /**
+     * Converts a {@code Complex[]} array to an interleaved complex
+     * {@code float[]} array for the {@code IntegerSequence} range.
+     *
+     * @param c Complex array
+     * @param range an {@code Iterable&lt;Integer&gt;} object returned by {@code IntegerSequence.range()}
+     * @return complex interleaved {@code float[]} alternating real and
+     *         imaginary values
+     *
+     * @since 4.0
+     */
+    public static float[] complex2InterleavedFloat(Complex[] c, Range range) {
+<span class="fc" id="L1498">        int index = 0;</span>
+<span class="fc" id="L1499">        final float f[] = new float[range.size() * 2];</span>
+<span class="fc bfc" id="L1500" title="All 2 branches covered.">        for (Integer i : range) {</span>
+<span class="fc" id="L1501">            int real = index * 2;</span>
+<span class="fc" id="L1502">            int imag = index * 2 + 1;</span>
+<span class="fc" id="L1503">            f[real] = (float) c[i].getReal();</span>
+<span class="fc" id="L1504">            f[imag] = (float) c[i].getImaginary();</span>
+<span class="fc" id="L1505">            index++;</span>
+<span class="fc" id="L1506">        }</span>
+<span class="fc" id="L1507">        return f;</span>
+    }
+
+    /**
+     * Converts a {@code Complex[]} array to an interleaved complex
+     * {@code double[]} array
+     *
+     * @param c Complex array
+     * @return complex interleaved array alternating real and
+     *         imaginary values
+     *
+     * @since 4.0
+     */
+    public static double[] complex2Interleaved(Complex[] c) {
+<span class="fc" id="L1521">        int index = 0;</span>
+<span class="fc" id="L1522">        final double d[] = new double[c.length * 2];</span>
+<span class="fc bfc" id="L1523" title="All 2 branches covered.">        for (Complex cc : c) {</span>
+<span class="fc" id="L1524">            int real = index * 2;</span>
+<span class="fc" id="L1525">            int imag = index * 2 + 1;</span>
+<span class="fc" id="L1526">            d[real] = cc.getReal();</span>
+<span class="fc" id="L1527">            d[imag] = cc.getImaginary();</span>
+<span class="fc" id="L1528">            index++;</span>
+        }
+<span class="fc" id="L1530">        return d;</span>
+    }
+
+    /**
+     * Converts a {@code Complex[]} array to an interleaved complex
+     * {@code float[]} array
+     *
+     * @param c Complex array
+     * @return complex interleaved {@code float[]} alternating real and
+     *         imaginary values
+     *
+     * @since 4.0
+     */
+    public static float[] complex2InterleavedFloat(Complex[] c) {
+<span class="fc" id="L1544">        int index = 0;</span>
+<span class="fc" id="L1545">        final float f[] = new float[c.length * 2];</span>
+<span class="fc bfc" id="L1546" title="All 2 branches covered.">        for (Complex cc : c) {</span>
+<span class="fc" id="L1547">            int real = index * 2;</span>
+<span class="fc" id="L1548">            int imag = index * 2 + 1;</span>
+<span class="fc" id="L1549">            f[real] = (float) cc.getReal();</span>
+<span class="fc" id="L1550">            f[imag] = (float) cc.getImaginary();</span>
+<span class="fc" id="L1551">            index++;</span>
+        }
+<span class="fc" id="L1553">        return f;</span>
+    }
+
+    /**
+     * Converts a 2D {@code Complex[][]} array to an interleaved complex
+     * {@code double[][]} array.
+     *
+     * @param c 2D Complex array
+     * @param interleavedDim Depth level of the array to interleave
+     * @return complex interleaved array alternating real and
+     *         imaginary values
+     *
+     * @since 4.0
+     */
+    public static double[][] complex2Interleaved(Complex[][] c, int interleavedDim) {
+<span class="nc bnc" id="L1568" title="All 4 branches missed.">        if (interleavedDim &gt; 1 || interleavedDim &lt; 0) {</span>
+<span class="nc" id="L1569">            throw new OutOfRangeException(interleavedDim, 0, 1);</span>
+        }
+<span class="nc" id="L1571">        final int width = c.length;</span>
+<span class="nc" id="L1572">        final int height = c[0].length;</span>
+        double[][] d;
+<span class="nc bnc" id="L1574" title="All 2 branches missed.">        if (interleavedDim == 0) {</span>
+<span class="nc" id="L1575">            d = new double[2 * width][height];</span>
+<span class="nc bnc" id="L1576" title="All 2 branches missed.">            for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L1577" title="All 2 branches missed.">                for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc" id="L1578">                    d[x * 2][y] = c[x][y].getReal();</span>
+<span class="nc" id="L1579">                    d[x * 2 + 1][y] = c[x][y].getImaginary();</span>
+                }
+            }
+        } else {
+<span class="nc" id="L1583">            d = new double[width][2 * height];</span>
+<span class="nc bnc" id="L1584" title="All 2 branches missed.">            for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L1585" title="All 2 branches missed.">                for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc" id="L1586">                    d[x][y * 2] = c[x][y].getReal();</span>
+<span class="nc" id="L1587">                    d[x][y * 2 + 1] = c[x][y].getImaginary();</span>
+                }
+            }
+        }
+<span class="nc" id="L1591">        return d;</span>
+    }
+
+    /**
+     * Converts a 2D {@code Complex[][]} array to an interleaved complex
+     * {@code double[][]} array. The second depth level of the array is assumed
+     * to be interleaved.
+     *
+     * @param c 2D Complex array
+     * @return complex interleaved array alternating real and
+     *         imaginary values
+     *
+     * @since 4.0
+     */
+    public static double[][] complex2Interleaved(Complex[][] c) {
+<span class="nc" id="L1606">        return complex2Interleaved(c, 1);</span>
+    }
+
+    /**
+     * Converts a 3D {@code Complex[][][]} array to an interleaved complex
+     * {@code double[][][]} array.
+     *
+     * @param c 3D Complex array
+     * @param interleavedDim Depth level of the array to interleave
+     * @return complex interleaved array alternating real and
+     *         imaginary values
+     *
+     * @since 4.0
+     */
+    public static double[][][] complex2Interleaved(Complex[][][] c, int interleavedDim) {
+<span class="nc bnc" id="L1621" title="All 4 branches missed.">        if (interleavedDim &gt; 2 || interleavedDim &lt; 0) {</span>
+<span class="nc" id="L1622">            throw new OutOfRangeException(interleavedDim, 0, 2);</span>
+        }
+<span class="nc" id="L1624">        int width = c.length;</span>
+<span class="nc" id="L1625">        int height = c[0].length;</span>
+<span class="nc" id="L1626">        int depth = c[0][0].length;</span>
+        double[][][] d;
+<span class="nc bnc" id="L1628" title="All 2 branches missed.">        if (interleavedDim == 0) {</span>
+<span class="nc" id="L1629">            d = new double[2 * width][height][depth];</span>
+<span class="nc bnc" id="L1630" title="All 2 branches missed.">            for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L1631" title="All 2 branches missed.">                for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc bnc" id="L1632" title="All 2 branches missed.">                    for (int z = 0; z &lt; depth; z++) {</span>
+<span class="nc" id="L1633">                        d[x * 2][y][z] = c[x][y][z].getReal();</span>
+<span class="nc" id="L1634">                        d[x * 2 + 1][y][z] = c[x][y][z].getImaginary();</span>
+                    }
+                }
+            }
+<span class="nc bnc" id="L1638" title="All 2 branches missed.">        } else if (interleavedDim == 1) {</span>
+<span class="nc" id="L1639">            d = new double[width][2 * height][depth];</span>
+<span class="nc bnc" id="L1640" title="All 2 branches missed.">            for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L1641" title="All 2 branches missed.">                for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc bnc" id="L1642" title="All 2 branches missed.">                    for (int z = 0; z &lt; depth; z++) {</span>
+<span class="nc" id="L1643">                        d[x][y * 2][z] = c[x][y][z].getReal();</span>
+<span class="nc" id="L1644">                        d[x][y * 2 + 1][z] = c[x][y][z].getImaginary();</span>
+                    }
+                }
+            }
+        } else {
+<span class="nc" id="L1649">            d = new double[width][height][2 * depth];</span>
+<span class="nc bnc" id="L1650" title="All 2 branches missed.">            for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L1651" title="All 2 branches missed.">                for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc bnc" id="L1652" title="All 2 branches missed.">                    for (int z = 0; z &lt; depth; z++) {</span>
+<span class="nc" id="L1653">                        d[x][y][z * 2] = c[x][y][z].getReal();</span>
+<span class="nc" id="L1654">                        d[x][y][z * 2 + 1] = c[x][y][z].getImaginary();</span>
+                    }
+                }
+            }
+        }
+<span class="nc" id="L1659">        return d;</span>
+    }
+
+    /**
+     * Converts a 3D {@code Complex[][][]} array to an interleaved complex
+     * {@code double[][][]} array. The third depth level of the array is
+     * interleaved.
+     *
+     * @param c 3D Complex array
+     * @return complex interleaved array alternating real and
+     *         imaginary values
+     *
+     * @since 4.0
+     */
+    public static double[][][] complex2Interleaved(Complex[][][] c) {
+<span class="nc" id="L1674">        return complex2Interleaved(c, 2);</span>
+    }
+
+    /**
+     * Converts a 2D {@code Complex[][]} array to an interleaved complex
+     * {@code float[][]} array.
+     *
+     * @param c 2D Complex array
+     * @param interleavedDim Depth level of the array to interleave
+     * @return complex interleaved {@code float[][]} alternating real and
+     *         imaginary values
+     *
+     * @since 4.0
+     */
+    public static float[][] complex2InterleavedFloat(Complex[][] c, int interleavedDim) {
+<span class="nc bnc" id="L1689" title="All 4 branches missed.">        if (interleavedDim &gt; 1 || interleavedDim &lt; 0) {</span>
+<span class="nc" id="L1690">            throw new OutOfRangeException(interleavedDim, 0, 1);</span>
+        }
+<span class="nc" id="L1692">        final int width = c.length;</span>
+<span class="nc" id="L1693">        final int height = c[0].length;</span>
+        float[][] d;
+<span class="nc bnc" id="L1695" title="All 2 branches missed.">        if (interleavedDim == 0) {</span>
+<span class="nc" id="L1696">            d = new float[2 * width][height];</span>
+<span class="nc bnc" id="L1697" title="All 2 branches missed.">            for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L1698" title="All 2 branches missed.">                for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc" id="L1699">                    d[x * 2][y] = (float) c[x][y].getReal();</span>
+<span class="nc" id="L1700">                    d[x * 2 + 1][y] = (float) c[x][y].getImaginary();</span>
+                }
+            }
+        } else {
+<span class="nc" id="L1704">            d = new float[width][2 * height];</span>
+<span class="nc bnc" id="L1705" title="All 2 branches missed.">            for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L1706" title="All 2 branches missed.">                for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc" id="L1707">                    d[x][y * 2] = (float) c[x][y].getReal();</span>
+<span class="nc" id="L1708">                    d[x][y * 2 + 1] = (float) c[x][y].getImaginary();</span>
+                }
+            }
+        }
+<span class="nc" id="L1712">        return d;</span>
+    }
+
+    /**
+     * Converts a 2D {@code Complex[][]} array to an interleaved complex
+     * {@code float[][]} array. The second depth level of the array is assumed
+     * to be interleaved.
+     *
+     * @param c 2D Complex array
+     *
+     * @return complex interleaved {@code float[][]} alternating real and
+     *         imaginary values
+     *
+     * @since 4.0
+     */
+    public static float[][] complex2InterleavedFloat(Complex[][] c) {
+<span class="nc" id="L1728">        return complex2InterleavedFloat(c, 1);</span>
+    }
+
+    /**
+     * Converts a 3D {@code Complex[][][]} array to an interleaved complex
+     * {@code float[][][]} array.
+     *
+     * @param c 3D Complex array
+     * @param interleavedDim Depth level of the array to interleave
+     * @return complex interleaved {@code float[][][]} alternating real and
+     *         imaginary values
+     *
+     * @since 4.0
+     */
+    public static float[][][] complex2InterleavedFloat(Complex[][][] c, int interleavedDim) {
+<span class="nc bnc" id="L1743" title="All 4 branches missed.">        if (interleavedDim &gt; 2 || interleavedDim &lt; 0) {</span>
+<span class="nc" id="L1744">            throw new OutOfRangeException(interleavedDim, 0, 2);</span>
+        }
+<span class="nc" id="L1746">        final int width = c.length;</span>
+<span class="nc" id="L1747">        final int height = c[0].length;</span>
+<span class="nc" id="L1748">        final int depth = c[0][0].length;</span>
+        float[][][] d;
+<span class="nc bnc" id="L1750" title="All 2 branches missed.">        if (interleavedDim == 0) {</span>
+<span class="nc" id="L1751">            d = new float[2 * width][height][depth];</span>
+<span class="nc bnc" id="L1752" title="All 2 branches missed.">            for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L1753" title="All 2 branches missed.">                for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc bnc" id="L1754" title="All 2 branches missed.">                    for (int z = 0; z &lt; depth; z++) {</span>
+<span class="nc" id="L1755">                        d[x * 2][y][z] = (float) c[x][y][z].getReal();</span>
+<span class="nc" id="L1756">                        d[x * 2 + 1][y][z] = (float) c[x][y][z].getImaginary();</span>
+                    }
+                }
+            }
+<span class="nc bnc" id="L1760" title="All 2 branches missed.">        } else if (interleavedDim == 1) {</span>
+<span class="nc" id="L1761">            d = new float[width][2 * height][depth];</span>
+<span class="nc bnc" id="L1762" title="All 2 branches missed.">            for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L1763" title="All 2 branches missed.">                for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc bnc" id="L1764" title="All 2 branches missed.">                    for (int z = 0; z &lt; depth; z++) {</span>
+<span class="nc" id="L1765">                        d[x][y * 2][z] = (float) c[x][y][z].getReal();</span>
+<span class="nc" id="L1766">                        d[x][y * 2 + 1][z] = (float) c[x][y][z].getImaginary();</span>
+                    }
+                }
+            }
+        } else {
+<span class="nc" id="L1771">            d = new float[width][height][2 * depth];</span>
+<span class="nc bnc" id="L1772" title="All 2 branches missed.">            for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L1773" title="All 2 branches missed.">                for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc bnc" id="L1774" title="All 2 branches missed.">                    for (int z = 0; z &lt; depth; z++) {</span>
+<span class="nc" id="L1775">                        d[x][y][z * 2] = (float) c[x][y][z].getReal();</span>
+<span class="nc" id="L1776">                        d[x][y][z * 2 + 1] = (float) c[x][y][z].getImaginary();</span>
+                    }
+                }
+            }
+        }
+<span class="nc" id="L1781">        return d;</span>
+    }
+
+    /**
+     * Converts a 3D {@code Complex[][][]} array to an interleaved complex
+     * {@code float[][][]} array. The third depth level of the array is
+     * interleaved.
+     *
+     * @param c 2D Complex array
+     *
+     * @return complex interleaved {@code float[][][]} alternating real and
+     *         imaginary values
+     *
+     * @since 4.0
+     */
+    public static float[][][] complex2InterleavedFloat(Complex[][][] c) {
+<span class="nc" id="L1797">        return complex2InterleavedFloat(c, 2);</span>
+    }
+
+    /**
+     * Converts a 2D interleaved complex {@code double[][]} array to a
+     * {@code Complex[][]} array.
+     *
+     * @param d 2D complex interleaved array
+     * @param interleavedDim Depth level of the array to interleave
+     * @return 2D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[][] interleaved2Complex(double[][] d, int interleavedDim) {
+<span class="nc bnc" id="L1811" title="All 4 branches missed.">        if (interleavedDim &gt; 1 || interleavedDim &lt; 0) {</span>
+<span class="nc" id="L1812">            throw new OutOfRangeException(interleavedDim, 0, 1);</span>
+        }
+<span class="nc" id="L1814">        final int width = d.length;</span>
+<span class="nc" id="L1815">        final int height = d[0].length;</span>
+        Complex[][] c;
+<span class="nc bnc" id="L1817" title="All 2 branches missed.">        if (interleavedDim == 0) {</span>
+<span class="nc" id="L1818">            c = new Complex[width / 2][height];</span>
+<span class="nc bnc" id="L1819" title="All 2 branches missed.">            for (int x = 0; x &lt; width / 2; x++) {</span>
+<span class="nc bnc" id="L1820" title="All 2 branches missed.">                for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc" id="L1821">                    c[x][y] = new Complex(d[x * 2][y], d[x * 2 + 1][y]);</span>
+                }
+            }
+        } else {
+<span class="nc" id="L1825">            c = new Complex[width][height / 2];</span>
+<span class="nc bnc" id="L1826" title="All 2 branches missed.">            for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L1827" title="All 2 branches missed.">                for (int y = 0; y &lt; height / 2; y++) {</span>
+<span class="nc" id="L1828">                    c[x][y] = new Complex(d[x][y * 2], d[x][y * 2 + 1]);</span>
+                }
+            }
+        }
+<span class="nc" id="L1832">        return c;</span>
+    }
+
+    /**
+     * Converts a 2D interleaved complex {@code double[][]} array to a
+     * {@code Complex[][]} array. The second depth level of the array is assumed
+     * to be interleaved.
+     *
+     * @param d 2D complex interleaved array
+     * @return 2D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[][] interleaved2Complex(double[][] d) {
+<span class="nc" id="L1846">        return interleaved2Complex(d, 1);</span>
+    }
+
+    /**
+     * Converts a 3D interleaved complex {@code double[][][]} array to a
+     * {@code Complex[][][]} array.
+     *
+     * @param d 3D complex interleaved array
+     * @param interleavedDim Depth level of the array to interleave
+     * @return 3D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[][][] interleaved2Complex(double[][][] d, int interleavedDim) {
+<span class="nc bnc" id="L1860" title="All 4 branches missed.">        if (interleavedDim &gt; 2 || interleavedDim &lt; 0) {</span>
+<span class="nc" id="L1861">            throw new OutOfRangeException(interleavedDim, 0, 2);</span>
+        }
+<span class="nc" id="L1863">        final int width = d.length;</span>
+<span class="nc" id="L1864">        final int height = d[0].length;</span>
+<span class="nc" id="L1865">        final int depth = d[0][0].length;</span>
+        Complex[][][] c;
+<span class="nc bnc" id="L1867" title="All 2 branches missed.">        if (interleavedDim == 0) {</span>
+<span class="nc" id="L1868">            c = new Complex[width / 2][height][depth];</span>
+<span class="nc bnc" id="L1869" title="All 2 branches missed.">            for (int x = 0; x &lt; width / 2; x++) {</span>
+<span class="nc bnc" id="L1870" title="All 2 branches missed.">                for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc bnc" id="L1871" title="All 2 branches missed.">                    for (int z = 0; z &lt; depth; z++) {</span>
+<span class="nc" id="L1872">                        c[x][y][z] = new Complex(d[x * 2][y][z], d[x * 2 + 1][y][z]);</span>
+                    }
+                }
+            }
+<span class="nc bnc" id="L1876" title="All 2 branches missed.">        } else if (interleavedDim == 1) {</span>
+<span class="nc" id="L1877">            c = new Complex[width][height / 2][depth];</span>
+<span class="nc bnc" id="L1878" title="All 2 branches missed.">            for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L1879" title="All 2 branches missed.">                for (int y = 0; y &lt; height / 2; y++) {</span>
+<span class="nc bnc" id="L1880" title="All 2 branches missed.">                    for (int z = 0; z &lt; depth; z++) {</span>
+<span class="nc" id="L1881">                        c[x][y][z] = new Complex(d[x][y * 2][z], d[x][y * 2 + 1][z]);</span>
+                    }
+                }
+            }
+        } else {
+<span class="nc" id="L1886">            c = new Complex[width][height][depth / 2];</span>
+<span class="nc bnc" id="L1887" title="All 2 branches missed.">            for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L1888" title="All 2 branches missed.">                for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc bnc" id="L1889" title="All 2 branches missed.">                    for (int z = 0; z &lt; depth / 2; z++) {</span>
+<span class="nc" id="L1890">                        c[x][y][z] = new Complex(d[x][y][z * 2], d[x][y][z * 2 + 1]);</span>
+                    }
+                }
+            }
+        }
+<span class="nc" id="L1895">        return c;</span>
+    }
+
+    /**
+     * Converts a 3D interleaved complex {@code double[][][]} array to a
+     * {@code Complex[][][]} array. The third depth level is assumed to be
+     * interleaved.
+     *
+     * @param d 3D complex interleaved array
+     * @return 3D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[][][] interleaved2Complex(double[][][] d) {
+<span class="nc" id="L1909">        return interleaved2Complex(d, 2);</span>
+    }
+
+    /**
+     * Converts a 2D interleaved complex {@code float[][]} array to a
+     * {@code Complex[][]} array.
+     *
+     * @param d 2D complex interleaved float array
+     * @param interleavedDim Depth level of the array to interleave
+     * @return 2D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[][] interleaved2Complex(float[][] d, int interleavedDim) {
+<span class="nc bnc" id="L1923" title="All 4 branches missed.">        if (interleavedDim &gt; 1 || interleavedDim &lt; 0) {</span>
+<span class="nc" id="L1924">            throw new OutOfRangeException(interleavedDim, 0, 1);</span>
+        }
+<span class="nc" id="L1926">        final int width = d.length;</span>
+<span class="nc" id="L1927">        final int height = d[0].length;</span>
+        Complex[][] c;
+<span class="nc bnc" id="L1929" title="All 2 branches missed.">        if (interleavedDim == 0) {</span>
+<span class="nc" id="L1930">            c = new Complex[width / 2][height];</span>
+<span class="nc bnc" id="L1931" title="All 2 branches missed.">            for (int x = 0; x &lt; width / 2; x++) {</span>
+<span class="nc bnc" id="L1932" title="All 2 branches missed.">                for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc" id="L1933">                    c[x][y] = new Complex(d[x * 2][y], d[x * 2 + 1][y]);</span>
+                }
+            }
+        } else {
+<span class="nc" id="L1937">            c = new Complex[width][height / 2];</span>
+<span class="nc bnc" id="L1938" title="All 2 branches missed.">            for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L1939" title="All 2 branches missed.">                for (int y = 0; y &lt; height / 2; y++) {</span>
+<span class="nc" id="L1940">                    c[x][y] = new Complex(d[x][y * 2], d[x][y * 2 + 1]);</span>
+                }
+            }
+        }
+<span class="nc" id="L1944">        return c;</span>
+    }
+
+    /**
+     * Converts a 2D interleaved complex {@code float[][]} array to a
+     * {@code Complex[][]} array. The second depth level of the array is assumed
+     * to be interleaved.
+     *
+     * @param d 2D complex interleaved float array
+     * @return 2D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[][] interleaved2Complex(float[][] d) {
+<span class="nc" id="L1958">        return interleaved2Complex(d, 1);</span>
+    }
+
+    /**
+     * Converts a 3D interleaved complex {@code float[][][]} array to a
+     * {@code Complex[][][]} array.
+     *
+     * @param d 3D complex interleaved float array
+     * @param interleavedDim Depth level of the array to interleave
+     * @return 3D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[][][] interleaved2Complex(float[][][] d, int interleavedDim) {
+<span class="nc bnc" id="L1972" title="All 4 branches missed.">        if (interleavedDim &gt; 2 || interleavedDim &lt; 0) {</span>
+<span class="nc" id="L1973">            throw new OutOfRangeException(interleavedDim, 0, 2);</span>
+        }
+<span class="nc" id="L1975">        final int width = d.length;</span>
+<span class="nc" id="L1976">        final int height = d[0].length;</span>
+<span class="nc" id="L1977">        final int depth = d[0][0].length;</span>
+        Complex[][][] c;
+<span class="nc bnc" id="L1979" title="All 2 branches missed.">        if (interleavedDim == 0) {</span>
+<span class="nc" id="L1980">            c = new Complex[width / 2][height][depth];</span>
+<span class="nc bnc" id="L1981" title="All 2 branches missed.">            for (int x = 0; x &lt; width/2; x ++) {</span>
+<span class="nc bnc" id="L1982" title="All 2 branches missed.">                for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc bnc" id="L1983" title="All 2 branches missed.">                    for (int z = 0; z &lt; depth; z++) {</span>
+<span class="nc" id="L1984">                        c[x][y][z] = new Complex(d[x * 2][y][z], d[x * 2 + 1][y][z]);</span>
+                    }
+                }
+            }
+<span class="nc bnc" id="L1988" title="All 2 branches missed.">        } else if (interleavedDim == 1) {</span>
+<span class="nc" id="L1989">            c = new Complex[width][height / 2][depth];</span>
+<span class="nc bnc" id="L1990" title="All 2 branches missed.">            for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L1991" title="All 2 branches missed.">                for (int y = 0; y &lt; height/2; y ++) {</span>
+<span class="nc bnc" id="L1992" title="All 2 branches missed.">                    for (int z = 0; z &lt; depth; z++) {</span>
+<span class="nc" id="L1993">                        c[x][y][z] = new Complex(d[x][y * 2][z], d[x][y * 2 + 1][z]);</span>
+                    }
+                }
+            }
+        } else {
+<span class="nc" id="L1998">            c = new Complex[width][height][depth / 2];</span>
+<span class="nc bnc" id="L1999" title="All 2 branches missed.">            for (int x = 0; x &lt; width; x++) {</span>
+<span class="nc bnc" id="L2000" title="All 2 branches missed.">                for (int y = 0; y &lt; height; y++) {</span>
+<span class="nc bnc" id="L2001" title="All 2 branches missed.">                    for (int z = 0; z &lt; depth/2; z++) {</span>
+<span class="nc" id="L2002">                        c[x][y][z] = new Complex(d[x][y][z * 2], d[x][y][z * 2 + 1]);</span>
+                    }
+                }
+            }
+        }
+<span class="nc" id="L2007">        return c;</span>
+    }
+
+    /**
+     * Converts a 3D interleaved complex {@code float[][][]} array to a
+     * {@code Complex[]} array. The third depth level of the array is assumed to
+     * be interleaved.
+     *
+     * @param d 3D complex interleaved float array
+     * @return 3D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[][][] interleaved2Complex(float[][][] d) {
+<span class="nc" id="L2021">        return interleaved2Complex(d, 2);</span>
+    }
+
+    // SPLIT METHODS
+
+    /**
+     * Converts a split complex array {@code double[] r, double[] i} to a
+     * {@code Complex[]} array.
+     *
+     * @param real real component
+     * @param imag imaginary component
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] split2Complex(double[] real, double[] imag) {
+<span class="fc" id="L2037">        final int length = real.length;</span>
+<span class="fc" id="L2038">        final Complex[] c = new Complex[length];</span>
+<span class="fc bfc" id="L2039" title="All 2 branches covered.">        for (int n = 0; n &lt; length; n++) {</span>
+<span class="fc" id="L2040">            c[n] = new Complex(real[n], imag[n]);</span>
+        }
+<span class="fc" id="L2042">        return c;</span>
+    }
+
+    /**
+     * Converts a 2D split complex array {@code double[][] r, double[][] i} to a
+     * 2D {@code Complex[][]} array.
+     *
+     * @param real real component
+     * @param imag imaginary component
+     * @return 2D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[][] split2Complex(double[][] real, double[][] imag) {
+<span class="nc" id="L2056">        final int length = real.length;</span>
+<span class="nc" id="L2057">        Complex[][] c = new Complex[length][];</span>
+<span class="nc bnc" id="L2058" title="All 2 branches missed.">        for (int x = 0; x &lt; length; x++) {</span>
+<span class="nc" id="L2059">            c[x] = split2Complex(real[x], imag[x]);</span>
+        }
+<span class="nc" id="L2061">        return c;</span>
+    }
+
+    /**
+     * Converts a 3D split complex array {@code double[][][] r, double[][][] i}
+     * to a 3D {@code Complex[][][]} array.
+     *
+     * @param real real component
+     * @param imag imaginary component
+     * @return 3D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[][][] split2Complex(double[][][] real, double[][][] imag) {
+<span class="nc" id="L2075">        final int length = real.length;</span>
+<span class="nc" id="L2076">        Complex[][][] c = new Complex[length][][];</span>
+<span class="nc bnc" id="L2077" title="All 2 branches missed.">        for (int x = 0; x &lt; length; x++) {</span>
+<span class="nc" id="L2078">            c[x] = split2Complex(real[x], imag[x]);</span>
+        }
+<span class="nc" id="L2080">        return c;</span>
+    }
+
+    /**
+     * Converts a split complex array {@code float[] r, float[] i} to a
+     * {@code Complex[]} array.
+     *
+     * @param real real component
+     * @param imag imaginary component
+     * @return {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[] split2Complex(float[] real, float[] imag) {
+<span class="nc" id="L2094">        final int length = real.length;</span>
+<span class="nc" id="L2095">        final Complex[] c = new Complex[length];</span>
+<span class="nc bnc" id="L2096" title="All 2 branches missed.">        for (int n = 0; n &lt; length; n++) {</span>
+<span class="nc" id="L2097">            c[n] = new Complex(real[n], imag[n]);</span>
+        }
+<span class="nc" id="L2099">        return c;</span>
+    }
+
+    /**
+     * Converts a 2D split complex array {@code float[][] r, float[][] i} to a
+     * 2D {@code Complex[][]} array.
+     *
+     * @param real real component
+     * @param imag imaginary component
+     * @return 2D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[][] split2Complex(float[][] real, float[][] imag) {
+<span class="nc" id="L2113">        final int length = real.length;</span>
+<span class="nc" id="L2114">        Complex[][] c = new Complex[length][];</span>
+<span class="nc bnc" id="L2115" title="All 2 branches missed.">        for (int x = 0; x &lt; length; x++) {</span>
+<span class="nc" id="L2116">            c[x] = split2Complex(real[x], imag[x]);</span>
+        }
+<span class="nc" id="L2118">        return c;</span>
+    }
+
+    /**
+     * Converts a 3D split complex array {@code float[][][] r, float[][][] i} to
+     * a 3D {@code Complex[][][]} array.
+     *
+     * @param real real component
+     * @param imag imaginary component
+     * @return 3D {@code Complex} array
+     *
+     * @since 4.0
+     */
+    public static Complex[][][] split2Complex(float[][][] real, float[][][] imag) {
+<span class="nc" id="L2132">        final int length = real.length;</span>
+<span class="nc" id="L2133">        Complex[][][] c = new Complex[length][][];</span>
+<span class="nc bnc" id="L2134" title="All 2 branches missed.">        for (int x = 0; x &lt; length; x++) {</span>
+<span class="nc" id="L2135">            c[x] = split2Complex(real[x], imag[x]);</span>
+        }
+<span class="nc" id="L2137">        return c;</span>
+    }
+
+    // MISC
+
+    /**
+     * Initializes a {@code Complex[]} array to zero, to avoid
+     * NullPointerExceptions.
+     *
+     * @param c Complex array
+     * @return c
+     *
+     * @since 4.0
+     */
+    public static Complex[] initialize(Complex[] c) {
+<span class="fc" id="L2152">        final int length = c.length;</span>
+<span class="fc bfc" id="L2153" title="All 2 branches covered.">        for (int x = 0; x &lt; length; x++) {</span>
+<span class="fc" id="L2154">            c[x] = Complex.ZERO;</span>
+        }
+<span class="fc" id="L2156">        return c;</span>
+    }
+
+    /**
+     * Initializes a {@code Complex[][]} array to zero, to avoid
+     * NullPointerExceptions.
+     *
+     * @param c {@code Complex} array
+     * @return c
+     *
+     * @since 4.0
+     */
+    public static Complex[][] initialize(Complex[][] c) {
+<span class="nc" id="L2169">        final int length = c.length;</span>
+<span class="nc bnc" id="L2170" title="All 2 branches missed.">        for (int x = 0; x &lt; length; x++) {</span>
+<span class="nc" id="L2171">            c[x] = initialize(c[x]);</span>
+        }
+<span class="nc" id="L2173">        return c;</span>
+    }
+
+    /**
+     * Initializes a {@code Complex[][][]} array to zero, to avoid
+     * NullPointerExceptions.
+     *
+     * @param c {@code Complex} array
+     * @return c
+     *
+     * @since 4.0
+     */
+    public static Complex[][][] initialize(Complex[][][] c) {
+<span class="nc" id="L2186">        final int length = c.length;</span>
+<span class="nc bnc" id="L2187" title="All 2 branches missed.">        for (int x = 0; x &lt; length; x++) {</span>
+<span class="nc" id="L2188">            c[x] = initialize(c[x]);</span>
+        }
+<span class="nc" id="L2190">        return c;</span>
+    }
+
+    /**
+     * Returns {@code double[]} containing absolute values (magnitudes) of a
+     * {@code Complex[]} array.
+     *
+     * @param c {@code Complex} array
+     * @return {@code double[]}
+     *
+     * @since 4.0
+     */
+    public static double[] abs(Complex[] c) {
+<span class="nc" id="L2203">        final int length = c.length;</span>
+<span class="nc" id="L2204">        final double[] d = new double[length];</span>
+<span class="nc bnc" id="L2205" title="All 2 branches missed.">        for (int x = 0; x &lt; length; x++) {</span>
+<span class="nc" id="L2206">            d[x] = c[x].abs();</span>
+        }
+<span class="nc" id="L2208">        return d;</span>
+    }
+
+    /**
+     * Returns {@code double[]} containing arguments (phase angles) of a
+     * {@code Complex[]} array.
+     *
+     * @param c {@code Complex} array
+     * @return {@code double[]} array
+     *
+     * @since 4.0
+     */
+    public static double[] arg(Complex[] c) {
+<span class="nc" id="L2221">        final int length = c.length;</span>
+<span class="nc" id="L2222">        final double[] d = new double[length];</span>
+<span class="nc bnc" id="L2223" title="All 2 branches missed.">        for (int x = 0; x &lt; length; x++) {</span>
+<span class="nc" id="L2224">            d[x] = c[x].getArgument();</span>
+        }
+<span class="nc" id="L2226">        return d;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

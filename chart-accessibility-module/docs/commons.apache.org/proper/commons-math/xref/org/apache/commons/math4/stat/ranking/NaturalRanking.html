@@ -1,0 +1,491 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>NaturalRanking xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/stat/ranking/NaturalRanking.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="NaturalRanking.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="NaturalRanking.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="NaturalRanking.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="NaturalRanking.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="NaturalRanking.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="NaturalRanking.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="NaturalRanking.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="NaturalRanking.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="NaturalRanking.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="NaturalRanking.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="NaturalRanking.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="NaturalRanking.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="NaturalRanking.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="NaturalRanking.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="NaturalRanking.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="NaturalRanking.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="NaturalRanking.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="NaturalRanking.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.stat.ranking;
+<a class="jxr_linenumber" name="L19" href="NaturalRanking.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="NaturalRanking.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L21" href="NaturalRanking.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L22" href="NaturalRanking.html#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.Iterator;
+<a class="jxr_linenumber" name="L23" href="NaturalRanking.html#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L24" href="NaturalRanking.html#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="NaturalRanking.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathInternalError;
+<a class="jxr_linenumber" name="L26" href="NaturalRanking.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotANumberException;
+<a class="jxr_linenumber" name="L27" href="NaturalRanking.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L28" href="NaturalRanking.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.RandomSource;
+<a class="jxr_linenumber" name="L29" href="NaturalRanking.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.random.RandomUtils;
+<a class="jxr_linenumber" name="L30" href="NaturalRanking.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L31" href="NaturalRanking.html#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="NaturalRanking.html#L32">32</a>  
+<a class="jxr_linenumber" name="L33" href="NaturalRanking.html#L33">33</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L34" href="NaturalRanking.html#L34">34</a>  <em class="jxr_javadoccomment"> * Ranking based on the natural ordering on doubles.</em>
+<a class="jxr_linenumber" name="L35" href="NaturalRanking.html#L35">35</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L36" href="NaturalRanking.html#L36">36</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;NaNs are treated according to the configured {@link NaNStrategy} and ties</em>
+<a class="jxr_linenumber" name="L37" href="NaturalRanking.html#L37">37</a>  <em class="jxr_javadoccomment"> * are handled using the selected {@link TiesStrategy}.</em>
+<a class="jxr_linenumber" name="L38" href="NaturalRanking.html#L38">38</a>  <em class="jxr_javadoccomment"> * Configuration settings are supplied in optional constructor arguments.</em>
+<a class="jxr_linenumber" name="L39" href="NaturalRanking.html#L39">39</a>  <em class="jxr_javadoccomment"> * Defaults are {@link NaNStrategy#FAILED} and {@link TiesStrategy#AVERAGE},</em>
+<a class="jxr_linenumber" name="L40" href="NaturalRanking.html#L40">40</a>  <em class="jxr_javadoccomment"> * respectively. When using {@link TiesStrategy#RANDOM}, a</em>
+<a class="jxr_linenumber" name="L41" href="NaturalRanking.html#L41">41</a>  <em class="jxr_javadoccomment"> * {@link UniformRandomProvider random generator} may be supplied as a</em>
+<a class="jxr_linenumber" name="L42" href="NaturalRanking.html#L42">42</a>  <em class="jxr_javadoccomment"> * constructor argument.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L43" href="NaturalRanking.html#L43">43</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Examples:</em>
+<a class="jxr_linenumber" name="L44" href="NaturalRanking.html#L44">44</a>  <em class="jxr_javadoccomment"> * &lt;table border="1" cellpadding="3"&gt;</em>
+<a class="jxr_linenumber" name="L45" href="NaturalRanking.html#L45">45</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;th colspan="3"&gt;</em>
+<a class="jxr_linenumber" name="L46" href="NaturalRanking.html#L46">46</a>  <em class="jxr_javadoccomment"> * Input data: (20, 17, 30, 42.3, 17, 50, Double.NaN, Double.NEGATIVE_INFINITY, 17)</em>
+<a class="jxr_linenumber" name="L47" href="NaturalRanking.html#L47">47</a>  <em class="jxr_javadoccomment"> * &lt;/th&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L48" href="NaturalRanking.html#L48">48</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;&lt;th&gt;NaNStrategy&lt;/th&gt;&lt;th&gt;TiesStrategy&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L49" href="NaturalRanking.html#L49">49</a>  <em class="jxr_javadoccomment"> * &lt;th&gt;&lt;code&gt;rank(data)&lt;/code&gt;&lt;/th&gt;</em>
+<a class="jxr_linenumber" name="L50" href="NaturalRanking.html#L50">50</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L51" href="NaturalRanking.html#L51">51</a>  <em class="jxr_javadoccomment"> * &lt;td&gt;default (NaNs maximal)&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L52" href="NaturalRanking.html#L52">52</a>  <em class="jxr_javadoccomment"> * &lt;td&gt;default (ties averaged)&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L53" href="NaturalRanking.html#L53">53</a>  <em class="jxr_javadoccomment"> * &lt;td&gt;(5, 3, 6, 7, 3, 8, 9, 1, 3)&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L54" href="NaturalRanking.html#L54">54</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L55" href="NaturalRanking.html#L55">55</a>  <em class="jxr_javadoccomment"> * &lt;td&gt;default (NaNs maximal)&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L56" href="NaturalRanking.html#L56">56</a>  <em class="jxr_javadoccomment"> * &lt;td&gt;MINIMUM&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L57" href="NaturalRanking.html#L57">57</a>  <em class="jxr_javadoccomment"> * &lt;td&gt;(5, 2, 6, 7, 2, 8, 9, 1, 2)&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L58" href="NaturalRanking.html#L58">58</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L59" href="NaturalRanking.html#L59">59</a>  <em class="jxr_javadoccomment"> * &lt;td&gt;MINIMAL&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L60" href="NaturalRanking.html#L60">60</a>  <em class="jxr_javadoccomment"> * &lt;td&gt;default (ties averaged)&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L61" href="NaturalRanking.html#L61">61</a>  <em class="jxr_javadoccomment"> * &lt;td&gt;(6, 4, 7, 8, 4, 9, 1.5, 1.5, 4)&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L62" href="NaturalRanking.html#L62">62</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L63" href="NaturalRanking.html#L63">63</a>  <em class="jxr_javadoccomment"> * &lt;td&gt;REMOVED&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L64" href="NaturalRanking.html#L64">64</a>  <em class="jxr_javadoccomment"> * &lt;td&gt;SEQUENTIAL&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L65" href="NaturalRanking.html#L65">65</a>  <em class="jxr_javadoccomment"> * &lt;td&gt;(5, 2, 6, 7, 3, 8, 1, 4)&lt;/td&gt;&lt;/tr&gt;</em>
+<a class="jxr_linenumber" name="L66" href="NaturalRanking.html#L66">66</a>  <em class="jxr_javadoccomment"> * &lt;tr&gt;</em>
+<a class="jxr_linenumber" name="L67" href="NaturalRanking.html#L67">67</a>  <em class="jxr_javadoccomment"> * &lt;td&gt;MINIMAL&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L68" href="NaturalRanking.html#L68">68</a>  <em class="jxr_javadoccomment"> * &lt;td&gt;MAXIMUM&lt;/td&gt;</em>
+<a class="jxr_linenumber" name="L69" href="NaturalRanking.html#L69">69</a>  <em class="jxr_javadoccomment"> * &lt;td&gt;(6, 5, 7, 8, 5, 9, 2, 2, 5)&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L70" href="NaturalRanking.html#L70">70</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L71" href="NaturalRanking.html#L71">71</a>  <em class="jxr_javadoccomment"> * @since 2.0</em>
+<a class="jxr_linenumber" name="L72" href="NaturalRanking.html#L72">72</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L73" href="NaturalRanking.html#L73">73</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="NaturalRanking.html">NaturalRanking</a> <strong class="jxr_keyword">implements</strong> <a href="RankingAlgorithm.html">RankingAlgorithm</a> {
+<a class="jxr_linenumber" name="L74" href="NaturalRanking.html#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="NaturalRanking.html#L75">75</a>      <em class="jxr_javadoccomment">/** default NaN strategy */</em>
+<a class="jxr_linenumber" name="L76" href="NaturalRanking.html#L76">76</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="NaNStrategy.html">NaNStrategy</a> DEFAULT_NAN_STRATEGY = NaNStrategy.FAILED;
+<a class="jxr_linenumber" name="L77" href="NaturalRanking.html#L77">77</a>  
+<a class="jxr_linenumber" name="L78" href="NaturalRanking.html#L78">78</a>      <em class="jxr_javadoccomment">/** default ties strategy */</em>
+<a class="jxr_linenumber" name="L79" href="NaturalRanking.html#L79">79</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="TiesStrategy.html">TiesStrategy</a> DEFAULT_TIES_STRATEGY = TiesStrategy.AVERAGE;
+<a class="jxr_linenumber" name="L80" href="NaturalRanking.html#L80">80</a>  
+<a class="jxr_linenumber" name="L81" href="NaturalRanking.html#L81">81</a>      <em class="jxr_javadoccomment">/** NaN strategy - defaults to NaNs maximal */</em>
+<a class="jxr_linenumber" name="L82" href="NaturalRanking.html#L82">82</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="NaNStrategy.html">NaNStrategy</a> nanStrategy;
+<a class="jxr_linenumber" name="L83" href="NaturalRanking.html#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="NaturalRanking.html#L84">84</a>      <em class="jxr_javadoccomment">/** Ties strategy - defaults to ties averaged */</em>
+<a class="jxr_linenumber" name="L85" href="NaturalRanking.html#L85">85</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="TiesStrategy.html">TiesStrategy</a> tiesStrategy;
+<a class="jxr_linenumber" name="L86" href="NaturalRanking.html#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="NaturalRanking.html#L87">87</a>      <em class="jxr_javadoccomment">/** Source of random data - used only when ties strategy is RANDOM */</em>
+<a class="jxr_linenumber" name="L88" href="NaturalRanking.html#L88">88</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> RandomUtils.DataGenerator randomData;
+<a class="jxr_linenumber" name="L89" href="NaturalRanking.html#L89">89</a>  
+<a class="jxr_linenumber" name="L90" href="NaturalRanking.html#L90">90</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L91" href="NaturalRanking.html#L91">91</a>  <em class="jxr_javadoccomment">     * Create a NaturalRanking with default strategies for handling ties and NaNs.</em>
+<a class="jxr_linenumber" name="L92" href="NaturalRanking.html#L92">92</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L93" href="NaturalRanking.html#L93">93</a>      <strong class="jxr_keyword">public</strong> <a href="NaturalRanking.html">NaturalRanking</a>() {
+<a class="jxr_linenumber" name="L94" href="NaturalRanking.html#L94">94</a>          <strong class="jxr_keyword">this</strong>(DEFAULT_NAN_STRATEGY, DEFAULT_TIES_STRATEGY, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L95" href="NaturalRanking.html#L95">95</a>      }
+<a class="jxr_linenumber" name="L96" href="NaturalRanking.html#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="NaturalRanking.html#L97">97</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L98" href="NaturalRanking.html#L98">98</a>  <em class="jxr_javadoccomment">     * Create a NaturalRanking with the given TiesStrategy.</em>
+<a class="jxr_linenumber" name="L99" href="NaturalRanking.html#L99">99</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L100" href="NaturalRanking.html#L100">100</a> <em class="jxr_javadoccomment">     * @param tiesStrategy the TiesStrategy to use</em>
+<a class="jxr_linenumber" name="L101" href="NaturalRanking.html#L101">101</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L102" href="NaturalRanking.html#L102">102</a>     <strong class="jxr_keyword">public</strong> <a href="NaturalRanking.html">NaturalRanking</a>(<a href="TiesStrategy.html">TiesStrategy</a> tiesStrategy) {
+<a class="jxr_linenumber" name="L103" href="NaturalRanking.html#L103">103</a>         <strong class="jxr_keyword">this</strong>(DEFAULT_NAN_STRATEGY,
+<a class="jxr_linenumber" name="L104" href="NaturalRanking.html#L104">104</a>              tiesStrategy,
+<a class="jxr_linenumber" name="L105" href="NaturalRanking.html#L105">105</a>              RandomSource.create(RandomSource.WELL_19937_C));
+<a class="jxr_linenumber" name="L106" href="NaturalRanking.html#L106">106</a>     }
+<a class="jxr_linenumber" name="L107" href="NaturalRanking.html#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="NaturalRanking.html#L108">108</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L109" href="NaturalRanking.html#L109">109</a> <em class="jxr_javadoccomment">     * Create a NaturalRanking with the given NaNStrategy.</em>
+<a class="jxr_linenumber" name="L110" href="NaturalRanking.html#L110">110</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L111" href="NaturalRanking.html#L111">111</a> <em class="jxr_javadoccomment">     * @param nanStrategy the NaNStrategy to use</em>
+<a class="jxr_linenumber" name="L112" href="NaturalRanking.html#L112">112</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L113" href="NaturalRanking.html#L113">113</a>     <strong class="jxr_keyword">public</strong> <a href="NaturalRanking.html">NaturalRanking</a>(<a href="NaNStrategy.html">NaNStrategy</a> nanStrategy) {
+<a class="jxr_linenumber" name="L114" href="NaturalRanking.html#L114">114</a>         <strong class="jxr_keyword">this</strong>(nanStrategy, DEFAULT_TIES_STRATEGY, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L115" href="NaturalRanking.html#L115">115</a>     }
+<a class="jxr_linenumber" name="L116" href="NaturalRanking.html#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="NaturalRanking.html#L117">117</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L118" href="NaturalRanking.html#L118">118</a> <em class="jxr_javadoccomment">     * Create a NaturalRanking with the given NaNStrategy and TiesStrategy.</em>
+<a class="jxr_linenumber" name="L119" href="NaturalRanking.html#L119">119</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L120" href="NaturalRanking.html#L120">120</a> <em class="jxr_javadoccomment">     * @param nanStrategy NaNStrategy to use</em>
+<a class="jxr_linenumber" name="L121" href="NaturalRanking.html#L121">121</a> <em class="jxr_javadoccomment">     * @param tiesStrategy TiesStrategy to use</em>
+<a class="jxr_linenumber" name="L122" href="NaturalRanking.html#L122">122</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L123" href="NaturalRanking.html#L123">123</a>     <strong class="jxr_keyword">public</strong> <a href="NaturalRanking.html">NaturalRanking</a>(<a href="NaNStrategy.html">NaNStrategy</a> nanStrategy,
+<a class="jxr_linenumber" name="L124" href="NaturalRanking.html#L124">124</a>                           <a href="TiesStrategy.html">TiesStrategy</a> tiesStrategy) {
+<a class="jxr_linenumber" name="L125" href="NaturalRanking.html#L125">125</a>         <strong class="jxr_keyword">this</strong>(nanStrategy,
+<a class="jxr_linenumber" name="L126" href="NaturalRanking.html#L126">126</a>              tiesStrategy,
+<a class="jxr_linenumber" name="L127" href="NaturalRanking.html#L127">127</a>              RandomSource.create(RandomSource.WELL_19937_C));
+<a class="jxr_linenumber" name="L128" href="NaturalRanking.html#L128">128</a>     }
+<a class="jxr_linenumber" name="L129" href="NaturalRanking.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="NaturalRanking.html#L130">130</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L131" href="NaturalRanking.html#L131">131</a> <em class="jxr_javadoccomment">     * Create a NaturalRanking with TiesStrategy.RANDOM and the given</em>
+<a class="jxr_linenumber" name="L132" href="NaturalRanking.html#L132">132</a> <em class="jxr_javadoccomment">     * random generator as the source of random data.</em>
+<a class="jxr_linenumber" name="L133" href="NaturalRanking.html#L133">133</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L134" href="NaturalRanking.html#L134">134</a> <em class="jxr_javadoccomment">     * @param randomGenerator source of random data</em>
+<a class="jxr_linenumber" name="L135" href="NaturalRanking.html#L135">135</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L136" href="NaturalRanking.html#L136">136</a>     <strong class="jxr_keyword">public</strong> <a href="NaturalRanking.html">NaturalRanking</a>(UniformRandomProvider randomGenerator) {
+<a class="jxr_linenumber" name="L137" href="NaturalRanking.html#L137">137</a>         <strong class="jxr_keyword">this</strong>(DEFAULT_NAN_STRATEGY, TiesStrategy.RANDOM, randomGenerator);
+<a class="jxr_linenumber" name="L138" href="NaturalRanking.html#L138">138</a>     }
+<a class="jxr_linenumber" name="L139" href="NaturalRanking.html#L139">139</a> 
+<a class="jxr_linenumber" name="L140" href="NaturalRanking.html#L140">140</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L141" href="NaturalRanking.html#L141">141</a> <em class="jxr_javadoccomment">     * Create a NaturalRanking with the given NaNStrategy, TiesStrategy.RANDOM</em>
+<a class="jxr_linenumber" name="L142" href="NaturalRanking.html#L142">142</a> <em class="jxr_javadoccomment">     * and the given source of random data.</em>
+<a class="jxr_linenumber" name="L143" href="NaturalRanking.html#L143">143</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L144" href="NaturalRanking.html#L144">144</a> <em class="jxr_javadoccomment">     * @param nanStrategy NaNStrategy to use</em>
+<a class="jxr_linenumber" name="L145" href="NaturalRanking.html#L145">145</a> <em class="jxr_javadoccomment">     * @param randomGenerator source of random data</em>
+<a class="jxr_linenumber" name="L146" href="NaturalRanking.html#L146">146</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L147" href="NaturalRanking.html#L147">147</a>     <strong class="jxr_keyword">public</strong> <a href="NaturalRanking.html">NaturalRanking</a>(<a href="NaNStrategy.html">NaNStrategy</a> nanStrategy,
+<a class="jxr_linenumber" name="L148" href="NaturalRanking.html#L148">148</a>                           UniformRandomProvider randomGenerator) {
+<a class="jxr_linenumber" name="L149" href="NaturalRanking.html#L149">149</a>         <strong class="jxr_keyword">this</strong>(nanStrategy, TiesStrategy.RANDOM, randomGenerator);
+<a class="jxr_linenumber" name="L150" href="NaturalRanking.html#L150">150</a>     }
+<a class="jxr_linenumber" name="L151" href="NaturalRanking.html#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="NaturalRanking.html#L152">152</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L153" href="NaturalRanking.html#L153">153</a> <em class="jxr_javadoccomment">     * @param nanStrategy NaN strategy.</em>
+<a class="jxr_linenumber" name="L154" href="NaturalRanking.html#L154">154</a> <em class="jxr_javadoccomment">     * @param tiesStrategy Tie strategy.</em>
+<a class="jxr_linenumber" name="L155" href="NaturalRanking.html#L155">155</a> <em class="jxr_javadoccomment">     * @param randomGenerator RNG.</em>
+<a class="jxr_linenumber" name="L156" href="NaturalRanking.html#L156">156</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L157" href="NaturalRanking.html#L157">157</a>     <strong class="jxr_keyword">private</strong> <a href="NaturalRanking.html">NaturalRanking</a>(<a href="NaNStrategy.html">NaNStrategy</a> nanStrategy,
+<a class="jxr_linenumber" name="L158" href="NaturalRanking.html#L158">158</a>                            <a href="TiesStrategy.html">TiesStrategy</a> tiesStrategy,
+<a class="jxr_linenumber" name="L159" href="NaturalRanking.html#L159">159</a>                            UniformRandomProvider randomGenerator) {
+<a class="jxr_linenumber" name="L160" href="NaturalRanking.html#L160">160</a>         <strong class="jxr_keyword">this</strong>.nanStrategy = nanStrategy;
+<a class="jxr_linenumber" name="L161" href="NaturalRanking.html#L161">161</a>         <strong class="jxr_keyword">this</strong>.tiesStrategy = tiesStrategy;
+<a class="jxr_linenumber" name="L162" href="NaturalRanking.html#L162">162</a>         randomData = RandomUtils.createDataGenerator(randomGenerator);
+<a class="jxr_linenumber" name="L163" href="NaturalRanking.html#L163">163</a>     }
+<a class="jxr_linenumber" name="L164" href="NaturalRanking.html#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="NaturalRanking.html#L165">165</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L166" href="NaturalRanking.html#L166">166</a> <em class="jxr_javadoccomment">     * Return the NaNStrategy</em>
+<a class="jxr_linenumber" name="L167" href="NaturalRanking.html#L167">167</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L168" href="NaturalRanking.html#L168">168</a> <em class="jxr_javadoccomment">     * @return returns the NaNStrategy</em>
+<a class="jxr_linenumber" name="L169" href="NaturalRanking.html#L169">169</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L170" href="NaturalRanking.html#L170">170</a>     <strong class="jxr_keyword">public</strong> <a href="NaNStrategy.html">NaNStrategy</a> getNanStrategy() {
+<a class="jxr_linenumber" name="L171" href="NaturalRanking.html#L171">171</a>         <strong class="jxr_keyword">return</strong> nanStrategy;
+<a class="jxr_linenumber" name="L172" href="NaturalRanking.html#L172">172</a>     }
+<a class="jxr_linenumber" name="L173" href="NaturalRanking.html#L173">173</a> 
+<a class="jxr_linenumber" name="L174" href="NaturalRanking.html#L174">174</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L175" href="NaturalRanking.html#L175">175</a> <em class="jxr_javadoccomment">     * Return the TiesStrategy</em>
+<a class="jxr_linenumber" name="L176" href="NaturalRanking.html#L176">176</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L177" href="NaturalRanking.html#L177">177</a> <em class="jxr_javadoccomment">     * @return the TiesStrategy</em>
+<a class="jxr_linenumber" name="L178" href="NaturalRanking.html#L178">178</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L179" href="NaturalRanking.html#L179">179</a>     <strong class="jxr_keyword">public</strong> <a href="TiesStrategy.html">TiesStrategy</a> getTiesStrategy() {
+<a class="jxr_linenumber" name="L180" href="NaturalRanking.html#L180">180</a>         <strong class="jxr_keyword">return</strong> tiesStrategy;
+<a class="jxr_linenumber" name="L181" href="NaturalRanking.html#L181">181</a>     }
+<a class="jxr_linenumber" name="L182" href="NaturalRanking.html#L182">182</a> 
+<a class="jxr_linenumber" name="L183" href="NaturalRanking.html#L183">183</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L184" href="NaturalRanking.html#L184">184</a> <em class="jxr_javadoccomment">     * Rank &lt;code&gt;data&lt;/code&gt; using the natural ordering on Doubles, with</em>
+<a class="jxr_linenumber" name="L185" href="NaturalRanking.html#L185">185</a> <em class="jxr_javadoccomment">     * NaN values handled according to &lt;code&gt;nanStrategy&lt;/code&gt; and ties</em>
+<a class="jxr_linenumber" name="L186" href="NaturalRanking.html#L186">186</a> <em class="jxr_javadoccomment">     * resolved using &lt;code&gt;tiesStrategy.&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L187" href="NaturalRanking.html#L187">187</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L188" href="NaturalRanking.html#L188">188</a> <em class="jxr_javadoccomment">     * @param data array to be ranked</em>
+<a class="jxr_linenumber" name="L189" href="NaturalRanking.html#L189">189</a> <em class="jxr_javadoccomment">     * @return array of ranks</em>
+<a class="jxr_linenumber" name="L190" href="NaturalRanking.html#L190">190</a> <em class="jxr_javadoccomment">     * @throws NotANumberException if the selected {@link NaNStrategy} is {@code FAILED}</em>
+<a class="jxr_linenumber" name="L191" href="NaturalRanking.html#L191">191</a> <em class="jxr_javadoccomment">     * and a {@link Double#NaN} is encountered in the input data</em>
+<a class="jxr_linenumber" name="L192" href="NaturalRanking.html#L192">192</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L193" href="NaturalRanking.html#L193">193</a>     @Override
+<a class="jxr_linenumber" name="L194" href="NaturalRanking.html#L194">194</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] rank(<strong class="jxr_keyword">double</strong>[] data) {
+<a class="jxr_linenumber" name="L195" href="NaturalRanking.html#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="NaturalRanking.html#L196">196</a>         <em class="jxr_comment">// Array recording initial positions of data to be ranked</em>
+<a class="jxr_linenumber" name="L197" href="NaturalRanking.html#L197">197</a>         <a href="NaturalRanking.html">IntDoublePair</a>[] ranks = <strong class="jxr_keyword">new</strong> <a href="NaturalRanking.html">IntDoublePair</a>[data.length];
+<a class="jxr_linenumber" name="L198" href="NaturalRanking.html#L198">198</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; data.length; i++) {
+<a class="jxr_linenumber" name="L199" href="NaturalRanking.html#L199">199</a>             ranks[i] = <strong class="jxr_keyword">new</strong> <a href="NaturalRanking.html">IntDoublePair</a>(data[i], i);
+<a class="jxr_linenumber" name="L200" href="NaturalRanking.html#L200">200</a>         }
+<a class="jxr_linenumber" name="L201" href="NaturalRanking.html#L201">201</a> 
+<a class="jxr_linenumber" name="L202" href="NaturalRanking.html#L202">202</a>         <em class="jxr_comment">// Recode, remove or record positions of NaNs</em>
+<a class="jxr_linenumber" name="L203" href="NaturalRanking.html#L203">203</a>         List&lt;Integer&gt; nanPositions = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L204" href="NaturalRanking.html#L204">204</a>         <strong class="jxr_keyword">switch</strong> (nanStrategy) {
+<a class="jxr_linenumber" name="L205" href="NaturalRanking.html#L205">205</a>             <strong class="jxr_keyword">case</strong> MAXIMAL: <em class="jxr_comment">// Replace NaNs with +INFs</em>
+<a class="jxr_linenumber" name="L206" href="NaturalRanking.html#L206">206</a>                 recodeNaNs(ranks, Double.POSITIVE_INFINITY);
+<a class="jxr_linenumber" name="L207" href="NaturalRanking.html#L207">207</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L208" href="NaturalRanking.html#L208">208</a>             <strong class="jxr_keyword">case</strong> MINIMAL: <em class="jxr_comment">// Replace NaNs with -INFs</em>
+<a class="jxr_linenumber" name="L209" href="NaturalRanking.html#L209">209</a>                 recodeNaNs(ranks, Double.NEGATIVE_INFINITY);
+<a class="jxr_linenumber" name="L210" href="NaturalRanking.html#L210">210</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L211" href="NaturalRanking.html#L211">211</a>             <strong class="jxr_keyword">case</strong> REMOVED: <em class="jxr_comment">// Drop NaNs from data</em>
+<a class="jxr_linenumber" name="L212" href="NaturalRanking.html#L212">212</a>                 ranks = removeNaNs(ranks);
+<a class="jxr_linenumber" name="L213" href="NaturalRanking.html#L213">213</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L214" href="NaturalRanking.html#L214">214</a>             <strong class="jxr_keyword">case</strong> FIXED:   <em class="jxr_comment">// Record positions of NaNs</em>
+<a class="jxr_linenumber" name="L215" href="NaturalRanking.html#L215">215</a>                 nanPositions = getNanPositions(ranks);
+<a class="jxr_linenumber" name="L216" href="NaturalRanking.html#L216">216</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L217" href="NaturalRanking.html#L217">217</a>             <strong class="jxr_keyword">case</strong> FAILED:
+<a class="jxr_linenumber" name="L218" href="NaturalRanking.html#L218">218</a>                 nanPositions = getNanPositions(ranks);
+<a class="jxr_linenumber" name="L219" href="NaturalRanking.html#L219">219</a>                 <strong class="jxr_keyword">if</strong> (nanPositions.size() &gt; 0) {
+<a class="jxr_linenumber" name="L220" href="NaturalRanking.html#L220">220</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotANumberException.html">NotANumberException</a>();
+<a class="jxr_linenumber" name="L221" href="NaturalRanking.html#L221">221</a>                 }
+<a class="jxr_linenumber" name="L222" href="NaturalRanking.html#L222">222</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L223" href="NaturalRanking.html#L223">223</a>             <strong class="jxr_keyword">default</strong>: <em class="jxr_comment">// this should not happen unless NaNStrategy enum is changed</em>
+<a class="jxr_linenumber" name="L224" href="NaturalRanking.html#L224">224</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/MathInternalError.html">MathInternalError</a>();
+<a class="jxr_linenumber" name="L225" href="NaturalRanking.html#L225">225</a>         }
+<a class="jxr_linenumber" name="L226" href="NaturalRanking.html#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="NaturalRanking.html#L227">227</a>         <em class="jxr_comment">// Sort the IntDoublePairs</em>
+<a class="jxr_linenumber" name="L228" href="NaturalRanking.html#L228">228</a>         Arrays.sort(ranks);
+<a class="jxr_linenumber" name="L229" href="NaturalRanking.html#L229">229</a> 
+<a class="jxr_linenumber" name="L230" href="NaturalRanking.html#L230">230</a>         <em class="jxr_comment">// Walk the sorted array, filling output array using sorted positions,</em>
+<a class="jxr_linenumber" name="L231" href="NaturalRanking.html#L231">231</a>         <em class="jxr_comment">// resolving ties as we go</em>
+<a class="jxr_linenumber" name="L232" href="NaturalRanking.html#L232">232</a>         <strong class="jxr_keyword">double</strong>[] out = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[ranks.length];
+<a class="jxr_linenumber" name="L233" href="NaturalRanking.html#L233">233</a>         <strong class="jxr_keyword">int</strong> pos = 1;  <em class="jxr_comment">// position in sorted array</em>
+<a class="jxr_linenumber" name="L234" href="NaturalRanking.html#L234">234</a>         out[ranks[0].getPosition()] = pos;
+<a class="jxr_linenumber" name="L235" href="NaturalRanking.html#L235">235</a>         List&lt;Integer&gt; tiesTrace = <strong class="jxr_keyword">new</strong> ArrayList&lt;Integer&gt;();
+<a class="jxr_linenumber" name="L236" href="NaturalRanking.html#L236">236</a>         tiesTrace.add(ranks[0].getPosition());
+<a class="jxr_linenumber" name="L237" href="NaturalRanking.html#L237">237</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; ranks.length; i++) {
+<a class="jxr_linenumber" name="L238" href="NaturalRanking.html#L238">238</a>             <strong class="jxr_keyword">if</strong> (Double.compare(ranks[i].getValue(), ranks[i - 1].getValue()) &gt; 0) {
+<a class="jxr_linenumber" name="L239" href="NaturalRanking.html#L239">239</a>                 <em class="jxr_comment">// tie sequence has ended (or had length 1)</em>
+<a class="jxr_linenumber" name="L240" href="NaturalRanking.html#L240">240</a>                 pos = i + 1;
+<a class="jxr_linenumber" name="L241" href="NaturalRanking.html#L241">241</a>                 <strong class="jxr_keyword">if</strong> (tiesTrace.size() &gt; 1) {  <em class="jxr_comment">// if seq is nontrivial, resolve</em>
+<a class="jxr_linenumber" name="L242" href="NaturalRanking.html#L242">242</a>                     resolveTie(out, tiesTrace);
+<a class="jxr_linenumber" name="L243" href="NaturalRanking.html#L243">243</a>                 }
+<a class="jxr_linenumber" name="L244" href="NaturalRanking.html#L244">244</a>                 tiesTrace = <strong class="jxr_keyword">new</strong> ArrayList&lt;Integer&gt;();
+<a class="jxr_linenumber" name="L245" href="NaturalRanking.html#L245">245</a>                 tiesTrace.add(ranks[i].getPosition());
+<a class="jxr_linenumber" name="L246" href="NaturalRanking.html#L246">246</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L247" href="NaturalRanking.html#L247">247</a>                 <em class="jxr_comment">// tie sequence continues</em>
+<a class="jxr_linenumber" name="L248" href="NaturalRanking.html#L248">248</a>                 tiesTrace.add(ranks[i].getPosition());
+<a class="jxr_linenumber" name="L249" href="NaturalRanking.html#L249">249</a>             }
+<a class="jxr_linenumber" name="L250" href="NaturalRanking.html#L250">250</a>             out[ranks[i].getPosition()] = pos;
+<a class="jxr_linenumber" name="L251" href="NaturalRanking.html#L251">251</a>         }
+<a class="jxr_linenumber" name="L252" href="NaturalRanking.html#L252">252</a>         <strong class="jxr_keyword">if</strong> (tiesTrace.size() &gt; 1) {  <em class="jxr_comment">// handle tie sequence at end</em>
+<a class="jxr_linenumber" name="L253" href="NaturalRanking.html#L253">253</a>             resolveTie(out, tiesTrace);
+<a class="jxr_linenumber" name="L254" href="NaturalRanking.html#L254">254</a>         }
+<a class="jxr_linenumber" name="L255" href="NaturalRanking.html#L255">255</a>         <strong class="jxr_keyword">if</strong> (nanStrategy == NaNStrategy.FIXED) {
+<a class="jxr_linenumber" name="L256" href="NaturalRanking.html#L256">256</a>             restoreNaNs(out, nanPositions);
+<a class="jxr_linenumber" name="L257" href="NaturalRanking.html#L257">257</a>         }
+<a class="jxr_linenumber" name="L258" href="NaturalRanking.html#L258">258</a>         <strong class="jxr_keyword">return</strong> out;
+<a class="jxr_linenumber" name="L259" href="NaturalRanking.html#L259">259</a>     }
+<a class="jxr_linenumber" name="L260" href="NaturalRanking.html#L260">260</a> 
+<a class="jxr_linenumber" name="L261" href="NaturalRanking.html#L261">261</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L262" href="NaturalRanking.html#L262">262</a> <em class="jxr_javadoccomment">     * Returns an array that is a copy of the input array with IntDoublePairs</em>
+<a class="jxr_linenumber" name="L263" href="NaturalRanking.html#L263">263</a> <em class="jxr_javadoccomment">     * having NaN values removed.</em>
+<a class="jxr_linenumber" name="L264" href="NaturalRanking.html#L264">264</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L265" href="NaturalRanking.html#L265">265</a> <em class="jxr_javadoccomment">     * @param ranks input array</em>
+<a class="jxr_linenumber" name="L266" href="NaturalRanking.html#L266">266</a> <em class="jxr_javadoccomment">     * @return array with NaN-valued entries removed</em>
+<a class="jxr_linenumber" name="L267" href="NaturalRanking.html#L267">267</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L268" href="NaturalRanking.html#L268">268</a>     <strong class="jxr_keyword">private</strong> <a href="NaturalRanking.html">IntDoublePair</a>[] removeNaNs(<a href="NaturalRanking.html">IntDoublePair</a>[] ranks) {
+<a class="jxr_linenumber" name="L269" href="NaturalRanking.html#L269">269</a>         <strong class="jxr_keyword">if</strong> (!containsNaNs(ranks)) {
+<a class="jxr_linenumber" name="L270" href="NaturalRanking.html#L270">270</a>             <strong class="jxr_keyword">return</strong> ranks;
+<a class="jxr_linenumber" name="L271" href="NaturalRanking.html#L271">271</a>         }
+<a class="jxr_linenumber" name="L272" href="NaturalRanking.html#L272">272</a>         <a href="NaturalRanking.html">IntDoublePair</a>[] outRanks = <strong class="jxr_keyword">new</strong> <a href="NaturalRanking.html">IntDoublePair</a>[ranks.length];
+<a class="jxr_linenumber" name="L273" href="NaturalRanking.html#L273">273</a>         <strong class="jxr_keyword">int</strong> j = 0;
+<a class="jxr_linenumber" name="L274" href="NaturalRanking.html#L274">274</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ranks.length; i++) {
+<a class="jxr_linenumber" name="L275" href="NaturalRanking.html#L275">275</a>             <strong class="jxr_keyword">if</strong> (Double.isNaN(ranks[i].getValue())) {
+<a class="jxr_linenumber" name="L276" href="NaturalRanking.html#L276">276</a>                 <em class="jxr_comment">// drop, but adjust original ranks of later elements</em>
+<a class="jxr_linenumber" name="L277" href="NaturalRanking.html#L277">277</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = i + 1; k &lt; ranks.length; k++) {
+<a class="jxr_linenumber" name="L278" href="NaturalRanking.html#L278">278</a>                     ranks[k] = <strong class="jxr_keyword">new</strong> <a href="NaturalRanking.html">IntDoublePair</a>(
+<a class="jxr_linenumber" name="L279" href="NaturalRanking.html#L279">279</a>                             ranks[k].getValue(), ranks[k].getPosition() - 1);
+<a class="jxr_linenumber" name="L280" href="NaturalRanking.html#L280">280</a>                 }
+<a class="jxr_linenumber" name="L281" href="NaturalRanking.html#L281">281</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L282" href="NaturalRanking.html#L282">282</a>                 outRanks[j] = <strong class="jxr_keyword">new</strong> <a href="NaturalRanking.html">IntDoublePair</a>(
+<a class="jxr_linenumber" name="L283" href="NaturalRanking.html#L283">283</a>                         ranks[i].getValue(), ranks[i].getPosition());
+<a class="jxr_linenumber" name="L284" href="NaturalRanking.html#L284">284</a>                 j++;
+<a class="jxr_linenumber" name="L285" href="NaturalRanking.html#L285">285</a>             }
+<a class="jxr_linenumber" name="L286" href="NaturalRanking.html#L286">286</a>         }
+<a class="jxr_linenumber" name="L287" href="NaturalRanking.html#L287">287</a>         <a href="NaturalRanking.html">IntDoublePair</a>[] returnRanks = <strong class="jxr_keyword">new</strong> <a href="NaturalRanking.html">IntDoublePair</a>[j];
+<a class="jxr_linenumber" name="L288" href="NaturalRanking.html#L288">288</a>         System.arraycopy(outRanks, 0, returnRanks, 0, j);
+<a class="jxr_linenumber" name="L289" href="NaturalRanking.html#L289">289</a>         <strong class="jxr_keyword">return</strong> returnRanks;
+<a class="jxr_linenumber" name="L290" href="NaturalRanking.html#L290">290</a>     }
+<a class="jxr_linenumber" name="L291" href="NaturalRanking.html#L291">291</a> 
+<a class="jxr_linenumber" name="L292" href="NaturalRanking.html#L292">292</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L293" href="NaturalRanking.html#L293">293</a> <em class="jxr_javadoccomment">     * Recodes NaN values to the given value.</em>
+<a class="jxr_linenumber" name="L294" href="NaturalRanking.html#L294">294</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L295" href="NaturalRanking.html#L295">295</a> <em class="jxr_javadoccomment">     * @param ranks array to recode</em>
+<a class="jxr_linenumber" name="L296" href="NaturalRanking.html#L296">296</a> <em class="jxr_javadoccomment">     * @param value the value to replace NaNs with</em>
+<a class="jxr_linenumber" name="L297" href="NaturalRanking.html#L297">297</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L298" href="NaturalRanking.html#L298">298</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> recodeNaNs(<a href="NaturalRanking.html">IntDoublePair</a>[] ranks, <strong class="jxr_keyword">double</strong> value) {
+<a class="jxr_linenumber" name="L299" href="NaturalRanking.html#L299">299</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ranks.length; i++) {
+<a class="jxr_linenumber" name="L300" href="NaturalRanking.html#L300">300</a>             <strong class="jxr_keyword">if</strong> (Double.isNaN(ranks[i].getValue())) {
+<a class="jxr_linenumber" name="L301" href="NaturalRanking.html#L301">301</a>                 ranks[i] = <strong class="jxr_keyword">new</strong> <a href="NaturalRanking.html">IntDoublePair</a>(
+<a class="jxr_linenumber" name="L302" href="NaturalRanking.html#L302">302</a>                         value, ranks[i].getPosition());
+<a class="jxr_linenumber" name="L303" href="NaturalRanking.html#L303">303</a>             }
+<a class="jxr_linenumber" name="L304" href="NaturalRanking.html#L304">304</a>         }
+<a class="jxr_linenumber" name="L305" href="NaturalRanking.html#L305">305</a>     }
+<a class="jxr_linenumber" name="L306" href="NaturalRanking.html#L306">306</a> 
+<a class="jxr_linenumber" name="L307" href="NaturalRanking.html#L307">307</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L308" href="NaturalRanking.html#L308">308</a> <em class="jxr_javadoccomment">     * Checks for presence of NaNs in &lt;code&gt;ranks.&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L309" href="NaturalRanking.html#L309">309</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L310" href="NaturalRanking.html#L310">310</a> <em class="jxr_javadoccomment">     * @param ranks array to be searched for NaNs</em>
+<a class="jxr_linenumber" name="L311" href="NaturalRanking.html#L311">311</a> <em class="jxr_javadoccomment">     * @return true iff ranks contains one or more NaNs</em>
+<a class="jxr_linenumber" name="L312" href="NaturalRanking.html#L312">312</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L313" href="NaturalRanking.html#L313">313</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> containsNaNs(<a href="NaturalRanking.html">IntDoublePair</a>[] ranks) {
+<a class="jxr_linenumber" name="L314" href="NaturalRanking.html#L314">314</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ranks.length; i++) {
+<a class="jxr_linenumber" name="L315" href="NaturalRanking.html#L315">315</a>             <strong class="jxr_keyword">if</strong> (Double.isNaN(ranks[i].getValue())) {
+<a class="jxr_linenumber" name="L316" href="NaturalRanking.html#L316">316</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L317" href="NaturalRanking.html#L317">317</a>             }
+<a class="jxr_linenumber" name="L318" href="NaturalRanking.html#L318">318</a>         }
+<a class="jxr_linenumber" name="L319" href="NaturalRanking.html#L319">319</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L320" href="NaturalRanking.html#L320">320</a>     }
+<a class="jxr_linenumber" name="L321" href="NaturalRanking.html#L321">321</a> 
+<a class="jxr_linenumber" name="L322" href="NaturalRanking.html#L322">322</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L323" href="NaturalRanking.html#L323">323</a> <em class="jxr_javadoccomment">     * Resolve a sequence of ties, using the configured {@link TiesStrategy}.</em>
+<a class="jxr_linenumber" name="L324" href="NaturalRanking.html#L324">324</a> <em class="jxr_javadoccomment">     * The input &lt;code&gt;ranks&lt;/code&gt; array is expected to take the same value</em>
+<a class="jxr_linenumber" name="L325" href="NaturalRanking.html#L325">325</a> <em class="jxr_javadoccomment">     * for all indices in &lt;code&gt;tiesTrace&lt;/code&gt;.  The common value is recoded</em>
+<a class="jxr_linenumber" name="L326" href="NaturalRanking.html#L326">326</a> <em class="jxr_javadoccomment">     * according to the tiesStrategy. For example, if ranks = &lt;5,8,2,6,2,7,1,2&gt;,</em>
+<a class="jxr_linenumber" name="L327" href="NaturalRanking.html#L327">327</a> <em class="jxr_javadoccomment">     * tiesTrace = &lt;2,4,7&gt; and tiesStrategy is MINIMUM, ranks will be unchanged.</em>
+<a class="jxr_linenumber" name="L328" href="NaturalRanking.html#L328">328</a> <em class="jxr_javadoccomment">     * The same array and trace with tiesStrategy AVERAGE will come out</em>
+<a class="jxr_linenumber" name="L329" href="NaturalRanking.html#L329">329</a> <em class="jxr_javadoccomment">     * &lt;5,8,3,6,3,7,1,3&gt;.</em>
+<a class="jxr_linenumber" name="L330" href="NaturalRanking.html#L330">330</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L331" href="NaturalRanking.html#L331">331</a> <em class="jxr_javadoccomment">     * @param ranks array of ranks</em>
+<a class="jxr_linenumber" name="L332" href="NaturalRanking.html#L332">332</a> <em class="jxr_javadoccomment">     * @param tiesTrace list of indices where &lt;code&gt;ranks&lt;/code&gt; is constant</em>
+<a class="jxr_linenumber" name="L333" href="NaturalRanking.html#L333">333</a> <em class="jxr_javadoccomment">     * -- that is, for any i and j in TiesTrace, &lt;code&gt; ranks[i] == ranks[j]</em>
+<a class="jxr_linenumber" name="L334" href="NaturalRanking.html#L334">334</a> <em class="jxr_javadoccomment">     * &lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L335" href="NaturalRanking.html#L335">335</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L336" href="NaturalRanking.html#L336">336</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> resolveTie(<strong class="jxr_keyword">double</strong>[] ranks, List&lt;Integer&gt; tiesTrace) {
+<a class="jxr_linenumber" name="L337" href="NaturalRanking.html#L337">337</a> 
+<a class="jxr_linenumber" name="L338" href="NaturalRanking.html#L338">338</a>         <em class="jxr_comment">// constant value of ranks over tiesTrace</em>
+<a class="jxr_linenumber" name="L339" href="NaturalRanking.html#L339">339</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> c = ranks[tiesTrace.get(0)];
+<a class="jxr_linenumber" name="L340" href="NaturalRanking.html#L340">340</a> 
+<a class="jxr_linenumber" name="L341" href="NaturalRanking.html#L341">341</a>         <em class="jxr_comment">// length of sequence of tied ranks</em>
+<a class="jxr_linenumber" name="L342" href="NaturalRanking.html#L342">342</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length = tiesTrace.size();
+<a class="jxr_linenumber" name="L343" href="NaturalRanking.html#L343">343</a> 
+<a class="jxr_linenumber" name="L344" href="NaturalRanking.html#L344">344</a>         <strong class="jxr_keyword">switch</strong> (tiesStrategy) {
+<a class="jxr_linenumber" name="L345" href="NaturalRanking.html#L345">345</a>             <strong class="jxr_keyword">case</strong>  AVERAGE:  <em class="jxr_comment">// Replace ranks with average</em>
+<a class="jxr_linenumber" name="L346" href="NaturalRanking.html#L346">346</a>                 fill(ranks, tiesTrace, (2 * c + length - 1) / 2d);
+<a class="jxr_linenumber" name="L347" href="NaturalRanking.html#L347">347</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L348" href="NaturalRanking.html#L348">348</a>             <strong class="jxr_keyword">case</strong> MAXIMUM:   <em class="jxr_comment">// Replace ranks with maximum values</em>
+<a class="jxr_linenumber" name="L349" href="NaturalRanking.html#L349">349</a>                 fill(ranks, tiesTrace, c + length - 1);
+<a class="jxr_linenumber" name="L350" href="NaturalRanking.html#L350">350</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L351" href="NaturalRanking.html#L351">351</a>             <strong class="jxr_keyword">case</strong> MINIMUM:   <em class="jxr_comment">// Replace ties with minimum</em>
+<a class="jxr_linenumber" name="L352" href="NaturalRanking.html#L352">352</a>                 fill(ranks, tiesTrace, c);
+<a class="jxr_linenumber" name="L353" href="NaturalRanking.html#L353">353</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L354" href="NaturalRanking.html#L354">354</a>             <strong class="jxr_keyword">case</strong> RANDOM:    <em class="jxr_comment">// Fill with random integral values in [c, c + length - 1]</em>
+<a class="jxr_linenumber" name="L355" href="NaturalRanking.html#L355">355</a>                 Iterator&lt;Integer&gt; iterator = tiesTrace.iterator();
+<a class="jxr_linenumber" name="L356" href="NaturalRanking.html#L356">356</a>                 <strong class="jxr_keyword">long</strong> f = FastMath.round(c);
+<a class="jxr_linenumber" name="L357" href="NaturalRanking.html#L357">357</a>                 <strong class="jxr_keyword">while</strong> (iterator.hasNext()) {
+<a class="jxr_linenumber" name="L358" href="NaturalRanking.html#L358">358</a>                     <em class="jxr_comment">// No advertised exception because args are guaranteed valid</em>
+<a class="jxr_linenumber" name="L359" href="NaturalRanking.html#L359">359</a>                     ranks[iterator.next()] =
+<a class="jxr_linenumber" name="L360" href="NaturalRanking.html#L360">360</a>                         randomData.nextLong(f, f + length - 1);
+<a class="jxr_linenumber" name="L361" href="NaturalRanking.html#L361">361</a>                 }
+<a class="jxr_linenumber" name="L362" href="NaturalRanking.html#L362">362</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L363" href="NaturalRanking.html#L363">363</a>             <strong class="jxr_keyword">case</strong> SEQUENTIAL:  <em class="jxr_comment">// Fill sequentially from c to c + length - 1</em>
+<a class="jxr_linenumber" name="L364" href="NaturalRanking.html#L364">364</a>                 <em class="jxr_comment">// walk and fill</em>
+<a class="jxr_linenumber" name="L365" href="NaturalRanking.html#L365">365</a>                 iterator = tiesTrace.iterator();
+<a class="jxr_linenumber" name="L366" href="NaturalRanking.html#L366">366</a>                 f = FastMath.round(c);
+<a class="jxr_linenumber" name="L367" href="NaturalRanking.html#L367">367</a>                 <strong class="jxr_keyword">int</strong> i = 0;
+<a class="jxr_linenumber" name="L368" href="NaturalRanking.html#L368">368</a>                 <strong class="jxr_keyword">while</strong> (iterator.hasNext()) {
+<a class="jxr_linenumber" name="L369" href="NaturalRanking.html#L369">369</a>                     ranks[iterator.next()] = f + i++;
+<a class="jxr_linenumber" name="L370" href="NaturalRanking.html#L370">370</a>                 }
+<a class="jxr_linenumber" name="L371" href="NaturalRanking.html#L371">371</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L372" href="NaturalRanking.html#L372">372</a>             <strong class="jxr_keyword">default</strong>: <em class="jxr_comment">// this should not happen unless TiesStrategy enum is changed</em>
+<a class="jxr_linenumber" name="L373" href="NaturalRanking.html#L373">373</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/MathInternalError.html">MathInternalError</a>();
+<a class="jxr_linenumber" name="L374" href="NaturalRanking.html#L374">374</a>         }
+<a class="jxr_linenumber" name="L375" href="NaturalRanking.html#L375">375</a>     }
+<a class="jxr_linenumber" name="L376" href="NaturalRanking.html#L376">376</a> 
+<a class="jxr_linenumber" name="L377" href="NaturalRanking.html#L377">377</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L378" href="NaturalRanking.html#L378">378</a> <em class="jxr_javadoccomment">     * Sets&lt;code&gt;data[i] = value&lt;/code&gt; for each i in &lt;code&gt;tiesTrace.&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L379" href="NaturalRanking.html#L379">379</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L380" href="NaturalRanking.html#L380">380</a> <em class="jxr_javadoccomment">     * @param data array to modify</em>
+<a class="jxr_linenumber" name="L381" href="NaturalRanking.html#L381">381</a> <em class="jxr_javadoccomment">     * @param tiesTrace list of index values to set</em>
+<a class="jxr_linenumber" name="L382" href="NaturalRanking.html#L382">382</a> <em class="jxr_javadoccomment">     * @param value value to set</em>
+<a class="jxr_linenumber" name="L383" href="NaturalRanking.html#L383">383</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L384" href="NaturalRanking.html#L384">384</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> fill(<strong class="jxr_keyword">double</strong>[] data, List&lt;Integer&gt; tiesTrace, <strong class="jxr_keyword">double</strong> value) {
+<a class="jxr_linenumber" name="L385" href="NaturalRanking.html#L385">385</a>         Iterator&lt;Integer&gt; iterator = tiesTrace.iterator();
+<a class="jxr_linenumber" name="L386" href="NaturalRanking.html#L386">386</a>         <strong class="jxr_keyword">while</strong> (iterator.hasNext()) {
+<a class="jxr_linenumber" name="L387" href="NaturalRanking.html#L387">387</a>             data[iterator.next()] = value;
+<a class="jxr_linenumber" name="L388" href="NaturalRanking.html#L388">388</a>         }
+<a class="jxr_linenumber" name="L389" href="NaturalRanking.html#L389">389</a>     }
+<a class="jxr_linenumber" name="L390" href="NaturalRanking.html#L390">390</a> 
+<a class="jxr_linenumber" name="L391" href="NaturalRanking.html#L391">391</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L392" href="NaturalRanking.html#L392">392</a> <em class="jxr_javadoccomment">     * Set &lt;code&gt;ranks[i] = Double.NaN&lt;/code&gt; for each i in &lt;code&gt;nanPositions.&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L393" href="NaturalRanking.html#L393">393</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L394" href="NaturalRanking.html#L394">394</a> <em class="jxr_javadoccomment">     * @param ranks array to modify</em>
+<a class="jxr_linenumber" name="L395" href="NaturalRanking.html#L395">395</a> <em class="jxr_javadoccomment">     * @param nanPositions list of index values to set to &lt;code&gt;Double.NaN&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L396" href="NaturalRanking.html#L396">396</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L397" href="NaturalRanking.html#L397">397</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> restoreNaNs(<strong class="jxr_keyword">double</strong>[] ranks, List&lt;Integer&gt; nanPositions) {
+<a class="jxr_linenumber" name="L398" href="NaturalRanking.html#L398">398</a>         <strong class="jxr_keyword">if</strong> (nanPositions.size() == 0) {
+<a class="jxr_linenumber" name="L399" href="NaturalRanking.html#L399">399</a>             <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L400" href="NaturalRanking.html#L400">400</a>         }
+<a class="jxr_linenumber" name="L401" href="NaturalRanking.html#L401">401</a>         Iterator&lt;Integer&gt; iterator = nanPositions.iterator();
+<a class="jxr_linenumber" name="L402" href="NaturalRanking.html#L402">402</a>         <strong class="jxr_keyword">while</strong> (iterator.hasNext()) {
+<a class="jxr_linenumber" name="L403" href="NaturalRanking.html#L403">403</a>             ranks[iterator.next().intValue()] = Double.NaN;
+<a class="jxr_linenumber" name="L404" href="NaturalRanking.html#L404">404</a>         }
+<a class="jxr_linenumber" name="L405" href="NaturalRanking.html#L405">405</a> 
+<a class="jxr_linenumber" name="L406" href="NaturalRanking.html#L406">406</a>     }
+<a class="jxr_linenumber" name="L407" href="NaturalRanking.html#L407">407</a> 
+<a class="jxr_linenumber" name="L408" href="NaturalRanking.html#L408">408</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L409" href="NaturalRanking.html#L409">409</a> <em class="jxr_javadoccomment">     * Returns a list of indexes where &lt;code&gt;ranks&lt;/code&gt; is &lt;code&gt;NaN.&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L410" href="NaturalRanking.html#L410">410</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L411" href="NaturalRanking.html#L411">411</a> <em class="jxr_javadoccomment">     * @param ranks array to search for &lt;code&gt;NaNs&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L412" href="NaturalRanking.html#L412">412</a> <em class="jxr_javadoccomment">     * @return list of indexes i such that &lt;code&gt;ranks[i] = NaN&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L413" href="NaturalRanking.html#L413">413</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L414" href="NaturalRanking.html#L414">414</a>     <strong class="jxr_keyword">private</strong> List&lt;Integer&gt; getNanPositions(<a href="NaturalRanking.html">IntDoublePair</a>[] ranks) {
+<a class="jxr_linenumber" name="L415" href="NaturalRanking.html#L415">415</a>         ArrayList&lt;Integer&gt; out = <strong class="jxr_keyword">new</strong> ArrayList&lt;Integer&gt;();
+<a class="jxr_linenumber" name="L416" href="NaturalRanking.html#L416">416</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ranks.length; i++) {
+<a class="jxr_linenumber" name="L417" href="NaturalRanking.html#L417">417</a>             <strong class="jxr_keyword">if</strong> (Double.isNaN(ranks[i].getValue())) {
+<a class="jxr_linenumber" name="L418" href="NaturalRanking.html#L418">418</a>                 out.add(Integer.valueOf(i));
+<a class="jxr_linenumber" name="L419" href="NaturalRanking.html#L419">419</a>             }
+<a class="jxr_linenumber" name="L420" href="NaturalRanking.html#L420">420</a>         }
+<a class="jxr_linenumber" name="L421" href="NaturalRanking.html#L421">421</a>         <strong class="jxr_keyword">return</strong> out;
+<a class="jxr_linenumber" name="L422" href="NaturalRanking.html#L422">422</a>     }
+<a class="jxr_linenumber" name="L423" href="NaturalRanking.html#L423">423</a> 
+<a class="jxr_linenumber" name="L424" href="NaturalRanking.html#L424">424</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L425" href="NaturalRanking.html#L425">425</a> <em class="jxr_javadoccomment">     * Represents the position of a double value in an ordering.</em>
+<a class="jxr_linenumber" name="L426" href="NaturalRanking.html#L426">426</a> <em class="jxr_javadoccomment">     * Comparable interface is implemented so Arrays.sort can be used</em>
+<a class="jxr_linenumber" name="L427" href="NaturalRanking.html#L427">427</a> <em class="jxr_javadoccomment">     * to sort an array of IntDoublePairs by value.  Note that the</em>
+<a class="jxr_linenumber" name="L428" href="NaturalRanking.html#L428">428</a> <em class="jxr_javadoccomment">     * implicitly defined natural ordering is NOT consistent with equals.</em>
+<a class="jxr_linenumber" name="L429" href="NaturalRanking.html#L429">429</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L430" href="NaturalRanking.html#L430">430</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="NaturalRanking.html">IntDoublePair</a> <strong class="jxr_keyword">implements</strong> Comparable&lt;IntDoublePair&gt;  {
+<a class="jxr_linenumber" name="L431" href="NaturalRanking.html#L431">431</a> 
+<a class="jxr_linenumber" name="L432" href="NaturalRanking.html#L432">432</a>         <em class="jxr_javadoccomment">/** Value of the pair */</em>
+<a class="jxr_linenumber" name="L433" href="NaturalRanking.html#L433">433</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> value;
+<a class="jxr_linenumber" name="L434" href="NaturalRanking.html#L434">434</a> 
+<a class="jxr_linenumber" name="L435" href="NaturalRanking.html#L435">435</a>         <em class="jxr_javadoccomment">/** Original position of the pair */</em>
+<a class="jxr_linenumber" name="L436" href="NaturalRanking.html#L436">436</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> position;
+<a class="jxr_linenumber" name="L437" href="NaturalRanking.html#L437">437</a> 
+<a class="jxr_linenumber" name="L438" href="NaturalRanking.html#L438">438</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L439" href="NaturalRanking.html#L439">439</a> <em class="jxr_javadoccomment">         * Construct an IntDoublePair with the given value and position.</em>
+<a class="jxr_linenumber" name="L440" href="NaturalRanking.html#L440">440</a> <em class="jxr_javadoccomment">         * @param value the value of the pair</em>
+<a class="jxr_linenumber" name="L441" href="NaturalRanking.html#L441">441</a> <em class="jxr_javadoccomment">         * @param position the original position</em>
+<a class="jxr_linenumber" name="L442" href="NaturalRanking.html#L442">442</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L443" href="NaturalRanking.html#L443">443</a>         <a href="NaturalRanking.html">IntDoublePair</a>(<strong class="jxr_keyword">double</strong> value, <strong class="jxr_keyword">int</strong> position) {
+<a class="jxr_linenumber" name="L444" href="NaturalRanking.html#L444">444</a>             <strong class="jxr_keyword">this</strong>.value = value;
+<a class="jxr_linenumber" name="L445" href="NaturalRanking.html#L445">445</a>             <strong class="jxr_keyword">this</strong>.position = position;
+<a class="jxr_linenumber" name="L446" href="NaturalRanking.html#L446">446</a>         }
+<a class="jxr_linenumber" name="L447" href="NaturalRanking.html#L447">447</a> 
+<a class="jxr_linenumber" name="L448" href="NaturalRanking.html#L448">448</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L449" href="NaturalRanking.html#L449">449</a> <em class="jxr_javadoccomment">         * Compare this IntDoublePair to another pair.</em>
+<a class="jxr_linenumber" name="L450" href="NaturalRanking.html#L450">450</a> <em class="jxr_javadoccomment">         * Only the &lt;strong&gt;values&lt;/strong&gt; are compared.</em>
+<a class="jxr_linenumber" name="L451" href="NaturalRanking.html#L451">451</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L452" href="NaturalRanking.html#L452">452</a> <em class="jxr_javadoccomment">         * @param other the other pair to compare this to</em>
+<a class="jxr_linenumber" name="L453" href="NaturalRanking.html#L453">453</a> <em class="jxr_javadoccomment">         * @return result of &lt;code&gt;Double.compare(value, other.value)&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L454" href="NaturalRanking.html#L454">454</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L455" href="NaturalRanking.html#L455">455</a>         @Override
+<a class="jxr_linenumber" name="L456" href="NaturalRanking.html#L456">456</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compareTo(<a href="NaturalRanking.html">IntDoublePair</a> other) {
+<a class="jxr_linenumber" name="L457" href="NaturalRanking.html#L457">457</a>             <strong class="jxr_keyword">return</strong> Double.compare(value, other.value);
+<a class="jxr_linenumber" name="L458" href="NaturalRanking.html#L458">458</a>         }
+<a class="jxr_linenumber" name="L459" href="NaturalRanking.html#L459">459</a> 
+<a class="jxr_linenumber" name="L460" href="NaturalRanking.html#L460">460</a>         <em class="jxr_comment">// N.B. equals() and hashCode() are not implemented; see MATH-610 for discussion.</em>
+<a class="jxr_linenumber" name="L461" href="NaturalRanking.html#L461">461</a> 
+<a class="jxr_linenumber" name="L462" href="NaturalRanking.html#L462">462</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L463" href="NaturalRanking.html#L463">463</a> <em class="jxr_javadoccomment">         * Returns the value of the pair.</em>
+<a class="jxr_linenumber" name="L464" href="NaturalRanking.html#L464">464</a> <em class="jxr_javadoccomment">         * @return value</em>
+<a class="jxr_linenumber" name="L465" href="NaturalRanking.html#L465">465</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L466" href="NaturalRanking.html#L466">466</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getValue() {
+<a class="jxr_linenumber" name="L467" href="NaturalRanking.html#L467">467</a>             <strong class="jxr_keyword">return</strong> value;
+<a class="jxr_linenumber" name="L468" href="NaturalRanking.html#L468">468</a>         }
+<a class="jxr_linenumber" name="L469" href="NaturalRanking.html#L469">469</a> 
+<a class="jxr_linenumber" name="L470" href="NaturalRanking.html#L470">470</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L471" href="NaturalRanking.html#L471">471</a> <em class="jxr_javadoccomment">         * Returns the original position of the pair.</em>
+<a class="jxr_linenumber" name="L472" href="NaturalRanking.html#L472">472</a> <em class="jxr_javadoccomment">         * @return position</em>
+<a class="jxr_linenumber" name="L473" href="NaturalRanking.html#L473">473</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L474" href="NaturalRanking.html#L474">474</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getPosition() {
+<a class="jxr_linenumber" name="L475" href="NaturalRanking.html#L475">475</a>             <strong class="jxr_keyword">return</strong> position;
+<a class="jxr_linenumber" name="L476" href="NaturalRanking.html#L476">476</a>         }
+<a class="jxr_linenumber" name="L477" href="NaturalRanking.html#L477">477</a>     }
+<a class="jxr_linenumber" name="L478" href="NaturalRanking.html#L478">478</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

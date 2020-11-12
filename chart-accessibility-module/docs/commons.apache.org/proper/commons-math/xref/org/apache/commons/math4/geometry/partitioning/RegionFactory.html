@@ -1,0 +1,401 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>RegionFactory xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/geometry/partitioning/RegionFactory.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="RegionFactory.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="RegionFactory.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="RegionFactory.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="RegionFactory.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="RegionFactory.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="RegionFactory.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="RegionFactory.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="RegionFactory.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="RegionFactory.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="RegionFactory.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="RegionFactory.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="RegionFactory.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="RegionFactory.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="RegionFactory.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="RegionFactory.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="RegionFactory.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="RegionFactory.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.geometry.partitioning;
+<a class="jxr_linenumber" name="L18" href="RegionFactory.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="RegionFactory.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.HashMap;
+<a class="jxr_linenumber" name="L20" href="RegionFactory.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L21" href="RegionFactory.html#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="RegionFactory.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L23" href="RegionFactory.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L24" href="RegionFactory.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.Point;
+<a class="jxr_linenumber" name="L25" href="RegionFactory.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.Space;
+<a class="jxr_linenumber" name="L26" href="RegionFactory.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.partitioning.BSPTree.VanishingCutHandler;
+<a class="jxr_linenumber" name="L27" href="RegionFactory.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.partitioning.Region.Location;
+<a class="jxr_linenumber" name="L28" href="RegionFactory.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.partitioning.SubHyperplane.SplitSubHyperplane;
+<a class="jxr_linenumber" name="L29" href="RegionFactory.html#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="RegionFactory.html#L30">30</a>  <em class="jxr_javadoccomment">/** This class is a factory for {@link Region}.</em>
+<a class="jxr_linenumber" name="L31" href="RegionFactory.html#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="RegionFactory.html#L32">32</a>  <em class="jxr_javadoccomment"> * @param &lt;S&gt; Type of the space.</em>
+<a class="jxr_linenumber" name="L33" href="RegionFactory.html#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="RegionFactory.html#L34">34</a>  <em class="jxr_javadoccomment"> * @since 3.0</em>
+<a class="jxr_linenumber" name="L35" href="RegionFactory.html#L35">35</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L36" href="RegionFactory.html#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> RegionFactory&lt;S <strong class="jxr_keyword">extends</strong> Space&gt; {
+<a class="jxr_linenumber" name="L37" href="RegionFactory.html#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="RegionFactory.html#L38">38</a>      <em class="jxr_javadoccomment">/** Visitor removing internal nodes attributes. */</em>
+<a class="jxr_linenumber" name="L39" href="RegionFactory.html#L39">39</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="RegionFactory.html">NodesCleaner</a> nodeCleaner;
+<a class="jxr_linenumber" name="L40" href="RegionFactory.html#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="RegionFactory.html#L41">41</a>      <em class="jxr_javadoccomment">/** Simple constructor.</em>
+<a class="jxr_linenumber" name="L42" href="RegionFactory.html#L42">42</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L43" href="RegionFactory.html#L43">43</a>      <strong class="jxr_keyword">public</strong> <a href="RegionFactory.html">RegionFactory</a>() {
+<a class="jxr_linenumber" name="L44" href="RegionFactory.html#L44">44</a>          nodeCleaner = <strong class="jxr_keyword">new</strong> <a href="RegionFactory.html">NodesCleaner</a>();
+<a class="jxr_linenumber" name="L45" href="RegionFactory.html#L45">45</a>      }
+<a class="jxr_linenumber" name="L46" href="RegionFactory.html#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="RegionFactory.html#L47">47</a>      <em class="jxr_javadoccomment">/** Build a convex region from a collection of bounding hyperplanes.</em>
+<a class="jxr_linenumber" name="L48" href="RegionFactory.html#L48">48</a>  <em class="jxr_javadoccomment">     * @param hyperplanes collection of bounding hyperplanes</em>
+<a class="jxr_linenumber" name="L49" href="RegionFactory.html#L49">49</a>  <em class="jxr_javadoccomment">     * @return a new convex region, or null if the collection is empty</em>
+<a class="jxr_linenumber" name="L50" href="RegionFactory.html#L50">50</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L51" href="RegionFactory.html#L51">51</a>      @SafeVarargs
+<a class="jxr_linenumber" name="L52" href="RegionFactory.html#L52">52</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> Region&lt;S&gt; buildConvex(<strong class="jxr_keyword">final</strong> Hyperplane&lt;S&gt; ... hyperplanes) {
+<a class="jxr_linenumber" name="L53" href="RegionFactory.html#L53">53</a>          <strong class="jxr_keyword">if</strong> ((hyperplanes == <strong class="jxr_keyword">null</strong>) || (hyperplanes.length == 0)) {
+<a class="jxr_linenumber" name="L54" href="RegionFactory.html#L54">54</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L55" href="RegionFactory.html#L55">55</a>          }
+<a class="jxr_linenumber" name="L56" href="RegionFactory.html#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="RegionFactory.html#L57">57</a>          <em class="jxr_comment">// use the first hyperplane to build the right class</em>
+<a class="jxr_linenumber" name="L58" href="RegionFactory.html#L58">58</a>          <strong class="jxr_keyword">final</strong> Region&lt;S&gt; region = hyperplanes[0].wholeSpace();
+<a class="jxr_linenumber" name="L59" href="RegionFactory.html#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="RegionFactory.html#L60">60</a>          <em class="jxr_comment">// chop off parts of the space</em>
+<a class="jxr_linenumber" name="L61" href="RegionFactory.html#L61">61</a>          BSPTree&lt;S&gt; node = region.getTree(false);
+<a class="jxr_linenumber" name="L62" href="RegionFactory.html#L62">62</a>          node.setAttribute(Boolean.TRUE);
+<a class="jxr_linenumber" name="L63" href="RegionFactory.html#L63">63</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> Hyperplane&lt;S&gt; hyperplane : hyperplanes) {
+<a class="jxr_linenumber" name="L64" href="RegionFactory.html#L64">64</a>              <strong class="jxr_keyword">if</strong> (node.insertCut(hyperplane)) {
+<a class="jxr_linenumber" name="L65" href="RegionFactory.html#L65">65</a>                  node.setAttribute(<strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L66" href="RegionFactory.html#L66">66</a>                  node.getPlus().setAttribute(Boolean.FALSE);
+<a class="jxr_linenumber" name="L67" href="RegionFactory.html#L67">67</a>                  node = node.getMinus();
+<a class="jxr_linenumber" name="L68" href="RegionFactory.html#L68">68</a>                  node.setAttribute(Boolean.TRUE);
+<a class="jxr_linenumber" name="L69" href="RegionFactory.html#L69">69</a>              } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L70" href="RegionFactory.html#L70">70</a>                  <em class="jxr_comment">// the hyperplane could not be inserted in the current leaf node</em>
+<a class="jxr_linenumber" name="L71" href="RegionFactory.html#L71">71</a>                  <em class="jxr_comment">// either it is completely outside (which means the input hyperplanes</em>
+<a class="jxr_linenumber" name="L72" href="RegionFactory.html#L72">72</a>                  <em class="jxr_comment">// are wrong), or it is parallel to a previous hyperplane</em>
+<a class="jxr_linenumber" name="L73" href="RegionFactory.html#L73">73</a>                  SubHyperplane&lt;S&gt; s = hyperplane.wholeHyperplane();
+<a class="jxr_linenumber" name="L74" href="RegionFactory.html#L74">74</a>                  <strong class="jxr_keyword">for</strong> (BSPTree&lt;S&gt; tree = node; tree.getParent() != <strong class="jxr_keyword">null</strong> &amp;&amp; s != <strong class="jxr_keyword">null</strong>; tree = tree.getParent()) {
+<a class="jxr_linenumber" name="L75" href="RegionFactory.html#L75">75</a>                      <strong class="jxr_keyword">final</strong> Hyperplane&lt;S&gt;         other = tree.getParent().getCut().getHyperplane();
+<a class="jxr_linenumber" name="L76" href="RegionFactory.html#L76">76</a>                      <strong class="jxr_keyword">final</strong> SplitSubHyperplane&lt;S&gt; split = s.split(other);
+<a class="jxr_linenumber" name="L77" href="RegionFactory.html#L77">77</a>                      <strong class="jxr_keyword">switch</strong> (split.getSide()) {
+<a class="jxr_linenumber" name="L78" href="RegionFactory.html#L78">78</a>                          <strong class="jxr_keyword">case</strong> HYPER :
+<a class="jxr_linenumber" name="L79" href="RegionFactory.html#L79">79</a>                              <em class="jxr_comment">// the hyperplane is parallel to a previous hyperplane</em>
+<a class="jxr_linenumber" name="L80" href="RegionFactory.html#L80">80</a>                              <strong class="jxr_keyword">if</strong> (!hyperplane.sameOrientationAs(other)) {
+<a class="jxr_linenumber" name="L81" href="RegionFactory.html#L81">81</a>                                  <em class="jxr_comment">// this hyperplane is opposite to the other one,</em>
+<a class="jxr_linenumber" name="L82" href="RegionFactory.html#L82">82</a>                                  <em class="jxr_comment">// the region is thinner than the tolerance, we consider it empty</em>
+<a class="jxr_linenumber" name="L83" href="RegionFactory.html#L83">83</a>                                  <strong class="jxr_keyword">return</strong> getComplement(hyperplanes[0].wholeSpace());
+<a class="jxr_linenumber" name="L84" href="RegionFactory.html#L84">84</a>                              }
+<a class="jxr_linenumber" name="L85" href="RegionFactory.html#L85">85</a>                              <em class="jxr_comment">// the hyperplane is an extension of an already known hyperplane, we just ignore it</em>
+<a class="jxr_linenumber" name="L86" href="RegionFactory.html#L86">86</a>                              <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L87" href="RegionFactory.html#L87">87</a>                          <strong class="jxr_keyword">case</strong> PLUS :
+<a class="jxr_linenumber" name="L88" href="RegionFactory.html#L88">88</a>                          <em class="jxr_comment">// the hyperplane is outside of the current convex zone,</em>
+<a class="jxr_linenumber" name="L89" href="RegionFactory.html#L89">89</a>                          <em class="jxr_comment">// the input hyperplanes are inconsistent</em>
+<a class="jxr_linenumber" name="L90" href="RegionFactory.html#L90">90</a>                          <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(LocalizedFormats.NOT_CONVEX_HYPERPLANES);
+<a class="jxr_linenumber" name="L91" href="RegionFactory.html#L91">91</a>                          <strong class="jxr_keyword">default</strong> :
+<a class="jxr_linenumber" name="L92" href="RegionFactory.html#L92">92</a>                              s = split.getMinus();
+<a class="jxr_linenumber" name="L93" href="RegionFactory.html#L93">93</a>                      }
+<a class="jxr_linenumber" name="L94" href="RegionFactory.html#L94">94</a>                  }
+<a class="jxr_linenumber" name="L95" href="RegionFactory.html#L95">95</a>              }
+<a class="jxr_linenumber" name="L96" href="RegionFactory.html#L96">96</a>          }
+<a class="jxr_linenumber" name="L97" href="RegionFactory.html#L97">97</a>  
+<a class="jxr_linenumber" name="L98" href="RegionFactory.html#L98">98</a>          <strong class="jxr_keyword">return</strong> region;
+<a class="jxr_linenumber" name="L99" href="RegionFactory.html#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="RegionFactory.html#L100">100</a>     }
+<a class="jxr_linenumber" name="L101" href="RegionFactory.html#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="RegionFactory.html#L102">102</a>     <em class="jxr_javadoccomment">/** Compute the union of two regions.</em>
+<a class="jxr_linenumber" name="L103" href="RegionFactory.html#L103">103</a> <em class="jxr_javadoccomment">     * @param region1 first region (will be unusable after the operation as</em>
+<a class="jxr_linenumber" name="L104" href="RegionFactory.html#L104">104</a> <em class="jxr_javadoccomment">     * parts of it will be reused in the new region)</em>
+<a class="jxr_linenumber" name="L105" href="RegionFactory.html#L105">105</a> <em class="jxr_javadoccomment">     * @param region2 second region (will be unusable after the operation as</em>
+<a class="jxr_linenumber" name="L106" href="RegionFactory.html#L106">106</a> <em class="jxr_javadoccomment">     * parts of it will be reused in the new region)</em>
+<a class="jxr_linenumber" name="L107" href="RegionFactory.html#L107">107</a> <em class="jxr_javadoccomment">     * @return a new region, result of {@code region1 union region2}</em>
+<a class="jxr_linenumber" name="L108" href="RegionFactory.html#L108">108</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L109" href="RegionFactory.html#L109">109</a>     <strong class="jxr_keyword">public</strong> Region&lt;S&gt; union(<strong class="jxr_keyword">final</strong> Region&lt;S&gt; region1, <strong class="jxr_keyword">final</strong> Region&lt;S&gt; region2) {
+<a class="jxr_linenumber" name="L110" href="RegionFactory.html#L110">110</a>         <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; tree =
+<a class="jxr_linenumber" name="L111" href="RegionFactory.html#L111">111</a>             region1.getTree(false).merge(region2.getTree(false), <strong class="jxr_keyword">new</strong> <a href="RegionFactory.html">UnionMerger</a>());
+<a class="jxr_linenumber" name="L112" href="RegionFactory.html#L112">112</a>         tree.visit(nodeCleaner);
+<a class="jxr_linenumber" name="L113" href="RegionFactory.html#L113">113</a>         <strong class="jxr_keyword">return</strong> region1.buildNew(tree);
+<a class="jxr_linenumber" name="L114" href="RegionFactory.html#L114">114</a>     }
+<a class="jxr_linenumber" name="L115" href="RegionFactory.html#L115">115</a> 
+<a class="jxr_linenumber" name="L116" href="RegionFactory.html#L116">116</a>     <em class="jxr_javadoccomment">/** Compute the intersection of two regions.</em>
+<a class="jxr_linenumber" name="L117" href="RegionFactory.html#L117">117</a> <em class="jxr_javadoccomment">     * @param region1 first region (will be unusable after the operation as</em>
+<a class="jxr_linenumber" name="L118" href="RegionFactory.html#L118">118</a> <em class="jxr_javadoccomment">     * parts of it will be reused in the new region)</em>
+<a class="jxr_linenumber" name="L119" href="RegionFactory.html#L119">119</a> <em class="jxr_javadoccomment">     * @param region2 second region (will be unusable after the operation as</em>
+<a class="jxr_linenumber" name="L120" href="RegionFactory.html#L120">120</a> <em class="jxr_javadoccomment">     * parts of it will be reused in the new region)</em>
+<a class="jxr_linenumber" name="L121" href="RegionFactory.html#L121">121</a> <em class="jxr_javadoccomment">     * @return a new region, result of {@code region1 intersection region2}</em>
+<a class="jxr_linenumber" name="L122" href="RegionFactory.html#L122">122</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L123" href="RegionFactory.html#L123">123</a>     <strong class="jxr_keyword">public</strong> Region&lt;S&gt; intersection(<strong class="jxr_keyword">final</strong> Region&lt;S&gt; region1, <strong class="jxr_keyword">final</strong> Region&lt;S&gt; region2) {
+<a class="jxr_linenumber" name="L124" href="RegionFactory.html#L124">124</a>         <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; tree =
+<a class="jxr_linenumber" name="L125" href="RegionFactory.html#L125">125</a>             region1.getTree(false).merge(region2.getTree(false), <strong class="jxr_keyword">new</strong> <a href="RegionFactory.html">IntersectionMerger</a>());
+<a class="jxr_linenumber" name="L126" href="RegionFactory.html#L126">126</a>         tree.visit(nodeCleaner);
+<a class="jxr_linenumber" name="L127" href="RegionFactory.html#L127">127</a>         <strong class="jxr_keyword">return</strong> region1.buildNew(tree);
+<a class="jxr_linenumber" name="L128" href="RegionFactory.html#L128">128</a>     }
+<a class="jxr_linenumber" name="L129" href="RegionFactory.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="RegionFactory.html#L130">130</a>     <em class="jxr_javadoccomment">/** Compute the symmetric difference (exclusive or) of two regions.</em>
+<a class="jxr_linenumber" name="L131" href="RegionFactory.html#L131">131</a> <em class="jxr_javadoccomment">     * @param region1 first region (will be unusable after the operation as</em>
+<a class="jxr_linenumber" name="L132" href="RegionFactory.html#L132">132</a> <em class="jxr_javadoccomment">     * parts of it will be reused in the new region)</em>
+<a class="jxr_linenumber" name="L133" href="RegionFactory.html#L133">133</a> <em class="jxr_javadoccomment">     * @param region2 second region (will be unusable after the operation as</em>
+<a class="jxr_linenumber" name="L134" href="RegionFactory.html#L134">134</a> <em class="jxr_javadoccomment">     * parts of it will be reused in the new region)</em>
+<a class="jxr_linenumber" name="L135" href="RegionFactory.html#L135">135</a> <em class="jxr_javadoccomment">     * @return a new region, result of {@code region1 xor region2}</em>
+<a class="jxr_linenumber" name="L136" href="RegionFactory.html#L136">136</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L137" href="RegionFactory.html#L137">137</a>     <strong class="jxr_keyword">public</strong> Region&lt;S&gt; xor(<strong class="jxr_keyword">final</strong> Region&lt;S&gt; region1, <strong class="jxr_keyword">final</strong> Region&lt;S&gt; region2) {
+<a class="jxr_linenumber" name="L138" href="RegionFactory.html#L138">138</a>         <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; tree =
+<a class="jxr_linenumber" name="L139" href="RegionFactory.html#L139">139</a>             region1.getTree(false).merge(region2.getTree(false), <strong class="jxr_keyword">new</strong> <a href="RegionFactory.html">XorMerger</a>());
+<a class="jxr_linenumber" name="L140" href="RegionFactory.html#L140">140</a>         tree.visit(nodeCleaner);
+<a class="jxr_linenumber" name="L141" href="RegionFactory.html#L141">141</a>         <strong class="jxr_keyword">return</strong> region1.buildNew(tree);
+<a class="jxr_linenumber" name="L142" href="RegionFactory.html#L142">142</a>     }
+<a class="jxr_linenumber" name="L143" href="RegionFactory.html#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="RegionFactory.html#L144">144</a>     <em class="jxr_javadoccomment">/** Compute the difference of two regions.</em>
+<a class="jxr_linenumber" name="L145" href="RegionFactory.html#L145">145</a> <em class="jxr_javadoccomment">     * @param region1 first region (will be unusable after the operation as</em>
+<a class="jxr_linenumber" name="L146" href="RegionFactory.html#L146">146</a> <em class="jxr_javadoccomment">     * parts of it will be reused in the new region)</em>
+<a class="jxr_linenumber" name="L147" href="RegionFactory.html#L147">147</a> <em class="jxr_javadoccomment">     * @param region2 second region (will be unusable after the operation as</em>
+<a class="jxr_linenumber" name="L148" href="RegionFactory.html#L148">148</a> <em class="jxr_javadoccomment">     * parts of it will be reused in the new region)</em>
+<a class="jxr_linenumber" name="L149" href="RegionFactory.html#L149">149</a> <em class="jxr_javadoccomment">     * @return a new region, result of {@code region1 minus region2}</em>
+<a class="jxr_linenumber" name="L150" href="RegionFactory.html#L150">150</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L151" href="RegionFactory.html#L151">151</a>     <strong class="jxr_keyword">public</strong> Region&lt;S&gt; difference(<strong class="jxr_keyword">final</strong> Region&lt;S&gt; region1, <strong class="jxr_keyword">final</strong> Region&lt;S&gt; region2) {
+<a class="jxr_linenumber" name="L152" href="RegionFactory.html#L152">152</a>         <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; tree =
+<a class="jxr_linenumber" name="L153" href="RegionFactory.html#L153">153</a>             region1.getTree(false).merge(region2.getTree(false), <strong class="jxr_keyword">new</strong> <a href="RegionFactory.html">DifferenceMerger</a>(region1, region2));
+<a class="jxr_linenumber" name="L154" href="RegionFactory.html#L154">154</a>         tree.visit(nodeCleaner);
+<a class="jxr_linenumber" name="L155" href="RegionFactory.html#L155">155</a>         <strong class="jxr_keyword">return</strong> region1.buildNew(tree);
+<a class="jxr_linenumber" name="L156" href="RegionFactory.html#L156">156</a>     }
+<a class="jxr_linenumber" name="L157" href="RegionFactory.html#L157">157</a> 
+<a class="jxr_linenumber" name="L158" href="RegionFactory.html#L158">158</a>     <em class="jxr_javadoccomment">/** Get the complement of the region (exchanged interior/exterior).</em>
+<a class="jxr_linenumber" name="L159" href="RegionFactory.html#L159">159</a> <em class="jxr_javadoccomment">     * @param region region to complement, it will not modified, a new</em>
+<a class="jxr_linenumber" name="L160" href="RegionFactory.html#L160">160</a> <em class="jxr_javadoccomment">     * region independent region will be built</em>
+<a class="jxr_linenumber" name="L161" href="RegionFactory.html#L161">161</a> <em class="jxr_javadoccomment">     * @return a new region, complement of the specified one</em>
+<a class="jxr_linenumber" name="L162" href="RegionFactory.html#L162">162</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L163" href="RegionFactory.html#L163">163</a>     <em class="jxr_javadoccomment">/** Get the complement of the region (exchanged interior/exterior).</em>
+<a class="jxr_linenumber" name="L164" href="RegionFactory.html#L164">164</a> <em class="jxr_javadoccomment">     * @param region region to complement, it will not modified, a new</em>
+<a class="jxr_linenumber" name="L165" href="RegionFactory.html#L165">165</a> <em class="jxr_javadoccomment">     * region independent region will be built</em>
+<a class="jxr_linenumber" name="L166" href="RegionFactory.html#L166">166</a> <em class="jxr_javadoccomment">     * @return a new region, complement of the specified one</em>
+<a class="jxr_linenumber" name="L167" href="RegionFactory.html#L167">167</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L168" href="RegionFactory.html#L168">168</a>     <strong class="jxr_keyword">public</strong> Region&lt;S&gt; getComplement(<strong class="jxr_keyword">final</strong> Region&lt;S&gt; region) {
+<a class="jxr_linenumber" name="L169" href="RegionFactory.html#L169">169</a>         <strong class="jxr_keyword">return</strong> region.buildNew(recurseComplement(region.getTree(false)));
+<a class="jxr_linenumber" name="L170" href="RegionFactory.html#L170">170</a>     }
+<a class="jxr_linenumber" name="L171" href="RegionFactory.html#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="RegionFactory.html#L172">172</a>     <em class="jxr_javadoccomment">/** Recursively build the complement of a BSP tree.</em>
+<a class="jxr_linenumber" name="L173" href="RegionFactory.html#L173">173</a> <em class="jxr_javadoccomment">     * @param node current node of the original tree</em>
+<a class="jxr_linenumber" name="L174" href="RegionFactory.html#L174">174</a> <em class="jxr_javadoccomment">     * @return new tree, complement of the node</em>
+<a class="jxr_linenumber" name="L175" href="RegionFactory.html#L175">175</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L176" href="RegionFactory.html#L176">176</a>     <strong class="jxr_keyword">private</strong> BSPTree&lt;S&gt; recurseComplement(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; node) {
+<a class="jxr_linenumber" name="L177" href="RegionFactory.html#L177">177</a> 
+<a class="jxr_linenumber" name="L178" href="RegionFactory.html#L178">178</a>         <em class="jxr_comment">// transform the tree, except for boundary attribute splitters</em>
+<a class="jxr_linenumber" name="L179" href="RegionFactory.html#L179">179</a>         <strong class="jxr_keyword">final</strong> Map&lt;BSPTree&lt;S&gt;, BSPTree&lt;S&gt;&gt; map = <strong class="jxr_keyword">new</strong> HashMap&lt;BSPTree&lt;S&gt;, BSPTree&lt;S&gt;&gt;();
+<a class="jxr_linenumber" name="L180" href="RegionFactory.html#L180">180</a>         <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; transformedTree = recurseComplement(node, map);
+<a class="jxr_linenumber" name="L181" href="RegionFactory.html#L181">181</a> 
+<a class="jxr_linenumber" name="L182" href="RegionFactory.html#L182">182</a>         <em class="jxr_comment">// set up the boundary attributes splitters</em>
+<a class="jxr_linenumber" name="L183" href="RegionFactory.html#L183">183</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> Map.Entry&lt;BSPTree&lt;S&gt;, BSPTree&lt;S&gt;&gt; entry : map.entrySet()) {
+<a class="jxr_linenumber" name="L184" href="RegionFactory.html#L184">184</a>             <strong class="jxr_keyword">if</strong> (entry.getKey().getCut() != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L185" href="RegionFactory.html#L185">185</a>                 @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L186" href="RegionFactory.html#L186">186</a>                 BoundaryAttribute&lt;S&gt; original = (BoundaryAttribute&lt;S&gt;) entry.getKey().getAttribute();
+<a class="jxr_linenumber" name="L187" href="RegionFactory.html#L187">187</a>                 <strong class="jxr_keyword">if</strong> (original != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L188" href="RegionFactory.html#L188">188</a>                     @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L189" href="RegionFactory.html#L189">189</a>                     BoundaryAttribute&lt;S&gt; transformed = (BoundaryAttribute&lt;S&gt;) entry.getValue().getAttribute();
+<a class="jxr_linenumber" name="L190" href="RegionFactory.html#L190">190</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; splitter : original.getSplitters()) {
+<a class="jxr_linenumber" name="L191" href="RegionFactory.html#L191">191</a>                         transformed.getSplitters().add(map.get(splitter));
+<a class="jxr_linenumber" name="L192" href="RegionFactory.html#L192">192</a>                     }
+<a class="jxr_linenumber" name="L193" href="RegionFactory.html#L193">193</a>                 }
+<a class="jxr_linenumber" name="L194" href="RegionFactory.html#L194">194</a>             }
+<a class="jxr_linenumber" name="L195" href="RegionFactory.html#L195">195</a>         }
+<a class="jxr_linenumber" name="L196" href="RegionFactory.html#L196">196</a> 
+<a class="jxr_linenumber" name="L197" href="RegionFactory.html#L197">197</a>         <strong class="jxr_keyword">return</strong> transformedTree;
+<a class="jxr_linenumber" name="L198" href="RegionFactory.html#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="RegionFactory.html#L199">199</a>     }
+<a class="jxr_linenumber" name="L200" href="RegionFactory.html#L200">200</a> 
+<a class="jxr_linenumber" name="L201" href="RegionFactory.html#L201">201</a>     <em class="jxr_javadoccomment">/** Recursively build the complement of a BSP tree.</em>
+<a class="jxr_linenumber" name="L202" href="RegionFactory.html#L202">202</a> <em class="jxr_javadoccomment">     * @param node current node of the original tree</em>
+<a class="jxr_linenumber" name="L203" href="RegionFactory.html#L203">203</a> <em class="jxr_javadoccomment">     * @param map transformed nodes map</em>
+<a class="jxr_linenumber" name="L204" href="RegionFactory.html#L204">204</a> <em class="jxr_javadoccomment">     * @return new tree, complement of the node</em>
+<a class="jxr_linenumber" name="L205" href="RegionFactory.html#L205">205</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L206" href="RegionFactory.html#L206">206</a>     <strong class="jxr_keyword">private</strong> BSPTree&lt;S&gt; recurseComplement(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; node,
+<a class="jxr_linenumber" name="L207" href="RegionFactory.html#L207">207</a>                                          <strong class="jxr_keyword">final</strong> Map&lt;BSPTree&lt;S&gt;, BSPTree&lt;S&gt;&gt; map) {
+<a class="jxr_linenumber" name="L208" href="RegionFactory.html#L208">208</a> 
+<a class="jxr_linenumber" name="L209" href="RegionFactory.html#L209">209</a>         <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; transformedNode;
+<a class="jxr_linenumber" name="L210" href="RegionFactory.html#L210">210</a>         <strong class="jxr_keyword">if</strong> (node.getCut() == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L211" href="RegionFactory.html#L211">211</a>             transformedNode = <strong class="jxr_keyword">new</strong> BSPTree&lt;S&gt;(((Boolean) node.getAttribute()) ? Boolean.FALSE : Boolean.TRUE);
+<a class="jxr_linenumber" name="L212" href="RegionFactory.html#L212">212</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L213" href="RegionFactory.html#L213">213</a> 
+<a class="jxr_linenumber" name="L214" href="RegionFactory.html#L214">214</a>             @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L215" href="RegionFactory.html#L215">215</a>             BoundaryAttribute&lt;S&gt; attribute = (BoundaryAttribute&lt;S&gt;) node.getAttribute();
+<a class="jxr_linenumber" name="L216" href="RegionFactory.html#L216">216</a>             <strong class="jxr_keyword">if</strong> (attribute != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L217" href="RegionFactory.html#L217">217</a>                 <strong class="jxr_keyword">final</strong> SubHyperplane&lt;S&gt; plusOutside =
+<a class="jxr_linenumber" name="L218" href="RegionFactory.html#L218">218</a>                         (attribute.getPlusInside() == <strong class="jxr_keyword">null</strong>) ? <strong class="jxr_keyword">null</strong> : attribute.getPlusInside().copySelf();
+<a class="jxr_linenumber" name="L219" href="RegionFactory.html#L219">219</a>                 <strong class="jxr_keyword">final</strong> SubHyperplane&lt;S&gt; plusInside  =
+<a class="jxr_linenumber" name="L220" href="RegionFactory.html#L220">220</a>                         (attribute.getPlusOutside() == <strong class="jxr_keyword">null</strong>) ? <strong class="jxr_keyword">null</strong> : attribute.getPlusOutside().copySelf();
+<a class="jxr_linenumber" name="L221" href="RegionFactory.html#L221">221</a>                 <em class="jxr_comment">// we start with an empty list of splitters, it will be filled in out of recursion</em>
+<a class="jxr_linenumber" name="L222" href="RegionFactory.html#L222">222</a>                 attribute = <strong class="jxr_keyword">new</strong> BoundaryAttribute&lt;S&gt;(plusOutside, plusInside, <strong class="jxr_keyword">new</strong> NodesSet&lt;S&gt;());
+<a class="jxr_linenumber" name="L223" href="RegionFactory.html#L223">223</a>             }
+<a class="jxr_linenumber" name="L224" href="RegionFactory.html#L224">224</a> 
+<a class="jxr_linenumber" name="L225" href="RegionFactory.html#L225">225</a>             transformedNode = <strong class="jxr_keyword">new</strong> BSPTree&lt;S&gt;(node.getCut().copySelf(),
+<a class="jxr_linenumber" name="L226" href="RegionFactory.html#L226">226</a>                                              recurseComplement(node.getPlus(),  map),
+<a class="jxr_linenumber" name="L227" href="RegionFactory.html#L227">227</a>                                              recurseComplement(node.getMinus(), map),
+<a class="jxr_linenumber" name="L228" href="RegionFactory.html#L228">228</a>                                              attribute);
+<a class="jxr_linenumber" name="L229" href="RegionFactory.html#L229">229</a>         }
+<a class="jxr_linenumber" name="L230" href="RegionFactory.html#L230">230</a> 
+<a class="jxr_linenumber" name="L231" href="RegionFactory.html#L231">231</a>         map.put(node, transformedNode);
+<a class="jxr_linenumber" name="L232" href="RegionFactory.html#L232">232</a>         <strong class="jxr_keyword">return</strong> transformedNode;
+<a class="jxr_linenumber" name="L233" href="RegionFactory.html#L233">233</a> 
+<a class="jxr_linenumber" name="L234" href="RegionFactory.html#L234">234</a>     }
+<a class="jxr_linenumber" name="L235" href="RegionFactory.html#L235">235</a> 
+<a class="jxr_linenumber" name="L236" href="RegionFactory.html#L236">236</a>     <em class="jxr_javadoccomment">/** BSP tree leaf merger computing union of two regions. */</em>
+<a class="jxr_linenumber" name="L237" href="RegionFactory.html#L237">237</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="RegionFactory.html">UnionMerger</a> <strong class="jxr_keyword">implements</strong> BSPTree.LeafMerger&lt;S&gt; {
+<a class="jxr_linenumber" name="L238" href="RegionFactory.html#L238">238</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L239" href="RegionFactory.html#L239">239</a>         @Override
+<a class="jxr_linenumber" name="L240" href="RegionFactory.html#L240">240</a>         <strong class="jxr_keyword">public</strong> BSPTree&lt;S&gt; merge(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; leaf, <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; tree,
+<a class="jxr_linenumber" name="L241" href="RegionFactory.html#L241">241</a>                                 <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; parentTree,
+<a class="jxr_linenumber" name="L242" href="RegionFactory.html#L242">242</a>                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isPlusChild, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> leafFromInstance) {
+<a class="jxr_linenumber" name="L243" href="RegionFactory.html#L243">243</a>             <strong class="jxr_keyword">if</strong> ((Boolean) leaf.getAttribute()) {
+<a class="jxr_linenumber" name="L244" href="RegionFactory.html#L244">244</a>                 <em class="jxr_comment">// the leaf node represents an inside cell</em>
+<a class="jxr_linenumber" name="L245" href="RegionFactory.html#L245">245</a>                 leaf.insertInTree(parentTree, isPlusChild, <strong class="jxr_keyword">new</strong> <a href="RegionFactory.html">VanishingToLeaf</a>(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L246" href="RegionFactory.html#L246">246</a>                 <strong class="jxr_keyword">return</strong> leaf;
+<a class="jxr_linenumber" name="L247" href="RegionFactory.html#L247">247</a>             }
+<a class="jxr_linenumber" name="L248" href="RegionFactory.html#L248">248</a>             <em class="jxr_comment">// the leaf node represents an outside cell</em>
+<a class="jxr_linenumber" name="L249" href="RegionFactory.html#L249">249</a>             tree.insertInTree(parentTree, isPlusChild, <strong class="jxr_keyword">new</strong> <a href="RegionFactory.html">VanishingToLeaf</a>(false));
+<a class="jxr_linenumber" name="L250" href="RegionFactory.html#L250">250</a>             <strong class="jxr_keyword">return</strong> tree;
+<a class="jxr_linenumber" name="L251" href="RegionFactory.html#L251">251</a>         }
+<a class="jxr_linenumber" name="L252" href="RegionFactory.html#L252">252</a>     }
+<a class="jxr_linenumber" name="L253" href="RegionFactory.html#L253">253</a> 
+<a class="jxr_linenumber" name="L254" href="RegionFactory.html#L254">254</a>     <em class="jxr_javadoccomment">/** BSP tree leaf merger computing intersection of two regions. */</em>
+<a class="jxr_linenumber" name="L255" href="RegionFactory.html#L255">255</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="RegionFactory.html">IntersectionMerger</a> <strong class="jxr_keyword">implements</strong> BSPTree.LeafMerger&lt;S&gt; {
+<a class="jxr_linenumber" name="L256" href="RegionFactory.html#L256">256</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L257" href="RegionFactory.html#L257">257</a>         @Override
+<a class="jxr_linenumber" name="L258" href="RegionFactory.html#L258">258</a>         <strong class="jxr_keyword">public</strong> BSPTree&lt;S&gt; merge(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; leaf, <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; tree,
+<a class="jxr_linenumber" name="L259" href="RegionFactory.html#L259">259</a>                                 <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; parentTree,
+<a class="jxr_linenumber" name="L260" href="RegionFactory.html#L260">260</a>                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isPlusChild, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> leafFromInstance) {
+<a class="jxr_linenumber" name="L261" href="RegionFactory.html#L261">261</a>             <strong class="jxr_keyword">if</strong> ((Boolean) leaf.getAttribute()) {
+<a class="jxr_linenumber" name="L262" href="RegionFactory.html#L262">262</a>                 <em class="jxr_comment">// the leaf node represents an inside cell</em>
+<a class="jxr_linenumber" name="L263" href="RegionFactory.html#L263">263</a>                 tree.insertInTree(parentTree, isPlusChild, <strong class="jxr_keyword">new</strong> <a href="RegionFactory.html">VanishingToLeaf</a>(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L264" href="RegionFactory.html#L264">264</a>                 <strong class="jxr_keyword">return</strong> tree;
+<a class="jxr_linenumber" name="L265" href="RegionFactory.html#L265">265</a>             }
+<a class="jxr_linenumber" name="L266" href="RegionFactory.html#L266">266</a>             <em class="jxr_comment">// the leaf node represents an outside cell</em>
+<a class="jxr_linenumber" name="L267" href="RegionFactory.html#L267">267</a>             leaf.insertInTree(parentTree, isPlusChild, <strong class="jxr_keyword">new</strong> <a href="RegionFactory.html">VanishingToLeaf</a>(false));
+<a class="jxr_linenumber" name="L268" href="RegionFactory.html#L268">268</a>             <strong class="jxr_keyword">return</strong> leaf;
+<a class="jxr_linenumber" name="L269" href="RegionFactory.html#L269">269</a>         }
+<a class="jxr_linenumber" name="L270" href="RegionFactory.html#L270">270</a>     }
+<a class="jxr_linenumber" name="L271" href="RegionFactory.html#L271">271</a> 
+<a class="jxr_linenumber" name="L272" href="RegionFactory.html#L272">272</a>     <em class="jxr_javadoccomment">/** BSP tree leaf merger computing symmetric difference (exclusive or) of two regions. */</em>
+<a class="jxr_linenumber" name="L273" href="RegionFactory.html#L273">273</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="RegionFactory.html">XorMerger</a> <strong class="jxr_keyword">implements</strong> BSPTree.LeafMerger&lt;S&gt; {
+<a class="jxr_linenumber" name="L274" href="RegionFactory.html#L274">274</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L275" href="RegionFactory.html#L275">275</a>         @Override
+<a class="jxr_linenumber" name="L276" href="RegionFactory.html#L276">276</a>         <strong class="jxr_keyword">public</strong> BSPTree&lt;S&gt; merge(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; leaf, <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; tree,
+<a class="jxr_linenumber" name="L277" href="RegionFactory.html#L277">277</a>                                 <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; parentTree, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isPlusChild,
+<a class="jxr_linenumber" name="L278" href="RegionFactory.html#L278">278</a>                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> leafFromInstance) {
+<a class="jxr_linenumber" name="L279" href="RegionFactory.html#L279">279</a>             BSPTree&lt;S&gt; t = tree;
+<a class="jxr_linenumber" name="L280" href="RegionFactory.html#L280">280</a>             <strong class="jxr_keyword">if</strong> ((Boolean) leaf.getAttribute()) {
+<a class="jxr_linenumber" name="L281" href="RegionFactory.html#L281">281</a>                 <em class="jxr_comment">// the leaf node represents an inside cell</em>
+<a class="jxr_linenumber" name="L282" href="RegionFactory.html#L282">282</a>                 t = recurseComplement(t);
+<a class="jxr_linenumber" name="L283" href="RegionFactory.html#L283">283</a>             }
+<a class="jxr_linenumber" name="L284" href="RegionFactory.html#L284">284</a>             t.insertInTree(parentTree, isPlusChild, <strong class="jxr_keyword">new</strong> <a href="RegionFactory.html">VanishingToLeaf</a>(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L285" href="RegionFactory.html#L285">285</a>             <strong class="jxr_keyword">return</strong> t;
+<a class="jxr_linenumber" name="L286" href="RegionFactory.html#L286">286</a>         }
+<a class="jxr_linenumber" name="L287" href="RegionFactory.html#L287">287</a>     }
+<a class="jxr_linenumber" name="L288" href="RegionFactory.html#L288">288</a> 
+<a class="jxr_linenumber" name="L289" href="RegionFactory.html#L289">289</a>     <em class="jxr_javadoccomment">/** BSP tree leaf merger computing difference of two regions. */</em>
+<a class="jxr_linenumber" name="L290" href="RegionFactory.html#L290">290</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="RegionFactory.html">DifferenceMerger</a> <strong class="jxr_keyword">implements</strong> BSPTree.LeafMerger&lt;S&gt;, VanishingCutHandler&lt;S&gt; {
+<a class="jxr_linenumber" name="L291" href="RegionFactory.html#L291">291</a> 
+<a class="jxr_linenumber" name="L292" href="RegionFactory.html#L292">292</a>         <em class="jxr_javadoccomment">/** Region to subtract from. */</em>
+<a class="jxr_linenumber" name="L293" href="RegionFactory.html#L293">293</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Region&lt;S&gt; region1;
+<a class="jxr_linenumber" name="L294" href="RegionFactory.html#L294">294</a> 
+<a class="jxr_linenumber" name="L295" href="RegionFactory.html#L295">295</a>         <em class="jxr_javadoccomment">/** Region to subtract. */</em>
+<a class="jxr_linenumber" name="L296" href="RegionFactory.html#L296">296</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Region&lt;S&gt; region2;
+<a class="jxr_linenumber" name="L297" href="RegionFactory.html#L297">297</a> 
+<a class="jxr_linenumber" name="L298" href="RegionFactory.html#L298">298</a>         <em class="jxr_javadoccomment">/** Simple constructor.</em>
+<a class="jxr_linenumber" name="L299" href="RegionFactory.html#L299">299</a> <em class="jxr_javadoccomment">         * @param region1 region to subtract from</em>
+<a class="jxr_linenumber" name="L300" href="RegionFactory.html#L300">300</a> <em class="jxr_javadoccomment">         * @param region2 region to subtract</em>
+<a class="jxr_linenumber" name="L301" href="RegionFactory.html#L301">301</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L302" href="RegionFactory.html#L302">302</a>         <a href="RegionFactory.html">DifferenceMerger</a>(<strong class="jxr_keyword">final</strong> Region&lt;S&gt; region1, <strong class="jxr_keyword">final</strong> Region&lt;S&gt; region2) {
+<a class="jxr_linenumber" name="L303" href="RegionFactory.html#L303">303</a>             <strong class="jxr_keyword">this</strong>.region1 = region1.copySelf();
+<a class="jxr_linenumber" name="L304" href="RegionFactory.html#L304">304</a>             <strong class="jxr_keyword">this</strong>.region2 = region2.copySelf();
+<a class="jxr_linenumber" name="L305" href="RegionFactory.html#L305">305</a>         }
+<a class="jxr_linenumber" name="L306" href="RegionFactory.html#L306">306</a> 
+<a class="jxr_linenumber" name="L307" href="RegionFactory.html#L307">307</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L308" href="RegionFactory.html#L308">308</a>         @Override
+<a class="jxr_linenumber" name="L309" href="RegionFactory.html#L309">309</a>         <strong class="jxr_keyword">public</strong> BSPTree&lt;S&gt; merge(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; leaf, <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; tree,
+<a class="jxr_linenumber" name="L310" href="RegionFactory.html#L310">310</a>                                 <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; parentTree, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isPlusChild,
+<a class="jxr_linenumber" name="L311" href="RegionFactory.html#L311">311</a>                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> leafFromInstance) {
+<a class="jxr_linenumber" name="L312" href="RegionFactory.html#L312">312</a>             <strong class="jxr_keyword">if</strong> ((Boolean) leaf.getAttribute()) {
+<a class="jxr_linenumber" name="L313" href="RegionFactory.html#L313">313</a>                 <em class="jxr_comment">// the leaf node represents an inside cell</em>
+<a class="jxr_linenumber" name="L314" href="RegionFactory.html#L314">314</a>                 <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; argTree =
+<a class="jxr_linenumber" name="L315" href="RegionFactory.html#L315">315</a>                     recurseComplement(leafFromInstance ? tree : leaf);
+<a class="jxr_linenumber" name="L316" href="RegionFactory.html#L316">316</a>                 argTree.insertInTree(parentTree, isPlusChild, <strong class="jxr_keyword">this</strong>);
+<a class="jxr_linenumber" name="L317" href="RegionFactory.html#L317">317</a>                 <strong class="jxr_keyword">return</strong> argTree;
+<a class="jxr_linenumber" name="L318" href="RegionFactory.html#L318">318</a>             }
+<a class="jxr_linenumber" name="L319" href="RegionFactory.html#L319">319</a>             <em class="jxr_comment">// the leaf node represents an outside cell</em>
+<a class="jxr_linenumber" name="L320" href="RegionFactory.html#L320">320</a>             <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; instanceTree =
+<a class="jxr_linenumber" name="L321" href="RegionFactory.html#L321">321</a>                 leafFromInstance ? leaf : tree;
+<a class="jxr_linenumber" name="L322" href="RegionFactory.html#L322">322</a>             instanceTree.insertInTree(parentTree, isPlusChild, <strong class="jxr_keyword">this</strong>);
+<a class="jxr_linenumber" name="L323" href="RegionFactory.html#L323">323</a>             <strong class="jxr_keyword">return</strong> instanceTree;
+<a class="jxr_linenumber" name="L324" href="RegionFactory.html#L324">324</a>         }
+<a class="jxr_linenumber" name="L325" href="RegionFactory.html#L325">325</a> 
+<a class="jxr_linenumber" name="L326" href="RegionFactory.html#L326">326</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L327" href="RegionFactory.html#L327">327</a>         @Override
+<a class="jxr_linenumber" name="L328" href="RegionFactory.html#L328">328</a>         <strong class="jxr_keyword">public</strong> BSPTree&lt;S&gt; fixNode(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; node) {
+<a class="jxr_linenumber" name="L329" href="RegionFactory.html#L329">329</a>             <em class="jxr_comment">// get a representative point in the degenerate cell</em>
+<a class="jxr_linenumber" name="L330" href="RegionFactory.html#L330">330</a>             <strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; cell = node.pruneAroundConvexCell(Boolean.TRUE, Boolean.FALSE, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L331" href="RegionFactory.html#L331">331</a>             <strong class="jxr_keyword">final</strong> Region&lt;S&gt; r = region1.buildNew(cell);
+<a class="jxr_linenumber" name="L332" href="RegionFactory.html#L332">332</a>             <strong class="jxr_keyword">final</strong> Point&lt;S&gt; p = r.getBarycenter();
+<a class="jxr_linenumber" name="L333" href="RegionFactory.html#L333">333</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> BSPTree&lt;S&gt;(region1.checkPoint(p) == Location.INSIDE &amp;&amp;
+<a class="jxr_linenumber" name="L334" href="RegionFactory.html#L334">334</a>                                   region2.checkPoint(p) == Location.OUTSIDE);
+<a class="jxr_linenumber" name="L335" href="RegionFactory.html#L335">335</a>         }
+<a class="jxr_linenumber" name="L336" href="RegionFactory.html#L336">336</a> 
+<a class="jxr_linenumber" name="L337" href="RegionFactory.html#L337">337</a>     }
+<a class="jxr_linenumber" name="L338" href="RegionFactory.html#L338">338</a> 
+<a class="jxr_linenumber" name="L339" href="RegionFactory.html#L339">339</a>     <em class="jxr_javadoccomment">/** Visitor removing internal nodes attributes. */</em>
+<a class="jxr_linenumber" name="L340" href="RegionFactory.html#L340">340</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="RegionFactory.html">NodesCleaner</a> <strong class="jxr_keyword">implements</strong>  BSPTreeVisitor&lt;S&gt; {
+<a class="jxr_linenumber" name="L341" href="RegionFactory.html#L341">341</a> 
+<a class="jxr_linenumber" name="L342" href="RegionFactory.html#L342">342</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L343" href="RegionFactory.html#L343">343</a>         @Override
+<a class="jxr_linenumber" name="L344" href="RegionFactory.html#L344">344</a>         <strong class="jxr_keyword">public</strong> <a href="BSPTreeVisitor.html">Order</a> visitOrder(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; node) {
+<a class="jxr_linenumber" name="L345" href="RegionFactory.html#L345">345</a>             <strong class="jxr_keyword">return</strong> Order.PLUS_SUB_MINUS;
+<a class="jxr_linenumber" name="L346" href="RegionFactory.html#L346">346</a>         }
+<a class="jxr_linenumber" name="L347" href="RegionFactory.html#L347">347</a> 
+<a class="jxr_linenumber" name="L348" href="RegionFactory.html#L348">348</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L349" href="RegionFactory.html#L349">349</a>         @Override
+<a class="jxr_linenumber" name="L350" href="RegionFactory.html#L350">350</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> visitInternalNode(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; node) {
+<a class="jxr_linenumber" name="L351" href="RegionFactory.html#L351">351</a>             node.setAttribute(<strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L352" href="RegionFactory.html#L352">352</a>         }
+<a class="jxr_linenumber" name="L353" href="RegionFactory.html#L353">353</a> 
+<a class="jxr_linenumber" name="L354" href="RegionFactory.html#L354">354</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L355" href="RegionFactory.html#L355">355</a>         @Override
+<a class="jxr_linenumber" name="L356" href="RegionFactory.html#L356">356</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> visitLeafNode(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; node) {
+<a class="jxr_linenumber" name="L357" href="RegionFactory.html#L357">357</a>         }
+<a class="jxr_linenumber" name="L358" href="RegionFactory.html#L358">358</a> 
+<a class="jxr_linenumber" name="L359" href="RegionFactory.html#L359">359</a>     }
+<a class="jxr_linenumber" name="L360" href="RegionFactory.html#L360">360</a> 
+<a class="jxr_linenumber" name="L361" href="RegionFactory.html#L361">361</a>     <em class="jxr_javadoccomment">/** Handler replacing nodes with vanishing cuts with leaf nodes. */</em>
+<a class="jxr_linenumber" name="L362" href="RegionFactory.html#L362">362</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="RegionFactory.html">VanishingToLeaf</a> <strong class="jxr_keyword">implements</strong> VanishingCutHandler&lt;S&gt; {
+<a class="jxr_linenumber" name="L363" href="RegionFactory.html#L363">363</a> 
+<a class="jxr_linenumber" name="L364" href="RegionFactory.html#L364">364</a>         <em class="jxr_javadoccomment">/** Inside/outside indocator to use for ambiguous nodes. */</em>
+<a class="jxr_linenumber" name="L365" href="RegionFactory.html#L365">365</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> inside;
+<a class="jxr_linenumber" name="L366" href="RegionFactory.html#L366">366</a> 
+<a class="jxr_linenumber" name="L367" href="RegionFactory.html#L367">367</a>         <em class="jxr_javadoccomment">/** Simple constructor.</em>
+<a class="jxr_linenumber" name="L368" href="RegionFactory.html#L368">368</a> <em class="jxr_javadoccomment">         * @param inside inside/outside indicator to use for ambiguous nodes</em>
+<a class="jxr_linenumber" name="L369" href="RegionFactory.html#L369">369</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L370" href="RegionFactory.html#L370">370</a>         <a href="RegionFactory.html">VanishingToLeaf</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> inside) {
+<a class="jxr_linenumber" name="L371" href="RegionFactory.html#L371">371</a>             <strong class="jxr_keyword">this</strong>.inside = inside;
+<a class="jxr_linenumber" name="L372" href="RegionFactory.html#L372">372</a>         }
+<a class="jxr_linenumber" name="L373" href="RegionFactory.html#L373">373</a> 
+<a class="jxr_linenumber" name="L374" href="RegionFactory.html#L374">374</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L375" href="RegionFactory.html#L375">375</a>         @Override
+<a class="jxr_linenumber" name="L376" href="RegionFactory.html#L376">376</a>         <strong class="jxr_keyword">public</strong> BSPTree&lt;S&gt; fixNode(<strong class="jxr_keyword">final</strong> BSPTree&lt;S&gt; node) {
+<a class="jxr_linenumber" name="L377" href="RegionFactory.html#L377">377</a>             <strong class="jxr_keyword">if</strong> (node.getPlus().getAttribute().equals(node.getMinus().getAttribute())) {
+<a class="jxr_linenumber" name="L378" href="RegionFactory.html#L378">378</a>                 <em class="jxr_comment">// no ambiguity</em>
+<a class="jxr_linenumber" name="L379" href="RegionFactory.html#L379">379</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> BSPTree&lt;S&gt;(node.getPlus().getAttribute());
+<a class="jxr_linenumber" name="L380" href="RegionFactory.html#L380">380</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L381" href="RegionFactory.html#L381">381</a>                 <em class="jxr_comment">// ambiguous node</em>
+<a class="jxr_linenumber" name="L382" href="RegionFactory.html#L382">382</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> BSPTree&lt;S&gt;(inside);
+<a class="jxr_linenumber" name="L383" href="RegionFactory.html#L383">383</a>             }
+<a class="jxr_linenumber" name="L384" href="RegionFactory.html#L384">384</a>         }
+<a class="jxr_linenumber" name="L385" href="RegionFactory.html#L385">385</a> 
+<a class="jxr_linenumber" name="L386" href="RegionFactory.html#L386">386</a>     }
+<a class="jxr_linenumber" name="L387" href="RegionFactory.html#L387">387</a> 
+<a class="jxr_linenumber" name="L388" href="RegionFactory.html#L388">388</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

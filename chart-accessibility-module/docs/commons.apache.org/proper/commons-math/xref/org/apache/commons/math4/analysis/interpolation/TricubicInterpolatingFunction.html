@@ -1,0 +1,522 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>TricubicInterpolatingFunction xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/analysis/interpolation/TricubicInterpolatingFunction.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="TricubicInterpolatingFunction.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="TricubicInterpolatingFunction.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="TricubicInterpolatingFunction.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="TricubicInterpolatingFunction.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="TricubicInterpolatingFunction.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="TricubicInterpolatingFunction.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="TricubicInterpolatingFunction.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="TricubicInterpolatingFunction.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="TricubicInterpolatingFunction.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="TricubicInterpolatingFunction.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="TricubicInterpolatingFunction.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="TricubicInterpolatingFunction.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="TricubicInterpolatingFunction.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="TricubicInterpolatingFunction.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="TricubicInterpolatingFunction.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="TricubicInterpolatingFunction.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="TricubicInterpolatingFunction.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.interpolation;
+<a class="jxr_linenumber" name="L18" href="TricubicInterpolatingFunction.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="TricubicInterpolatingFunction.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.analysis.TrivariateFunction;
+<a class="jxr_linenumber" name="L20" href="TricubicInterpolatingFunction.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L21" href="TricubicInterpolatingFunction.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoDataException;
+<a class="jxr_linenumber" name="L22" href="TricubicInterpolatingFunction.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NonMonotonicSequenceException;
+<a class="jxr_linenumber" name="L23" href="TricubicInterpolatingFunction.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L24" href="TricubicInterpolatingFunction.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L25" href="TricubicInterpolatingFunction.html#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="TricubicInterpolatingFunction.html#L26">26</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L27" href="TricubicInterpolatingFunction.html#L27">27</a>  <em class="jxr_javadoccomment"> * Function that implements the</em>
+<a class="jxr_linenumber" name="L28" href="TricubicInterpolatingFunction.html#L28">28</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://en.wikipedia.org/wiki/Tricubic_interpolation" target="alexandria_uri">http://en.wikipedia.org/wiki/Tricubic_interpolation</a>"&gt;</em>
+<a class="jxr_linenumber" name="L29" href="TricubicInterpolatingFunction.html#L29">29</a>  <em class="jxr_javadoccomment"> * tricubic spline interpolation&lt;/a&gt;, as proposed in</em>
+<a class="jxr_linenumber" name="L30" href="TricubicInterpolatingFunction.html#L30">30</a>  <em class="jxr_javadoccomment"> * &lt;blockquote&gt;</em>
+<a class="jxr_linenumber" name="L31" href="TricubicInterpolatingFunction.html#L31">31</a>  <em class="jxr_javadoccomment"> *  Tricubic interpolation in three dimensions&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L32" href="TricubicInterpolatingFunction.html#L32">32</a>  <em class="jxr_javadoccomment"> *  F. Lekien and J. Marsden&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L33" href="TricubicInterpolatingFunction.html#L33">33</a>  <em class="jxr_javadoccomment"> *  &lt;em&gt;Int. J. Numer. Meth. Eng&lt;/em&gt; 2005; &lt;b&gt;63&lt;/b&gt;:455-471&lt;br&gt;</em>
+<a class="jxr_linenumber" name="L34" href="TricubicInterpolatingFunction.html#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;/blockquote&gt;</em>
+<a class="jxr_linenumber" name="L35" href="TricubicInterpolatingFunction.html#L35">35</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L36" href="TricubicInterpolatingFunction.html#L36">36</a>  <em class="jxr_javadoccomment"> * @since 3.4.</em>
+<a class="jxr_linenumber" name="L37" href="TricubicInterpolatingFunction.html#L37">37</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L38" href="TricubicInterpolatingFunction.html#L38">38</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="TricubicInterpolatingFunction.html">TricubicInterpolatingFunction</a>
+<a class="jxr_linenumber" name="L39" href="TricubicInterpolatingFunction.html#L39">39</a>      <strong class="jxr_keyword">implements</strong> <a href="../TrivariateFunction.html">TrivariateFunction</a> {
+<a class="jxr_linenumber" name="L40" href="TricubicInterpolatingFunction.html#L40">40</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L41" href="TricubicInterpolatingFunction.html#L41">41</a>  <em class="jxr_javadoccomment">     * Matrix to compute the spline coefficients from the function values</em>
+<a class="jxr_linenumber" name="L42" href="TricubicInterpolatingFunction.html#L42">42</a>  <em class="jxr_javadoccomment">     * and function derivatives values</em>
+<a class="jxr_linenumber" name="L43" href="TricubicInterpolatingFunction.html#L43">43</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L44" href="TricubicInterpolatingFunction.html#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] AINV = {
+<a class="jxr_linenumber" name="L45" href="TricubicInterpolatingFunction.html#L45">45</a>          { 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L46" href="TricubicInterpolatingFunction.html#L46">46</a>          { 0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L47" href="TricubicInterpolatingFunction.html#L47">47</a>          { -3,3,0,0,0,0,0,0,-2,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L48" href="TricubicInterpolatingFunction.html#L48">48</a>          { 2,-2,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L49" href="TricubicInterpolatingFunction.html#L49">49</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L50" href="TricubicInterpolatingFunction.html#L50">50</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L51" href="TricubicInterpolatingFunction.html#L51">51</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L52" href="TricubicInterpolatingFunction.html#L52">52</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L53" href="TricubicInterpolatingFunction.html#L53">53</a>          { -3,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L54" href="TricubicInterpolatingFunction.html#L54">54</a>          { 0,0,0,0,0,0,0,0,-3,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L55" href="TricubicInterpolatingFunction.html#L55">55</a>          { 9,-9,-9,9,0,0,0,0,6,3,-6,-3,0,0,0,0,6,-6,3,-3,0,0,0,0,0,0,0,0,0,0,0,0,4,2,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L56" href="TricubicInterpolatingFunction.html#L56">56</a>          { -6,6,6,-6,0,0,0,0,-3,-3,3,3,0,0,0,0,-4,4,-2,2,0,0,0,0,0,0,0,0,0,0,0,0,-2,-2,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L57" href="TricubicInterpolatingFunction.html#L57">57</a>          { 2,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L58" href="TricubicInterpolatingFunction.html#L58">58</a>          { 0,0,0,0,0,0,0,0,2,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L59" href="TricubicInterpolatingFunction.html#L59">59</a>          { -6,6,6,-6,0,0,0,0,-4,-2,4,2,0,0,0,0,-3,3,-3,3,0,0,0,0,0,0,0,0,0,0,0,0,-2,-1,-2,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L60" href="TricubicInterpolatingFunction.html#L60">60</a>          { 4,-4,-4,4,0,0,0,0,2,2,-2,-2,0,0,0,0,2,-2,2,-2,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L61" href="TricubicInterpolatingFunction.html#L61">61</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L62" href="TricubicInterpolatingFunction.html#L62">62</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L63" href="TricubicInterpolatingFunction.html#L63">63</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L64" href="TricubicInterpolatingFunction.html#L64">64</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L65" href="TricubicInterpolatingFunction.html#L65">65</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L66" href="TricubicInterpolatingFunction.html#L66">66</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L67" href="TricubicInterpolatingFunction.html#L67">67</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,3,0,0,0,0,0,0,-2,-1,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L68" href="TricubicInterpolatingFunction.html#L68">68</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,-2,0,0,0,0,0,0,1,1,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L69" href="TricubicInterpolatingFunction.html#L69">69</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L70" href="TricubicInterpolatingFunction.html#L70">70</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,-1,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L71" href="TricubicInterpolatingFunction.html#L71">71</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,-9,-9,9,0,0,0,0,0,0,0,0,0,0,0,0,6,3,-6,-3,0,0,0,0,6,-6,3,-3,0,0,0,0,4,2,2,1,0,0,0,0 },
+<a class="jxr_linenumber" name="L72" href="TricubicInterpolatingFunction.html#L72">72</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-6,6,6,-6,0,0,0,0,0,0,0,0,0,0,0,0,-3,-3,3,3,0,0,0,0,-4,4,-2,2,0,0,0,0,-2,-2,-1,-1,0,0,0,0 },
+<a class="jxr_linenumber" name="L73" href="TricubicInterpolatingFunction.html#L73">73</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L74" href="TricubicInterpolatingFunction.html#L74">74</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L75" href="TricubicInterpolatingFunction.html#L75">75</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-6,6,6,-6,0,0,0,0,0,0,0,0,0,0,0,0,-4,-2,4,2,0,0,0,0,-3,3,-3,3,0,0,0,0,-2,-1,-2,-1,0,0,0,0 },
+<a class="jxr_linenumber" name="L76" href="TricubicInterpolatingFunction.html#L76">76</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,-4,-4,4,0,0,0,0,0,0,0,0,0,0,0,0,2,2,-2,-2,0,0,0,0,2,-2,2,-2,0,0,0,0,1,1,1,1,0,0,0,0 },
+<a class="jxr_linenumber" name="L77" href="TricubicInterpolatingFunction.html#L77">77</a>          {-3,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L78" href="TricubicInterpolatingFunction.html#L78">78</a>          { 0,0,0,0,0,0,0,0,-3,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L79" href="TricubicInterpolatingFunction.html#L79">79</a>          { 9,-9,0,0,-9,9,0,0,6,3,0,0,-6,-3,0,0,0,0,0,0,0,0,0,0,6,-6,0,0,3,-3,0,0,0,0,0,0,0,0,0,0,4,2,0,0,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L80" href="TricubicInterpolatingFunction.html#L80">80</a>          { -6,6,0,0,6,-6,0,0,-3,-3,0,0,3,3,0,0,0,0,0,0,0,0,0,0,-4,4,0,0,-2,2,0,0,0,0,0,0,0,0,0,0,-2,-2,0,0,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L81" href="TricubicInterpolatingFunction.html#L81">81</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L82" href="TricubicInterpolatingFunction.html#L82">82</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,0,0,-1,0,0,0 },
+<a class="jxr_linenumber" name="L83" href="TricubicInterpolatingFunction.html#L83">83</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,-9,0,0,-9,9,0,0,0,0,0,0,0,0,0,0,6,3,0,0,-6,-3,0,0,0,0,0,0,0,0,0,0,6,-6,0,0,3,-3,0,0,4,2,0,0,2,1,0,0 },
+<a class="jxr_linenumber" name="L84" href="TricubicInterpolatingFunction.html#L84">84</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-6,6,0,0,6,-6,0,0,0,0,0,0,0,0,0,0,-3,-3,0,0,3,3,0,0,0,0,0,0,0,0,0,0,-4,4,0,0,-2,2,0,0,-2,-2,0,0,-1,-1,0,0 },
+<a class="jxr_linenumber" name="L85" href="TricubicInterpolatingFunction.html#L85">85</a>          { 9,0,-9,0,-9,0,9,0,0,0,0,0,0,0,0,0,6,0,3,0,-6,0,-3,0,6,0,-6,0,3,0,-3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,2,0,2,0,1,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L86" href="TricubicInterpolatingFunction.html#L86">86</a>          { 0,0,0,0,0,0,0,0,9,0,-9,0,-9,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,3,0,-6,0,-3,0,6,0,-6,0,3,0,-3,0,0,0,0,0,0,0,0,0,4,0,2,0,2,0,1,0 },
+<a class="jxr_linenumber" name="L87" href="TricubicInterpolatingFunction.html#L87">87</a>          { -27,27,27,-27,27,-27,-27,27,-18,-9,18,9,18,9,-18,-9,-18,18,-9,9,18,-18,9,-9,-18,18,18,-18,-9,9,9,-9,-12,-6,-6,-3,12,6,6,3,-12,-6,12,6,-6,-3,6,3,-12,12,-6,6,-6,6,-3,3,-8,-4,-4,-2,-4,-2,-2,-1 },
+<a class="jxr_linenumber" name="L88" href="TricubicInterpolatingFunction.html#L88">88</a>          { 18,-18,-18,18,-18,18,18,-18,9,9,-9,-9,-9,-9,9,9,12,-12,6,-6,-12,12,-6,6,12,-12,-12,12,6,-6,-6,6,6,6,3,3,-6,-6,-3,-3,6,6,-6,-6,3,3,-3,-3,8,-8,4,-4,4,-4,2,-2,4,4,2,2,2,2,1,1 },
+<a class="jxr_linenumber" name="L89" href="TricubicInterpolatingFunction.html#L89">89</a>          { -6,0,6,0,6,0,-6,0,0,0,0,0,0,0,0,0,-3,0,-3,0,3,0,3,0,-4,0,4,0,-2,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,-2,0,-1,0,-1,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L90" href="TricubicInterpolatingFunction.html#L90">90</a>          { 0,0,0,0,0,0,0,0,-6,0,6,0,6,0,-6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,0,-3,0,3,0,3,0,-4,0,4,0,-2,0,2,0,0,0,0,0,0,0,0,0,-2,0,-2,0,-1,0,-1,0 },
+<a class="jxr_linenumber" name="L91" href="TricubicInterpolatingFunction.html#L91">91</a>          { 18,-18,-18,18,-18,18,18,-18,12,6,-12,-6,-12,-6,12,6,9,-9,9,-9,-9,9,-9,9,12,-12,-12,12,6,-6,-6,6,6,3,6,3,-6,-3,-6,-3,8,4,-8,-4,4,2,-4,-2,6,-6,6,-6,3,-3,3,-3,4,2,4,2,2,1,2,1 },
+<a class="jxr_linenumber" name="L92" href="TricubicInterpolatingFunction.html#L92">92</a>          { -12,12,12,-12,12,-12,-12,12,-6,-6,6,6,6,6,-6,-6,-6,6,-6,6,6,-6,6,-6,-8,8,8,-8,-4,4,4,-4,-3,-3,-3,-3,3,3,3,3,-4,-4,4,4,-2,-2,2,2,-4,4,-4,4,-2,2,-2,2,-2,-2,-2,-2,-1,-1,-1,-1 },
+<a class="jxr_linenumber" name="L93" href="TricubicInterpolatingFunction.html#L93">93</a>          { 2,0,0,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L94" href="TricubicInterpolatingFunction.html#L94">94</a>          { 0,0,0,0,0,0,0,0,2,0,0,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L95" href="TricubicInterpolatingFunction.html#L95">95</a>          { -6,6,0,0,6,-6,0,0,-4,-2,0,0,4,2,0,0,0,0,0,0,0,0,0,0,-3,3,0,0,-3,3,0,0,0,0,0,0,0,0,0,0,-2,-1,0,0,-2,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L96" href="TricubicInterpolatingFunction.html#L96">96</a>          { 4,-4,0,0,-4,4,0,0,2,2,0,0,-2,-2,0,0,0,0,0,0,0,0,0,0,2,-2,0,0,2,-2,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L97" href="TricubicInterpolatingFunction.html#L97">97</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L98" href="TricubicInterpolatingFunction.html#L98">98</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0 },
+<a class="jxr_linenumber" name="L99" href="TricubicInterpolatingFunction.html#L99">99</a>          { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-6,6,0,0,6,-6,0,0,0,0,0,0,0,0,0,0,-4,-2,0,0,4,2,0,0,0,0,0,0,0,0,0,0,-3,3,0,0,-3,3,0,0,-2,-1,0,0,-2,-1,0,0 },
+<a class="jxr_linenumber" name="L100" href="TricubicInterpolatingFunction.html#L100">100</a>         { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,-4,0,0,-4,4,0,0,0,0,0,0,0,0,0,0,2,2,0,0,-2,-2,0,0,0,0,0,0,0,0,0,0,2,-2,0,0,2,-2,0,0,1,1,0,0,1,1,0,0 },
+<a class="jxr_linenumber" name="L101" href="TricubicInterpolatingFunction.html#L101">101</a>         { -6,0,6,0,6,0,-6,0,0,0,0,0,0,0,0,0,-4,0,-2,0,4,0,2,0,-3,0,3,0,-3,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,-1,0,-2,0,-1,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L102" href="TricubicInterpolatingFunction.html#L102">102</a>         { 0,0,0,0,0,0,0,0,-6,0,6,0,6,0,-6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-4,0,-2,0,4,0,2,0,-3,0,3,0,-3,0,3,0,0,0,0,0,0,0,0,0,-2,0,-1,0,-2,0,-1,0 },
+<a class="jxr_linenumber" name="L103" href="TricubicInterpolatingFunction.html#L103">103</a>         { 18,-18,-18,18,-18,18,18,-18,12,6,-12,-6,-12,-6,12,6,12,-12,6,-6,-12,12,-6,6,9,-9,-9,9,9,-9,-9,9,8,4,4,2,-8,-4,-4,-2,6,3,-6,-3,6,3,-6,-3,6,-6,3,-3,6,-6,3,-3,4,2,2,1,4,2,2,1 },
+<a class="jxr_linenumber" name="L104" href="TricubicInterpolatingFunction.html#L104">104</a>         { -12,12,12,-12,12,-12,-12,12,-6,-6,6,6,6,6,-6,-6,-8,8,-4,4,8,-8,4,-4,-6,6,6,-6,-6,6,6,-6,-4,-4,-2,-2,4,4,2,2,-3,-3,3,3,-3,-3,3,3,-4,4,-2,2,-4,4,-2,2,-2,-2,-1,-1,-2,-2,-1,-1 },
+<a class="jxr_linenumber" name="L105" href="TricubicInterpolatingFunction.html#L105">105</a>         { 4,0,-4,0,-4,0,4,0,0,0,0,0,0,0,0,0,2,0,2,0,-2,0,-2,0,2,0,-2,0,2,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0 },
+<a class="jxr_linenumber" name="L106" href="TricubicInterpolatingFunction.html#L106">106</a>         { 0,0,0,0,0,0,0,0,4,0,-4,0,-4,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,2,0,-2,0,-2,0,2,0,-2,0,2,0,-2,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0 },
+<a class="jxr_linenumber" name="L107" href="TricubicInterpolatingFunction.html#L107">107</a>         { -12,12,12,-12,12,-12,-12,12,-8,-4,8,4,8,4,-8,-4,-6,6,-6,6,6,-6,6,-6,-6,6,6,-6,-6,6,6,-6,-4,-2,-4,-2,4,2,4,2,-4,-2,4,2,-4,-2,4,2,-3,3,-3,3,-3,3,-3,3,-2,-1,-2,-1,-2,-1,-2,-1 },
+<a class="jxr_linenumber" name="L108" href="TricubicInterpolatingFunction.html#L108">108</a>         { 8,-8,-8,8,-8,8,8,-8,4,4,-4,-4,-4,-4,4,4,4,-4,4,-4,-4,4,-4,4,4,-4,-4,4,4,-4,-4,4,2,2,2,2,-2,-2,-2,-2,2,2,-2,-2,2,2,-2,-2,2,-2,2,-2,2,-2,2,-2,1,1,1,1,1,1,1,1 }
+<a class="jxr_linenumber" name="L109" href="TricubicInterpolatingFunction.html#L109">109</a>     };
+<a class="jxr_linenumber" name="L110" href="TricubicInterpolatingFunction.html#L110">110</a> 
+<a class="jxr_linenumber" name="L111" href="TricubicInterpolatingFunction.html#L111">111</a>     <em class="jxr_javadoccomment">/** Samples x-coordinates */</em>
+<a class="jxr_linenumber" name="L112" href="TricubicInterpolatingFunction.html#L112">112</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xval;
+<a class="jxr_linenumber" name="L113" href="TricubicInterpolatingFunction.html#L113">113</a>     <em class="jxr_javadoccomment">/** Samples y-coordinates */</em>
+<a class="jxr_linenumber" name="L114" href="TricubicInterpolatingFunction.html#L114">114</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yval;
+<a class="jxr_linenumber" name="L115" href="TricubicInterpolatingFunction.html#L115">115</a>     <em class="jxr_javadoccomment">/** Samples z-coordinates */</em>
+<a class="jxr_linenumber" name="L116" href="TricubicInterpolatingFunction.html#L116">116</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] zval;
+<a class="jxr_linenumber" name="L117" href="TricubicInterpolatingFunction.html#L117">117</a>     <em class="jxr_javadoccomment">/** Set of cubic splines pacthing the whole data grid */</em>
+<a class="jxr_linenumber" name="L118" href="TricubicInterpolatingFunction.html#L118">118</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="TricubicInterpolatingFunction.html">TricubicFunction</a>[][][] splines;
+<a class="jxr_linenumber" name="L119" href="TricubicInterpolatingFunction.html#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="TricubicInterpolatingFunction.html#L120">120</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L121" href="TricubicInterpolatingFunction.html#L121">121</a> <em class="jxr_javadoccomment">     * @param x Sample values of the x-coordinate, in increasing order.</em>
+<a class="jxr_linenumber" name="L122" href="TricubicInterpolatingFunction.html#L122">122</a> <em class="jxr_javadoccomment">     * @param y Sample values of the y-coordinate, in increasing order.</em>
+<a class="jxr_linenumber" name="L123" href="TricubicInterpolatingFunction.html#L123">123</a> <em class="jxr_javadoccomment">     * @param z Sample values of the y-coordinate, in increasing order.</em>
+<a class="jxr_linenumber" name="L124" href="TricubicInterpolatingFunction.html#L124">124</a> <em class="jxr_javadoccomment">     * @param f Values of the function on every grid point.</em>
+<a class="jxr_linenumber" name="L125" href="TricubicInterpolatingFunction.html#L125">125</a> <em class="jxr_javadoccomment">     * @param dFdX Values of the partial derivative of function with respect to x on every grid point.</em>
+<a class="jxr_linenumber" name="L126" href="TricubicInterpolatingFunction.html#L126">126</a> <em class="jxr_javadoccomment">     * @param dFdY Values of the partial derivative of function with respect to y on every grid point.</em>
+<a class="jxr_linenumber" name="L127" href="TricubicInterpolatingFunction.html#L127">127</a> <em class="jxr_javadoccomment">     * @param dFdZ Values of the partial derivative of function with respect to z on every grid point.</em>
+<a class="jxr_linenumber" name="L128" href="TricubicInterpolatingFunction.html#L128">128</a> <em class="jxr_javadoccomment">     * @param d2FdXdY Values of the cross partial derivative of function on every grid point.</em>
+<a class="jxr_linenumber" name="L129" href="TricubicInterpolatingFunction.html#L129">129</a> <em class="jxr_javadoccomment">     * @param d2FdXdZ Values of the cross partial derivative of function on every grid point.</em>
+<a class="jxr_linenumber" name="L130" href="TricubicInterpolatingFunction.html#L130">130</a> <em class="jxr_javadoccomment">     * @param d2FdYdZ Values of the cross partial derivative of function on every grid point.</em>
+<a class="jxr_linenumber" name="L131" href="TricubicInterpolatingFunction.html#L131">131</a> <em class="jxr_javadoccomment">     * @param d3FdXdYdZ Values of the cross partial derivative of function on every grid point.</em>
+<a class="jxr_linenumber" name="L132" href="TricubicInterpolatingFunction.html#L132">132</a> <em class="jxr_javadoccomment">     * @throws NoDataException if any of the arrays has zero length.</em>
+<a class="jxr_linenumber" name="L133" href="TricubicInterpolatingFunction.html#L133">133</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if the various arrays do not contain the expected number of elements.</em>
+<a class="jxr_linenumber" name="L134" href="TricubicInterpolatingFunction.html#L134">134</a> <em class="jxr_javadoccomment">     * @throws NonMonotonicSequenceException if {@code x}, {@code y} or {@code z} are not strictly increasing.</em>
+<a class="jxr_linenumber" name="L135" href="TricubicInterpolatingFunction.html#L135">135</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L136" href="TricubicInterpolatingFunction.html#L136">136</a>     <strong class="jxr_keyword">public</strong> <a href="TricubicInterpolatingFunction.html">TricubicInterpolatingFunction</a>(<strong class="jxr_keyword">double</strong>[] x,
+<a class="jxr_linenumber" name="L137" href="TricubicInterpolatingFunction.html#L137">137</a>                                          <strong class="jxr_keyword">double</strong>[] y,
+<a class="jxr_linenumber" name="L138" href="TricubicInterpolatingFunction.html#L138">138</a>                                          <strong class="jxr_keyword">double</strong>[] z,
+<a class="jxr_linenumber" name="L139" href="TricubicInterpolatingFunction.html#L139">139</a>                                          <strong class="jxr_keyword">double</strong>[][][] f,
+<a class="jxr_linenumber" name="L140" href="TricubicInterpolatingFunction.html#L140">140</a>                                          <strong class="jxr_keyword">double</strong>[][][] dFdX,
+<a class="jxr_linenumber" name="L141" href="TricubicInterpolatingFunction.html#L141">141</a>                                          <strong class="jxr_keyword">double</strong>[][][] dFdY,
+<a class="jxr_linenumber" name="L142" href="TricubicInterpolatingFunction.html#L142">142</a>                                          <strong class="jxr_keyword">double</strong>[][][] dFdZ,
+<a class="jxr_linenumber" name="L143" href="TricubicInterpolatingFunction.html#L143">143</a>                                          <strong class="jxr_keyword">double</strong>[][][] d2FdXdY,
+<a class="jxr_linenumber" name="L144" href="TricubicInterpolatingFunction.html#L144">144</a>                                          <strong class="jxr_keyword">double</strong>[][][] d2FdXdZ,
+<a class="jxr_linenumber" name="L145" href="TricubicInterpolatingFunction.html#L145">145</a>                                          <strong class="jxr_keyword">double</strong>[][][] d2FdYdZ,
+<a class="jxr_linenumber" name="L146" href="TricubicInterpolatingFunction.html#L146">146</a>                                          <strong class="jxr_keyword">double</strong>[][][] d3FdXdYdZ)
+<a class="jxr_linenumber" name="L147" href="TricubicInterpolatingFunction.html#L147">147</a>         <strong class="jxr_keyword">throws</strong> NoDataException,
+<a class="jxr_linenumber" name="L148" href="TricubicInterpolatingFunction.html#L148">148</a>                DimensionMismatchException,
+<a class="jxr_linenumber" name="L149" href="TricubicInterpolatingFunction.html#L149">149</a>                <a href="../../exception/NonMonotonicSequenceException.html">NonMonotonicSequenceException</a> {
+<a class="jxr_linenumber" name="L150" href="TricubicInterpolatingFunction.html#L150">150</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> xLen = x.length;
+<a class="jxr_linenumber" name="L151" href="TricubicInterpolatingFunction.html#L151">151</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> yLen = y.length;
+<a class="jxr_linenumber" name="L152" href="TricubicInterpolatingFunction.html#L152">152</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> zLen = z.length;
+<a class="jxr_linenumber" name="L153" href="TricubicInterpolatingFunction.html#L153">153</a> 
+<a class="jxr_linenumber" name="L154" href="TricubicInterpolatingFunction.html#L154">154</a>         <strong class="jxr_keyword">if</strong> (xLen == 0 || yLen == 0 || z.length == 0 || f.length == 0 || f[0].length == 0) {
+<a class="jxr_linenumber" name="L155" href="TricubicInterpolatingFunction.html#L155">155</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NoDataException.html">NoDataException</a>();
+<a class="jxr_linenumber" name="L156" href="TricubicInterpolatingFunction.html#L156">156</a>         }
+<a class="jxr_linenumber" name="L157" href="TricubicInterpolatingFunction.html#L157">157</a>         <strong class="jxr_keyword">if</strong> (xLen != f.length) {
+<a class="jxr_linenumber" name="L158" href="TricubicInterpolatingFunction.html#L158">158</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(xLen, f.length);
+<a class="jxr_linenumber" name="L159" href="TricubicInterpolatingFunction.html#L159">159</a>         }
+<a class="jxr_linenumber" name="L160" href="TricubicInterpolatingFunction.html#L160">160</a>         <strong class="jxr_keyword">if</strong> (xLen != dFdX.length) {
+<a class="jxr_linenumber" name="L161" href="TricubicInterpolatingFunction.html#L161">161</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(xLen, dFdX.length);
+<a class="jxr_linenumber" name="L162" href="TricubicInterpolatingFunction.html#L162">162</a>         }
+<a class="jxr_linenumber" name="L163" href="TricubicInterpolatingFunction.html#L163">163</a>         <strong class="jxr_keyword">if</strong> (xLen != dFdY.length) {
+<a class="jxr_linenumber" name="L164" href="TricubicInterpolatingFunction.html#L164">164</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(xLen, dFdY.length);
+<a class="jxr_linenumber" name="L165" href="TricubicInterpolatingFunction.html#L165">165</a>         }
+<a class="jxr_linenumber" name="L166" href="TricubicInterpolatingFunction.html#L166">166</a>         <strong class="jxr_keyword">if</strong> (xLen != dFdZ.length) {
+<a class="jxr_linenumber" name="L167" href="TricubicInterpolatingFunction.html#L167">167</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(xLen, dFdZ.length);
+<a class="jxr_linenumber" name="L168" href="TricubicInterpolatingFunction.html#L168">168</a>         }
+<a class="jxr_linenumber" name="L169" href="TricubicInterpolatingFunction.html#L169">169</a>         <strong class="jxr_keyword">if</strong> (xLen != d2FdXdY.length) {
+<a class="jxr_linenumber" name="L170" href="TricubicInterpolatingFunction.html#L170">170</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(xLen, d2FdXdY.length);
+<a class="jxr_linenumber" name="L171" href="TricubicInterpolatingFunction.html#L171">171</a>         }
+<a class="jxr_linenumber" name="L172" href="TricubicInterpolatingFunction.html#L172">172</a>         <strong class="jxr_keyword">if</strong> (xLen != d2FdXdZ.length) {
+<a class="jxr_linenumber" name="L173" href="TricubicInterpolatingFunction.html#L173">173</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(xLen, d2FdXdZ.length);
+<a class="jxr_linenumber" name="L174" href="TricubicInterpolatingFunction.html#L174">174</a>         }
+<a class="jxr_linenumber" name="L175" href="TricubicInterpolatingFunction.html#L175">175</a>         <strong class="jxr_keyword">if</strong> (xLen != d2FdYdZ.length) {
+<a class="jxr_linenumber" name="L176" href="TricubicInterpolatingFunction.html#L176">176</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(xLen, d2FdYdZ.length);
+<a class="jxr_linenumber" name="L177" href="TricubicInterpolatingFunction.html#L177">177</a>         }
+<a class="jxr_linenumber" name="L178" href="TricubicInterpolatingFunction.html#L178">178</a>         <strong class="jxr_keyword">if</strong> (xLen != d3FdXdYdZ.length) {
+<a class="jxr_linenumber" name="L179" href="TricubicInterpolatingFunction.html#L179">179</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(xLen, d3FdXdYdZ.length);
+<a class="jxr_linenumber" name="L180" href="TricubicInterpolatingFunction.html#L180">180</a>         }
+<a class="jxr_linenumber" name="L181" href="TricubicInterpolatingFunction.html#L181">181</a> 
+<a class="jxr_linenumber" name="L182" href="TricubicInterpolatingFunction.html#L182">182</a>         MathArrays.checkOrder(x);
+<a class="jxr_linenumber" name="L183" href="TricubicInterpolatingFunction.html#L183">183</a>         MathArrays.checkOrder(y);
+<a class="jxr_linenumber" name="L184" href="TricubicInterpolatingFunction.html#L184">184</a>         MathArrays.checkOrder(z);
+<a class="jxr_linenumber" name="L185" href="TricubicInterpolatingFunction.html#L185">185</a> 
+<a class="jxr_linenumber" name="L186" href="TricubicInterpolatingFunction.html#L186">186</a>         xval = x.clone();
+<a class="jxr_linenumber" name="L187" href="TricubicInterpolatingFunction.html#L187">187</a>         yval = y.clone();
+<a class="jxr_linenumber" name="L188" href="TricubicInterpolatingFunction.html#L188">188</a>         zval = z.clone();
+<a class="jxr_linenumber" name="L189" href="TricubicInterpolatingFunction.html#L189">189</a> 
+<a class="jxr_linenumber" name="L190" href="TricubicInterpolatingFunction.html#L190">190</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> lastI = xLen - 1;
+<a class="jxr_linenumber" name="L191" href="TricubicInterpolatingFunction.html#L191">191</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> lastJ = yLen - 1;
+<a class="jxr_linenumber" name="L192" href="TricubicInterpolatingFunction.html#L192">192</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> lastK = zLen - 1;
+<a class="jxr_linenumber" name="L193" href="TricubicInterpolatingFunction.html#L193">193</a>         splines = <strong class="jxr_keyword">new</strong> <a href="TricubicInterpolatingFunction.html">TricubicFunction</a>[lastI][lastJ][lastK];
+<a class="jxr_linenumber" name="L194" href="TricubicInterpolatingFunction.html#L194">194</a> 
+<a class="jxr_linenumber" name="L195" href="TricubicInterpolatingFunction.html#L195">195</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; lastI; i++) {
+<a class="jxr_linenumber" name="L196" href="TricubicInterpolatingFunction.html#L196">196</a>             <strong class="jxr_keyword">if</strong> (f[i].length != yLen) {
+<a class="jxr_linenumber" name="L197" href="TricubicInterpolatingFunction.html#L197">197</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(f[i].length, yLen);
+<a class="jxr_linenumber" name="L198" href="TricubicInterpolatingFunction.html#L198">198</a>             }
+<a class="jxr_linenumber" name="L199" href="TricubicInterpolatingFunction.html#L199">199</a>             <strong class="jxr_keyword">if</strong> (dFdX[i].length != yLen) {
+<a class="jxr_linenumber" name="L200" href="TricubicInterpolatingFunction.html#L200">200</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(dFdX[i].length, yLen);
+<a class="jxr_linenumber" name="L201" href="TricubicInterpolatingFunction.html#L201">201</a>             }
+<a class="jxr_linenumber" name="L202" href="TricubicInterpolatingFunction.html#L202">202</a>             <strong class="jxr_keyword">if</strong> (dFdY[i].length != yLen) {
+<a class="jxr_linenumber" name="L203" href="TricubicInterpolatingFunction.html#L203">203</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(dFdY[i].length, yLen);
+<a class="jxr_linenumber" name="L204" href="TricubicInterpolatingFunction.html#L204">204</a>             }
+<a class="jxr_linenumber" name="L205" href="TricubicInterpolatingFunction.html#L205">205</a>             <strong class="jxr_keyword">if</strong> (dFdZ[i].length != yLen) {
+<a class="jxr_linenumber" name="L206" href="TricubicInterpolatingFunction.html#L206">206</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(dFdZ[i].length, yLen);
+<a class="jxr_linenumber" name="L207" href="TricubicInterpolatingFunction.html#L207">207</a>             }
+<a class="jxr_linenumber" name="L208" href="TricubicInterpolatingFunction.html#L208">208</a>             <strong class="jxr_keyword">if</strong> (d2FdXdY[i].length != yLen) {
+<a class="jxr_linenumber" name="L209" href="TricubicInterpolatingFunction.html#L209">209</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(d2FdXdY[i].length, yLen);
+<a class="jxr_linenumber" name="L210" href="TricubicInterpolatingFunction.html#L210">210</a>             }
+<a class="jxr_linenumber" name="L211" href="TricubicInterpolatingFunction.html#L211">211</a>             <strong class="jxr_keyword">if</strong> (d2FdXdZ[i].length != yLen) {
+<a class="jxr_linenumber" name="L212" href="TricubicInterpolatingFunction.html#L212">212</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(d2FdXdZ[i].length, yLen);
+<a class="jxr_linenumber" name="L213" href="TricubicInterpolatingFunction.html#L213">213</a>             }
+<a class="jxr_linenumber" name="L214" href="TricubicInterpolatingFunction.html#L214">214</a>             <strong class="jxr_keyword">if</strong> (d2FdYdZ[i].length != yLen) {
+<a class="jxr_linenumber" name="L215" href="TricubicInterpolatingFunction.html#L215">215</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(d2FdYdZ[i].length, yLen);
+<a class="jxr_linenumber" name="L216" href="TricubicInterpolatingFunction.html#L216">216</a>             }
+<a class="jxr_linenumber" name="L217" href="TricubicInterpolatingFunction.html#L217">217</a>             <strong class="jxr_keyword">if</strong> (d3FdXdYdZ[i].length != yLen) {
+<a class="jxr_linenumber" name="L218" href="TricubicInterpolatingFunction.html#L218">218</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(d3FdXdYdZ[i].length, yLen);
+<a class="jxr_linenumber" name="L219" href="TricubicInterpolatingFunction.html#L219">219</a>             }
+<a class="jxr_linenumber" name="L220" href="TricubicInterpolatingFunction.html#L220">220</a> 
+<a class="jxr_linenumber" name="L221" href="TricubicInterpolatingFunction.html#L221">221</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ip1 = i + 1;
+<a class="jxr_linenumber" name="L222" href="TricubicInterpolatingFunction.html#L222">222</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xR = xval[ip1] - xval[i];
+<a class="jxr_linenumber" name="L223" href="TricubicInterpolatingFunction.html#L223">223</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; lastJ; j++) {
+<a class="jxr_linenumber" name="L224" href="TricubicInterpolatingFunction.html#L224">224</a>                 <strong class="jxr_keyword">if</strong> (f[i][j].length != zLen) {
+<a class="jxr_linenumber" name="L225" href="TricubicInterpolatingFunction.html#L225">225</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(f[i][j].length, zLen);
+<a class="jxr_linenumber" name="L226" href="TricubicInterpolatingFunction.html#L226">226</a>                 }
+<a class="jxr_linenumber" name="L227" href="TricubicInterpolatingFunction.html#L227">227</a>                 <strong class="jxr_keyword">if</strong> (dFdX[i][j].length != zLen) {
+<a class="jxr_linenumber" name="L228" href="TricubicInterpolatingFunction.html#L228">228</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(dFdX[i][j].length, zLen);
+<a class="jxr_linenumber" name="L229" href="TricubicInterpolatingFunction.html#L229">229</a>                 }
+<a class="jxr_linenumber" name="L230" href="TricubicInterpolatingFunction.html#L230">230</a>                 <strong class="jxr_keyword">if</strong> (dFdY[i][j].length != zLen) {
+<a class="jxr_linenumber" name="L231" href="TricubicInterpolatingFunction.html#L231">231</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(dFdY[i][j].length, zLen);
+<a class="jxr_linenumber" name="L232" href="TricubicInterpolatingFunction.html#L232">232</a>                 }
+<a class="jxr_linenumber" name="L233" href="TricubicInterpolatingFunction.html#L233">233</a>                 <strong class="jxr_keyword">if</strong> (dFdZ[i][j].length != zLen) {
+<a class="jxr_linenumber" name="L234" href="TricubicInterpolatingFunction.html#L234">234</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(dFdZ[i][j].length, zLen);
+<a class="jxr_linenumber" name="L235" href="TricubicInterpolatingFunction.html#L235">235</a>                 }
+<a class="jxr_linenumber" name="L236" href="TricubicInterpolatingFunction.html#L236">236</a>                 <strong class="jxr_keyword">if</strong> (d2FdXdY[i][j].length != zLen) {
+<a class="jxr_linenumber" name="L237" href="TricubicInterpolatingFunction.html#L237">237</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(d2FdXdY[i][j].length, zLen);
+<a class="jxr_linenumber" name="L238" href="TricubicInterpolatingFunction.html#L238">238</a>                 }
+<a class="jxr_linenumber" name="L239" href="TricubicInterpolatingFunction.html#L239">239</a>                 <strong class="jxr_keyword">if</strong> (d2FdXdZ[i][j].length != zLen) {
+<a class="jxr_linenumber" name="L240" href="TricubicInterpolatingFunction.html#L240">240</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(d2FdXdZ[i][j].length, zLen);
+<a class="jxr_linenumber" name="L241" href="TricubicInterpolatingFunction.html#L241">241</a>                 }
+<a class="jxr_linenumber" name="L242" href="TricubicInterpolatingFunction.html#L242">242</a>                 <strong class="jxr_keyword">if</strong> (d2FdYdZ[i][j].length != zLen) {
+<a class="jxr_linenumber" name="L243" href="TricubicInterpolatingFunction.html#L243">243</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(d2FdYdZ[i][j].length, zLen);
+<a class="jxr_linenumber" name="L244" href="TricubicInterpolatingFunction.html#L244">244</a>                 }
+<a class="jxr_linenumber" name="L245" href="TricubicInterpolatingFunction.html#L245">245</a>                 <strong class="jxr_keyword">if</strong> (d3FdXdYdZ[i][j].length != zLen) {
+<a class="jxr_linenumber" name="L246" href="TricubicInterpolatingFunction.html#L246">246</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(d3FdXdYdZ[i][j].length, zLen);
+<a class="jxr_linenumber" name="L247" href="TricubicInterpolatingFunction.html#L247">247</a>                 }
+<a class="jxr_linenumber" name="L248" href="TricubicInterpolatingFunction.html#L248">248</a> 
+<a class="jxr_linenumber" name="L249" href="TricubicInterpolatingFunction.html#L249">249</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> jp1 = j + 1;
+<a class="jxr_linenumber" name="L250" href="TricubicInterpolatingFunction.html#L250">250</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yR = yval[jp1] - yval[j];
+<a class="jxr_linenumber" name="L251" href="TricubicInterpolatingFunction.html#L251">251</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xRyR = xR * yR;
+<a class="jxr_linenumber" name="L252" href="TricubicInterpolatingFunction.html#L252">252</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; lastK; k++) {
+<a class="jxr_linenumber" name="L253" href="TricubicInterpolatingFunction.html#L253">253</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> kp1 = k + 1;
+<a class="jxr_linenumber" name="L254" href="TricubicInterpolatingFunction.html#L254">254</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> zR = zval[kp1] - zval[k];
+<a class="jxr_linenumber" name="L255" href="TricubicInterpolatingFunction.html#L255">255</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xRzR = xR * zR;
+<a class="jxr_linenumber" name="L256" href="TricubicInterpolatingFunction.html#L256">256</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yRzR = yR * zR;
+<a class="jxr_linenumber" name="L257" href="TricubicInterpolatingFunction.html#L257">257</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xRyRzR = xR * yRzR;
+<a class="jxr_linenumber" name="L258" href="TricubicInterpolatingFunction.html#L258">258</a> 
+<a class="jxr_linenumber" name="L259" href="TricubicInterpolatingFunction.html#L259">259</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] beta = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {
+<a class="jxr_linenumber" name="L260" href="TricubicInterpolatingFunction.html#L260">260</a>                         f[i][j][k], f[ip1][j][k],
+<a class="jxr_linenumber" name="L261" href="TricubicInterpolatingFunction.html#L261">261</a>                         f[i][jp1][k], f[ip1][jp1][k],
+<a class="jxr_linenumber" name="L262" href="TricubicInterpolatingFunction.html#L262">262</a>                         f[i][j][kp1], f[ip1][j][kp1],
+<a class="jxr_linenumber" name="L263" href="TricubicInterpolatingFunction.html#L263">263</a>                         f[i][jp1][kp1], f[ip1][jp1][kp1],
+<a class="jxr_linenumber" name="L264" href="TricubicInterpolatingFunction.html#L264">264</a> 
+<a class="jxr_linenumber" name="L265" href="TricubicInterpolatingFunction.html#L265">265</a>                         dFdX[i][j][k] * xR, dFdX[ip1][j][k] * xR,
+<a class="jxr_linenumber" name="L266" href="TricubicInterpolatingFunction.html#L266">266</a>                         dFdX[i][jp1][k] * xR, dFdX[ip1][jp1][k] * xR,
+<a class="jxr_linenumber" name="L267" href="TricubicInterpolatingFunction.html#L267">267</a>                         dFdX[i][j][kp1] * xR, dFdX[ip1][j][kp1] * xR,
+<a class="jxr_linenumber" name="L268" href="TricubicInterpolatingFunction.html#L268">268</a>                         dFdX[i][jp1][kp1] * xR, dFdX[ip1][jp1][kp1] * xR,
+<a class="jxr_linenumber" name="L269" href="TricubicInterpolatingFunction.html#L269">269</a> 
+<a class="jxr_linenumber" name="L270" href="TricubicInterpolatingFunction.html#L270">270</a>                         dFdY[i][j][k] * yR, dFdY[ip1][j][k] * yR,
+<a class="jxr_linenumber" name="L271" href="TricubicInterpolatingFunction.html#L271">271</a>                         dFdY[i][jp1][k] * yR, dFdY[ip1][jp1][k] * yR,
+<a class="jxr_linenumber" name="L272" href="TricubicInterpolatingFunction.html#L272">272</a>                         dFdY[i][j][kp1] * yR, dFdY[ip1][j][kp1] * yR,
+<a class="jxr_linenumber" name="L273" href="TricubicInterpolatingFunction.html#L273">273</a>                         dFdY[i][jp1][kp1] * yR, dFdY[ip1][jp1][kp1] * yR,
+<a class="jxr_linenumber" name="L274" href="TricubicInterpolatingFunction.html#L274">274</a> 
+<a class="jxr_linenumber" name="L275" href="TricubicInterpolatingFunction.html#L275">275</a>                         dFdZ[i][j][k] * zR, dFdZ[ip1][j][k] * zR,
+<a class="jxr_linenumber" name="L276" href="TricubicInterpolatingFunction.html#L276">276</a>                         dFdZ[i][jp1][k] * zR, dFdZ[ip1][jp1][k] * zR,
+<a class="jxr_linenumber" name="L277" href="TricubicInterpolatingFunction.html#L277">277</a>                         dFdZ[i][j][kp1] * zR, dFdZ[ip1][j][kp1] * zR,
+<a class="jxr_linenumber" name="L278" href="TricubicInterpolatingFunction.html#L278">278</a>                         dFdZ[i][jp1][kp1] * zR, dFdZ[ip1][jp1][kp1] * zR,
+<a class="jxr_linenumber" name="L279" href="TricubicInterpolatingFunction.html#L279">279</a> 
+<a class="jxr_linenumber" name="L280" href="TricubicInterpolatingFunction.html#L280">280</a>                         d2FdXdY[i][j][k] * xRyR, d2FdXdY[ip1][j][k] * xRyR,
+<a class="jxr_linenumber" name="L281" href="TricubicInterpolatingFunction.html#L281">281</a>                         d2FdXdY[i][jp1][k] * xRyR, d2FdXdY[ip1][jp1][k] * xRyR,
+<a class="jxr_linenumber" name="L282" href="TricubicInterpolatingFunction.html#L282">282</a>                         d2FdXdY[i][j][kp1] * xRyR, d2FdXdY[ip1][j][kp1] * xRyR,
+<a class="jxr_linenumber" name="L283" href="TricubicInterpolatingFunction.html#L283">283</a>                         d2FdXdY[i][jp1][kp1] * xRyR, d2FdXdY[ip1][jp1][kp1] * xRyR,
+<a class="jxr_linenumber" name="L284" href="TricubicInterpolatingFunction.html#L284">284</a> 
+<a class="jxr_linenumber" name="L285" href="TricubicInterpolatingFunction.html#L285">285</a>                         d2FdXdZ[i][j][k] * xRzR, d2FdXdZ[ip1][j][k] * xRzR,
+<a class="jxr_linenumber" name="L286" href="TricubicInterpolatingFunction.html#L286">286</a>                         d2FdXdZ[i][jp1][k] * xRzR, d2FdXdZ[ip1][jp1][k] * xRzR,
+<a class="jxr_linenumber" name="L287" href="TricubicInterpolatingFunction.html#L287">287</a>                         d2FdXdZ[i][j][kp1] * xRzR, d2FdXdZ[ip1][j][kp1] * xRzR,
+<a class="jxr_linenumber" name="L288" href="TricubicInterpolatingFunction.html#L288">288</a>                         d2FdXdZ[i][jp1][kp1] * xRzR, d2FdXdZ[ip1][jp1][kp1] * xRzR,
+<a class="jxr_linenumber" name="L289" href="TricubicInterpolatingFunction.html#L289">289</a> 
+<a class="jxr_linenumber" name="L290" href="TricubicInterpolatingFunction.html#L290">290</a>                         d2FdYdZ[i][j][k] * yRzR, d2FdYdZ[ip1][j][k] * yRzR,
+<a class="jxr_linenumber" name="L291" href="TricubicInterpolatingFunction.html#L291">291</a>                         d2FdYdZ[i][jp1][k] * yRzR, d2FdYdZ[ip1][jp1][k] * yRzR,
+<a class="jxr_linenumber" name="L292" href="TricubicInterpolatingFunction.html#L292">292</a>                         d2FdYdZ[i][j][kp1] * yRzR, d2FdYdZ[ip1][j][kp1] * yRzR,
+<a class="jxr_linenumber" name="L293" href="TricubicInterpolatingFunction.html#L293">293</a>                         d2FdYdZ[i][jp1][kp1] * yRzR, d2FdYdZ[ip1][jp1][kp1] * yRzR,
+<a class="jxr_linenumber" name="L294" href="TricubicInterpolatingFunction.html#L294">294</a> 
+<a class="jxr_linenumber" name="L295" href="TricubicInterpolatingFunction.html#L295">295</a>                         d3FdXdYdZ[i][j][k] * xRyRzR, d3FdXdYdZ[ip1][j][k] * xRyRzR,
+<a class="jxr_linenumber" name="L296" href="TricubicInterpolatingFunction.html#L296">296</a>                         d3FdXdYdZ[i][jp1][k] * xRyRzR, d3FdXdYdZ[ip1][jp1][k] * xRyRzR,
+<a class="jxr_linenumber" name="L297" href="TricubicInterpolatingFunction.html#L297">297</a>                         d3FdXdYdZ[i][j][kp1] * xRyRzR, d3FdXdYdZ[ip1][j][kp1] * xRyRzR,
+<a class="jxr_linenumber" name="L298" href="TricubicInterpolatingFunction.html#L298">298</a>                         d3FdXdYdZ[i][jp1][kp1] * xRyRzR, d3FdXdYdZ[ip1][jp1][kp1] * xRyRzR,
+<a class="jxr_linenumber" name="L299" href="TricubicInterpolatingFunction.html#L299">299</a>                     };
+<a class="jxr_linenumber" name="L300" href="TricubicInterpolatingFunction.html#L300">300</a> 
+<a class="jxr_linenumber" name="L301" href="TricubicInterpolatingFunction.html#L301">301</a>                     splines[i][j][k] = <strong class="jxr_keyword">new</strong> <a href="TricubicInterpolatingFunction.html">TricubicFunction</a>(computeCoefficients(beta));
+<a class="jxr_linenumber" name="L302" href="TricubicInterpolatingFunction.html#L302">302</a>                 }
+<a class="jxr_linenumber" name="L303" href="TricubicInterpolatingFunction.html#L303">303</a>             }
+<a class="jxr_linenumber" name="L304" href="TricubicInterpolatingFunction.html#L304">304</a>         }
+<a class="jxr_linenumber" name="L305" href="TricubicInterpolatingFunction.html#L305">305</a>     }
+<a class="jxr_linenumber" name="L306" href="TricubicInterpolatingFunction.html#L306">306</a> 
+<a class="jxr_linenumber" name="L307" href="TricubicInterpolatingFunction.html#L307">307</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L308" href="TricubicInterpolatingFunction.html#L308">308</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L309" href="TricubicInterpolatingFunction.html#L309">309</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L310" href="TricubicInterpolatingFunction.html#L310">310</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if any of the variables is outside its interpolation range.</em>
+<a class="jxr_linenumber" name="L311" href="TricubicInterpolatingFunction.html#L311">311</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L312" href="TricubicInterpolatingFunction.html#L312">312</a>     @Override
+<a class="jxr_linenumber" name="L313" href="TricubicInterpolatingFunction.html#L313">313</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> y, <strong class="jxr_keyword">double</strong> z)
+<a class="jxr_linenumber" name="L314" href="TricubicInterpolatingFunction.html#L314">314</a>         <strong class="jxr_keyword">throws</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a> {
+<a class="jxr_linenumber" name="L315" href="TricubicInterpolatingFunction.html#L315">315</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> i = searchIndex(x, xval);
+<a class="jxr_linenumber" name="L316" href="TricubicInterpolatingFunction.html#L316">316</a>         <strong class="jxr_keyword">if</strong> (i == -1) {
+<a class="jxr_linenumber" name="L317" href="TricubicInterpolatingFunction.html#L317">317</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>(x, xval[0], xval[xval.length - 1]);
+<a class="jxr_linenumber" name="L318" href="TricubicInterpolatingFunction.html#L318">318</a>         }
+<a class="jxr_linenumber" name="L319" href="TricubicInterpolatingFunction.html#L319">319</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> j = searchIndex(y, yval);
+<a class="jxr_linenumber" name="L320" href="TricubicInterpolatingFunction.html#L320">320</a>         <strong class="jxr_keyword">if</strong> (j == -1) {
+<a class="jxr_linenumber" name="L321" href="TricubicInterpolatingFunction.html#L321">321</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>(y, yval[0], yval[yval.length - 1]);
+<a class="jxr_linenumber" name="L322" href="TricubicInterpolatingFunction.html#L322">322</a>         }
+<a class="jxr_linenumber" name="L323" href="TricubicInterpolatingFunction.html#L323">323</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> k = searchIndex(z, zval);
+<a class="jxr_linenumber" name="L324" href="TricubicInterpolatingFunction.html#L324">324</a>         <strong class="jxr_keyword">if</strong> (k == -1) {
+<a class="jxr_linenumber" name="L325" href="TricubicInterpolatingFunction.html#L325">325</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>(z, zval[0], zval[zval.length - 1]);
+<a class="jxr_linenumber" name="L326" href="TricubicInterpolatingFunction.html#L326">326</a>         }
+<a class="jxr_linenumber" name="L327" href="TricubicInterpolatingFunction.html#L327">327</a> 
+<a class="jxr_linenumber" name="L328" href="TricubicInterpolatingFunction.html#L328">328</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xN = (x - xval[i]) / (xval[i + 1] - xval[i]);
+<a class="jxr_linenumber" name="L329" href="TricubicInterpolatingFunction.html#L329">329</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> yN = (y - yval[j]) / (yval[j + 1] - yval[j]);
+<a class="jxr_linenumber" name="L330" href="TricubicInterpolatingFunction.html#L330">330</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> zN = (z - zval[k]) / (zval[k + 1] - zval[k]);
+<a class="jxr_linenumber" name="L331" href="TricubicInterpolatingFunction.html#L331">331</a> 
+<a class="jxr_linenumber" name="L332" href="TricubicInterpolatingFunction.html#L332">332</a>         <strong class="jxr_keyword">return</strong> splines[i][j][k].value(xN, yN, zN);
+<a class="jxr_linenumber" name="L333" href="TricubicInterpolatingFunction.html#L333">333</a>     }
+<a class="jxr_linenumber" name="L334" href="TricubicInterpolatingFunction.html#L334">334</a> 
+<a class="jxr_linenumber" name="L335" href="TricubicInterpolatingFunction.html#L335">335</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L336" href="TricubicInterpolatingFunction.html#L336">336</a> <em class="jxr_javadoccomment">     * Indicates whether a point is within the interpolation range.</em>
+<a class="jxr_linenumber" name="L337" href="TricubicInterpolatingFunction.html#L337">337</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L338" href="TricubicInterpolatingFunction.html#L338">338</a> <em class="jxr_javadoccomment">     * @param x First coordinate.</em>
+<a class="jxr_linenumber" name="L339" href="TricubicInterpolatingFunction.html#L339">339</a> <em class="jxr_javadoccomment">     * @param y Second coordinate.</em>
+<a class="jxr_linenumber" name="L340" href="TricubicInterpolatingFunction.html#L340">340</a> <em class="jxr_javadoccomment">     * @param z Third coordinate.</em>
+<a class="jxr_linenumber" name="L341" href="TricubicInterpolatingFunction.html#L341">341</a> <em class="jxr_javadoccomment">     * @return {@code true} if (x, y, z) is a valid point.</em>
+<a class="jxr_linenumber" name="L342" href="TricubicInterpolatingFunction.html#L342">342</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L343" href="TricubicInterpolatingFunction.html#L343">343</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isValidPoint(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> y, <strong class="jxr_keyword">double</strong> z) {
+<a class="jxr_linenumber" name="L344" href="TricubicInterpolatingFunction.html#L344">344</a>         <strong class="jxr_keyword">if</strong> (x &lt; xval[0] ||
+<a class="jxr_linenumber" name="L345" href="TricubicInterpolatingFunction.html#L345">345</a>             x &gt; xval[xval.length - 1] ||
+<a class="jxr_linenumber" name="L346" href="TricubicInterpolatingFunction.html#L346">346</a>             y &lt; yval[0] ||
+<a class="jxr_linenumber" name="L347" href="TricubicInterpolatingFunction.html#L347">347</a>             y &gt; yval[yval.length - 1] ||
+<a class="jxr_linenumber" name="L348" href="TricubicInterpolatingFunction.html#L348">348</a>             z &lt; zval[0] ||
+<a class="jxr_linenumber" name="L349" href="TricubicInterpolatingFunction.html#L349">349</a>             z &gt; zval[zval.length - 1]) {
+<a class="jxr_linenumber" name="L350" href="TricubicInterpolatingFunction.html#L350">350</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L351" href="TricubicInterpolatingFunction.html#L351">351</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L352" href="TricubicInterpolatingFunction.html#L352">352</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L353" href="TricubicInterpolatingFunction.html#L353">353</a>         }
+<a class="jxr_linenumber" name="L354" href="TricubicInterpolatingFunction.html#L354">354</a>     }
+<a class="jxr_linenumber" name="L355" href="TricubicInterpolatingFunction.html#L355">355</a> 
+<a class="jxr_linenumber" name="L356" href="TricubicInterpolatingFunction.html#L356">356</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L357" href="TricubicInterpolatingFunction.html#L357">357</a> <em class="jxr_javadoccomment">     * @param c Coordinate.</em>
+<a class="jxr_linenumber" name="L358" href="TricubicInterpolatingFunction.html#L358">358</a> <em class="jxr_javadoccomment">     * @param val Coordinate samples.</em>
+<a class="jxr_linenumber" name="L359" href="TricubicInterpolatingFunction.html#L359">359</a> <em class="jxr_javadoccomment">     * @return the index in {@code val} corresponding to the interval containing {@code c}, or {@code -1}</em>
+<a class="jxr_linenumber" name="L360" href="TricubicInterpolatingFunction.html#L360">360</a> <em class="jxr_javadoccomment">     *   if {@code c} is out of the range defined by the end values of {@code val}.</em>
+<a class="jxr_linenumber" name="L361" href="TricubicInterpolatingFunction.html#L361">361</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L362" href="TricubicInterpolatingFunction.html#L362">362</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> searchIndex(<strong class="jxr_keyword">double</strong> c, <strong class="jxr_keyword">double</strong>[] val) {
+<a class="jxr_linenumber" name="L363" href="TricubicInterpolatingFunction.html#L363">363</a>         <strong class="jxr_keyword">if</strong> (c &lt; val[0]) {
+<a class="jxr_linenumber" name="L364" href="TricubicInterpolatingFunction.html#L364">364</a>             <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L365" href="TricubicInterpolatingFunction.html#L365">365</a>         }
+<a class="jxr_linenumber" name="L366" href="TricubicInterpolatingFunction.html#L366">366</a> 
+<a class="jxr_linenumber" name="L367" href="TricubicInterpolatingFunction.html#L367">367</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> max = val.length;
+<a class="jxr_linenumber" name="L368" href="TricubicInterpolatingFunction.html#L368">368</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; max; i++) {
+<a class="jxr_linenumber" name="L369" href="TricubicInterpolatingFunction.html#L369">369</a>             <strong class="jxr_keyword">if</strong> (c &lt;= val[i]) {
+<a class="jxr_linenumber" name="L370" href="TricubicInterpolatingFunction.html#L370">370</a>                 <strong class="jxr_keyword">return</strong> i - 1;
+<a class="jxr_linenumber" name="L371" href="TricubicInterpolatingFunction.html#L371">371</a>             }
+<a class="jxr_linenumber" name="L372" href="TricubicInterpolatingFunction.html#L372">372</a>         }
+<a class="jxr_linenumber" name="L373" href="TricubicInterpolatingFunction.html#L373">373</a> 
+<a class="jxr_linenumber" name="L374" href="TricubicInterpolatingFunction.html#L374">374</a>         <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L375" href="TricubicInterpolatingFunction.html#L375">375</a>     }
+<a class="jxr_linenumber" name="L376" href="TricubicInterpolatingFunction.html#L376">376</a> 
+<a class="jxr_linenumber" name="L377" href="TricubicInterpolatingFunction.html#L377">377</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L378" href="TricubicInterpolatingFunction.html#L378">378</a> <em class="jxr_javadoccomment">     * Compute the spline coefficients from the list of function values and</em>
+<a class="jxr_linenumber" name="L379" href="TricubicInterpolatingFunction.html#L379">379</a> <em class="jxr_javadoccomment">     * function partial derivatives values at the four corners of a grid</em>
+<a class="jxr_linenumber" name="L380" href="TricubicInterpolatingFunction.html#L380">380</a> <em class="jxr_javadoccomment">     * element. They must be specified in the following order:</em>
+<a class="jxr_linenumber" name="L381" href="TricubicInterpolatingFunction.html#L381">381</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L382" href="TricubicInterpolatingFunction.html#L382">382</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f(0,0,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L383" href="TricubicInterpolatingFunction.html#L383">383</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f(1,0,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L384" href="TricubicInterpolatingFunction.html#L384">384</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f(0,1,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L385" href="TricubicInterpolatingFunction.html#L385">385</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f(1,1,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L386" href="TricubicInterpolatingFunction.html#L386">386</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f(0,0,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L387" href="TricubicInterpolatingFunction.html#L387">387</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f(1,0,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L388" href="TricubicInterpolatingFunction.html#L388">388</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f(0,1,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L389" href="TricubicInterpolatingFunction.html#L389">389</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f(1,1,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L390" href="TricubicInterpolatingFunction.html#L390">390</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L391" href="TricubicInterpolatingFunction.html#L391">391</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;x&lt;/sub&gt;(0,0,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L392" href="TricubicInterpolatingFunction.html#L392">392</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;... &lt;em&gt;(same order as above)&lt;/em&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L393" href="TricubicInterpolatingFunction.html#L393">393</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;x&lt;/sub&gt;(1,1,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L394" href="TricubicInterpolatingFunction.html#L394">394</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L395" href="TricubicInterpolatingFunction.html#L395">395</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;y&lt;/sub&gt;(0,0,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L396" href="TricubicInterpolatingFunction.html#L396">396</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;... &lt;em&gt;(same order as above)&lt;/em&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L397" href="TricubicInterpolatingFunction.html#L397">397</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;y&lt;/sub&gt;(1,1,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L398" href="TricubicInterpolatingFunction.html#L398">398</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L399" href="TricubicInterpolatingFunction.html#L399">399</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;z&lt;/sub&gt;(0,0,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L400" href="TricubicInterpolatingFunction.html#L400">400</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;... &lt;em&gt;(same order as above)&lt;/em&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L401" href="TricubicInterpolatingFunction.html#L401">401</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;z&lt;/sub&gt;(1,1,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L402" href="TricubicInterpolatingFunction.html#L402">402</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L403" href="TricubicInterpolatingFunction.html#L403">403</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;xy&lt;/sub&gt;(0,0,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L404" href="TricubicInterpolatingFunction.html#L404">404</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;... &lt;em&gt;(same order as above)&lt;/em&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L405" href="TricubicInterpolatingFunction.html#L405">405</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;xy&lt;/sub&gt;(1,1,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L406" href="TricubicInterpolatingFunction.html#L406">406</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L407" href="TricubicInterpolatingFunction.html#L407">407</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;xz&lt;/sub&gt;(0,0,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L408" href="TricubicInterpolatingFunction.html#L408">408</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;... &lt;em&gt;(same order as above)&lt;/em&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L409" href="TricubicInterpolatingFunction.html#L409">409</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;xz&lt;/sub&gt;(1,1,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L410" href="TricubicInterpolatingFunction.html#L410">410</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L411" href="TricubicInterpolatingFunction.html#L411">411</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;yz&lt;/sub&gt;(0,0,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L412" href="TricubicInterpolatingFunction.html#L412">412</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;... &lt;em&gt;(same order as above)&lt;/em&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L413" href="TricubicInterpolatingFunction.html#L413">413</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;yz&lt;/sub&gt;(1,1,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L414" href="TricubicInterpolatingFunction.html#L414">414</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L415" href="TricubicInterpolatingFunction.html#L415">415</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;xyz&lt;/sub&gt;(0,0,0)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L416" href="TricubicInterpolatingFunction.html#L416">416</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;... &lt;em&gt;(same order as above)&lt;/em&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L417" href="TricubicInterpolatingFunction.html#L417">417</a> <em class="jxr_javadoccomment">     *  &lt;li&gt;f&lt;sub&gt;xyz&lt;/sub&gt;(1,1,1)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L418" href="TricubicInterpolatingFunction.html#L418">418</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L419" href="TricubicInterpolatingFunction.html#L419">419</a> <em class="jxr_javadoccomment">     * where the subscripts indicate the partial derivative with respect to</em>
+<a class="jxr_linenumber" name="L420" href="TricubicInterpolatingFunction.html#L420">420</a> <em class="jxr_javadoccomment">     * the corresponding variable(s).</em>
+<a class="jxr_linenumber" name="L421" href="TricubicInterpolatingFunction.html#L421">421</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L422" href="TricubicInterpolatingFunction.html#L422">422</a> <em class="jxr_javadoccomment">     * @param beta List of function values and function partial derivatives values.</em>
+<a class="jxr_linenumber" name="L423" href="TricubicInterpolatingFunction.html#L423">423</a> <em class="jxr_javadoccomment">     * @return the spline coefficients.</em>
+<a class="jxr_linenumber" name="L424" href="TricubicInterpolatingFunction.html#L424">424</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L425" href="TricubicInterpolatingFunction.html#L425">425</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[] computeCoefficients(<strong class="jxr_keyword">double</strong>[] beta) {
+<a class="jxr_linenumber" name="L426" href="TricubicInterpolatingFunction.html#L426">426</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> sz = 64;
+<a class="jxr_linenumber" name="L427" href="TricubicInterpolatingFunction.html#L427">427</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] a = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[sz];
+<a class="jxr_linenumber" name="L428" href="TricubicInterpolatingFunction.html#L428">428</a> 
+<a class="jxr_linenumber" name="L429" href="TricubicInterpolatingFunction.html#L429">429</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; sz; i++) {
+<a class="jxr_linenumber" name="L430" href="TricubicInterpolatingFunction.html#L430">430</a>             <strong class="jxr_keyword">double</strong> result = 0;
+<a class="jxr_linenumber" name="L431" href="TricubicInterpolatingFunction.html#L431">431</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] row = AINV[i];
+<a class="jxr_linenumber" name="L432" href="TricubicInterpolatingFunction.html#L432">432</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; sz; j++) {
+<a class="jxr_linenumber" name="L433" href="TricubicInterpolatingFunction.html#L433">433</a>                 result += row[j] * beta[j];
+<a class="jxr_linenumber" name="L434" href="TricubicInterpolatingFunction.html#L434">434</a>             }
+<a class="jxr_linenumber" name="L435" href="TricubicInterpolatingFunction.html#L435">435</a>             a[i] = result;
+<a class="jxr_linenumber" name="L436" href="TricubicInterpolatingFunction.html#L436">436</a>         }
+<a class="jxr_linenumber" name="L437" href="TricubicInterpolatingFunction.html#L437">437</a> 
+<a class="jxr_linenumber" name="L438" href="TricubicInterpolatingFunction.html#L438">438</a>         <strong class="jxr_keyword">return</strong> a;
+<a class="jxr_linenumber" name="L439" href="TricubicInterpolatingFunction.html#L439">439</a>     }
+<a class="jxr_linenumber" name="L440" href="TricubicInterpolatingFunction.html#L440">440</a> }
+<a class="jxr_linenumber" name="L441" href="TricubicInterpolatingFunction.html#L441">441</a> 
+<a class="jxr_linenumber" name="L442" href="TricubicInterpolatingFunction.html#L442">442</a> <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L443" href="TricubicInterpolatingFunction.html#L443">443</a> <em class="jxr_javadoccomment"> * 3D-spline function.</em>
+<a class="jxr_linenumber" name="L444" href="TricubicInterpolatingFunction.html#L444">444</a> <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L445" href="TricubicInterpolatingFunction.html#L445">445</a> <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L446" href="TricubicInterpolatingFunction.html#L446">446</a> <strong class="jxr_keyword">class</strong> <a href="TricubicInterpolatingFunction.html">TricubicFunction</a>
+<a class="jxr_linenumber" name="L447" href="TricubicInterpolatingFunction.html#L447">447</a>     <strong class="jxr_keyword">implements</strong> <a href="../TrivariateFunction.html">TrivariateFunction</a> {
+<a class="jxr_linenumber" name="L448" href="TricubicInterpolatingFunction.html#L448">448</a>     <em class="jxr_javadoccomment">/** Number of points. */</em>
+<a class="jxr_linenumber" name="L449" href="TricubicInterpolatingFunction.html#L449">449</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">short</strong> N = 4;
+<a class="jxr_linenumber" name="L450" href="TricubicInterpolatingFunction.html#L450">450</a>     <em class="jxr_javadoccomment">/** Coefficients */</em>
+<a class="jxr_linenumber" name="L451" href="TricubicInterpolatingFunction.html#L451">451</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] a = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[N][N][N];
+<a class="jxr_linenumber" name="L452" href="TricubicInterpolatingFunction.html#L452">452</a> 
+<a class="jxr_linenumber" name="L453" href="TricubicInterpolatingFunction.html#L453">453</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L454" href="TricubicInterpolatingFunction.html#L454">454</a> <em class="jxr_javadoccomment">     * @param aV List of spline coefficients.</em>
+<a class="jxr_linenumber" name="L455" href="TricubicInterpolatingFunction.html#L455">455</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L456" href="TricubicInterpolatingFunction.html#L456">456</a>     <a href="TricubicInterpolatingFunction.html">TricubicFunction</a>(<strong class="jxr_keyword">double</strong>[] aV) {
+<a class="jxr_linenumber" name="L457" href="TricubicInterpolatingFunction.html#L457">457</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; N; i++) {
+<a class="jxr_linenumber" name="L458" href="TricubicInterpolatingFunction.html#L458">458</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; N; j++) {
+<a class="jxr_linenumber" name="L459" href="TricubicInterpolatingFunction.html#L459">459</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; N; k++) {
+<a class="jxr_linenumber" name="L460" href="TricubicInterpolatingFunction.html#L460">460</a>                     a[i][j][k] = aV[i + N * (j + N * k)];
+<a class="jxr_linenumber" name="L461" href="TricubicInterpolatingFunction.html#L461">461</a>                 }
+<a class="jxr_linenumber" name="L462" href="TricubicInterpolatingFunction.html#L462">462</a>             }
+<a class="jxr_linenumber" name="L463" href="TricubicInterpolatingFunction.html#L463">463</a>         }
+<a class="jxr_linenumber" name="L464" href="TricubicInterpolatingFunction.html#L464">464</a>     }
+<a class="jxr_linenumber" name="L465" href="TricubicInterpolatingFunction.html#L465">465</a> 
+<a class="jxr_linenumber" name="L466" href="TricubicInterpolatingFunction.html#L466">466</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L467" href="TricubicInterpolatingFunction.html#L467">467</a> <em class="jxr_javadoccomment">     * @param x x-coordinate of the interpolation point.</em>
+<a class="jxr_linenumber" name="L468" href="TricubicInterpolatingFunction.html#L468">468</a> <em class="jxr_javadoccomment">     * @param y y-coordinate of the interpolation point.</em>
+<a class="jxr_linenumber" name="L469" href="TricubicInterpolatingFunction.html#L469">469</a> <em class="jxr_javadoccomment">     * @param z z-coordinate of the interpolation point.</em>
+<a class="jxr_linenumber" name="L470" href="TricubicInterpolatingFunction.html#L470">470</a> <em class="jxr_javadoccomment">     * @return the interpolated value.</em>
+<a class="jxr_linenumber" name="L471" href="TricubicInterpolatingFunction.html#L471">471</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if {@code x}, {@code y} or</em>
+<a class="jxr_linenumber" name="L472" href="TricubicInterpolatingFunction.html#L472">472</a> <em class="jxr_javadoccomment">     * {@code z} are not in the interval {@code [0, 1]}.</em>
+<a class="jxr_linenumber" name="L473" href="TricubicInterpolatingFunction.html#L473">473</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L474" href="TricubicInterpolatingFunction.html#L474">474</a>     @Override
+<a class="jxr_linenumber" name="L475" href="TricubicInterpolatingFunction.html#L475">475</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> y, <strong class="jxr_keyword">double</strong> z) <strong class="jxr_keyword">throws</strong> OutOfRangeException {
+<a class="jxr_linenumber" name="L476" href="TricubicInterpolatingFunction.html#L476">476</a>         <strong class="jxr_keyword">if</strong> (x &lt; 0 || x &gt; 1) {
+<a class="jxr_linenumber" name="L477" href="TricubicInterpolatingFunction.html#L477">477</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>(x, 0, 1);
+<a class="jxr_linenumber" name="L478" href="TricubicInterpolatingFunction.html#L478">478</a>         }
+<a class="jxr_linenumber" name="L479" href="TricubicInterpolatingFunction.html#L479">479</a>         <strong class="jxr_keyword">if</strong> (y &lt; 0 || y &gt; 1) {
+<a class="jxr_linenumber" name="L480" href="TricubicInterpolatingFunction.html#L480">480</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>(y, 0, 1);
+<a class="jxr_linenumber" name="L481" href="TricubicInterpolatingFunction.html#L481">481</a>         }
+<a class="jxr_linenumber" name="L482" href="TricubicInterpolatingFunction.html#L482">482</a>         <strong class="jxr_keyword">if</strong> (z &lt; 0 || z &gt; 1) {
+<a class="jxr_linenumber" name="L483" href="TricubicInterpolatingFunction.html#L483">483</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/OutOfRangeException.html">OutOfRangeException</a>(z, 0, 1);
+<a class="jxr_linenumber" name="L484" href="TricubicInterpolatingFunction.html#L484">484</a>         }
+<a class="jxr_linenumber" name="L485" href="TricubicInterpolatingFunction.html#L485">485</a> 
+<a class="jxr_linenumber" name="L486" href="TricubicInterpolatingFunction.html#L486">486</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x2 = x * x;
+<a class="jxr_linenumber" name="L487" href="TricubicInterpolatingFunction.html#L487">487</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x3 = x2 * x;
+<a class="jxr_linenumber" name="L488" href="TricubicInterpolatingFunction.html#L488">488</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] pX = { 1, x, x2, x3 };
+<a class="jxr_linenumber" name="L489" href="TricubicInterpolatingFunction.html#L489">489</a> 
+<a class="jxr_linenumber" name="L490" href="TricubicInterpolatingFunction.html#L490">490</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y2 = y * y;
+<a class="jxr_linenumber" name="L491" href="TricubicInterpolatingFunction.html#L491">491</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y3 = y2 * y;
+<a class="jxr_linenumber" name="L492" href="TricubicInterpolatingFunction.html#L492">492</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] pY = { 1, y, y2, y3 };
+<a class="jxr_linenumber" name="L493" href="TricubicInterpolatingFunction.html#L493">493</a> 
+<a class="jxr_linenumber" name="L494" href="TricubicInterpolatingFunction.html#L494">494</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> z2 = z * z;
+<a class="jxr_linenumber" name="L495" href="TricubicInterpolatingFunction.html#L495">495</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> z3 = z2 * z;
+<a class="jxr_linenumber" name="L496" href="TricubicInterpolatingFunction.html#L496">496</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] pZ = { 1, z, z2, z3 };
+<a class="jxr_linenumber" name="L497" href="TricubicInterpolatingFunction.html#L497">497</a> 
+<a class="jxr_linenumber" name="L498" href="TricubicInterpolatingFunction.html#L498">498</a>         <strong class="jxr_keyword">double</strong> result = 0;
+<a class="jxr_linenumber" name="L499" href="TricubicInterpolatingFunction.html#L499">499</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; N; i++) {
+<a class="jxr_linenumber" name="L500" href="TricubicInterpolatingFunction.html#L500">500</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; N; j++) {
+<a class="jxr_linenumber" name="L501" href="TricubicInterpolatingFunction.html#L501">501</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; N; k++) {
+<a class="jxr_linenumber" name="L502" href="TricubicInterpolatingFunction.html#L502">502</a>                     result += a[i][j][k] * pX[i] * pY[j] * pZ[k];
+<a class="jxr_linenumber" name="L503" href="TricubicInterpolatingFunction.html#L503">503</a>                 }
+<a class="jxr_linenumber" name="L504" href="TricubicInterpolatingFunction.html#L504">504</a>             }
+<a class="jxr_linenumber" name="L505" href="TricubicInterpolatingFunction.html#L505">505</a>         }
+<a class="jxr_linenumber" name="L506" href="TricubicInterpolatingFunction.html#L506">506</a> 
+<a class="jxr_linenumber" name="L507" href="TricubicInterpolatingFunction.html#L507">507</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L508" href="TricubicInterpolatingFunction.html#L508">508</a>     }
+<a class="jxr_linenumber" name="L509" href="TricubicInterpolatingFunction.html#L509">509</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

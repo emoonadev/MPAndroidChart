@@ -1,0 +1,468 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>MultivariateNormalMixtureExpectationMaximization xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/distribution/fitting/MultivariateNormalMixtureExpectationMaximization.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="MultivariateNormalMixtureExpectationMaximization.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="MultivariateNormalMixtureExpectationMaximization.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="MultivariateNormalMixtureExpectationMaximization.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="MultivariateNormalMixtureExpectationMaximization.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="MultivariateNormalMixtureExpectationMaximization.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="MultivariateNormalMixtureExpectationMaximization.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="MultivariateNormalMixtureExpectationMaximization.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="MultivariateNormalMixtureExpectationMaximization.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="MultivariateNormalMixtureExpectationMaximization.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="MultivariateNormalMixtureExpectationMaximization.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="MultivariateNormalMixtureExpectationMaximization.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="MultivariateNormalMixtureExpectationMaximization.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="MultivariateNormalMixtureExpectationMaximization.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="MultivariateNormalMixtureExpectationMaximization.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="MultivariateNormalMixtureExpectationMaximization.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="MultivariateNormalMixtureExpectationMaximization.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="MultivariateNormalMixtureExpectationMaximization.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.distribution.fitting;
+<a class="jxr_linenumber" name="L18" href="MultivariateNormalMixtureExpectationMaximization.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="MultivariateNormalMixtureExpectationMaximization.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L20" href="MultivariateNormalMixtureExpectationMaximization.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L21" href="MultivariateNormalMixtureExpectationMaximization.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L22" href="MultivariateNormalMixtureExpectationMaximization.html#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="MultivariateNormalMixtureExpectationMaximization.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.distribution.MixtureMultivariateNormalDistribution;
+<a class="jxr_linenumber" name="L24" href="MultivariateNormalMixtureExpectationMaximization.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.distribution.MultivariateNormalDistribution;
+<a class="jxr_linenumber" name="L25" href="MultivariateNormalMixtureExpectationMaximization.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.ConvergenceException;
+<a class="jxr_linenumber" name="L26" href="MultivariateNormalMixtureExpectationMaximization.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L27" href="MultivariateNormalMixtureExpectationMaximization.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L28" href="MultivariateNormalMixtureExpectationMaximization.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooLargeException;
+<a class="jxr_linenumber" name="L29" href="MultivariateNormalMixtureExpectationMaximization.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L30" href="MultivariateNormalMixtureExpectationMaximization.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L31" href="MultivariateNormalMixtureExpectationMaximization.html#L31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.Array2DRowRealMatrix;
+<a class="jxr_linenumber" name="L32" href="MultivariateNormalMixtureExpectationMaximization.html#L32">32</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.RealMatrix;
+<a class="jxr_linenumber" name="L33" href="MultivariateNormalMixtureExpectationMaximization.html#L33">33</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.SingularMatrixException;
+<a class="jxr_linenumber" name="L34" href="MultivariateNormalMixtureExpectationMaximization.html#L34">34</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.correlation.Covariance;
+<a class="jxr_linenumber" name="L35" href="MultivariateNormalMixtureExpectationMaximization.html#L35">35</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L36" href="MultivariateNormalMixtureExpectationMaximization.html#L36">36</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L37" href="MultivariateNormalMixtureExpectationMaximization.html#L37">37</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Pair;
+<a class="jxr_linenumber" name="L38" href="MultivariateNormalMixtureExpectationMaximization.html#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="MultivariateNormalMixtureExpectationMaximization.html#L39">39</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L40" href="MultivariateNormalMixtureExpectationMaximization.html#L40">40</a>  <em class="jxr_javadoccomment"> * Expectation-Maximization&lt;/a&gt; algorithm for fitting the parameters of</em>
+<a class="jxr_linenumber" name="L41" href="MultivariateNormalMixtureExpectationMaximization.html#L41">41</a>  <em class="jxr_javadoccomment"> * multivariate normal mixture model distributions.</em>
+<a class="jxr_linenumber" name="L42" href="MultivariateNormalMixtureExpectationMaximization.html#L42">42</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L43" href="MultivariateNormalMixtureExpectationMaximization.html#L43">43</a>  <em class="jxr_javadoccomment"> * This implementation is pure original code based on &lt;a</em>
+<a class="jxr_linenumber" name="L44" href="MultivariateNormalMixtureExpectationMaximization.html#L44">44</a>  <em class="jxr_javadoccomment"> * href="https://www.ee.washington.edu/techsite/papers/documents/UWEETR-2010-0002.pdf"&gt;</em>
+<a class="jxr_linenumber" name="L45" href="MultivariateNormalMixtureExpectationMaximization.html#L45">45</a>  <em class="jxr_javadoccomment"> * EM Demystified: An Expectation-Maximization Tutorial&lt;/a&gt; by Yihua Chen and Maya R. Gupta,</em>
+<a class="jxr_linenumber" name="L46" href="MultivariateNormalMixtureExpectationMaximization.html#L46">46</a>  <em class="jxr_javadoccomment"> * Department of Electrical Engineering, University of Washington, Seattle, WA 98195.</em>
+<a class="jxr_linenumber" name="L47" href="MultivariateNormalMixtureExpectationMaximization.html#L47">47</a>  <em class="jxr_javadoccomment"> * It was verified using external tools like &lt;a</em>
+<a class="jxr_linenumber" name="L48" href="MultivariateNormalMixtureExpectationMaximization.html#L48">48</a>  <em class="jxr_javadoccomment"> * href="<a href="http://cran.r-project.org/web/packages/mixtools/index.html" target="alexandria_uri">http://cran.r-project.org/web/packages/mixtools/index.html</a>"&gt;CRAN Mixtools&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L49" href="MultivariateNormalMixtureExpectationMaximization.html#L49">49</a>  <em class="jxr_javadoccomment"> * (see the JUnit test cases) but it is &lt;strong&gt;not&lt;/strong&gt; based on Mixtools code at all.</em>
+<a class="jxr_linenumber" name="L50" href="MultivariateNormalMixtureExpectationMaximization.html#L50">50</a>  <em class="jxr_javadoccomment"> * The discussion of the origin of this class can be seen in the comments of the &lt;a</em>
+<a class="jxr_linenumber" name="L51" href="MultivariateNormalMixtureExpectationMaximization.html#L51">51</a>  <em class="jxr_javadoccomment"> * href="https://issues.apache.org/jira/browse/MATH-817"&gt;MATH-817&lt;/a&gt; JIRA issue.</em>
+<a class="jxr_linenumber" name="L52" href="MultivariateNormalMixtureExpectationMaximization.html#L52">52</a>  <em class="jxr_javadoccomment"> * @since 3.2</em>
+<a class="jxr_linenumber" name="L53" href="MultivariateNormalMixtureExpectationMaximization.html#L53">53</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L54" href="MultivariateNormalMixtureExpectationMaximization.html#L54">54</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="MultivariateNormalMixtureExpectationMaximization.html">MultivariateNormalMixtureExpectationMaximization</a> {
+<a class="jxr_linenumber" name="L55" href="MultivariateNormalMixtureExpectationMaximization.html#L55">55</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L56" href="MultivariateNormalMixtureExpectationMaximization.html#L56">56</a>  <em class="jxr_javadoccomment">     * Default maximum number of iterations allowed per fitting process.</em>
+<a class="jxr_linenumber" name="L57" href="MultivariateNormalMixtureExpectationMaximization.html#L57">57</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L58" href="MultivariateNormalMixtureExpectationMaximization.html#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> DEFAULT_MAX_ITERATIONS = 1000;
+<a class="jxr_linenumber" name="L59" href="MultivariateNormalMixtureExpectationMaximization.html#L59">59</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L60" href="MultivariateNormalMixtureExpectationMaximization.html#L60">60</a>  <em class="jxr_javadoccomment">     * Default convergence threshold for fitting.</em>
+<a class="jxr_linenumber" name="L61" href="MultivariateNormalMixtureExpectationMaximization.html#L61">61</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L62" href="MultivariateNormalMixtureExpectationMaximization.html#L62">62</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_THRESHOLD = 1E-5;
+<a class="jxr_linenumber" name="L63" href="MultivariateNormalMixtureExpectationMaximization.html#L63">63</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L64" href="MultivariateNormalMixtureExpectationMaximization.html#L64">64</a>  <em class="jxr_javadoccomment">     * The data to fit.</em>
+<a class="jxr_linenumber" name="L65" href="MultivariateNormalMixtureExpectationMaximization.html#L65">65</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L66" href="MultivariateNormalMixtureExpectationMaximization.html#L66">66</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] data;
+<a class="jxr_linenumber" name="L67" href="MultivariateNormalMixtureExpectationMaximization.html#L67">67</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L68" href="MultivariateNormalMixtureExpectationMaximization.html#L68">68</a>  <em class="jxr_javadoccomment">     * The model fit against the data.</em>
+<a class="jxr_linenumber" name="L69" href="MultivariateNormalMixtureExpectationMaximization.html#L69">69</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L70" href="MultivariateNormalMixtureExpectationMaximization.html#L70">70</a>      <strong class="jxr_keyword">private</strong> <a href="../MixtureMultivariateNormalDistribution.html">MixtureMultivariateNormalDistribution</a> fittedModel;
+<a class="jxr_linenumber" name="L71" href="MultivariateNormalMixtureExpectationMaximization.html#L71">71</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L72" href="MultivariateNormalMixtureExpectationMaximization.html#L72">72</a>  <em class="jxr_javadoccomment">     * The log likelihood of the data given the fitted model.</em>
+<a class="jxr_linenumber" name="L73" href="MultivariateNormalMixtureExpectationMaximization.html#L73">73</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L74" href="MultivariateNormalMixtureExpectationMaximization.html#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> logLikelihood = 0d;
+<a class="jxr_linenumber" name="L75" href="MultivariateNormalMixtureExpectationMaximization.html#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="MultivariateNormalMixtureExpectationMaximization.html#L76">76</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L77" href="MultivariateNormalMixtureExpectationMaximization.html#L77">77</a>  <em class="jxr_javadoccomment">     * Creates an object to fit a multivariate normal mixture model to data.</em>
+<a class="jxr_linenumber" name="L78" href="MultivariateNormalMixtureExpectationMaximization.html#L78">78</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L79" href="MultivariateNormalMixtureExpectationMaximization.html#L79">79</a>  <em class="jxr_javadoccomment">     * @param data Data to use in fitting procedure</em>
+<a class="jxr_linenumber" name="L80" href="MultivariateNormalMixtureExpectationMaximization.html#L80">80</a>  <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if data has no rows</em>
+<a class="jxr_linenumber" name="L81" href="MultivariateNormalMixtureExpectationMaximization.html#L81">81</a>  <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if rows of data have different numbers</em>
+<a class="jxr_linenumber" name="L82" href="MultivariateNormalMixtureExpectationMaximization.html#L82">82</a>  <em class="jxr_javadoccomment">     *             of columns</em>
+<a class="jxr_linenumber" name="L83" href="MultivariateNormalMixtureExpectationMaximization.html#L83">83</a>  <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if the number of columns in the data is</em>
+<a class="jxr_linenumber" name="L84" href="MultivariateNormalMixtureExpectationMaximization.html#L84">84</a>  <em class="jxr_javadoccomment">     *             less than 2</em>
+<a class="jxr_linenumber" name="L85" href="MultivariateNormalMixtureExpectationMaximization.html#L85">85</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L86" href="MultivariateNormalMixtureExpectationMaximization.html#L86">86</a>      <strong class="jxr_keyword">public</strong> <a href="MultivariateNormalMixtureExpectationMaximization.html">MultivariateNormalMixtureExpectationMaximization</a>(<strong class="jxr_keyword">double</strong>[][] data)
+<a class="jxr_linenumber" name="L87" href="MultivariateNormalMixtureExpectationMaximization.html#L87">87</a>          <strong class="jxr_keyword">throws</strong> NotStrictlyPositiveException,
+<a class="jxr_linenumber" name="L88" href="MultivariateNormalMixtureExpectationMaximization.html#L88">88</a>                 DimensionMismatchException,
+<a class="jxr_linenumber" name="L89" href="MultivariateNormalMixtureExpectationMaximization.html#L89">89</a>                 <a href="../../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a> {
+<a class="jxr_linenumber" name="L90" href="MultivariateNormalMixtureExpectationMaximization.html#L90">90</a>          <strong class="jxr_keyword">if</strong> (data.length &lt; 1) {
+<a class="jxr_linenumber" name="L91" href="MultivariateNormalMixtureExpectationMaximization.html#L91">91</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(data.length);
+<a class="jxr_linenumber" name="L92" href="MultivariateNormalMixtureExpectationMaximization.html#L92">92</a>          }
+<a class="jxr_linenumber" name="L93" href="MultivariateNormalMixtureExpectationMaximization.html#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="MultivariateNormalMixtureExpectationMaximization.html#L94">94</a>          <strong class="jxr_keyword">this</strong>.data = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[data.length][data[0].length];
+<a class="jxr_linenumber" name="L95" href="MultivariateNormalMixtureExpectationMaximization.html#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="MultivariateNormalMixtureExpectationMaximization.html#L96">96</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; data.length; i++) {
+<a class="jxr_linenumber" name="L97" href="MultivariateNormalMixtureExpectationMaximization.html#L97">97</a>              <strong class="jxr_keyword">if</strong> (data[i].length != data[0].length) {
+<a class="jxr_linenumber" name="L98" href="MultivariateNormalMixtureExpectationMaximization.html#L98">98</a>                  <em class="jxr_comment">// Jagged arrays not allowed</em>
+<a class="jxr_linenumber" name="L99" href="MultivariateNormalMixtureExpectationMaximization.html#L99">99</a>                  <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(data[i].length,
+<a class="jxr_linenumber" name="L100" href="MultivariateNormalMixtureExpectationMaximization.html#L100">100</a>                                                      data[0].length);
+<a class="jxr_linenumber" name="L101" href="MultivariateNormalMixtureExpectationMaximization.html#L101">101</a>             }
+<a class="jxr_linenumber" name="L102" href="MultivariateNormalMixtureExpectationMaximization.html#L102">102</a>             <strong class="jxr_keyword">if</strong> (data[i].length &lt; 2) {
+<a class="jxr_linenumber" name="L103" href="MultivariateNormalMixtureExpectationMaximization.html#L103">103</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(LocalizedFormats.NUMBER_TOO_SMALL,
+<a class="jxr_linenumber" name="L104" href="MultivariateNormalMixtureExpectationMaximization.html#L104">104</a>                                                     data[i].length, 2, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L105" href="MultivariateNormalMixtureExpectationMaximization.html#L105">105</a>             }
+<a class="jxr_linenumber" name="L106" href="MultivariateNormalMixtureExpectationMaximization.html#L106">106</a>             <strong class="jxr_keyword">this</strong>.data[i] = MathArrays.copyOf(data[i], data[i].length);
+<a class="jxr_linenumber" name="L107" href="MultivariateNormalMixtureExpectationMaximization.html#L107">107</a>         }
+<a class="jxr_linenumber" name="L108" href="MultivariateNormalMixtureExpectationMaximization.html#L108">108</a>     }
+<a class="jxr_linenumber" name="L109" href="MultivariateNormalMixtureExpectationMaximization.html#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="MultivariateNormalMixtureExpectationMaximization.html#L110">110</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L111" href="MultivariateNormalMixtureExpectationMaximization.html#L111">111</a> <em class="jxr_javadoccomment">     * Fit a mixture model to the data supplied to the constructor.</em>
+<a class="jxr_linenumber" name="L112" href="MultivariateNormalMixtureExpectationMaximization.html#L112">112</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L113" href="MultivariateNormalMixtureExpectationMaximization.html#L113">113</a> <em class="jxr_javadoccomment">     * The quality of the fit depends on the concavity of the data provided to</em>
+<a class="jxr_linenumber" name="L114" href="MultivariateNormalMixtureExpectationMaximization.html#L114">114</a> <em class="jxr_javadoccomment">     * the constructor and the initial mixture provided to this function. If the</em>
+<a class="jxr_linenumber" name="L115" href="MultivariateNormalMixtureExpectationMaximization.html#L115">115</a> <em class="jxr_javadoccomment">     * data has many local optima, multiple runs of the fitting function with</em>
+<a class="jxr_linenumber" name="L116" href="MultivariateNormalMixtureExpectationMaximization.html#L116">116</a> <em class="jxr_javadoccomment">     * different initial mixtures may be required to find the optimal solution.</em>
+<a class="jxr_linenumber" name="L117" href="MultivariateNormalMixtureExpectationMaximization.html#L117">117</a> <em class="jxr_javadoccomment">     * If a SingularMatrixException is encountered, it is possible that another</em>
+<a class="jxr_linenumber" name="L118" href="MultivariateNormalMixtureExpectationMaximization.html#L118">118</a> <em class="jxr_javadoccomment">     * initialization would work.</em>
+<a class="jxr_linenumber" name="L119" href="MultivariateNormalMixtureExpectationMaximization.html#L119">119</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L120" href="MultivariateNormalMixtureExpectationMaximization.html#L120">120</a> <em class="jxr_javadoccomment">     * @param initialMixture Model containing initial values of weights and</em>
+<a class="jxr_linenumber" name="L121" href="MultivariateNormalMixtureExpectationMaximization.html#L121">121</a> <em class="jxr_javadoccomment">     *            multivariate normals</em>
+<a class="jxr_linenumber" name="L122" href="MultivariateNormalMixtureExpectationMaximization.html#L122">122</a> <em class="jxr_javadoccomment">     * @param maxIterations Maximum iterations allowed for fit</em>
+<a class="jxr_linenumber" name="L123" href="MultivariateNormalMixtureExpectationMaximization.html#L123">123</a> <em class="jxr_javadoccomment">     * @param threshold Convergence threshold computed as difference in</em>
+<a class="jxr_linenumber" name="L124" href="MultivariateNormalMixtureExpectationMaximization.html#L124">124</a> <em class="jxr_javadoccomment">     *             logLikelihoods between successive iterations</em>
+<a class="jxr_linenumber" name="L125" href="MultivariateNormalMixtureExpectationMaximization.html#L125">125</a> <em class="jxr_javadoccomment">     * @throws SingularMatrixException if any component's covariance matrix is</em>
+<a class="jxr_linenumber" name="L126" href="MultivariateNormalMixtureExpectationMaximization.html#L126">126</a> <em class="jxr_javadoccomment">     *             singular during fitting</em>
+<a class="jxr_linenumber" name="L127" href="MultivariateNormalMixtureExpectationMaximization.html#L127">127</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if numComponents is less than one</em>
+<a class="jxr_linenumber" name="L128" href="MultivariateNormalMixtureExpectationMaximization.html#L128">128</a> <em class="jxr_javadoccomment">     *             or threshold is less than Double.MIN_VALUE</em>
+<a class="jxr_linenumber" name="L129" href="MultivariateNormalMixtureExpectationMaximization.html#L129">129</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if initialMixture mean vector and data</em>
+<a class="jxr_linenumber" name="L130" href="MultivariateNormalMixtureExpectationMaximization.html#L130">130</a> <em class="jxr_javadoccomment">     *             number of columns are not equal</em>
+<a class="jxr_linenumber" name="L131" href="MultivariateNormalMixtureExpectationMaximization.html#L131">131</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L132" href="MultivariateNormalMixtureExpectationMaximization.html#L132">132</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> fit(<strong class="jxr_keyword">final</strong> <a href="../MixtureMultivariateNormalDistribution.html">MixtureMultivariateNormalDistribution</a> initialMixture,
+<a class="jxr_linenumber" name="L133" href="MultivariateNormalMixtureExpectationMaximization.html#L133">133</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIterations,
+<a class="jxr_linenumber" name="L134" href="MultivariateNormalMixtureExpectationMaximization.html#L134">134</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> threshold)
+<a class="jxr_linenumber" name="L135" href="MultivariateNormalMixtureExpectationMaximization.html#L135">135</a>             <strong class="jxr_keyword">throws</strong> SingularMatrixException,
+<a class="jxr_linenumber" name="L136" href="MultivariateNormalMixtureExpectationMaximization.html#L136">136</a>                    NotStrictlyPositiveException,
+<a class="jxr_linenumber" name="L137" href="MultivariateNormalMixtureExpectationMaximization.html#L137">137</a>                    <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a> {
+<a class="jxr_linenumber" name="L138" href="MultivariateNormalMixtureExpectationMaximization.html#L138">138</a>         <strong class="jxr_keyword">if</strong> (maxIterations &lt; 1) {
+<a class="jxr_linenumber" name="L139" href="MultivariateNormalMixtureExpectationMaximization.html#L139">139</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(maxIterations);
+<a class="jxr_linenumber" name="L140" href="MultivariateNormalMixtureExpectationMaximization.html#L140">140</a>         }
+<a class="jxr_linenumber" name="L141" href="MultivariateNormalMixtureExpectationMaximization.html#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="MultivariateNormalMixtureExpectationMaximization.html#L142">142</a>         <strong class="jxr_keyword">if</strong> (threshold &lt; Double.MIN_VALUE) {
+<a class="jxr_linenumber" name="L143" href="MultivariateNormalMixtureExpectationMaximization.html#L143">143</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(threshold);
+<a class="jxr_linenumber" name="L144" href="MultivariateNormalMixtureExpectationMaximization.html#L144">144</a>         }
+<a class="jxr_linenumber" name="L145" href="MultivariateNormalMixtureExpectationMaximization.html#L145">145</a> 
+<a class="jxr_linenumber" name="L146" href="MultivariateNormalMixtureExpectationMaximization.html#L146">146</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = data.length;
+<a class="jxr_linenumber" name="L147" href="MultivariateNormalMixtureExpectationMaximization.html#L147">147</a> 
+<a class="jxr_linenumber" name="L148" href="MultivariateNormalMixtureExpectationMaximization.html#L148">148</a>         <em class="jxr_comment">// Number of data columns. Jagged data already rejected in constructor,</em>
+<a class="jxr_linenumber" name="L149" href="MultivariateNormalMixtureExpectationMaximization.html#L149">149</a>         <em class="jxr_comment">// so we can assume the lengths of each row are equal.</em>
+<a class="jxr_linenumber" name="L150" href="MultivariateNormalMixtureExpectationMaximization.html#L150">150</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numCols = data[0].length;
+<a class="jxr_linenumber" name="L151" href="MultivariateNormalMixtureExpectationMaximization.html#L151">151</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> k = initialMixture.getComponents().size();
+<a class="jxr_linenumber" name="L152" href="MultivariateNormalMixtureExpectationMaximization.html#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="MultivariateNormalMixtureExpectationMaximization.html#L153">153</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numMeanColumns
+<a class="jxr_linenumber" name="L154" href="MultivariateNormalMixtureExpectationMaximization.html#L154">154</a>             = initialMixture.getComponents().get(0).getSecond().getMeans().length;
+<a class="jxr_linenumber" name="L155" href="MultivariateNormalMixtureExpectationMaximization.html#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="MultivariateNormalMixtureExpectationMaximization.html#L156">156</a>         <strong class="jxr_keyword">if</strong> (numMeanColumns != numCols) {
+<a class="jxr_linenumber" name="L157" href="MultivariateNormalMixtureExpectationMaximization.html#L157">157</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(numMeanColumns, numCols);
+<a class="jxr_linenumber" name="L158" href="MultivariateNormalMixtureExpectationMaximization.html#L158">158</a>         }
+<a class="jxr_linenumber" name="L159" href="MultivariateNormalMixtureExpectationMaximization.html#L159">159</a> 
+<a class="jxr_linenumber" name="L160" href="MultivariateNormalMixtureExpectationMaximization.html#L160">160</a>         <strong class="jxr_keyword">int</strong> numIterations = 0;
+<a class="jxr_linenumber" name="L161" href="MultivariateNormalMixtureExpectationMaximization.html#L161">161</a>         <strong class="jxr_keyword">double</strong> previousLogLikelihood = 0d;
+<a class="jxr_linenumber" name="L162" href="MultivariateNormalMixtureExpectationMaximization.html#L162">162</a> 
+<a class="jxr_linenumber" name="L163" href="MultivariateNormalMixtureExpectationMaximization.html#L163">163</a>         logLikelihood = Double.NEGATIVE_INFINITY;
+<a class="jxr_linenumber" name="L164" href="MultivariateNormalMixtureExpectationMaximization.html#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="MultivariateNormalMixtureExpectationMaximization.html#L165">165</a>         <em class="jxr_comment">// Initialize model to fit to initial mixture.</em>
+<a class="jxr_linenumber" name="L166" href="MultivariateNormalMixtureExpectationMaximization.html#L166">166</a>         fittedModel = <strong class="jxr_keyword">new</strong> <a href="../MixtureMultivariateNormalDistribution.html">MixtureMultivariateNormalDistribution</a>(initialMixture.getComponents());
+<a class="jxr_linenumber" name="L167" href="MultivariateNormalMixtureExpectationMaximization.html#L167">167</a> 
+<a class="jxr_linenumber" name="L168" href="MultivariateNormalMixtureExpectationMaximization.html#L168">168</a>         <strong class="jxr_keyword">while</strong> (numIterations++ &lt;= maxIterations &amp;&amp;
+<a class="jxr_linenumber" name="L169" href="MultivariateNormalMixtureExpectationMaximization.html#L169">169</a>                FastMath.abs(previousLogLikelihood - logLikelihood) &gt; threshold) {
+<a class="jxr_linenumber" name="L170" href="MultivariateNormalMixtureExpectationMaximization.html#L170">170</a>             previousLogLikelihood = logLikelihood;
+<a class="jxr_linenumber" name="L171" href="MultivariateNormalMixtureExpectationMaximization.html#L171">171</a>             <strong class="jxr_keyword">double</strong> sumLogLikelihood = 0d;
+<a class="jxr_linenumber" name="L172" href="MultivariateNormalMixtureExpectationMaximization.html#L172">172</a> 
+<a class="jxr_linenumber" name="L173" href="MultivariateNormalMixtureExpectationMaximization.html#L173">173</a>             <em class="jxr_comment">// Mixture components</em>
+<a class="jxr_linenumber" name="L174" href="MultivariateNormalMixtureExpectationMaximization.html#L174">174</a>             <strong class="jxr_keyword">final</strong> List&lt;Pair&lt;Double, MultivariateNormalDistribution&gt;&gt; components
+<a class="jxr_linenumber" name="L175" href="MultivariateNormalMixtureExpectationMaximization.html#L175">175</a>                 = fittedModel.getComponents();
+<a class="jxr_linenumber" name="L176" href="MultivariateNormalMixtureExpectationMaximization.html#L176">176</a> 
+<a class="jxr_linenumber" name="L177" href="MultivariateNormalMixtureExpectationMaximization.html#L177">177</a>             <em class="jxr_comment">// Weight and distribution of each component</em>
+<a class="jxr_linenumber" name="L178" href="MultivariateNormalMixtureExpectationMaximization.html#L178">178</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] weights = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[k];
+<a class="jxr_linenumber" name="L179" href="MultivariateNormalMixtureExpectationMaximization.html#L179">179</a> 
+<a class="jxr_linenumber" name="L180" href="MultivariateNormalMixtureExpectationMaximization.html#L180">180</a>             <strong class="jxr_keyword">final</strong> <a href="../MultivariateNormalDistribution.html">MultivariateNormalDistribution</a>[] mvns = <strong class="jxr_keyword">new</strong> <a href="../MultivariateNormalDistribution.html">MultivariateNormalDistribution</a>[k];
+<a class="jxr_linenumber" name="L181" href="MultivariateNormalMixtureExpectationMaximization.html#L181">181</a> 
+<a class="jxr_linenumber" name="L182" href="MultivariateNormalMixtureExpectationMaximization.html#L182">182</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; k; j++) {
+<a class="jxr_linenumber" name="L183" href="MultivariateNormalMixtureExpectationMaximization.html#L183">183</a>                 weights[j] = components.get(j).getFirst();
+<a class="jxr_linenumber" name="L184" href="MultivariateNormalMixtureExpectationMaximization.html#L184">184</a>                 mvns[j] = components.get(j).getSecond();
+<a class="jxr_linenumber" name="L185" href="MultivariateNormalMixtureExpectationMaximization.html#L185">185</a>             }
+<a class="jxr_linenumber" name="L186" href="MultivariateNormalMixtureExpectationMaximization.html#L186">186</a> 
+<a class="jxr_linenumber" name="L187" href="MultivariateNormalMixtureExpectationMaximization.html#L187">187</a>             <em class="jxr_comment">// E-step: compute the data dependent parameters of the expectation</em>
+<a class="jxr_linenumber" name="L188" href="MultivariateNormalMixtureExpectationMaximization.html#L188">188</a>             <em class="jxr_comment">// function.</em>
+<a class="jxr_linenumber" name="L189" href="MultivariateNormalMixtureExpectationMaximization.html#L189">189</a>             <em class="jxr_comment">// The percentage of row's total density between a row and a</em>
+<a class="jxr_linenumber" name="L190" href="MultivariateNormalMixtureExpectationMaximization.html#L190">190</a>             <em class="jxr_comment">// component</em>
+<a class="jxr_linenumber" name="L191" href="MultivariateNormalMixtureExpectationMaximization.html#L191">191</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] gamma = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[n][k];
+<a class="jxr_linenumber" name="L192" href="MultivariateNormalMixtureExpectationMaximization.html#L192">192</a> 
+<a class="jxr_linenumber" name="L193" href="MultivariateNormalMixtureExpectationMaximization.html#L193">193</a>             <em class="jxr_comment">// Sum of gamma for each component</em>
+<a class="jxr_linenumber" name="L194" href="MultivariateNormalMixtureExpectationMaximization.html#L194">194</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] gammaSums = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[k];
+<a class="jxr_linenumber" name="L195" href="MultivariateNormalMixtureExpectationMaximization.html#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="MultivariateNormalMixtureExpectationMaximization.html#L196">196</a>             <em class="jxr_comment">// Sum of gamma times its row for each each component</em>
+<a class="jxr_linenumber" name="L197" href="MultivariateNormalMixtureExpectationMaximization.html#L197">197</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] gammaDataProdSums = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[k][numCols];
+<a class="jxr_linenumber" name="L198" href="MultivariateNormalMixtureExpectationMaximization.html#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="MultivariateNormalMixtureExpectationMaximization.html#L199">199</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L200" href="MultivariateNormalMixtureExpectationMaximization.html#L200">200</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> rowDensity = fittedModel.density(data[i]);
+<a class="jxr_linenumber" name="L201" href="MultivariateNormalMixtureExpectationMaximization.html#L201">201</a>                 sumLogLikelihood += FastMath.log(rowDensity);
+<a class="jxr_linenumber" name="L202" href="MultivariateNormalMixtureExpectationMaximization.html#L202">202</a> 
+<a class="jxr_linenumber" name="L203" href="MultivariateNormalMixtureExpectationMaximization.html#L203">203</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; k; j++) {
+<a class="jxr_linenumber" name="L204" href="MultivariateNormalMixtureExpectationMaximization.html#L204">204</a>                     gamma[i][j] = weights[j] * mvns[j].density(data[i]) / rowDensity;
+<a class="jxr_linenumber" name="L205" href="MultivariateNormalMixtureExpectationMaximization.html#L205">205</a>                     gammaSums[j] += gamma[i][j];
+<a class="jxr_linenumber" name="L206" href="MultivariateNormalMixtureExpectationMaximization.html#L206">206</a> 
+<a class="jxr_linenumber" name="L207" href="MultivariateNormalMixtureExpectationMaximization.html#L207">207</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = 0; col &lt; numCols; col++) {
+<a class="jxr_linenumber" name="L208" href="MultivariateNormalMixtureExpectationMaximization.html#L208">208</a>                         gammaDataProdSums[j][col] += gamma[i][j] * data[i][col];
+<a class="jxr_linenumber" name="L209" href="MultivariateNormalMixtureExpectationMaximization.html#L209">209</a>                     }
+<a class="jxr_linenumber" name="L210" href="MultivariateNormalMixtureExpectationMaximization.html#L210">210</a>                 }
+<a class="jxr_linenumber" name="L211" href="MultivariateNormalMixtureExpectationMaximization.html#L211">211</a>             }
+<a class="jxr_linenumber" name="L212" href="MultivariateNormalMixtureExpectationMaximization.html#L212">212</a> 
+<a class="jxr_linenumber" name="L213" href="MultivariateNormalMixtureExpectationMaximization.html#L213">213</a>             logLikelihood = sumLogLikelihood / n;
+<a class="jxr_linenumber" name="L214" href="MultivariateNormalMixtureExpectationMaximization.html#L214">214</a> 
+<a class="jxr_linenumber" name="L215" href="MultivariateNormalMixtureExpectationMaximization.html#L215">215</a>             <em class="jxr_comment">// M-step: compute the new parameters based on the expectation</em>
+<a class="jxr_linenumber" name="L216" href="MultivariateNormalMixtureExpectationMaximization.html#L216">216</a>             <em class="jxr_comment">// function.</em>
+<a class="jxr_linenumber" name="L217" href="MultivariateNormalMixtureExpectationMaximization.html#L217">217</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] newWeights = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[k];
+<a class="jxr_linenumber" name="L218" href="MultivariateNormalMixtureExpectationMaximization.html#L218">218</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] newMeans = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[k][numCols];
+<a class="jxr_linenumber" name="L219" href="MultivariateNormalMixtureExpectationMaximization.html#L219">219</a> 
+<a class="jxr_linenumber" name="L220" href="MultivariateNormalMixtureExpectationMaximization.html#L220">220</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; k; j++) {
+<a class="jxr_linenumber" name="L221" href="MultivariateNormalMixtureExpectationMaximization.html#L221">221</a>                 newWeights[j] = gammaSums[j] / n;
+<a class="jxr_linenumber" name="L222" href="MultivariateNormalMixtureExpectationMaximization.html#L222">222</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = 0; col &lt; numCols; col++) {
+<a class="jxr_linenumber" name="L223" href="MultivariateNormalMixtureExpectationMaximization.html#L223">223</a>                     newMeans[j][col] = gammaDataProdSums[j][col] / gammaSums[j];
+<a class="jxr_linenumber" name="L224" href="MultivariateNormalMixtureExpectationMaximization.html#L224">224</a>                 }
+<a class="jxr_linenumber" name="L225" href="MultivariateNormalMixtureExpectationMaximization.html#L225">225</a>             }
+<a class="jxr_linenumber" name="L226" href="MultivariateNormalMixtureExpectationMaximization.html#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="MultivariateNormalMixtureExpectationMaximization.html#L227">227</a>             <em class="jxr_comment">// Compute new covariance matrices</em>
+<a class="jxr_linenumber" name="L228" href="MultivariateNormalMixtureExpectationMaximization.html#L228">228</a>             <strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a>[] newCovMats = <strong class="jxr_keyword">new</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a>[k];
+<a class="jxr_linenumber" name="L229" href="MultivariateNormalMixtureExpectationMaximization.html#L229">229</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; k; j++) {
+<a class="jxr_linenumber" name="L230" href="MultivariateNormalMixtureExpectationMaximization.html#L230">230</a>                 newCovMats[j] = <strong class="jxr_keyword">new</strong> <a href="../../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(numCols, numCols);
+<a class="jxr_linenumber" name="L231" href="MultivariateNormalMixtureExpectationMaximization.html#L231">231</a>             }
+<a class="jxr_linenumber" name="L232" href="MultivariateNormalMixtureExpectationMaximization.html#L232">232</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L233" href="MultivariateNormalMixtureExpectationMaximization.html#L233">233</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; k; j++) {
+<a class="jxr_linenumber" name="L234" href="MultivariateNormalMixtureExpectationMaximization.html#L234">234</a>                     <strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> vec
+<a class="jxr_linenumber" name="L235" href="MultivariateNormalMixtureExpectationMaximization.html#L235">235</a>                         = <strong class="jxr_keyword">new</strong> <a href="../../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(MathArrays.ebeSubtract(data[i], newMeans[j]));
+<a class="jxr_linenumber" name="L236" href="MultivariateNormalMixtureExpectationMaximization.html#L236">236</a>                     <strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> dataCov
+<a class="jxr_linenumber" name="L237" href="MultivariateNormalMixtureExpectationMaximization.html#L237">237</a>                         = vec.multiply(vec.transpose()).scalarMultiply(gamma[i][j]);
+<a class="jxr_linenumber" name="L238" href="MultivariateNormalMixtureExpectationMaximization.html#L238">238</a>                     newCovMats[j] = newCovMats[j].add(dataCov);
+<a class="jxr_linenumber" name="L239" href="MultivariateNormalMixtureExpectationMaximization.html#L239">239</a>                 }
+<a class="jxr_linenumber" name="L240" href="MultivariateNormalMixtureExpectationMaximization.html#L240">240</a>             }
+<a class="jxr_linenumber" name="L241" href="MultivariateNormalMixtureExpectationMaximization.html#L241">241</a> 
+<a class="jxr_linenumber" name="L242" href="MultivariateNormalMixtureExpectationMaximization.html#L242">242</a>             <em class="jxr_comment">// Converting to arrays for use by fitted model</em>
+<a class="jxr_linenumber" name="L243" href="MultivariateNormalMixtureExpectationMaximization.html#L243">243</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] newCovMatArrays = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[k][numCols][numCols];
+<a class="jxr_linenumber" name="L244" href="MultivariateNormalMixtureExpectationMaximization.html#L244">244</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; k; j++) {
+<a class="jxr_linenumber" name="L245" href="MultivariateNormalMixtureExpectationMaximization.html#L245">245</a>                 newCovMats[j] = newCovMats[j].scalarMultiply(1d / gammaSums[j]);
+<a class="jxr_linenumber" name="L246" href="MultivariateNormalMixtureExpectationMaximization.html#L246">246</a>                 newCovMatArrays[j] = newCovMats[j].getData();
+<a class="jxr_linenumber" name="L247" href="MultivariateNormalMixtureExpectationMaximization.html#L247">247</a>             }
+<a class="jxr_linenumber" name="L248" href="MultivariateNormalMixtureExpectationMaximization.html#L248">248</a> 
+<a class="jxr_linenumber" name="L249" href="MultivariateNormalMixtureExpectationMaximization.html#L249">249</a>             <em class="jxr_comment">// Update current model</em>
+<a class="jxr_linenumber" name="L250" href="MultivariateNormalMixtureExpectationMaximization.html#L250">250</a>             fittedModel = <strong class="jxr_keyword">new</strong> <a href="../MixtureMultivariateNormalDistribution.html">MixtureMultivariateNormalDistribution</a>(newWeights,
+<a class="jxr_linenumber" name="L251" href="MultivariateNormalMixtureExpectationMaximization.html#L251">251</a>                                                                     newMeans,
+<a class="jxr_linenumber" name="L252" href="MultivariateNormalMixtureExpectationMaximization.html#L252">252</a>                                                                     newCovMatArrays);
+<a class="jxr_linenumber" name="L253" href="MultivariateNormalMixtureExpectationMaximization.html#L253">253</a>         }
+<a class="jxr_linenumber" name="L254" href="MultivariateNormalMixtureExpectationMaximization.html#L254">254</a> 
+<a class="jxr_linenumber" name="L255" href="MultivariateNormalMixtureExpectationMaximization.html#L255">255</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(previousLogLikelihood - logLikelihood) &gt; threshold) {
+<a class="jxr_linenumber" name="L256" href="MultivariateNormalMixtureExpectationMaximization.html#L256">256</a>             <em class="jxr_comment">// Did not converge before the maximum number of iterations</em>
+<a class="jxr_linenumber" name="L257" href="MultivariateNormalMixtureExpectationMaximization.html#L257">257</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/ConvergenceException.html">ConvergenceException</a>();
+<a class="jxr_linenumber" name="L258" href="MultivariateNormalMixtureExpectationMaximization.html#L258">258</a>         }
+<a class="jxr_linenumber" name="L259" href="MultivariateNormalMixtureExpectationMaximization.html#L259">259</a>     }
+<a class="jxr_linenumber" name="L260" href="MultivariateNormalMixtureExpectationMaximization.html#L260">260</a> 
+<a class="jxr_linenumber" name="L261" href="MultivariateNormalMixtureExpectationMaximization.html#L261">261</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L262" href="MultivariateNormalMixtureExpectationMaximization.html#L262">262</a> <em class="jxr_javadoccomment">     * Fit a mixture model to the data supplied to the constructor.</em>
+<a class="jxr_linenumber" name="L263" href="MultivariateNormalMixtureExpectationMaximization.html#L263">263</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L264" href="MultivariateNormalMixtureExpectationMaximization.html#L264">264</a> <em class="jxr_javadoccomment">     * The quality of the fit depends on the concavity of the data provided to</em>
+<a class="jxr_linenumber" name="L265" href="MultivariateNormalMixtureExpectationMaximization.html#L265">265</a> <em class="jxr_javadoccomment">     * the constructor and the initial mixture provided to this function. If the</em>
+<a class="jxr_linenumber" name="L266" href="MultivariateNormalMixtureExpectationMaximization.html#L266">266</a> <em class="jxr_javadoccomment">     * data has many local optima, multiple runs of the fitting function with</em>
+<a class="jxr_linenumber" name="L267" href="MultivariateNormalMixtureExpectationMaximization.html#L267">267</a> <em class="jxr_javadoccomment">     * different initial mixtures may be required to find the optimal solution.</em>
+<a class="jxr_linenumber" name="L268" href="MultivariateNormalMixtureExpectationMaximization.html#L268">268</a> <em class="jxr_javadoccomment">     * If a SingularMatrixException is encountered, it is possible that another</em>
+<a class="jxr_linenumber" name="L269" href="MultivariateNormalMixtureExpectationMaximization.html#L269">269</a> <em class="jxr_javadoccomment">     * initialization would work.</em>
+<a class="jxr_linenumber" name="L270" href="MultivariateNormalMixtureExpectationMaximization.html#L270">270</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L271" href="MultivariateNormalMixtureExpectationMaximization.html#L271">271</a> <em class="jxr_javadoccomment">     * @param initialMixture Model containing initial values of weights and</em>
+<a class="jxr_linenumber" name="L272" href="MultivariateNormalMixtureExpectationMaximization.html#L272">272</a> <em class="jxr_javadoccomment">     *            multivariate normals</em>
+<a class="jxr_linenumber" name="L273" href="MultivariateNormalMixtureExpectationMaximization.html#L273">273</a> <em class="jxr_javadoccomment">     * @throws SingularMatrixException if any component's covariance matrix is</em>
+<a class="jxr_linenumber" name="L274" href="MultivariateNormalMixtureExpectationMaximization.html#L274">274</a> <em class="jxr_javadoccomment">     *             singular during fitting</em>
+<a class="jxr_linenumber" name="L275" href="MultivariateNormalMixtureExpectationMaximization.html#L275">275</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if numComponents is less than one or</em>
+<a class="jxr_linenumber" name="L276" href="MultivariateNormalMixtureExpectationMaximization.html#L276">276</a> <em class="jxr_javadoccomment">     *             threshold is less than Double.MIN_VALUE</em>
+<a class="jxr_linenumber" name="L277" href="MultivariateNormalMixtureExpectationMaximization.html#L277">277</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L278" href="MultivariateNormalMixtureExpectationMaximization.html#L278">278</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> fit(<a href="../MixtureMultivariateNormalDistribution.html">MixtureMultivariateNormalDistribution</a> initialMixture)
+<a class="jxr_linenumber" name="L279" href="MultivariateNormalMixtureExpectationMaximization.html#L279">279</a>         <strong class="jxr_keyword">throws</strong> SingularMatrixException,
+<a class="jxr_linenumber" name="L280" href="MultivariateNormalMixtureExpectationMaximization.html#L280">280</a>                <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a> {
+<a class="jxr_linenumber" name="L281" href="MultivariateNormalMixtureExpectationMaximization.html#L281">281</a>         fit(initialMixture, DEFAULT_MAX_ITERATIONS, DEFAULT_THRESHOLD);
+<a class="jxr_linenumber" name="L282" href="MultivariateNormalMixtureExpectationMaximization.html#L282">282</a>     }
+<a class="jxr_linenumber" name="L283" href="MultivariateNormalMixtureExpectationMaximization.html#L283">283</a> 
+<a class="jxr_linenumber" name="L284" href="MultivariateNormalMixtureExpectationMaximization.html#L284">284</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L285" href="MultivariateNormalMixtureExpectationMaximization.html#L285">285</a> <em class="jxr_javadoccomment">     * Helper method to create a multivariate normal mixture model which can be</em>
+<a class="jxr_linenumber" name="L286" href="MultivariateNormalMixtureExpectationMaximization.html#L286">286</a> <em class="jxr_javadoccomment">     * used to initialize {@link #fit(MixtureMultivariateNormalDistribution)}.</em>
+<a class="jxr_linenumber" name="L287" href="MultivariateNormalMixtureExpectationMaximization.html#L287">287</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L288" href="MultivariateNormalMixtureExpectationMaximization.html#L288">288</a> <em class="jxr_javadoccomment">     * This method uses the data supplied to the constructor to try to determine</em>
+<a class="jxr_linenumber" name="L289" href="MultivariateNormalMixtureExpectationMaximization.html#L289">289</a> <em class="jxr_javadoccomment">     * a good mixture model at which to start the fit, but it is not guaranteed</em>
+<a class="jxr_linenumber" name="L290" href="MultivariateNormalMixtureExpectationMaximization.html#L290">290</a> <em class="jxr_javadoccomment">     * to supply a model which will find the optimal solution or even converge.</em>
+<a class="jxr_linenumber" name="L291" href="MultivariateNormalMixtureExpectationMaximization.html#L291">291</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L292" href="MultivariateNormalMixtureExpectationMaximization.html#L292">292</a> <em class="jxr_javadoccomment">     * @param data Data to estimate distribution</em>
+<a class="jxr_linenumber" name="L293" href="MultivariateNormalMixtureExpectationMaximization.html#L293">293</a> <em class="jxr_javadoccomment">     * @param numComponents Number of components for estimated mixture</em>
+<a class="jxr_linenumber" name="L294" href="MultivariateNormalMixtureExpectationMaximization.html#L294">294</a> <em class="jxr_javadoccomment">     * @return Multivariate normal mixture model estimated from the data</em>
+<a class="jxr_linenumber" name="L295" href="MultivariateNormalMixtureExpectationMaximization.html#L295">295</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooLargeException if {@code numComponents} is greater</em>
+<a class="jxr_linenumber" name="L296" href="MultivariateNormalMixtureExpectationMaximization.html#L296">296</a> <em class="jxr_javadoccomment">     * than the number of data rows.</em>
+<a class="jxr_linenumber" name="L297" href="MultivariateNormalMixtureExpectationMaximization.html#L297">297</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code numComponents &lt; 2}.</em>
+<a class="jxr_linenumber" name="L298" href="MultivariateNormalMixtureExpectationMaximization.html#L298">298</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if data has less than 2 rows</em>
+<a class="jxr_linenumber" name="L299" href="MultivariateNormalMixtureExpectationMaximization.html#L299">299</a> <em class="jxr_javadoccomment">     * @throws DimensionMismatchException if rows of data have different numbers</em>
+<a class="jxr_linenumber" name="L300" href="MultivariateNormalMixtureExpectationMaximization.html#L300">300</a> <em class="jxr_javadoccomment">     *             of columns</em>
+<a class="jxr_linenumber" name="L301" href="MultivariateNormalMixtureExpectationMaximization.html#L301">301</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L302" href="MultivariateNormalMixtureExpectationMaximization.html#L302">302</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../MixtureMultivariateNormalDistribution.html">MixtureMultivariateNormalDistribution</a> estimate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] data,
+<a class="jxr_linenumber" name="L303" href="MultivariateNormalMixtureExpectationMaximization.html#L303">303</a>                                                                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numComponents)
+<a class="jxr_linenumber" name="L304" href="MultivariateNormalMixtureExpectationMaximization.html#L304">304</a>         <strong class="jxr_keyword">throws</strong> NotStrictlyPositiveException,
+<a class="jxr_linenumber" name="L305" href="MultivariateNormalMixtureExpectationMaximization.html#L305">305</a>                <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a> {
+<a class="jxr_linenumber" name="L306" href="MultivariateNormalMixtureExpectationMaximization.html#L306">306</a>         <strong class="jxr_keyword">if</strong> (data.length &lt; 2) {
+<a class="jxr_linenumber" name="L307" href="MultivariateNormalMixtureExpectationMaximization.html#L307">307</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(data.length);
+<a class="jxr_linenumber" name="L308" href="MultivariateNormalMixtureExpectationMaximization.html#L308">308</a>         }
+<a class="jxr_linenumber" name="L309" href="MultivariateNormalMixtureExpectationMaximization.html#L309">309</a>         <strong class="jxr_keyword">if</strong> (numComponents &lt; 2) {
+<a class="jxr_linenumber" name="L310" href="MultivariateNormalMixtureExpectationMaximization.html#L310">310</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(numComponents, 2, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L311" href="MultivariateNormalMixtureExpectationMaximization.html#L311">311</a>         }
+<a class="jxr_linenumber" name="L312" href="MultivariateNormalMixtureExpectationMaximization.html#L312">312</a>         <strong class="jxr_keyword">if</strong> (numComponents &gt; data.length) {
+<a class="jxr_linenumber" name="L313" href="MultivariateNormalMixtureExpectationMaximization.html#L313">313</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NumberIsTooLargeException.html">NumberIsTooLargeException</a>(numComponents, data.length, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L314" href="MultivariateNormalMixtureExpectationMaximization.html#L314">314</a>         }
+<a class="jxr_linenumber" name="L315" href="MultivariateNormalMixtureExpectationMaximization.html#L315">315</a> 
+<a class="jxr_linenumber" name="L316" href="MultivariateNormalMixtureExpectationMaximization.html#L316">316</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numRows = data.length;
+<a class="jxr_linenumber" name="L317" href="MultivariateNormalMixtureExpectationMaximization.html#L317">317</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numCols = data[0].length;
+<a class="jxr_linenumber" name="L318" href="MultivariateNormalMixtureExpectationMaximization.html#L318">318</a> 
+<a class="jxr_linenumber" name="L319" href="MultivariateNormalMixtureExpectationMaximization.html#L319">319</a>         <em class="jxr_comment">// sort the data</em>
+<a class="jxr_linenumber" name="L320" href="MultivariateNormalMixtureExpectationMaximization.html#L320">320</a>         <strong class="jxr_keyword">final</strong> <a href="MultivariateNormalMixtureExpectationMaximization.html">DataRow</a>[] sortedData = <strong class="jxr_keyword">new</strong> <a href="MultivariateNormalMixtureExpectationMaximization.html">DataRow</a>[numRows];
+<a class="jxr_linenumber" name="L321" href="MultivariateNormalMixtureExpectationMaximization.html#L321">321</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; numRows; i++) {
+<a class="jxr_linenumber" name="L322" href="MultivariateNormalMixtureExpectationMaximization.html#L322">322</a>             sortedData[i] = <strong class="jxr_keyword">new</strong> <a href="MultivariateNormalMixtureExpectationMaximization.html">DataRow</a>(data[i]);
+<a class="jxr_linenumber" name="L323" href="MultivariateNormalMixtureExpectationMaximization.html#L323">323</a>         }
+<a class="jxr_linenumber" name="L324" href="MultivariateNormalMixtureExpectationMaximization.html#L324">324</a>         Arrays.sort(sortedData);
+<a class="jxr_linenumber" name="L325" href="MultivariateNormalMixtureExpectationMaximization.html#L325">325</a> 
+<a class="jxr_linenumber" name="L326" href="MultivariateNormalMixtureExpectationMaximization.html#L326">326</a>         <em class="jxr_comment">// uniform weight for each bin</em>
+<a class="jxr_linenumber" name="L327" href="MultivariateNormalMixtureExpectationMaximization.html#L327">327</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> weight = 1d / numComponents;
+<a class="jxr_linenumber" name="L328" href="MultivariateNormalMixtureExpectationMaximization.html#L328">328</a> 
+<a class="jxr_linenumber" name="L329" href="MultivariateNormalMixtureExpectationMaximization.html#L329">329</a>         <em class="jxr_comment">// components of mixture model to be created</em>
+<a class="jxr_linenumber" name="L330" href="MultivariateNormalMixtureExpectationMaximization.html#L330">330</a>         <strong class="jxr_keyword">final</strong> List&lt;Pair&lt;Double, MultivariateNormalDistribution&gt;&gt; components =
+<a class="jxr_linenumber" name="L331" href="MultivariateNormalMixtureExpectationMaximization.html#L331">331</a>                 <strong class="jxr_keyword">new</strong> ArrayList&lt;Pair&lt;Double, MultivariateNormalDistribution&gt;&gt;(numComponents);
+<a class="jxr_linenumber" name="L332" href="MultivariateNormalMixtureExpectationMaximization.html#L332">332</a> 
+<a class="jxr_linenumber" name="L333" href="MultivariateNormalMixtureExpectationMaximization.html#L333">333</a>         <em class="jxr_comment">// create a component based on data in each bin</em>
+<a class="jxr_linenumber" name="L334" href="MultivariateNormalMixtureExpectationMaximization.html#L334">334</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> binIndex = 0; binIndex &lt; numComponents; binIndex++) {
+<a class="jxr_linenumber" name="L335" href="MultivariateNormalMixtureExpectationMaximization.html#L335">335</a>             <em class="jxr_comment">// minimum index (inclusive) from sorted data for this bin</em>
+<a class="jxr_linenumber" name="L336" href="MultivariateNormalMixtureExpectationMaximization.html#L336">336</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> minIndex = (binIndex * numRows) / numComponents;
+<a class="jxr_linenumber" name="L337" href="MultivariateNormalMixtureExpectationMaximization.html#L337">337</a> 
+<a class="jxr_linenumber" name="L338" href="MultivariateNormalMixtureExpectationMaximization.html#L338">338</a>             <em class="jxr_comment">// maximum index (exclusive) from sorted data for this bin</em>
+<a class="jxr_linenumber" name="L339" href="MultivariateNormalMixtureExpectationMaximization.html#L339">339</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIndex = ((binIndex + 1) * numRows) / numComponents;
+<a class="jxr_linenumber" name="L340" href="MultivariateNormalMixtureExpectationMaximization.html#L340">340</a> 
+<a class="jxr_linenumber" name="L341" href="MultivariateNormalMixtureExpectationMaximization.html#L341">341</a>             <em class="jxr_comment">// number of data records that will be in this bin</em>
+<a class="jxr_linenumber" name="L342" href="MultivariateNormalMixtureExpectationMaximization.html#L342">342</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numBinRows = maxIndex - minIndex;
+<a class="jxr_linenumber" name="L343" href="MultivariateNormalMixtureExpectationMaximization.html#L343">343</a> 
+<a class="jxr_linenumber" name="L344" href="MultivariateNormalMixtureExpectationMaximization.html#L344">344</a>             <em class="jxr_comment">// data for this bin</em>
+<a class="jxr_linenumber" name="L345" href="MultivariateNormalMixtureExpectationMaximization.html#L345">345</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] binData = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[numBinRows][numCols];
+<a class="jxr_linenumber" name="L346" href="MultivariateNormalMixtureExpectationMaximization.html#L346">346</a> 
+<a class="jxr_linenumber" name="L347" href="MultivariateNormalMixtureExpectationMaximization.html#L347">347</a>             <em class="jxr_comment">// mean of each column for the data in the this bin</em>
+<a class="jxr_linenumber" name="L348" href="MultivariateNormalMixtureExpectationMaximization.html#L348">348</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] columnMeans = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[numCols];
+<a class="jxr_linenumber" name="L349" href="MultivariateNormalMixtureExpectationMaximization.html#L349">349</a> 
+<a class="jxr_linenumber" name="L350" href="MultivariateNormalMixtureExpectationMaximization.html#L350">350</a>             <em class="jxr_comment">// populate bin and create component</em>
+<a class="jxr_linenumber" name="L351" href="MultivariateNormalMixtureExpectationMaximization.html#L351">351</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = minIndex, iBin = 0; i &lt; maxIndex; i++, iBin++) {
+<a class="jxr_linenumber" name="L352" href="MultivariateNormalMixtureExpectationMaximization.html#L352">352</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; numCols; j++) {
+<a class="jxr_linenumber" name="L353" href="MultivariateNormalMixtureExpectationMaximization.html#L353">353</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> val = sortedData[i].getRow()[j];
+<a class="jxr_linenumber" name="L354" href="MultivariateNormalMixtureExpectationMaximization.html#L354">354</a>                     columnMeans[j] += val;
+<a class="jxr_linenumber" name="L355" href="MultivariateNormalMixtureExpectationMaximization.html#L355">355</a>                     binData[iBin][j] = val;
+<a class="jxr_linenumber" name="L356" href="MultivariateNormalMixtureExpectationMaximization.html#L356">356</a>                 }
+<a class="jxr_linenumber" name="L357" href="MultivariateNormalMixtureExpectationMaximization.html#L357">357</a>             }
+<a class="jxr_linenumber" name="L358" href="MultivariateNormalMixtureExpectationMaximization.html#L358">358</a> 
+<a class="jxr_linenumber" name="L359" href="MultivariateNormalMixtureExpectationMaximization.html#L359">359</a>             MathArrays.scaleInPlace(1d / numBinRows, columnMeans);
+<a class="jxr_linenumber" name="L360" href="MultivariateNormalMixtureExpectationMaximization.html#L360">360</a> 
+<a class="jxr_linenumber" name="L361" href="MultivariateNormalMixtureExpectationMaximization.html#L361">361</a>             <em class="jxr_comment">// covariance matrix for this bin</em>
+<a class="jxr_linenumber" name="L362" href="MultivariateNormalMixtureExpectationMaximization.html#L362">362</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] covMat
+<a class="jxr_linenumber" name="L363" href="MultivariateNormalMixtureExpectationMaximization.html#L363">363</a>                 = <strong class="jxr_keyword">new</strong> <a href="../../stat/correlation/Covariance.html">Covariance</a>(binData).getCovarianceMatrix().getData();
+<a class="jxr_linenumber" name="L364" href="MultivariateNormalMixtureExpectationMaximization.html#L364">364</a>             <strong class="jxr_keyword">final</strong> <a href="../MultivariateNormalDistribution.html">MultivariateNormalDistribution</a> mvn
+<a class="jxr_linenumber" name="L365" href="MultivariateNormalMixtureExpectationMaximization.html#L365">365</a>                 = <strong class="jxr_keyword">new</strong> <a href="../MultivariateNormalDistribution.html">MultivariateNormalDistribution</a>(columnMeans, covMat);
+<a class="jxr_linenumber" name="L366" href="MultivariateNormalMixtureExpectationMaximization.html#L366">366</a> 
+<a class="jxr_linenumber" name="L367" href="MultivariateNormalMixtureExpectationMaximization.html#L367">367</a>             components.add(<strong class="jxr_keyword">new</strong> Pair&lt;Double, MultivariateNormalDistribution&gt;(weight, mvn));
+<a class="jxr_linenumber" name="L368" href="MultivariateNormalMixtureExpectationMaximization.html#L368">368</a>         }
+<a class="jxr_linenumber" name="L369" href="MultivariateNormalMixtureExpectationMaximization.html#L369">369</a> 
+<a class="jxr_linenumber" name="L370" href="MultivariateNormalMixtureExpectationMaximization.html#L370">370</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../MixtureMultivariateNormalDistribution.html">MixtureMultivariateNormalDistribution</a>(components);
+<a class="jxr_linenumber" name="L371" href="MultivariateNormalMixtureExpectationMaximization.html#L371">371</a>     }
+<a class="jxr_linenumber" name="L372" href="MultivariateNormalMixtureExpectationMaximization.html#L372">372</a> 
+<a class="jxr_linenumber" name="L373" href="MultivariateNormalMixtureExpectationMaximization.html#L373">373</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L374" href="MultivariateNormalMixtureExpectationMaximization.html#L374">374</a> <em class="jxr_javadoccomment">     * Gets the log likelihood of the data under the fitted model.</em>
+<a class="jxr_linenumber" name="L375" href="MultivariateNormalMixtureExpectationMaximization.html#L375">375</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L376" href="MultivariateNormalMixtureExpectationMaximization.html#L376">376</a> <em class="jxr_javadoccomment">     * @return Log likelihood of data or zero of no data has been fit</em>
+<a class="jxr_linenumber" name="L377" href="MultivariateNormalMixtureExpectationMaximization.html#L377">377</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L378" href="MultivariateNormalMixtureExpectationMaximization.html#L378">378</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getLogLikelihood() {
+<a class="jxr_linenumber" name="L379" href="MultivariateNormalMixtureExpectationMaximization.html#L379">379</a>         <strong class="jxr_keyword">return</strong> logLikelihood;
+<a class="jxr_linenumber" name="L380" href="MultivariateNormalMixtureExpectationMaximization.html#L380">380</a>     }
+<a class="jxr_linenumber" name="L381" href="MultivariateNormalMixtureExpectationMaximization.html#L381">381</a> 
+<a class="jxr_linenumber" name="L382" href="MultivariateNormalMixtureExpectationMaximization.html#L382">382</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L383" href="MultivariateNormalMixtureExpectationMaximization.html#L383">383</a> <em class="jxr_javadoccomment">     * Gets the fitted model.</em>
+<a class="jxr_linenumber" name="L384" href="MultivariateNormalMixtureExpectationMaximization.html#L384">384</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L385" href="MultivariateNormalMixtureExpectationMaximization.html#L385">385</a> <em class="jxr_javadoccomment">     * @return fitted model or {@code null} if no fit has been performed yet.</em>
+<a class="jxr_linenumber" name="L386" href="MultivariateNormalMixtureExpectationMaximization.html#L386">386</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L387" href="MultivariateNormalMixtureExpectationMaximization.html#L387">387</a>     <strong class="jxr_keyword">public</strong> <a href="../MixtureMultivariateNormalDistribution.html">MixtureMultivariateNormalDistribution</a> getFittedModel() {
+<a class="jxr_linenumber" name="L388" href="MultivariateNormalMixtureExpectationMaximization.html#L388">388</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../MixtureMultivariateNormalDistribution.html">MixtureMultivariateNormalDistribution</a>(fittedModel.getComponents());
+<a class="jxr_linenumber" name="L389" href="MultivariateNormalMixtureExpectationMaximization.html#L389">389</a>     }
+<a class="jxr_linenumber" name="L390" href="MultivariateNormalMixtureExpectationMaximization.html#L390">390</a> 
+<a class="jxr_linenumber" name="L391" href="MultivariateNormalMixtureExpectationMaximization.html#L391">391</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L392" href="MultivariateNormalMixtureExpectationMaximization.html#L392">392</a> <em class="jxr_javadoccomment">     * Class used for sorting user-supplied data.</em>
+<a class="jxr_linenumber" name="L393" href="MultivariateNormalMixtureExpectationMaximization.html#L393">393</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L394" href="MultivariateNormalMixtureExpectationMaximization.html#L394">394</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="MultivariateNormalMixtureExpectationMaximization.html">DataRow</a> <strong class="jxr_keyword">implements</strong> Comparable&lt;DataRow&gt; {
+<a class="jxr_linenumber" name="L395" href="MultivariateNormalMixtureExpectationMaximization.html#L395">395</a>         <em class="jxr_javadoccomment">/** One data row. */</em>
+<a class="jxr_linenumber" name="L396" href="MultivariateNormalMixtureExpectationMaximization.html#L396">396</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] row;
+<a class="jxr_linenumber" name="L397" href="MultivariateNormalMixtureExpectationMaximization.html#L397">397</a>         <em class="jxr_javadoccomment">/** Mean of the data row. */</em>
+<a class="jxr_linenumber" name="L398" href="MultivariateNormalMixtureExpectationMaximization.html#L398">398</a>         <strong class="jxr_keyword">private</strong> Double mean;
+<a class="jxr_linenumber" name="L399" href="MultivariateNormalMixtureExpectationMaximization.html#L399">399</a> 
+<a class="jxr_linenumber" name="L400" href="MultivariateNormalMixtureExpectationMaximization.html#L400">400</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L401" href="MultivariateNormalMixtureExpectationMaximization.html#L401">401</a> <em class="jxr_javadoccomment">         * Create a data row.</em>
+<a class="jxr_linenumber" name="L402" href="MultivariateNormalMixtureExpectationMaximization.html#L402">402</a> <em class="jxr_javadoccomment">         * @param data Data to use for the row</em>
+<a class="jxr_linenumber" name="L403" href="MultivariateNormalMixtureExpectationMaximization.html#L403">403</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L404" href="MultivariateNormalMixtureExpectationMaximization.html#L404">404</a>         <a href="MultivariateNormalMixtureExpectationMaximization.html">DataRow</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] data) {
+<a class="jxr_linenumber" name="L405" href="MultivariateNormalMixtureExpectationMaximization.html#L405">405</a>             <em class="jxr_comment">// Store reference.</em>
+<a class="jxr_linenumber" name="L406" href="MultivariateNormalMixtureExpectationMaximization.html#L406">406</a>             row = data;
+<a class="jxr_linenumber" name="L407" href="MultivariateNormalMixtureExpectationMaximization.html#L407">407</a>             <em class="jxr_comment">// Compute mean.</em>
+<a class="jxr_linenumber" name="L408" href="MultivariateNormalMixtureExpectationMaximization.html#L408">408</a>             mean = 0d;
+<a class="jxr_linenumber" name="L409" href="MultivariateNormalMixtureExpectationMaximization.html#L409">409</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; data.length; i++) {
+<a class="jxr_linenumber" name="L410" href="MultivariateNormalMixtureExpectationMaximization.html#L410">410</a>                 mean += data[i];
+<a class="jxr_linenumber" name="L411" href="MultivariateNormalMixtureExpectationMaximization.html#L411">411</a>             }
+<a class="jxr_linenumber" name="L412" href="MultivariateNormalMixtureExpectationMaximization.html#L412">412</a>             mean /= data.length;
+<a class="jxr_linenumber" name="L413" href="MultivariateNormalMixtureExpectationMaximization.html#L413">413</a>         }
+<a class="jxr_linenumber" name="L414" href="MultivariateNormalMixtureExpectationMaximization.html#L414">414</a> 
+<a class="jxr_linenumber" name="L415" href="MultivariateNormalMixtureExpectationMaximization.html#L415">415</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L416" href="MultivariateNormalMixtureExpectationMaximization.html#L416">416</a> <em class="jxr_javadoccomment">         * Compare two data rows.</em>
+<a class="jxr_linenumber" name="L417" href="MultivariateNormalMixtureExpectationMaximization.html#L417">417</a> <em class="jxr_javadoccomment">         * @param other The other row</em>
+<a class="jxr_linenumber" name="L418" href="MultivariateNormalMixtureExpectationMaximization.html#L418">418</a> <em class="jxr_javadoccomment">         * @return int for sorting</em>
+<a class="jxr_linenumber" name="L419" href="MultivariateNormalMixtureExpectationMaximization.html#L419">419</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L420" href="MultivariateNormalMixtureExpectationMaximization.html#L420">420</a>         @Override
+<a class="jxr_linenumber" name="L421" href="MultivariateNormalMixtureExpectationMaximization.html#L421">421</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compareTo(<strong class="jxr_keyword">final</strong> <a href="MultivariateNormalMixtureExpectationMaximization.html">DataRow</a> other) {
+<a class="jxr_linenumber" name="L422" href="MultivariateNormalMixtureExpectationMaximization.html#L422">422</a>             <strong class="jxr_keyword">return</strong> mean.compareTo(other.mean);
+<a class="jxr_linenumber" name="L423" href="MultivariateNormalMixtureExpectationMaximization.html#L423">423</a>         }
+<a class="jxr_linenumber" name="L424" href="MultivariateNormalMixtureExpectationMaximization.html#L424">424</a> 
+<a class="jxr_linenumber" name="L425" href="MultivariateNormalMixtureExpectationMaximization.html#L425">425</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L426" href="MultivariateNormalMixtureExpectationMaximization.html#L426">426</a>         @Override
+<a class="jxr_linenumber" name="L427" href="MultivariateNormalMixtureExpectationMaximization.html#L427">427</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equals(Object other) {
+<a class="jxr_linenumber" name="L428" href="MultivariateNormalMixtureExpectationMaximization.html#L428">428</a> 
+<a class="jxr_linenumber" name="L429" href="MultivariateNormalMixtureExpectationMaximization.html#L429">429</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong> == other) {
+<a class="jxr_linenumber" name="L430" href="MultivariateNormalMixtureExpectationMaximization.html#L430">430</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L431" href="MultivariateNormalMixtureExpectationMaximization.html#L431">431</a>             }
+<a class="jxr_linenumber" name="L432" href="MultivariateNormalMixtureExpectationMaximization.html#L432">432</a> 
+<a class="jxr_linenumber" name="L433" href="MultivariateNormalMixtureExpectationMaximization.html#L433">433</a>             <strong class="jxr_keyword">if</strong> (other instanceof DataRow) {
+<a class="jxr_linenumber" name="L434" href="MultivariateNormalMixtureExpectationMaximization.html#L434">434</a>                 <strong class="jxr_keyword">return</strong> MathArrays.equals(row, ((DataRow) other).row);
+<a class="jxr_linenumber" name="L435" href="MultivariateNormalMixtureExpectationMaximization.html#L435">435</a>             }
+<a class="jxr_linenumber" name="L436" href="MultivariateNormalMixtureExpectationMaximization.html#L436">436</a> 
+<a class="jxr_linenumber" name="L437" href="MultivariateNormalMixtureExpectationMaximization.html#L437">437</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L438" href="MultivariateNormalMixtureExpectationMaximization.html#L438">438</a> 
+<a class="jxr_linenumber" name="L439" href="MultivariateNormalMixtureExpectationMaximization.html#L439">439</a>         }
+<a class="jxr_linenumber" name="L440" href="MultivariateNormalMixtureExpectationMaximization.html#L440">440</a> 
+<a class="jxr_linenumber" name="L441" href="MultivariateNormalMixtureExpectationMaximization.html#L441">441</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L442" href="MultivariateNormalMixtureExpectationMaximization.html#L442">442</a>         @Override
+<a class="jxr_linenumber" name="L443" href="MultivariateNormalMixtureExpectationMaximization.html#L443">443</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> hashCode() {
+<a class="jxr_linenumber" name="L444" href="MultivariateNormalMixtureExpectationMaximization.html#L444">444</a>             <strong class="jxr_keyword">return</strong> Arrays.hashCode(row);
+<a class="jxr_linenumber" name="L445" href="MultivariateNormalMixtureExpectationMaximization.html#L445">445</a>         }
+<a class="jxr_linenumber" name="L446" href="MultivariateNormalMixtureExpectationMaximization.html#L446">446</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L447" href="MultivariateNormalMixtureExpectationMaximization.html#L447">447</a> <em class="jxr_javadoccomment">         * Get a data row.</em>
+<a class="jxr_linenumber" name="L448" href="MultivariateNormalMixtureExpectationMaximization.html#L448">448</a> <em class="jxr_javadoccomment">         * @return data row array</em>
+<a class="jxr_linenumber" name="L449" href="MultivariateNormalMixtureExpectationMaximization.html#L449">449</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L450" href="MultivariateNormalMixtureExpectationMaximization.html#L450">450</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getRow() {
+<a class="jxr_linenumber" name="L451" href="MultivariateNormalMixtureExpectationMaximization.html#L451">451</a>             <strong class="jxr_keyword">return</strong> row;
+<a class="jxr_linenumber" name="L452" href="MultivariateNormalMixtureExpectationMaximization.html#L452">452</a>         }
+<a class="jxr_linenumber" name="L453" href="MultivariateNormalMixtureExpectationMaximization.html#L453">453</a>     }
+<a class="jxr_linenumber" name="L454" href="MultivariateNormalMixtureExpectationMaximization.html#L454">454</a> }
+<a class="jxr_linenumber" name="L455" href="MultivariateNormalMixtureExpectationMaximization.html#L455">455</a> 
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

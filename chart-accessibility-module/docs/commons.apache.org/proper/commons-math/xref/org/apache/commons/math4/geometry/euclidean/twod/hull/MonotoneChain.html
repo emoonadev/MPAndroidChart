@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>MonotoneChain xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../../../apidocs/org/apache/commons/math4/geometry/euclidean/twod/hull/MonotoneChain.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="MonotoneChain.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="MonotoneChain.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="MonotoneChain.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="MonotoneChain.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="MonotoneChain.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="MonotoneChain.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="MonotoneChain.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="MonotoneChain.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="MonotoneChain.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="MonotoneChain.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="MonotoneChain.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="MonotoneChain.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="MonotoneChain.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="MonotoneChain.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="MonotoneChain.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="MonotoneChain.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="MonotoneChain.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.geometry.euclidean.twod.hull;
+<a class="jxr_linenumber" name="L18" href="MonotoneChain.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="MonotoneChain.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L20" href="MonotoneChain.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.Collection;
+<a class="jxr_linenumber" name="L21" href="MonotoneChain.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L22" href="MonotoneChain.html#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.Comparator;
+<a class="jxr_linenumber" name="L23" href="MonotoneChain.html#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L24" href="MonotoneChain.html#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="MonotoneChain.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.euclidean.twod.Line;
+<a class="jxr_linenumber" name="L26" href="MonotoneChain.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.euclidean.twod.Vector2D;
+<a class="jxr_linenumber" name="L27" href="MonotoneChain.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L28" href="MonotoneChain.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Precision;
+<a class="jxr_linenumber" name="L29" href="MonotoneChain.html#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="MonotoneChain.html#L30">30</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L31" href="MonotoneChain.html#L31">31</a>  <em class="jxr_javadoccomment"> * Implements Andrew's monotone chain method to generate the convex hull of a finite set of</em>
+<a class="jxr_linenumber" name="L32" href="MonotoneChain.html#L32">32</a>  <em class="jxr_javadoccomment"> * points in the two-dimensional euclidean space.</em>
+<a class="jxr_linenumber" name="L33" href="MonotoneChain.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L34" href="MonotoneChain.html#L34">34</a>  <em class="jxr_javadoccomment"> * The runtime complexity is O(n log n), with n being the number of input points. If the</em>
+<a class="jxr_linenumber" name="L35" href="MonotoneChain.html#L35">35</a>  <em class="jxr_javadoccomment"> * point set is already sorted (by x-coordinate), the runtime complexity is O(n).</em>
+<a class="jxr_linenumber" name="L36" href="MonotoneChain.html#L36">36</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L37" href="MonotoneChain.html#L37">37</a>  <em class="jxr_javadoccomment"> * The implementation is not sensitive to collinear points on the hull. The parameter</em>
+<a class="jxr_linenumber" name="L38" href="MonotoneChain.html#L38">38</a>  <em class="jxr_javadoccomment"> * {@code includeCollinearPoints} allows to control the behavior with regard to collinear points.</em>
+<a class="jxr_linenumber" name="L39" href="MonotoneChain.html#L39">39</a>  <em class="jxr_javadoccomment"> * If {@code true}, all points on the boundary of the hull will be added to the hull vertices,</em>
+<a class="jxr_linenumber" name="L40" href="MonotoneChain.html#L40">40</a>  <em class="jxr_javadoccomment"> * otherwise only the extreme points will be present. By default, collinear points are not added</em>
+<a class="jxr_linenumber" name="L41" href="MonotoneChain.html#L41">41</a>  <em class="jxr_javadoccomment"> * as hull vertices.</em>
+<a class="jxr_linenumber" name="L42" href="MonotoneChain.html#L42">42</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L43" href="MonotoneChain.html#L43">43</a>  <em class="jxr_javadoccomment"> * The {@code tolerance} parameter (default: 1e-10) is used as epsilon criteria to determine</em>
+<a class="jxr_linenumber" name="L44" href="MonotoneChain.html#L44">44</a>  <em class="jxr_javadoccomment"> * identical and collinear points.</em>
+<a class="jxr_linenumber" name="L45" href="MonotoneChain.html#L45">45</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L46" href="MonotoneChain.html#L46">46</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain" target="alexandria_uri">http://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain</a>"&gt;</em>
+<a class="jxr_linenumber" name="L47" href="MonotoneChain.html#L47">47</a>  <em class="jxr_javadoccomment"> * Andrew's monotone chain algorithm (Wikibooks)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L48" href="MonotoneChain.html#L48">48</a>  <em class="jxr_javadoccomment"> * @since 3.3</em>
+<a class="jxr_linenumber" name="L49" href="MonotoneChain.html#L49">49</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L50" href="MonotoneChain.html#L50">50</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="MonotoneChain.html">MonotoneChain</a> <strong class="jxr_keyword">extends</strong> <a href="AbstractConvexHullGenerator2D.html">AbstractConvexHullGenerator2D</a> {
+<a class="jxr_linenumber" name="L51" href="MonotoneChain.html#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="MonotoneChain.html#L52">52</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L53" href="MonotoneChain.html#L53">53</a>  <em class="jxr_javadoccomment">     * Create a new MonotoneChain instance.</em>
+<a class="jxr_linenumber" name="L54" href="MonotoneChain.html#L54">54</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L55" href="MonotoneChain.html#L55">55</a>      <strong class="jxr_keyword">public</strong> <a href="MonotoneChain.html">MonotoneChain</a>() {
+<a class="jxr_linenumber" name="L56" href="MonotoneChain.html#L56">56</a>          <strong class="jxr_keyword">this</strong>(false);
+<a class="jxr_linenumber" name="L57" href="MonotoneChain.html#L57">57</a>      }
+<a class="jxr_linenumber" name="L58" href="MonotoneChain.html#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="MonotoneChain.html#L59">59</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L60" href="MonotoneChain.html#L60">60</a>  <em class="jxr_javadoccomment">     * Create a new MonotoneChain instance.</em>
+<a class="jxr_linenumber" name="L61" href="MonotoneChain.html#L61">61</a>  <em class="jxr_javadoccomment">     * @param includeCollinearPoints whether collinear points shall be added as hull vertices</em>
+<a class="jxr_linenumber" name="L62" href="MonotoneChain.html#L62">62</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L63" href="MonotoneChain.html#L63">63</a>      <strong class="jxr_keyword">public</strong> <a href="MonotoneChain.html">MonotoneChain</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> includeCollinearPoints) {
+<a class="jxr_linenumber" name="L64" href="MonotoneChain.html#L64">64</a>          <strong class="jxr_keyword">super</strong>(includeCollinearPoints);
+<a class="jxr_linenumber" name="L65" href="MonotoneChain.html#L65">65</a>      }
+<a class="jxr_linenumber" name="L66" href="MonotoneChain.html#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="MonotoneChain.html#L67">67</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L68" href="MonotoneChain.html#L68">68</a>  <em class="jxr_javadoccomment">     * Create a new MonotoneChain instance.</em>
+<a class="jxr_linenumber" name="L69" href="MonotoneChain.html#L69">69</a>  <em class="jxr_javadoccomment">     * @param includeCollinearPoints whether collinear points shall be added as hull vertices</em>
+<a class="jxr_linenumber" name="L70" href="MonotoneChain.html#L70">70</a>  <em class="jxr_javadoccomment">     * @param tolerance tolerance below which points are considered identical</em>
+<a class="jxr_linenumber" name="L71" href="MonotoneChain.html#L71">71</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L72" href="MonotoneChain.html#L72">72</a>      <strong class="jxr_keyword">public</strong> <a href="MonotoneChain.html">MonotoneChain</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> includeCollinearPoints, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tolerance) {
+<a class="jxr_linenumber" name="L73" href="MonotoneChain.html#L73">73</a>          <strong class="jxr_keyword">super</strong>(includeCollinearPoints, tolerance);
+<a class="jxr_linenumber" name="L74" href="MonotoneChain.html#L74">74</a>      }
+<a class="jxr_linenumber" name="L75" href="MonotoneChain.html#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="MonotoneChain.html#L76">76</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L77" href="MonotoneChain.html#L77">77</a>      @Override
+<a class="jxr_linenumber" name="L78" href="MonotoneChain.html#L78">78</a>      <strong class="jxr_keyword">public</strong> Collection&lt;Vector2D&gt; findHullVertices(<strong class="jxr_keyword">final</strong> Collection&lt;Vector2D&gt; points) {
+<a class="jxr_linenumber" name="L79" href="MonotoneChain.html#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="MonotoneChain.html#L80">80</a>          <strong class="jxr_keyword">final</strong> List&lt;Vector2D&gt; pointsSortedByXAxis = <strong class="jxr_keyword">new</strong> ArrayList&lt;Vector2D&gt;(points);
+<a class="jxr_linenumber" name="L81" href="MonotoneChain.html#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="MonotoneChain.html#L82">82</a>          <em class="jxr_comment">// sort the points in increasing order on the x-axis</em>
+<a class="jxr_linenumber" name="L83" href="MonotoneChain.html#L83">83</a>          Collections.sort(pointsSortedByXAxis, <strong class="jxr_keyword">new</strong> Comparator&lt;Vector2D&gt;() {
+<a class="jxr_linenumber" name="L84" href="MonotoneChain.html#L84">84</a>              <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L85" href="MonotoneChain.html#L85">85</a>              @Override
+<a class="jxr_linenumber" name="L86" href="MonotoneChain.html#L86">86</a>              <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compare(<strong class="jxr_keyword">final</strong> <a href="../Vector2D.html">Vector2D</a> o1, <strong class="jxr_keyword">final</strong> <a href="../Vector2D.html">Vector2D</a> o2) {
+<a class="jxr_linenumber" name="L87" href="MonotoneChain.html#L87">87</a>                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tolerance = getTolerance();
+<a class="jxr_linenumber" name="L88" href="MonotoneChain.html#L88">88</a>                  <em class="jxr_comment">// need to take the tolerance value into account, otherwise collinear points</em>
+<a class="jxr_linenumber" name="L89" href="MonotoneChain.html#L89">89</a>                  <em class="jxr_comment">// will not be handled correctly when building the upper/lower hull</em>
+<a class="jxr_linenumber" name="L90" href="MonotoneChain.html#L90">90</a>                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> diff = Precision.compareTo(o1.getX(), o2.getX(), tolerance);
+<a class="jxr_linenumber" name="L91" href="MonotoneChain.html#L91">91</a>                  <strong class="jxr_keyword">if</strong> (diff == 0) {
+<a class="jxr_linenumber" name="L92" href="MonotoneChain.html#L92">92</a>                      <strong class="jxr_keyword">return</strong> Precision.compareTo(o1.getY(), o2.getY(), tolerance);
+<a class="jxr_linenumber" name="L93" href="MonotoneChain.html#L93">93</a>                  } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L94" href="MonotoneChain.html#L94">94</a>                      <strong class="jxr_keyword">return</strong> diff;
+<a class="jxr_linenumber" name="L95" href="MonotoneChain.html#L95">95</a>                  }
+<a class="jxr_linenumber" name="L96" href="MonotoneChain.html#L96">96</a>              }
+<a class="jxr_linenumber" name="L97" href="MonotoneChain.html#L97">97</a>          });
+<a class="jxr_linenumber" name="L98" href="MonotoneChain.html#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="MonotoneChain.html#L99">99</a>          <em class="jxr_comment">// build lower hull</em>
+<a class="jxr_linenumber" name="L100" href="MonotoneChain.html#L100">100</a>         <strong class="jxr_keyword">final</strong> List&lt;Vector2D&gt; lowerHull = <strong class="jxr_keyword">new</strong> ArrayList&lt;Vector2D&gt;();
+<a class="jxr_linenumber" name="L101" href="MonotoneChain.html#L101">101</a>         <strong class="jxr_keyword">for</strong> (Vector2D p : pointsSortedByXAxis) {
+<a class="jxr_linenumber" name="L102" href="MonotoneChain.html#L102">102</a>             updateHull(p, lowerHull);
+<a class="jxr_linenumber" name="L103" href="MonotoneChain.html#L103">103</a>         }
+<a class="jxr_linenumber" name="L104" href="MonotoneChain.html#L104">104</a> 
+<a class="jxr_linenumber" name="L105" href="MonotoneChain.html#L105">105</a>         <em class="jxr_comment">// build upper hull</em>
+<a class="jxr_linenumber" name="L106" href="MonotoneChain.html#L106">106</a>         <strong class="jxr_keyword">final</strong> List&lt;Vector2D&gt; upperHull = <strong class="jxr_keyword">new</strong> ArrayList&lt;Vector2D&gt;();
+<a class="jxr_linenumber" name="L107" href="MonotoneChain.html#L107">107</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> idx = pointsSortedByXAxis.size() - 1; idx &gt;= 0; idx--) {
+<a class="jxr_linenumber" name="L108" href="MonotoneChain.html#L108">108</a>             <strong class="jxr_keyword">final</strong> <a href="../Vector2D.html">Vector2D</a> p = pointsSortedByXAxis.get(idx);
+<a class="jxr_linenumber" name="L109" href="MonotoneChain.html#L109">109</a>             updateHull(p, upperHull);
+<a class="jxr_linenumber" name="L110" href="MonotoneChain.html#L110">110</a>         }
+<a class="jxr_linenumber" name="L111" href="MonotoneChain.html#L111">111</a> 
+<a class="jxr_linenumber" name="L112" href="MonotoneChain.html#L112">112</a>         <em class="jxr_comment">// concatenate the lower and upper hulls</em>
+<a class="jxr_linenumber" name="L113" href="MonotoneChain.html#L113">113</a>         <em class="jxr_comment">// the last point of each list is omitted as it is repeated at the beginning of the other list</em>
+<a class="jxr_linenumber" name="L114" href="MonotoneChain.html#L114">114</a>         <strong class="jxr_keyword">final</strong> List&lt;Vector2D&gt; hullVertices = <strong class="jxr_keyword">new</strong> ArrayList&lt;Vector2D&gt;(lowerHull.size() + upperHull.size() - 2);
+<a class="jxr_linenumber" name="L115" href="MonotoneChain.html#L115">115</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> idx = 0; idx &lt; lowerHull.size() - 1; idx++) {
+<a class="jxr_linenumber" name="L116" href="MonotoneChain.html#L116">116</a>             hullVertices.add(lowerHull.get(idx));
+<a class="jxr_linenumber" name="L117" href="MonotoneChain.html#L117">117</a>         }
+<a class="jxr_linenumber" name="L118" href="MonotoneChain.html#L118">118</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> idx = 0; idx &lt; upperHull.size() - 1; idx++) {
+<a class="jxr_linenumber" name="L119" href="MonotoneChain.html#L119">119</a>             hullVertices.add(upperHull.get(idx));
+<a class="jxr_linenumber" name="L120" href="MonotoneChain.html#L120">120</a>         }
+<a class="jxr_linenumber" name="L121" href="MonotoneChain.html#L121">121</a> 
+<a class="jxr_linenumber" name="L122" href="MonotoneChain.html#L122">122</a>         <em class="jxr_comment">// special case: if the lower and upper hull may contain only 1 point if all are identical</em>
+<a class="jxr_linenumber" name="L123" href="MonotoneChain.html#L123">123</a>         <strong class="jxr_keyword">if</strong> (hullVertices.isEmpty() &amp;&amp; ! lowerHull.isEmpty()) {
+<a class="jxr_linenumber" name="L124" href="MonotoneChain.html#L124">124</a>             hullVertices.add(lowerHull.get(0));
+<a class="jxr_linenumber" name="L125" href="MonotoneChain.html#L125">125</a>         }
+<a class="jxr_linenumber" name="L126" href="MonotoneChain.html#L126">126</a> 
+<a class="jxr_linenumber" name="L127" href="MonotoneChain.html#L127">127</a>         <strong class="jxr_keyword">return</strong> hullVertices;
+<a class="jxr_linenumber" name="L128" href="MonotoneChain.html#L128">128</a>     }
+<a class="jxr_linenumber" name="L129" href="MonotoneChain.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="MonotoneChain.html#L130">130</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L131" href="MonotoneChain.html#L131">131</a> <em class="jxr_javadoccomment">     * Update the partial hull with the current point.</em>
+<a class="jxr_linenumber" name="L132" href="MonotoneChain.html#L132">132</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L133" href="MonotoneChain.html#L133">133</a> <em class="jxr_javadoccomment">     * @param point the current point</em>
+<a class="jxr_linenumber" name="L134" href="MonotoneChain.html#L134">134</a> <em class="jxr_javadoccomment">     * @param hull the partial hull</em>
+<a class="jxr_linenumber" name="L135" href="MonotoneChain.html#L135">135</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L136" href="MonotoneChain.html#L136">136</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> updateHull(<strong class="jxr_keyword">final</strong> <a href="../Vector2D.html">Vector2D</a> point, <strong class="jxr_keyword">final</strong> List&lt;Vector2D&gt; hull) {
+<a class="jxr_linenumber" name="L137" href="MonotoneChain.html#L137">137</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tolerance = getTolerance();
+<a class="jxr_linenumber" name="L138" href="MonotoneChain.html#L138">138</a> 
+<a class="jxr_linenumber" name="L139" href="MonotoneChain.html#L139">139</a>         <strong class="jxr_keyword">if</strong> (hull.size() == 1) {
+<a class="jxr_linenumber" name="L140" href="MonotoneChain.html#L140">140</a>             <em class="jxr_comment">// ensure that we do not add an identical point</em>
+<a class="jxr_linenumber" name="L141" href="MonotoneChain.html#L141">141</a>             <strong class="jxr_keyword">final</strong> <a href="../Vector2D.html">Vector2D</a> p1 = hull.get(0);
+<a class="jxr_linenumber" name="L142" href="MonotoneChain.html#L142">142</a>             <strong class="jxr_keyword">if</strong> (p1.distance(point) &lt; tolerance) {
+<a class="jxr_linenumber" name="L143" href="MonotoneChain.html#L143">143</a>                 <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L144" href="MonotoneChain.html#L144">144</a>             }
+<a class="jxr_linenumber" name="L145" href="MonotoneChain.html#L145">145</a>         }
+<a class="jxr_linenumber" name="L146" href="MonotoneChain.html#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="MonotoneChain.html#L147">147</a>         <strong class="jxr_keyword">while</strong> (hull.size() &gt;= 2) {
+<a class="jxr_linenumber" name="L148" href="MonotoneChain.html#L148">148</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> size = hull.size();
+<a class="jxr_linenumber" name="L149" href="MonotoneChain.html#L149">149</a>             <strong class="jxr_keyword">final</strong> <a href="../Vector2D.html">Vector2D</a> p1 = hull.get(size - 2);
+<a class="jxr_linenumber" name="L150" href="MonotoneChain.html#L150">150</a>             <strong class="jxr_keyword">final</strong> <a href="../Vector2D.html">Vector2D</a> p2 = hull.get(size - 1);
+<a class="jxr_linenumber" name="L151" href="MonotoneChain.html#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="MonotoneChain.html#L152">152</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> offset = <strong class="jxr_keyword">new</strong> <a href="../Line.html">Line</a>(p1, p2, tolerance).getOffset(point);
+<a class="jxr_linenumber" name="L153" href="MonotoneChain.html#L153">153</a>             <strong class="jxr_keyword">if</strong> (FastMath.abs(offset) &lt; tolerance) {
+<a class="jxr_linenumber" name="L154" href="MonotoneChain.html#L154">154</a>                 <em class="jxr_comment">// the point is collinear to the line (p1, p2)</em>
+<a class="jxr_linenumber" name="L155" href="MonotoneChain.html#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="MonotoneChain.html#L156">156</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> distanceToCurrent = p1.distance(point);
+<a class="jxr_linenumber" name="L157" href="MonotoneChain.html#L157">157</a>                 <strong class="jxr_keyword">if</strong> (distanceToCurrent &lt; tolerance || p2.distance(point) &lt; tolerance) {
+<a class="jxr_linenumber" name="L158" href="MonotoneChain.html#L158">158</a>                     <em class="jxr_comment">// the point is assumed to be identical to either p1 or p2</em>
+<a class="jxr_linenumber" name="L159" href="MonotoneChain.html#L159">159</a>                     <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L160" href="MonotoneChain.html#L160">160</a>                 }
+<a class="jxr_linenumber" name="L161" href="MonotoneChain.html#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="MonotoneChain.html#L162">162</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> distanceToLast = p1.distance(p2);
+<a class="jxr_linenumber" name="L163" href="MonotoneChain.html#L163">163</a>                 <strong class="jxr_keyword">if</strong> (isIncludeCollinearPoints()) {
+<a class="jxr_linenumber" name="L164" href="MonotoneChain.html#L164">164</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> index = distanceToCurrent &lt; distanceToLast ? size - 1 : size;
+<a class="jxr_linenumber" name="L165" href="MonotoneChain.html#L165">165</a>                     hull.add(index, point);
+<a class="jxr_linenumber" name="L166" href="MonotoneChain.html#L166">166</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L167" href="MonotoneChain.html#L167">167</a>                     <strong class="jxr_keyword">if</strong> (distanceToCurrent &gt; distanceToLast) {
+<a class="jxr_linenumber" name="L168" href="MonotoneChain.html#L168">168</a>                         hull.remove(size - 1);
+<a class="jxr_linenumber" name="L169" href="MonotoneChain.html#L169">169</a>                         hull.add(point);
+<a class="jxr_linenumber" name="L170" href="MonotoneChain.html#L170">170</a>                     }
+<a class="jxr_linenumber" name="L171" href="MonotoneChain.html#L171">171</a>                 }
+<a class="jxr_linenumber" name="L172" href="MonotoneChain.html#L172">172</a>                 <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L173" href="MonotoneChain.html#L173">173</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (offset &gt; 0) {
+<a class="jxr_linenumber" name="L174" href="MonotoneChain.html#L174">174</a>                 hull.remove(size - 1);
+<a class="jxr_linenumber" name="L175" href="MonotoneChain.html#L175">175</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L176" href="MonotoneChain.html#L176">176</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L177" href="MonotoneChain.html#L177">177</a>             }
+<a class="jxr_linenumber" name="L178" href="MonotoneChain.html#L178">178</a>         }
+<a class="jxr_linenumber" name="L179" href="MonotoneChain.html#L179">179</a>         hull.add(point);
+<a class="jxr_linenumber" name="L180" href="MonotoneChain.html#L180">180</a>     }
+<a class="jxr_linenumber" name="L181" href="MonotoneChain.html#L181">181</a> 
+<a class="jxr_linenumber" name="L182" href="MonotoneChain.html#L182">182</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

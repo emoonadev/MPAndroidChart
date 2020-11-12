@@ -1,0 +1,578 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>KMeansPlusPlusClusterer xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/ml/clustering/KMeansPlusPlusClusterer.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="KMeansPlusPlusClusterer.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="KMeansPlusPlusClusterer.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="KMeansPlusPlusClusterer.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="KMeansPlusPlusClusterer.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="KMeansPlusPlusClusterer.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="KMeansPlusPlusClusterer.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="KMeansPlusPlusClusterer.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="KMeansPlusPlusClusterer.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="KMeansPlusPlusClusterer.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="KMeansPlusPlusClusterer.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="KMeansPlusPlusClusterer.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="KMeansPlusPlusClusterer.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="KMeansPlusPlusClusterer.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="KMeansPlusPlusClusterer.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="KMeansPlusPlusClusterer.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="KMeansPlusPlusClusterer.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="KMeansPlusPlusClusterer.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="KMeansPlusPlusClusterer.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.ml.clustering;
+<a class="jxr_linenumber" name="L19" href="KMeansPlusPlusClusterer.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="KMeansPlusPlusClusterer.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L21" href="KMeansPlusPlusClusterer.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.Collection;
+<a class="jxr_linenumber" name="L22" href="KMeansPlusPlusClusterer.html#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L23" href="KMeansPlusPlusClusterer.html#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L24" href="KMeansPlusPlusClusterer.html#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="KMeansPlusPlusClusterer.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.ConvergenceException;
+<a class="jxr_linenumber" name="L26" href="KMeansPlusPlusClusterer.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L27" href="KMeansPlusPlusClusterer.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L28" href="KMeansPlusPlusClusterer.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L29" href="KMeansPlusPlusClusterer.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ml.distance.DistanceMeasure;
+<a class="jxr_linenumber" name="L30" href="KMeansPlusPlusClusterer.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ml.distance.EuclideanDistance;
+<a class="jxr_linenumber" name="L31" href="KMeansPlusPlusClusterer.html#L31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.RandomSource;
+<a class="jxr_linenumber" name="L32" href="KMeansPlusPlusClusterer.html#L32">32</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L33" href="KMeansPlusPlusClusterer.html#L33">33</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.descriptive.moment.Variance;
+<a class="jxr_linenumber" name="L34" href="KMeansPlusPlusClusterer.html#L34">34</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathUtils;
+<a class="jxr_linenumber" name="L35" href="KMeansPlusPlusClusterer.html#L35">35</a>  
+<a class="jxr_linenumber" name="L36" href="KMeansPlusPlusClusterer.html#L36">36</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L37" href="KMeansPlusPlusClusterer.html#L37">37</a>  <em class="jxr_javadoccomment"> * Clustering algorithm based on David Arthur and Sergei Vassilvitski k-means++ algorithm.</em>
+<a class="jxr_linenumber" name="L38" href="KMeansPlusPlusClusterer.html#L38">38</a>  <em class="jxr_javadoccomment"> * @param &lt;T&gt; type of the points to cluster</em>
+<a class="jxr_linenumber" name="L39" href="KMeansPlusPlusClusterer.html#L39">39</a>  <em class="jxr_javadoccomment"> * @see &lt;a href="<a href="http://en.wikipedia.org/wiki/K-means%2B%2B" target="alexandria_uri">http://en.wikipedia.org/wiki/K-means%2B%2B</a>"&gt;K-means++ (wikipedia)&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L40" href="KMeansPlusPlusClusterer.html#L40">40</a>  <em class="jxr_javadoccomment"> * @since 3.2</em>
+<a class="jxr_linenumber" name="L41" href="KMeansPlusPlusClusterer.html#L41">41</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L42" href="KMeansPlusPlusClusterer.html#L42">42</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> KMeansPlusPlusClusterer&lt;T <strong class="jxr_keyword">extends</strong> Clusterable&gt; <strong class="jxr_keyword">extends</strong> Clusterer&lt;T&gt; {
+<a class="jxr_linenumber" name="L43" href="KMeansPlusPlusClusterer.html#L43">43</a>  
+<a class="jxr_linenumber" name="L44" href="KMeansPlusPlusClusterer.html#L44">44</a>      <em class="jxr_javadoccomment">/** Strategies to use for replacing an empty cluster. */</em>
+<a class="jxr_linenumber" name="L45" href="KMeansPlusPlusClusterer.html#L45">45</a>      <strong class="jxr_keyword">public</strong> enum <a href="KMeansPlusPlusClusterer.html">EmptyClusterStrategy</a> {
+<a class="jxr_linenumber" name="L46" href="KMeansPlusPlusClusterer.html#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="KMeansPlusPlusClusterer.html#L47">47</a>          <em class="jxr_javadoccomment">/** Split the cluster with largest distance variance. */</em>
+<a class="jxr_linenumber" name="L48" href="KMeansPlusPlusClusterer.html#L48">48</a>          LARGEST_VARIANCE,
+<a class="jxr_linenumber" name="L49" href="KMeansPlusPlusClusterer.html#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="KMeansPlusPlusClusterer.html#L50">50</a>          <em class="jxr_javadoccomment">/** Split the cluster with largest number of points. */</em>
+<a class="jxr_linenumber" name="L51" href="KMeansPlusPlusClusterer.html#L51">51</a>          LARGEST_POINTS_NUMBER,
+<a class="jxr_linenumber" name="L52" href="KMeansPlusPlusClusterer.html#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="KMeansPlusPlusClusterer.html#L53">53</a>          <em class="jxr_javadoccomment">/** Create a cluster around the point farthest from its centroid. */</em>
+<a class="jxr_linenumber" name="L54" href="KMeansPlusPlusClusterer.html#L54">54</a>          FARTHEST_POINT,
+<a class="jxr_linenumber" name="L55" href="KMeansPlusPlusClusterer.html#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="KMeansPlusPlusClusterer.html#L56">56</a>          <em class="jxr_javadoccomment">/** Generate an error. */</em>
+<a class="jxr_linenumber" name="L57" href="KMeansPlusPlusClusterer.html#L57">57</a>          ERROR
+<a class="jxr_linenumber" name="L58" href="KMeansPlusPlusClusterer.html#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="KMeansPlusPlusClusterer.html#L59">59</a>      }
+<a class="jxr_linenumber" name="L60" href="KMeansPlusPlusClusterer.html#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="KMeansPlusPlusClusterer.html#L61">61</a>      <em class="jxr_javadoccomment">/** The number of clusters. */</em>
+<a class="jxr_linenumber" name="L62" href="KMeansPlusPlusClusterer.html#L62">62</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> k;
+<a class="jxr_linenumber" name="L63" href="KMeansPlusPlusClusterer.html#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="KMeansPlusPlusClusterer.html#L64">64</a>      <em class="jxr_javadoccomment">/** The maximum number of iterations. */</em>
+<a class="jxr_linenumber" name="L65" href="KMeansPlusPlusClusterer.html#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIterations;
+<a class="jxr_linenumber" name="L66" href="KMeansPlusPlusClusterer.html#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="KMeansPlusPlusClusterer.html#L67">67</a>      <em class="jxr_javadoccomment">/** Random generator for choosing initial centers. */</em>
+<a class="jxr_linenumber" name="L68" href="KMeansPlusPlusClusterer.html#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> UniformRandomProvider random;
+<a class="jxr_linenumber" name="L69" href="KMeansPlusPlusClusterer.html#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="KMeansPlusPlusClusterer.html#L70">70</a>      <em class="jxr_javadoccomment">/** Selected strategy for empty clusters. */</em>
+<a class="jxr_linenumber" name="L71" href="KMeansPlusPlusClusterer.html#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="KMeansPlusPlusClusterer.html">EmptyClusterStrategy</a> emptyStrategy;
+<a class="jxr_linenumber" name="L72" href="KMeansPlusPlusClusterer.html#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="KMeansPlusPlusClusterer.html#L73">73</a>      <em class="jxr_javadoccomment">/** Build a clusterer.</em>
+<a class="jxr_linenumber" name="L74" href="KMeansPlusPlusClusterer.html#L74">74</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L75" href="KMeansPlusPlusClusterer.html#L75">75</a>  <em class="jxr_javadoccomment">     * The default strategy for handling empty clusters that may appear during</em>
+<a class="jxr_linenumber" name="L76" href="KMeansPlusPlusClusterer.html#L76">76</a>  <em class="jxr_javadoccomment">     * algorithm iterations is to split the cluster with largest distance variance.</em>
+<a class="jxr_linenumber" name="L77" href="KMeansPlusPlusClusterer.html#L77">77</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L78" href="KMeansPlusPlusClusterer.html#L78">78</a>  <em class="jxr_javadoccomment">     * The euclidean distance will be used as default distance measure.</em>
+<a class="jxr_linenumber" name="L79" href="KMeansPlusPlusClusterer.html#L79">79</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L80" href="KMeansPlusPlusClusterer.html#L80">80</a>  <em class="jxr_javadoccomment">     * @param k the number of clusters to split the data into</em>
+<a class="jxr_linenumber" name="L81" href="KMeansPlusPlusClusterer.html#L81">81</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L82" href="KMeansPlusPlusClusterer.html#L82">82</a>      <strong class="jxr_keyword">public</strong> <a href="KMeansPlusPlusClusterer.html">KMeansPlusPlusClusterer</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> k) {
+<a class="jxr_linenumber" name="L83" href="KMeansPlusPlusClusterer.html#L83">83</a>          <strong class="jxr_keyword">this</strong>(k, -1);
+<a class="jxr_linenumber" name="L84" href="KMeansPlusPlusClusterer.html#L84">84</a>      }
+<a class="jxr_linenumber" name="L85" href="KMeansPlusPlusClusterer.html#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="KMeansPlusPlusClusterer.html#L86">86</a>      <em class="jxr_javadoccomment">/** Build a clusterer.</em>
+<a class="jxr_linenumber" name="L87" href="KMeansPlusPlusClusterer.html#L87">87</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L88" href="KMeansPlusPlusClusterer.html#L88">88</a>  <em class="jxr_javadoccomment">     * The default strategy for handling empty clusters that may appear during</em>
+<a class="jxr_linenumber" name="L89" href="KMeansPlusPlusClusterer.html#L89">89</a>  <em class="jxr_javadoccomment">     * algorithm iterations is to split the cluster with largest distance variance.</em>
+<a class="jxr_linenumber" name="L90" href="KMeansPlusPlusClusterer.html#L90">90</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L91" href="KMeansPlusPlusClusterer.html#L91">91</a>  <em class="jxr_javadoccomment">     * The euclidean distance will be used as default distance measure.</em>
+<a class="jxr_linenumber" name="L92" href="KMeansPlusPlusClusterer.html#L92">92</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L93" href="KMeansPlusPlusClusterer.html#L93">93</a>  <em class="jxr_javadoccomment">     * @param k the number of clusters to split the data into</em>
+<a class="jxr_linenumber" name="L94" href="KMeansPlusPlusClusterer.html#L94">94</a>  <em class="jxr_javadoccomment">     * @param maxIterations the maximum number of iterations to run the algorithm for.</em>
+<a class="jxr_linenumber" name="L95" href="KMeansPlusPlusClusterer.html#L95">95</a>  <em class="jxr_javadoccomment">     *   If negative, no maximum will be used.</em>
+<a class="jxr_linenumber" name="L96" href="KMeansPlusPlusClusterer.html#L96">96</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L97" href="KMeansPlusPlusClusterer.html#L97">97</a>      <strong class="jxr_keyword">public</strong> <a href="KMeansPlusPlusClusterer.html">KMeansPlusPlusClusterer</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> k, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIterations) {
+<a class="jxr_linenumber" name="L98" href="KMeansPlusPlusClusterer.html#L98">98</a>          <strong class="jxr_keyword">this</strong>(k, maxIterations, <strong class="jxr_keyword">new</strong> <a href="../distance/EuclideanDistance.html">EuclideanDistance</a>());
+<a class="jxr_linenumber" name="L99" href="KMeansPlusPlusClusterer.html#L99">99</a>      }
+<a class="jxr_linenumber" name="L100" href="KMeansPlusPlusClusterer.html#L100">100</a> 
+<a class="jxr_linenumber" name="L101" href="KMeansPlusPlusClusterer.html#L101">101</a>     <em class="jxr_javadoccomment">/** Build a clusterer.</em>
+<a class="jxr_linenumber" name="L102" href="KMeansPlusPlusClusterer.html#L102">102</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L103" href="KMeansPlusPlusClusterer.html#L103">103</a> <em class="jxr_javadoccomment">     * The default strategy for handling empty clusters that may appear during</em>
+<a class="jxr_linenumber" name="L104" href="KMeansPlusPlusClusterer.html#L104">104</a> <em class="jxr_javadoccomment">     * algorithm iterations is to split the cluster with largest distance variance.</em>
+<a class="jxr_linenumber" name="L105" href="KMeansPlusPlusClusterer.html#L105">105</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L106" href="KMeansPlusPlusClusterer.html#L106">106</a> <em class="jxr_javadoccomment">     * @param k the number of clusters to split the data into</em>
+<a class="jxr_linenumber" name="L107" href="KMeansPlusPlusClusterer.html#L107">107</a> <em class="jxr_javadoccomment">     * @param maxIterations the maximum number of iterations to run the algorithm for.</em>
+<a class="jxr_linenumber" name="L108" href="KMeansPlusPlusClusterer.html#L108">108</a> <em class="jxr_javadoccomment">     *   If negative, no maximum will be used.</em>
+<a class="jxr_linenumber" name="L109" href="KMeansPlusPlusClusterer.html#L109">109</a> <em class="jxr_javadoccomment">     * @param measure the distance measure to use</em>
+<a class="jxr_linenumber" name="L110" href="KMeansPlusPlusClusterer.html#L110">110</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L111" href="KMeansPlusPlusClusterer.html#L111">111</a>     <strong class="jxr_keyword">public</strong> <a href="KMeansPlusPlusClusterer.html">KMeansPlusPlusClusterer</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> k, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIterations, <strong class="jxr_keyword">final</strong> <a href="../distance/DistanceMeasure.html">DistanceMeasure</a> measure) {
+<a class="jxr_linenumber" name="L112" href="KMeansPlusPlusClusterer.html#L112">112</a>         <strong class="jxr_keyword">this</strong>(k, maxIterations, measure, RandomSource.create(RandomSource.MT_64));
+<a class="jxr_linenumber" name="L113" href="KMeansPlusPlusClusterer.html#L113">113</a>     }
+<a class="jxr_linenumber" name="L114" href="KMeansPlusPlusClusterer.html#L114">114</a> 
+<a class="jxr_linenumber" name="L115" href="KMeansPlusPlusClusterer.html#L115">115</a>     <em class="jxr_javadoccomment">/** Build a clusterer.</em>
+<a class="jxr_linenumber" name="L116" href="KMeansPlusPlusClusterer.html#L116">116</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L117" href="KMeansPlusPlusClusterer.html#L117">117</a> <em class="jxr_javadoccomment">     * The default strategy for handling empty clusters that may appear during</em>
+<a class="jxr_linenumber" name="L118" href="KMeansPlusPlusClusterer.html#L118">118</a> <em class="jxr_javadoccomment">     * algorithm iterations is to split the cluster with largest distance variance.</em>
+<a class="jxr_linenumber" name="L119" href="KMeansPlusPlusClusterer.html#L119">119</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L120" href="KMeansPlusPlusClusterer.html#L120">120</a> <em class="jxr_javadoccomment">     * @param k the number of clusters to split the data into</em>
+<a class="jxr_linenumber" name="L121" href="KMeansPlusPlusClusterer.html#L121">121</a> <em class="jxr_javadoccomment">     * @param maxIterations the maximum number of iterations to run the algorithm for.</em>
+<a class="jxr_linenumber" name="L122" href="KMeansPlusPlusClusterer.html#L122">122</a> <em class="jxr_javadoccomment">     *   If negative, no maximum will be used.</em>
+<a class="jxr_linenumber" name="L123" href="KMeansPlusPlusClusterer.html#L123">123</a> <em class="jxr_javadoccomment">     * @param measure the distance measure to use</em>
+<a class="jxr_linenumber" name="L124" href="KMeansPlusPlusClusterer.html#L124">124</a> <em class="jxr_javadoccomment">     * @param random random generator to use for choosing initial centers</em>
+<a class="jxr_linenumber" name="L125" href="KMeansPlusPlusClusterer.html#L125">125</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L126" href="KMeansPlusPlusClusterer.html#L126">126</a>     <strong class="jxr_keyword">public</strong> <a href="KMeansPlusPlusClusterer.html">KMeansPlusPlusClusterer</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> k, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIterations,
+<a class="jxr_linenumber" name="L127" href="KMeansPlusPlusClusterer.html#L127">127</a>                                    <strong class="jxr_keyword">final</strong> <a href="../distance/DistanceMeasure.html">DistanceMeasure</a> measure,
+<a class="jxr_linenumber" name="L128" href="KMeansPlusPlusClusterer.html#L128">128</a>                                    <strong class="jxr_keyword">final</strong> UniformRandomProvider random) {
+<a class="jxr_linenumber" name="L129" href="KMeansPlusPlusClusterer.html#L129">129</a>         <strong class="jxr_keyword">this</strong>(k, maxIterations, measure, random, EmptyClusterStrategy.LARGEST_VARIANCE);
+<a class="jxr_linenumber" name="L130" href="KMeansPlusPlusClusterer.html#L130">130</a>     }
+<a class="jxr_linenumber" name="L131" href="KMeansPlusPlusClusterer.html#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="KMeansPlusPlusClusterer.html#L132">132</a>     <em class="jxr_javadoccomment">/** Build a clusterer.</em>
+<a class="jxr_linenumber" name="L133" href="KMeansPlusPlusClusterer.html#L133">133</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L134" href="KMeansPlusPlusClusterer.html#L134">134</a> <em class="jxr_javadoccomment">     * @param k the number of clusters to split the data into</em>
+<a class="jxr_linenumber" name="L135" href="KMeansPlusPlusClusterer.html#L135">135</a> <em class="jxr_javadoccomment">     * @param maxIterations the maximum number of iterations to run the algorithm for.</em>
+<a class="jxr_linenumber" name="L136" href="KMeansPlusPlusClusterer.html#L136">136</a> <em class="jxr_javadoccomment">     *   If negative, no maximum will be used.</em>
+<a class="jxr_linenumber" name="L137" href="KMeansPlusPlusClusterer.html#L137">137</a> <em class="jxr_javadoccomment">     * @param measure the distance measure to use</em>
+<a class="jxr_linenumber" name="L138" href="KMeansPlusPlusClusterer.html#L138">138</a> <em class="jxr_javadoccomment">     * @param random random generator to use for choosing initial centers</em>
+<a class="jxr_linenumber" name="L139" href="KMeansPlusPlusClusterer.html#L139">139</a> <em class="jxr_javadoccomment">     * @param emptyStrategy strategy to use for handling empty clusters that</em>
+<a class="jxr_linenumber" name="L140" href="KMeansPlusPlusClusterer.html#L140">140</a> <em class="jxr_javadoccomment">     * may appear during algorithm iterations</em>
+<a class="jxr_linenumber" name="L141" href="KMeansPlusPlusClusterer.html#L141">141</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L142" href="KMeansPlusPlusClusterer.html#L142">142</a>     <strong class="jxr_keyword">public</strong> <a href="KMeansPlusPlusClusterer.html">KMeansPlusPlusClusterer</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> k, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> maxIterations,
+<a class="jxr_linenumber" name="L143" href="KMeansPlusPlusClusterer.html#L143">143</a>                                    <strong class="jxr_keyword">final</strong> <a href="../distance/DistanceMeasure.html">DistanceMeasure</a> measure,
+<a class="jxr_linenumber" name="L144" href="KMeansPlusPlusClusterer.html#L144">144</a>                                    <strong class="jxr_keyword">final</strong> UniformRandomProvider random,
+<a class="jxr_linenumber" name="L145" href="KMeansPlusPlusClusterer.html#L145">145</a>                                    <strong class="jxr_keyword">final</strong> <a href="KMeansPlusPlusClusterer.html">EmptyClusterStrategy</a> emptyStrategy) {
+<a class="jxr_linenumber" name="L146" href="KMeansPlusPlusClusterer.html#L146">146</a>         <strong class="jxr_keyword">super</strong>(measure);
+<a class="jxr_linenumber" name="L147" href="KMeansPlusPlusClusterer.html#L147">147</a>         <strong class="jxr_keyword">this</strong>.k             = k;
+<a class="jxr_linenumber" name="L148" href="KMeansPlusPlusClusterer.html#L148">148</a>         <strong class="jxr_keyword">this</strong>.maxIterations = maxIterations;
+<a class="jxr_linenumber" name="L149" href="KMeansPlusPlusClusterer.html#L149">149</a>         <strong class="jxr_keyword">this</strong>.random        = random;
+<a class="jxr_linenumber" name="L150" href="KMeansPlusPlusClusterer.html#L150">150</a>         <strong class="jxr_keyword">this</strong>.emptyStrategy = emptyStrategy;
+<a class="jxr_linenumber" name="L151" href="KMeansPlusPlusClusterer.html#L151">151</a>     }
+<a class="jxr_linenumber" name="L152" href="KMeansPlusPlusClusterer.html#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="KMeansPlusPlusClusterer.html#L153">153</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L154" href="KMeansPlusPlusClusterer.html#L154">154</a> <em class="jxr_javadoccomment">     * Return the number of clusters this instance will use.</em>
+<a class="jxr_linenumber" name="L155" href="KMeansPlusPlusClusterer.html#L155">155</a> <em class="jxr_javadoccomment">     * @return the number of clusters</em>
+<a class="jxr_linenumber" name="L156" href="KMeansPlusPlusClusterer.html#L156">156</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L157" href="KMeansPlusPlusClusterer.html#L157">157</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getK() {
+<a class="jxr_linenumber" name="L158" href="KMeansPlusPlusClusterer.html#L158">158</a>         <strong class="jxr_keyword">return</strong> k;
+<a class="jxr_linenumber" name="L159" href="KMeansPlusPlusClusterer.html#L159">159</a>     }
+<a class="jxr_linenumber" name="L160" href="KMeansPlusPlusClusterer.html#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="KMeansPlusPlusClusterer.html#L161">161</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L162" href="KMeansPlusPlusClusterer.html#L162">162</a> <em class="jxr_javadoccomment">     * Returns the maximum number of iterations this instance will use.</em>
+<a class="jxr_linenumber" name="L163" href="KMeansPlusPlusClusterer.html#L163">163</a> <em class="jxr_javadoccomment">     * @return the maximum number of iterations, or -1 if no maximum is set</em>
+<a class="jxr_linenumber" name="L164" href="KMeansPlusPlusClusterer.html#L164">164</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L165" href="KMeansPlusPlusClusterer.html#L165">165</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getMaxIterations() {
+<a class="jxr_linenumber" name="L166" href="KMeansPlusPlusClusterer.html#L166">166</a>         <strong class="jxr_keyword">return</strong> maxIterations;
+<a class="jxr_linenumber" name="L167" href="KMeansPlusPlusClusterer.html#L167">167</a>     }
+<a class="jxr_linenumber" name="L168" href="KMeansPlusPlusClusterer.html#L168">168</a> 
+<a class="jxr_linenumber" name="L169" href="KMeansPlusPlusClusterer.html#L169">169</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L170" href="KMeansPlusPlusClusterer.html#L170">170</a> <em class="jxr_javadoccomment">     * Returns the random generator this instance will use.</em>
+<a class="jxr_linenumber" name="L171" href="KMeansPlusPlusClusterer.html#L171">171</a> <em class="jxr_javadoccomment">     * @return the random generator</em>
+<a class="jxr_linenumber" name="L172" href="KMeansPlusPlusClusterer.html#L172">172</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L173" href="KMeansPlusPlusClusterer.html#L173">173</a>     <strong class="jxr_keyword">public</strong> UniformRandomProvider getRandomGenerator() {
+<a class="jxr_linenumber" name="L174" href="KMeansPlusPlusClusterer.html#L174">174</a>         <strong class="jxr_keyword">return</strong> random;
+<a class="jxr_linenumber" name="L175" href="KMeansPlusPlusClusterer.html#L175">175</a>     }
+<a class="jxr_linenumber" name="L176" href="KMeansPlusPlusClusterer.html#L176">176</a> 
+<a class="jxr_linenumber" name="L177" href="KMeansPlusPlusClusterer.html#L177">177</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L178" href="KMeansPlusPlusClusterer.html#L178">178</a> <em class="jxr_javadoccomment">     * Returns the {@link EmptyClusterStrategy} used by this instance.</em>
+<a class="jxr_linenumber" name="L179" href="KMeansPlusPlusClusterer.html#L179">179</a> <em class="jxr_javadoccomment">     * @return the {@link EmptyClusterStrategy}</em>
+<a class="jxr_linenumber" name="L180" href="KMeansPlusPlusClusterer.html#L180">180</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L181" href="KMeansPlusPlusClusterer.html#L181">181</a>     <strong class="jxr_keyword">public</strong> <a href="KMeansPlusPlusClusterer.html">EmptyClusterStrategy</a> getEmptyClusterStrategy() {
+<a class="jxr_linenumber" name="L182" href="KMeansPlusPlusClusterer.html#L182">182</a>         <strong class="jxr_keyword">return</strong> emptyStrategy;
+<a class="jxr_linenumber" name="L183" href="KMeansPlusPlusClusterer.html#L183">183</a>     }
+<a class="jxr_linenumber" name="L184" href="KMeansPlusPlusClusterer.html#L184">184</a> 
+<a class="jxr_linenumber" name="L185" href="KMeansPlusPlusClusterer.html#L185">185</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L186" href="KMeansPlusPlusClusterer.html#L186">186</a> <em class="jxr_javadoccomment">     * Runs the K-means++ clustering algorithm.</em>
+<a class="jxr_linenumber" name="L187" href="KMeansPlusPlusClusterer.html#L187">187</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L188" href="KMeansPlusPlusClusterer.html#L188">188</a> <em class="jxr_javadoccomment">     * @param points the points to cluster</em>
+<a class="jxr_linenumber" name="L189" href="KMeansPlusPlusClusterer.html#L189">189</a> <em class="jxr_javadoccomment">     * @return a list of clusters containing the points</em>
+<a class="jxr_linenumber" name="L190" href="KMeansPlusPlusClusterer.html#L190">190</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the data points are null or the number</em>
+<a class="jxr_linenumber" name="L191" href="KMeansPlusPlusClusterer.html#L191">191</a> <em class="jxr_javadoccomment">     *     of clusters is larger than the number of data points</em>
+<a class="jxr_linenumber" name="L192" href="KMeansPlusPlusClusterer.html#L192">192</a> <em class="jxr_javadoccomment">     * @throws ConvergenceException if an empty cluster is encountered and the</em>
+<a class="jxr_linenumber" name="L193" href="KMeansPlusPlusClusterer.html#L193">193</a> <em class="jxr_javadoccomment">     * {@link #emptyStrategy} is set to {@code ERROR}</em>
+<a class="jxr_linenumber" name="L194" href="KMeansPlusPlusClusterer.html#L194">194</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L195" href="KMeansPlusPlusClusterer.html#L195">195</a>     @Override
+<a class="jxr_linenumber" name="L196" href="KMeansPlusPlusClusterer.html#L196">196</a>     <strong class="jxr_keyword">public</strong> List&lt;CentroidCluster&lt;T&gt;&gt; cluster(<strong class="jxr_keyword">final</strong> Collection&lt;T&gt; points)
+<a class="jxr_linenumber" name="L197" href="KMeansPlusPlusClusterer.html#L197">197</a>         <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException, <a href="../../exception/ConvergenceException.html">ConvergenceException</a> {
+<a class="jxr_linenumber" name="L198" href="KMeansPlusPlusClusterer.html#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="KMeansPlusPlusClusterer.html#L199">199</a>         <em class="jxr_comment">// sanity checks</em>
+<a class="jxr_linenumber" name="L200" href="KMeansPlusPlusClusterer.html#L200">200</a>         MathUtils.checkNotNull(points);
+<a class="jxr_linenumber" name="L201" href="KMeansPlusPlusClusterer.html#L201">201</a> 
+<a class="jxr_linenumber" name="L202" href="KMeansPlusPlusClusterer.html#L202">202</a>         <em class="jxr_comment">// number of clusters has to be smaller or equal the number of data points</em>
+<a class="jxr_linenumber" name="L203" href="KMeansPlusPlusClusterer.html#L203">203</a>         <strong class="jxr_keyword">if</strong> (points.size() &lt; k) {
+<a class="jxr_linenumber" name="L204" href="KMeansPlusPlusClusterer.html#L204">204</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(points.size(), k, false);
+<a class="jxr_linenumber" name="L205" href="KMeansPlusPlusClusterer.html#L205">205</a>         }
+<a class="jxr_linenumber" name="L206" href="KMeansPlusPlusClusterer.html#L206">206</a> 
+<a class="jxr_linenumber" name="L207" href="KMeansPlusPlusClusterer.html#L207">207</a>         <em class="jxr_comment">// create the initial clusters</em>
+<a class="jxr_linenumber" name="L208" href="KMeansPlusPlusClusterer.html#L208">208</a>         List&lt;CentroidCluster&lt;T&gt;&gt; clusters = chooseInitialCenters(points);
+<a class="jxr_linenumber" name="L209" href="KMeansPlusPlusClusterer.html#L209">209</a> 
+<a class="jxr_linenumber" name="L210" href="KMeansPlusPlusClusterer.html#L210">210</a>         <em class="jxr_comment">// create an array containing the latest assignment of a point to a cluster</em>
+<a class="jxr_linenumber" name="L211" href="KMeansPlusPlusClusterer.html#L211">211</a>         <em class="jxr_comment">// no need to initialize the array, as it will be filled with the first assignment</em>
+<a class="jxr_linenumber" name="L212" href="KMeansPlusPlusClusterer.html#L212">212</a>         <strong class="jxr_keyword">int</strong>[] assignments = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[points.size()];
+<a class="jxr_linenumber" name="L213" href="KMeansPlusPlusClusterer.html#L213">213</a>         assignPointsToClusters(clusters, points, assignments);
+<a class="jxr_linenumber" name="L214" href="KMeansPlusPlusClusterer.html#L214">214</a> 
+<a class="jxr_linenumber" name="L215" href="KMeansPlusPlusClusterer.html#L215">215</a>         <em class="jxr_comment">// iterate through updating the centers until we're done</em>
+<a class="jxr_linenumber" name="L216" href="KMeansPlusPlusClusterer.html#L216">216</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> max = (maxIterations &lt; 0) ? Integer.MAX_VALUE : maxIterations;
+<a class="jxr_linenumber" name="L217" href="KMeansPlusPlusClusterer.html#L217">217</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> count = 0; count &lt; max; count++) {
+<a class="jxr_linenumber" name="L218" href="KMeansPlusPlusClusterer.html#L218">218</a>             <strong class="jxr_keyword">boolean</strong> emptyCluster = false;
+<a class="jxr_linenumber" name="L219" href="KMeansPlusPlusClusterer.html#L219">219</a>             List&lt;CentroidCluster&lt;T&gt;&gt; newClusters = <strong class="jxr_keyword">new</strong> ArrayList&lt;CentroidCluster&lt;T&gt;&gt;();
+<a class="jxr_linenumber" name="L220" href="KMeansPlusPlusClusterer.html#L220">220</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> CentroidCluster&lt;T&gt; cluster : clusters) {
+<a class="jxr_linenumber" name="L221" href="KMeansPlusPlusClusterer.html#L221">221</a>                 <strong class="jxr_keyword">final</strong> <a href="Clusterable.html">Clusterable</a> newCenter;
+<a class="jxr_linenumber" name="L222" href="KMeansPlusPlusClusterer.html#L222">222</a>                 <strong class="jxr_keyword">if</strong> (cluster.getPoints().isEmpty()) {
+<a class="jxr_linenumber" name="L223" href="KMeansPlusPlusClusterer.html#L223">223</a>                     <strong class="jxr_keyword">switch</strong> (emptyStrategy) {
+<a class="jxr_linenumber" name="L224" href="KMeansPlusPlusClusterer.html#L224">224</a>                         <strong class="jxr_keyword">case</strong> LARGEST_VARIANCE :
+<a class="jxr_linenumber" name="L225" href="KMeansPlusPlusClusterer.html#L225">225</a>                             newCenter = getPointFromLargestVarianceCluster(clusters);
+<a class="jxr_linenumber" name="L226" href="KMeansPlusPlusClusterer.html#L226">226</a>                             <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L227" href="KMeansPlusPlusClusterer.html#L227">227</a>                         <strong class="jxr_keyword">case</strong> LARGEST_POINTS_NUMBER :
+<a class="jxr_linenumber" name="L228" href="KMeansPlusPlusClusterer.html#L228">228</a>                             newCenter = getPointFromLargestNumberCluster(clusters);
+<a class="jxr_linenumber" name="L229" href="KMeansPlusPlusClusterer.html#L229">229</a>                             <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L230" href="KMeansPlusPlusClusterer.html#L230">230</a>                         <strong class="jxr_keyword">case</strong> FARTHEST_POINT :
+<a class="jxr_linenumber" name="L231" href="KMeansPlusPlusClusterer.html#L231">231</a>                             newCenter = getFarthestPoint(clusters);
+<a class="jxr_linenumber" name="L232" href="KMeansPlusPlusClusterer.html#L232">232</a>                             <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L233" href="KMeansPlusPlusClusterer.html#L233">233</a>                         <strong class="jxr_keyword">default</strong> :
+<a class="jxr_linenumber" name="L234" href="KMeansPlusPlusClusterer.html#L234">234</a>                             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/ConvergenceException.html">ConvergenceException</a>(LocalizedFormats.EMPTY_CLUSTER_IN_K_MEANS);
+<a class="jxr_linenumber" name="L235" href="KMeansPlusPlusClusterer.html#L235">235</a>                     }
+<a class="jxr_linenumber" name="L236" href="KMeansPlusPlusClusterer.html#L236">236</a>                     emptyCluster = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L237" href="KMeansPlusPlusClusterer.html#L237">237</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L238" href="KMeansPlusPlusClusterer.html#L238">238</a>                     newCenter = centroidOf(cluster.getPoints(), cluster.getCenter().getPoint().length);
+<a class="jxr_linenumber" name="L239" href="KMeansPlusPlusClusterer.html#L239">239</a>                 }
+<a class="jxr_linenumber" name="L240" href="KMeansPlusPlusClusterer.html#L240">240</a>                 newClusters.add(<strong class="jxr_keyword">new</strong> CentroidCluster&lt;T&gt;(newCenter));
+<a class="jxr_linenumber" name="L241" href="KMeansPlusPlusClusterer.html#L241">241</a>             }
+<a class="jxr_linenumber" name="L242" href="KMeansPlusPlusClusterer.html#L242">242</a>             <strong class="jxr_keyword">int</strong> changes = assignPointsToClusters(newClusters, points, assignments);
+<a class="jxr_linenumber" name="L243" href="KMeansPlusPlusClusterer.html#L243">243</a>             clusters = newClusters;
+<a class="jxr_linenumber" name="L244" href="KMeansPlusPlusClusterer.html#L244">244</a> 
+<a class="jxr_linenumber" name="L245" href="KMeansPlusPlusClusterer.html#L245">245</a>             <em class="jxr_comment">// if there were no more changes in the point-to-cluster assignment</em>
+<a class="jxr_linenumber" name="L246" href="KMeansPlusPlusClusterer.html#L246">246</a>             <em class="jxr_comment">// and there are no empty clusters left, return the current clusters</em>
+<a class="jxr_linenumber" name="L247" href="KMeansPlusPlusClusterer.html#L247">247</a>             <strong class="jxr_keyword">if</strong> (changes == 0 &amp;&amp; !emptyCluster) {
+<a class="jxr_linenumber" name="L248" href="KMeansPlusPlusClusterer.html#L248">248</a>                 <strong class="jxr_keyword">return</strong> clusters;
+<a class="jxr_linenumber" name="L249" href="KMeansPlusPlusClusterer.html#L249">249</a>             }
+<a class="jxr_linenumber" name="L250" href="KMeansPlusPlusClusterer.html#L250">250</a>         }
+<a class="jxr_linenumber" name="L251" href="KMeansPlusPlusClusterer.html#L251">251</a>         <strong class="jxr_keyword">return</strong> clusters;
+<a class="jxr_linenumber" name="L252" href="KMeansPlusPlusClusterer.html#L252">252</a>     }
+<a class="jxr_linenumber" name="L253" href="KMeansPlusPlusClusterer.html#L253">253</a> 
+<a class="jxr_linenumber" name="L254" href="KMeansPlusPlusClusterer.html#L254">254</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L255" href="KMeansPlusPlusClusterer.html#L255">255</a> <em class="jxr_javadoccomment">     * Adds the given points to the closest {@link Cluster}.</em>
+<a class="jxr_linenumber" name="L256" href="KMeansPlusPlusClusterer.html#L256">256</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L257" href="KMeansPlusPlusClusterer.html#L257">257</a> <em class="jxr_javadoccomment">     * @param clusters the {@link Cluster}s to add the points to</em>
+<a class="jxr_linenumber" name="L258" href="KMeansPlusPlusClusterer.html#L258">258</a> <em class="jxr_javadoccomment">     * @param points the points to add to the given {@link Cluster}s</em>
+<a class="jxr_linenumber" name="L259" href="KMeansPlusPlusClusterer.html#L259">259</a> <em class="jxr_javadoccomment">     * @param assignments points assignments to clusters</em>
+<a class="jxr_linenumber" name="L260" href="KMeansPlusPlusClusterer.html#L260">260</a> <em class="jxr_javadoccomment">     * @return the number of points assigned to different clusters as the iteration before</em>
+<a class="jxr_linenumber" name="L261" href="KMeansPlusPlusClusterer.html#L261">261</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L262" href="KMeansPlusPlusClusterer.html#L262">262</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> assignPointsToClusters(<strong class="jxr_keyword">final</strong> List&lt;CentroidCluster&lt;T&gt;&gt; clusters,
+<a class="jxr_linenumber" name="L263" href="KMeansPlusPlusClusterer.html#L263">263</a>                                        <strong class="jxr_keyword">final</strong> Collection&lt;T&gt; points,
+<a class="jxr_linenumber" name="L264" href="KMeansPlusPlusClusterer.html#L264">264</a>                                        <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] assignments) {
+<a class="jxr_linenumber" name="L265" href="KMeansPlusPlusClusterer.html#L265">265</a>         <strong class="jxr_keyword">int</strong> assignedDifferently = 0;
+<a class="jxr_linenumber" name="L266" href="KMeansPlusPlusClusterer.html#L266">266</a>         <strong class="jxr_keyword">int</strong> pointIndex = 0;
+<a class="jxr_linenumber" name="L267" href="KMeansPlusPlusClusterer.html#L267">267</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> T p : points) {
+<a class="jxr_linenumber" name="L268" href="KMeansPlusPlusClusterer.html#L268">268</a>             <strong class="jxr_keyword">int</strong> clusterIndex = getNearestCluster(clusters, p);
+<a class="jxr_linenumber" name="L269" href="KMeansPlusPlusClusterer.html#L269">269</a>             <strong class="jxr_keyword">if</strong> (clusterIndex != assignments[pointIndex]) {
+<a class="jxr_linenumber" name="L270" href="KMeansPlusPlusClusterer.html#L270">270</a>                 assignedDifferently++;
+<a class="jxr_linenumber" name="L271" href="KMeansPlusPlusClusterer.html#L271">271</a>             }
+<a class="jxr_linenumber" name="L272" href="KMeansPlusPlusClusterer.html#L272">272</a> 
+<a class="jxr_linenumber" name="L273" href="KMeansPlusPlusClusterer.html#L273">273</a>             CentroidCluster&lt;T&gt; cluster = clusters.get(clusterIndex);
+<a class="jxr_linenumber" name="L274" href="KMeansPlusPlusClusterer.html#L274">274</a>             cluster.addPoint(p);
+<a class="jxr_linenumber" name="L275" href="KMeansPlusPlusClusterer.html#L275">275</a>             assignments[pointIndex++] = clusterIndex;
+<a class="jxr_linenumber" name="L276" href="KMeansPlusPlusClusterer.html#L276">276</a>         }
+<a class="jxr_linenumber" name="L277" href="KMeansPlusPlusClusterer.html#L277">277</a> 
+<a class="jxr_linenumber" name="L278" href="KMeansPlusPlusClusterer.html#L278">278</a>         <strong class="jxr_keyword">return</strong> assignedDifferently;
+<a class="jxr_linenumber" name="L279" href="KMeansPlusPlusClusterer.html#L279">279</a>     }
+<a class="jxr_linenumber" name="L280" href="KMeansPlusPlusClusterer.html#L280">280</a> 
+<a class="jxr_linenumber" name="L281" href="KMeansPlusPlusClusterer.html#L281">281</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L282" href="KMeansPlusPlusClusterer.html#L282">282</a> <em class="jxr_javadoccomment">     * Use K-means++ to choose the initial centers.</em>
+<a class="jxr_linenumber" name="L283" href="KMeansPlusPlusClusterer.html#L283">283</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L284" href="KMeansPlusPlusClusterer.html#L284">284</a> <em class="jxr_javadoccomment">     * @param points the points to choose the initial centers from</em>
+<a class="jxr_linenumber" name="L285" href="KMeansPlusPlusClusterer.html#L285">285</a> <em class="jxr_javadoccomment">     * @return the initial centers</em>
+<a class="jxr_linenumber" name="L286" href="KMeansPlusPlusClusterer.html#L286">286</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L287" href="KMeansPlusPlusClusterer.html#L287">287</a>     <strong class="jxr_keyword">private</strong> List&lt;CentroidCluster&lt;T&gt;&gt; chooseInitialCenters(<strong class="jxr_keyword">final</strong> Collection&lt;T&gt; points) {
+<a class="jxr_linenumber" name="L288" href="KMeansPlusPlusClusterer.html#L288">288</a> 
+<a class="jxr_linenumber" name="L289" href="KMeansPlusPlusClusterer.html#L289">289</a>         <em class="jxr_comment">// Convert to list for indexed access. Make it unmodifiable, since removal of items</em>
+<a class="jxr_linenumber" name="L290" href="KMeansPlusPlusClusterer.html#L290">290</a>         <em class="jxr_comment">// would screw up the logic of this method.</em>
+<a class="jxr_linenumber" name="L291" href="KMeansPlusPlusClusterer.html#L291">291</a>         <strong class="jxr_keyword">final</strong> List&lt;T&gt; pointList = Collections.unmodifiableList(<strong class="jxr_keyword">new</strong> ArrayList&lt;T&gt; (points));
+<a class="jxr_linenumber" name="L292" href="KMeansPlusPlusClusterer.html#L292">292</a> 
+<a class="jxr_linenumber" name="L293" href="KMeansPlusPlusClusterer.html#L293">293</a>         <em class="jxr_comment">// The number of points in the list.</em>
+<a class="jxr_linenumber" name="L294" href="KMeansPlusPlusClusterer.html#L294">294</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numPoints = pointList.size();
+<a class="jxr_linenumber" name="L295" href="KMeansPlusPlusClusterer.html#L295">295</a> 
+<a class="jxr_linenumber" name="L296" href="KMeansPlusPlusClusterer.html#L296">296</a>         <em class="jxr_comment">// Set the corresponding element in this array to indicate when</em>
+<a class="jxr_linenumber" name="L297" href="KMeansPlusPlusClusterer.html#L297">297</a>         <em class="jxr_comment">// elements of pointList are no longer available.</em>
+<a class="jxr_linenumber" name="L298" href="KMeansPlusPlusClusterer.html#L298">298</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong>[] taken = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">boolean</strong>[numPoints];
+<a class="jxr_linenumber" name="L299" href="KMeansPlusPlusClusterer.html#L299">299</a> 
+<a class="jxr_linenumber" name="L300" href="KMeansPlusPlusClusterer.html#L300">300</a>         <em class="jxr_comment">// The resulting list of initial centers.</em>
+<a class="jxr_linenumber" name="L301" href="KMeansPlusPlusClusterer.html#L301">301</a>         <strong class="jxr_keyword">final</strong> List&lt;CentroidCluster&lt;T&gt;&gt; resultSet = <strong class="jxr_keyword">new</strong> ArrayList&lt;CentroidCluster&lt;T&gt;&gt;();
+<a class="jxr_linenumber" name="L302" href="KMeansPlusPlusClusterer.html#L302">302</a> 
+<a class="jxr_linenumber" name="L303" href="KMeansPlusPlusClusterer.html#L303">303</a>         <em class="jxr_comment">// Choose one center uniformly at random from among the data points.</em>
+<a class="jxr_linenumber" name="L304" href="KMeansPlusPlusClusterer.html#L304">304</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> firstPointIndex = random.nextInt(numPoints);
+<a class="jxr_linenumber" name="L305" href="KMeansPlusPlusClusterer.html#L305">305</a> 
+<a class="jxr_linenumber" name="L306" href="KMeansPlusPlusClusterer.html#L306">306</a>         <strong class="jxr_keyword">final</strong> T firstPoint = pointList.get(firstPointIndex);
+<a class="jxr_linenumber" name="L307" href="KMeansPlusPlusClusterer.html#L307">307</a> 
+<a class="jxr_linenumber" name="L308" href="KMeansPlusPlusClusterer.html#L308">308</a>         resultSet.add(<strong class="jxr_keyword">new</strong> CentroidCluster&lt;T&gt;(firstPoint));
+<a class="jxr_linenumber" name="L309" href="KMeansPlusPlusClusterer.html#L309">309</a> 
+<a class="jxr_linenumber" name="L310" href="KMeansPlusPlusClusterer.html#L310">310</a>         <em class="jxr_comment">// Must mark it as taken</em>
+<a class="jxr_linenumber" name="L311" href="KMeansPlusPlusClusterer.html#L311">311</a>         taken[firstPointIndex] = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L312" href="KMeansPlusPlusClusterer.html#L312">312</a> 
+<a class="jxr_linenumber" name="L313" href="KMeansPlusPlusClusterer.html#L313">313</a>         <em class="jxr_comment">// To keep track of the minimum distance squared of elements of</em>
+<a class="jxr_linenumber" name="L314" href="KMeansPlusPlusClusterer.html#L314">314</a>         <em class="jxr_comment">// pointList to elements of resultSet.</em>
+<a class="jxr_linenumber" name="L315" href="KMeansPlusPlusClusterer.html#L315">315</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] minDistSquared = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[numPoints];
+<a class="jxr_linenumber" name="L316" href="KMeansPlusPlusClusterer.html#L316">316</a> 
+<a class="jxr_linenumber" name="L317" href="KMeansPlusPlusClusterer.html#L317">317</a>         <em class="jxr_comment">// Initialize the elements.  Since the only point in resultSet is firstPoint,</em>
+<a class="jxr_linenumber" name="L318" href="KMeansPlusPlusClusterer.html#L318">318</a>         <em class="jxr_comment">// this is very easy.</em>
+<a class="jxr_linenumber" name="L319" href="KMeansPlusPlusClusterer.html#L319">319</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; numPoints; i++) {
+<a class="jxr_linenumber" name="L320" href="KMeansPlusPlusClusterer.html#L320">320</a>             <strong class="jxr_keyword">if</strong> (i != firstPointIndex) { <em class="jxr_comment">// That point isn't considered</em>
+<a class="jxr_linenumber" name="L321" href="KMeansPlusPlusClusterer.html#L321">321</a>                 <strong class="jxr_keyword">double</strong> d = distance(firstPoint, pointList.get(i));
+<a class="jxr_linenumber" name="L322" href="KMeansPlusPlusClusterer.html#L322">322</a>                 minDistSquared[i] = d*d;
+<a class="jxr_linenumber" name="L323" href="KMeansPlusPlusClusterer.html#L323">323</a>             }
+<a class="jxr_linenumber" name="L324" href="KMeansPlusPlusClusterer.html#L324">324</a>         }
+<a class="jxr_linenumber" name="L325" href="KMeansPlusPlusClusterer.html#L325">325</a> 
+<a class="jxr_linenumber" name="L326" href="KMeansPlusPlusClusterer.html#L326">326</a>         <strong class="jxr_keyword">while</strong> (resultSet.size() &lt; k) {
+<a class="jxr_linenumber" name="L327" href="KMeansPlusPlusClusterer.html#L327">327</a> 
+<a class="jxr_linenumber" name="L328" href="KMeansPlusPlusClusterer.html#L328">328</a>             <em class="jxr_comment">// Sum up the squared distances for the points in pointList not</em>
+<a class="jxr_linenumber" name="L329" href="KMeansPlusPlusClusterer.html#L329">329</a>             <em class="jxr_comment">// already taken.</em>
+<a class="jxr_linenumber" name="L330" href="KMeansPlusPlusClusterer.html#L330">330</a>             <strong class="jxr_keyword">double</strong> distSqSum = 0.0;
+<a class="jxr_linenumber" name="L331" href="KMeansPlusPlusClusterer.html#L331">331</a> 
+<a class="jxr_linenumber" name="L332" href="KMeansPlusPlusClusterer.html#L332">332</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; numPoints; i++) {
+<a class="jxr_linenumber" name="L333" href="KMeansPlusPlusClusterer.html#L333">333</a>                 <strong class="jxr_keyword">if</strong> (!taken[i]) {
+<a class="jxr_linenumber" name="L334" href="KMeansPlusPlusClusterer.html#L334">334</a>                     distSqSum += minDistSquared[i];
+<a class="jxr_linenumber" name="L335" href="KMeansPlusPlusClusterer.html#L335">335</a>                 }
+<a class="jxr_linenumber" name="L336" href="KMeansPlusPlusClusterer.html#L336">336</a>             }
+<a class="jxr_linenumber" name="L337" href="KMeansPlusPlusClusterer.html#L337">337</a> 
+<a class="jxr_linenumber" name="L338" href="KMeansPlusPlusClusterer.html#L338">338</a>             <em class="jxr_comment">// Add one new data point as a center. Each point x is chosen with</em>
+<a class="jxr_linenumber" name="L339" href="KMeansPlusPlusClusterer.html#L339">339</a>             <em class="jxr_comment">// probability proportional to D(x)2</em>
+<a class="jxr_linenumber" name="L340" href="KMeansPlusPlusClusterer.html#L340">340</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> r = random.nextDouble() * distSqSum;
+<a class="jxr_linenumber" name="L341" href="KMeansPlusPlusClusterer.html#L341">341</a> 
+<a class="jxr_linenumber" name="L342" href="KMeansPlusPlusClusterer.html#L342">342</a>             <em class="jxr_comment">// The index of the next point to be added to the resultSet.</em>
+<a class="jxr_linenumber" name="L343" href="KMeansPlusPlusClusterer.html#L343">343</a>             <strong class="jxr_keyword">int</strong> nextPointIndex = -1;
+<a class="jxr_linenumber" name="L344" href="KMeansPlusPlusClusterer.html#L344">344</a> 
+<a class="jxr_linenumber" name="L345" href="KMeansPlusPlusClusterer.html#L345">345</a>             <em class="jxr_comment">// Sum through the squared min distances again, stopping when</em>
+<a class="jxr_linenumber" name="L346" href="KMeansPlusPlusClusterer.html#L346">346</a>             <em class="jxr_comment">// sum &gt;= r.</em>
+<a class="jxr_linenumber" name="L347" href="KMeansPlusPlusClusterer.html#L347">347</a>             <strong class="jxr_keyword">double</strong> sum = 0.0;
+<a class="jxr_linenumber" name="L348" href="KMeansPlusPlusClusterer.html#L348">348</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; numPoints; i++) {
+<a class="jxr_linenumber" name="L349" href="KMeansPlusPlusClusterer.html#L349">349</a>                 <strong class="jxr_keyword">if</strong> (!taken[i]) {
+<a class="jxr_linenumber" name="L350" href="KMeansPlusPlusClusterer.html#L350">350</a>                     sum += minDistSquared[i];
+<a class="jxr_linenumber" name="L351" href="KMeansPlusPlusClusterer.html#L351">351</a>                     <strong class="jxr_keyword">if</strong> (sum &gt;= r) {
+<a class="jxr_linenumber" name="L352" href="KMeansPlusPlusClusterer.html#L352">352</a>                         nextPointIndex = i;
+<a class="jxr_linenumber" name="L353" href="KMeansPlusPlusClusterer.html#L353">353</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L354" href="KMeansPlusPlusClusterer.html#L354">354</a>                     }
+<a class="jxr_linenumber" name="L355" href="KMeansPlusPlusClusterer.html#L355">355</a>                 }
+<a class="jxr_linenumber" name="L356" href="KMeansPlusPlusClusterer.html#L356">356</a>             }
+<a class="jxr_linenumber" name="L357" href="KMeansPlusPlusClusterer.html#L357">357</a> 
+<a class="jxr_linenumber" name="L358" href="KMeansPlusPlusClusterer.html#L358">358</a>             <em class="jxr_comment">// If it's not set to &gt;= 0, the point wasn't found in the previous</em>
+<a class="jxr_linenumber" name="L359" href="KMeansPlusPlusClusterer.html#L359">359</a>             <em class="jxr_comment">// for loop, probably because distances are extremely small.  Just pick</em>
+<a class="jxr_linenumber" name="L360" href="KMeansPlusPlusClusterer.html#L360">360</a>             <em class="jxr_comment">// the last available point.</em>
+<a class="jxr_linenumber" name="L361" href="KMeansPlusPlusClusterer.html#L361">361</a>             <strong class="jxr_keyword">if</strong> (nextPointIndex == -1) {
+<a class="jxr_linenumber" name="L362" href="KMeansPlusPlusClusterer.html#L362">362</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = numPoints - 1; i &gt;= 0; i--) {
+<a class="jxr_linenumber" name="L363" href="KMeansPlusPlusClusterer.html#L363">363</a>                     <strong class="jxr_keyword">if</strong> (!taken[i]) {
+<a class="jxr_linenumber" name="L364" href="KMeansPlusPlusClusterer.html#L364">364</a>                         nextPointIndex = i;
+<a class="jxr_linenumber" name="L365" href="KMeansPlusPlusClusterer.html#L365">365</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L366" href="KMeansPlusPlusClusterer.html#L366">366</a>                     }
+<a class="jxr_linenumber" name="L367" href="KMeansPlusPlusClusterer.html#L367">367</a>                 }
+<a class="jxr_linenumber" name="L368" href="KMeansPlusPlusClusterer.html#L368">368</a>             }
+<a class="jxr_linenumber" name="L369" href="KMeansPlusPlusClusterer.html#L369">369</a> 
+<a class="jxr_linenumber" name="L370" href="KMeansPlusPlusClusterer.html#L370">370</a>             <em class="jxr_comment">// We found one.</em>
+<a class="jxr_linenumber" name="L371" href="KMeansPlusPlusClusterer.html#L371">371</a>             <strong class="jxr_keyword">if</strong> (nextPointIndex &gt;= 0) {
+<a class="jxr_linenumber" name="L372" href="KMeansPlusPlusClusterer.html#L372">372</a> 
+<a class="jxr_linenumber" name="L373" href="KMeansPlusPlusClusterer.html#L373">373</a>                 <strong class="jxr_keyword">final</strong> T p = pointList.get(nextPointIndex);
+<a class="jxr_linenumber" name="L374" href="KMeansPlusPlusClusterer.html#L374">374</a> 
+<a class="jxr_linenumber" name="L375" href="KMeansPlusPlusClusterer.html#L375">375</a>                 resultSet.add(<strong class="jxr_keyword">new</strong> CentroidCluster&lt;T&gt; (p));
+<a class="jxr_linenumber" name="L376" href="KMeansPlusPlusClusterer.html#L376">376</a> 
+<a class="jxr_linenumber" name="L377" href="KMeansPlusPlusClusterer.html#L377">377</a>                 <em class="jxr_comment">// Mark it as taken.</em>
+<a class="jxr_linenumber" name="L378" href="KMeansPlusPlusClusterer.html#L378">378</a>                 taken[nextPointIndex] = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L379" href="KMeansPlusPlusClusterer.html#L379">379</a> 
+<a class="jxr_linenumber" name="L380" href="KMeansPlusPlusClusterer.html#L380">380</a>                 <strong class="jxr_keyword">if</strong> (resultSet.size() &lt; k) {
+<a class="jxr_linenumber" name="L381" href="KMeansPlusPlusClusterer.html#L381">381</a>                     <em class="jxr_comment">// Now update elements of minDistSquared.  We only have to compute</em>
+<a class="jxr_linenumber" name="L382" href="KMeansPlusPlusClusterer.html#L382">382</a>                     <em class="jxr_comment">// the distance to the new center to do this.</em>
+<a class="jxr_linenumber" name="L383" href="KMeansPlusPlusClusterer.html#L383">383</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; numPoints; j++) {
+<a class="jxr_linenumber" name="L384" href="KMeansPlusPlusClusterer.html#L384">384</a>                         <em class="jxr_comment">// Only have to worry about the points still not taken.</em>
+<a class="jxr_linenumber" name="L385" href="KMeansPlusPlusClusterer.html#L385">385</a>                         <strong class="jxr_keyword">if</strong> (!taken[j]) {
+<a class="jxr_linenumber" name="L386" href="KMeansPlusPlusClusterer.html#L386">386</a>                             <strong class="jxr_keyword">double</strong> d = distance(p, pointList.get(j));
+<a class="jxr_linenumber" name="L387" href="KMeansPlusPlusClusterer.html#L387">387</a>                             <strong class="jxr_keyword">double</strong> d2 = d * d;
+<a class="jxr_linenumber" name="L388" href="KMeansPlusPlusClusterer.html#L388">388</a>                             <strong class="jxr_keyword">if</strong> (d2 &lt; minDistSquared[j]) {
+<a class="jxr_linenumber" name="L389" href="KMeansPlusPlusClusterer.html#L389">389</a>                                 minDistSquared[j] = d2;
+<a class="jxr_linenumber" name="L390" href="KMeansPlusPlusClusterer.html#L390">390</a>                             }
+<a class="jxr_linenumber" name="L391" href="KMeansPlusPlusClusterer.html#L391">391</a>                         }
+<a class="jxr_linenumber" name="L392" href="KMeansPlusPlusClusterer.html#L392">392</a>                     }
+<a class="jxr_linenumber" name="L393" href="KMeansPlusPlusClusterer.html#L393">393</a>                 }
+<a class="jxr_linenumber" name="L394" href="KMeansPlusPlusClusterer.html#L394">394</a> 
+<a class="jxr_linenumber" name="L395" href="KMeansPlusPlusClusterer.html#L395">395</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L396" href="KMeansPlusPlusClusterer.html#L396">396</a>                 <em class="jxr_comment">// None found --</em>
+<a class="jxr_linenumber" name="L397" href="KMeansPlusPlusClusterer.html#L397">397</a>                 <em class="jxr_comment">// Break from the while loop to prevent</em>
+<a class="jxr_linenumber" name="L398" href="KMeansPlusPlusClusterer.html#L398">398</a>                 <em class="jxr_comment">// an infinite loop.</em>
+<a class="jxr_linenumber" name="L399" href="KMeansPlusPlusClusterer.html#L399">399</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L400" href="KMeansPlusPlusClusterer.html#L400">400</a>             }
+<a class="jxr_linenumber" name="L401" href="KMeansPlusPlusClusterer.html#L401">401</a>         }
+<a class="jxr_linenumber" name="L402" href="KMeansPlusPlusClusterer.html#L402">402</a> 
+<a class="jxr_linenumber" name="L403" href="KMeansPlusPlusClusterer.html#L403">403</a>         <strong class="jxr_keyword">return</strong> resultSet;
+<a class="jxr_linenumber" name="L404" href="KMeansPlusPlusClusterer.html#L404">404</a>     }
+<a class="jxr_linenumber" name="L405" href="KMeansPlusPlusClusterer.html#L405">405</a> 
+<a class="jxr_linenumber" name="L406" href="KMeansPlusPlusClusterer.html#L406">406</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L407" href="KMeansPlusPlusClusterer.html#L407">407</a> <em class="jxr_javadoccomment">     * Get a random point from the {@link Cluster} with the largest distance variance.</em>
+<a class="jxr_linenumber" name="L408" href="KMeansPlusPlusClusterer.html#L408">408</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L409" href="KMeansPlusPlusClusterer.html#L409">409</a> <em class="jxr_javadoccomment">     * @param clusters the {@link Cluster}s to search</em>
+<a class="jxr_linenumber" name="L410" href="KMeansPlusPlusClusterer.html#L410">410</a> <em class="jxr_javadoccomment">     * @return a random point from the selected cluster</em>
+<a class="jxr_linenumber" name="L411" href="KMeansPlusPlusClusterer.html#L411">411</a> <em class="jxr_javadoccomment">     * @throws ConvergenceException if clusters are all empty</em>
+<a class="jxr_linenumber" name="L412" href="KMeansPlusPlusClusterer.html#L412">412</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L413" href="KMeansPlusPlusClusterer.html#L413">413</a>     <strong class="jxr_keyword">private</strong> T getPointFromLargestVarianceCluster(<strong class="jxr_keyword">final</strong> Collection&lt;CentroidCluster&lt;T&gt;&gt; clusters)
+<a class="jxr_linenumber" name="L414" href="KMeansPlusPlusClusterer.html#L414">414</a>             <strong class="jxr_keyword">throws</strong> <a href="../../exception/ConvergenceException.html">ConvergenceException</a> {
+<a class="jxr_linenumber" name="L415" href="KMeansPlusPlusClusterer.html#L415">415</a> 
+<a class="jxr_linenumber" name="L416" href="KMeansPlusPlusClusterer.html#L416">416</a>         <strong class="jxr_keyword">double</strong> maxVariance = Double.NEGATIVE_INFINITY;
+<a class="jxr_linenumber" name="L417" href="KMeansPlusPlusClusterer.html#L417">417</a>         Cluster&lt;T&gt; selected = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L418" href="KMeansPlusPlusClusterer.html#L418">418</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> CentroidCluster&lt;T&gt; cluster : clusters) {
+<a class="jxr_linenumber" name="L419" href="KMeansPlusPlusClusterer.html#L419">419</a>             <strong class="jxr_keyword">if</strong> (!cluster.getPoints().isEmpty()) {
+<a class="jxr_linenumber" name="L420" href="KMeansPlusPlusClusterer.html#L420">420</a> 
+<a class="jxr_linenumber" name="L421" href="KMeansPlusPlusClusterer.html#L421">421</a>                 <em class="jxr_comment">// compute the distance variance of the current cluster</em>
+<a class="jxr_linenumber" name="L422" href="KMeansPlusPlusClusterer.html#L422">422</a>                 <strong class="jxr_keyword">final</strong> <a href="Clusterable.html">Clusterable</a> center = cluster.getCenter();
+<a class="jxr_linenumber" name="L423" href="KMeansPlusPlusClusterer.html#L423">423</a>                 <strong class="jxr_keyword">final</strong> <a href="../../stat/descriptive/moment/Variance.html">Variance</a> stat = <strong class="jxr_keyword">new</strong> <a href="../../stat/descriptive/moment/Variance.html">Variance</a>();
+<a class="jxr_linenumber" name="L424" href="KMeansPlusPlusClusterer.html#L424">424</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> T point : cluster.getPoints()) {
+<a class="jxr_linenumber" name="L425" href="KMeansPlusPlusClusterer.html#L425">425</a>                     stat.increment(distance(point, center));
+<a class="jxr_linenumber" name="L426" href="KMeansPlusPlusClusterer.html#L426">426</a>                 }
+<a class="jxr_linenumber" name="L427" href="KMeansPlusPlusClusterer.html#L427">427</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> variance = stat.getResult();
+<a class="jxr_linenumber" name="L428" href="KMeansPlusPlusClusterer.html#L428">428</a> 
+<a class="jxr_linenumber" name="L429" href="KMeansPlusPlusClusterer.html#L429">429</a>                 <em class="jxr_comment">// select the cluster with the largest variance</em>
+<a class="jxr_linenumber" name="L430" href="KMeansPlusPlusClusterer.html#L430">430</a>                 <strong class="jxr_keyword">if</strong> (variance &gt; maxVariance) {
+<a class="jxr_linenumber" name="L431" href="KMeansPlusPlusClusterer.html#L431">431</a>                     maxVariance = variance;
+<a class="jxr_linenumber" name="L432" href="KMeansPlusPlusClusterer.html#L432">432</a>                     selected = cluster;
+<a class="jxr_linenumber" name="L433" href="KMeansPlusPlusClusterer.html#L433">433</a>                 }
+<a class="jxr_linenumber" name="L434" href="KMeansPlusPlusClusterer.html#L434">434</a> 
+<a class="jxr_linenumber" name="L435" href="KMeansPlusPlusClusterer.html#L435">435</a>             }
+<a class="jxr_linenumber" name="L436" href="KMeansPlusPlusClusterer.html#L436">436</a>         }
+<a class="jxr_linenumber" name="L437" href="KMeansPlusPlusClusterer.html#L437">437</a> 
+<a class="jxr_linenumber" name="L438" href="KMeansPlusPlusClusterer.html#L438">438</a>         <em class="jxr_comment">// did we find at least one non-empty cluster ?</em>
+<a class="jxr_linenumber" name="L439" href="KMeansPlusPlusClusterer.html#L439">439</a>         <strong class="jxr_keyword">if</strong> (selected == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L440" href="KMeansPlusPlusClusterer.html#L440">440</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/ConvergenceException.html">ConvergenceException</a>(LocalizedFormats.EMPTY_CLUSTER_IN_K_MEANS);
+<a class="jxr_linenumber" name="L441" href="KMeansPlusPlusClusterer.html#L441">441</a>         }
+<a class="jxr_linenumber" name="L442" href="KMeansPlusPlusClusterer.html#L442">442</a> 
+<a class="jxr_linenumber" name="L443" href="KMeansPlusPlusClusterer.html#L443">443</a>         <em class="jxr_comment">// extract a random point from the cluster</em>
+<a class="jxr_linenumber" name="L444" href="KMeansPlusPlusClusterer.html#L444">444</a>         <strong class="jxr_keyword">final</strong> List&lt;T&gt; selectedPoints = selected.getPoints();
+<a class="jxr_linenumber" name="L445" href="KMeansPlusPlusClusterer.html#L445">445</a>         <strong class="jxr_keyword">return</strong> selectedPoints.remove(random.nextInt(selectedPoints.size()));
+<a class="jxr_linenumber" name="L446" href="KMeansPlusPlusClusterer.html#L446">446</a> 
+<a class="jxr_linenumber" name="L447" href="KMeansPlusPlusClusterer.html#L447">447</a>     }
+<a class="jxr_linenumber" name="L448" href="KMeansPlusPlusClusterer.html#L448">448</a> 
+<a class="jxr_linenumber" name="L449" href="KMeansPlusPlusClusterer.html#L449">449</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L450" href="KMeansPlusPlusClusterer.html#L450">450</a> <em class="jxr_javadoccomment">     * Get a random point from the {@link Cluster} with the largest number of points</em>
+<a class="jxr_linenumber" name="L451" href="KMeansPlusPlusClusterer.html#L451">451</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L452" href="KMeansPlusPlusClusterer.html#L452">452</a> <em class="jxr_javadoccomment">     * @param clusters the {@link Cluster}s to search</em>
+<a class="jxr_linenumber" name="L453" href="KMeansPlusPlusClusterer.html#L453">453</a> <em class="jxr_javadoccomment">     * @return a random point from the selected cluster</em>
+<a class="jxr_linenumber" name="L454" href="KMeansPlusPlusClusterer.html#L454">454</a> <em class="jxr_javadoccomment">     * @throws ConvergenceException if clusters are all empty</em>
+<a class="jxr_linenumber" name="L455" href="KMeansPlusPlusClusterer.html#L455">455</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L456" href="KMeansPlusPlusClusterer.html#L456">456</a>     <strong class="jxr_keyword">private</strong> T getPointFromLargestNumberCluster(<strong class="jxr_keyword">final</strong> Collection&lt;? <strong class="jxr_keyword">extends</strong> Cluster&lt;T&gt;&gt; clusters)
+<a class="jxr_linenumber" name="L457" href="KMeansPlusPlusClusterer.html#L457">457</a>             <strong class="jxr_keyword">throws</strong> <a href="../../exception/ConvergenceException.html">ConvergenceException</a> {
+<a class="jxr_linenumber" name="L458" href="KMeansPlusPlusClusterer.html#L458">458</a> 
+<a class="jxr_linenumber" name="L459" href="KMeansPlusPlusClusterer.html#L459">459</a>         <strong class="jxr_keyword">int</strong> maxNumber = 0;
+<a class="jxr_linenumber" name="L460" href="KMeansPlusPlusClusterer.html#L460">460</a>         Cluster&lt;T&gt; selected = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L461" href="KMeansPlusPlusClusterer.html#L461">461</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> Cluster&lt;T&gt; cluster : clusters) {
+<a class="jxr_linenumber" name="L462" href="KMeansPlusPlusClusterer.html#L462">462</a> 
+<a class="jxr_linenumber" name="L463" href="KMeansPlusPlusClusterer.html#L463">463</a>             <em class="jxr_comment">// get the number of points of the current cluster</em>
+<a class="jxr_linenumber" name="L464" href="KMeansPlusPlusClusterer.html#L464">464</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> number = cluster.getPoints().size();
+<a class="jxr_linenumber" name="L465" href="KMeansPlusPlusClusterer.html#L465">465</a> 
+<a class="jxr_linenumber" name="L466" href="KMeansPlusPlusClusterer.html#L466">466</a>             <em class="jxr_comment">// select the cluster with the largest number of points</em>
+<a class="jxr_linenumber" name="L467" href="KMeansPlusPlusClusterer.html#L467">467</a>             <strong class="jxr_keyword">if</strong> (number &gt; maxNumber) {
+<a class="jxr_linenumber" name="L468" href="KMeansPlusPlusClusterer.html#L468">468</a>                 maxNumber = number;
+<a class="jxr_linenumber" name="L469" href="KMeansPlusPlusClusterer.html#L469">469</a>                 selected = cluster;
+<a class="jxr_linenumber" name="L470" href="KMeansPlusPlusClusterer.html#L470">470</a>             }
+<a class="jxr_linenumber" name="L471" href="KMeansPlusPlusClusterer.html#L471">471</a> 
+<a class="jxr_linenumber" name="L472" href="KMeansPlusPlusClusterer.html#L472">472</a>         }
+<a class="jxr_linenumber" name="L473" href="KMeansPlusPlusClusterer.html#L473">473</a> 
+<a class="jxr_linenumber" name="L474" href="KMeansPlusPlusClusterer.html#L474">474</a>         <em class="jxr_comment">// did we find at least one non-empty cluster ?</em>
+<a class="jxr_linenumber" name="L475" href="KMeansPlusPlusClusterer.html#L475">475</a>         <strong class="jxr_keyword">if</strong> (selected == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L476" href="KMeansPlusPlusClusterer.html#L476">476</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/ConvergenceException.html">ConvergenceException</a>(LocalizedFormats.EMPTY_CLUSTER_IN_K_MEANS);
+<a class="jxr_linenumber" name="L477" href="KMeansPlusPlusClusterer.html#L477">477</a>         }
+<a class="jxr_linenumber" name="L478" href="KMeansPlusPlusClusterer.html#L478">478</a> 
+<a class="jxr_linenumber" name="L479" href="KMeansPlusPlusClusterer.html#L479">479</a>         <em class="jxr_comment">// extract a random point from the cluster</em>
+<a class="jxr_linenumber" name="L480" href="KMeansPlusPlusClusterer.html#L480">480</a>         <strong class="jxr_keyword">final</strong> List&lt;T&gt; selectedPoints = selected.getPoints();
+<a class="jxr_linenumber" name="L481" href="KMeansPlusPlusClusterer.html#L481">481</a>         <strong class="jxr_keyword">return</strong> selectedPoints.remove(random.nextInt(selectedPoints.size()));
+<a class="jxr_linenumber" name="L482" href="KMeansPlusPlusClusterer.html#L482">482</a> 
+<a class="jxr_linenumber" name="L483" href="KMeansPlusPlusClusterer.html#L483">483</a>     }
+<a class="jxr_linenumber" name="L484" href="KMeansPlusPlusClusterer.html#L484">484</a> 
+<a class="jxr_linenumber" name="L485" href="KMeansPlusPlusClusterer.html#L485">485</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L486" href="KMeansPlusPlusClusterer.html#L486">486</a> <em class="jxr_javadoccomment">     * Get the point farthest to its cluster center</em>
+<a class="jxr_linenumber" name="L487" href="KMeansPlusPlusClusterer.html#L487">487</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L488" href="KMeansPlusPlusClusterer.html#L488">488</a> <em class="jxr_javadoccomment">     * @param clusters the {@link Cluster}s to search</em>
+<a class="jxr_linenumber" name="L489" href="KMeansPlusPlusClusterer.html#L489">489</a> <em class="jxr_javadoccomment">     * @return point farthest to its cluster center</em>
+<a class="jxr_linenumber" name="L490" href="KMeansPlusPlusClusterer.html#L490">490</a> <em class="jxr_javadoccomment">     * @throws ConvergenceException if clusters are all empty</em>
+<a class="jxr_linenumber" name="L491" href="KMeansPlusPlusClusterer.html#L491">491</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L492" href="KMeansPlusPlusClusterer.html#L492">492</a>     <strong class="jxr_keyword">private</strong> T getFarthestPoint(<strong class="jxr_keyword">final</strong> Collection&lt;CentroidCluster&lt;T&gt;&gt; clusters) <strong class="jxr_keyword">throws</strong> ConvergenceException {
+<a class="jxr_linenumber" name="L493" href="KMeansPlusPlusClusterer.html#L493">493</a> 
+<a class="jxr_linenumber" name="L494" href="KMeansPlusPlusClusterer.html#L494">494</a>         <strong class="jxr_keyword">double</strong> maxDistance = Double.NEGATIVE_INFINITY;
+<a class="jxr_linenumber" name="L495" href="KMeansPlusPlusClusterer.html#L495">495</a>         Cluster&lt;T&gt; selectedCluster = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L496" href="KMeansPlusPlusClusterer.html#L496">496</a>         <strong class="jxr_keyword">int</strong> selectedPoint = -1;
+<a class="jxr_linenumber" name="L497" href="KMeansPlusPlusClusterer.html#L497">497</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> CentroidCluster&lt;T&gt; cluster : clusters) {
+<a class="jxr_linenumber" name="L498" href="KMeansPlusPlusClusterer.html#L498">498</a> 
+<a class="jxr_linenumber" name="L499" href="KMeansPlusPlusClusterer.html#L499">499</a>             <em class="jxr_comment">// get the farthest point</em>
+<a class="jxr_linenumber" name="L500" href="KMeansPlusPlusClusterer.html#L500">500</a>             <strong class="jxr_keyword">final</strong> <a href="Clusterable.html">Clusterable</a> center = cluster.getCenter();
+<a class="jxr_linenumber" name="L501" href="KMeansPlusPlusClusterer.html#L501">501</a>             <strong class="jxr_keyword">final</strong> List&lt;T&gt; points = cluster.getPoints();
+<a class="jxr_linenumber" name="L502" href="KMeansPlusPlusClusterer.html#L502">502</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; points.size(); ++i) {
+<a class="jxr_linenumber" name="L503" href="KMeansPlusPlusClusterer.html#L503">503</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> distance = distance(points.get(i), center);
+<a class="jxr_linenumber" name="L504" href="KMeansPlusPlusClusterer.html#L504">504</a>                 <strong class="jxr_keyword">if</strong> (distance &gt; maxDistance) {
+<a class="jxr_linenumber" name="L505" href="KMeansPlusPlusClusterer.html#L505">505</a>                     maxDistance     = distance;
+<a class="jxr_linenumber" name="L506" href="KMeansPlusPlusClusterer.html#L506">506</a>                     selectedCluster = cluster;
+<a class="jxr_linenumber" name="L507" href="KMeansPlusPlusClusterer.html#L507">507</a>                     selectedPoint   = i;
+<a class="jxr_linenumber" name="L508" href="KMeansPlusPlusClusterer.html#L508">508</a>                 }
+<a class="jxr_linenumber" name="L509" href="KMeansPlusPlusClusterer.html#L509">509</a>             }
+<a class="jxr_linenumber" name="L510" href="KMeansPlusPlusClusterer.html#L510">510</a> 
+<a class="jxr_linenumber" name="L511" href="KMeansPlusPlusClusterer.html#L511">511</a>         }
+<a class="jxr_linenumber" name="L512" href="KMeansPlusPlusClusterer.html#L512">512</a> 
+<a class="jxr_linenumber" name="L513" href="KMeansPlusPlusClusterer.html#L513">513</a>         <em class="jxr_comment">// did we find at least one non-empty cluster ?</em>
+<a class="jxr_linenumber" name="L514" href="KMeansPlusPlusClusterer.html#L514">514</a>         <strong class="jxr_keyword">if</strong> (selectedCluster == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L515" href="KMeansPlusPlusClusterer.html#L515">515</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/ConvergenceException.html">ConvergenceException</a>(LocalizedFormats.EMPTY_CLUSTER_IN_K_MEANS);
+<a class="jxr_linenumber" name="L516" href="KMeansPlusPlusClusterer.html#L516">516</a>         }
+<a class="jxr_linenumber" name="L517" href="KMeansPlusPlusClusterer.html#L517">517</a> 
+<a class="jxr_linenumber" name="L518" href="KMeansPlusPlusClusterer.html#L518">518</a>         <strong class="jxr_keyword">return</strong> selectedCluster.getPoints().remove(selectedPoint);
+<a class="jxr_linenumber" name="L519" href="KMeansPlusPlusClusterer.html#L519">519</a> 
+<a class="jxr_linenumber" name="L520" href="KMeansPlusPlusClusterer.html#L520">520</a>     }
+<a class="jxr_linenumber" name="L521" href="KMeansPlusPlusClusterer.html#L521">521</a> 
+<a class="jxr_linenumber" name="L522" href="KMeansPlusPlusClusterer.html#L522">522</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L523" href="KMeansPlusPlusClusterer.html#L523">523</a> <em class="jxr_javadoccomment">     * Returns the nearest {@link Cluster} to the given point</em>
+<a class="jxr_linenumber" name="L524" href="KMeansPlusPlusClusterer.html#L524">524</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L525" href="KMeansPlusPlusClusterer.html#L525">525</a> <em class="jxr_javadoccomment">     * @param clusters the {@link Cluster}s to search</em>
+<a class="jxr_linenumber" name="L526" href="KMeansPlusPlusClusterer.html#L526">526</a> <em class="jxr_javadoccomment">     * @param point the point to find the nearest {@link Cluster} for</em>
+<a class="jxr_linenumber" name="L527" href="KMeansPlusPlusClusterer.html#L527">527</a> <em class="jxr_javadoccomment">     * @return the index of the nearest {@link Cluster} to the given point</em>
+<a class="jxr_linenumber" name="L528" href="KMeansPlusPlusClusterer.html#L528">528</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L529" href="KMeansPlusPlusClusterer.html#L529">529</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> getNearestCluster(<strong class="jxr_keyword">final</strong> Collection&lt;CentroidCluster&lt;T&gt;&gt; clusters, <strong class="jxr_keyword">final</strong> T point) {
+<a class="jxr_linenumber" name="L530" href="KMeansPlusPlusClusterer.html#L530">530</a>         <strong class="jxr_keyword">double</strong> minDistance = Double.MAX_VALUE;
+<a class="jxr_linenumber" name="L531" href="KMeansPlusPlusClusterer.html#L531">531</a>         <strong class="jxr_keyword">int</strong> clusterIndex = 0;
+<a class="jxr_linenumber" name="L532" href="KMeansPlusPlusClusterer.html#L532">532</a>         <strong class="jxr_keyword">int</strong> minCluster = 0;
+<a class="jxr_linenumber" name="L533" href="KMeansPlusPlusClusterer.html#L533">533</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> CentroidCluster&lt;T&gt; c : clusters) {
+<a class="jxr_linenumber" name="L534" href="KMeansPlusPlusClusterer.html#L534">534</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> distance = distance(point, c.getCenter());
+<a class="jxr_linenumber" name="L535" href="KMeansPlusPlusClusterer.html#L535">535</a>             <strong class="jxr_keyword">if</strong> (distance &lt; minDistance) {
+<a class="jxr_linenumber" name="L536" href="KMeansPlusPlusClusterer.html#L536">536</a>                 minDistance = distance;
+<a class="jxr_linenumber" name="L537" href="KMeansPlusPlusClusterer.html#L537">537</a>                 minCluster = clusterIndex;
+<a class="jxr_linenumber" name="L538" href="KMeansPlusPlusClusterer.html#L538">538</a>             }
+<a class="jxr_linenumber" name="L539" href="KMeansPlusPlusClusterer.html#L539">539</a>             clusterIndex++;
+<a class="jxr_linenumber" name="L540" href="KMeansPlusPlusClusterer.html#L540">540</a>         }
+<a class="jxr_linenumber" name="L541" href="KMeansPlusPlusClusterer.html#L541">541</a>         <strong class="jxr_keyword">return</strong> minCluster;
+<a class="jxr_linenumber" name="L542" href="KMeansPlusPlusClusterer.html#L542">542</a>     }
+<a class="jxr_linenumber" name="L543" href="KMeansPlusPlusClusterer.html#L543">543</a> 
+<a class="jxr_linenumber" name="L544" href="KMeansPlusPlusClusterer.html#L544">544</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L545" href="KMeansPlusPlusClusterer.html#L545">545</a> <em class="jxr_javadoccomment">     * Computes the centroid for a set of points.</em>
+<a class="jxr_linenumber" name="L546" href="KMeansPlusPlusClusterer.html#L546">546</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L547" href="KMeansPlusPlusClusterer.html#L547">547</a> <em class="jxr_javadoccomment">     * @param points the set of points</em>
+<a class="jxr_linenumber" name="L548" href="KMeansPlusPlusClusterer.html#L548">548</a> <em class="jxr_javadoccomment">     * @param dimension the point dimension</em>
+<a class="jxr_linenumber" name="L549" href="KMeansPlusPlusClusterer.html#L549">549</a> <em class="jxr_javadoccomment">     * @return the computed centroid for the set of points</em>
+<a class="jxr_linenumber" name="L550" href="KMeansPlusPlusClusterer.html#L550">550</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L551" href="KMeansPlusPlusClusterer.html#L551">551</a>     <strong class="jxr_keyword">private</strong> <a href="Clusterable.html">Clusterable</a> centroidOf(<strong class="jxr_keyword">final</strong> Collection&lt;T&gt; points, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> dimension) {
+<a class="jxr_linenumber" name="L552" href="KMeansPlusPlusClusterer.html#L552">552</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] centroid = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[dimension];
+<a class="jxr_linenumber" name="L553" href="KMeansPlusPlusClusterer.html#L553">553</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> T p : points) {
+<a class="jxr_linenumber" name="L554" href="KMeansPlusPlusClusterer.html#L554">554</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] point = p.getPoint();
+<a class="jxr_linenumber" name="L555" href="KMeansPlusPlusClusterer.html#L555">555</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; centroid.length; i++) {
+<a class="jxr_linenumber" name="L556" href="KMeansPlusPlusClusterer.html#L556">556</a>                 centroid[i] += point[i];
+<a class="jxr_linenumber" name="L557" href="KMeansPlusPlusClusterer.html#L557">557</a>             }
+<a class="jxr_linenumber" name="L558" href="KMeansPlusPlusClusterer.html#L558">558</a>         }
+<a class="jxr_linenumber" name="L559" href="KMeansPlusPlusClusterer.html#L559">559</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; centroid.length; i++) {
+<a class="jxr_linenumber" name="L560" href="KMeansPlusPlusClusterer.html#L560">560</a>             centroid[i] /= points.size();
+<a class="jxr_linenumber" name="L561" href="KMeansPlusPlusClusterer.html#L561">561</a>         }
+<a class="jxr_linenumber" name="L562" href="KMeansPlusPlusClusterer.html#L562">562</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="DoublePoint.html">DoublePoint</a>(centroid);
+<a class="jxr_linenumber" name="L563" href="KMeansPlusPlusClusterer.html#L563">563</a>     }
+<a class="jxr_linenumber" name="L564" href="KMeansPlusPlusClusterer.html#L564">564</a> 
+<a class="jxr_linenumber" name="L565" href="KMeansPlusPlusClusterer.html#L565">565</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

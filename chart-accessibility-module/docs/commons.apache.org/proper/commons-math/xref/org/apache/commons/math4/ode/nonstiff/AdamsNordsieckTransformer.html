@@ -1,0 +1,374 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>AdamsNordsieckTransformer xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/ode/nonstiff/AdamsNordsieckTransformer.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="AdamsNordsieckTransformer.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="AdamsNordsieckTransformer.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="AdamsNordsieckTransformer.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="AdamsNordsieckTransformer.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="AdamsNordsieckTransformer.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="AdamsNordsieckTransformer.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="AdamsNordsieckTransformer.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="AdamsNordsieckTransformer.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="AdamsNordsieckTransformer.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="AdamsNordsieckTransformer.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="AdamsNordsieckTransformer.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="AdamsNordsieckTransformer.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="AdamsNordsieckTransformer.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="AdamsNordsieckTransformer.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="AdamsNordsieckTransformer.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="AdamsNordsieckTransformer.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="AdamsNordsieckTransformer.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="AdamsNordsieckTransformer.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.ode.nonstiff;
+<a class="jxr_linenumber" name="L19" href="AdamsNordsieckTransformer.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="AdamsNordsieckTransformer.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L21" href="AdamsNordsieckTransformer.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.HashMap;
+<a class="jxr_linenumber" name="L22" href="AdamsNordsieckTransformer.html#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L23" href="AdamsNordsieckTransformer.html#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="AdamsNordsieckTransformer.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.fraction.BigFraction;
+<a class="jxr_linenumber" name="L25" href="AdamsNordsieckTransformer.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.Array2DRowFieldMatrix;
+<a class="jxr_linenumber" name="L26" href="AdamsNordsieckTransformer.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.Array2DRowRealMatrix;
+<a class="jxr_linenumber" name="L27" href="AdamsNordsieckTransformer.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.ArrayFieldVector;
+<a class="jxr_linenumber" name="L28" href="AdamsNordsieckTransformer.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.FieldDecompositionSolver;
+<a class="jxr_linenumber" name="L29" href="AdamsNordsieckTransformer.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.FieldLUDecomposition;
+<a class="jxr_linenumber" name="L30" href="AdamsNordsieckTransformer.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.FieldMatrix;
+<a class="jxr_linenumber" name="L31" href="AdamsNordsieckTransformer.html#L31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.MatrixUtils;
+<a class="jxr_linenumber" name="L32" href="AdamsNordsieckTransformer.html#L32">32</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.QRDecomposition;
+<a class="jxr_linenumber" name="L33" href="AdamsNordsieckTransformer.html#L33">33</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.RealMatrix;
+<a class="jxr_linenumber" name="L34" href="AdamsNordsieckTransformer.html#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="AdamsNordsieckTransformer.html#L35">35</a>  <em class="jxr_javadoccomment">/** Transformer to Nordsieck vectors for Adams integrators.</em>
+<a class="jxr_linenumber" name="L36" href="AdamsNordsieckTransformer.html#L36">36</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This class is used by {@link AdamsBashforthIntegrator Adams-Bashforth} and</em>
+<a class="jxr_linenumber" name="L37" href="AdamsNordsieckTransformer.html#L37">37</a>  <em class="jxr_javadoccomment"> * {@link AdamsMoultonIntegrator Adams-Moulton} integrators to convert between</em>
+<a class="jxr_linenumber" name="L38" href="AdamsNordsieckTransformer.html#L38">38</a>  <em class="jxr_javadoccomment"> * classical representation with several previous first derivatives and Nordsieck</em>
+<a class="jxr_linenumber" name="L39" href="AdamsNordsieckTransformer.html#L39">39</a>  <em class="jxr_javadoccomment"> * representation with higher order scaled derivatives.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L40" href="AdamsNordsieckTransformer.html#L40">40</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L41" href="AdamsNordsieckTransformer.html#L41">41</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;We define scaled derivatives s&lt;sub&gt;i&lt;/sub&gt;(n) at step n as:</em>
+<a class="jxr_linenumber" name="L42" href="AdamsNordsieckTransformer.html#L42">42</a>  <em class="jxr_javadoccomment"> * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L43" href="AdamsNordsieckTransformer.html#L43">43</a>  <em class="jxr_javadoccomment"> * s&lt;sub&gt;1&lt;/sub&gt;(n) = h y'&lt;sub&gt;n&lt;/sub&gt; for first derivative</em>
+<a class="jxr_linenumber" name="L44" href="AdamsNordsieckTransformer.html#L44">44</a>  <em class="jxr_javadoccomment"> * s&lt;sub&gt;2&lt;/sub&gt;(n) = h&lt;sup&gt;2&lt;/sup&gt;/2 y''&lt;sub&gt;n&lt;/sub&gt; for second derivative</em>
+<a class="jxr_linenumber" name="L45" href="AdamsNordsieckTransformer.html#L45">45</a>  <em class="jxr_javadoccomment"> * s&lt;sub&gt;3&lt;/sub&gt;(n) = h&lt;sup&gt;3&lt;/sup&gt;/6 y'''&lt;sub&gt;n&lt;/sub&gt; for third derivative</em>
+<a class="jxr_linenumber" name="L46" href="AdamsNordsieckTransformer.html#L46">46</a>  <em class="jxr_javadoccomment"> * ...</em>
+<a class="jxr_linenumber" name="L47" href="AdamsNordsieckTransformer.html#L47">47</a>  <em class="jxr_javadoccomment"> * s&lt;sub&gt;k&lt;/sub&gt;(n) = h&lt;sup&gt;k&lt;/sup&gt;/k! y&lt;sup&gt;(k)&lt;/sup&gt;&lt;sub&gt;n&lt;/sub&gt; for k&lt;sup&gt;th&lt;/sup&gt; derivative</em>
+<a class="jxr_linenumber" name="L48" href="AdamsNordsieckTransformer.html#L48">48</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L49" href="AdamsNordsieckTransformer.html#L49">49</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L50" href="AdamsNordsieckTransformer.html#L50">50</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;With the previous definition, the classical representation of multistep methods</em>
+<a class="jxr_linenumber" name="L51" href="AdamsNordsieckTransformer.html#L51">51</a>  <em class="jxr_javadoccomment"> * uses first derivatives only, i.e. it handles y&lt;sub&gt;n&lt;/sub&gt;, s&lt;sub&gt;1&lt;/sub&gt;(n) and</em>
+<a class="jxr_linenumber" name="L52" href="AdamsNordsieckTransformer.html#L52">52</a>  <em class="jxr_javadoccomment"> * q&lt;sub&gt;n&lt;/sub&gt; where q&lt;sub&gt;n&lt;/sub&gt; is defined as:</em>
+<a class="jxr_linenumber" name="L53" href="AdamsNordsieckTransformer.html#L53">53</a>  <em class="jxr_javadoccomment"> * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L54" href="AdamsNordsieckTransformer.html#L54">54</a>  <em class="jxr_javadoccomment"> *   q&lt;sub&gt;n&lt;/sub&gt; = [ s&lt;sub&gt;1&lt;/sub&gt;(n-1) s&lt;sub&gt;1&lt;/sub&gt;(n-2) ... s&lt;sub&gt;1&lt;/sub&gt;(n-(k-1)) ]&lt;sup&gt;T&lt;/sup&gt;</em>
+<a class="jxr_linenumber" name="L55" href="AdamsNordsieckTransformer.html#L55">55</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L56" href="AdamsNordsieckTransformer.html#L56">56</a>  <em class="jxr_javadoccomment"> * (we omit the k index in the notation for clarity).&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L57" href="AdamsNordsieckTransformer.html#L57">57</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L58" href="AdamsNordsieckTransformer.html#L58">58</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Another possible representation uses the Nordsieck vector with</em>
+<a class="jxr_linenumber" name="L59" href="AdamsNordsieckTransformer.html#L59">59</a>  <em class="jxr_javadoccomment"> * higher degrees scaled derivatives all taken at the same step, i.e it handles y&lt;sub&gt;n&lt;/sub&gt;,</em>
+<a class="jxr_linenumber" name="L60" href="AdamsNordsieckTransformer.html#L60">60</a>  <em class="jxr_javadoccomment"> * s&lt;sub&gt;1&lt;/sub&gt;(n) and r&lt;sub&gt;n&lt;/sub&gt;) where r&lt;sub&gt;n&lt;/sub&gt; is defined as:</em>
+<a class="jxr_linenumber" name="L61" href="AdamsNordsieckTransformer.html#L61">61</a>  <em class="jxr_javadoccomment"> * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L62" href="AdamsNordsieckTransformer.html#L62">62</a>  <em class="jxr_javadoccomment"> * r&lt;sub&gt;n&lt;/sub&gt; = [ s&lt;sub&gt;2&lt;/sub&gt;(n), s&lt;sub&gt;3&lt;/sub&gt;(n) ... s&lt;sub&gt;k&lt;/sub&gt;(n) ]&lt;sup&gt;T&lt;/sup&gt;</em>
+<a class="jxr_linenumber" name="L63" href="AdamsNordsieckTransformer.html#L63">63</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L64" href="AdamsNordsieckTransformer.html#L64">64</a>  <em class="jxr_javadoccomment"> * (here again we omit the k index in the notation for clarity)</em>
+<a class="jxr_linenumber" name="L65" href="AdamsNordsieckTransformer.html#L65">65</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L66" href="AdamsNordsieckTransformer.html#L66">66</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L67" href="AdamsNordsieckTransformer.html#L67">67</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Taylor series formulas show that for any index offset i, s&lt;sub&gt;1&lt;/sub&gt;(n-i) can be</em>
+<a class="jxr_linenumber" name="L68" href="AdamsNordsieckTransformer.html#L68">68</a>  <em class="jxr_javadoccomment"> * computed from s&lt;sub&gt;1&lt;/sub&gt;(n), s&lt;sub&gt;2&lt;/sub&gt;(n) ... s&lt;sub&gt;k&lt;/sub&gt;(n), the formula being exact</em>
+<a class="jxr_linenumber" name="L69" href="AdamsNordsieckTransformer.html#L69">69</a>  <em class="jxr_javadoccomment"> * for degree k polynomials.</em>
+<a class="jxr_linenumber" name="L70" href="AdamsNordsieckTransformer.html#L70">70</a>  <em class="jxr_javadoccomment"> * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L71" href="AdamsNordsieckTransformer.html#L71">71</a>  <em class="jxr_javadoccomment"> * s&lt;sub&gt;1&lt;/sub&gt;(n-i) = s&lt;sub&gt;1&lt;/sub&gt;(n) + &amp;sum;&lt;sub&gt;j&amp;gt;0&lt;/sub&gt; (j+1) (-i)&lt;sup&gt;j&lt;/sup&gt; s&lt;sub&gt;j+1&lt;/sub&gt;(n)</em>
+<a class="jxr_linenumber" name="L72" href="AdamsNordsieckTransformer.html#L72">72</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L73" href="AdamsNordsieckTransformer.html#L73">73</a>  <em class="jxr_javadoccomment"> * The previous formula can be used with several values for i to compute the transform between</em>
+<a class="jxr_linenumber" name="L74" href="AdamsNordsieckTransformer.html#L74">74</a>  <em class="jxr_javadoccomment"> * classical representation and Nordsieck vector at step end. The transform between r&lt;sub&gt;n&lt;/sub&gt;</em>
+<a class="jxr_linenumber" name="L75" href="AdamsNordsieckTransformer.html#L75">75</a>  <em class="jxr_javadoccomment"> * and q&lt;sub&gt;n&lt;/sub&gt; resulting from the Taylor series formulas above is:</em>
+<a class="jxr_linenumber" name="L76" href="AdamsNordsieckTransformer.html#L76">76</a>  <em class="jxr_javadoccomment"> * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L77" href="AdamsNordsieckTransformer.html#L77">77</a>  <em class="jxr_javadoccomment"> * q&lt;sub&gt;n&lt;/sub&gt; = s&lt;sub&gt;1&lt;/sub&gt;(n) u + P r&lt;sub&gt;n&lt;/sub&gt;</em>
+<a class="jxr_linenumber" name="L78" href="AdamsNordsieckTransformer.html#L78">78</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L79" href="AdamsNordsieckTransformer.html#L79">79</a>  <em class="jxr_javadoccomment"> * where u is the [ 1 1 ... 1 ]&lt;sup&gt;T&lt;/sup&gt; vector and P is the (k-1)&amp;times;(k-1) matrix built</em>
+<a class="jxr_linenumber" name="L80" href="AdamsNordsieckTransformer.html#L80">80</a>  <em class="jxr_javadoccomment"> * with the (j+1) (-i)&lt;sup&gt;j&lt;/sup&gt; terms with i being the row number starting from 1 and j being</em>
+<a class="jxr_linenumber" name="L81" href="AdamsNordsieckTransformer.html#L81">81</a>  <em class="jxr_javadoccomment"> * the column number starting from 1:</em>
+<a class="jxr_linenumber" name="L82" href="AdamsNordsieckTransformer.html#L82">82</a>  <em class="jxr_javadoccomment"> * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L83" href="AdamsNordsieckTransformer.html#L83">83</a>  <em class="jxr_javadoccomment"> *        [  -2   3   -4    5  ... ]</em>
+<a class="jxr_linenumber" name="L84" href="AdamsNordsieckTransformer.html#L84">84</a>  <em class="jxr_javadoccomment"> *        [  -4  12  -32   80  ... ]</em>
+<a class="jxr_linenumber" name="L85" href="AdamsNordsieckTransformer.html#L85">85</a>  <em class="jxr_javadoccomment"> *   P =  [  -6  27 -108  405  ... ]</em>
+<a class="jxr_linenumber" name="L86" href="AdamsNordsieckTransformer.html#L86">86</a>  <em class="jxr_javadoccomment"> *        [  -8  48 -256 1280  ... ]</em>
+<a class="jxr_linenumber" name="L87" href="AdamsNordsieckTransformer.html#L87">87</a>  <em class="jxr_javadoccomment"> *        [          ...           ]</em>
+<a class="jxr_linenumber" name="L88" href="AdamsNordsieckTransformer.html#L88">88</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L89" href="AdamsNordsieckTransformer.html#L89">89</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L90" href="AdamsNordsieckTransformer.html#L90">90</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Changing -i into +i in the formula above can be used to compute a similar transform between</em>
+<a class="jxr_linenumber" name="L91" href="AdamsNordsieckTransformer.html#L91">91</a>  <em class="jxr_javadoccomment"> * classical representation and Nordsieck vector at step start. The resulting matrix is simply</em>
+<a class="jxr_linenumber" name="L92" href="AdamsNordsieckTransformer.html#L92">92</a>  <em class="jxr_javadoccomment"> * the absolute value of matrix P.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L93" href="AdamsNordsieckTransformer.html#L93">93</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L94" href="AdamsNordsieckTransformer.html#L94">94</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;For {@link AdamsBashforthIntegrator Adams-Bashforth} method, the Nordsieck vector</em>
+<a class="jxr_linenumber" name="L95" href="AdamsNordsieckTransformer.html#L95">95</a>  <em class="jxr_javadoccomment"> * at step n+1 is computed from the Nordsieck vector at step n as follows:</em>
+<a class="jxr_linenumber" name="L96" href="AdamsNordsieckTransformer.html#L96">96</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L97" href="AdamsNordsieckTransformer.html#L97">97</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;y&lt;sub&gt;n+1&lt;/sub&gt; = y&lt;sub&gt;n&lt;/sub&gt; + s&lt;sub&gt;1&lt;/sub&gt;(n) + u&lt;sup&gt;T&lt;/sup&gt; r&lt;sub&gt;n&lt;/sub&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L98" href="AdamsNordsieckTransformer.html#L98">98</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;s&lt;sub&gt;1&lt;/sub&gt;(n+1) = h f(t&lt;sub&gt;n+1&lt;/sub&gt;, y&lt;sub&gt;n+1&lt;/sub&gt;)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L99" href="AdamsNordsieckTransformer.html#L99">99</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;r&lt;sub&gt;n+1&lt;/sub&gt; = (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u + P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L100" href="AdamsNordsieckTransformer.html#L100">100</a> <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L101" href="AdamsNordsieckTransformer.html#L101">101</a> <em class="jxr_javadoccomment"> * where A is a rows shifting matrix (the lower left part is an identity matrix):</em>
+<a class="jxr_linenumber" name="L102" href="AdamsNordsieckTransformer.html#L102">102</a> <em class="jxr_javadoccomment"> * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L103" href="AdamsNordsieckTransformer.html#L103">103</a> <em class="jxr_javadoccomment"> *        [ 0 0   ...  0 0 | 0 ]</em>
+<a class="jxr_linenumber" name="L104" href="AdamsNordsieckTransformer.html#L104">104</a> <em class="jxr_javadoccomment"> *        [ ---------------+---]</em>
+<a class="jxr_linenumber" name="L105" href="AdamsNordsieckTransformer.html#L105">105</a> <em class="jxr_javadoccomment"> *        [ 1 0   ...  0 0 | 0 ]</em>
+<a class="jxr_linenumber" name="L106" href="AdamsNordsieckTransformer.html#L106">106</a> <em class="jxr_javadoccomment"> *    A = [ 0 1   ...  0 0 | 0 ]</em>
+<a class="jxr_linenumber" name="L107" href="AdamsNordsieckTransformer.html#L107">107</a> <em class="jxr_javadoccomment"> *        [       ...      | 0 ]</em>
+<a class="jxr_linenumber" name="L108" href="AdamsNordsieckTransformer.html#L108">108</a> <em class="jxr_javadoccomment"> *        [ 0 0   ...  1 0 | 0 ]</em>
+<a class="jxr_linenumber" name="L109" href="AdamsNordsieckTransformer.html#L109">109</a> <em class="jxr_javadoccomment"> *        [ 0 0   ...  0 1 | 0 ]</em>
+<a class="jxr_linenumber" name="L110" href="AdamsNordsieckTransformer.html#L110">110</a> <em class="jxr_javadoccomment"> * &lt;/pre&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L111" href="AdamsNordsieckTransformer.html#L111">111</a> <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L112" href="AdamsNordsieckTransformer.html#L112">112</a> <em class="jxr_javadoccomment"> * &lt;p&gt;For {@link AdamsMoultonIntegrator Adams-Moulton} method, the predicted Nordsieck vector</em>
+<a class="jxr_linenumber" name="L113" href="AdamsNordsieckTransformer.html#L113">113</a> <em class="jxr_javadoccomment"> * at step n+1 is computed from the Nordsieck vector at step n as follows:</em>
+<a class="jxr_linenumber" name="L114" href="AdamsNordsieckTransformer.html#L114">114</a> <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L115" href="AdamsNordsieckTransformer.html#L115">115</a> <em class="jxr_javadoccomment"> *   &lt;li&gt;Y&lt;sub&gt;n+1&lt;/sub&gt; = y&lt;sub&gt;n&lt;/sub&gt; + s&lt;sub&gt;1&lt;/sub&gt;(n) + u&lt;sup&gt;T&lt;/sup&gt; r&lt;sub&gt;n&lt;/sub&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L116" href="AdamsNordsieckTransformer.html#L116">116</a> <em class="jxr_javadoccomment"> *   &lt;li&gt;S&lt;sub&gt;1&lt;/sub&gt;(n+1) = h f(t&lt;sub&gt;n+1&lt;/sub&gt;, Y&lt;sub&gt;n+1&lt;/sub&gt;)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L117" href="AdamsNordsieckTransformer.html#L117">117</a> <em class="jxr_javadoccomment"> *   &lt;li&gt;R&lt;sub&gt;n+1&lt;/sub&gt; = (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u + P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L118" href="AdamsNordsieckTransformer.html#L118">118</a> <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L119" href="AdamsNordsieckTransformer.html#L119">119</a> <em class="jxr_javadoccomment"> * From this predicted vector, the corrected vector is computed as follows:</em>
+<a class="jxr_linenumber" name="L120" href="AdamsNordsieckTransformer.html#L120">120</a> <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L121" href="AdamsNordsieckTransformer.html#L121">121</a> <em class="jxr_javadoccomment"> *   &lt;li&gt;y&lt;sub&gt;n+1&lt;/sub&gt; = y&lt;sub&gt;n&lt;/sub&gt; + S&lt;sub&gt;1&lt;/sub&gt;(n+1) + [ -1 +1 -1 +1 ... &amp;plusmn;1 ] r&lt;sub&gt;n+1&lt;/sub&gt;&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L122" href="AdamsNordsieckTransformer.html#L122">122</a> <em class="jxr_javadoccomment"> *   &lt;li&gt;s&lt;sub&gt;1&lt;/sub&gt;(n+1) = h f(t&lt;sub&gt;n+1&lt;/sub&gt;, y&lt;sub&gt;n+1&lt;/sub&gt;)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L123" href="AdamsNordsieckTransformer.html#L123">123</a> <em class="jxr_javadoccomment"> *   &lt;li&gt;r&lt;sub&gt;n+1&lt;/sub&gt; = R&lt;sub&gt;n+1&lt;/sub&gt; + (s&lt;sub&gt;1&lt;/sub&gt;(n+1) - S&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L124" href="AdamsNordsieckTransformer.html#L124">124</a> <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L125" href="AdamsNordsieckTransformer.html#L125">125</a> <em class="jxr_javadoccomment"> * where the upper case Y&lt;sub&gt;n+1&lt;/sub&gt;, S&lt;sub&gt;1&lt;/sub&gt;(n+1) and R&lt;sub&gt;n+1&lt;/sub&gt; represent the</em>
+<a class="jxr_linenumber" name="L126" href="AdamsNordsieckTransformer.html#L126">126</a> <em class="jxr_javadoccomment"> * predicted states whereas the lower case y&lt;sub&gt;n+1&lt;/sub&gt;, s&lt;sub&gt;n+1&lt;/sub&gt; and r&lt;sub&gt;n+1&lt;/sub&gt;</em>
+<a class="jxr_linenumber" name="L127" href="AdamsNordsieckTransformer.html#L127">127</a> <em class="jxr_javadoccomment"> * represent the corrected states.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L128" href="AdamsNordsieckTransformer.html#L128">128</a> <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L129" href="AdamsNordsieckTransformer.html#L129">129</a> <em class="jxr_javadoccomment"> * &lt;p&gt;We observe that both methods use similar update formulas. In both cases a P&lt;sup&gt;-1&lt;/sup&gt;u</em>
+<a class="jxr_linenumber" name="L130" href="AdamsNordsieckTransformer.html#L130">130</a> <em class="jxr_javadoccomment"> * vector and a P&lt;sup&gt;-1&lt;/sup&gt; A P matrix are used that do not depend on the state,</em>
+<a class="jxr_linenumber" name="L131" href="AdamsNordsieckTransformer.html#L131">131</a> <em class="jxr_javadoccomment"> * they only depend on k. This class handles these transformations.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L132" href="AdamsNordsieckTransformer.html#L132">132</a> <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L133" href="AdamsNordsieckTransformer.html#L133">133</a> <em class="jxr_javadoccomment"> * @since 2.0</em>
+<a class="jxr_linenumber" name="L134" href="AdamsNordsieckTransformer.html#L134">134</a> <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L135" href="AdamsNordsieckTransformer.html#L135">135</a> <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="AdamsNordsieckTransformer.html">AdamsNordsieckTransformer</a> {
+<a class="jxr_linenumber" name="L136" href="AdamsNordsieckTransformer.html#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="AdamsNordsieckTransformer.html#L137">137</a>     <em class="jxr_javadoccomment">/** Cache for already computed coefficients. */</em>
+<a class="jxr_linenumber" name="L138" href="AdamsNordsieckTransformer.html#L138">138</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Map&lt;Integer, AdamsNordsieckTransformer&gt; CACHE =
+<a class="jxr_linenumber" name="L139" href="AdamsNordsieckTransformer.html#L139">139</a>         <strong class="jxr_keyword">new</strong> HashMap&lt;Integer, AdamsNordsieckTransformer&gt;();
+<a class="jxr_linenumber" name="L140" href="AdamsNordsieckTransformer.html#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="AdamsNordsieckTransformer.html#L141">141</a>     <em class="jxr_javadoccomment">/** Update matrix for the higher order derivatives h&lt;sup&gt;2&lt;/sup&gt;/2 y'', h&lt;sup&gt;3&lt;/sup&gt;/6 y''' ... */</em>
+<a class="jxr_linenumber" name="L142" href="AdamsNordsieckTransformer.html#L142">142</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a> update;
+<a class="jxr_linenumber" name="L143" href="AdamsNordsieckTransformer.html#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="AdamsNordsieckTransformer.html#L144">144</a>     <em class="jxr_javadoccomment">/** Update coefficients of the higher order derivatives wrt y'. */</em>
+<a class="jxr_linenumber" name="L145" href="AdamsNordsieckTransformer.html#L145">145</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] c1;
+<a class="jxr_linenumber" name="L146" href="AdamsNordsieckTransformer.html#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="AdamsNordsieckTransformer.html#L147">147</a>     <em class="jxr_javadoccomment">/** Simple constructor.</em>
+<a class="jxr_linenumber" name="L148" href="AdamsNordsieckTransformer.html#L148">148</a> <em class="jxr_javadoccomment">     * @param n number of steps of the multistep method</em>
+<a class="jxr_linenumber" name="L149" href="AdamsNordsieckTransformer.html#L149">149</a> <em class="jxr_javadoccomment">     * (excluding the one being computed)</em>
+<a class="jxr_linenumber" name="L150" href="AdamsNordsieckTransformer.html#L150">150</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L151" href="AdamsNordsieckTransformer.html#L151">151</a>     <strong class="jxr_keyword">private</strong> <a href="AdamsNordsieckTransformer.html">AdamsNordsieckTransformer</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n) {
+<a class="jxr_linenumber" name="L152" href="AdamsNordsieckTransformer.html#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="AdamsNordsieckTransformer.html#L153">153</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> rows = n - 1;
+<a class="jxr_linenumber" name="L154" href="AdamsNordsieckTransformer.html#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="AdamsNordsieckTransformer.html#L155">155</a>         <em class="jxr_comment">// compute exact coefficients</em>
+<a class="jxr_linenumber" name="L156" href="AdamsNordsieckTransformer.html#L156">156</a>         FieldMatrix&lt;BigFraction&gt; bigP = buildP(rows);
+<a class="jxr_linenumber" name="L157" href="AdamsNordsieckTransformer.html#L157">157</a>         FieldDecompositionSolver&lt;BigFraction&gt; pSolver =
+<a class="jxr_linenumber" name="L158" href="AdamsNordsieckTransformer.html#L158">158</a>             <strong class="jxr_keyword">new</strong> FieldLUDecomposition&lt;BigFraction&gt;(bigP).getSolver();
+<a class="jxr_linenumber" name="L159" href="AdamsNordsieckTransformer.html#L159">159</a> 
+<a class="jxr_linenumber" name="L160" href="AdamsNordsieckTransformer.html#L160">160</a>         <a href="../../fraction/BigFraction.html">BigFraction</a>[] u = <strong class="jxr_keyword">new</strong> <a href="../../fraction/BigFraction.html">BigFraction</a>[rows];
+<a class="jxr_linenumber" name="L161" href="AdamsNordsieckTransformer.html#L161">161</a>         Arrays.fill(u, BigFraction.ONE);
+<a class="jxr_linenumber" name="L162" href="AdamsNordsieckTransformer.html#L162">162</a>         <a href="../../fraction/BigFraction.html">BigFraction</a>[] bigC1 = pSolver.solve(<strong class="jxr_keyword">new</strong> ArrayFieldVector&lt;BigFraction&gt;(u, false)).toArray();
+<a class="jxr_linenumber" name="L163" href="AdamsNordsieckTransformer.html#L163">163</a> 
+<a class="jxr_linenumber" name="L164" href="AdamsNordsieckTransformer.html#L164">164</a>         <em class="jxr_comment">// update coefficients are computed by combining transform from</em>
+<a class="jxr_linenumber" name="L165" href="AdamsNordsieckTransformer.html#L165">165</a>         <em class="jxr_comment">// Nordsieck to multistep, then shifting rows to represent step advance</em>
+<a class="jxr_linenumber" name="L166" href="AdamsNordsieckTransformer.html#L166">166</a>         <em class="jxr_comment">// then applying inverse transform</em>
+<a class="jxr_linenumber" name="L167" href="AdamsNordsieckTransformer.html#L167">167</a>         <a href="../../fraction/BigFraction.html">BigFraction</a>[][] shiftedP = bigP.getData();
+<a class="jxr_linenumber" name="L168" href="AdamsNordsieckTransformer.html#L168">168</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = shiftedP.length - 1; i &gt; 0; --i) {
+<a class="jxr_linenumber" name="L169" href="AdamsNordsieckTransformer.html#L169">169</a>             <em class="jxr_comment">// shift rows</em>
+<a class="jxr_linenumber" name="L170" href="AdamsNordsieckTransformer.html#L170">170</a>             shiftedP[i] = shiftedP[i - 1];
+<a class="jxr_linenumber" name="L171" href="AdamsNordsieckTransformer.html#L171">171</a>         }
+<a class="jxr_linenumber" name="L172" href="AdamsNordsieckTransformer.html#L172">172</a>         shiftedP[0] = <strong class="jxr_keyword">new</strong> <a href="../../fraction/BigFraction.html">BigFraction</a>[rows];
+<a class="jxr_linenumber" name="L173" href="AdamsNordsieckTransformer.html#L173">173</a>         Arrays.fill(shiftedP[0], BigFraction.ZERO);
+<a class="jxr_linenumber" name="L174" href="AdamsNordsieckTransformer.html#L174">174</a>         FieldMatrix&lt;BigFraction&gt; bigMSupdate =
+<a class="jxr_linenumber" name="L175" href="AdamsNordsieckTransformer.html#L175">175</a>             pSolver.solve(<strong class="jxr_keyword">new</strong> Array2DRowFieldMatrix&lt;BigFraction&gt;(shiftedP, false));
+<a class="jxr_linenumber" name="L176" href="AdamsNordsieckTransformer.html#L176">176</a> 
+<a class="jxr_linenumber" name="L177" href="AdamsNordsieckTransformer.html#L177">177</a>         <em class="jxr_comment">// convert coefficients to double</em>
+<a class="jxr_linenumber" name="L178" href="AdamsNordsieckTransformer.html#L178">178</a>         update         = MatrixUtils.bigFractionMatrixToRealMatrix(bigMSupdate);
+<a class="jxr_linenumber" name="L179" href="AdamsNordsieckTransformer.html#L179">179</a>         c1             = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[rows];
+<a class="jxr_linenumber" name="L180" href="AdamsNordsieckTransformer.html#L180">180</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; rows; ++i) {
+<a class="jxr_linenumber" name="L181" href="AdamsNordsieckTransformer.html#L181">181</a>             c1[i] = bigC1[i].doubleValue();
+<a class="jxr_linenumber" name="L182" href="AdamsNordsieckTransformer.html#L182">182</a>         }
+<a class="jxr_linenumber" name="L183" href="AdamsNordsieckTransformer.html#L183">183</a> 
+<a class="jxr_linenumber" name="L184" href="AdamsNordsieckTransformer.html#L184">184</a>     }
+<a class="jxr_linenumber" name="L185" href="AdamsNordsieckTransformer.html#L185">185</a> 
+<a class="jxr_linenumber" name="L186" href="AdamsNordsieckTransformer.html#L186">186</a>     <em class="jxr_javadoccomment">/** Get the Nordsieck transformer for a given number of steps.</em>
+<a class="jxr_linenumber" name="L187" href="AdamsNordsieckTransformer.html#L187">187</a> <em class="jxr_javadoccomment">     * @param nSteps number of steps of the multistep method</em>
+<a class="jxr_linenumber" name="L188" href="AdamsNordsieckTransformer.html#L188">188</a> <em class="jxr_javadoccomment">     * (excluding the one being computed)</em>
+<a class="jxr_linenumber" name="L189" href="AdamsNordsieckTransformer.html#L189">189</a> <em class="jxr_javadoccomment">     * @return Nordsieck transformer for the specified number of steps</em>
+<a class="jxr_linenumber" name="L190" href="AdamsNordsieckTransformer.html#L190">190</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L191" href="AdamsNordsieckTransformer.html#L191">191</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="AdamsNordsieckTransformer.html">AdamsNordsieckTransformer</a> getInstance(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nSteps) {
+<a class="jxr_linenumber" name="L192" href="AdamsNordsieckTransformer.html#L192">192</a>         <strong class="jxr_keyword">synchronized</strong>(CACHE) {
+<a class="jxr_linenumber" name="L193" href="AdamsNordsieckTransformer.html#L193">193</a>             <a href="AdamsNordsieckTransformer.html">AdamsNordsieckTransformer</a> t = CACHE.get(nSteps);
+<a class="jxr_linenumber" name="L194" href="AdamsNordsieckTransformer.html#L194">194</a>             <strong class="jxr_keyword">if</strong> (t == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L195" href="AdamsNordsieckTransformer.html#L195">195</a>                 t = <strong class="jxr_keyword">new</strong> <a href="AdamsNordsieckTransformer.html">AdamsNordsieckTransformer</a>(nSteps);
+<a class="jxr_linenumber" name="L196" href="AdamsNordsieckTransformer.html#L196">196</a>                 CACHE.put(nSteps, t);
+<a class="jxr_linenumber" name="L197" href="AdamsNordsieckTransformer.html#L197">197</a>             }
+<a class="jxr_linenumber" name="L198" href="AdamsNordsieckTransformer.html#L198">198</a>             <strong class="jxr_keyword">return</strong> t;
+<a class="jxr_linenumber" name="L199" href="AdamsNordsieckTransformer.html#L199">199</a>         }
+<a class="jxr_linenumber" name="L200" href="AdamsNordsieckTransformer.html#L200">200</a>     }
+<a class="jxr_linenumber" name="L201" href="AdamsNordsieckTransformer.html#L201">201</a> 
+<a class="jxr_linenumber" name="L202" href="AdamsNordsieckTransformer.html#L202">202</a>     <em class="jxr_javadoccomment">/** Get the number of steps of the method</em>
+<a class="jxr_linenumber" name="L203" href="AdamsNordsieckTransformer.html#L203">203</a> <em class="jxr_javadoccomment">     * (excluding the one being computed).</em>
+<a class="jxr_linenumber" name="L204" href="AdamsNordsieckTransformer.html#L204">204</a> <em class="jxr_javadoccomment">     * @return number of steps of the method</em>
+<a class="jxr_linenumber" name="L205" href="AdamsNordsieckTransformer.html#L205">205</a> <em class="jxr_javadoccomment">     * (excluding the one being computed)</em>
+<a class="jxr_linenumber" name="L206" href="AdamsNordsieckTransformer.html#L206">206</a> <em class="jxr_javadoccomment">     * @deprecated as of 3.6, this method is not used anymore</em>
+<a class="jxr_linenumber" name="L207" href="AdamsNordsieckTransformer.html#L207">207</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L208" href="AdamsNordsieckTransformer.html#L208">208</a>     @Deprecated
+<a class="jxr_linenumber" name="L209" href="AdamsNordsieckTransformer.html#L209">209</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getNSteps() {
+<a class="jxr_linenumber" name="L210" href="AdamsNordsieckTransformer.html#L210">210</a>         <strong class="jxr_keyword">return</strong> c1.length;
+<a class="jxr_linenumber" name="L211" href="AdamsNordsieckTransformer.html#L211">211</a>     }
+<a class="jxr_linenumber" name="L212" href="AdamsNordsieckTransformer.html#L212">212</a> 
+<a class="jxr_linenumber" name="L213" href="AdamsNordsieckTransformer.html#L213">213</a>     <em class="jxr_javadoccomment">/** Build the P matrix.</em>
+<a class="jxr_linenumber" name="L214" href="AdamsNordsieckTransformer.html#L214">214</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The P matrix general terms are shifted (j+1) (-i)&lt;sup&gt;j&lt;/sup&gt; terms</em>
+<a class="jxr_linenumber" name="L215" href="AdamsNordsieckTransformer.html#L215">215</a> <em class="jxr_javadoccomment">     * with i being the row number starting from 1 and j being the column</em>
+<a class="jxr_linenumber" name="L216" href="AdamsNordsieckTransformer.html#L216">216</a> <em class="jxr_javadoccomment">     * number starting from 1:</em>
+<a class="jxr_linenumber" name="L217" href="AdamsNordsieckTransformer.html#L217">217</a> <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L218" href="AdamsNordsieckTransformer.html#L218">218</a> <em class="jxr_javadoccomment">     *        [  -2   3   -4    5  ... ]</em>
+<a class="jxr_linenumber" name="L219" href="AdamsNordsieckTransformer.html#L219">219</a> <em class="jxr_javadoccomment">     *        [  -4  12  -32   80  ... ]</em>
+<a class="jxr_linenumber" name="L220" href="AdamsNordsieckTransformer.html#L220">220</a> <em class="jxr_javadoccomment">     *   P =  [  -6  27 -108  405  ... ]</em>
+<a class="jxr_linenumber" name="L221" href="AdamsNordsieckTransformer.html#L221">221</a> <em class="jxr_javadoccomment">     *        [  -8  48 -256 1280  ... ]</em>
+<a class="jxr_linenumber" name="L222" href="AdamsNordsieckTransformer.html#L222">222</a> <em class="jxr_javadoccomment">     *        [          ...           ]</em>
+<a class="jxr_linenumber" name="L223" href="AdamsNordsieckTransformer.html#L223">223</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L224" href="AdamsNordsieckTransformer.html#L224">224</a> <em class="jxr_javadoccomment">     * @param rows number of rows of the matrix</em>
+<a class="jxr_linenumber" name="L225" href="AdamsNordsieckTransformer.html#L225">225</a> <em class="jxr_javadoccomment">     * @return P matrix</em>
+<a class="jxr_linenumber" name="L226" href="AdamsNordsieckTransformer.html#L226">226</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L227" href="AdamsNordsieckTransformer.html#L227">227</a>     <strong class="jxr_keyword">private</strong> FieldMatrix&lt;BigFraction&gt; buildP(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> rows) {
+<a class="jxr_linenumber" name="L228" href="AdamsNordsieckTransformer.html#L228">228</a> 
+<a class="jxr_linenumber" name="L229" href="AdamsNordsieckTransformer.html#L229">229</a>         <strong class="jxr_keyword">final</strong> <a href="../../fraction/BigFraction.html">BigFraction</a>[][] pData = <strong class="jxr_keyword">new</strong> <a href="../../fraction/BigFraction.html">BigFraction</a>[rows][rows];
+<a class="jxr_linenumber" name="L230" href="AdamsNordsieckTransformer.html#L230">230</a> 
+<a class="jxr_linenumber" name="L231" href="AdamsNordsieckTransformer.html#L231">231</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt;= pData.length; ++i) {
+<a class="jxr_linenumber" name="L232" href="AdamsNordsieckTransformer.html#L232">232</a>             <em class="jxr_comment">// build the P matrix elements from Taylor series formulas</em>
+<a class="jxr_linenumber" name="L233" href="AdamsNordsieckTransformer.html#L233">233</a>             <strong class="jxr_keyword">final</strong> <a href="../../fraction/BigFraction.html">BigFraction</a>[] pI = pData[i - 1];
+<a class="jxr_linenumber" name="L234" href="AdamsNordsieckTransformer.html#L234">234</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> factor = -i;
+<a class="jxr_linenumber" name="L235" href="AdamsNordsieckTransformer.html#L235">235</a>             <strong class="jxr_keyword">int</strong> aj = factor;
+<a class="jxr_linenumber" name="L236" href="AdamsNordsieckTransformer.html#L236">236</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 1; j &lt;= pI.length; ++j) {
+<a class="jxr_linenumber" name="L237" href="AdamsNordsieckTransformer.html#L237">237</a>                 pI[j - 1] = <strong class="jxr_keyword">new</strong> <a href="../../fraction/BigFraction.html">BigFraction</a>(aj * (j + 1));
+<a class="jxr_linenumber" name="L238" href="AdamsNordsieckTransformer.html#L238">238</a>                 aj *= factor;
+<a class="jxr_linenumber" name="L239" href="AdamsNordsieckTransformer.html#L239">239</a>             }
+<a class="jxr_linenumber" name="L240" href="AdamsNordsieckTransformer.html#L240">240</a>         }
+<a class="jxr_linenumber" name="L241" href="AdamsNordsieckTransformer.html#L241">241</a> 
+<a class="jxr_linenumber" name="L242" href="AdamsNordsieckTransformer.html#L242">242</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Array2DRowFieldMatrix&lt;BigFraction&gt;(pData, false);
+<a class="jxr_linenumber" name="L243" href="AdamsNordsieckTransformer.html#L243">243</a> 
+<a class="jxr_linenumber" name="L244" href="AdamsNordsieckTransformer.html#L244">244</a>     }
+<a class="jxr_linenumber" name="L245" href="AdamsNordsieckTransformer.html#L245">245</a> 
+<a class="jxr_linenumber" name="L246" href="AdamsNordsieckTransformer.html#L246">246</a>     <em class="jxr_javadoccomment">/** Initialize the high order scaled derivatives at step start.</em>
+<a class="jxr_linenumber" name="L247" href="AdamsNordsieckTransformer.html#L247">247</a> <em class="jxr_javadoccomment">     * @param h step size to use for scaling</em>
+<a class="jxr_linenumber" name="L248" href="AdamsNordsieckTransformer.html#L248">248</a> <em class="jxr_javadoccomment">     * @param t first steps times</em>
+<a class="jxr_linenumber" name="L249" href="AdamsNordsieckTransformer.html#L249">249</a> <em class="jxr_javadoccomment">     * @param y first steps states</em>
+<a class="jxr_linenumber" name="L250" href="AdamsNordsieckTransformer.html#L250">250</a> <em class="jxr_javadoccomment">     * @param yDot first steps derivatives</em>
+<a class="jxr_linenumber" name="L251" href="AdamsNordsieckTransformer.html#L251">251</a> <em class="jxr_javadoccomment">     * @return Nordieck vector at start of first step (h&lt;sup&gt;2&lt;/sup&gt;/2 y''&lt;sub&gt;n&lt;/sub&gt;,</em>
+<a class="jxr_linenumber" name="L252" href="AdamsNordsieckTransformer.html#L252">252</a> <em class="jxr_javadoccomment">     * h&lt;sup&gt;3&lt;/sup&gt;/6 y'''&lt;sub&gt;n&lt;/sub&gt; ... h&lt;sup&gt;k&lt;/sup&gt;/k! y&lt;sup&gt;(k)&lt;/sup&gt;&lt;sub&gt;n&lt;/sub&gt;)</em>
+<a class="jxr_linenumber" name="L253" href="AdamsNordsieckTransformer.html#L253">253</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L254" href="AdamsNordsieckTransformer.html#L254">254</a> 
+<a class="jxr_linenumber" name="L255" href="AdamsNordsieckTransformer.html#L255">255</a>     <strong class="jxr_keyword">public</strong> <a href="../../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a> initializeHighOrderDerivatives(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> h, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] t,
+<a class="jxr_linenumber" name="L256" href="AdamsNordsieckTransformer.html#L256">256</a>                                                                <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] y,
+<a class="jxr_linenumber" name="L257" href="AdamsNordsieckTransformer.html#L257">257</a>                                                                <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] yDot) {
+<a class="jxr_linenumber" name="L258" href="AdamsNordsieckTransformer.html#L258">258</a> 
+<a class="jxr_linenumber" name="L259" href="AdamsNordsieckTransformer.html#L259">259</a>         <em class="jxr_comment">// using Taylor series with di = ti - t0, we get:</em>
+<a class="jxr_linenumber" name="L260" href="AdamsNordsieckTransformer.html#L260">260</a>         <em class="jxr_comment">//  y(ti)  - y(t0)  - di y'(t0) =   di^2 / h^2 s2 + ... +   di^k     / h^k sk + O(h^k)</em>
+<a class="jxr_linenumber" name="L261" href="AdamsNordsieckTransformer.html#L261">261</a>         <em class="jxr_comment">//  y'(ti) - y'(t0)             = 2 di   / h^2 s2 + ... + k di^(k-1) / h^k sk + O(h^(k-1))</em>
+<a class="jxr_linenumber" name="L262" href="AdamsNordsieckTransformer.html#L262">262</a>         <em class="jxr_comment">// we write these relations for i = 1 to i= 1+n/2 as a set of n + 2 linear</em>
+<a class="jxr_linenumber" name="L263" href="AdamsNordsieckTransformer.html#L263">263</a>         <em class="jxr_comment">// equations depending on the Nordsieck vector [s2 ... sk rk], so s2 to sk correspond</em>
+<a class="jxr_linenumber" name="L264" href="AdamsNordsieckTransformer.html#L264">264</a>         <em class="jxr_comment">// to the appropriately truncated Taylor expansion, and rk is the Taylor remainder.</em>
+<a class="jxr_linenumber" name="L265" href="AdamsNordsieckTransformer.html#L265">265</a>         <em class="jxr_comment">// The goal is to have s2 to sk as accurate as possible considering the fact the sum is</em>
+<a class="jxr_linenumber" name="L266" href="AdamsNordsieckTransformer.html#L266">266</a>         <em class="jxr_comment">// truncated and we don't want the error terms to be included in s2 ... sk, so we need</em>
+<a class="jxr_linenumber" name="L267" href="AdamsNordsieckTransformer.html#L267">267</a>         <em class="jxr_comment">// to solve also for the remainder</em>
+<a class="jxr_linenumber" name="L268" href="AdamsNordsieckTransformer.html#L268">268</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] a     = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[c1.length + 1][c1.length + 1];
+<a class="jxr_linenumber" name="L269" href="AdamsNordsieckTransformer.html#L269">269</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] b     = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[c1.length + 1][y[0].length];
+<a class="jxr_linenumber" name="L270" href="AdamsNordsieckTransformer.html#L270">270</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[]   y0    = y[0];
+<a class="jxr_linenumber" name="L271" href="AdamsNordsieckTransformer.html#L271">271</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[]   yDot0 = yDot[0];
+<a class="jxr_linenumber" name="L272" href="AdamsNordsieckTransformer.html#L272">272</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; y.length; ++i) {
+<a class="jxr_linenumber" name="L273" href="AdamsNordsieckTransformer.html#L273">273</a> 
+<a class="jxr_linenumber" name="L274" href="AdamsNordsieckTransformer.html#L274">274</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> di    = t[i] - t[0];
+<a class="jxr_linenumber" name="L275" href="AdamsNordsieckTransformer.html#L275">275</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> ratio = di / h;
+<a class="jxr_linenumber" name="L276" href="AdamsNordsieckTransformer.html#L276">276</a>             <strong class="jxr_keyword">double</strong> dikM1Ohk    =  1 / h;
+<a class="jxr_linenumber" name="L277" href="AdamsNordsieckTransformer.html#L277">277</a> 
+<a class="jxr_linenumber" name="L278" href="AdamsNordsieckTransformer.html#L278">278</a>             <em class="jxr_comment">// linear coefficients of equations</em>
+<a class="jxr_linenumber" name="L279" href="AdamsNordsieckTransformer.html#L279">279</a>             <em class="jxr_comment">// y(ti) - y(t0) - di y'(t0) and y'(ti) - y'(t0)</em>
+<a class="jxr_linenumber" name="L280" href="AdamsNordsieckTransformer.html#L280">280</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] aI    = a[2 * i - 2];
+<a class="jxr_linenumber" name="L281" href="AdamsNordsieckTransformer.html#L281">281</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] aDotI = (2 * i - 1) &lt; a.length ? a[2 * i - 1] : <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L282" href="AdamsNordsieckTransformer.html#L282">282</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; aI.length; ++j) {
+<a class="jxr_linenumber" name="L283" href="AdamsNordsieckTransformer.html#L283">283</a>                 dikM1Ohk *= ratio;
+<a class="jxr_linenumber" name="L284" href="AdamsNordsieckTransformer.html#L284">284</a>                 aI[j]     = di      * dikM1Ohk;
+<a class="jxr_linenumber" name="L285" href="AdamsNordsieckTransformer.html#L285">285</a>                 <strong class="jxr_keyword">if</strong> (aDotI != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L286" href="AdamsNordsieckTransformer.html#L286">286</a>                     aDotI[j]  = (j + 2) * dikM1Ohk;
+<a class="jxr_linenumber" name="L287" href="AdamsNordsieckTransformer.html#L287">287</a>                 }
+<a class="jxr_linenumber" name="L288" href="AdamsNordsieckTransformer.html#L288">288</a>             }
+<a class="jxr_linenumber" name="L289" href="AdamsNordsieckTransformer.html#L289">289</a> 
+<a class="jxr_linenumber" name="L290" href="AdamsNordsieckTransformer.html#L290">290</a>             <em class="jxr_comment">// expected value of the previous equations</em>
+<a class="jxr_linenumber" name="L291" href="AdamsNordsieckTransformer.html#L291">291</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yI    = y[i];
+<a class="jxr_linenumber" name="L292" href="AdamsNordsieckTransformer.html#L292">292</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yDotI = yDot[i];
+<a class="jxr_linenumber" name="L293" href="AdamsNordsieckTransformer.html#L293">293</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] bI    = b[2 * i - 2];
+<a class="jxr_linenumber" name="L294" href="AdamsNordsieckTransformer.html#L294">294</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] bDotI = (2 * i - 1) &lt; b.length ? b[2 * i - 1] : <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L295" href="AdamsNordsieckTransformer.html#L295">295</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; yI.length; ++j) {
+<a class="jxr_linenumber" name="L296" href="AdamsNordsieckTransformer.html#L296">296</a>                 bI[j]    = yI[j] - y0[j] - di * yDot0[j];
+<a class="jxr_linenumber" name="L297" href="AdamsNordsieckTransformer.html#L297">297</a>                 <strong class="jxr_keyword">if</strong> (bDotI != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L298" href="AdamsNordsieckTransformer.html#L298">298</a>                     bDotI[j] = yDotI[j] - yDot0[j];
+<a class="jxr_linenumber" name="L299" href="AdamsNordsieckTransformer.html#L299">299</a>                 }
+<a class="jxr_linenumber" name="L300" href="AdamsNordsieckTransformer.html#L300">300</a>             }
+<a class="jxr_linenumber" name="L301" href="AdamsNordsieckTransformer.html#L301">301</a> 
+<a class="jxr_linenumber" name="L302" href="AdamsNordsieckTransformer.html#L302">302</a>         }
+<a class="jxr_linenumber" name="L303" href="AdamsNordsieckTransformer.html#L303">303</a> 
+<a class="jxr_linenumber" name="L304" href="AdamsNordsieckTransformer.html#L304">304</a>         <em class="jxr_comment">// solve the linear system to get the best estimate of the Nordsieck vector [s2 ... sk],</em>
+<a class="jxr_linenumber" name="L305" href="AdamsNordsieckTransformer.html#L305">305</a>         <em class="jxr_comment">// with the additional terms s(k+1) and c grabbing the parts after the truncated Taylor expansion</em>
+<a class="jxr_linenumber" name="L306" href="AdamsNordsieckTransformer.html#L306">306</a>         <strong class="jxr_keyword">final</strong> <a href="../../linear/QRDecomposition.html">QRDecomposition</a> decomposition = <strong class="jxr_keyword">new</strong> <a href="../../linear/QRDecomposition.html">QRDecomposition</a>(<strong class="jxr_keyword">new</strong> <a href="../../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(a, false));
+<a class="jxr_linenumber" name="L307" href="AdamsNordsieckTransformer.html#L307">307</a>         <strong class="jxr_keyword">final</strong> <a href="../../linear/RealMatrix.html">RealMatrix</a> x = decomposition.getSolver().solve(<strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(b, false));
+<a class="jxr_linenumber" name="L308" href="AdamsNordsieckTransformer.html#L308">308</a> 
+<a class="jxr_linenumber" name="L309" href="AdamsNordsieckTransformer.html#L309">309</a>         <em class="jxr_comment">// extract just the Nordsieck vector [s2 ... sk]</em>
+<a class="jxr_linenumber" name="L310" href="AdamsNordsieckTransformer.html#L310">310</a>         <strong class="jxr_keyword">final</strong> <a href="../../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a> truncatedX = <strong class="jxr_keyword">new</strong> <a href="../../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a>(x.getRowDimension() - 1, x.getColumnDimension());
+<a class="jxr_linenumber" name="L311" href="AdamsNordsieckTransformer.html#L311">311</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; truncatedX.getRowDimension(); ++i) {
+<a class="jxr_linenumber" name="L312" href="AdamsNordsieckTransformer.html#L312">312</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; truncatedX.getColumnDimension(); ++j) {
+<a class="jxr_linenumber" name="L313" href="AdamsNordsieckTransformer.html#L313">313</a>                 truncatedX.setEntry(i, j, x.getEntry(i, j));
+<a class="jxr_linenumber" name="L314" href="AdamsNordsieckTransformer.html#L314">314</a>             }
+<a class="jxr_linenumber" name="L315" href="AdamsNordsieckTransformer.html#L315">315</a>         }
+<a class="jxr_linenumber" name="L316" href="AdamsNordsieckTransformer.html#L316">316</a>         <strong class="jxr_keyword">return</strong> truncatedX;
+<a class="jxr_linenumber" name="L317" href="AdamsNordsieckTransformer.html#L317">317</a> 
+<a class="jxr_linenumber" name="L318" href="AdamsNordsieckTransformer.html#L318">318</a>     }
+<a class="jxr_linenumber" name="L319" href="AdamsNordsieckTransformer.html#L319">319</a> 
+<a class="jxr_linenumber" name="L320" href="AdamsNordsieckTransformer.html#L320">320</a>     <em class="jxr_javadoccomment">/** Update the high order scaled derivatives for Adams integrators (phase 1).</em>
+<a class="jxr_linenumber" name="L321" href="AdamsNordsieckTransformer.html#L321">321</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The complete update of high order derivatives has a form similar to:</em>
+<a class="jxr_linenumber" name="L322" href="AdamsNordsieckTransformer.html#L322">322</a> <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L323" href="AdamsNordsieckTransformer.html#L323">323</a> <em class="jxr_javadoccomment">     * r&lt;sub&gt;n+1&lt;/sub&gt; = (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u + P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt;</em>
+<a class="jxr_linenumber" name="L324" href="AdamsNordsieckTransformer.html#L324">324</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L325" href="AdamsNordsieckTransformer.html#L325">325</a> <em class="jxr_javadoccomment">     * this method computes the P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt; part.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L326" href="AdamsNordsieckTransformer.html#L326">326</a> <em class="jxr_javadoccomment">     * @param highOrder high order scaled derivatives</em>
+<a class="jxr_linenumber" name="L327" href="AdamsNordsieckTransformer.html#L327">327</a> <em class="jxr_javadoccomment">     * (h&lt;sup&gt;2&lt;/sup&gt;/2 y'', ... h&lt;sup&gt;k&lt;/sup&gt;/k! y(k))</em>
+<a class="jxr_linenumber" name="L328" href="AdamsNordsieckTransformer.html#L328">328</a> <em class="jxr_javadoccomment">     * @return updated high order derivatives</em>
+<a class="jxr_linenumber" name="L329" href="AdamsNordsieckTransformer.html#L329">329</a> <em class="jxr_javadoccomment">     * @see #updateHighOrderDerivativesPhase2(double[], double[], Array2DRowRealMatrix)</em>
+<a class="jxr_linenumber" name="L330" href="AdamsNordsieckTransformer.html#L330">330</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L331" href="AdamsNordsieckTransformer.html#L331">331</a>     <strong class="jxr_keyword">public</strong> <a href="../../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a> updateHighOrderDerivativesPhase1(<strong class="jxr_keyword">final</strong> <a href="../../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a> highOrder) {
+<a class="jxr_linenumber" name="L332" href="AdamsNordsieckTransformer.html#L332">332</a>         <strong class="jxr_keyword">return</strong> update.multiply(highOrder);
+<a class="jxr_linenumber" name="L333" href="AdamsNordsieckTransformer.html#L333">333</a>     }
+<a class="jxr_linenumber" name="L334" href="AdamsNordsieckTransformer.html#L334">334</a> 
+<a class="jxr_linenumber" name="L335" href="AdamsNordsieckTransformer.html#L335">335</a>     <em class="jxr_javadoccomment">/** Update the high order scaled derivatives Adams integrators (phase 2).</em>
+<a class="jxr_linenumber" name="L336" href="AdamsNordsieckTransformer.html#L336">336</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The complete update of high order derivatives has a form similar to:</em>
+<a class="jxr_linenumber" name="L337" href="AdamsNordsieckTransformer.html#L337">337</a> <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L338" href="AdamsNordsieckTransformer.html#L338">338</a> <em class="jxr_javadoccomment">     * r&lt;sub&gt;n+1&lt;/sub&gt; = (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u + P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt;</em>
+<a class="jxr_linenumber" name="L339" href="AdamsNordsieckTransformer.html#L339">339</a> <em class="jxr_javadoccomment">     * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L340" href="AdamsNordsieckTransformer.html#L340">340</a> <em class="jxr_javadoccomment">     * this method computes the (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u part.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L341" href="AdamsNordsieckTransformer.html#L341">341</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Phase 1 of the update must already have been performed.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L342" href="AdamsNordsieckTransformer.html#L342">342</a> <em class="jxr_javadoccomment">     * @param start first order scaled derivatives at step start</em>
+<a class="jxr_linenumber" name="L343" href="AdamsNordsieckTransformer.html#L343">343</a> <em class="jxr_javadoccomment">     * @param end first order scaled derivatives at step end</em>
+<a class="jxr_linenumber" name="L344" href="AdamsNordsieckTransformer.html#L344">344</a> <em class="jxr_javadoccomment">     * @param highOrder high order scaled derivatives, will be modified</em>
+<a class="jxr_linenumber" name="L345" href="AdamsNordsieckTransformer.html#L345">345</a> <em class="jxr_javadoccomment">     * (h&lt;sup&gt;2&lt;/sup&gt;/2 y'', ... h&lt;sup&gt;k&lt;/sup&gt;/k! y(k))</em>
+<a class="jxr_linenumber" name="L346" href="AdamsNordsieckTransformer.html#L346">346</a> <em class="jxr_javadoccomment">     * @see #updateHighOrderDerivativesPhase1(Array2DRowRealMatrix)</em>
+<a class="jxr_linenumber" name="L347" href="AdamsNordsieckTransformer.html#L347">347</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L348" href="AdamsNordsieckTransformer.html#L348">348</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> updateHighOrderDerivativesPhase2(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] start,
+<a class="jxr_linenumber" name="L349" href="AdamsNordsieckTransformer.html#L349">349</a>                                                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] end,
+<a class="jxr_linenumber" name="L350" href="AdamsNordsieckTransformer.html#L350">350</a>                                                  <strong class="jxr_keyword">final</strong> <a href="../../linear/Array2DRowRealMatrix.html">Array2DRowRealMatrix</a> highOrder) {
+<a class="jxr_linenumber" name="L351" href="AdamsNordsieckTransformer.html#L351">351</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] data = highOrder.getDataRef();
+<a class="jxr_linenumber" name="L352" href="AdamsNordsieckTransformer.html#L352">352</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; data.length; ++i) {
+<a class="jxr_linenumber" name="L353" href="AdamsNordsieckTransformer.html#L353">353</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] dataI = data[i];
+<a class="jxr_linenumber" name="L354" href="AdamsNordsieckTransformer.html#L354">354</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> c1I = c1[i];
+<a class="jxr_linenumber" name="L355" href="AdamsNordsieckTransformer.html#L355">355</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; dataI.length; ++j) {
+<a class="jxr_linenumber" name="L356" href="AdamsNordsieckTransformer.html#L356">356</a>                 dataI[j] += c1I * (start[j] - end[j]);
+<a class="jxr_linenumber" name="L357" href="AdamsNordsieckTransformer.html#L357">357</a>             }
+<a class="jxr_linenumber" name="L358" href="AdamsNordsieckTransformer.html#L358">358</a>         }
+<a class="jxr_linenumber" name="L359" href="AdamsNordsieckTransformer.html#L359">359</a>     }
+<a class="jxr_linenumber" name="L360" href="AdamsNordsieckTransformer.html#L360">360</a> 
+<a class="jxr_linenumber" name="L361" href="AdamsNordsieckTransformer.html#L361">361</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

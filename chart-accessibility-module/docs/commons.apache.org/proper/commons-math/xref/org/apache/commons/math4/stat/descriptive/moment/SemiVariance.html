@@ -1,0 +1,376 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>SemiVariance xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../../apidocs/org/apache/commons/math4/stat/descriptive/moment/SemiVariance.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="SemiVariance.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="SemiVariance.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="SemiVariance.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="SemiVariance.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="SemiVariance.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="SemiVariance.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="SemiVariance.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="SemiVariance.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="SemiVariance.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="SemiVariance.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="SemiVariance.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="SemiVariance.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="SemiVariance.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="SemiVariance.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="SemiVariance.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="SemiVariance.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="SemiVariance.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="SemiVariance.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.stat.descriptive.moment;
+<a class="jxr_linenumber" name="L19" href="SemiVariance.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="SemiVariance.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.io.Serializable;
+<a class="jxr_linenumber" name="L21" href="SemiVariance.html#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="SemiVariance.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L23" href="SemiVariance.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NullArgumentException;
+<a class="jxr_linenumber" name="L24" href="SemiVariance.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.descriptive.AbstractUnivariateStatistic;
+<a class="jxr_linenumber" name="L25" href="SemiVariance.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L26" href="SemiVariance.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathUtils;
+<a class="jxr_linenumber" name="L27" href="SemiVariance.html#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="SemiVariance.html#L28">28</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L29" href="SemiVariance.html#L29">29</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Computes the semivariance of a set of values with respect to a given cutoff value.</em>
+<a class="jxr_linenumber" name="L30" href="SemiVariance.html#L30">30</a>  <em class="jxr_javadoccomment"> * We define the &lt;i&gt;downside semivariance&lt;/i&gt; of a set of values &lt;code&gt;x&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L31" href="SemiVariance.html#L31">31</a>  <em class="jxr_javadoccomment"> * against the &lt;i&gt;cutoff value&lt;/i&gt; &lt;code&gt;cutoff&lt;/code&gt; to be &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L32" href="SemiVariance.html#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;&amp;Sigma; (x[i] - target)&lt;sup&gt;2&lt;/sup&gt; / df&lt;/code&gt; &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L33" href="SemiVariance.html#L33">33</a>  <em class="jxr_javadoccomment"> * where the sum is taken over all &lt;code&gt;i&lt;/code&gt; such that &lt;code&gt;x[i] &lt; cutoff&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L34" href="SemiVariance.html#L34">34</a>  <em class="jxr_javadoccomment"> * and &lt;code&gt;df&lt;/code&gt; is the length of &lt;code&gt;x&lt;/code&gt; (non-bias-corrected) or</em>
+<a class="jxr_linenumber" name="L35" href="SemiVariance.html#L35">35</a>  <em class="jxr_javadoccomment"> * one less than this number (bias corrected).  The &lt;i&gt;upside semivariance&lt;/i&gt;</em>
+<a class="jxr_linenumber" name="L36" href="SemiVariance.html#L36">36</a>  <em class="jxr_javadoccomment"> * is defined similarly, with the sum taken over values of &lt;code&gt;x&lt;/code&gt; that</em>
+<a class="jxr_linenumber" name="L37" href="SemiVariance.html#L37">37</a>  <em class="jxr_javadoccomment"> * exceed the cutoff value.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L38" href="SemiVariance.html#L38">38</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L39" href="SemiVariance.html#L39">39</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;The cutoff value defaults to the mean, bias correction defaults to &lt;code&gt;true&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L40" href="SemiVariance.html#L40">40</a>  <em class="jxr_javadoccomment"> * and the "variance direction" (upside or downside) defaults to downside.  The variance direction</em>
+<a class="jxr_linenumber" name="L41" href="SemiVariance.html#L41">41</a>  <em class="jxr_javadoccomment"> * and bias correction may be set using property setters or their values can provided as</em>
+<a class="jxr_linenumber" name="L42" href="SemiVariance.html#L42">42</a>  <em class="jxr_javadoccomment"> * parameters to {@link #evaluate(double[], double, Direction, boolean, int, int)}.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L43" href="SemiVariance.html#L43">43</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L44" href="SemiVariance.html#L44">44</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;If the input array is null, &lt;code&gt;evaluate&lt;/code&gt; methods throw</em>
+<a class="jxr_linenumber" name="L45" href="SemiVariance.html#L45">45</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;IllegalArgumentException.&lt;/code&gt;  If the array has length 1, &lt;code&gt;0&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L46" href="SemiVariance.html#L46">46</a>  <em class="jxr_javadoccomment"> * is returned, regardless of the value of the &lt;code&gt;cutoff.&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L47" href="SemiVariance.html#L47">47</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L48" href="SemiVariance.html#L48">48</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;&lt;strong&gt;Note that this class is not intended to be threadsafe.&lt;/strong&gt; If</em>
+<a class="jxr_linenumber" name="L49" href="SemiVariance.html#L49">49</a>  <em class="jxr_javadoccomment"> * multiple threads access an instance of this class concurrently, and one or</em>
+<a class="jxr_linenumber" name="L50" href="SemiVariance.html#L50">50</a>  <em class="jxr_javadoccomment"> * more of these threads invoke property setters, external synchronization must</em>
+<a class="jxr_linenumber" name="L51" href="SemiVariance.html#L51">51</a>  <em class="jxr_javadoccomment"> * be provided to ensure correct results.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L52" href="SemiVariance.html#L52">52</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L53" href="SemiVariance.html#L53">53</a>  <em class="jxr_javadoccomment"> * @since 2.1</em>
+<a class="jxr_linenumber" name="L54" href="SemiVariance.html#L54">54</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L55" href="SemiVariance.html#L55">55</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="SemiVariance.html">SemiVariance</a> <strong class="jxr_keyword">extends</strong> <a href="../AbstractUnivariateStatistic.html">AbstractUnivariateStatistic</a> <strong class="jxr_keyword">implements</strong> Serializable {
+<a class="jxr_linenumber" name="L56" href="SemiVariance.html#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="SemiVariance.html#L57">57</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L58" href="SemiVariance.html#L58">58</a>  <em class="jxr_javadoccomment">     * The UPSIDE Direction is used to specify that the observations above the</em>
+<a class="jxr_linenumber" name="L59" href="SemiVariance.html#L59">59</a>  <em class="jxr_javadoccomment">     * cutoff point will be used to calculate SemiVariance.</em>
+<a class="jxr_linenumber" name="L60" href="SemiVariance.html#L60">60</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L61" href="SemiVariance.html#L61">61</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="SemiVariance.html">Direction</a> UPSIDE_VARIANCE = Direction.UPSIDE;
+<a class="jxr_linenumber" name="L62" href="SemiVariance.html#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="SemiVariance.html#L63">63</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L64" href="SemiVariance.html#L64">64</a>  <em class="jxr_javadoccomment">     * The DOWNSIDE Direction is used to specify that the observations below</em>
+<a class="jxr_linenumber" name="L65" href="SemiVariance.html#L65">65</a>  <em class="jxr_javadoccomment">     * the cutoff point will be used to calculate SemiVariance</em>
+<a class="jxr_linenumber" name="L66" href="SemiVariance.html#L66">66</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L67" href="SemiVariance.html#L67">67</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="SemiVariance.html">Direction</a> DOWNSIDE_VARIANCE = Direction.DOWNSIDE;
+<a class="jxr_linenumber" name="L68" href="SemiVariance.html#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="SemiVariance.html#L69">69</a>      <em class="jxr_javadoccomment">/** Serializable version identifier */</em>
+<a class="jxr_linenumber" name="L70" href="SemiVariance.html#L70">70</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 20150412L;
+<a class="jxr_linenumber" name="L71" href="SemiVariance.html#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="SemiVariance.html#L72">72</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L73" href="SemiVariance.html#L73">73</a>  <em class="jxr_javadoccomment">     * Determines whether or not bias correction is applied when computing the</em>
+<a class="jxr_linenumber" name="L74" href="SemiVariance.html#L74">74</a>  <em class="jxr_javadoccomment">     * value of the statistic.  True means that bias is corrected.</em>
+<a class="jxr_linenumber" name="L75" href="SemiVariance.html#L75">75</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L76" href="SemiVariance.html#L76">76</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> biasCorrected = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L77" href="SemiVariance.html#L77">77</a>  
+<a class="jxr_linenumber" name="L78" href="SemiVariance.html#L78">78</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L79" href="SemiVariance.html#L79">79</a>  <em class="jxr_javadoccomment">     * Determines whether to calculate downside or upside SemiVariance.</em>
+<a class="jxr_linenumber" name="L80" href="SemiVariance.html#L80">80</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L81" href="SemiVariance.html#L81">81</a>      <strong class="jxr_keyword">private</strong> <a href="SemiVariance.html">Direction</a> varianceDirection = Direction.DOWNSIDE;
+<a class="jxr_linenumber" name="L82" href="SemiVariance.html#L82">82</a>  
+<a class="jxr_linenumber" name="L83" href="SemiVariance.html#L83">83</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L84" href="SemiVariance.html#L84">84</a>  <em class="jxr_javadoccomment">     * Constructs a SemiVariance with default (true) &lt;code&gt;biasCorrected&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L85" href="SemiVariance.html#L85">85</a>  <em class="jxr_javadoccomment">     * property and default (Downside) &lt;code&gt;varianceDirection&lt;/code&gt; property.</em>
+<a class="jxr_linenumber" name="L86" href="SemiVariance.html#L86">86</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L87" href="SemiVariance.html#L87">87</a>      <strong class="jxr_keyword">public</strong> <a href="SemiVariance.html">SemiVariance</a>() {
+<a class="jxr_linenumber" name="L88" href="SemiVariance.html#L88">88</a>      }
+<a class="jxr_linenumber" name="L89" href="SemiVariance.html#L89">89</a>  
+<a class="jxr_linenumber" name="L90" href="SemiVariance.html#L90">90</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L91" href="SemiVariance.html#L91">91</a>  <em class="jxr_javadoccomment">     * Constructs a SemiVariance with the specified &lt;code&gt;biasCorrected&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L92" href="SemiVariance.html#L92">92</a>  <em class="jxr_javadoccomment">     * property and default (Downside) &lt;code&gt;varianceDirection&lt;/code&gt; property.</em>
+<a class="jxr_linenumber" name="L93" href="SemiVariance.html#L93">93</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L94" href="SemiVariance.html#L94">94</a>  <em class="jxr_javadoccomment">     * @param biasCorrected  setting for bias correction - true means</em>
+<a class="jxr_linenumber" name="L95" href="SemiVariance.html#L95">95</a>  <em class="jxr_javadoccomment">     * bias will be corrected and is equivalent to using the argumentless</em>
+<a class="jxr_linenumber" name="L96" href="SemiVariance.html#L96">96</a>  <em class="jxr_javadoccomment">     * constructor</em>
+<a class="jxr_linenumber" name="L97" href="SemiVariance.html#L97">97</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L98" href="SemiVariance.html#L98">98</a>      <strong class="jxr_keyword">public</strong> <a href="SemiVariance.html">SemiVariance</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> biasCorrected) {
+<a class="jxr_linenumber" name="L99" href="SemiVariance.html#L99">99</a>          <strong class="jxr_keyword">this</strong>.biasCorrected = biasCorrected;
+<a class="jxr_linenumber" name="L100" href="SemiVariance.html#L100">100</a>     }
+<a class="jxr_linenumber" name="L101" href="SemiVariance.html#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="SemiVariance.html#L102">102</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L103" href="SemiVariance.html#L103">103</a> <em class="jxr_javadoccomment">     * Constructs a SemiVariance with the specified &lt;code&gt;Direction&lt;/code&gt; property</em>
+<a class="jxr_linenumber" name="L104" href="SemiVariance.html#L104">104</a> <em class="jxr_javadoccomment">     * and default (true) &lt;code&gt;biasCorrected&lt;/code&gt; property</em>
+<a class="jxr_linenumber" name="L105" href="SemiVariance.html#L105">105</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L106" href="SemiVariance.html#L106">106</a> <em class="jxr_javadoccomment">     * @param direction  setting for the direction of the SemiVariance</em>
+<a class="jxr_linenumber" name="L107" href="SemiVariance.html#L107">107</a> <em class="jxr_javadoccomment">     * to calculate</em>
+<a class="jxr_linenumber" name="L108" href="SemiVariance.html#L108">108</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L109" href="SemiVariance.html#L109">109</a>     <strong class="jxr_keyword">public</strong> <a href="SemiVariance.html">SemiVariance</a>(<strong class="jxr_keyword">final</strong> <a href="SemiVariance.html">Direction</a> direction) {
+<a class="jxr_linenumber" name="L110" href="SemiVariance.html#L110">110</a>         <strong class="jxr_keyword">this</strong>.varianceDirection = direction;
+<a class="jxr_linenumber" name="L111" href="SemiVariance.html#L111">111</a>     }
+<a class="jxr_linenumber" name="L112" href="SemiVariance.html#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="SemiVariance.html#L113">113</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L114" href="SemiVariance.html#L114">114</a> <em class="jxr_javadoccomment">     * Constructs a SemiVariance with the specified &lt;code&gt;isBiasCorrected&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L115" href="SemiVariance.html#L115">115</a> <em class="jxr_javadoccomment">     * property and the specified &lt;code&gt;Direction&lt;/code&gt; property.</em>
+<a class="jxr_linenumber" name="L116" href="SemiVariance.html#L116">116</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L117" href="SemiVariance.html#L117">117</a> <em class="jxr_javadoccomment">     * @param corrected  setting for bias correction - true means</em>
+<a class="jxr_linenumber" name="L118" href="SemiVariance.html#L118">118</a> <em class="jxr_javadoccomment">     * bias will be corrected and is equivalent to using the argumentless</em>
+<a class="jxr_linenumber" name="L119" href="SemiVariance.html#L119">119</a> <em class="jxr_javadoccomment">     * constructor</em>
+<a class="jxr_linenumber" name="L120" href="SemiVariance.html#L120">120</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L121" href="SemiVariance.html#L121">121</a> <em class="jxr_javadoccomment">     * @param direction  setting for the direction of the SemiVariance</em>
+<a class="jxr_linenumber" name="L122" href="SemiVariance.html#L122">122</a> <em class="jxr_javadoccomment">     * to calculate</em>
+<a class="jxr_linenumber" name="L123" href="SemiVariance.html#L123">123</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L124" href="SemiVariance.html#L124">124</a>     <strong class="jxr_keyword">public</strong> <a href="SemiVariance.html">SemiVariance</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> corrected, <strong class="jxr_keyword">final</strong> <a href="SemiVariance.html">Direction</a> direction) {
+<a class="jxr_linenumber" name="L125" href="SemiVariance.html#L125">125</a>         <strong class="jxr_keyword">this</strong>.biasCorrected = corrected;
+<a class="jxr_linenumber" name="L126" href="SemiVariance.html#L126">126</a>         <strong class="jxr_keyword">this</strong>.varianceDirection = direction;
+<a class="jxr_linenumber" name="L127" href="SemiVariance.html#L127">127</a>     }
+<a class="jxr_linenumber" name="L128" href="SemiVariance.html#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="SemiVariance.html#L129">129</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L130" href="SemiVariance.html#L130">130</a> <em class="jxr_javadoccomment">     * Copy constructor, creates a new {@code SemiVariance} identical</em>
+<a class="jxr_linenumber" name="L131" href="SemiVariance.html#L131">131</a> <em class="jxr_javadoccomment">     * to the {@code original}.</em>
+<a class="jxr_linenumber" name="L132" href="SemiVariance.html#L132">132</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L133" href="SemiVariance.html#L133">133</a> <em class="jxr_javadoccomment">     * @param original the {@code SemiVariance} instance to copy</em>
+<a class="jxr_linenumber" name="L134" href="SemiVariance.html#L134">134</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException  if original is null</em>
+<a class="jxr_linenumber" name="L135" href="SemiVariance.html#L135">135</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L136" href="SemiVariance.html#L136">136</a>     <strong class="jxr_keyword">public</strong> <a href="SemiVariance.html">SemiVariance</a>(<strong class="jxr_keyword">final</strong> <a href="SemiVariance.html">SemiVariance</a> original) <strong class="jxr_keyword">throws</strong> NullArgumentException {
+<a class="jxr_linenumber" name="L137" href="SemiVariance.html#L137">137</a>         copy(original, <strong class="jxr_keyword">this</strong>);
+<a class="jxr_linenumber" name="L138" href="SemiVariance.html#L138">138</a>     }
+<a class="jxr_linenumber" name="L139" href="SemiVariance.html#L139">139</a> 
+<a class="jxr_linenumber" name="L140" href="SemiVariance.html#L140">140</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L141" href="SemiVariance.html#L141">141</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L142" href="SemiVariance.html#L142">142</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L143" href="SemiVariance.html#L143">143</a>     @Override
+<a class="jxr_linenumber" name="L144" href="SemiVariance.html#L144">144</a>     <strong class="jxr_keyword">public</strong> <a href="SemiVariance.html">SemiVariance</a> copy() {
+<a class="jxr_linenumber" name="L145" href="SemiVariance.html#L145">145</a>         <a href="SemiVariance.html">SemiVariance</a> result = <strong class="jxr_keyword">new</strong> <a href="SemiVariance.html">SemiVariance</a>();
+<a class="jxr_linenumber" name="L146" href="SemiVariance.html#L146">146</a>         <em class="jxr_comment">// No try-catch or advertised exception because args are guaranteed non-null</em>
+<a class="jxr_linenumber" name="L147" href="SemiVariance.html#L147">147</a>         copy(<strong class="jxr_keyword">this</strong>, result);
+<a class="jxr_linenumber" name="L148" href="SemiVariance.html#L148">148</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L149" href="SemiVariance.html#L149">149</a>     }
+<a class="jxr_linenumber" name="L150" href="SemiVariance.html#L150">150</a> 
+<a class="jxr_linenumber" name="L151" href="SemiVariance.html#L151">151</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L152" href="SemiVariance.html#L152">152</a> <em class="jxr_javadoccomment">     * Copies source to dest.</em>
+<a class="jxr_linenumber" name="L153" href="SemiVariance.html#L153">153</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Neither source nor dest can be null.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L154" href="SemiVariance.html#L154">154</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L155" href="SemiVariance.html#L155">155</a> <em class="jxr_javadoccomment">     * @param source SemiVariance to copy</em>
+<a class="jxr_linenumber" name="L156" href="SemiVariance.html#L156">156</a> <em class="jxr_javadoccomment">     * @param dest SemiVariance to copy to</em>
+<a class="jxr_linenumber" name="L157" href="SemiVariance.html#L157">157</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if either source or dest is null</em>
+<a class="jxr_linenumber" name="L158" href="SemiVariance.html#L158">158</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L159" href="SemiVariance.html#L159">159</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> copy(<strong class="jxr_keyword">final</strong> <a href="SemiVariance.html">SemiVariance</a> source, <a href="SemiVariance.html">SemiVariance</a> dest)
+<a class="jxr_linenumber" name="L160" href="SemiVariance.html#L160">160</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../exception/NullArgumentException.html">NullArgumentException</a> {
+<a class="jxr_linenumber" name="L161" href="SemiVariance.html#L161">161</a>         MathUtils.checkNotNull(source);
+<a class="jxr_linenumber" name="L162" href="SemiVariance.html#L162">162</a>         MathUtils.checkNotNull(dest);
+<a class="jxr_linenumber" name="L163" href="SemiVariance.html#L163">163</a>         dest.biasCorrected = source.biasCorrected;
+<a class="jxr_linenumber" name="L164" href="SemiVariance.html#L164">164</a>         dest.varianceDirection = source.varianceDirection;
+<a class="jxr_linenumber" name="L165" href="SemiVariance.html#L165">165</a>     }
+<a class="jxr_linenumber" name="L166" href="SemiVariance.html#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="SemiVariance.html#L167">167</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L168" href="SemiVariance.html#L168">168</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Returns the {@link SemiVariance} of the designated values against the mean, using</em>
+<a class="jxr_linenumber" name="L169" href="SemiVariance.html#L169">169</a> <em class="jxr_javadoccomment">     * instance properties varianceDirection and biasCorrection.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L170" href="SemiVariance.html#L170">170</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L171" href="SemiVariance.html#L171">171</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Returns &lt;code&gt;NaN&lt;/code&gt; if the array is empty and throws</em>
+<a class="jxr_linenumber" name="L172" href="SemiVariance.html#L172">172</a> <em class="jxr_javadoccomment">     * &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L173" href="SemiVariance.html#L173">173</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L174" href="SemiVariance.html#L174">174</a> <em class="jxr_javadoccomment">     * @param values the input array</em>
+<a class="jxr_linenumber" name="L175" href="SemiVariance.html#L175">175</a> <em class="jxr_javadoccomment">     * @param start index of the first array element to include</em>
+<a class="jxr_linenumber" name="L176" href="SemiVariance.html#L176">176</a> <em class="jxr_javadoccomment">     * @param length the number of elements to include</em>
+<a class="jxr_linenumber" name="L177" href="SemiVariance.html#L177">177</a> <em class="jxr_javadoccomment">     * @return the SemiVariance</em>
+<a class="jxr_linenumber" name="L178" href="SemiVariance.html#L178">178</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if the parameters are not valid</em>
+<a class="jxr_linenumber" name="L179" href="SemiVariance.html#L179">179</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L180" href="SemiVariance.html#L180">180</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L181" href="SemiVariance.html#L181">181</a>      @Override
+<a class="jxr_linenumber" name="L182" href="SemiVariance.html#L182">182</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> start, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length)
+<a class="jxr_linenumber" name="L183" href="SemiVariance.html#L183">183</a>          <strong class="jxr_keyword">throws</strong> <a href="../../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L184" href="SemiVariance.html#L184">184</a>          <strong class="jxr_keyword">double</strong> m = (<strong class="jxr_keyword">new</strong> Mean()).evaluate(values, start, length);
+<a class="jxr_linenumber" name="L185" href="SemiVariance.html#L185">185</a>          <strong class="jxr_keyword">return</strong> evaluate(values, m, varianceDirection, biasCorrected, 0, values.length);
+<a class="jxr_linenumber" name="L186" href="SemiVariance.html#L186">186</a>      }
+<a class="jxr_linenumber" name="L187" href="SemiVariance.html#L187">187</a> 
+<a class="jxr_linenumber" name="L188" href="SemiVariance.html#L188">188</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L189" href="SemiVariance.html#L189">189</a> <em class="jxr_javadoccomment">      * This method calculates {@link SemiVariance} for the entire array against the mean, using</em>
+<a class="jxr_linenumber" name="L190" href="SemiVariance.html#L190">190</a> <em class="jxr_javadoccomment">      * the current value of the biasCorrection instance property.</em>
+<a class="jxr_linenumber" name="L191" href="SemiVariance.html#L191">191</a> <em class="jxr_javadoccomment">      *</em>
+<a class="jxr_linenumber" name="L192" href="SemiVariance.html#L192">192</a> <em class="jxr_javadoccomment">      * @param values the input array</em>
+<a class="jxr_linenumber" name="L193" href="SemiVariance.html#L193">193</a> <em class="jxr_javadoccomment">      * @param direction the {@link Direction} of the semivariance</em>
+<a class="jxr_linenumber" name="L194" href="SemiVariance.html#L194">194</a> <em class="jxr_javadoccomment">      * @return the SemiVariance</em>
+<a class="jxr_linenumber" name="L195" href="SemiVariance.html#L195">195</a> <em class="jxr_javadoccomment">      * @throws MathIllegalArgumentException if values is null</em>
+<a class="jxr_linenumber" name="L196" href="SemiVariance.html#L196">196</a> <em class="jxr_javadoccomment">      *</em>
+<a class="jxr_linenumber" name="L197" href="SemiVariance.html#L197">197</a> <em class="jxr_javadoccomment">      */</em>
+<a class="jxr_linenumber" name="L198" href="SemiVariance.html#L198">198</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <a href="SemiVariance.html">Direction</a> direction)
+<a class="jxr_linenumber" name="L199" href="SemiVariance.html#L199">199</a>          <strong class="jxr_keyword">throws</strong> <a href="../../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L200" href="SemiVariance.html#L200">200</a>          <strong class="jxr_keyword">double</strong> m = (<strong class="jxr_keyword">new</strong> Mean()).evaluate(values);
+<a class="jxr_linenumber" name="L201" href="SemiVariance.html#L201">201</a>          <strong class="jxr_keyword">return</strong> evaluate(values, m, direction, biasCorrected, 0, values.length);
+<a class="jxr_linenumber" name="L202" href="SemiVariance.html#L202">202</a>      }
+<a class="jxr_linenumber" name="L203" href="SemiVariance.html#L203">203</a> 
+<a class="jxr_linenumber" name="L204" href="SemiVariance.html#L204">204</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L205" href="SemiVariance.html#L205">205</a> <em class="jxr_javadoccomment">      * &lt;p&gt;Returns the {@link SemiVariance} of the designated values against the cutoff, using</em>
+<a class="jxr_linenumber" name="L206" href="SemiVariance.html#L206">206</a> <em class="jxr_javadoccomment">      * instance properties variancDirection and biasCorrection.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L207" href="SemiVariance.html#L207">207</a> <em class="jxr_javadoccomment">      *</em>
+<a class="jxr_linenumber" name="L208" href="SemiVariance.html#L208">208</a> <em class="jxr_javadoccomment">      * &lt;p&gt;Returns &lt;code&gt;NaN&lt;/code&gt; if the array is empty and throws</em>
+<a class="jxr_linenumber" name="L209" href="SemiVariance.html#L209">209</a> <em class="jxr_javadoccomment">      * &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L210" href="SemiVariance.html#L210">210</a> <em class="jxr_javadoccomment">      *</em>
+<a class="jxr_linenumber" name="L211" href="SemiVariance.html#L211">211</a> <em class="jxr_javadoccomment">      * @param values the input array</em>
+<a class="jxr_linenumber" name="L212" href="SemiVariance.html#L212">212</a> <em class="jxr_javadoccomment">      * @param cutoff the reference point</em>
+<a class="jxr_linenumber" name="L213" href="SemiVariance.html#L213">213</a> <em class="jxr_javadoccomment">      * @return the SemiVariance</em>
+<a class="jxr_linenumber" name="L214" href="SemiVariance.html#L214">214</a> <em class="jxr_javadoccomment">      * @throws MathIllegalArgumentException if values is null</em>
+<a class="jxr_linenumber" name="L215" href="SemiVariance.html#L215">215</a> <em class="jxr_javadoccomment">      */</em>
+<a class="jxr_linenumber" name="L216" href="SemiVariance.html#L216">216</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> cutoff)
+<a class="jxr_linenumber" name="L217" href="SemiVariance.html#L217">217</a>          <strong class="jxr_keyword">throws</strong> <a href="../../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L218" href="SemiVariance.html#L218">218</a>          <strong class="jxr_keyword">return</strong> evaluate(values, cutoff, varianceDirection, biasCorrected, 0, values.length);
+<a class="jxr_linenumber" name="L219" href="SemiVariance.html#L219">219</a>      }
+<a class="jxr_linenumber" name="L220" href="SemiVariance.html#L220">220</a> 
+<a class="jxr_linenumber" name="L221" href="SemiVariance.html#L221">221</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L222" href="SemiVariance.html#L222">222</a> <em class="jxr_javadoccomment">      * &lt;p&gt;Returns the {@link SemiVariance} of the designated values against the cutoff in the</em>
+<a class="jxr_linenumber" name="L223" href="SemiVariance.html#L223">223</a> <em class="jxr_javadoccomment">      * given direction, using the current value of the biasCorrection instance property.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L224" href="SemiVariance.html#L224">224</a> <em class="jxr_javadoccomment">      *</em>
+<a class="jxr_linenumber" name="L225" href="SemiVariance.html#L225">225</a> <em class="jxr_javadoccomment">      * &lt;p&gt;Returns &lt;code&gt;NaN&lt;/code&gt; if the array is empty and throws</em>
+<a class="jxr_linenumber" name="L226" href="SemiVariance.html#L226">226</a> <em class="jxr_javadoccomment">      * &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L227" href="SemiVariance.html#L227">227</a> <em class="jxr_javadoccomment">      *</em>
+<a class="jxr_linenumber" name="L228" href="SemiVariance.html#L228">228</a> <em class="jxr_javadoccomment">      * @param values the input array</em>
+<a class="jxr_linenumber" name="L229" href="SemiVariance.html#L229">229</a> <em class="jxr_javadoccomment">      * @param cutoff the reference point</em>
+<a class="jxr_linenumber" name="L230" href="SemiVariance.html#L230">230</a> <em class="jxr_javadoccomment">      * @param direction the {@link Direction} of the semivariance</em>
+<a class="jxr_linenumber" name="L231" href="SemiVariance.html#L231">231</a> <em class="jxr_javadoccomment">      * @return the SemiVariance</em>
+<a class="jxr_linenumber" name="L232" href="SemiVariance.html#L232">232</a> <em class="jxr_javadoccomment">      * @throws MathIllegalArgumentException if values is null</em>
+<a class="jxr_linenumber" name="L233" href="SemiVariance.html#L233">233</a> <em class="jxr_javadoccomment">      */</em>
+<a class="jxr_linenumber" name="L234" href="SemiVariance.html#L234">234</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> cutoff, <strong class="jxr_keyword">final</strong> <a href="SemiVariance.html">Direction</a> direction)
+<a class="jxr_linenumber" name="L235" href="SemiVariance.html#L235">235</a>          <strong class="jxr_keyword">throws</strong> <a href="../../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L236" href="SemiVariance.html#L236">236</a>          <strong class="jxr_keyword">return</strong> evaluate(values, cutoff, direction, biasCorrected, 0, values.length);
+<a class="jxr_linenumber" name="L237" href="SemiVariance.html#L237">237</a>      }
+<a class="jxr_linenumber" name="L238" href="SemiVariance.html#L238">238</a> 
+<a class="jxr_linenumber" name="L239" href="SemiVariance.html#L239">239</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L240" href="SemiVariance.html#L240">240</a> <em class="jxr_javadoccomment">      * &lt;p&gt;Returns the {@link SemiVariance} of the designated values against the cutoff</em>
+<a class="jxr_linenumber" name="L241" href="SemiVariance.html#L241">241</a> <em class="jxr_javadoccomment">      * in the given direction with the provided bias correction.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L242" href="SemiVariance.html#L242">242</a> <em class="jxr_javadoccomment">      *</em>
+<a class="jxr_linenumber" name="L243" href="SemiVariance.html#L243">243</a> <em class="jxr_javadoccomment">      * &lt;p&gt;Returns &lt;code&gt;NaN&lt;/code&gt; if the array is empty and throws</em>
+<a class="jxr_linenumber" name="L244" href="SemiVariance.html#L244">244</a> <em class="jxr_javadoccomment">      * &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L245" href="SemiVariance.html#L245">245</a> <em class="jxr_javadoccomment">      *</em>
+<a class="jxr_linenumber" name="L246" href="SemiVariance.html#L246">246</a> <em class="jxr_javadoccomment">      * @param values the input array</em>
+<a class="jxr_linenumber" name="L247" href="SemiVariance.html#L247">247</a> <em class="jxr_javadoccomment">      * @param cutoff the reference point</em>
+<a class="jxr_linenumber" name="L248" href="SemiVariance.html#L248">248</a> <em class="jxr_javadoccomment">      * @param direction the {@link Direction} of the semivariance</em>
+<a class="jxr_linenumber" name="L249" href="SemiVariance.html#L249">249</a> <em class="jxr_javadoccomment">      * @param corrected the BiasCorrection flag</em>
+<a class="jxr_linenumber" name="L250" href="SemiVariance.html#L250">250</a> <em class="jxr_javadoccomment">      * @param start index of the first array element to include</em>
+<a class="jxr_linenumber" name="L251" href="SemiVariance.html#L251">251</a> <em class="jxr_javadoccomment">      * @param length the number of elements to include</em>
+<a class="jxr_linenumber" name="L252" href="SemiVariance.html#L252">252</a> <em class="jxr_javadoccomment">      * @return the SemiVariance</em>
+<a class="jxr_linenumber" name="L253" href="SemiVariance.html#L253">253</a> <em class="jxr_javadoccomment">      * @throws MathIllegalArgumentException if the parameters are not valid</em>
+<a class="jxr_linenumber" name="L254" href="SemiVariance.html#L254">254</a> <em class="jxr_javadoccomment">      *</em>
+<a class="jxr_linenumber" name="L255" href="SemiVariance.html#L255">255</a> <em class="jxr_javadoccomment">      */</em>
+<a class="jxr_linenumber" name="L256" href="SemiVariance.html#L256">256</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> evaluate (<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] values, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> cutoff, <strong class="jxr_keyword">final</strong> Direction direction,
+<a class="jxr_linenumber" name="L257" href="SemiVariance.html#L257">257</a>                              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> corrected, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> start, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> length)
+<a class="jxr_linenumber" name="L258" href="SemiVariance.html#L258">258</a>          <strong class="jxr_keyword">throws</strong> <a href="../../../exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a> {
+<a class="jxr_linenumber" name="L259" href="SemiVariance.html#L259">259</a> 
+<a class="jxr_linenumber" name="L260" href="SemiVariance.html#L260">260</a>          MathArrays.verifyValues(values, start, length);
+<a class="jxr_linenumber" name="L261" href="SemiVariance.html#L261">261</a>          <strong class="jxr_keyword">if</strong> (values.length == 0) {
+<a class="jxr_linenumber" name="L262" href="SemiVariance.html#L262">262</a>              <strong class="jxr_keyword">return</strong> Double.NaN;
+<a class="jxr_linenumber" name="L263" href="SemiVariance.html#L263">263</a>          } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L264" href="SemiVariance.html#L264">264</a>              <strong class="jxr_keyword">if</strong> (values.length == 1) {
+<a class="jxr_linenumber" name="L265" href="SemiVariance.html#L265">265</a>                  <strong class="jxr_keyword">return</strong> 0.0;
+<a class="jxr_linenumber" name="L266" href="SemiVariance.html#L266">266</a>              } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L267" href="SemiVariance.html#L267">267</a>                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> booleanDirection = direction.getDirection();
+<a class="jxr_linenumber" name="L268" href="SemiVariance.html#L268">268</a> 
+<a class="jxr_linenumber" name="L269" href="SemiVariance.html#L269">269</a>                  <strong class="jxr_keyword">double</strong> dev = 0.0;
+<a class="jxr_linenumber" name="L270" href="SemiVariance.html#L270">270</a>                  <strong class="jxr_keyword">double</strong> sumsq = 0.0;
+<a class="jxr_linenumber" name="L271" href="SemiVariance.html#L271">271</a>                  <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = start; i &lt; length; i++) {
+<a class="jxr_linenumber" name="L272" href="SemiVariance.html#L272">272</a>                      <strong class="jxr_keyword">if</strong> ((values[i] &gt; cutoff) == booleanDirection) {
+<a class="jxr_linenumber" name="L273" href="SemiVariance.html#L273">273</a>                          dev = values[i] - cutoff;
+<a class="jxr_linenumber" name="L274" href="SemiVariance.html#L274">274</a>                          sumsq += dev * dev;
+<a class="jxr_linenumber" name="L275" href="SemiVariance.html#L275">275</a>                      }
+<a class="jxr_linenumber" name="L276" href="SemiVariance.html#L276">276</a>                  }
+<a class="jxr_linenumber" name="L277" href="SemiVariance.html#L277">277</a> 
+<a class="jxr_linenumber" name="L278" href="SemiVariance.html#L278">278</a>                  <strong class="jxr_keyword">if</strong> (corrected) {
+<a class="jxr_linenumber" name="L279" href="SemiVariance.html#L279">279</a>                      <strong class="jxr_keyword">return</strong> sumsq / (length - 1.0);
+<a class="jxr_linenumber" name="L280" href="SemiVariance.html#L280">280</a>                  } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L281" href="SemiVariance.html#L281">281</a>                      <strong class="jxr_keyword">return</strong> sumsq / length;
+<a class="jxr_linenumber" name="L282" href="SemiVariance.html#L282">282</a>                  }
+<a class="jxr_linenumber" name="L283" href="SemiVariance.html#L283">283</a>              }
+<a class="jxr_linenumber" name="L284" href="SemiVariance.html#L284">284</a>          }
+<a class="jxr_linenumber" name="L285" href="SemiVariance.html#L285">285</a>      }
+<a class="jxr_linenumber" name="L286" href="SemiVariance.html#L286">286</a> 
+<a class="jxr_linenumber" name="L287" href="SemiVariance.html#L287">287</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L288" href="SemiVariance.html#L288">288</a> <em class="jxr_javadoccomment">      * Returns true iff biasCorrected property is set to true.</em>
+<a class="jxr_linenumber" name="L289" href="SemiVariance.html#L289">289</a> <em class="jxr_javadoccomment">      *</em>
+<a class="jxr_linenumber" name="L290" href="SemiVariance.html#L290">290</a> <em class="jxr_javadoccomment">      * @return the value of biasCorrected.</em>
+<a class="jxr_linenumber" name="L291" href="SemiVariance.html#L291">291</a> <em class="jxr_javadoccomment">      */</em>
+<a class="jxr_linenumber" name="L292" href="SemiVariance.html#L292">292</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isBiasCorrected() {
+<a class="jxr_linenumber" name="L293" href="SemiVariance.html#L293">293</a>          <strong class="jxr_keyword">return</strong> biasCorrected;
+<a class="jxr_linenumber" name="L294" href="SemiVariance.html#L294">294</a>      }
+<a class="jxr_linenumber" name="L295" href="SemiVariance.html#L295">295</a> 
+<a class="jxr_linenumber" name="L296" href="SemiVariance.html#L296">296</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L297" href="SemiVariance.html#L297">297</a> <em class="jxr_javadoccomment">      * Sets the biasCorrected property.</em>
+<a class="jxr_linenumber" name="L298" href="SemiVariance.html#L298">298</a> <em class="jxr_javadoccomment">      *</em>
+<a class="jxr_linenumber" name="L299" href="SemiVariance.html#L299">299</a> <em class="jxr_javadoccomment">      * @param biasCorrected new biasCorrected property value</em>
+<a class="jxr_linenumber" name="L300" href="SemiVariance.html#L300">300</a> <em class="jxr_javadoccomment">      */</em>
+<a class="jxr_linenumber" name="L301" href="SemiVariance.html#L301">301</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setBiasCorrected(<strong class="jxr_keyword">boolean</strong> biasCorrected) {
+<a class="jxr_linenumber" name="L302" href="SemiVariance.html#L302">302</a>          <strong class="jxr_keyword">this</strong>.biasCorrected = biasCorrected;
+<a class="jxr_linenumber" name="L303" href="SemiVariance.html#L303">303</a>      }
+<a class="jxr_linenumber" name="L304" href="SemiVariance.html#L304">304</a> 
+<a class="jxr_linenumber" name="L305" href="SemiVariance.html#L305">305</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L306" href="SemiVariance.html#L306">306</a> <em class="jxr_javadoccomment">      * Returns the varianceDirection property.</em>
+<a class="jxr_linenumber" name="L307" href="SemiVariance.html#L307">307</a> <em class="jxr_javadoccomment">      *</em>
+<a class="jxr_linenumber" name="L308" href="SemiVariance.html#L308">308</a> <em class="jxr_javadoccomment">      * @return the varianceDirection</em>
+<a class="jxr_linenumber" name="L309" href="SemiVariance.html#L309">309</a> <em class="jxr_javadoccomment">      */</em>
+<a class="jxr_linenumber" name="L310" href="SemiVariance.html#L310">310</a>      <strong class="jxr_keyword">public</strong> <a href="SemiVariance.html">Direction</a> getVarianceDirection () {
+<a class="jxr_linenumber" name="L311" href="SemiVariance.html#L311">311</a>          <strong class="jxr_keyword">return</strong> varianceDirection;
+<a class="jxr_linenumber" name="L312" href="SemiVariance.html#L312">312</a>      }
+<a class="jxr_linenumber" name="L313" href="SemiVariance.html#L313">313</a> 
+<a class="jxr_linenumber" name="L314" href="SemiVariance.html#L314">314</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L315" href="SemiVariance.html#L315">315</a> <em class="jxr_javadoccomment">      * Sets the variance direction</em>
+<a class="jxr_linenumber" name="L316" href="SemiVariance.html#L316">316</a> <em class="jxr_javadoccomment">      *</em>
+<a class="jxr_linenumber" name="L317" href="SemiVariance.html#L317">317</a> <em class="jxr_javadoccomment">      * @param varianceDirection the direction of the semivariance</em>
+<a class="jxr_linenumber" name="L318" href="SemiVariance.html#L318">318</a> <em class="jxr_javadoccomment">      */</em>
+<a class="jxr_linenumber" name="L319" href="SemiVariance.html#L319">319</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setVarianceDirection(<a href="SemiVariance.html">Direction</a> varianceDirection) {
+<a class="jxr_linenumber" name="L320" href="SemiVariance.html#L320">320</a>          <strong class="jxr_keyword">this</strong>.varianceDirection = varianceDirection;
+<a class="jxr_linenumber" name="L321" href="SemiVariance.html#L321">321</a>      }
+<a class="jxr_linenumber" name="L322" href="SemiVariance.html#L322">322</a> 
+<a class="jxr_linenumber" name="L323" href="SemiVariance.html#L323">323</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L324" href="SemiVariance.html#L324">324</a> <em class="jxr_javadoccomment">      * The direction of the semivariance - either upside or downside. The direction</em>
+<a class="jxr_linenumber" name="L325" href="SemiVariance.html#L325">325</a> <em class="jxr_javadoccomment">      * is represented by boolean, with true corresponding to UPSIDE semivariance.</em>
+<a class="jxr_linenumber" name="L326" href="SemiVariance.html#L326">326</a> <em class="jxr_javadoccomment">      */</em>
+<a class="jxr_linenumber" name="L327" href="SemiVariance.html#L327">327</a>      <strong class="jxr_keyword">public</strong> enum <a href="SemiVariance.html">Direction</a> {
+<a class="jxr_linenumber" name="L328" href="SemiVariance.html#L328">328</a>          <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L329" href="SemiVariance.html#L329">329</a> <em class="jxr_javadoccomment">          * The UPSIDE Direction is used to specify that the observations above the</em>
+<a class="jxr_linenumber" name="L330" href="SemiVariance.html#L330">330</a> <em class="jxr_javadoccomment">          * cutoff point will be used to calculate SemiVariance</em>
+<a class="jxr_linenumber" name="L331" href="SemiVariance.html#L331">331</a> <em class="jxr_javadoccomment">          */</em>
+<a class="jxr_linenumber" name="L332" href="SemiVariance.html#L332">332</a>          UPSIDE (<strong class="jxr_keyword">true</strong>),
+<a class="jxr_linenumber" name="L333" href="SemiVariance.html#L333">333</a> 
+<a class="jxr_linenumber" name="L334" href="SemiVariance.html#L334">334</a>          <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L335" href="SemiVariance.html#L335">335</a> <em class="jxr_javadoccomment">          * The DOWNSIDE Direction is used to specify that the observations below</em>
+<a class="jxr_linenumber" name="L336" href="SemiVariance.html#L336">336</a> <em class="jxr_javadoccomment">          * the cutoff point will be used to calculate SemiVariance</em>
+<a class="jxr_linenumber" name="L337" href="SemiVariance.html#L337">337</a> <em class="jxr_javadoccomment">          */</em>
+<a class="jxr_linenumber" name="L338" href="SemiVariance.html#L338">338</a>          DOWNSIDE (false);
+<a class="jxr_linenumber" name="L339" href="SemiVariance.html#L339">339</a> 
+<a class="jxr_linenumber" name="L340" href="SemiVariance.html#L340">340</a>          <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L341" href="SemiVariance.html#L341">341</a> <em class="jxr_javadoccomment">          * boolean value  UPSIDE &lt;-&gt; true</em>
+<a class="jxr_linenumber" name="L342" href="SemiVariance.html#L342">342</a> <em class="jxr_javadoccomment">          */</em>
+<a class="jxr_linenumber" name="L343" href="SemiVariance.html#L343">343</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> direction;
+<a class="jxr_linenumber" name="L344" href="SemiVariance.html#L344">344</a> 
+<a class="jxr_linenumber" name="L345" href="SemiVariance.html#L345">345</a>          <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L346" href="SemiVariance.html#L346">346</a> <em class="jxr_javadoccomment">          * Create a Direction with the given value.</em>
+<a class="jxr_linenumber" name="L347" href="SemiVariance.html#L347">347</a> <em class="jxr_javadoccomment">          *</em>
+<a class="jxr_linenumber" name="L348" href="SemiVariance.html#L348">348</a> <em class="jxr_javadoccomment">          * @param b boolean value representing the Direction. True corresponds to UPSIDE.</em>
+<a class="jxr_linenumber" name="L349" href="SemiVariance.html#L349">349</a> <em class="jxr_javadoccomment">          */</em>
+<a class="jxr_linenumber" name="L350" href="SemiVariance.html#L350">350</a>          <a href="SemiVariance.html">Direction</a> (<strong class="jxr_keyword">boolean</strong> b) {
+<a class="jxr_linenumber" name="L351" href="SemiVariance.html#L351">351</a>              direction = b;
+<a class="jxr_linenumber" name="L352" href="SemiVariance.html#L352">352</a>          }
+<a class="jxr_linenumber" name="L353" href="SemiVariance.html#L353">353</a> 
+<a class="jxr_linenumber" name="L354" href="SemiVariance.html#L354">354</a>          <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L355" href="SemiVariance.html#L355">355</a> <em class="jxr_javadoccomment">          * Returns the value of this Direction. True corresponds to UPSIDE.</em>
+<a class="jxr_linenumber" name="L356" href="SemiVariance.html#L356">356</a> <em class="jxr_javadoccomment">          *</em>
+<a class="jxr_linenumber" name="L357" href="SemiVariance.html#L357">357</a> <em class="jxr_javadoccomment">          * @return true if direction is UPSIDE; false otherwise</em>
+<a class="jxr_linenumber" name="L358" href="SemiVariance.html#L358">358</a> <em class="jxr_javadoccomment">          */</em>
+<a class="jxr_linenumber" name="L359" href="SemiVariance.html#L359">359</a>          <strong class="jxr_keyword">boolean</strong> getDirection () {
+<a class="jxr_linenumber" name="L360" href="SemiVariance.html#L360">360</a>              <strong class="jxr_keyword">return</strong> direction;
+<a class="jxr_linenumber" name="L361" href="SemiVariance.html#L361">361</a>          }
+<a class="jxr_linenumber" name="L362" href="SemiVariance.html#L362">362</a>      }
+<a class="jxr_linenumber" name="L363" href="SemiVariance.html#L363">363</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

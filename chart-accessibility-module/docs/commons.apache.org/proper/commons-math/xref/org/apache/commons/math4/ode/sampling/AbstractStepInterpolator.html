@@ -1,0 +1,628 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>AbstractStepInterpolator xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/ode/sampling/AbstractStepInterpolator.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="AbstractStepInterpolator.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="AbstractStepInterpolator.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="AbstractStepInterpolator.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="AbstractStepInterpolator.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="AbstractStepInterpolator.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="AbstractStepInterpolator.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="AbstractStepInterpolator.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="AbstractStepInterpolator.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="AbstractStepInterpolator.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="AbstractStepInterpolator.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="AbstractStepInterpolator.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="AbstractStepInterpolator.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="AbstractStepInterpolator.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="AbstractStepInterpolator.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="AbstractStepInterpolator.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="AbstractStepInterpolator.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="AbstractStepInterpolator.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="AbstractStepInterpolator.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.ode.sampling;
+<a class="jxr_linenumber" name="L19" href="AbstractStepInterpolator.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="AbstractStepInterpolator.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L21" href="AbstractStepInterpolator.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.io.ObjectInput;
+<a class="jxr_linenumber" name="L22" href="AbstractStepInterpolator.html#L22">22</a>  <strong class="jxr_keyword">import</strong> java.io.ObjectOutput;
+<a class="jxr_linenumber" name="L23" href="AbstractStepInterpolator.html#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="AbstractStepInterpolator.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MaxCountExceededException;
+<a class="jxr_linenumber" name="L25" href="AbstractStepInterpolator.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.EquationsMapper;
+<a class="jxr_linenumber" name="L26" href="AbstractStepInterpolator.html#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="AbstractStepInterpolator.html#L27">27</a>  <em class="jxr_javadoccomment">/** This abstract class represents an interpolator over the last step</em>
+<a class="jxr_linenumber" name="L28" href="AbstractStepInterpolator.html#L28">28</a>  <em class="jxr_javadoccomment"> * during an ODE integration.</em>
+<a class="jxr_linenumber" name="L29" href="AbstractStepInterpolator.html#L29">29</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L30" href="AbstractStepInterpolator.html#L30">30</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;The various ODE integrators provide objects extending this class</em>
+<a class="jxr_linenumber" name="L31" href="AbstractStepInterpolator.html#L31">31</a>  <em class="jxr_javadoccomment"> * to the step handlers. The handlers can use these objects to</em>
+<a class="jxr_linenumber" name="L32" href="AbstractStepInterpolator.html#L32">32</a>  <em class="jxr_javadoccomment"> * retrieve the state vector at intermediate times between the</em>
+<a class="jxr_linenumber" name="L33" href="AbstractStepInterpolator.html#L33">33</a>  <em class="jxr_javadoccomment"> * previous and the current grid points (dense output).&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L34" href="AbstractStepInterpolator.html#L34">34</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L35" href="AbstractStepInterpolator.html#L35">35</a>  <em class="jxr_javadoccomment"> * @see org.apache.commons.math4.ode.FirstOrderIntegrator</em>
+<a class="jxr_linenumber" name="L36" href="AbstractStepInterpolator.html#L36">36</a>  <em class="jxr_javadoccomment"> * @see org.apache.commons.math4.ode.SecondOrderIntegrator</em>
+<a class="jxr_linenumber" name="L37" href="AbstractStepInterpolator.html#L37">37</a>  <em class="jxr_javadoccomment"> * @see StepHandler</em>
+<a class="jxr_linenumber" name="L38" href="AbstractStepInterpolator.html#L38">38</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L39" href="AbstractStepInterpolator.html#L39">39</a>  <em class="jxr_javadoccomment"> * @since 1.2</em>
+<a class="jxr_linenumber" name="L40" href="AbstractStepInterpolator.html#L40">40</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L41" href="AbstractStepInterpolator.html#L41">41</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L42" href="AbstractStepInterpolator.html#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="AbstractStepInterpolator.html#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="AbstractStepInterpolator.html">AbstractStepInterpolator</a>
+<a class="jxr_linenumber" name="L44" href="AbstractStepInterpolator.html#L44">44</a>    <strong class="jxr_keyword">implements</strong> <a href="StepInterpolator.html">StepInterpolator</a> {
+<a class="jxr_linenumber" name="L45" href="AbstractStepInterpolator.html#L45">45</a>  
+<a class="jxr_linenumber" name="L46" href="AbstractStepInterpolator.html#L46">46</a>    <em class="jxr_javadoccomment">/** current time step */</em>
+<a class="jxr_linenumber" name="L47" href="AbstractStepInterpolator.html#L47">47</a>    <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> h;
+<a class="jxr_linenumber" name="L48" href="AbstractStepInterpolator.html#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="AbstractStepInterpolator.html#L49">49</a>    <em class="jxr_javadoccomment">/** current state */</em>
+<a class="jxr_linenumber" name="L50" href="AbstractStepInterpolator.html#L50">50</a>    <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong>[] currentState;
+<a class="jxr_linenumber" name="L51" href="AbstractStepInterpolator.html#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="AbstractStepInterpolator.html#L52">52</a>    <em class="jxr_javadoccomment">/** interpolated time */</em>
+<a class="jxr_linenumber" name="L53" href="AbstractStepInterpolator.html#L53">53</a>    <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> interpolatedTime;
+<a class="jxr_linenumber" name="L54" href="AbstractStepInterpolator.html#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="AbstractStepInterpolator.html#L55">55</a>    <em class="jxr_javadoccomment">/** interpolated state */</em>
+<a class="jxr_linenumber" name="L56" href="AbstractStepInterpolator.html#L56">56</a>    <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong>[] interpolatedState;
+<a class="jxr_linenumber" name="L57" href="AbstractStepInterpolator.html#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="AbstractStepInterpolator.html#L58">58</a>    <em class="jxr_javadoccomment">/** interpolated derivatives */</em>
+<a class="jxr_linenumber" name="L59" href="AbstractStepInterpolator.html#L59">59</a>    <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong>[] interpolatedDerivatives;
+<a class="jxr_linenumber" name="L60" href="AbstractStepInterpolator.html#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="AbstractStepInterpolator.html#L61">61</a>    <em class="jxr_javadoccomment">/** interpolated primary state */</em>
+<a class="jxr_linenumber" name="L62" href="AbstractStepInterpolator.html#L62">62</a>    <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong>[] interpolatedPrimaryState;
+<a class="jxr_linenumber" name="L63" href="AbstractStepInterpolator.html#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="AbstractStepInterpolator.html#L64">64</a>    <em class="jxr_javadoccomment">/** interpolated primary derivatives */</em>
+<a class="jxr_linenumber" name="L65" href="AbstractStepInterpolator.html#L65">65</a>    <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong>[] interpolatedPrimaryDerivatives;
+<a class="jxr_linenumber" name="L66" href="AbstractStepInterpolator.html#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="AbstractStepInterpolator.html#L67">67</a>    <em class="jxr_javadoccomment">/** interpolated secondary state */</em>
+<a class="jxr_linenumber" name="L68" href="AbstractStepInterpolator.html#L68">68</a>    <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong>[][] interpolatedSecondaryState;
+<a class="jxr_linenumber" name="L69" href="AbstractStepInterpolator.html#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="AbstractStepInterpolator.html#L70">70</a>    <em class="jxr_javadoccomment">/** interpolated secondary derivatives */</em>
+<a class="jxr_linenumber" name="L71" href="AbstractStepInterpolator.html#L71">71</a>    <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong>[][] interpolatedSecondaryDerivatives;
+<a class="jxr_linenumber" name="L72" href="AbstractStepInterpolator.html#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="AbstractStepInterpolator.html#L73">73</a>    <em class="jxr_javadoccomment">/** global previous time */</em>
+<a class="jxr_linenumber" name="L74" href="AbstractStepInterpolator.html#L74">74</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> globalPreviousTime;
+<a class="jxr_linenumber" name="L75" href="AbstractStepInterpolator.html#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="AbstractStepInterpolator.html#L76">76</a>    <em class="jxr_javadoccomment">/** global current time */</em>
+<a class="jxr_linenumber" name="L77" href="AbstractStepInterpolator.html#L77">77</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> globalCurrentTime;
+<a class="jxr_linenumber" name="L78" href="AbstractStepInterpolator.html#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="AbstractStepInterpolator.html#L79">79</a>    <em class="jxr_javadoccomment">/** soft previous time */</em>
+<a class="jxr_linenumber" name="L80" href="AbstractStepInterpolator.html#L80">80</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> softPreviousTime;
+<a class="jxr_linenumber" name="L81" href="AbstractStepInterpolator.html#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="AbstractStepInterpolator.html#L82">82</a>    <em class="jxr_javadoccomment">/** soft current time */</em>
+<a class="jxr_linenumber" name="L83" href="AbstractStepInterpolator.html#L83">83</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> softCurrentTime;
+<a class="jxr_linenumber" name="L84" href="AbstractStepInterpolator.html#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="AbstractStepInterpolator.html#L85">85</a>    <em class="jxr_javadoccomment">/** indicate if the step has been finalized or not. */</em>
+<a class="jxr_linenumber" name="L86" href="AbstractStepInterpolator.html#L86">86</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> finalized;
+<a class="jxr_linenumber" name="L87" href="AbstractStepInterpolator.html#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="AbstractStepInterpolator.html#L88">88</a>    <em class="jxr_javadoccomment">/** integration direction. */</em>
+<a class="jxr_linenumber" name="L89" href="AbstractStepInterpolator.html#L89">89</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> forward;
+<a class="jxr_linenumber" name="L90" href="AbstractStepInterpolator.html#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="AbstractStepInterpolator.html#L91">91</a>    <em class="jxr_javadoccomment">/** indicator for dirty state. */</em>
+<a class="jxr_linenumber" name="L92" href="AbstractStepInterpolator.html#L92">92</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> dirtyState;
+<a class="jxr_linenumber" name="L93" href="AbstractStepInterpolator.html#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="AbstractStepInterpolator.html#L94">94</a>    <em class="jxr_javadoccomment">/** Equations mapper for the primary equations set. */</em>
+<a class="jxr_linenumber" name="L95" href="AbstractStepInterpolator.html#L95">95</a>    <strong class="jxr_keyword">private</strong> <a href="../EquationsMapper.html">EquationsMapper</a> primaryMapper;
+<a class="jxr_linenumber" name="L96" href="AbstractStepInterpolator.html#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="AbstractStepInterpolator.html#L97">97</a>    <em class="jxr_javadoccomment">/** Equations mappers for the secondary equations sets. */</em>
+<a class="jxr_linenumber" name="L98" href="AbstractStepInterpolator.html#L98">98</a>    <strong class="jxr_keyword">private</strong> <a href="../EquationsMapper.html">EquationsMapper</a>[] secondaryMappers;
+<a class="jxr_linenumber" name="L99" href="AbstractStepInterpolator.html#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="AbstractStepInterpolator.html#L100">100</a>   <em class="jxr_javadoccomment">/** Simple constructor.</em>
+<a class="jxr_linenumber" name="L101" href="AbstractStepInterpolator.html#L101">101</a> <em class="jxr_javadoccomment">   * This constructor builds an instance that is not usable yet, the</em>
+<a class="jxr_linenumber" name="L102" href="AbstractStepInterpolator.html#L102">102</a> <em class="jxr_javadoccomment">   * {@link #reinitialize} method should be called before using the</em>
+<a class="jxr_linenumber" name="L103" href="AbstractStepInterpolator.html#L103">103</a> <em class="jxr_javadoccomment">   * instance in order to initialize the internal arrays. This</em>
+<a class="jxr_linenumber" name="L104" href="AbstractStepInterpolator.html#L104">104</a> <em class="jxr_javadoccomment">   * constructor is used only in order to delay the initialization in</em>
+<a class="jxr_linenumber" name="L105" href="AbstractStepInterpolator.html#L105">105</a> <em class="jxr_javadoccomment">   * some cases. As an example, the {@link</em>
+<a class="jxr_linenumber" name="L106" href="AbstractStepInterpolator.html#L106">106</a> <em class="jxr_javadoccomment">   * org.apache.commons.math4.ode.nonstiff.EmbeddedRungeKuttaIntegrator}</em>
+<a class="jxr_linenumber" name="L107" href="AbstractStepInterpolator.html#L107">107</a> <em class="jxr_javadoccomment">   * class uses the prototyping design pattern to create the step</em>
+<a class="jxr_linenumber" name="L108" href="AbstractStepInterpolator.html#L108">108</a> <em class="jxr_javadoccomment">   * interpolators by cloning an uninitialized model and latter</em>
+<a class="jxr_linenumber" name="L109" href="AbstractStepInterpolator.html#L109">109</a> <em class="jxr_javadoccomment">   * initializing the copy.</em>
+<a class="jxr_linenumber" name="L110" href="AbstractStepInterpolator.html#L110">110</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L111" href="AbstractStepInterpolator.html#L111">111</a>   <strong class="jxr_keyword">protected</strong> <a href="AbstractStepInterpolator.html">AbstractStepInterpolator</a>() {
+<a class="jxr_linenumber" name="L112" href="AbstractStepInterpolator.html#L112">112</a>     globalPreviousTime = Double.NaN;
+<a class="jxr_linenumber" name="L113" href="AbstractStepInterpolator.html#L113">113</a>     globalCurrentTime  = Double.NaN;
+<a class="jxr_linenumber" name="L114" href="AbstractStepInterpolator.html#L114">114</a>     softPreviousTime   = Double.NaN;
+<a class="jxr_linenumber" name="L115" href="AbstractStepInterpolator.html#L115">115</a>     softCurrentTime    = Double.NaN;
+<a class="jxr_linenumber" name="L116" href="AbstractStepInterpolator.html#L116">116</a>     h                  = Double.NaN;
+<a class="jxr_linenumber" name="L117" href="AbstractStepInterpolator.html#L117">117</a>     interpolatedTime   = Double.NaN;
+<a class="jxr_linenumber" name="L118" href="AbstractStepInterpolator.html#L118">118</a>     currentState       = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L119" href="AbstractStepInterpolator.html#L119">119</a>     finalized          = false;
+<a class="jxr_linenumber" name="L120" href="AbstractStepInterpolator.html#L120">120</a>     <strong class="jxr_keyword">this</strong>.forward       = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L121" href="AbstractStepInterpolator.html#L121">121</a>     <strong class="jxr_keyword">this</strong>.dirtyState    = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L122" href="AbstractStepInterpolator.html#L122">122</a>     primaryMapper      = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L123" href="AbstractStepInterpolator.html#L123">123</a>     secondaryMappers   = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L124" href="AbstractStepInterpolator.html#L124">124</a>     allocateInterpolatedArrays(-1);
+<a class="jxr_linenumber" name="L125" href="AbstractStepInterpolator.html#L125">125</a>   }
+<a class="jxr_linenumber" name="L126" href="AbstractStepInterpolator.html#L126">126</a> 
+<a class="jxr_linenumber" name="L127" href="AbstractStepInterpolator.html#L127">127</a>   <em class="jxr_javadoccomment">/** Simple constructor.</em>
+<a class="jxr_linenumber" name="L128" href="AbstractStepInterpolator.html#L128">128</a> <em class="jxr_javadoccomment">   * @param y reference to the integrator array holding the state at</em>
+<a class="jxr_linenumber" name="L129" href="AbstractStepInterpolator.html#L129">129</a> <em class="jxr_javadoccomment">   * the end of the step</em>
+<a class="jxr_linenumber" name="L130" href="AbstractStepInterpolator.html#L130">130</a> <em class="jxr_javadoccomment">   * @param forward integration direction indicator</em>
+<a class="jxr_linenumber" name="L131" href="AbstractStepInterpolator.html#L131">131</a> <em class="jxr_javadoccomment">   * @param primaryMapper equations mapper for the primary equations set</em>
+<a class="jxr_linenumber" name="L132" href="AbstractStepInterpolator.html#L132">132</a> <em class="jxr_javadoccomment">   * @param secondaryMappers equations mappers for the secondary equations sets</em>
+<a class="jxr_linenumber" name="L133" href="AbstractStepInterpolator.html#L133">133</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L134" href="AbstractStepInterpolator.html#L134">134</a>   <strong class="jxr_keyword">protected</strong> <a href="AbstractStepInterpolator.html">AbstractStepInterpolator</a>(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] y, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> forward,
+<a class="jxr_linenumber" name="L135" href="AbstractStepInterpolator.html#L135">135</a>                                      <strong class="jxr_keyword">final</strong> <a href="../EquationsMapper.html">EquationsMapper</a> primaryMapper,
+<a class="jxr_linenumber" name="L136" href="AbstractStepInterpolator.html#L136">136</a>                                      <strong class="jxr_keyword">final</strong> <a href="../EquationsMapper.html">EquationsMapper</a>[] secondaryMappers) {
+<a class="jxr_linenumber" name="L137" href="AbstractStepInterpolator.html#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="AbstractStepInterpolator.html#L138">138</a>     globalPreviousTime    = Double.NaN;
+<a class="jxr_linenumber" name="L139" href="AbstractStepInterpolator.html#L139">139</a>     globalCurrentTime     = Double.NaN;
+<a class="jxr_linenumber" name="L140" href="AbstractStepInterpolator.html#L140">140</a>     softPreviousTime      = Double.NaN;
+<a class="jxr_linenumber" name="L141" href="AbstractStepInterpolator.html#L141">141</a>     softCurrentTime       = Double.NaN;
+<a class="jxr_linenumber" name="L142" href="AbstractStepInterpolator.html#L142">142</a>     h                     = Double.NaN;
+<a class="jxr_linenumber" name="L143" href="AbstractStepInterpolator.html#L143">143</a>     interpolatedTime      = Double.NaN;
+<a class="jxr_linenumber" name="L144" href="AbstractStepInterpolator.html#L144">144</a>     currentState          = y;
+<a class="jxr_linenumber" name="L145" href="AbstractStepInterpolator.html#L145">145</a>     finalized             = false;
+<a class="jxr_linenumber" name="L146" href="AbstractStepInterpolator.html#L146">146</a>     <strong class="jxr_keyword">this</strong>.forward          = forward;
+<a class="jxr_linenumber" name="L147" href="AbstractStepInterpolator.html#L147">147</a>     <strong class="jxr_keyword">this</strong>.dirtyState       = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L148" href="AbstractStepInterpolator.html#L148">148</a>     <strong class="jxr_keyword">this</strong>.primaryMapper    = primaryMapper;
+<a class="jxr_linenumber" name="L149" href="AbstractStepInterpolator.html#L149">149</a>     <strong class="jxr_keyword">this</strong>.secondaryMappers = (secondaryMappers == <strong class="jxr_keyword">null</strong>) ? <strong class="jxr_keyword">null</strong> : secondaryMappers.clone();
+<a class="jxr_linenumber" name="L150" href="AbstractStepInterpolator.html#L150">150</a>     allocateInterpolatedArrays(y.length);
+<a class="jxr_linenumber" name="L151" href="AbstractStepInterpolator.html#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="AbstractStepInterpolator.html#L152">152</a>   }
+<a class="jxr_linenumber" name="L153" href="AbstractStepInterpolator.html#L153">153</a> 
+<a class="jxr_linenumber" name="L154" href="AbstractStepInterpolator.html#L154">154</a>   <em class="jxr_javadoccomment">/** Copy constructor.</em>
+<a class="jxr_linenumber" name="L155" href="AbstractStepInterpolator.html#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="AbstractStepInterpolator.html#L156">156</a> <em class="jxr_javadoccomment">   * &lt;p&gt;The copied interpolator should have been finalized before the</em>
+<a class="jxr_linenumber" name="L157" href="AbstractStepInterpolator.html#L157">157</a> <em class="jxr_javadoccomment">   * copy, otherwise the copy will not be able to perform correctly</em>
+<a class="jxr_linenumber" name="L158" href="AbstractStepInterpolator.html#L158">158</a> <em class="jxr_javadoccomment">   * any derivative computation and will throw a {@link</em>
+<a class="jxr_linenumber" name="L159" href="AbstractStepInterpolator.html#L159">159</a> <em class="jxr_javadoccomment">   * NullPointerException} later. Since we don't want this constructor</em>
+<a class="jxr_linenumber" name="L160" href="AbstractStepInterpolator.html#L160">160</a> <em class="jxr_javadoccomment">   * to throw the exceptions finalization may involve and since we</em>
+<a class="jxr_linenumber" name="L161" href="AbstractStepInterpolator.html#L161">161</a> <em class="jxr_javadoccomment">   * don't want this method to modify the state of the copied</em>
+<a class="jxr_linenumber" name="L162" href="AbstractStepInterpolator.html#L162">162</a> <em class="jxr_javadoccomment">   * interpolator, finalization is &lt;strong&gt;not&lt;/strong&gt; done</em>
+<a class="jxr_linenumber" name="L163" href="AbstractStepInterpolator.html#L163">163</a> <em class="jxr_javadoccomment">   * automatically, it remains under user control.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L164" href="AbstractStepInterpolator.html#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="AbstractStepInterpolator.html#L165">165</a> <em class="jxr_javadoccomment">   * &lt;p&gt;The copy is a deep copy: its arrays are separated from the</em>
+<a class="jxr_linenumber" name="L166" href="AbstractStepInterpolator.html#L166">166</a> <em class="jxr_javadoccomment">   * original arrays of the instance.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L167" href="AbstractStepInterpolator.html#L167">167</a> 
+<a class="jxr_linenumber" name="L168" href="AbstractStepInterpolator.html#L168">168</a> <em class="jxr_javadoccomment">   * @param interpolator interpolator to copy from.</em>
+<a class="jxr_linenumber" name="L169" href="AbstractStepInterpolator.html#L169">169</a> 
+<a class="jxr_linenumber" name="L170" href="AbstractStepInterpolator.html#L170">170</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L171" href="AbstractStepInterpolator.html#L171">171</a>   <strong class="jxr_keyword">protected</strong> <a href="AbstractStepInterpolator.html">AbstractStepInterpolator</a>(<strong class="jxr_keyword">final</strong> <a href="AbstractStepInterpolator.html">AbstractStepInterpolator</a> interpolator) {
+<a class="jxr_linenumber" name="L172" href="AbstractStepInterpolator.html#L172">172</a> 
+<a class="jxr_linenumber" name="L173" href="AbstractStepInterpolator.html#L173">173</a>     globalPreviousTime = interpolator.globalPreviousTime;
+<a class="jxr_linenumber" name="L174" href="AbstractStepInterpolator.html#L174">174</a>     globalCurrentTime  = interpolator.globalCurrentTime;
+<a class="jxr_linenumber" name="L175" href="AbstractStepInterpolator.html#L175">175</a>     softPreviousTime   = interpolator.softPreviousTime;
+<a class="jxr_linenumber" name="L176" href="AbstractStepInterpolator.html#L176">176</a>     softCurrentTime    = interpolator.softCurrentTime;
+<a class="jxr_linenumber" name="L177" href="AbstractStepInterpolator.html#L177">177</a>     h                  = interpolator.h;
+<a class="jxr_linenumber" name="L178" href="AbstractStepInterpolator.html#L178">178</a>     interpolatedTime   = interpolator.interpolatedTime;
+<a class="jxr_linenumber" name="L179" href="AbstractStepInterpolator.html#L179">179</a> 
+<a class="jxr_linenumber" name="L180" href="AbstractStepInterpolator.html#L180">180</a>     <strong class="jxr_keyword">if</strong> (interpolator.currentState == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L181" href="AbstractStepInterpolator.html#L181">181</a>         currentState     = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L182" href="AbstractStepInterpolator.html#L182">182</a>         primaryMapper    = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L183" href="AbstractStepInterpolator.html#L183">183</a>         secondaryMappers = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L184" href="AbstractStepInterpolator.html#L184">184</a>         allocateInterpolatedArrays(-1);
+<a class="jxr_linenumber" name="L185" href="AbstractStepInterpolator.html#L185">185</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L186" href="AbstractStepInterpolator.html#L186">186</a>       currentState                     = interpolator.currentState.clone();
+<a class="jxr_linenumber" name="L187" href="AbstractStepInterpolator.html#L187">187</a>       interpolatedState                = interpolator.interpolatedState.clone();
+<a class="jxr_linenumber" name="L188" href="AbstractStepInterpolator.html#L188">188</a>       interpolatedDerivatives          = interpolator.interpolatedDerivatives.clone();
+<a class="jxr_linenumber" name="L189" href="AbstractStepInterpolator.html#L189">189</a>       interpolatedPrimaryState         = interpolator.interpolatedPrimaryState.clone();
+<a class="jxr_linenumber" name="L190" href="AbstractStepInterpolator.html#L190">190</a>       interpolatedPrimaryDerivatives   = interpolator.interpolatedPrimaryDerivatives.clone();
+<a class="jxr_linenumber" name="L191" href="AbstractStepInterpolator.html#L191">191</a>       interpolatedSecondaryState       = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[interpolator.interpolatedSecondaryState.length][];
+<a class="jxr_linenumber" name="L192" href="AbstractStepInterpolator.html#L192">192</a>       interpolatedSecondaryDerivatives = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[interpolator.interpolatedSecondaryDerivatives.length][];
+<a class="jxr_linenumber" name="L193" href="AbstractStepInterpolator.html#L193">193</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; interpolatedSecondaryState.length; ++i) {
+<a class="jxr_linenumber" name="L194" href="AbstractStepInterpolator.html#L194">194</a>           interpolatedSecondaryState[i]       = interpolator.interpolatedSecondaryState[i].clone();
+<a class="jxr_linenumber" name="L195" href="AbstractStepInterpolator.html#L195">195</a>           interpolatedSecondaryDerivatives[i] = interpolator.interpolatedSecondaryDerivatives[i].clone();
+<a class="jxr_linenumber" name="L196" href="AbstractStepInterpolator.html#L196">196</a>       }
+<a class="jxr_linenumber" name="L197" href="AbstractStepInterpolator.html#L197">197</a>     }
+<a class="jxr_linenumber" name="L198" href="AbstractStepInterpolator.html#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="AbstractStepInterpolator.html#L199">199</a>     finalized        = interpolator.finalized;
+<a class="jxr_linenumber" name="L200" href="AbstractStepInterpolator.html#L200">200</a>     forward          = interpolator.forward;
+<a class="jxr_linenumber" name="L201" href="AbstractStepInterpolator.html#L201">201</a>     dirtyState       = interpolator.dirtyState;
+<a class="jxr_linenumber" name="L202" href="AbstractStepInterpolator.html#L202">202</a>     primaryMapper    = interpolator.primaryMapper;
+<a class="jxr_linenumber" name="L203" href="AbstractStepInterpolator.html#L203">203</a>     secondaryMappers = (interpolator.secondaryMappers == <strong class="jxr_keyword">null</strong>) ?
+<a class="jxr_linenumber" name="L204" href="AbstractStepInterpolator.html#L204">204</a>                        <strong class="jxr_keyword">null</strong> : interpolator.secondaryMappers.clone();
+<a class="jxr_linenumber" name="L205" href="AbstractStepInterpolator.html#L205">205</a> 
+<a class="jxr_linenumber" name="L206" href="AbstractStepInterpolator.html#L206">206</a>   }
+<a class="jxr_linenumber" name="L207" href="AbstractStepInterpolator.html#L207">207</a> 
+<a class="jxr_linenumber" name="L208" href="AbstractStepInterpolator.html#L208">208</a>   <em class="jxr_javadoccomment">/** Allocate the various interpolated states arrays.</em>
+<a class="jxr_linenumber" name="L209" href="AbstractStepInterpolator.html#L209">209</a> <em class="jxr_javadoccomment">   * @param dimension total dimension (negative if arrays should be set to null)</em>
+<a class="jxr_linenumber" name="L210" href="AbstractStepInterpolator.html#L210">210</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L211" href="AbstractStepInterpolator.html#L211">211</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> allocateInterpolatedArrays(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> dimension) {
+<a class="jxr_linenumber" name="L212" href="AbstractStepInterpolator.html#L212">212</a>       <strong class="jxr_keyword">if</strong> (dimension &lt; 0) {
+<a class="jxr_linenumber" name="L213" href="AbstractStepInterpolator.html#L213">213</a>           interpolatedState                = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L214" href="AbstractStepInterpolator.html#L214">214</a>           interpolatedDerivatives          = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L215" href="AbstractStepInterpolator.html#L215">215</a>           interpolatedPrimaryState         = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L216" href="AbstractStepInterpolator.html#L216">216</a>           interpolatedPrimaryDerivatives   = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L217" href="AbstractStepInterpolator.html#L217">217</a>           interpolatedSecondaryState       = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L218" href="AbstractStepInterpolator.html#L218">218</a>           interpolatedSecondaryDerivatives = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L219" href="AbstractStepInterpolator.html#L219">219</a>       } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L220" href="AbstractStepInterpolator.html#L220">220</a>           interpolatedState                = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[dimension];
+<a class="jxr_linenumber" name="L221" href="AbstractStepInterpolator.html#L221">221</a>           interpolatedDerivatives          = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[dimension];
+<a class="jxr_linenumber" name="L222" href="AbstractStepInterpolator.html#L222">222</a>           interpolatedPrimaryState         = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[primaryMapper.getDimension()];
+<a class="jxr_linenumber" name="L223" href="AbstractStepInterpolator.html#L223">223</a>           interpolatedPrimaryDerivatives   = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[primaryMapper.getDimension()];
+<a class="jxr_linenumber" name="L224" href="AbstractStepInterpolator.html#L224">224</a>           <strong class="jxr_keyword">if</strong> (secondaryMappers == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L225" href="AbstractStepInterpolator.html#L225">225</a>               interpolatedSecondaryState       = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L226" href="AbstractStepInterpolator.html#L226">226</a>               interpolatedSecondaryDerivatives = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L227" href="AbstractStepInterpolator.html#L227">227</a>           } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L228" href="AbstractStepInterpolator.html#L228">228</a>               interpolatedSecondaryState       = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[secondaryMappers.length][];
+<a class="jxr_linenumber" name="L229" href="AbstractStepInterpolator.html#L229">229</a>               interpolatedSecondaryDerivatives = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[secondaryMappers.length][];
+<a class="jxr_linenumber" name="L230" href="AbstractStepInterpolator.html#L230">230</a>               <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; secondaryMappers.length; ++i) {
+<a class="jxr_linenumber" name="L231" href="AbstractStepInterpolator.html#L231">231</a>                   interpolatedSecondaryState[i]       = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[secondaryMappers[i].getDimension()];
+<a class="jxr_linenumber" name="L232" href="AbstractStepInterpolator.html#L232">232</a>                   interpolatedSecondaryDerivatives[i] = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[secondaryMappers[i].getDimension()];
+<a class="jxr_linenumber" name="L233" href="AbstractStepInterpolator.html#L233">233</a>               }
+<a class="jxr_linenumber" name="L234" href="AbstractStepInterpolator.html#L234">234</a>           }
+<a class="jxr_linenumber" name="L235" href="AbstractStepInterpolator.html#L235">235</a>       }
+<a class="jxr_linenumber" name="L236" href="AbstractStepInterpolator.html#L236">236</a>   }
+<a class="jxr_linenumber" name="L237" href="AbstractStepInterpolator.html#L237">237</a> 
+<a class="jxr_linenumber" name="L238" href="AbstractStepInterpolator.html#L238">238</a>   <em class="jxr_javadoccomment">/** Reinitialize the instance</em>
+<a class="jxr_linenumber" name="L239" href="AbstractStepInterpolator.html#L239">239</a> <em class="jxr_javadoccomment">   * @param y reference to the integrator array holding the state at the end of the step</em>
+<a class="jxr_linenumber" name="L240" href="AbstractStepInterpolator.html#L240">240</a> <em class="jxr_javadoccomment">   * @param isForward integration direction indicator</em>
+<a class="jxr_linenumber" name="L241" href="AbstractStepInterpolator.html#L241">241</a> <em class="jxr_javadoccomment">   * @param primary equations mapper for the primary equations set</em>
+<a class="jxr_linenumber" name="L242" href="AbstractStepInterpolator.html#L242">242</a> <em class="jxr_javadoccomment">   * @param secondary equations mappers for the secondary equations sets</em>
+<a class="jxr_linenumber" name="L243" href="AbstractStepInterpolator.html#L243">243</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L244" href="AbstractStepInterpolator.html#L244">244</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> reinitialize(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] y, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isForward,
+<a class="jxr_linenumber" name="L245" href="AbstractStepInterpolator.html#L245">245</a>                               <strong class="jxr_keyword">final</strong> <a href="../EquationsMapper.html">EquationsMapper</a> primary,
+<a class="jxr_linenumber" name="L246" href="AbstractStepInterpolator.html#L246">246</a>                               <strong class="jxr_keyword">final</strong> <a href="../EquationsMapper.html">EquationsMapper</a>[] secondary) {
+<a class="jxr_linenumber" name="L247" href="AbstractStepInterpolator.html#L247">247</a> 
+<a class="jxr_linenumber" name="L248" href="AbstractStepInterpolator.html#L248">248</a>     globalPreviousTime    = Double.NaN;
+<a class="jxr_linenumber" name="L249" href="AbstractStepInterpolator.html#L249">249</a>     globalCurrentTime     = Double.NaN;
+<a class="jxr_linenumber" name="L250" href="AbstractStepInterpolator.html#L250">250</a>     softPreviousTime      = Double.NaN;
+<a class="jxr_linenumber" name="L251" href="AbstractStepInterpolator.html#L251">251</a>     softCurrentTime       = Double.NaN;
+<a class="jxr_linenumber" name="L252" href="AbstractStepInterpolator.html#L252">252</a>     h                     = Double.NaN;
+<a class="jxr_linenumber" name="L253" href="AbstractStepInterpolator.html#L253">253</a>     interpolatedTime      = Double.NaN;
+<a class="jxr_linenumber" name="L254" href="AbstractStepInterpolator.html#L254">254</a>     currentState          = y;
+<a class="jxr_linenumber" name="L255" href="AbstractStepInterpolator.html#L255">255</a>     finalized             = false;
+<a class="jxr_linenumber" name="L256" href="AbstractStepInterpolator.html#L256">256</a>     <strong class="jxr_keyword">this</strong>.forward          = isForward;
+<a class="jxr_linenumber" name="L257" href="AbstractStepInterpolator.html#L257">257</a>     <strong class="jxr_keyword">this</strong>.dirtyState       = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L258" href="AbstractStepInterpolator.html#L258">258</a>     <strong class="jxr_keyword">this</strong>.primaryMapper    = primary;
+<a class="jxr_linenumber" name="L259" href="AbstractStepInterpolator.html#L259">259</a>     <strong class="jxr_keyword">this</strong>.secondaryMappers = secondary.clone();
+<a class="jxr_linenumber" name="L260" href="AbstractStepInterpolator.html#L260">260</a>     allocateInterpolatedArrays(y.length);
+<a class="jxr_linenumber" name="L261" href="AbstractStepInterpolator.html#L261">261</a> 
+<a class="jxr_linenumber" name="L262" href="AbstractStepInterpolator.html#L262">262</a>   }
+<a class="jxr_linenumber" name="L263" href="AbstractStepInterpolator.html#L263">263</a> 
+<a class="jxr_linenumber" name="L264" href="AbstractStepInterpolator.html#L264">264</a>   <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L265" href="AbstractStepInterpolator.html#L265">265</a>   @Override
+<a class="jxr_linenumber" name="L266" href="AbstractStepInterpolator.html#L266">266</a>    <strong class="jxr_keyword">public</strong> <a href="StepInterpolator.html">StepInterpolator</a> copy() <strong class="jxr_keyword">throws</strong> MaxCountExceededException {
+<a class="jxr_linenumber" name="L267" href="AbstractStepInterpolator.html#L267">267</a> 
+<a class="jxr_linenumber" name="L268" href="AbstractStepInterpolator.html#L268">268</a>      <em class="jxr_comment">// finalize the step before performing copy</em>
+<a class="jxr_linenumber" name="L269" href="AbstractStepInterpolator.html#L269">269</a>      finalizeStep();
+<a class="jxr_linenumber" name="L270" href="AbstractStepInterpolator.html#L270">270</a> 
+<a class="jxr_linenumber" name="L271" href="AbstractStepInterpolator.html#L271">271</a>      <em class="jxr_comment">// create the new independent instance</em>
+<a class="jxr_linenumber" name="L272" href="AbstractStepInterpolator.html#L272">272</a>      <strong class="jxr_keyword">return</strong> doCopy();
+<a class="jxr_linenumber" name="L273" href="AbstractStepInterpolator.html#L273">273</a> 
+<a class="jxr_linenumber" name="L274" href="AbstractStepInterpolator.html#L274">274</a>    }
+<a class="jxr_linenumber" name="L275" href="AbstractStepInterpolator.html#L275">275</a> 
+<a class="jxr_linenumber" name="L276" href="AbstractStepInterpolator.html#L276">276</a>    <em class="jxr_javadoccomment">/** Really copy the finalized instance.</em>
+<a class="jxr_linenumber" name="L277" href="AbstractStepInterpolator.html#L277">277</a> <em class="jxr_javadoccomment">    * &lt;p&gt;This method is called by {@link #copy()} after the</em>
+<a class="jxr_linenumber" name="L278" href="AbstractStepInterpolator.html#L278">278</a> <em class="jxr_javadoccomment">    * step has been finalized. It must perform a deep copy</em>
+<a class="jxr_linenumber" name="L279" href="AbstractStepInterpolator.html#L279">279</a> <em class="jxr_javadoccomment">    * to have an new instance completely independent for the</em>
+<a class="jxr_linenumber" name="L280" href="AbstractStepInterpolator.html#L280">280</a> <em class="jxr_javadoccomment">    * original instance.</em>
+<a class="jxr_linenumber" name="L281" href="AbstractStepInterpolator.html#L281">281</a> <em class="jxr_javadoccomment">    * @return a copy of the finalized instance</em>
+<a class="jxr_linenumber" name="L282" href="AbstractStepInterpolator.html#L282">282</a> <em class="jxr_javadoccomment">    */</em>
+<a class="jxr_linenumber" name="L283" href="AbstractStepInterpolator.html#L283">283</a>    <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <a href="StepInterpolator.html">StepInterpolator</a> doCopy();
+<a class="jxr_linenumber" name="L284" href="AbstractStepInterpolator.html#L284">284</a> 
+<a class="jxr_linenumber" name="L285" href="AbstractStepInterpolator.html#L285">285</a>   <em class="jxr_javadoccomment">/** Shift one step forward.</em>
+<a class="jxr_linenumber" name="L286" href="AbstractStepInterpolator.html#L286">286</a> <em class="jxr_javadoccomment">   * Copy the current time into the previous time, hence preparing the</em>
+<a class="jxr_linenumber" name="L287" href="AbstractStepInterpolator.html#L287">287</a> <em class="jxr_javadoccomment">   * interpolator for future calls to {@link #storeTime storeTime}</em>
+<a class="jxr_linenumber" name="L288" href="AbstractStepInterpolator.html#L288">288</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L289" href="AbstractStepInterpolator.html#L289">289</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> shift() {
+<a class="jxr_linenumber" name="L290" href="AbstractStepInterpolator.html#L290">290</a>     globalPreviousTime = globalCurrentTime;
+<a class="jxr_linenumber" name="L291" href="AbstractStepInterpolator.html#L291">291</a>     softPreviousTime   = globalPreviousTime;
+<a class="jxr_linenumber" name="L292" href="AbstractStepInterpolator.html#L292">292</a>     softCurrentTime    = globalCurrentTime;
+<a class="jxr_linenumber" name="L293" href="AbstractStepInterpolator.html#L293">293</a>   }
+<a class="jxr_linenumber" name="L294" href="AbstractStepInterpolator.html#L294">294</a> 
+<a class="jxr_linenumber" name="L295" href="AbstractStepInterpolator.html#L295">295</a>   <em class="jxr_javadoccomment">/** Store the current step time.</em>
+<a class="jxr_linenumber" name="L296" href="AbstractStepInterpolator.html#L296">296</a> <em class="jxr_javadoccomment">   * @param t current time</em>
+<a class="jxr_linenumber" name="L297" href="AbstractStepInterpolator.html#L297">297</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L298" href="AbstractStepInterpolator.html#L298">298</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> storeTime(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> t) {
+<a class="jxr_linenumber" name="L299" href="AbstractStepInterpolator.html#L299">299</a> 
+<a class="jxr_linenumber" name="L300" href="AbstractStepInterpolator.html#L300">300</a>     globalCurrentTime = t;
+<a class="jxr_linenumber" name="L301" href="AbstractStepInterpolator.html#L301">301</a>     softCurrentTime   = globalCurrentTime;
+<a class="jxr_linenumber" name="L302" href="AbstractStepInterpolator.html#L302">302</a>     h                 = globalCurrentTime - globalPreviousTime;
+<a class="jxr_linenumber" name="L303" href="AbstractStepInterpolator.html#L303">303</a>     setInterpolatedTime(t);
+<a class="jxr_linenumber" name="L304" href="AbstractStepInterpolator.html#L304">304</a> 
+<a class="jxr_linenumber" name="L305" href="AbstractStepInterpolator.html#L305">305</a>     <em class="jxr_comment">// the step is not finalized anymore</em>
+<a class="jxr_linenumber" name="L306" href="AbstractStepInterpolator.html#L306">306</a>     finalized  = false;
+<a class="jxr_linenumber" name="L307" href="AbstractStepInterpolator.html#L307">307</a> 
+<a class="jxr_linenumber" name="L308" href="AbstractStepInterpolator.html#L308">308</a>   }
+<a class="jxr_linenumber" name="L309" href="AbstractStepInterpolator.html#L309">309</a> 
+<a class="jxr_linenumber" name="L310" href="AbstractStepInterpolator.html#L310">310</a>   <em class="jxr_javadoccomment">/** Restrict step range to a limited part of the global step.</em>
+<a class="jxr_linenumber" name="L311" href="AbstractStepInterpolator.html#L311">311</a> <em class="jxr_javadoccomment">   * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L312" href="AbstractStepInterpolator.html#L312">312</a> <em class="jxr_javadoccomment">   * This method can be used to restrict a step and make it appear</em>
+<a class="jxr_linenumber" name="L313" href="AbstractStepInterpolator.html#L313">313</a> <em class="jxr_javadoccomment">   * as if the original step was smaller. Calling this method</em>
+<a class="jxr_linenumber" name="L314" href="AbstractStepInterpolator.html#L314">314</a> <em class="jxr_javadoccomment">   * &lt;em&gt;only&lt;/em&gt; changes the value returned by {@link #getPreviousTime()},</em>
+<a class="jxr_linenumber" name="L315" href="AbstractStepInterpolator.html#L315">315</a> <em class="jxr_javadoccomment">   * it does not change any other property</em>
+<a class="jxr_linenumber" name="L316" href="AbstractStepInterpolator.html#L316">316</a> <em class="jxr_javadoccomment">   * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L317" href="AbstractStepInterpolator.html#L317">317</a> <em class="jxr_javadoccomment">   * @param softPreviousTime start of the restricted step</em>
+<a class="jxr_linenumber" name="L318" href="AbstractStepInterpolator.html#L318">318</a> <em class="jxr_javadoccomment">   * @since 2.2</em>
+<a class="jxr_linenumber" name="L319" href="AbstractStepInterpolator.html#L319">319</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L320" href="AbstractStepInterpolator.html#L320">320</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setSoftPreviousTime(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> softPreviousTime) {
+<a class="jxr_linenumber" name="L321" href="AbstractStepInterpolator.html#L321">321</a>       <strong class="jxr_keyword">this</strong>.softPreviousTime = softPreviousTime;
+<a class="jxr_linenumber" name="L322" href="AbstractStepInterpolator.html#L322">322</a>   }
+<a class="jxr_linenumber" name="L323" href="AbstractStepInterpolator.html#L323">323</a> 
+<a class="jxr_linenumber" name="L324" href="AbstractStepInterpolator.html#L324">324</a>   <em class="jxr_javadoccomment">/** Restrict step range to a limited part of the global step.</em>
+<a class="jxr_linenumber" name="L325" href="AbstractStepInterpolator.html#L325">325</a> <em class="jxr_javadoccomment">   * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L326" href="AbstractStepInterpolator.html#L326">326</a> <em class="jxr_javadoccomment">   * This method can be used to restrict a step and make it appear</em>
+<a class="jxr_linenumber" name="L327" href="AbstractStepInterpolator.html#L327">327</a> <em class="jxr_javadoccomment">   * as if the original step was smaller. Calling this method</em>
+<a class="jxr_linenumber" name="L328" href="AbstractStepInterpolator.html#L328">328</a> <em class="jxr_javadoccomment">   * &lt;em&gt;only&lt;/em&gt; changes the value returned by {@link #getCurrentTime()},</em>
+<a class="jxr_linenumber" name="L329" href="AbstractStepInterpolator.html#L329">329</a> <em class="jxr_javadoccomment">   * it does not change any other property</em>
+<a class="jxr_linenumber" name="L330" href="AbstractStepInterpolator.html#L330">330</a> <em class="jxr_javadoccomment">   * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L331" href="AbstractStepInterpolator.html#L331">331</a> <em class="jxr_javadoccomment">   * @param softCurrentTime end of the restricted step</em>
+<a class="jxr_linenumber" name="L332" href="AbstractStepInterpolator.html#L332">332</a> <em class="jxr_javadoccomment">   * @since 2.2</em>
+<a class="jxr_linenumber" name="L333" href="AbstractStepInterpolator.html#L333">333</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L334" href="AbstractStepInterpolator.html#L334">334</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setSoftCurrentTime(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> softCurrentTime) {
+<a class="jxr_linenumber" name="L335" href="AbstractStepInterpolator.html#L335">335</a>       <strong class="jxr_keyword">this</strong>.softCurrentTime  = softCurrentTime;
+<a class="jxr_linenumber" name="L336" href="AbstractStepInterpolator.html#L336">336</a>   }
+<a class="jxr_linenumber" name="L337" href="AbstractStepInterpolator.html#L337">337</a> 
+<a class="jxr_linenumber" name="L338" href="AbstractStepInterpolator.html#L338">338</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L339" href="AbstractStepInterpolator.html#L339">339</a> <em class="jxr_javadoccomment">   * Get the previous global grid point time.</em>
+<a class="jxr_linenumber" name="L340" href="AbstractStepInterpolator.html#L340">340</a> <em class="jxr_javadoccomment">   * @return previous global grid point time</em>
+<a class="jxr_linenumber" name="L341" href="AbstractStepInterpolator.html#L341">341</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L342" href="AbstractStepInterpolator.html#L342">342</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getGlobalPreviousTime() {
+<a class="jxr_linenumber" name="L343" href="AbstractStepInterpolator.html#L343">343</a>     <strong class="jxr_keyword">return</strong> globalPreviousTime;
+<a class="jxr_linenumber" name="L344" href="AbstractStepInterpolator.html#L344">344</a>   }
+<a class="jxr_linenumber" name="L345" href="AbstractStepInterpolator.html#L345">345</a> 
+<a class="jxr_linenumber" name="L346" href="AbstractStepInterpolator.html#L346">346</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L347" href="AbstractStepInterpolator.html#L347">347</a> <em class="jxr_javadoccomment">   * Get the current global grid point time.</em>
+<a class="jxr_linenumber" name="L348" href="AbstractStepInterpolator.html#L348">348</a> <em class="jxr_javadoccomment">   * @return current global grid point time</em>
+<a class="jxr_linenumber" name="L349" href="AbstractStepInterpolator.html#L349">349</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L350" href="AbstractStepInterpolator.html#L350">350</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getGlobalCurrentTime() {
+<a class="jxr_linenumber" name="L351" href="AbstractStepInterpolator.html#L351">351</a>     <strong class="jxr_keyword">return</strong> globalCurrentTime;
+<a class="jxr_linenumber" name="L352" href="AbstractStepInterpolator.html#L352">352</a>   }
+<a class="jxr_linenumber" name="L353" href="AbstractStepInterpolator.html#L353">353</a> 
+<a class="jxr_linenumber" name="L354" href="AbstractStepInterpolator.html#L354">354</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L355" href="AbstractStepInterpolator.html#L355">355</a> <em class="jxr_javadoccomment">   * Get the previous soft grid point time.</em>
+<a class="jxr_linenumber" name="L356" href="AbstractStepInterpolator.html#L356">356</a> <em class="jxr_javadoccomment">   * @return previous soft grid point time</em>
+<a class="jxr_linenumber" name="L357" href="AbstractStepInterpolator.html#L357">357</a> <em class="jxr_javadoccomment">   * @see #setSoftPreviousTime(double)</em>
+<a class="jxr_linenumber" name="L358" href="AbstractStepInterpolator.html#L358">358</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L359" href="AbstractStepInterpolator.html#L359">359</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getPreviousTime() {
+<a class="jxr_linenumber" name="L360" href="AbstractStepInterpolator.html#L360">360</a>     <strong class="jxr_keyword">return</strong> softPreviousTime;
+<a class="jxr_linenumber" name="L361" href="AbstractStepInterpolator.html#L361">361</a>   }
+<a class="jxr_linenumber" name="L362" href="AbstractStepInterpolator.html#L362">362</a> 
+<a class="jxr_linenumber" name="L363" href="AbstractStepInterpolator.html#L363">363</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L364" href="AbstractStepInterpolator.html#L364">364</a> <em class="jxr_javadoccomment">   * Get the current soft grid point time.</em>
+<a class="jxr_linenumber" name="L365" href="AbstractStepInterpolator.html#L365">365</a> <em class="jxr_javadoccomment">   * @return current soft grid point time</em>
+<a class="jxr_linenumber" name="L366" href="AbstractStepInterpolator.html#L366">366</a> <em class="jxr_javadoccomment">   * @see #setSoftCurrentTime(double)</em>
+<a class="jxr_linenumber" name="L367" href="AbstractStepInterpolator.html#L367">367</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L368" href="AbstractStepInterpolator.html#L368">368</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getCurrentTime() {
+<a class="jxr_linenumber" name="L369" href="AbstractStepInterpolator.html#L369">369</a>     <strong class="jxr_keyword">return</strong> softCurrentTime;
+<a class="jxr_linenumber" name="L370" href="AbstractStepInterpolator.html#L370">370</a>   }
+<a class="jxr_linenumber" name="L371" href="AbstractStepInterpolator.html#L371">371</a> 
+<a class="jxr_linenumber" name="L372" href="AbstractStepInterpolator.html#L372">372</a>   <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L373" href="AbstractStepInterpolator.html#L373">373</a>   @Override
+<a class="jxr_linenumber" name="L374" href="AbstractStepInterpolator.html#L374">374</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getInterpolatedTime() {
+<a class="jxr_linenumber" name="L375" href="AbstractStepInterpolator.html#L375">375</a>     <strong class="jxr_keyword">return</strong> interpolatedTime;
+<a class="jxr_linenumber" name="L376" href="AbstractStepInterpolator.html#L376">376</a>   }
+<a class="jxr_linenumber" name="L377" href="AbstractStepInterpolator.html#L377">377</a> 
+<a class="jxr_linenumber" name="L378" href="AbstractStepInterpolator.html#L378">378</a>   <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L379" href="AbstractStepInterpolator.html#L379">379</a>   @Override
+<a class="jxr_linenumber" name="L380" href="AbstractStepInterpolator.html#L380">380</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setInterpolatedTime(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> time) {
+<a class="jxr_linenumber" name="L381" href="AbstractStepInterpolator.html#L381">381</a>       interpolatedTime = time;
+<a class="jxr_linenumber" name="L382" href="AbstractStepInterpolator.html#L382">382</a>       dirtyState       = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L383" href="AbstractStepInterpolator.html#L383">383</a>   }
+<a class="jxr_linenumber" name="L384" href="AbstractStepInterpolator.html#L384">384</a> 
+<a class="jxr_linenumber" name="L385" href="AbstractStepInterpolator.html#L385">385</a>   <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L386" href="AbstractStepInterpolator.html#L386">386</a>   @Override
+<a class="jxr_linenumber" name="L387" href="AbstractStepInterpolator.html#L387">387</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isForward() {
+<a class="jxr_linenumber" name="L388" href="AbstractStepInterpolator.html#L388">388</a>     <strong class="jxr_keyword">return</strong> forward;
+<a class="jxr_linenumber" name="L389" href="AbstractStepInterpolator.html#L389">389</a>   }
+<a class="jxr_linenumber" name="L390" href="AbstractStepInterpolator.html#L390">390</a> 
+<a class="jxr_linenumber" name="L391" href="AbstractStepInterpolator.html#L391">391</a>   <em class="jxr_javadoccomment">/** Compute the state and derivatives at the interpolated time.</em>
+<a class="jxr_linenumber" name="L392" href="AbstractStepInterpolator.html#L392">392</a> <em class="jxr_javadoccomment">   * This is the main processing method that should be implemented by</em>
+<a class="jxr_linenumber" name="L393" href="AbstractStepInterpolator.html#L393">393</a> <em class="jxr_javadoccomment">   * the derived classes to perform the interpolation.</em>
+<a class="jxr_linenumber" name="L394" href="AbstractStepInterpolator.html#L394">394</a> <em class="jxr_javadoccomment">   * @param theta normalized interpolation abscissa within the step</em>
+<a class="jxr_linenumber" name="L395" href="AbstractStepInterpolator.html#L395">395</a> <em class="jxr_javadoccomment">   * (theta is zero at the previous time step and one at the current time step)</em>
+<a class="jxr_linenumber" name="L396" href="AbstractStepInterpolator.html#L396">396</a> <em class="jxr_javadoccomment">   * @param oneMinusThetaH time gap between the interpolated time and</em>
+<a class="jxr_linenumber" name="L397" href="AbstractStepInterpolator.html#L397">397</a> <em class="jxr_javadoccomment">   * the current time</em>
+<a class="jxr_linenumber" name="L398" href="AbstractStepInterpolator.html#L398">398</a> <em class="jxr_javadoccomment">   * @exception MaxCountExceededException if the number of functions evaluations is exceeded</em>
+<a class="jxr_linenumber" name="L399" href="AbstractStepInterpolator.html#L399">399</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L400" href="AbstractStepInterpolator.html#L400">400</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">void</strong> computeInterpolatedStateAndDerivatives(<strong class="jxr_keyword">double</strong> theta,
+<a class="jxr_linenumber" name="L401" href="AbstractStepInterpolator.html#L401">401</a>                                                                  <strong class="jxr_keyword">double</strong> oneMinusThetaH)
+<a class="jxr_linenumber" name="L402" href="AbstractStepInterpolator.html#L402">402</a>       <strong class="jxr_keyword">throws</strong> MaxCountExceededException;
+<a class="jxr_linenumber" name="L403" href="AbstractStepInterpolator.html#L403">403</a> 
+<a class="jxr_linenumber" name="L404" href="AbstractStepInterpolator.html#L404">404</a>   <em class="jxr_javadoccomment">/** Lazy evaluation of complete interpolated state.</em>
+<a class="jxr_linenumber" name="L405" href="AbstractStepInterpolator.html#L405">405</a> <em class="jxr_javadoccomment">   * @exception MaxCountExceededException if the number of functions evaluations is exceeded</em>
+<a class="jxr_linenumber" name="L406" href="AbstractStepInterpolator.html#L406">406</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L407" href="AbstractStepInterpolator.html#L407">407</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> evaluateCompleteInterpolatedState()
+<a class="jxr_linenumber" name="L408" href="AbstractStepInterpolator.html#L408">408</a>       <strong class="jxr_keyword">throws</strong> <a href="../../exception/MaxCountExceededException.html">MaxCountExceededException</a> {
+<a class="jxr_linenumber" name="L409" href="AbstractStepInterpolator.html#L409">409</a>       <em class="jxr_comment">// lazy evaluation of the state</em>
+<a class="jxr_linenumber" name="L410" href="AbstractStepInterpolator.html#L410">410</a>       <strong class="jxr_keyword">if</strong> (dirtyState) {
+<a class="jxr_linenumber" name="L411" href="AbstractStepInterpolator.html#L411">411</a>           <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> oneMinusThetaH = globalCurrentTime - interpolatedTime;
+<a class="jxr_linenumber" name="L412" href="AbstractStepInterpolator.html#L412">412</a>           <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> theta = (h == 0) ? 0 : (h - oneMinusThetaH) / h;
+<a class="jxr_linenumber" name="L413" href="AbstractStepInterpolator.html#L413">413</a>           computeInterpolatedStateAndDerivatives(theta, oneMinusThetaH);
+<a class="jxr_linenumber" name="L414" href="AbstractStepInterpolator.html#L414">414</a>           dirtyState = false;
+<a class="jxr_linenumber" name="L415" href="AbstractStepInterpolator.html#L415">415</a>       }
+<a class="jxr_linenumber" name="L416" href="AbstractStepInterpolator.html#L416">416</a>   }
+<a class="jxr_linenumber" name="L417" href="AbstractStepInterpolator.html#L417">417</a> 
+<a class="jxr_linenumber" name="L418" href="AbstractStepInterpolator.html#L418">418</a>   <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L419" href="AbstractStepInterpolator.html#L419">419</a>   @Override
+<a class="jxr_linenumber" name="L420" href="AbstractStepInterpolator.html#L420">420</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getInterpolatedState() <strong class="jxr_keyword">throws</strong> MaxCountExceededException {
+<a class="jxr_linenumber" name="L421" href="AbstractStepInterpolator.html#L421">421</a>       evaluateCompleteInterpolatedState();
+<a class="jxr_linenumber" name="L422" href="AbstractStepInterpolator.html#L422">422</a>       primaryMapper.extractEquationData(interpolatedState,
+<a class="jxr_linenumber" name="L423" href="AbstractStepInterpolator.html#L423">423</a>                                         interpolatedPrimaryState);
+<a class="jxr_linenumber" name="L424" href="AbstractStepInterpolator.html#L424">424</a>       <strong class="jxr_keyword">return</strong> interpolatedPrimaryState;
+<a class="jxr_linenumber" name="L425" href="AbstractStepInterpolator.html#L425">425</a>   }
+<a class="jxr_linenumber" name="L426" href="AbstractStepInterpolator.html#L426">426</a> 
+<a class="jxr_linenumber" name="L427" href="AbstractStepInterpolator.html#L427">427</a>   <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L428" href="AbstractStepInterpolator.html#L428">428</a>   @Override
+<a class="jxr_linenumber" name="L429" href="AbstractStepInterpolator.html#L429">429</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getInterpolatedDerivatives() <strong class="jxr_keyword">throws</strong> MaxCountExceededException {
+<a class="jxr_linenumber" name="L430" href="AbstractStepInterpolator.html#L430">430</a>       evaluateCompleteInterpolatedState();
+<a class="jxr_linenumber" name="L431" href="AbstractStepInterpolator.html#L431">431</a>       primaryMapper.extractEquationData(interpolatedDerivatives,
+<a class="jxr_linenumber" name="L432" href="AbstractStepInterpolator.html#L432">432</a>                                         interpolatedPrimaryDerivatives);
+<a class="jxr_linenumber" name="L433" href="AbstractStepInterpolator.html#L433">433</a>       <strong class="jxr_keyword">return</strong> interpolatedPrimaryDerivatives;
+<a class="jxr_linenumber" name="L434" href="AbstractStepInterpolator.html#L434">434</a>   }
+<a class="jxr_linenumber" name="L435" href="AbstractStepInterpolator.html#L435">435</a> 
+<a class="jxr_linenumber" name="L436" href="AbstractStepInterpolator.html#L436">436</a>   <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L437" href="AbstractStepInterpolator.html#L437">437</a>   @Override
+<a class="jxr_linenumber" name="L438" href="AbstractStepInterpolator.html#L438">438</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getInterpolatedSecondaryState(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> index) <strong class="jxr_keyword">throws</strong> MaxCountExceededException {
+<a class="jxr_linenumber" name="L439" href="AbstractStepInterpolator.html#L439">439</a>       evaluateCompleteInterpolatedState();
+<a class="jxr_linenumber" name="L440" href="AbstractStepInterpolator.html#L440">440</a>       secondaryMappers[index].extractEquationData(interpolatedState,
+<a class="jxr_linenumber" name="L441" href="AbstractStepInterpolator.html#L441">441</a>                                                   interpolatedSecondaryState[index]);
+<a class="jxr_linenumber" name="L442" href="AbstractStepInterpolator.html#L442">442</a>       <strong class="jxr_keyword">return</strong> interpolatedSecondaryState[index];
+<a class="jxr_linenumber" name="L443" href="AbstractStepInterpolator.html#L443">443</a>   }
+<a class="jxr_linenumber" name="L444" href="AbstractStepInterpolator.html#L444">444</a> 
+<a class="jxr_linenumber" name="L445" href="AbstractStepInterpolator.html#L445">445</a>   <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L446" href="AbstractStepInterpolator.html#L446">446</a>   @Override
+<a class="jxr_linenumber" name="L447" href="AbstractStepInterpolator.html#L447">447</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getInterpolatedSecondaryDerivatives(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> index) <strong class="jxr_keyword">throws</strong> MaxCountExceededException {
+<a class="jxr_linenumber" name="L448" href="AbstractStepInterpolator.html#L448">448</a>       evaluateCompleteInterpolatedState();
+<a class="jxr_linenumber" name="L449" href="AbstractStepInterpolator.html#L449">449</a>       secondaryMappers[index].extractEquationData(interpolatedDerivatives,
+<a class="jxr_linenumber" name="L450" href="AbstractStepInterpolator.html#L450">450</a>                                                   interpolatedSecondaryDerivatives[index]);
+<a class="jxr_linenumber" name="L451" href="AbstractStepInterpolator.html#L451">451</a>       <strong class="jxr_keyword">return</strong> interpolatedSecondaryDerivatives[index];
+<a class="jxr_linenumber" name="L452" href="AbstractStepInterpolator.html#L452">452</a>   }
+<a class="jxr_linenumber" name="L453" href="AbstractStepInterpolator.html#L453">453</a> 
+<a class="jxr_linenumber" name="L454" href="AbstractStepInterpolator.html#L454">454</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L455" href="AbstractStepInterpolator.html#L455">455</a> <em class="jxr_javadoccomment">   * Finalize the step.</em>
+<a class="jxr_linenumber" name="L456" href="AbstractStepInterpolator.html#L456">456</a> 
+<a class="jxr_linenumber" name="L457" href="AbstractStepInterpolator.html#L457">457</a> <em class="jxr_javadoccomment">   * &lt;p&gt;Some embedded Runge-Kutta integrators need fewer functions</em>
+<a class="jxr_linenumber" name="L458" href="AbstractStepInterpolator.html#L458">458</a> <em class="jxr_javadoccomment">   * evaluations than their counterpart step interpolators. These</em>
+<a class="jxr_linenumber" name="L459" href="AbstractStepInterpolator.html#L459">459</a> <em class="jxr_javadoccomment">   * interpolators should perform the last evaluations they need by</em>
+<a class="jxr_linenumber" name="L460" href="AbstractStepInterpolator.html#L460">460</a> <em class="jxr_javadoccomment">   * themselves only if they need them. This method triggers these</em>
+<a class="jxr_linenumber" name="L461" href="AbstractStepInterpolator.html#L461">461</a> <em class="jxr_javadoccomment">   * extra evaluations. It can be called directly by the user step</em>
+<a class="jxr_linenumber" name="L462" href="AbstractStepInterpolator.html#L462">462</a> <em class="jxr_javadoccomment">   * handler and it is called automatically if {@link</em>
+<a class="jxr_linenumber" name="L463" href="AbstractStepInterpolator.html#L463">463</a> <em class="jxr_javadoccomment">   * #setInterpolatedTime} is called.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L464" href="AbstractStepInterpolator.html#L464">464</a> 
+<a class="jxr_linenumber" name="L465" href="AbstractStepInterpolator.html#L465">465</a> <em class="jxr_javadoccomment">   * &lt;p&gt;Once this method has been called, &lt;strong&gt;no&lt;/strong&gt; other</em>
+<a class="jxr_linenumber" name="L466" href="AbstractStepInterpolator.html#L466">466</a> <em class="jxr_javadoccomment">   * evaluation will be performed on this step. If there is a need to</em>
+<a class="jxr_linenumber" name="L467" href="AbstractStepInterpolator.html#L467">467</a> <em class="jxr_javadoccomment">   * have some side effects between the step handler and the</em>
+<a class="jxr_linenumber" name="L468" href="AbstractStepInterpolator.html#L468">468</a> <em class="jxr_javadoccomment">   * differential equations (for example update some data in the</em>
+<a class="jxr_linenumber" name="L469" href="AbstractStepInterpolator.html#L469">469</a> <em class="jxr_javadoccomment">   * equations once the step has been done), it is advised to call</em>
+<a class="jxr_linenumber" name="L470" href="AbstractStepInterpolator.html#L470">470</a> <em class="jxr_javadoccomment">   * this method explicitly from the step handler before these side</em>
+<a class="jxr_linenumber" name="L471" href="AbstractStepInterpolator.html#L471">471</a> <em class="jxr_javadoccomment">   * effects are set up. If the step handler induces no side effect,</em>
+<a class="jxr_linenumber" name="L472" href="AbstractStepInterpolator.html#L472">472</a> <em class="jxr_javadoccomment">   * then this method can safely be ignored, it will be called</em>
+<a class="jxr_linenumber" name="L473" href="AbstractStepInterpolator.html#L473">473</a> <em class="jxr_javadoccomment">   * transparently as needed.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L474" href="AbstractStepInterpolator.html#L474">474</a> 
+<a class="jxr_linenumber" name="L475" href="AbstractStepInterpolator.html#L475">475</a> <em class="jxr_javadoccomment">   * &lt;p&gt;&lt;strong&gt;Warning&lt;/strong&gt;: since the step interpolator provided</em>
+<a class="jxr_linenumber" name="L476" href="AbstractStepInterpolator.html#L476">476</a> <em class="jxr_javadoccomment">   * to the step handler as a parameter of the {@link</em>
+<a class="jxr_linenumber" name="L477" href="AbstractStepInterpolator.html#L477">477</a> <em class="jxr_javadoccomment">   * StepHandler#handleStep handleStep} is valid only for the duration</em>
+<a class="jxr_linenumber" name="L478" href="AbstractStepInterpolator.html#L478">478</a> <em class="jxr_javadoccomment">   * of the {@link StepHandler#handleStep handleStep} call, one cannot</em>
+<a class="jxr_linenumber" name="L479" href="AbstractStepInterpolator.html#L479">479</a> <em class="jxr_javadoccomment">   * simply store a reference and reuse it later. One should first</em>
+<a class="jxr_linenumber" name="L480" href="AbstractStepInterpolator.html#L480">480</a> <em class="jxr_javadoccomment">   * finalize the instance, then copy this finalized instance into a</em>
+<a class="jxr_linenumber" name="L481" href="AbstractStepInterpolator.html#L481">481</a> <em class="jxr_javadoccomment">   * new object that can be kept.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L482" href="AbstractStepInterpolator.html#L482">482</a> 
+<a class="jxr_linenumber" name="L483" href="AbstractStepInterpolator.html#L483">483</a> <em class="jxr_javadoccomment">   * &lt;p&gt;This method calls the protected &lt;code&gt;doFinalize&lt;/code&gt; method</em>
+<a class="jxr_linenumber" name="L484" href="AbstractStepInterpolator.html#L484">484</a> <em class="jxr_javadoccomment">   * if it has never been called during this step and set a flag</em>
+<a class="jxr_linenumber" name="L485" href="AbstractStepInterpolator.html#L485">485</a> <em class="jxr_javadoccomment">   * indicating that it has been called once. It is the &lt;code&gt;</em>
+<a class="jxr_linenumber" name="L486" href="AbstractStepInterpolator.html#L486">486</a> <em class="jxr_javadoccomment">   * doFinalize&lt;/code&gt; method which should perform the evaluations.</em>
+<a class="jxr_linenumber" name="L487" href="AbstractStepInterpolator.html#L487">487</a> <em class="jxr_javadoccomment">   * This wrapping prevents from calling &lt;code&gt;doFinalize&lt;/code&gt; several</em>
+<a class="jxr_linenumber" name="L488" href="AbstractStepInterpolator.html#L488">488</a> <em class="jxr_javadoccomment">   * times and hence evaluating the differential equations too often.</em>
+<a class="jxr_linenumber" name="L489" href="AbstractStepInterpolator.html#L489">489</a> <em class="jxr_javadoccomment">   * Therefore, subclasses are not allowed not reimplement it, they</em>
+<a class="jxr_linenumber" name="L490" href="AbstractStepInterpolator.html#L490">490</a> <em class="jxr_javadoccomment">   * should rather reimplement &lt;code&gt;doFinalize&lt;/code&gt;.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L491" href="AbstractStepInterpolator.html#L491">491</a> 
+<a class="jxr_linenumber" name="L492" href="AbstractStepInterpolator.html#L492">492</a> <em class="jxr_javadoccomment">   * @exception MaxCountExceededException if the number of functions evaluations is exceeded</em>
+<a class="jxr_linenumber" name="L493" href="AbstractStepInterpolator.html#L493">493</a> 
+<a class="jxr_linenumber" name="L494" href="AbstractStepInterpolator.html#L494">494</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L495" href="AbstractStepInterpolator.html#L495">495</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">void</strong> finalizeStep() <strong class="jxr_keyword">throws</strong> MaxCountExceededException {
+<a class="jxr_linenumber" name="L496" href="AbstractStepInterpolator.html#L496">496</a>     <strong class="jxr_keyword">if</strong> (! finalized) {
+<a class="jxr_linenumber" name="L497" href="AbstractStepInterpolator.html#L497">497</a>       doFinalize();
+<a class="jxr_linenumber" name="L498" href="AbstractStepInterpolator.html#L498">498</a>       finalized = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L499" href="AbstractStepInterpolator.html#L499">499</a>     }
+<a class="jxr_linenumber" name="L500" href="AbstractStepInterpolator.html#L500">500</a>   }
+<a class="jxr_linenumber" name="L501" href="AbstractStepInterpolator.html#L501">501</a> 
+<a class="jxr_linenumber" name="L502" href="AbstractStepInterpolator.html#L502">502</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L503" href="AbstractStepInterpolator.html#L503">503</a> <em class="jxr_javadoccomment">   * Really finalize the step.</em>
+<a class="jxr_linenumber" name="L504" href="AbstractStepInterpolator.html#L504">504</a> <em class="jxr_javadoccomment">   * The default implementation of this method does nothing.</em>
+<a class="jxr_linenumber" name="L505" href="AbstractStepInterpolator.html#L505">505</a> <em class="jxr_javadoccomment">   * @exception MaxCountExceededException if the number of functions evaluations is exceeded</em>
+<a class="jxr_linenumber" name="L506" href="AbstractStepInterpolator.html#L506">506</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L507" href="AbstractStepInterpolator.html#L507">507</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> doFinalize() <strong class="jxr_keyword">throws</strong> MaxCountExceededException {
+<a class="jxr_linenumber" name="L508" href="AbstractStepInterpolator.html#L508">508</a>   }
+<a class="jxr_linenumber" name="L509" href="AbstractStepInterpolator.html#L509">509</a> 
+<a class="jxr_linenumber" name="L510" href="AbstractStepInterpolator.html#L510">510</a>   <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L511" href="AbstractStepInterpolator.html#L511">511</a>   @Override
+<a class="jxr_linenumber" name="L512" href="AbstractStepInterpolator.html#L512">512</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">void</strong> writeExternal(ObjectOutput out)
+<a class="jxr_linenumber" name="L513" href="AbstractStepInterpolator.html#L513">513</a>     <strong class="jxr_keyword">throws</strong> IOException;
+<a class="jxr_linenumber" name="L514" href="AbstractStepInterpolator.html#L514">514</a> 
+<a class="jxr_linenumber" name="L515" href="AbstractStepInterpolator.html#L515">515</a>   <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L516" href="AbstractStepInterpolator.html#L516">516</a>   @Override
+<a class="jxr_linenumber" name="L517" href="AbstractStepInterpolator.html#L517">517</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">void</strong> readExternal(ObjectInput in)
+<a class="jxr_linenumber" name="L518" href="AbstractStepInterpolator.html#L518">518</a>     <strong class="jxr_keyword">throws</strong> IOException, ClassNotFoundException;
+<a class="jxr_linenumber" name="L519" href="AbstractStepInterpolator.html#L519">519</a> 
+<a class="jxr_linenumber" name="L520" href="AbstractStepInterpolator.html#L520">520</a>   <em class="jxr_javadoccomment">/** Save the base state of the instance.</em>
+<a class="jxr_linenumber" name="L521" href="AbstractStepInterpolator.html#L521">521</a> <em class="jxr_javadoccomment">   * This method performs step finalization if it has not been done</em>
+<a class="jxr_linenumber" name="L522" href="AbstractStepInterpolator.html#L522">522</a> <em class="jxr_javadoccomment">   * before.</em>
+<a class="jxr_linenumber" name="L523" href="AbstractStepInterpolator.html#L523">523</a> <em class="jxr_javadoccomment">   * @param out stream where to save the state</em>
+<a class="jxr_linenumber" name="L524" href="AbstractStepInterpolator.html#L524">524</a> <em class="jxr_javadoccomment">   * @exception IOException in case of write error</em>
+<a class="jxr_linenumber" name="L525" href="AbstractStepInterpolator.html#L525">525</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L526" href="AbstractStepInterpolator.html#L526">526</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> writeBaseExternal(<strong class="jxr_keyword">final</strong> ObjectOutput out)
+<a class="jxr_linenumber" name="L527" href="AbstractStepInterpolator.html#L527">527</a>     <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L528" href="AbstractStepInterpolator.html#L528">528</a> 
+<a class="jxr_linenumber" name="L529" href="AbstractStepInterpolator.html#L529">529</a>     <strong class="jxr_keyword">if</strong> (currentState == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L530" href="AbstractStepInterpolator.html#L530">530</a>         out.writeInt(-1);
+<a class="jxr_linenumber" name="L531" href="AbstractStepInterpolator.html#L531">531</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L532" href="AbstractStepInterpolator.html#L532">532</a>         out.writeInt(currentState.length);
+<a class="jxr_linenumber" name="L533" href="AbstractStepInterpolator.html#L533">533</a>     }
+<a class="jxr_linenumber" name="L534" href="AbstractStepInterpolator.html#L534">534</a>     out.writeDouble(globalPreviousTime);
+<a class="jxr_linenumber" name="L535" href="AbstractStepInterpolator.html#L535">535</a>     out.writeDouble(globalCurrentTime);
+<a class="jxr_linenumber" name="L536" href="AbstractStepInterpolator.html#L536">536</a>     out.writeDouble(softPreviousTime);
+<a class="jxr_linenumber" name="L537" href="AbstractStepInterpolator.html#L537">537</a>     out.writeDouble(softCurrentTime);
+<a class="jxr_linenumber" name="L538" href="AbstractStepInterpolator.html#L538">538</a>     out.writeDouble(h);
+<a class="jxr_linenumber" name="L539" href="AbstractStepInterpolator.html#L539">539</a>     out.writeBoolean(forward);
+<a class="jxr_linenumber" name="L540" href="AbstractStepInterpolator.html#L540">540</a>     out.writeObject(primaryMapper);
+<a class="jxr_linenumber" name="L541" href="AbstractStepInterpolator.html#L541">541</a>     out.write(secondaryMappers.length);
+<a class="jxr_linenumber" name="L542" href="AbstractStepInterpolator.html#L542">542</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> EquationsMapper  mapper : secondaryMappers) {
+<a class="jxr_linenumber" name="L543" href="AbstractStepInterpolator.html#L543">543</a>         out.writeObject(mapper);
+<a class="jxr_linenumber" name="L544" href="AbstractStepInterpolator.html#L544">544</a>     }
+<a class="jxr_linenumber" name="L545" href="AbstractStepInterpolator.html#L545">545</a> 
+<a class="jxr_linenumber" name="L546" href="AbstractStepInterpolator.html#L546">546</a>     <strong class="jxr_keyword">if</strong> (currentState != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L547" href="AbstractStepInterpolator.html#L547">547</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; currentState.length; ++i) {
+<a class="jxr_linenumber" name="L548" href="AbstractStepInterpolator.html#L548">548</a>             out.writeDouble(currentState[i]);
+<a class="jxr_linenumber" name="L549" href="AbstractStepInterpolator.html#L549">549</a>         }
+<a class="jxr_linenumber" name="L550" href="AbstractStepInterpolator.html#L550">550</a>     }
+<a class="jxr_linenumber" name="L551" href="AbstractStepInterpolator.html#L551">551</a> 
+<a class="jxr_linenumber" name="L552" href="AbstractStepInterpolator.html#L552">552</a>     out.writeDouble(interpolatedTime);
+<a class="jxr_linenumber" name="L553" href="AbstractStepInterpolator.html#L553">553</a> 
+<a class="jxr_linenumber" name="L554" href="AbstractStepInterpolator.html#L554">554</a>     <em class="jxr_comment">// we do not store the interpolated state,</em>
+<a class="jxr_linenumber" name="L555" href="AbstractStepInterpolator.html#L555">555</a>     <em class="jxr_comment">// it will be recomputed as needed after reading</em>
+<a class="jxr_linenumber" name="L556" href="AbstractStepInterpolator.html#L556">556</a> 
+<a class="jxr_linenumber" name="L557" href="AbstractStepInterpolator.html#L557">557</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L558" href="AbstractStepInterpolator.html#L558">558</a>         <em class="jxr_comment">// finalize the step (and don't bother saving the now true flag)</em>
+<a class="jxr_linenumber" name="L559" href="AbstractStepInterpolator.html#L559">559</a>         finalizeStep();
+<a class="jxr_linenumber" name="L560" href="AbstractStepInterpolator.html#L560">560</a>     } <strong class="jxr_keyword">catch</strong> (MaxCountExceededException mcee) {
+<a class="jxr_linenumber" name="L561" href="AbstractStepInterpolator.html#L561">561</a>         <strong class="jxr_keyword">final</strong> IOException ioe = <strong class="jxr_keyword">new</strong> IOException(mcee.getLocalizedMessage());
+<a class="jxr_linenumber" name="L562" href="AbstractStepInterpolator.html#L562">562</a>         ioe.initCause(mcee);
+<a class="jxr_linenumber" name="L563" href="AbstractStepInterpolator.html#L563">563</a>         <strong class="jxr_keyword">throw</strong> ioe;
+<a class="jxr_linenumber" name="L564" href="AbstractStepInterpolator.html#L564">564</a>     }
+<a class="jxr_linenumber" name="L565" href="AbstractStepInterpolator.html#L565">565</a> 
+<a class="jxr_linenumber" name="L566" href="AbstractStepInterpolator.html#L566">566</a>   }
+<a class="jxr_linenumber" name="L567" href="AbstractStepInterpolator.html#L567">567</a> 
+<a class="jxr_linenumber" name="L568" href="AbstractStepInterpolator.html#L568">568</a>   <em class="jxr_javadoccomment">/** Read the base state of the instance.</em>
+<a class="jxr_linenumber" name="L569" href="AbstractStepInterpolator.html#L569">569</a> <em class="jxr_javadoccomment">   * This method does &lt;strong&gt;neither&lt;/strong&gt; set the interpolated</em>
+<a class="jxr_linenumber" name="L570" href="AbstractStepInterpolator.html#L570">570</a> <em class="jxr_javadoccomment">   * time nor state. It is up to the derived class to reset it</em>
+<a class="jxr_linenumber" name="L571" href="AbstractStepInterpolator.html#L571">571</a> <em class="jxr_javadoccomment">   * properly calling the {@link #setInterpolatedTime} method later,</em>
+<a class="jxr_linenumber" name="L572" href="AbstractStepInterpolator.html#L572">572</a> <em class="jxr_javadoccomment">   * once all rest of the object state has been set up properly.</em>
+<a class="jxr_linenumber" name="L573" href="AbstractStepInterpolator.html#L573">573</a> <em class="jxr_javadoccomment">   * @param in stream where to read the state from</em>
+<a class="jxr_linenumber" name="L574" href="AbstractStepInterpolator.html#L574">574</a> <em class="jxr_javadoccomment">   * @return interpolated time to be set later by the caller</em>
+<a class="jxr_linenumber" name="L575" href="AbstractStepInterpolator.html#L575">575</a> <em class="jxr_javadoccomment">   * @exception IOException in case of read error</em>
+<a class="jxr_linenumber" name="L576" href="AbstractStepInterpolator.html#L576">576</a> <em class="jxr_javadoccomment">   * @exception ClassNotFoundException if an equation mapper class</em>
+<a class="jxr_linenumber" name="L577" href="AbstractStepInterpolator.html#L577">577</a> <em class="jxr_javadoccomment">   * cannot be found</em>
+<a class="jxr_linenumber" name="L578" href="AbstractStepInterpolator.html#L578">578</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L579" href="AbstractStepInterpolator.html#L579">579</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> readBaseExternal(<strong class="jxr_keyword">final</strong> ObjectInput in)
+<a class="jxr_linenumber" name="L580" href="AbstractStepInterpolator.html#L580">580</a>     <strong class="jxr_keyword">throws</strong> IOException, ClassNotFoundException {
+<a class="jxr_linenumber" name="L581" href="AbstractStepInterpolator.html#L581">581</a> 
+<a class="jxr_linenumber" name="L582" href="AbstractStepInterpolator.html#L582">582</a>     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> dimension = in.readInt();
+<a class="jxr_linenumber" name="L583" href="AbstractStepInterpolator.html#L583">583</a>     globalPreviousTime  = in.readDouble();
+<a class="jxr_linenumber" name="L584" href="AbstractStepInterpolator.html#L584">584</a>     globalCurrentTime   = in.readDouble();
+<a class="jxr_linenumber" name="L585" href="AbstractStepInterpolator.html#L585">585</a>     softPreviousTime    = in.readDouble();
+<a class="jxr_linenumber" name="L586" href="AbstractStepInterpolator.html#L586">586</a>     softCurrentTime     = in.readDouble();
+<a class="jxr_linenumber" name="L587" href="AbstractStepInterpolator.html#L587">587</a>     h                   = in.readDouble();
+<a class="jxr_linenumber" name="L588" href="AbstractStepInterpolator.html#L588">588</a>     forward             = in.readBoolean();
+<a class="jxr_linenumber" name="L589" href="AbstractStepInterpolator.html#L589">589</a>     primaryMapper       = (EquationsMapper) in.readObject();
+<a class="jxr_linenumber" name="L590" href="AbstractStepInterpolator.html#L590">590</a>     secondaryMappers    = <strong class="jxr_keyword">new</strong> EquationsMapper[in.read()];
+<a class="jxr_linenumber" name="L591" href="AbstractStepInterpolator.html#L591">591</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; secondaryMappers.length; ++i) {
+<a class="jxr_linenumber" name="L592" href="AbstractStepInterpolator.html#L592">592</a>         secondaryMappers[i] = (EquationsMapper) in.readObject();
+<a class="jxr_linenumber" name="L593" href="AbstractStepInterpolator.html#L593">593</a>     }
+<a class="jxr_linenumber" name="L594" href="AbstractStepInterpolator.html#L594">594</a>     dirtyState          = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L595" href="AbstractStepInterpolator.html#L595">595</a> 
+<a class="jxr_linenumber" name="L596" href="AbstractStepInterpolator.html#L596">596</a>     <strong class="jxr_keyword">if</strong> (dimension &lt; 0) {
+<a class="jxr_linenumber" name="L597" href="AbstractStepInterpolator.html#L597">597</a>         currentState = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L598" href="AbstractStepInterpolator.html#L598">598</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L599" href="AbstractStepInterpolator.html#L599">599</a>         currentState  = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[dimension];
+<a class="jxr_linenumber" name="L600" href="AbstractStepInterpolator.html#L600">600</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; currentState.length; ++i) {
+<a class="jxr_linenumber" name="L601" href="AbstractStepInterpolator.html#L601">601</a>             currentState[i] = in.readDouble();
+<a class="jxr_linenumber" name="L602" href="AbstractStepInterpolator.html#L602">602</a>         }
+<a class="jxr_linenumber" name="L603" href="AbstractStepInterpolator.html#L603">603</a>     }
+<a class="jxr_linenumber" name="L604" href="AbstractStepInterpolator.html#L604">604</a> 
+<a class="jxr_linenumber" name="L605" href="AbstractStepInterpolator.html#L605">605</a>     <em class="jxr_comment">// we do NOT handle the interpolated time and state here</em>
+<a class="jxr_linenumber" name="L606" href="AbstractStepInterpolator.html#L606">606</a>     interpolatedTime = Double.NaN;
+<a class="jxr_linenumber" name="L607" href="AbstractStepInterpolator.html#L607">607</a>     allocateInterpolatedArrays(dimension);
+<a class="jxr_linenumber" name="L608" href="AbstractStepInterpolator.html#L608">608</a> 
+<a class="jxr_linenumber" name="L609" href="AbstractStepInterpolator.html#L609">609</a>     finalized = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L610" href="AbstractStepInterpolator.html#L610">610</a> 
+<a class="jxr_linenumber" name="L611" href="AbstractStepInterpolator.html#L611">611</a>     <strong class="jxr_keyword">return</strong> in.readDouble();
+<a class="jxr_linenumber" name="L612" href="AbstractStepInterpolator.html#L612">612</a> 
+<a class="jxr_linenumber" name="L613" href="AbstractStepInterpolator.html#L613">613</a>   }
+<a class="jxr_linenumber" name="L614" href="AbstractStepInterpolator.html#L614">614</a> 
+<a class="jxr_linenumber" name="L615" href="AbstractStepInterpolator.html#L615">615</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

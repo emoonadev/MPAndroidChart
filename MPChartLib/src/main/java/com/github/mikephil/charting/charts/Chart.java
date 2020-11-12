@@ -16,7 +16,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore.Images;
-import androidx.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -25,8 +24,9 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 
+import androidx.annotation.RequiresApi;
+
 import com.github.mikephil.charting.animation.ChartAnimator;
-import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.animation.Easing.EasingFunction;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.IMarker;
@@ -56,6 +56,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import me.ishanjoshi.chart_accessibility_module.IDescriptor;
+import me.ishanjoshi.chart_accessibility_module.descriptors.ToImplementDescriptor;
+
+
 /**
  * Baseclass of all Chart-Views.
  *
@@ -68,9 +72,10 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
     public static final String LOG_TAG = "MPAndroidChart";
 
     /**
-     * flag that indicates if logging is enabled or not
+     * flag that indicates if logging is enabled or not <br>
+     * Default changed to <b>true</b> for development purposes
      */
-    protected boolean mLogEnabled = false;
+    protected boolean mLogEnabled = true;
 
     /**
      * object that holds all data that was originally set for the chart, before
@@ -250,7 +255,16 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
             Log.i("", "Chart.init()");
 
         // enable being detected by ScreenReader
-        setFocusable(true);
+        // setScreenReaderFocusable(true); DOES Not work Reliably by itself.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                setScreenReaderFocusable(true);
+            }
+        } else {
+            setFocusable(true);
+        }
+
     }
 
     // public void initWithDummyData() {
@@ -581,9 +595,10 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
      * Highlights any y-value at the given x-value in the given DataSet.
      * Provide -1 as the dataSetIndex to undo all highlighting.
      * This method will call the listener.
-     * @param x The x-value to highlight
+     *
+     * @param x            The x-value to highlight
      * @param dataSetIndex The dataset index to search in
-     * @param dataIndex The data index to search in (only used in CombinedChartView currently)
+     * @param dataIndex    The data index to search in (only used in CombinedChartView currently)
      */
     public void highlightValue(float x, int dataSetIndex, int dataIndex) {
         highlightValue(x, dataSetIndex, dataIndex, true);
@@ -593,7 +608,8 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
      * Highlights any y-value at the given x-value in the given DataSet.
      * Provide -1 as the dataSetIndex to undo all highlighting.
      * This method will call the listener.
-     * @param x The x-value to highlight
+     *
+     * @param x            The x-value to highlight
      * @param dataSetIndex The dataset index to search in
      */
     public void highlightValue(float x, int dataSetIndex) {
@@ -604,10 +620,11 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
      * Highlights the value at the given x-value and y-value in the given DataSet.
      * Provide -1 as the dataSetIndex to undo all highlighting.
      * This method will call the listener.
-     * @param x The x-value to highlight
-     * @param y The y-value to highlight. Supply `NaN` for "any"
+     *
+     * @param x            The x-value to highlight
+     * @param y            The y-value to highlight. Supply `NaN` for "any"
      * @param dataSetIndex The dataset index to search in
-     * @param dataIndex The data index to search in (only used in CombinedChartView currently)
+     * @param dataIndex    The data index to search in (only used in CombinedChartView currently)
      */
     public void highlightValue(float x, float y, int dataSetIndex, int dataIndex) {
         highlightValue(x, y, dataSetIndex, dataIndex, true);
@@ -617,8 +634,9 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
      * Highlights the value at the given x-value and y-value in the given DataSet.
      * Provide -1 as the dataSetIndex to undo all highlighting.
      * This method will call the listener.
-     * @param x The x-value to highlight
-     * @param y The y-value to highlight. Supply `NaN` for "any"
+     *
+     * @param x            The x-value to highlight
+     * @param y            The y-value to highlight. Supply `NaN` for "any"
      * @param dataSetIndex The dataset index to search in
      */
     public void highlightValue(float x, float y, int dataSetIndex) {
@@ -628,9 +646,10 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
     /**
      * Highlights any y-value at the given x-value in the given DataSet.
      * Provide -1 as the dataSetIndex to undo all highlighting.
-     * @param x The x-value to highlight
+     *
+     * @param x            The x-value to highlight
      * @param dataSetIndex The dataset index to search in
-     * @param dataIndex The data index to search in (only used in CombinedChartView currently)
+     * @param dataIndex    The data index to search in (only used in CombinedChartView currently)
      * @param callListener Should the listener be called for this change
      */
     public void highlightValue(float x, int dataSetIndex, int dataIndex, boolean callListener) {
@@ -640,7 +659,8 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
     /**
      * Highlights any y-value at the given x-value in the given DataSet.
      * Provide -1 as the dataSetIndex to undo all highlighting.
-     * @param x The x-value to highlight
+     *
+     * @param x            The x-value to highlight
      * @param dataSetIndex The dataset index to search in
      * @param callListener Should the listener be called for this change
      */
@@ -651,10 +671,11 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
     /**
      * Highlights any y-value at the given x-value in the given DataSet.
      * Provide -1 as the dataSetIndex to undo all highlighting.
-     * @param x The x-value to highlight
-     * @param y The y-value to highlight. Supply `NaN` for "any"
+     *
+     * @param x            The x-value to highlight
+     * @param y            The y-value to highlight. Supply `NaN` for "any"
      * @param dataSetIndex The dataset index to search in
-     * @param dataIndex The data index to search in (only used in CombinedChartView currently)
+     * @param dataIndex    The data index to search in (only used in CombinedChartView currently)
      * @param callListener Should the listener be called for this change
      */
     public void highlightValue(float x, float y, int dataSetIndex, int dataIndex, boolean callListener) {
@@ -669,8 +690,9 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
     /**
      * Highlights any y-value at the given x-value in the given DataSet.
      * Provide -1 as the dataSetIndex to undo all highlighting.
-     * @param x The x-value to highlight
-     * @param y The y-value to highlight. Supply `NaN` for "any"
+     *
+     * @param x            The x-value to highlight
+     * @param y            The y-value to highlight. Supply `NaN` for "any"
      * @param dataSetIndex The dataset index to search in
      * @param callListener Should the listener be called for this change
      */
@@ -925,7 +947,7 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
      *
      * @param durationMillisX
      * @param durationMillisY
-     * @param easing         a custom easing function to be used on the animation phase
+     * @param easing          a custom easing function to be used on the animation phase
      */
     @RequiresApi(11)
     public void animateXY(int durationMillisX, int durationMillisY, EasingFunction easing) {
@@ -1557,7 +1579,6 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
     public boolean saveToPath(String title, String pathOnSD) {
 
 
-
         Bitmap b = getChartBitmap();
 
         OutputStream stream = null;
@@ -1835,35 +1856,33 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
 
     // region accessibility
 
+    IDescriptor descriptor = new ToImplementDescriptor();
+
+    public IDescriptor getDescriptor() {
+        return descriptor;
+    }
+
+    public void setDescriptor(IDescriptor descriptor) {
+        this.descriptor = descriptor;
+    }
+
     /**
+     * This method is called when the view is in focus, and it is responsible for generating a textual description.
+     * There may be a predefined behaviour that could suit the requirements, but generally, overriding it is recommended.
      *
      * @return accessibility description must be created for each chart
      */
-    public abstract String getAccessibilityDescription();
-
-    public String getAccessibilitySummaryDescription() {
-        return accessibilitySummaryDescription;
-    }
-
-    public void setAccessibilitySummaryDescription(String accessibilitySummaryDescription) {
-        this.accessibilitySummaryDescription = accessibilitySummaryDescription;
+    public String getAccessibilityDescription() {
+        return descriptor.describe();
     }
 
     @Override
     public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
-
-        boolean completed = super.dispatchPopulateAccessibilityEvent(event);
-        Log.d(TAG, "Dispatch called for Chart <View> and completed as " + completed);
-
         event.getText().add(getAccessibilityDescription());
-
-        // Add the user generated summary after the dynamic summary is complete.
-        if (!TextUtils.isEmpty(this.getAccessibilitySummaryDescription())) {
-            event.getText().add(this.getAccessibilitySummaryDescription());
-        }
 
         return true;
     }
 
-    // endregion
 }
+
+

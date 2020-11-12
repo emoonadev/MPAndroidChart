@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>EulerFieldIntegrator xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/ode/nonstiff/EulerFieldIntegrator.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="EulerFieldIntegrator.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="EulerFieldIntegrator.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="EulerFieldIntegrator.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="EulerFieldIntegrator.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="EulerFieldIntegrator.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="EulerFieldIntegrator.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="EulerFieldIntegrator.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="EulerFieldIntegrator.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="EulerFieldIntegrator.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="EulerFieldIntegrator.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="EulerFieldIntegrator.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="EulerFieldIntegrator.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="EulerFieldIntegrator.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="EulerFieldIntegrator.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="EulerFieldIntegrator.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="EulerFieldIntegrator.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="EulerFieldIntegrator.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="EulerFieldIntegrator.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.ode.nonstiff;
+<a class="jxr_linenumber" name="L19" href="EulerFieldIntegrator.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="EulerFieldIntegrator.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.Field;
+<a class="jxr_linenumber" name="L21" href="EulerFieldIntegrator.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.RealFieldElement;
+<a class="jxr_linenumber" name="L22" href="EulerFieldIntegrator.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.FieldEquationsMapper;
+<a class="jxr_linenumber" name="L23" href="EulerFieldIntegrator.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.FieldODEStateAndDerivative;
+<a class="jxr_linenumber" name="L24" href="EulerFieldIntegrator.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L25" href="EulerFieldIntegrator.html#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="EulerFieldIntegrator.html#L26">26</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L27" href="EulerFieldIntegrator.html#L27">27</a>  <em class="jxr_javadoccomment"> * This class implements a simple Euler integrator for Ordinary</em>
+<a class="jxr_linenumber" name="L28" href="EulerFieldIntegrator.html#L28">28</a>  <em class="jxr_javadoccomment"> * Differential Equations.</em>
+<a class="jxr_linenumber" name="L29" href="EulerFieldIntegrator.html#L29">29</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L30" href="EulerFieldIntegrator.html#L30">30</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;The Euler algorithm is the simplest one that can be used to</em>
+<a class="jxr_linenumber" name="L31" href="EulerFieldIntegrator.html#L31">31</a>  <em class="jxr_javadoccomment"> * integrate ordinary differential equations. It is a simple inversion</em>
+<a class="jxr_linenumber" name="L32" href="EulerFieldIntegrator.html#L32">32</a>  <em class="jxr_javadoccomment"> * of the forward difference expression :</em>
+<a class="jxr_linenumber" name="L33" href="EulerFieldIntegrator.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;f'=(f(t+h)-f(t))/h&lt;/code&gt; which leads to</em>
+<a class="jxr_linenumber" name="L34" href="EulerFieldIntegrator.html#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;f(t+h)=f(t)+hf'&lt;/code&gt;. The interpolation scheme used for</em>
+<a class="jxr_linenumber" name="L35" href="EulerFieldIntegrator.html#L35">35</a>  <em class="jxr_javadoccomment"> * dense output is the linear scheme already used for integration.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L36" href="EulerFieldIntegrator.html#L36">36</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L37" href="EulerFieldIntegrator.html#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This algorithm looks cheap because it needs only one function</em>
+<a class="jxr_linenumber" name="L38" href="EulerFieldIntegrator.html#L38">38</a>  <em class="jxr_javadoccomment"> * evaluation per step. However, as it uses linear estimates, it needs</em>
+<a class="jxr_linenumber" name="L39" href="EulerFieldIntegrator.html#L39">39</a>  <em class="jxr_javadoccomment"> * very small steps to achieve high accuracy, and small steps lead to</em>
+<a class="jxr_linenumber" name="L40" href="EulerFieldIntegrator.html#L40">40</a>  <em class="jxr_javadoccomment"> * numerical errors and instabilities.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L41" href="EulerFieldIntegrator.html#L41">41</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L42" href="EulerFieldIntegrator.html#L42">42</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;This algorithm is almost never used and has been included in</em>
+<a class="jxr_linenumber" name="L43" href="EulerFieldIntegrator.html#L43">43</a>  <em class="jxr_javadoccomment"> * this package only as a comparison reference for more useful</em>
+<a class="jxr_linenumber" name="L44" href="EulerFieldIntegrator.html#L44">44</a>  <em class="jxr_javadoccomment"> * integrators.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L45" href="EulerFieldIntegrator.html#L45">45</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L46" href="EulerFieldIntegrator.html#L46">46</a>  <em class="jxr_javadoccomment"> * @see MidpointFieldIntegrator</em>
+<a class="jxr_linenumber" name="L47" href="EulerFieldIntegrator.html#L47">47</a>  <em class="jxr_javadoccomment"> * @see ClassicalRungeKuttaFieldIntegrator</em>
+<a class="jxr_linenumber" name="L48" href="EulerFieldIntegrator.html#L48">48</a>  <em class="jxr_javadoccomment"> * @see GillFieldIntegrator</em>
+<a class="jxr_linenumber" name="L49" href="EulerFieldIntegrator.html#L49">49</a>  <em class="jxr_javadoccomment"> * @see ThreeEighthesFieldIntegrator</em>
+<a class="jxr_linenumber" name="L50" href="EulerFieldIntegrator.html#L50">50</a>  <em class="jxr_javadoccomment"> * @see LutherFieldIntegrator</em>
+<a class="jxr_linenumber" name="L51" href="EulerFieldIntegrator.html#L51">51</a>  <em class="jxr_javadoccomment"> * @param &lt;T&gt; the type of the field elements</em>
+<a class="jxr_linenumber" name="L52" href="EulerFieldIntegrator.html#L52">52</a>  <em class="jxr_javadoccomment"> * @since 3.6</em>
+<a class="jxr_linenumber" name="L53" href="EulerFieldIntegrator.html#L53">53</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L54" href="EulerFieldIntegrator.html#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="EulerFieldIntegrator.html#L55">55</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> EulerFieldIntegrator&lt;T <strong class="jxr_keyword">extends</strong> RealFieldElement&lt;T&gt;&gt; <strong class="jxr_keyword">extends</strong> RungeKuttaFieldIntegrator&lt;T&gt; {
+<a class="jxr_linenumber" name="L56" href="EulerFieldIntegrator.html#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="EulerFieldIntegrator.html#L57">57</a>      <em class="jxr_javadoccomment">/** Simple constructor.</em>
+<a class="jxr_linenumber" name="L58" href="EulerFieldIntegrator.html#L58">58</a>  <em class="jxr_javadoccomment">     * Build an Euler integrator with the given step.</em>
+<a class="jxr_linenumber" name="L59" href="EulerFieldIntegrator.html#L59">59</a>  <em class="jxr_javadoccomment">     * @param field field to which the time and state vector elements belong</em>
+<a class="jxr_linenumber" name="L60" href="EulerFieldIntegrator.html#L60">60</a>  <em class="jxr_javadoccomment">     * @param step integration step</em>
+<a class="jxr_linenumber" name="L61" href="EulerFieldIntegrator.html#L61">61</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L62" href="EulerFieldIntegrator.html#L62">62</a>      <strong class="jxr_keyword">public</strong> <a href="EulerFieldIntegrator.html">EulerFieldIntegrator</a>(<strong class="jxr_keyword">final</strong> Field&lt;T&gt; field, <strong class="jxr_keyword">final</strong> T step) {
+<a class="jxr_linenumber" name="L63" href="EulerFieldIntegrator.html#L63">63</a>          <strong class="jxr_keyword">super</strong>(field, <span class="jxr_string">"Euler"</span>, step);
+<a class="jxr_linenumber" name="L64" href="EulerFieldIntegrator.html#L64">64</a>      }
+<a class="jxr_linenumber" name="L65" href="EulerFieldIntegrator.html#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="EulerFieldIntegrator.html#L66">66</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L67" href="EulerFieldIntegrator.html#L67">67</a>      @Override
+<a class="jxr_linenumber" name="L68" href="EulerFieldIntegrator.html#L68">68</a>      <strong class="jxr_keyword">public</strong> T[] getC() {
+<a class="jxr_linenumber" name="L69" href="EulerFieldIntegrator.html#L69">69</a>          <strong class="jxr_keyword">return</strong> MathArrays.buildArray(getField(), 0);
+<a class="jxr_linenumber" name="L70" href="EulerFieldIntegrator.html#L70">70</a>      }
+<a class="jxr_linenumber" name="L71" href="EulerFieldIntegrator.html#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="EulerFieldIntegrator.html#L72">72</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L73" href="EulerFieldIntegrator.html#L73">73</a>      @Override
+<a class="jxr_linenumber" name="L74" href="EulerFieldIntegrator.html#L74">74</a>      <strong class="jxr_keyword">public</strong> T[][] getA() {
+<a class="jxr_linenumber" name="L75" href="EulerFieldIntegrator.html#L75">75</a>          <strong class="jxr_keyword">return</strong> MathArrays.buildArray(getField(), 0, 0);
+<a class="jxr_linenumber" name="L76" href="EulerFieldIntegrator.html#L76">76</a>      }
+<a class="jxr_linenumber" name="L77" href="EulerFieldIntegrator.html#L77">77</a>  
+<a class="jxr_linenumber" name="L78" href="EulerFieldIntegrator.html#L78">78</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L79" href="EulerFieldIntegrator.html#L79">79</a>      @Override
+<a class="jxr_linenumber" name="L80" href="EulerFieldIntegrator.html#L80">80</a>      <strong class="jxr_keyword">public</strong> T[] getB() {
+<a class="jxr_linenumber" name="L81" href="EulerFieldIntegrator.html#L81">81</a>          <strong class="jxr_keyword">final</strong> T[] b = MathArrays.buildArray(getField(), 1);
+<a class="jxr_linenumber" name="L82" href="EulerFieldIntegrator.html#L82">82</a>          b[0] = getField().getOne();
+<a class="jxr_linenumber" name="L83" href="EulerFieldIntegrator.html#L83">83</a>          <strong class="jxr_keyword">return</strong> b;
+<a class="jxr_linenumber" name="L84" href="EulerFieldIntegrator.html#L84">84</a>      }
+<a class="jxr_linenumber" name="L85" href="EulerFieldIntegrator.html#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="EulerFieldIntegrator.html#L86">86</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L87" href="EulerFieldIntegrator.html#L87">87</a>      @Override
+<a class="jxr_linenumber" name="L88" href="EulerFieldIntegrator.html#L88">88</a>      <strong class="jxr_keyword">protected</strong> EulerFieldStepInterpolator&lt;T&gt;
+<a class="jxr_linenumber" name="L89" href="EulerFieldIntegrator.html#L89">89</a>          createInterpolator(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> forward, T[][] yDotK,
+<a class="jxr_linenumber" name="L90" href="EulerFieldIntegrator.html#L90">90</a>                             <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; globalPreviousState,
+<a class="jxr_linenumber" name="L91" href="EulerFieldIntegrator.html#L91">91</a>                             <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; globalCurrentState,
+<a class="jxr_linenumber" name="L92" href="EulerFieldIntegrator.html#L92">92</a>                             <strong class="jxr_keyword">final</strong> FieldEquationsMapper&lt;T&gt; mapper) {
+<a class="jxr_linenumber" name="L93" href="EulerFieldIntegrator.html#L93">93</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> EulerFieldStepInterpolator&lt;T&gt;(getField(), forward, yDotK,
+<a class="jxr_linenumber" name="L94" href="EulerFieldIntegrator.html#L94">94</a>                                                   globalPreviousState, globalCurrentState,
+<a class="jxr_linenumber" name="L95" href="EulerFieldIntegrator.html#L95">95</a>                                                   globalPreviousState, globalCurrentState,
+<a class="jxr_linenumber" name="L96" href="EulerFieldIntegrator.html#L96">96</a>                                                   mapper);
+<a class="jxr_linenumber" name="L97" href="EulerFieldIntegrator.html#L97">97</a>      }
+<a class="jxr_linenumber" name="L98" href="EulerFieldIntegrator.html#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="EulerFieldIntegrator.html#L99">99</a>  }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

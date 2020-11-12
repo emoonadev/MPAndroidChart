@@ -1,0 +1,287 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>RungeKuttaFieldIntegrator xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/ode/nonstiff/RungeKuttaFieldIntegrator.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="RungeKuttaFieldIntegrator.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="RungeKuttaFieldIntegrator.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="RungeKuttaFieldIntegrator.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="RungeKuttaFieldIntegrator.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="RungeKuttaFieldIntegrator.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="RungeKuttaFieldIntegrator.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="RungeKuttaFieldIntegrator.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="RungeKuttaFieldIntegrator.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="RungeKuttaFieldIntegrator.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="RungeKuttaFieldIntegrator.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="RungeKuttaFieldIntegrator.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="RungeKuttaFieldIntegrator.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="RungeKuttaFieldIntegrator.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="RungeKuttaFieldIntegrator.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="RungeKuttaFieldIntegrator.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="RungeKuttaFieldIntegrator.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="RungeKuttaFieldIntegrator.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="RungeKuttaFieldIntegrator.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.ode.nonstiff;
+<a class="jxr_linenumber" name="L19" href="RungeKuttaFieldIntegrator.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="RungeKuttaFieldIntegrator.html#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="RungeKuttaFieldIntegrator.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.Field;
+<a class="jxr_linenumber" name="L22" href="RungeKuttaFieldIntegrator.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.RealFieldElement;
+<a class="jxr_linenumber" name="L23" href="RungeKuttaFieldIntegrator.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L24" href="RungeKuttaFieldIntegrator.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MaxCountExceededException;
+<a class="jxr_linenumber" name="L25" href="RungeKuttaFieldIntegrator.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoBracketingException;
+<a class="jxr_linenumber" name="L26" href="RungeKuttaFieldIntegrator.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L27" href="RungeKuttaFieldIntegrator.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.AbstractFieldIntegrator;
+<a class="jxr_linenumber" name="L28" href="RungeKuttaFieldIntegrator.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.FieldEquationsMapper;
+<a class="jxr_linenumber" name="L29" href="RungeKuttaFieldIntegrator.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.FieldExpandableODE;
+<a class="jxr_linenumber" name="L30" href="RungeKuttaFieldIntegrator.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.FirstOrderFieldDifferentialEquations;
+<a class="jxr_linenumber" name="L31" href="RungeKuttaFieldIntegrator.html#L31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.FieldODEState;
+<a class="jxr_linenumber" name="L32" href="RungeKuttaFieldIntegrator.html#L32">32</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.ode.FieldODEStateAndDerivative;
+<a class="jxr_linenumber" name="L33" href="RungeKuttaFieldIntegrator.html#L33">33</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L34" href="RungeKuttaFieldIntegrator.html#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="RungeKuttaFieldIntegrator.html#L35">35</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L36" href="RungeKuttaFieldIntegrator.html#L36">36</a>  <em class="jxr_javadoccomment"> * This class implements the common part of all fixed step Runge-Kutta</em>
+<a class="jxr_linenumber" name="L37" href="RungeKuttaFieldIntegrator.html#L37">37</a>  <em class="jxr_javadoccomment"> * integrators for Ordinary Differential Equations.</em>
+<a class="jxr_linenumber" name="L38" href="RungeKuttaFieldIntegrator.html#L38">38</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L39" href="RungeKuttaFieldIntegrator.html#L39">39</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;These methods are explicit Runge-Kutta methods, their Butcher</em>
+<a class="jxr_linenumber" name="L40" href="RungeKuttaFieldIntegrator.html#L40">40</a>  <em class="jxr_javadoccomment"> * arrays are as follows :</em>
+<a class="jxr_linenumber" name="L41" href="RungeKuttaFieldIntegrator.html#L41">41</a>  <em class="jxr_javadoccomment"> * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L42" href="RungeKuttaFieldIntegrator.html#L42">42</a>  <em class="jxr_javadoccomment"> *    0  |</em>
+<a class="jxr_linenumber" name="L43" href="RungeKuttaFieldIntegrator.html#L43">43</a>  <em class="jxr_javadoccomment"> *   c2  | a21</em>
+<a class="jxr_linenumber" name="L44" href="RungeKuttaFieldIntegrator.html#L44">44</a>  <em class="jxr_javadoccomment"> *   c3  | a31  a32</em>
+<a class="jxr_linenumber" name="L45" href="RungeKuttaFieldIntegrator.html#L45">45</a>  <em class="jxr_javadoccomment"> *   ... |        ...</em>
+<a class="jxr_linenumber" name="L46" href="RungeKuttaFieldIntegrator.html#L46">46</a>  <em class="jxr_javadoccomment"> *   cs  | as1  as2  ...  ass-1</em>
+<a class="jxr_linenumber" name="L47" href="RungeKuttaFieldIntegrator.html#L47">47</a>  <em class="jxr_javadoccomment"> *       |--------------------------</em>
+<a class="jxr_linenumber" name="L48" href="RungeKuttaFieldIntegrator.html#L48">48</a>  <em class="jxr_javadoccomment"> *       |  b1   b2  ...   bs-1  bs</em>
+<a class="jxr_linenumber" name="L49" href="RungeKuttaFieldIntegrator.html#L49">49</a>  <em class="jxr_javadoccomment"> * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L50" href="RungeKuttaFieldIntegrator.html#L50">50</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L51" href="RungeKuttaFieldIntegrator.html#L51">51</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L52" href="RungeKuttaFieldIntegrator.html#L52">52</a>  <em class="jxr_javadoccomment"> * @see EulerFieldIntegrator</em>
+<a class="jxr_linenumber" name="L53" href="RungeKuttaFieldIntegrator.html#L53">53</a>  <em class="jxr_javadoccomment"> * @see ClassicalRungeKuttaFieldIntegrator</em>
+<a class="jxr_linenumber" name="L54" href="RungeKuttaFieldIntegrator.html#L54">54</a>  <em class="jxr_javadoccomment"> * @see GillFieldIntegrator</em>
+<a class="jxr_linenumber" name="L55" href="RungeKuttaFieldIntegrator.html#L55">55</a>  <em class="jxr_javadoccomment"> * @see MidpointFieldIntegrator</em>
+<a class="jxr_linenumber" name="L56" href="RungeKuttaFieldIntegrator.html#L56">56</a>  <em class="jxr_javadoccomment"> * @param &lt;T&gt; the type of the field elements</em>
+<a class="jxr_linenumber" name="L57" href="RungeKuttaFieldIntegrator.html#L57">57</a>  <em class="jxr_javadoccomment"> * @since 3.6</em>
+<a class="jxr_linenumber" name="L58" href="RungeKuttaFieldIntegrator.html#L58">58</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L59" href="RungeKuttaFieldIntegrator.html#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="RungeKuttaFieldIntegrator.html#L60">60</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> RungeKuttaFieldIntegrator&lt;T <strong class="jxr_keyword">extends</strong> RealFieldElement&lt;T&gt;&gt;
+<a class="jxr_linenumber" name="L61" href="RungeKuttaFieldIntegrator.html#L61">61</a>      <strong class="jxr_keyword">extends</strong> AbstractFieldIntegrator&lt;T&gt;
+<a class="jxr_linenumber" name="L62" href="RungeKuttaFieldIntegrator.html#L62">62</a>      <strong class="jxr_keyword">implements</strong> FieldButcherArrayProvider&lt;T&gt; {
+<a class="jxr_linenumber" name="L63" href="RungeKuttaFieldIntegrator.html#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="RungeKuttaFieldIntegrator.html#L64">64</a>      <em class="jxr_javadoccomment">/** Time steps from Butcher array (without the first zero). */</em>
+<a class="jxr_linenumber" name="L65" href="RungeKuttaFieldIntegrator.html#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> T[] c;
+<a class="jxr_linenumber" name="L66" href="RungeKuttaFieldIntegrator.html#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="RungeKuttaFieldIntegrator.html#L67">67</a>      <em class="jxr_javadoccomment">/** Internal weights from Butcher array (without the first empty row). */</em>
+<a class="jxr_linenumber" name="L68" href="RungeKuttaFieldIntegrator.html#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> T[][] a;
+<a class="jxr_linenumber" name="L69" href="RungeKuttaFieldIntegrator.html#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="RungeKuttaFieldIntegrator.html#L70">70</a>      <em class="jxr_javadoccomment">/** External weights for the high order method from Butcher array. */</em>
+<a class="jxr_linenumber" name="L71" href="RungeKuttaFieldIntegrator.html#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> T[] b;
+<a class="jxr_linenumber" name="L72" href="RungeKuttaFieldIntegrator.html#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="RungeKuttaFieldIntegrator.html#L73">73</a>      <em class="jxr_javadoccomment">/** Integration step. */</em>
+<a class="jxr_linenumber" name="L74" href="RungeKuttaFieldIntegrator.html#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> T step;
+<a class="jxr_linenumber" name="L75" href="RungeKuttaFieldIntegrator.html#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="RungeKuttaFieldIntegrator.html#L76">76</a>      <em class="jxr_javadoccomment">/** Simple constructor.</em>
+<a class="jxr_linenumber" name="L77" href="RungeKuttaFieldIntegrator.html#L77">77</a>  <em class="jxr_javadoccomment">     * Build a Runge-Kutta integrator with the given</em>
+<a class="jxr_linenumber" name="L78" href="RungeKuttaFieldIntegrator.html#L78">78</a>  <em class="jxr_javadoccomment">     * step. The default step handler does nothing.</em>
+<a class="jxr_linenumber" name="L79" href="RungeKuttaFieldIntegrator.html#L79">79</a>  <em class="jxr_javadoccomment">     * @param field field to which the time and state vector elements belong</em>
+<a class="jxr_linenumber" name="L80" href="RungeKuttaFieldIntegrator.html#L80">80</a>  <em class="jxr_javadoccomment">     * @param name name of the method</em>
+<a class="jxr_linenumber" name="L81" href="RungeKuttaFieldIntegrator.html#L81">81</a>  <em class="jxr_javadoccomment">     * @param step integration step</em>
+<a class="jxr_linenumber" name="L82" href="RungeKuttaFieldIntegrator.html#L82">82</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L83" href="RungeKuttaFieldIntegrator.html#L83">83</a>      <strong class="jxr_keyword">protected</strong> <a href="RungeKuttaFieldIntegrator.html">RungeKuttaFieldIntegrator</a>(<strong class="jxr_keyword">final</strong> Field&lt;T&gt; field, <strong class="jxr_keyword">final</strong> String name, <strong class="jxr_keyword">final</strong> T step) {
+<a class="jxr_linenumber" name="L84" href="RungeKuttaFieldIntegrator.html#L84">84</a>          <strong class="jxr_keyword">super</strong>(field, name);
+<a class="jxr_linenumber" name="L85" href="RungeKuttaFieldIntegrator.html#L85">85</a>          <strong class="jxr_keyword">this</strong>.c    = getC();
+<a class="jxr_linenumber" name="L86" href="RungeKuttaFieldIntegrator.html#L86">86</a>          <strong class="jxr_keyword">this</strong>.a    = getA();
+<a class="jxr_linenumber" name="L87" href="RungeKuttaFieldIntegrator.html#L87">87</a>          <strong class="jxr_keyword">this</strong>.b    = getB();
+<a class="jxr_linenumber" name="L88" href="RungeKuttaFieldIntegrator.html#L88">88</a>          <strong class="jxr_keyword">this</strong>.step = step.abs();
+<a class="jxr_linenumber" name="L89" href="RungeKuttaFieldIntegrator.html#L89">89</a>      }
+<a class="jxr_linenumber" name="L90" href="RungeKuttaFieldIntegrator.html#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="RungeKuttaFieldIntegrator.html#L91">91</a>      <em class="jxr_javadoccomment">/** Create a fraction.</em>
+<a class="jxr_linenumber" name="L92" href="RungeKuttaFieldIntegrator.html#L92">92</a>  <em class="jxr_javadoccomment">     * @param p numerator</em>
+<a class="jxr_linenumber" name="L93" href="RungeKuttaFieldIntegrator.html#L93">93</a>  <em class="jxr_javadoccomment">     * @param q denominator</em>
+<a class="jxr_linenumber" name="L94" href="RungeKuttaFieldIntegrator.html#L94">94</a>  <em class="jxr_javadoccomment">     * @return p/q computed in the instance field</em>
+<a class="jxr_linenumber" name="L95" href="RungeKuttaFieldIntegrator.html#L95">95</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L96" href="RungeKuttaFieldIntegrator.html#L96">96</a>      <strong class="jxr_keyword">protected</strong> T fraction(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> p, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> q) {
+<a class="jxr_linenumber" name="L97" href="RungeKuttaFieldIntegrator.html#L97">97</a>          <strong class="jxr_keyword">return</strong> getField().getZero().add(p).divide(q);
+<a class="jxr_linenumber" name="L98" href="RungeKuttaFieldIntegrator.html#L98">98</a>      }
+<a class="jxr_linenumber" name="L99" href="RungeKuttaFieldIntegrator.html#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="RungeKuttaFieldIntegrator.html#L100">100</a>     <em class="jxr_javadoccomment">/** Create an interpolator.</em>
+<a class="jxr_linenumber" name="L101" href="RungeKuttaFieldIntegrator.html#L101">101</a> <em class="jxr_javadoccomment">     * @param forward integration direction indicator</em>
+<a class="jxr_linenumber" name="L102" href="RungeKuttaFieldIntegrator.html#L102">102</a> <em class="jxr_javadoccomment">     * @param yDotK slopes at the intermediate points</em>
+<a class="jxr_linenumber" name="L103" href="RungeKuttaFieldIntegrator.html#L103">103</a> <em class="jxr_javadoccomment">     * @param globalPreviousState start of the global step</em>
+<a class="jxr_linenumber" name="L104" href="RungeKuttaFieldIntegrator.html#L104">104</a> <em class="jxr_javadoccomment">     * @param globalCurrentState end of the global step</em>
+<a class="jxr_linenumber" name="L105" href="RungeKuttaFieldIntegrator.html#L105">105</a> <em class="jxr_javadoccomment">     * @param mapper equations mapper for the all equations</em>
+<a class="jxr_linenumber" name="L106" href="RungeKuttaFieldIntegrator.html#L106">106</a> <em class="jxr_javadoccomment">     * @return external weights for the high order method from Butcher array</em>
+<a class="jxr_linenumber" name="L107" href="RungeKuttaFieldIntegrator.html#L107">107</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L108" href="RungeKuttaFieldIntegrator.html#L108">108</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> RungeKuttaFieldStepInterpolator&lt;T&gt; createInterpolator(<strong class="jxr_keyword">boolean</strong> forward, T[][] yDotK,
+<a class="jxr_linenumber" name="L109" href="RungeKuttaFieldIntegrator.html#L109">109</a>                                                                              <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; globalPreviousState,
+<a class="jxr_linenumber" name="L110" href="RungeKuttaFieldIntegrator.html#L110">110</a>                                                                              <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; globalCurrentState,
+<a class="jxr_linenumber" name="L111" href="RungeKuttaFieldIntegrator.html#L111">111</a>                                                                              FieldEquationsMapper&lt;T&gt; mapper);
+<a class="jxr_linenumber" name="L112" href="RungeKuttaFieldIntegrator.html#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="RungeKuttaFieldIntegrator.html#L113">113</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L114" href="RungeKuttaFieldIntegrator.html#L114">114</a>     @Override
+<a class="jxr_linenumber" name="L115" href="RungeKuttaFieldIntegrator.html#L115">115</a>     <strong class="jxr_keyword">public</strong> FieldODEStateAndDerivative&lt;T&gt; integrate(<strong class="jxr_keyword">final</strong> FieldExpandableODE&lt;T&gt; equations,
+<a class="jxr_linenumber" name="L116" href="RungeKuttaFieldIntegrator.html#L116">116</a>                                                    <strong class="jxr_keyword">final</strong> FieldODEState&lt;T&gt; initialState, <strong class="jxr_keyword">final</strong> T finalTime)
+<a class="jxr_linenumber" name="L117" href="RungeKuttaFieldIntegrator.html#L117">117</a>         <strong class="jxr_keyword">throws</strong> NumberIsTooSmallException, DimensionMismatchException,
+<a class="jxr_linenumber" name="L118" href="RungeKuttaFieldIntegrator.html#L118">118</a>         MaxCountExceededException, <a href="../../exception/NoBracketingException.html">NoBracketingException</a> {
+<a class="jxr_linenumber" name="L119" href="RungeKuttaFieldIntegrator.html#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="RungeKuttaFieldIntegrator.html#L120">120</a>         sanityChecks(initialState, finalTime);
+<a class="jxr_linenumber" name="L121" href="RungeKuttaFieldIntegrator.html#L121">121</a>         <strong class="jxr_keyword">final</strong> T   t0 = initialState.getTime();
+<a class="jxr_linenumber" name="L122" href="RungeKuttaFieldIntegrator.html#L122">122</a>         <strong class="jxr_keyword">final</strong> T[] y0 = equations.getMapper().mapState(initialState);
+<a class="jxr_linenumber" name="L123" href="RungeKuttaFieldIntegrator.html#L123">123</a>         setStepStart(initIntegration(equations, t0, y0, finalTime));
+<a class="jxr_linenumber" name="L124" href="RungeKuttaFieldIntegrator.html#L124">124</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> forward = finalTime.subtract(initialState.getTime()).getReal() &gt; 0;
+<a class="jxr_linenumber" name="L125" href="RungeKuttaFieldIntegrator.html#L125">125</a> 
+<a class="jxr_linenumber" name="L126" href="RungeKuttaFieldIntegrator.html#L126">126</a>         <em class="jxr_comment">// create some internal working arrays</em>
+<a class="jxr_linenumber" name="L127" href="RungeKuttaFieldIntegrator.html#L127">127</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>   stages = c.length + 1;
+<a class="jxr_linenumber" name="L128" href="RungeKuttaFieldIntegrator.html#L128">128</a>         T[]         y      = y0;
+<a class="jxr_linenumber" name="L129" href="RungeKuttaFieldIntegrator.html#L129">129</a>         <strong class="jxr_keyword">final</strong> T[][] yDotK  = MathArrays.buildArray(getField(), stages, -1);
+<a class="jxr_linenumber" name="L130" href="RungeKuttaFieldIntegrator.html#L130">130</a>         <strong class="jxr_keyword">final</strong> T[]   yTmp   = MathArrays.buildArray(getField(), y0.length);
+<a class="jxr_linenumber" name="L131" href="RungeKuttaFieldIntegrator.html#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="RungeKuttaFieldIntegrator.html#L132">132</a>         <em class="jxr_comment">// set up integration control objects</em>
+<a class="jxr_linenumber" name="L133" href="RungeKuttaFieldIntegrator.html#L133">133</a>         <strong class="jxr_keyword">if</strong> (forward) {
+<a class="jxr_linenumber" name="L134" href="RungeKuttaFieldIntegrator.html#L134">134</a>             <strong class="jxr_keyword">if</strong> (getStepStart().getTime().add(step).subtract(finalTime).getReal() &gt;= 0) {
+<a class="jxr_linenumber" name="L135" href="RungeKuttaFieldIntegrator.html#L135">135</a>                 setStepSize(finalTime.subtract(getStepStart().getTime()));
+<a class="jxr_linenumber" name="L136" href="RungeKuttaFieldIntegrator.html#L136">136</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L137" href="RungeKuttaFieldIntegrator.html#L137">137</a>                 setStepSize(step);
+<a class="jxr_linenumber" name="L138" href="RungeKuttaFieldIntegrator.html#L138">138</a>             }
+<a class="jxr_linenumber" name="L139" href="RungeKuttaFieldIntegrator.html#L139">139</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L140" href="RungeKuttaFieldIntegrator.html#L140">140</a>             <strong class="jxr_keyword">if</strong> (getStepStart().getTime().subtract(step).subtract(finalTime).getReal() &lt;= 0) {
+<a class="jxr_linenumber" name="L141" href="RungeKuttaFieldIntegrator.html#L141">141</a>                 setStepSize(finalTime.subtract(getStepStart().getTime()));
+<a class="jxr_linenumber" name="L142" href="RungeKuttaFieldIntegrator.html#L142">142</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L143" href="RungeKuttaFieldIntegrator.html#L143">143</a>                 setStepSize(step.negate());
+<a class="jxr_linenumber" name="L144" href="RungeKuttaFieldIntegrator.html#L144">144</a>             }
+<a class="jxr_linenumber" name="L145" href="RungeKuttaFieldIntegrator.html#L145">145</a>         }
+<a class="jxr_linenumber" name="L146" href="RungeKuttaFieldIntegrator.html#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="RungeKuttaFieldIntegrator.html#L147">147</a>         <em class="jxr_comment">// main integration loop</em>
+<a class="jxr_linenumber" name="L148" href="RungeKuttaFieldIntegrator.html#L148">148</a>         setIsLastStep(false);
+<a class="jxr_linenumber" name="L149" href="RungeKuttaFieldIntegrator.html#L149">149</a>         <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L150" href="RungeKuttaFieldIntegrator.html#L150">150</a> 
+<a class="jxr_linenumber" name="L151" href="RungeKuttaFieldIntegrator.html#L151">151</a>             <em class="jxr_comment">// first stage</em>
+<a class="jxr_linenumber" name="L152" href="RungeKuttaFieldIntegrator.html#L152">152</a>             y        = equations.getMapper().mapState(getStepStart());
+<a class="jxr_linenumber" name="L153" href="RungeKuttaFieldIntegrator.html#L153">153</a>             yDotK[0] = equations.getMapper().mapDerivative(getStepStart());
+<a class="jxr_linenumber" name="L154" href="RungeKuttaFieldIntegrator.html#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="RungeKuttaFieldIntegrator.html#L155">155</a>             <em class="jxr_comment">// next stages</em>
+<a class="jxr_linenumber" name="L156" href="RungeKuttaFieldIntegrator.html#L156">156</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 1; k &lt; stages; ++k) {
+<a class="jxr_linenumber" name="L157" href="RungeKuttaFieldIntegrator.html#L157">157</a> 
+<a class="jxr_linenumber" name="L158" href="RungeKuttaFieldIntegrator.html#L158">158</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; y0.length; ++j) {
+<a class="jxr_linenumber" name="L159" href="RungeKuttaFieldIntegrator.html#L159">159</a>                     T sum = yDotK[0][j].multiply(a[k-1][0]);
+<a class="jxr_linenumber" name="L160" href="RungeKuttaFieldIntegrator.html#L160">160</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> l = 1; l &lt; k; ++l) {
+<a class="jxr_linenumber" name="L161" href="RungeKuttaFieldIntegrator.html#L161">161</a>                         sum = sum.add(yDotK[l][j].multiply(a[k-1][l]));
+<a class="jxr_linenumber" name="L162" href="RungeKuttaFieldIntegrator.html#L162">162</a>                     }
+<a class="jxr_linenumber" name="L163" href="RungeKuttaFieldIntegrator.html#L163">163</a>                     yTmp[j] = y[j].add(getStepSize().multiply(sum));
+<a class="jxr_linenumber" name="L164" href="RungeKuttaFieldIntegrator.html#L164">164</a>                 }
+<a class="jxr_linenumber" name="L165" href="RungeKuttaFieldIntegrator.html#L165">165</a> 
+<a class="jxr_linenumber" name="L166" href="RungeKuttaFieldIntegrator.html#L166">166</a>                 yDotK[k] = computeDerivatives(getStepStart().getTime().add(getStepSize().multiply(c[k-1])), yTmp);
+<a class="jxr_linenumber" name="L167" href="RungeKuttaFieldIntegrator.html#L167">167</a> 
+<a class="jxr_linenumber" name="L168" href="RungeKuttaFieldIntegrator.html#L168">168</a>             }
+<a class="jxr_linenumber" name="L169" href="RungeKuttaFieldIntegrator.html#L169">169</a> 
+<a class="jxr_linenumber" name="L170" href="RungeKuttaFieldIntegrator.html#L170">170</a>             <em class="jxr_comment">// estimate the state at the end of the step</em>
+<a class="jxr_linenumber" name="L171" href="RungeKuttaFieldIntegrator.html#L171">171</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; y0.length; ++j) {
+<a class="jxr_linenumber" name="L172" href="RungeKuttaFieldIntegrator.html#L172">172</a>                 T sum = yDotK[0][j].multiply(b[0]);
+<a class="jxr_linenumber" name="L173" href="RungeKuttaFieldIntegrator.html#L173">173</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> l = 1; l &lt; stages; ++l) {
+<a class="jxr_linenumber" name="L174" href="RungeKuttaFieldIntegrator.html#L174">174</a>                     sum = sum.add(yDotK[l][j].multiply(b[l]));
+<a class="jxr_linenumber" name="L175" href="RungeKuttaFieldIntegrator.html#L175">175</a>                 }
+<a class="jxr_linenumber" name="L176" href="RungeKuttaFieldIntegrator.html#L176">176</a>                 yTmp[j] = y[j].add(getStepSize().multiply(sum));
+<a class="jxr_linenumber" name="L177" href="RungeKuttaFieldIntegrator.html#L177">177</a>             }
+<a class="jxr_linenumber" name="L178" href="RungeKuttaFieldIntegrator.html#L178">178</a>             <strong class="jxr_keyword">final</strong> T stepEnd   = getStepStart().getTime().add(getStepSize());
+<a class="jxr_linenumber" name="L179" href="RungeKuttaFieldIntegrator.html#L179">179</a>             <strong class="jxr_keyword">final</strong> T[] yDotTmp = computeDerivatives(stepEnd, yTmp);
+<a class="jxr_linenumber" name="L180" href="RungeKuttaFieldIntegrator.html#L180">180</a>             <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; stateTmp = <strong class="jxr_keyword">new</strong> FieldODEStateAndDerivative&lt;T&gt;(stepEnd, yTmp, yDotTmp);
+<a class="jxr_linenumber" name="L181" href="RungeKuttaFieldIntegrator.html#L181">181</a> 
+<a class="jxr_linenumber" name="L182" href="RungeKuttaFieldIntegrator.html#L182">182</a>             <em class="jxr_comment">// discrete events handling</em>
+<a class="jxr_linenumber" name="L183" href="RungeKuttaFieldIntegrator.html#L183">183</a>             System.arraycopy(yTmp, 0, y, 0, y0.length);
+<a class="jxr_linenumber" name="L184" href="RungeKuttaFieldIntegrator.html#L184">184</a>             setStepStart(acceptStep(createInterpolator(forward, yDotK, getStepStart(), stateTmp, equations.getMapper()),
+<a class="jxr_linenumber" name="L185" href="RungeKuttaFieldIntegrator.html#L185">185</a>                                     finalTime));
+<a class="jxr_linenumber" name="L186" href="RungeKuttaFieldIntegrator.html#L186">186</a> 
+<a class="jxr_linenumber" name="L187" href="RungeKuttaFieldIntegrator.html#L187">187</a>             <strong class="jxr_keyword">if</strong> (!isLastStep()) {
+<a class="jxr_linenumber" name="L188" href="RungeKuttaFieldIntegrator.html#L188">188</a> 
+<a class="jxr_linenumber" name="L189" href="RungeKuttaFieldIntegrator.html#L189">189</a>                 <em class="jxr_comment">// stepsize control for next step</em>
+<a class="jxr_linenumber" name="L190" href="RungeKuttaFieldIntegrator.html#L190">190</a>                 <strong class="jxr_keyword">final</strong> T  nextT      = getStepStart().getTime().add(getStepSize());
+<a class="jxr_linenumber" name="L191" href="RungeKuttaFieldIntegrator.html#L191">191</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> nextIsLast = forward ?
+<a class="jxr_linenumber" name="L192" href="RungeKuttaFieldIntegrator.html#L192">192</a>                                            (nextT.subtract(finalTime).getReal() &gt;= 0) :
+<a class="jxr_linenumber" name="L193" href="RungeKuttaFieldIntegrator.html#L193">193</a>                                            (nextT.subtract(finalTime).getReal() &lt;= 0);
+<a class="jxr_linenumber" name="L194" href="RungeKuttaFieldIntegrator.html#L194">194</a>                 <strong class="jxr_keyword">if</strong> (nextIsLast) {
+<a class="jxr_linenumber" name="L195" href="RungeKuttaFieldIntegrator.html#L195">195</a>                     setStepSize(finalTime.subtract(getStepStart().getTime()));
+<a class="jxr_linenumber" name="L196" href="RungeKuttaFieldIntegrator.html#L196">196</a>                 }
+<a class="jxr_linenumber" name="L197" href="RungeKuttaFieldIntegrator.html#L197">197</a>             }
+<a class="jxr_linenumber" name="L198" href="RungeKuttaFieldIntegrator.html#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="RungeKuttaFieldIntegrator.html#L199">199</a>         } <strong class="jxr_keyword">while</strong> (!isLastStep());
+<a class="jxr_linenumber" name="L200" href="RungeKuttaFieldIntegrator.html#L200">200</a> 
+<a class="jxr_linenumber" name="L201" href="RungeKuttaFieldIntegrator.html#L201">201</a>         <strong class="jxr_keyword">final</strong> FieldODEStateAndDerivative&lt;T&gt; finalState = getStepStart();
+<a class="jxr_linenumber" name="L202" href="RungeKuttaFieldIntegrator.html#L202">202</a>         setStepStart(<strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L203" href="RungeKuttaFieldIntegrator.html#L203">203</a>         setStepSize(<strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L204" href="RungeKuttaFieldIntegrator.html#L204">204</a>         <strong class="jxr_keyword">return</strong> finalState;
+<a class="jxr_linenumber" name="L205" href="RungeKuttaFieldIntegrator.html#L205">205</a> 
+<a class="jxr_linenumber" name="L206" href="RungeKuttaFieldIntegrator.html#L206">206</a>     }
+<a class="jxr_linenumber" name="L207" href="RungeKuttaFieldIntegrator.html#L207">207</a> 
+<a class="jxr_linenumber" name="L208" href="RungeKuttaFieldIntegrator.html#L208">208</a>     <em class="jxr_javadoccomment">/** Fast computation of a single step of ODE integration.</em>
+<a class="jxr_linenumber" name="L209" href="RungeKuttaFieldIntegrator.html#L209">209</a> <em class="jxr_javadoccomment">     * &lt;p&gt;This method is intended for the limited use case of</em>
+<a class="jxr_linenumber" name="L210" href="RungeKuttaFieldIntegrator.html#L210">210</a> <em class="jxr_javadoccomment">     * very fast computation of only one step without using any of the</em>
+<a class="jxr_linenumber" name="L211" href="RungeKuttaFieldIntegrator.html#L211">211</a> <em class="jxr_javadoccomment">     * rich features of general integrators that may take some time</em>
+<a class="jxr_linenumber" name="L212" href="RungeKuttaFieldIntegrator.html#L212">212</a> <em class="jxr_javadoccomment">     * to set up (i.e. no step handlers, no events handlers, no additional</em>
+<a class="jxr_linenumber" name="L213" href="RungeKuttaFieldIntegrator.html#L213">213</a> <em class="jxr_javadoccomment">     * states, no interpolators, no error control, no evaluations count,</em>
+<a class="jxr_linenumber" name="L214" href="RungeKuttaFieldIntegrator.html#L214">214</a> <em class="jxr_javadoccomment">     * no sanity checks ...). It handles the strict minimum of computation,</em>
+<a class="jxr_linenumber" name="L215" href="RungeKuttaFieldIntegrator.html#L215">215</a> <em class="jxr_javadoccomment">     * so it can be embedded in outer loops.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L216" href="RungeKuttaFieldIntegrator.html#L216">216</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L217" href="RungeKuttaFieldIntegrator.html#L217">217</a> <em class="jxr_javadoccomment">     * This method is &lt;em&gt;not&lt;/em&gt; used at all by the {@link #integrate(FieldExpandableODE,</em>
+<a class="jxr_linenumber" name="L218" href="RungeKuttaFieldIntegrator.html#L218">218</a> <em class="jxr_javadoccomment">     * FieldODEState, RealFieldElement)} method. It also completely ignores the step set at</em>
+<a class="jxr_linenumber" name="L219" href="RungeKuttaFieldIntegrator.html#L219">219</a> <em class="jxr_javadoccomment">     * construction time, and uses only a single step to go from {@code t0} to {@code t}.</em>
+<a class="jxr_linenumber" name="L220" href="RungeKuttaFieldIntegrator.html#L220">220</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L221" href="RungeKuttaFieldIntegrator.html#L221">221</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L222" href="RungeKuttaFieldIntegrator.html#L222">222</a> <em class="jxr_javadoccomment">     * As this method does not use any of the state-dependent features of the integrator,</em>
+<a class="jxr_linenumber" name="L223" href="RungeKuttaFieldIntegrator.html#L223">223</a> <em class="jxr_javadoccomment">     * it should be reasonably thread-safe &lt;em&gt;if and only if&lt;/em&gt; the provided differential</em>
+<a class="jxr_linenumber" name="L224" href="RungeKuttaFieldIntegrator.html#L224">224</a> <em class="jxr_javadoccomment">     * equations are themselves thread-safe.</em>
+<a class="jxr_linenumber" name="L225" href="RungeKuttaFieldIntegrator.html#L225">225</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L226" href="RungeKuttaFieldIntegrator.html#L226">226</a> <em class="jxr_javadoccomment">     * @param equations differential equations to integrate</em>
+<a class="jxr_linenumber" name="L227" href="RungeKuttaFieldIntegrator.html#L227">227</a> <em class="jxr_javadoccomment">     * @param t0 initial time</em>
+<a class="jxr_linenumber" name="L228" href="RungeKuttaFieldIntegrator.html#L228">228</a> <em class="jxr_javadoccomment">     * @param y0 initial value of the state vector at t0</em>
+<a class="jxr_linenumber" name="L229" href="RungeKuttaFieldIntegrator.html#L229">229</a> <em class="jxr_javadoccomment">     * @param t target time for the integration</em>
+<a class="jxr_linenumber" name="L230" href="RungeKuttaFieldIntegrator.html#L230">230</a> <em class="jxr_javadoccomment">     * (can be set to a value smaller than {@code t0} for backward integration)</em>
+<a class="jxr_linenumber" name="L231" href="RungeKuttaFieldIntegrator.html#L231">231</a> <em class="jxr_javadoccomment">     * @return state vector at {@code t}</em>
+<a class="jxr_linenumber" name="L232" href="RungeKuttaFieldIntegrator.html#L232">232</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L233" href="RungeKuttaFieldIntegrator.html#L233">233</a>     <strong class="jxr_keyword">public</strong> T[] singleStep(<strong class="jxr_keyword">final</strong> FirstOrderFieldDifferentialEquations&lt;T&gt; equations,
+<a class="jxr_linenumber" name="L234" href="RungeKuttaFieldIntegrator.html#L234">234</a>                           <strong class="jxr_keyword">final</strong> T t0, <strong class="jxr_keyword">final</strong> T[] y0, <strong class="jxr_keyword">final</strong> T t) {
+<a class="jxr_linenumber" name="L235" href="RungeKuttaFieldIntegrator.html#L235">235</a> 
+<a class="jxr_linenumber" name="L236" href="RungeKuttaFieldIntegrator.html#L236">236</a>         <em class="jxr_comment">// create some internal working arrays</em>
+<a class="jxr_linenumber" name="L237" href="RungeKuttaFieldIntegrator.html#L237">237</a>         <strong class="jxr_keyword">final</strong> T[] y       = y0.clone();
+<a class="jxr_linenumber" name="L238" href="RungeKuttaFieldIntegrator.html#L238">238</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> stages  = c.length + 1;
+<a class="jxr_linenumber" name="L239" href="RungeKuttaFieldIntegrator.html#L239">239</a>         <strong class="jxr_keyword">final</strong> T[][] yDotK = MathArrays.buildArray(getField(), stages, -1);
+<a class="jxr_linenumber" name="L240" href="RungeKuttaFieldIntegrator.html#L240">240</a>         <strong class="jxr_keyword">final</strong> T[] yTmp    = y0.clone();
+<a class="jxr_linenumber" name="L241" href="RungeKuttaFieldIntegrator.html#L241">241</a> 
+<a class="jxr_linenumber" name="L242" href="RungeKuttaFieldIntegrator.html#L242">242</a>         <em class="jxr_comment">// first stage</em>
+<a class="jxr_linenumber" name="L243" href="RungeKuttaFieldIntegrator.html#L243">243</a>         <strong class="jxr_keyword">final</strong> T h = t.subtract(t0);
+<a class="jxr_linenumber" name="L244" href="RungeKuttaFieldIntegrator.html#L244">244</a>         yDotK[0] = equations.computeDerivatives(t0, y);
+<a class="jxr_linenumber" name="L245" href="RungeKuttaFieldIntegrator.html#L245">245</a> 
+<a class="jxr_linenumber" name="L246" href="RungeKuttaFieldIntegrator.html#L246">246</a>         <em class="jxr_comment">// next stages</em>
+<a class="jxr_linenumber" name="L247" href="RungeKuttaFieldIntegrator.html#L247">247</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 1; k &lt; stages; ++k) {
+<a class="jxr_linenumber" name="L248" href="RungeKuttaFieldIntegrator.html#L248">248</a> 
+<a class="jxr_linenumber" name="L249" href="RungeKuttaFieldIntegrator.html#L249">249</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; y0.length; ++j) {
+<a class="jxr_linenumber" name="L250" href="RungeKuttaFieldIntegrator.html#L250">250</a>                 T sum = yDotK[0][j].multiply(a[k-1][0]);
+<a class="jxr_linenumber" name="L251" href="RungeKuttaFieldIntegrator.html#L251">251</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> l = 1; l &lt; k; ++l) {
+<a class="jxr_linenumber" name="L252" href="RungeKuttaFieldIntegrator.html#L252">252</a>                     sum = sum.add(yDotK[l][j].multiply(a[k-1][l]));
+<a class="jxr_linenumber" name="L253" href="RungeKuttaFieldIntegrator.html#L253">253</a>                 }
+<a class="jxr_linenumber" name="L254" href="RungeKuttaFieldIntegrator.html#L254">254</a>                 yTmp[j] = y[j].add(h.multiply(sum));
+<a class="jxr_linenumber" name="L255" href="RungeKuttaFieldIntegrator.html#L255">255</a>             }
+<a class="jxr_linenumber" name="L256" href="RungeKuttaFieldIntegrator.html#L256">256</a> 
+<a class="jxr_linenumber" name="L257" href="RungeKuttaFieldIntegrator.html#L257">257</a>             yDotK[k] = equations.computeDerivatives(t0.add(h.multiply(c[k-1])), yTmp);
+<a class="jxr_linenumber" name="L258" href="RungeKuttaFieldIntegrator.html#L258">258</a> 
+<a class="jxr_linenumber" name="L259" href="RungeKuttaFieldIntegrator.html#L259">259</a>         }
+<a class="jxr_linenumber" name="L260" href="RungeKuttaFieldIntegrator.html#L260">260</a> 
+<a class="jxr_linenumber" name="L261" href="RungeKuttaFieldIntegrator.html#L261">261</a>         <em class="jxr_comment">// estimate the state at the end of the step</em>
+<a class="jxr_linenumber" name="L262" href="RungeKuttaFieldIntegrator.html#L262">262</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; y0.length; ++j) {
+<a class="jxr_linenumber" name="L263" href="RungeKuttaFieldIntegrator.html#L263">263</a>             T sum = yDotK[0][j].multiply(b[0]);
+<a class="jxr_linenumber" name="L264" href="RungeKuttaFieldIntegrator.html#L264">264</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> l = 1; l &lt; stages; ++l) {
+<a class="jxr_linenumber" name="L265" href="RungeKuttaFieldIntegrator.html#L265">265</a>                 sum = sum.add(yDotK[l][j].multiply(b[l]));
+<a class="jxr_linenumber" name="L266" href="RungeKuttaFieldIntegrator.html#L266">266</a>             }
+<a class="jxr_linenumber" name="L267" href="RungeKuttaFieldIntegrator.html#L267">267</a>             y[j] = y[j].add(h.multiply(sum));
+<a class="jxr_linenumber" name="L268" href="RungeKuttaFieldIntegrator.html#L268">268</a>         }
+<a class="jxr_linenumber" name="L269" href="RungeKuttaFieldIntegrator.html#L269">269</a> 
+<a class="jxr_linenumber" name="L270" href="RungeKuttaFieldIntegrator.html#L270">270</a>         <strong class="jxr_keyword">return</strong> y;
+<a class="jxr_linenumber" name="L271" href="RungeKuttaFieldIntegrator.html#L271">271</a> 
+<a class="jxr_linenumber" name="L272" href="RungeKuttaFieldIntegrator.html#L272">272</a>     }
+<a class="jxr_linenumber" name="L273" href="RungeKuttaFieldIntegrator.html#L273">273</a> 
+<a class="jxr_linenumber" name="L274" href="RungeKuttaFieldIntegrator.html#L274">274</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

@@ -1,0 +1,757 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>EmpiricalDistribution xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/distribution/EmpiricalDistribution.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="EmpiricalDistribution.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="EmpiricalDistribution.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="EmpiricalDistribution.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="EmpiricalDistribution.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="EmpiricalDistribution.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="EmpiricalDistribution.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="EmpiricalDistribution.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="EmpiricalDistribution.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="EmpiricalDistribution.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="EmpiricalDistribution.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="EmpiricalDistribution.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="EmpiricalDistribution.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="EmpiricalDistribution.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="EmpiricalDistribution.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="EmpiricalDistribution.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="EmpiricalDistribution.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="EmpiricalDistribution.html#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="EmpiricalDistribution.html#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.distribution;
+<a class="jxr_linenumber" name="L19" href="EmpiricalDistribution.html#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="EmpiricalDistribution.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.io.BufferedReader;
+<a class="jxr_linenumber" name="L21" href="EmpiricalDistribution.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.io.File;
+<a class="jxr_linenumber" name="L22" href="EmpiricalDistribution.html#L22">22</a>  <strong class="jxr_keyword">import</strong> java.io.FileInputStream;
+<a class="jxr_linenumber" name="L23" href="EmpiricalDistribution.html#L23">23</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L24" href="EmpiricalDistribution.html#L24">24</a>  <strong class="jxr_keyword">import</strong> java.io.InputStream;
+<a class="jxr_linenumber" name="L25" href="EmpiricalDistribution.html#L25">25</a>  <strong class="jxr_keyword">import</strong> java.io.InputStreamReader;
+<a class="jxr_linenumber" name="L26" href="EmpiricalDistribution.html#L26">26</a>  <strong class="jxr_keyword">import</strong> java.net.URL;
+<a class="jxr_linenumber" name="L27" href="EmpiricalDistribution.html#L27">27</a>  <strong class="jxr_keyword">import</strong> java.nio.charset.Charset;
+<a class="jxr_linenumber" name="L28" href="EmpiricalDistribution.html#L28">28</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L29" href="EmpiricalDistribution.html#L29">29</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L30" href="EmpiricalDistribution.html#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="EmpiricalDistribution.html#L31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalStateException;
+<a class="jxr_linenumber" name="L32" href="EmpiricalDistribution.html#L32">32</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathInternalError;
+<a class="jxr_linenumber" name="L33" href="EmpiricalDistribution.html#L33">33</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NullArgumentException;
+<a class="jxr_linenumber" name="L34" href="EmpiricalDistribution.html#L34">34</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L35" href="EmpiricalDistribution.html#L35">35</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.ZeroException;
+<a class="jxr_linenumber" name="L36" href="EmpiricalDistribution.html#L36">36</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L37" href="EmpiricalDistribution.html#L37">37</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L38" href="EmpiricalDistribution.html#L38">38</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.descriptive.StatisticalSummary;
+<a class="jxr_linenumber" name="L39" href="EmpiricalDistribution.html#L39">39</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.descriptive.SummaryStatistics;
+<a class="jxr_linenumber" name="L40" href="EmpiricalDistribution.html#L40">40</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L41" href="EmpiricalDistribution.html#L41">41</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L42" href="EmpiricalDistribution.html#L42">42</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathUtils;
+<a class="jxr_linenumber" name="L43" href="EmpiricalDistribution.html#L43">43</a>  
+<a class="jxr_linenumber" name="L44" href="EmpiricalDistribution.html#L44">44</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L45" href="EmpiricalDistribution.html#L45">45</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Represents an &lt;a href="<a href="http://en.wikipedia.org/wiki/Empirical_distribution_function" target="alexandria_uri">http://en.wikipedia.org/wiki/Empirical_distribution_function</a>"&gt;</em>
+<a class="jxr_linenumber" name="L46" href="EmpiricalDistribution.html#L46">46</a>  <em class="jxr_javadoccomment"> * empirical probability distribution&lt;/a&gt; -- a probability distribution derived</em>
+<a class="jxr_linenumber" name="L47" href="EmpiricalDistribution.html#L47">47</a>  <em class="jxr_javadoccomment"> * from observed data without making any assumptions about the functional form</em>
+<a class="jxr_linenumber" name="L48" href="EmpiricalDistribution.html#L48">48</a>  <em class="jxr_javadoccomment"> * of the population distribution that the data come from.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L49" href="EmpiricalDistribution.html#L49">49</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L50" href="EmpiricalDistribution.html#L50">50</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;An &lt;code&gt;EmpiricalDistribution&lt;/code&gt; maintains data structures, called</em>
+<a class="jxr_linenumber" name="L51" href="EmpiricalDistribution.html#L51">51</a>  <em class="jxr_javadoccomment"> * &lt;i&gt;distribution digests&lt;/i&gt;, that describe empirical distributions and</em>
+<a class="jxr_linenumber" name="L52" href="EmpiricalDistribution.html#L52">52</a>  <em class="jxr_javadoccomment"> * support the following operations: &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L53" href="EmpiricalDistribution.html#L53">53</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;loading the distribution from a file of observed data values&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L54" href="EmpiricalDistribution.html#L54">54</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;dividing the input data into "bin ranges" and reporting bin frequency</em>
+<a class="jxr_linenumber" name="L55" href="EmpiricalDistribution.html#L55">55</a>  <em class="jxr_javadoccomment"> *     counts (data for histogram)&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L56" href="EmpiricalDistribution.html#L56">56</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;reporting univariate statistics describing the full set of data values</em>
+<a class="jxr_linenumber" name="L57" href="EmpiricalDistribution.html#L57">57</a>  <em class="jxr_javadoccomment"> *     as well as the observations within each bin&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L58" href="EmpiricalDistribution.html#L58">58</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;generating random values from the distribution&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L59" href="EmpiricalDistribution.html#L59">59</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L60" href="EmpiricalDistribution.html#L60">60</a>  <em class="jxr_javadoccomment"> * Applications can use &lt;code&gt;EmpiricalDistribution&lt;/code&gt; to build grouped</em>
+<a class="jxr_linenumber" name="L61" href="EmpiricalDistribution.html#L61">61</a>  <em class="jxr_javadoccomment"> * frequency histograms representing the input data or to generate random values</em>
+<a class="jxr_linenumber" name="L62" href="EmpiricalDistribution.html#L62">62</a>  <em class="jxr_javadoccomment"> * "like" those in the input file -- i.e., the values generated will follow the</em>
+<a class="jxr_linenumber" name="L63" href="EmpiricalDistribution.html#L63">63</a>  <em class="jxr_javadoccomment"> * distribution of the values in the file.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L64" href="EmpiricalDistribution.html#L64">64</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L65" href="EmpiricalDistribution.html#L65">65</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;The implementation uses what amounts to the</em>
+<a class="jxr_linenumber" name="L66" href="EmpiricalDistribution.html#L66">66</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://nedwww.ipac.caltech.edu/level5/March02/Silverman/Silver2_6.html" target="alexandria_uri">http://nedwww.ipac.caltech.edu/level5/March02/Silverman/Silver2_6.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L67" href="EmpiricalDistribution.html#L67">67</a>  <em class="jxr_javadoccomment"> * Variable Kernel Method&lt;/a&gt; with Gaussian smoothing:&lt;p&gt;</em>
+<a class="jxr_linenumber" name="L68" href="EmpiricalDistribution.html#L68">68</a>  <em class="jxr_javadoccomment"> * &lt;strong&gt;Digesting the input file&lt;/strong&gt;</em>
+<a class="jxr_linenumber" name="L69" href="EmpiricalDistribution.html#L69">69</a>  <em class="jxr_javadoccomment"> * &lt;ol&gt;&lt;li&gt;Pass the file once to compute min and max.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L70" href="EmpiricalDistribution.html#L70">70</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;Divide the range from min-max into &lt;code&gt;binCount&lt;/code&gt; "bins."&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L71" href="EmpiricalDistribution.html#L71">71</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;Pass the data file again, computing bin counts and univariate</em>
+<a class="jxr_linenumber" name="L72" href="EmpiricalDistribution.html#L72">72</a>  <em class="jxr_javadoccomment"> *     statistics (mean, std dev.) for each of the bins &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L73" href="EmpiricalDistribution.html#L73">73</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;Divide the interval (0,1) into subintervals associated with the bins,</em>
+<a class="jxr_linenumber" name="L74" href="EmpiricalDistribution.html#L74">74</a>  <em class="jxr_javadoccomment"> *     with the length of a bin's subinterval proportional to its count.&lt;/li&gt;&lt;/ol&gt;</em>
+<a class="jxr_linenumber" name="L75" href="EmpiricalDistribution.html#L75">75</a>  <em class="jxr_javadoccomment"> * &lt;strong&gt;Generating random values from the distribution&lt;/strong&gt;&lt;ol&gt;</em>
+<a class="jxr_linenumber" name="L76" href="EmpiricalDistribution.html#L76">76</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;Generate a uniformly distributed value in (0,1) &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L77" href="EmpiricalDistribution.html#L77">77</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;Select the subinterval to which the value belongs.</em>
+<a class="jxr_linenumber" name="L78" href="EmpiricalDistribution.html#L78">78</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;Generate a random Gaussian value with mean = mean of the associated</em>
+<a class="jxr_linenumber" name="L79" href="EmpiricalDistribution.html#L79">79</a>  <em class="jxr_javadoccomment"> *     bin and std dev = std dev of associated bin.&lt;/li&gt;&lt;/ol&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L80" href="EmpiricalDistribution.html#L80">80</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L81" href="EmpiricalDistribution.html#L81">81</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;EmpiricalDistribution implements the {@link RealDistribution} interface</em>
+<a class="jxr_linenumber" name="L82" href="EmpiricalDistribution.html#L82">82</a>  <em class="jxr_javadoccomment"> * as follows.  Given x within the range of values in the dataset, let B</em>
+<a class="jxr_linenumber" name="L83" href="EmpiricalDistribution.html#L83">83</a>  <em class="jxr_javadoccomment"> * be the bin containing x and let K be the within-bin kernel for B.  Let P(B-)</em>
+<a class="jxr_linenumber" name="L84" href="EmpiricalDistribution.html#L84">84</a>  <em class="jxr_javadoccomment"> * be the sum of the probabilities of the bins below B and let K(B) be the</em>
+<a class="jxr_linenumber" name="L85" href="EmpiricalDistribution.html#L85">85</a>  <em class="jxr_javadoccomment"> * mass of B under K (i.e., the integral of the kernel density over B).  Then</em>
+<a class="jxr_linenumber" name="L86" href="EmpiricalDistribution.html#L86">86</a>  <em class="jxr_javadoccomment"> * set P(X &lt; x) = P(B-) + P(B) * K(x) / K(B) where K(x) is the kernel distribution</em>
+<a class="jxr_linenumber" name="L87" href="EmpiricalDistribution.html#L87">87</a>  <em class="jxr_javadoccomment"> * evaluated at x. This results in a cdf that matches the grouped frequency</em>
+<a class="jxr_linenumber" name="L88" href="EmpiricalDistribution.html#L88">88</a>  <em class="jxr_javadoccomment"> * distribution at the bin endpoints and interpolates within bins using</em>
+<a class="jxr_linenumber" name="L89" href="EmpiricalDistribution.html#L89">89</a>  <em class="jxr_javadoccomment"> * within-bin kernels.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L90" href="EmpiricalDistribution.html#L90">90</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L91" href="EmpiricalDistribution.html#L91">91</a>  <em class="jxr_javadoccomment"> *&lt;strong&gt;USAGE NOTES:&lt;/strong&gt;&lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L92" href="EmpiricalDistribution.html#L92">92</a>  <em class="jxr_javadoccomment"> *&lt;li&gt;The &lt;code&gt;binCount&lt;/code&gt; is set by default to 1000.  A good rule of thumb</em>
+<a class="jxr_linenumber" name="L93" href="EmpiricalDistribution.html#L93">93</a>  <em class="jxr_javadoccomment"> *    is to set the bin count to approximately the length of the input file divided</em>
+<a class="jxr_linenumber" name="L94" href="EmpiricalDistribution.html#L94">94</a>  <em class="jxr_javadoccomment"> *    by 10. &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L95" href="EmpiricalDistribution.html#L95">95</a>  <em class="jxr_javadoccomment"> *&lt;li&gt;The input file &lt;i&gt;must&lt;/i&gt; be a plain text file containing one valid numeric</em>
+<a class="jxr_linenumber" name="L96" href="EmpiricalDistribution.html#L96">96</a>  <em class="jxr_javadoccomment"> *    entry per line.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L97" href="EmpiricalDistribution.html#L97">97</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L98" href="EmpiricalDistribution.html#L98">98</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L99" href="EmpiricalDistribution.html#L99">99</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L100" href="EmpiricalDistribution.html#L100">100</a> <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="EmpiricalDistribution.html">EmpiricalDistribution</a> <strong class="jxr_keyword">extends</strong> <a href="AbstractRealDistribution.html">AbstractRealDistribution</a> {
+<a class="jxr_linenumber" name="L101" href="EmpiricalDistribution.html#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="EmpiricalDistribution.html#L102">102</a>     <em class="jxr_javadoccomment">/** Default bin count */</em>
+<a class="jxr_linenumber" name="L103" href="EmpiricalDistribution.html#L103">103</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> DEFAULT_BIN_COUNT = 1000;
+<a class="jxr_linenumber" name="L104" href="EmpiricalDistribution.html#L104">104</a> 
+<a class="jxr_linenumber" name="L105" href="EmpiricalDistribution.html#L105">105</a>     <em class="jxr_javadoccomment">/** Character set for file input */</em>
+<a class="jxr_linenumber" name="L106" href="EmpiricalDistribution.html#L106">106</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String FILE_CHARSET = <span class="jxr_string">"US-ASCII"</span>;
+<a class="jxr_linenumber" name="L107" href="EmpiricalDistribution.html#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="EmpiricalDistribution.html#L108">108</a>     <em class="jxr_javadoccomment">/** Serializable version identifier */</em>
+<a class="jxr_linenumber" name="L109" href="EmpiricalDistribution.html#L109">109</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 5729073523949762654L;
+<a class="jxr_linenumber" name="L110" href="EmpiricalDistribution.html#L110">110</a> 
+<a class="jxr_linenumber" name="L111" href="EmpiricalDistribution.html#L111">111</a>     <em class="jxr_javadoccomment">/** List of SummaryStatistics objects characterizing the bins */</em>
+<a class="jxr_linenumber" name="L112" href="EmpiricalDistribution.html#L112">112</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> List&lt;SummaryStatistics&gt; binStats;
+<a class="jxr_linenumber" name="L113" href="EmpiricalDistribution.html#L113">113</a> 
+<a class="jxr_linenumber" name="L114" href="EmpiricalDistribution.html#L114">114</a>     <em class="jxr_javadoccomment">/** Sample statistics */</em>
+<a class="jxr_linenumber" name="L115" href="EmpiricalDistribution.html#L115">115</a>     <strong class="jxr_keyword">private</strong> <a href="../stat/descriptive/SummaryStatistics.html">SummaryStatistics</a> sampleStats = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L116" href="EmpiricalDistribution.html#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="EmpiricalDistribution.html#L117">117</a>     <em class="jxr_javadoccomment">/** Max loaded value */</em>
+<a class="jxr_linenumber" name="L118" href="EmpiricalDistribution.html#L118">118</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> max = Double.NEGATIVE_INFINITY;
+<a class="jxr_linenumber" name="L119" href="EmpiricalDistribution.html#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="EmpiricalDistribution.html#L120">120</a>     <em class="jxr_javadoccomment">/** Min loaded value */</em>
+<a class="jxr_linenumber" name="L121" href="EmpiricalDistribution.html#L121">121</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> min = Double.POSITIVE_INFINITY;
+<a class="jxr_linenumber" name="L122" href="EmpiricalDistribution.html#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="EmpiricalDistribution.html#L123">123</a>     <em class="jxr_javadoccomment">/** Grid size */</em>
+<a class="jxr_linenumber" name="L124" href="EmpiricalDistribution.html#L124">124</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> delta = 0d;
+<a class="jxr_linenumber" name="L125" href="EmpiricalDistribution.html#L125">125</a> 
+<a class="jxr_linenumber" name="L126" href="EmpiricalDistribution.html#L126">126</a>     <em class="jxr_javadoccomment">/** number of bins */</em>
+<a class="jxr_linenumber" name="L127" href="EmpiricalDistribution.html#L127">127</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> binCount;
+<a class="jxr_linenumber" name="L128" href="EmpiricalDistribution.html#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="EmpiricalDistribution.html#L129">129</a>     <em class="jxr_javadoccomment">/** is the distribution loaded? */</em>
+<a class="jxr_linenumber" name="L130" href="EmpiricalDistribution.html#L130">130</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> loaded = false;
+<a class="jxr_linenumber" name="L131" href="EmpiricalDistribution.html#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="EmpiricalDistribution.html#L132">132</a>     <em class="jxr_javadoccomment">/** upper bounds of subintervals in (0,1) "belonging" to the bins */</em>
+<a class="jxr_linenumber" name="L133" href="EmpiricalDistribution.html#L133">133</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[] upperBounds = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L134" href="EmpiricalDistribution.html#L134">134</a> 
+<a class="jxr_linenumber" name="L135" href="EmpiricalDistribution.html#L135">135</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L136" href="EmpiricalDistribution.html#L136">136</a> <em class="jxr_javadoccomment">     * Creates a new EmpiricalDistribution with the default bin count.</em>
+<a class="jxr_linenumber" name="L137" href="EmpiricalDistribution.html#L137">137</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L138" href="EmpiricalDistribution.html#L138">138</a>     <strong class="jxr_keyword">public</strong> <a href="EmpiricalDistribution.html">EmpiricalDistribution</a>() {
+<a class="jxr_linenumber" name="L139" href="EmpiricalDistribution.html#L139">139</a>         <strong class="jxr_keyword">this</strong>(DEFAULT_BIN_COUNT);
+<a class="jxr_linenumber" name="L140" href="EmpiricalDistribution.html#L140">140</a>     }
+<a class="jxr_linenumber" name="L141" href="EmpiricalDistribution.html#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="EmpiricalDistribution.html#L142">142</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L143" href="EmpiricalDistribution.html#L143">143</a> <em class="jxr_javadoccomment">     * Creates a new EmpiricalDistribution with the specified bin count.</em>
+<a class="jxr_linenumber" name="L144" href="EmpiricalDistribution.html#L144">144</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L145" href="EmpiricalDistribution.html#L145">145</a> <em class="jxr_javadoccomment">     * @param binCount number of bins. Must be strictly positive.</em>
+<a class="jxr_linenumber" name="L146" href="EmpiricalDistribution.html#L146">146</a> <em class="jxr_javadoccomment">     * @throws NotStrictlyPositiveException if {@code binCount &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L147" href="EmpiricalDistribution.html#L147">147</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L148" href="EmpiricalDistribution.html#L148">148</a>     <strong class="jxr_keyword">public</strong> <a href="EmpiricalDistribution.html">EmpiricalDistribution</a>(<strong class="jxr_keyword">int</strong> binCount) {
+<a class="jxr_linenumber" name="L149" href="EmpiricalDistribution.html#L149">149</a>         <strong class="jxr_keyword">if</strong> (binCount &lt;= 0) {
+<a class="jxr_linenumber" name="L150" href="EmpiricalDistribution.html#L150">150</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NotStrictlyPositiveException.html">NotStrictlyPositiveException</a>(binCount);
+<a class="jxr_linenumber" name="L151" href="EmpiricalDistribution.html#L151">151</a>         }
+<a class="jxr_linenumber" name="L152" href="EmpiricalDistribution.html#L152">152</a>         <strong class="jxr_keyword">this</strong>.binCount = binCount;
+<a class="jxr_linenumber" name="L153" href="EmpiricalDistribution.html#L153">153</a>         binStats = <strong class="jxr_keyword">new</strong> ArrayList&lt;SummaryStatistics&gt;();
+<a class="jxr_linenumber" name="L154" href="EmpiricalDistribution.html#L154">154</a>      }
+<a class="jxr_linenumber" name="L155" href="EmpiricalDistribution.html#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="EmpiricalDistribution.html#L156">156</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L157" href="EmpiricalDistribution.html#L157">157</a> <em class="jxr_javadoccomment">     * Computes the empirical distribution from the provided</em>
+<a class="jxr_linenumber" name="L158" href="EmpiricalDistribution.html#L158">158</a> <em class="jxr_javadoccomment">     * array of numbers.</em>
+<a class="jxr_linenumber" name="L159" href="EmpiricalDistribution.html#L159">159</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L160" href="EmpiricalDistribution.html#L160">160</a> <em class="jxr_javadoccomment">     * @param in the input data array</em>
+<a class="jxr_linenumber" name="L161" href="EmpiricalDistribution.html#L161">161</a> <em class="jxr_javadoccomment">     * @exception NullArgumentException if in is null</em>
+<a class="jxr_linenumber" name="L162" href="EmpiricalDistribution.html#L162">162</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L163" href="EmpiricalDistribution.html#L163">163</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> load(<strong class="jxr_keyword">double</strong>[] in) <strong class="jxr_keyword">throws</strong> NullArgumentException {
+<a class="jxr_linenumber" name="L164" href="EmpiricalDistribution.html#L164">164</a>         <a href="EmpiricalDistribution.html">DataAdapter</a> da = <strong class="jxr_keyword">new</strong> <a href="EmpiricalDistribution.html">ArrayDataAdapter</a>(in);
+<a class="jxr_linenumber" name="L165" href="EmpiricalDistribution.html#L165">165</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L166" href="EmpiricalDistribution.html#L166">166</a>             da.computeStats();
+<a class="jxr_linenumber" name="L167" href="EmpiricalDistribution.html#L167">167</a>             <em class="jxr_comment">// new adapter for the second pass</em>
+<a class="jxr_linenumber" name="L168" href="EmpiricalDistribution.html#L168">168</a>             fillBinStats(<strong class="jxr_keyword">new</strong> <a href="EmpiricalDistribution.html">ArrayDataAdapter</a>(in));
+<a class="jxr_linenumber" name="L169" href="EmpiricalDistribution.html#L169">169</a>         } <strong class="jxr_keyword">catch</strong> (IOException ex) {
+<a class="jxr_linenumber" name="L170" href="EmpiricalDistribution.html#L170">170</a>             <em class="jxr_comment">// Can't happen</em>
+<a class="jxr_linenumber" name="L171" href="EmpiricalDistribution.html#L171">171</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathInternalError.html">MathInternalError</a>();
+<a class="jxr_linenumber" name="L172" href="EmpiricalDistribution.html#L172">172</a>         }
+<a class="jxr_linenumber" name="L173" href="EmpiricalDistribution.html#L173">173</a>         loaded = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L174" href="EmpiricalDistribution.html#L174">174</a> 
+<a class="jxr_linenumber" name="L175" href="EmpiricalDistribution.html#L175">175</a>     }
+<a class="jxr_linenumber" name="L176" href="EmpiricalDistribution.html#L176">176</a> 
+<a class="jxr_linenumber" name="L177" href="EmpiricalDistribution.html#L177">177</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L178" href="EmpiricalDistribution.html#L178">178</a> <em class="jxr_javadoccomment">     * Computes the empirical distribution using data read from a URL.</em>
+<a class="jxr_linenumber" name="L179" href="EmpiricalDistribution.html#L179">179</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L180" href="EmpiricalDistribution.html#L180">180</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The input file &lt;i&gt;must&lt;/i&gt; be an ASCII text file containing one</em>
+<a class="jxr_linenumber" name="L181" href="EmpiricalDistribution.html#L181">181</a> <em class="jxr_javadoccomment">     * valid numeric entry per line.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L182" href="EmpiricalDistribution.html#L182">182</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L183" href="EmpiricalDistribution.html#L183">183</a> <em class="jxr_javadoccomment">     * @param url url of the input file</em>
+<a class="jxr_linenumber" name="L184" href="EmpiricalDistribution.html#L184">184</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L185" href="EmpiricalDistribution.html#L185">185</a> <em class="jxr_javadoccomment">     * @throws IOException if an IO error occurs</em>
+<a class="jxr_linenumber" name="L186" href="EmpiricalDistribution.html#L186">186</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if url is null</em>
+<a class="jxr_linenumber" name="L187" href="EmpiricalDistribution.html#L187">187</a> <em class="jxr_javadoccomment">     * @throws ZeroException if URL contains no data</em>
+<a class="jxr_linenumber" name="L188" href="EmpiricalDistribution.html#L188">188</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L189" href="EmpiricalDistribution.html#L189">189</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> load(URL url) <strong class="jxr_keyword">throws</strong> IOException, NullArgumentException, ZeroException {
+<a class="jxr_linenumber" name="L190" href="EmpiricalDistribution.html#L190">190</a>         MathUtils.checkNotNull(url);
+<a class="jxr_linenumber" name="L191" href="EmpiricalDistribution.html#L191">191</a>         Charset charset = Charset.forName(FILE_CHARSET);
+<a class="jxr_linenumber" name="L192" href="EmpiricalDistribution.html#L192">192</a>         BufferedReader in =
+<a class="jxr_linenumber" name="L193" href="EmpiricalDistribution.html#L193">193</a>             <strong class="jxr_keyword">new</strong> BufferedReader(<strong class="jxr_keyword">new</strong> InputStreamReader(url.openStream(), charset));
+<a class="jxr_linenumber" name="L194" href="EmpiricalDistribution.html#L194">194</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L195" href="EmpiricalDistribution.html#L195">195</a>             <a href="EmpiricalDistribution.html">DataAdapter</a> da = <strong class="jxr_keyword">new</strong> <a href="EmpiricalDistribution.html">StreamDataAdapter</a>(in);
+<a class="jxr_linenumber" name="L196" href="EmpiricalDistribution.html#L196">196</a>             da.computeStats();
+<a class="jxr_linenumber" name="L197" href="EmpiricalDistribution.html#L197">197</a>             <strong class="jxr_keyword">if</strong> (sampleStats.getN() == 0) {
+<a class="jxr_linenumber" name="L198" href="EmpiricalDistribution.html#L198">198</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/ZeroException.html">ZeroException</a>(LocalizedFormats.URL_CONTAINS_NO_DATA, url);
+<a class="jxr_linenumber" name="L199" href="EmpiricalDistribution.html#L199">199</a>             }
+<a class="jxr_linenumber" name="L200" href="EmpiricalDistribution.html#L200">200</a>             <em class="jxr_comment">// new adapter for the second pass</em>
+<a class="jxr_linenumber" name="L201" href="EmpiricalDistribution.html#L201">201</a>             in = <strong class="jxr_keyword">new</strong> BufferedReader(<strong class="jxr_keyword">new</strong> InputStreamReader(url.openStream(), charset));
+<a class="jxr_linenumber" name="L202" href="EmpiricalDistribution.html#L202">202</a>             fillBinStats(<strong class="jxr_keyword">new</strong> <a href="EmpiricalDistribution.html">StreamDataAdapter</a>(in));
+<a class="jxr_linenumber" name="L203" href="EmpiricalDistribution.html#L203">203</a>             loaded = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L204" href="EmpiricalDistribution.html#L204">204</a>         } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L205" href="EmpiricalDistribution.html#L205">205</a>            <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L206" href="EmpiricalDistribution.html#L206">206</a>                in.close();
+<a class="jxr_linenumber" name="L207" href="EmpiricalDistribution.html#L207">207</a>            } <strong class="jxr_keyword">catch</strong> (IOException ex) { <em class="jxr_comment">//NOPMD</em>
+<a class="jxr_linenumber" name="L208" href="EmpiricalDistribution.html#L208">208</a>                <em class="jxr_comment">// ignore</em>
+<a class="jxr_linenumber" name="L209" href="EmpiricalDistribution.html#L209">209</a>            }
+<a class="jxr_linenumber" name="L210" href="EmpiricalDistribution.html#L210">210</a>         }
+<a class="jxr_linenumber" name="L211" href="EmpiricalDistribution.html#L211">211</a>     }
+<a class="jxr_linenumber" name="L212" href="EmpiricalDistribution.html#L212">212</a> 
+<a class="jxr_linenumber" name="L213" href="EmpiricalDistribution.html#L213">213</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L214" href="EmpiricalDistribution.html#L214">214</a> <em class="jxr_javadoccomment">     * Computes the empirical distribution from the input file.</em>
+<a class="jxr_linenumber" name="L215" href="EmpiricalDistribution.html#L215">215</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L216" href="EmpiricalDistribution.html#L216">216</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The input file &lt;i&gt;must&lt;/i&gt; be an ASCII text file containing one</em>
+<a class="jxr_linenumber" name="L217" href="EmpiricalDistribution.html#L217">217</a> <em class="jxr_javadoccomment">     * valid numeric entry per line.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L218" href="EmpiricalDistribution.html#L218">218</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L219" href="EmpiricalDistribution.html#L219">219</a> <em class="jxr_javadoccomment">     * @param file the input file</em>
+<a class="jxr_linenumber" name="L220" href="EmpiricalDistribution.html#L220">220</a> <em class="jxr_javadoccomment">     * @throws IOException if an IO error occurs</em>
+<a class="jxr_linenumber" name="L221" href="EmpiricalDistribution.html#L221">221</a> <em class="jxr_javadoccomment">     * @throws NullArgumentException if file is null</em>
+<a class="jxr_linenumber" name="L222" href="EmpiricalDistribution.html#L222">222</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L223" href="EmpiricalDistribution.html#L223">223</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> load(File file) <strong class="jxr_keyword">throws</strong> IOException, NullArgumentException {
+<a class="jxr_linenumber" name="L224" href="EmpiricalDistribution.html#L224">224</a>         MathUtils.checkNotNull(file);
+<a class="jxr_linenumber" name="L225" href="EmpiricalDistribution.html#L225">225</a>         Charset charset = Charset.forName(FILE_CHARSET);
+<a class="jxr_linenumber" name="L226" href="EmpiricalDistribution.html#L226">226</a>         InputStream is = <strong class="jxr_keyword">new</strong> FileInputStream(file);
+<a class="jxr_linenumber" name="L227" href="EmpiricalDistribution.html#L227">227</a>         BufferedReader in = <strong class="jxr_keyword">new</strong> BufferedReader(<strong class="jxr_keyword">new</strong> InputStreamReader(is, charset));
+<a class="jxr_linenumber" name="L228" href="EmpiricalDistribution.html#L228">228</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L229" href="EmpiricalDistribution.html#L229">229</a>             <a href="EmpiricalDistribution.html">DataAdapter</a> da = <strong class="jxr_keyword">new</strong> <a href="EmpiricalDistribution.html">StreamDataAdapter</a>(in);
+<a class="jxr_linenumber" name="L230" href="EmpiricalDistribution.html#L230">230</a>             da.computeStats();
+<a class="jxr_linenumber" name="L231" href="EmpiricalDistribution.html#L231">231</a>             <em class="jxr_comment">// new adapter for second pass</em>
+<a class="jxr_linenumber" name="L232" href="EmpiricalDistribution.html#L232">232</a>             is = <strong class="jxr_keyword">new</strong> FileInputStream(file);
+<a class="jxr_linenumber" name="L233" href="EmpiricalDistribution.html#L233">233</a>             in = <strong class="jxr_keyword">new</strong> BufferedReader(<strong class="jxr_keyword">new</strong> InputStreamReader(is, charset));
+<a class="jxr_linenumber" name="L234" href="EmpiricalDistribution.html#L234">234</a>             fillBinStats(<strong class="jxr_keyword">new</strong> <a href="EmpiricalDistribution.html">StreamDataAdapter</a>(in));
+<a class="jxr_linenumber" name="L235" href="EmpiricalDistribution.html#L235">235</a>             loaded = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L236" href="EmpiricalDistribution.html#L236">236</a>         } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L237" href="EmpiricalDistribution.html#L237">237</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L238" href="EmpiricalDistribution.html#L238">238</a>                 in.close();
+<a class="jxr_linenumber" name="L239" href="EmpiricalDistribution.html#L239">239</a>             } <strong class="jxr_keyword">catch</strong> (IOException ex) { <em class="jxr_comment">//NOPMD</em>
+<a class="jxr_linenumber" name="L240" href="EmpiricalDistribution.html#L240">240</a>                 <em class="jxr_comment">// ignore</em>
+<a class="jxr_linenumber" name="L241" href="EmpiricalDistribution.html#L241">241</a>             }
+<a class="jxr_linenumber" name="L242" href="EmpiricalDistribution.html#L242">242</a>         }
+<a class="jxr_linenumber" name="L243" href="EmpiricalDistribution.html#L243">243</a>     }
+<a class="jxr_linenumber" name="L244" href="EmpiricalDistribution.html#L244">244</a> 
+<a class="jxr_linenumber" name="L245" href="EmpiricalDistribution.html#L245">245</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L246" href="EmpiricalDistribution.html#L246">246</a> <em class="jxr_javadoccomment">     * Provides methods for computing &lt;code&gt;sampleStats&lt;/code&gt; and</em>
+<a class="jxr_linenumber" name="L247" href="EmpiricalDistribution.html#L247">247</a> <em class="jxr_javadoccomment">     * &lt;code&gt;beanStats&lt;/code&gt; abstracting the source of data.</em>
+<a class="jxr_linenumber" name="L248" href="EmpiricalDistribution.html#L248">248</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L249" href="EmpiricalDistribution.html#L249">249</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="EmpiricalDistribution.html">DataAdapter</a>{
+<a class="jxr_linenumber" name="L250" href="EmpiricalDistribution.html#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="EmpiricalDistribution.html#L251">251</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L252" href="EmpiricalDistribution.html#L252">252</a> <em class="jxr_javadoccomment">         * Compute bin stats.</em>
+<a class="jxr_linenumber" name="L253" href="EmpiricalDistribution.html#L253">253</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L254" href="EmpiricalDistribution.html#L254">254</a> <em class="jxr_javadoccomment">         * @throws IOException  if an error occurs computing bin stats</em>
+<a class="jxr_linenumber" name="L255" href="EmpiricalDistribution.html#L255">255</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L256" href="EmpiricalDistribution.html#L256">256</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">void</strong> computeBinStats() <strong class="jxr_keyword">throws</strong> IOException;
+<a class="jxr_linenumber" name="L257" href="EmpiricalDistribution.html#L257">257</a> 
+<a class="jxr_linenumber" name="L258" href="EmpiricalDistribution.html#L258">258</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L259" href="EmpiricalDistribution.html#L259">259</a> <em class="jxr_javadoccomment">         * Compute sample statistics.</em>
+<a class="jxr_linenumber" name="L260" href="EmpiricalDistribution.html#L260">260</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L261" href="EmpiricalDistribution.html#L261">261</a> <em class="jxr_javadoccomment">         * @throws IOException if an error occurs computing sample stats</em>
+<a class="jxr_linenumber" name="L262" href="EmpiricalDistribution.html#L262">262</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L263" href="EmpiricalDistribution.html#L263">263</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">void</strong> computeStats() <strong class="jxr_keyword">throws</strong> IOException;
+<a class="jxr_linenumber" name="L264" href="EmpiricalDistribution.html#L264">264</a> 
+<a class="jxr_linenumber" name="L265" href="EmpiricalDistribution.html#L265">265</a>     }
+<a class="jxr_linenumber" name="L266" href="EmpiricalDistribution.html#L266">266</a> 
+<a class="jxr_linenumber" name="L267" href="EmpiricalDistribution.html#L267">267</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L268" href="EmpiricalDistribution.html#L268">268</a> <em class="jxr_javadoccomment">     * &lt;code&gt;DataAdapter&lt;/code&gt; for data provided through some input stream</em>
+<a class="jxr_linenumber" name="L269" href="EmpiricalDistribution.html#L269">269</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L270" href="EmpiricalDistribution.html#L270">270</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="EmpiricalDistribution.html">StreamDataAdapter</a> <strong class="jxr_keyword">extends</strong> <a href="EmpiricalDistribution.html">DataAdapter</a>{
+<a class="jxr_linenumber" name="L271" href="EmpiricalDistribution.html#L271">271</a> 
+<a class="jxr_linenumber" name="L272" href="EmpiricalDistribution.html#L272">272</a>         <em class="jxr_javadoccomment">/** Input stream providing access to the data */</em>
+<a class="jxr_linenumber" name="L273" href="EmpiricalDistribution.html#L273">273</a>         <strong class="jxr_keyword">private</strong> BufferedReader inputStream;
+<a class="jxr_linenumber" name="L274" href="EmpiricalDistribution.html#L274">274</a> 
+<a class="jxr_linenumber" name="L275" href="EmpiricalDistribution.html#L275">275</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L276" href="EmpiricalDistribution.html#L276">276</a> <em class="jxr_javadoccomment">         * Create a StreamDataAdapter from a BufferedReader</em>
+<a class="jxr_linenumber" name="L277" href="EmpiricalDistribution.html#L277">277</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L278" href="EmpiricalDistribution.html#L278">278</a> <em class="jxr_javadoccomment">         * @param in BufferedReader input stream</em>
+<a class="jxr_linenumber" name="L279" href="EmpiricalDistribution.html#L279">279</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L280" href="EmpiricalDistribution.html#L280">280</a>         <a href="EmpiricalDistribution.html">StreamDataAdapter</a>(BufferedReader in){
+<a class="jxr_linenumber" name="L281" href="EmpiricalDistribution.html#L281">281</a>             <strong class="jxr_keyword">super</strong>();
+<a class="jxr_linenumber" name="L282" href="EmpiricalDistribution.html#L282">282</a>             inputStream = in;
+<a class="jxr_linenumber" name="L283" href="EmpiricalDistribution.html#L283">283</a>         }
+<a class="jxr_linenumber" name="L284" href="EmpiricalDistribution.html#L284">284</a> 
+<a class="jxr_linenumber" name="L285" href="EmpiricalDistribution.html#L285">285</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L286" href="EmpiricalDistribution.html#L286">286</a>         @Override
+<a class="jxr_linenumber" name="L287" href="EmpiricalDistribution.html#L287">287</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> computeBinStats() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L288" href="EmpiricalDistribution.html#L288">288</a>             String str = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L289" href="EmpiricalDistribution.html#L289">289</a>             <strong class="jxr_keyword">double</strong> val = 0.0d;
+<a class="jxr_linenumber" name="L290" href="EmpiricalDistribution.html#L290">290</a>             <strong class="jxr_keyword">while</strong> ((str = inputStream.readLine()) != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L291" href="EmpiricalDistribution.html#L291">291</a>                 val = Double.parseDouble(str);
+<a class="jxr_linenumber" name="L292" href="EmpiricalDistribution.html#L292">292</a>                 <a href="../stat/descriptive/SummaryStatistics.html">SummaryStatistics</a> stats = binStats.get(findBin(val));
+<a class="jxr_linenumber" name="L293" href="EmpiricalDistribution.html#L293">293</a>                 stats.addValue(val);
+<a class="jxr_linenumber" name="L294" href="EmpiricalDistribution.html#L294">294</a>             }
+<a class="jxr_linenumber" name="L295" href="EmpiricalDistribution.html#L295">295</a> 
+<a class="jxr_linenumber" name="L296" href="EmpiricalDistribution.html#L296">296</a>             inputStream.close();
+<a class="jxr_linenumber" name="L297" href="EmpiricalDistribution.html#L297">297</a>             inputStream = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L298" href="EmpiricalDistribution.html#L298">298</a>         }
+<a class="jxr_linenumber" name="L299" href="EmpiricalDistribution.html#L299">299</a> 
+<a class="jxr_linenumber" name="L300" href="EmpiricalDistribution.html#L300">300</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L301" href="EmpiricalDistribution.html#L301">301</a>         @Override
+<a class="jxr_linenumber" name="L302" href="EmpiricalDistribution.html#L302">302</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> computeStats() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L303" href="EmpiricalDistribution.html#L303">303</a>             String str = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L304" href="EmpiricalDistribution.html#L304">304</a>             <strong class="jxr_keyword">double</strong> val = 0.0;
+<a class="jxr_linenumber" name="L305" href="EmpiricalDistribution.html#L305">305</a>             sampleStats = <strong class="jxr_keyword">new</strong> <a href="../stat/descriptive/SummaryStatistics.html">SummaryStatistics</a>();
+<a class="jxr_linenumber" name="L306" href="EmpiricalDistribution.html#L306">306</a>             <strong class="jxr_keyword">while</strong> ((str = inputStream.readLine()) != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L307" href="EmpiricalDistribution.html#L307">307</a>                 val = Double.parseDouble(str);
+<a class="jxr_linenumber" name="L308" href="EmpiricalDistribution.html#L308">308</a>                 sampleStats.addValue(val);
+<a class="jxr_linenumber" name="L309" href="EmpiricalDistribution.html#L309">309</a>             }
+<a class="jxr_linenumber" name="L310" href="EmpiricalDistribution.html#L310">310</a>             inputStream.close();
+<a class="jxr_linenumber" name="L311" href="EmpiricalDistribution.html#L311">311</a>             inputStream = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L312" href="EmpiricalDistribution.html#L312">312</a>         }
+<a class="jxr_linenumber" name="L313" href="EmpiricalDistribution.html#L313">313</a>     }
+<a class="jxr_linenumber" name="L314" href="EmpiricalDistribution.html#L314">314</a> 
+<a class="jxr_linenumber" name="L315" href="EmpiricalDistribution.html#L315">315</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L316" href="EmpiricalDistribution.html#L316">316</a> <em class="jxr_javadoccomment">     * &lt;code&gt;DataAdapter&lt;/code&gt; for data provided as array of doubles.</em>
+<a class="jxr_linenumber" name="L317" href="EmpiricalDistribution.html#L317">317</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L318" href="EmpiricalDistribution.html#L318">318</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="EmpiricalDistribution.html">ArrayDataAdapter</a> <strong class="jxr_keyword">extends</strong> <a href="EmpiricalDistribution.html">DataAdapter</a> {
+<a class="jxr_linenumber" name="L319" href="EmpiricalDistribution.html#L319">319</a> 
+<a class="jxr_linenumber" name="L320" href="EmpiricalDistribution.html#L320">320</a>         <em class="jxr_javadoccomment">/** Array of input  data values */</em>
+<a class="jxr_linenumber" name="L321" href="EmpiricalDistribution.html#L321">321</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] inputArray;
+<a class="jxr_linenumber" name="L322" href="EmpiricalDistribution.html#L322">322</a> 
+<a class="jxr_linenumber" name="L323" href="EmpiricalDistribution.html#L323">323</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L324" href="EmpiricalDistribution.html#L324">324</a> <em class="jxr_javadoccomment">         * Construct an ArrayDataAdapter from a double[] array</em>
+<a class="jxr_linenumber" name="L325" href="EmpiricalDistribution.html#L325">325</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L326" href="EmpiricalDistribution.html#L326">326</a> <em class="jxr_javadoccomment">         * @param in double[] array holding the data</em>
+<a class="jxr_linenumber" name="L327" href="EmpiricalDistribution.html#L327">327</a> <em class="jxr_javadoccomment">         * @throws NullArgumentException if in is null</em>
+<a class="jxr_linenumber" name="L328" href="EmpiricalDistribution.html#L328">328</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L329" href="EmpiricalDistribution.html#L329">329</a>         <a href="EmpiricalDistribution.html">ArrayDataAdapter</a>(<strong class="jxr_keyword">double</strong>[] in) <strong class="jxr_keyword">throws</strong> NullArgumentException {
+<a class="jxr_linenumber" name="L330" href="EmpiricalDistribution.html#L330">330</a>             <strong class="jxr_keyword">super</strong>();
+<a class="jxr_linenumber" name="L331" href="EmpiricalDistribution.html#L331">331</a>             MathUtils.checkNotNull(in);
+<a class="jxr_linenumber" name="L332" href="EmpiricalDistribution.html#L332">332</a>             inputArray = in;
+<a class="jxr_linenumber" name="L333" href="EmpiricalDistribution.html#L333">333</a>         }
+<a class="jxr_linenumber" name="L334" href="EmpiricalDistribution.html#L334">334</a> 
+<a class="jxr_linenumber" name="L335" href="EmpiricalDistribution.html#L335">335</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L336" href="EmpiricalDistribution.html#L336">336</a>         @Override
+<a class="jxr_linenumber" name="L337" href="EmpiricalDistribution.html#L337">337</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> computeStats() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L338" href="EmpiricalDistribution.html#L338">338</a>             sampleStats = <strong class="jxr_keyword">new</strong> <a href="../stat/descriptive/SummaryStatistics.html">SummaryStatistics</a>();
+<a class="jxr_linenumber" name="L339" href="EmpiricalDistribution.html#L339">339</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; inputArray.length; i++) {
+<a class="jxr_linenumber" name="L340" href="EmpiricalDistribution.html#L340">340</a>                 sampleStats.addValue(inputArray[i]);
+<a class="jxr_linenumber" name="L341" href="EmpiricalDistribution.html#L341">341</a>             }
+<a class="jxr_linenumber" name="L342" href="EmpiricalDistribution.html#L342">342</a>         }
+<a class="jxr_linenumber" name="L343" href="EmpiricalDistribution.html#L343">343</a> 
+<a class="jxr_linenumber" name="L344" href="EmpiricalDistribution.html#L344">344</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L345" href="EmpiricalDistribution.html#L345">345</a>         @Override
+<a class="jxr_linenumber" name="L346" href="EmpiricalDistribution.html#L346">346</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> computeBinStats() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L347" href="EmpiricalDistribution.html#L347">347</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; inputArray.length; i++) {
+<a class="jxr_linenumber" name="L348" href="EmpiricalDistribution.html#L348">348</a>                 <a href="../stat/descriptive/SummaryStatistics.html">SummaryStatistics</a> stats =
+<a class="jxr_linenumber" name="L349" href="EmpiricalDistribution.html#L349">349</a>                     binStats.get(findBin(inputArray[i]));
+<a class="jxr_linenumber" name="L350" href="EmpiricalDistribution.html#L350">350</a>                 stats.addValue(inputArray[i]);
+<a class="jxr_linenumber" name="L351" href="EmpiricalDistribution.html#L351">351</a>             }
+<a class="jxr_linenumber" name="L352" href="EmpiricalDistribution.html#L352">352</a>         }
+<a class="jxr_linenumber" name="L353" href="EmpiricalDistribution.html#L353">353</a>     }
+<a class="jxr_linenumber" name="L354" href="EmpiricalDistribution.html#L354">354</a> 
+<a class="jxr_linenumber" name="L355" href="EmpiricalDistribution.html#L355">355</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L356" href="EmpiricalDistribution.html#L356">356</a> <em class="jxr_javadoccomment">     * Fills binStats array (second pass through data file).</em>
+<a class="jxr_linenumber" name="L357" href="EmpiricalDistribution.html#L357">357</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L358" href="EmpiricalDistribution.html#L358">358</a> <em class="jxr_javadoccomment">     * @param da object providing access to the data</em>
+<a class="jxr_linenumber" name="L359" href="EmpiricalDistribution.html#L359">359</a> <em class="jxr_javadoccomment">     * @throws IOException  if an IO error occurs</em>
+<a class="jxr_linenumber" name="L360" href="EmpiricalDistribution.html#L360">360</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L361" href="EmpiricalDistribution.html#L361">361</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> fillBinStats(<strong class="jxr_keyword">final</strong> <a href="EmpiricalDistribution.html">DataAdapter</a> da)
+<a class="jxr_linenumber" name="L362" href="EmpiricalDistribution.html#L362">362</a>         <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L363" href="EmpiricalDistribution.html#L363">363</a>         <em class="jxr_comment">// Set up grid</em>
+<a class="jxr_linenumber" name="L364" href="EmpiricalDistribution.html#L364">364</a>         min = sampleStats.getMin();
+<a class="jxr_linenumber" name="L365" href="EmpiricalDistribution.html#L365">365</a>         max = sampleStats.getMax();
+<a class="jxr_linenumber" name="L366" href="EmpiricalDistribution.html#L366">366</a>         delta = (max - min)/binCount;
+<a class="jxr_linenumber" name="L367" href="EmpiricalDistribution.html#L367">367</a> 
+<a class="jxr_linenumber" name="L368" href="EmpiricalDistribution.html#L368">368</a>         <em class="jxr_comment">// Initialize binStats ArrayList</em>
+<a class="jxr_linenumber" name="L369" href="EmpiricalDistribution.html#L369">369</a>         <strong class="jxr_keyword">if</strong> (!binStats.isEmpty()) {
+<a class="jxr_linenumber" name="L370" href="EmpiricalDistribution.html#L370">370</a>             binStats.clear();
+<a class="jxr_linenumber" name="L371" href="EmpiricalDistribution.html#L371">371</a>         }
+<a class="jxr_linenumber" name="L372" href="EmpiricalDistribution.html#L372">372</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; binCount; i++) {
+<a class="jxr_linenumber" name="L373" href="EmpiricalDistribution.html#L373">373</a>             <a href="../stat/descriptive/SummaryStatistics.html">SummaryStatistics</a> stats = <strong class="jxr_keyword">new</strong> <a href="../stat/descriptive/SummaryStatistics.html">SummaryStatistics</a>();
+<a class="jxr_linenumber" name="L374" href="EmpiricalDistribution.html#L374">374</a>             binStats.add(i,stats);
+<a class="jxr_linenumber" name="L375" href="EmpiricalDistribution.html#L375">375</a>         }
+<a class="jxr_linenumber" name="L376" href="EmpiricalDistribution.html#L376">376</a> 
+<a class="jxr_linenumber" name="L377" href="EmpiricalDistribution.html#L377">377</a>         <em class="jxr_comment">// Filling data in binStats Array</em>
+<a class="jxr_linenumber" name="L378" href="EmpiricalDistribution.html#L378">378</a>         da.computeBinStats();
+<a class="jxr_linenumber" name="L379" href="EmpiricalDistribution.html#L379">379</a> 
+<a class="jxr_linenumber" name="L380" href="EmpiricalDistribution.html#L380">380</a>         <em class="jxr_comment">// Assign upperBounds based on bin counts</em>
+<a class="jxr_linenumber" name="L381" href="EmpiricalDistribution.html#L381">381</a>         upperBounds = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[binCount];
+<a class="jxr_linenumber" name="L382" href="EmpiricalDistribution.html#L382">382</a>         upperBounds[0] =
+<a class="jxr_linenumber" name="L383" href="EmpiricalDistribution.html#L383">383</a>         ((<strong class="jxr_keyword">double</strong>) binStats.get(0).getN()) / (<strong class="jxr_keyword">double</strong>) sampleStats.getN();
+<a class="jxr_linenumber" name="L384" href="EmpiricalDistribution.html#L384">384</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; binCount-1; i++) {
+<a class="jxr_linenumber" name="L385" href="EmpiricalDistribution.html#L385">385</a>             upperBounds[i] = upperBounds[i-1] +
+<a class="jxr_linenumber" name="L386" href="EmpiricalDistribution.html#L386">386</a>             ((<strong class="jxr_keyword">double</strong>) binStats.get(i).getN()) / (<strong class="jxr_keyword">double</strong>) sampleStats.getN();
+<a class="jxr_linenumber" name="L387" href="EmpiricalDistribution.html#L387">387</a>         }
+<a class="jxr_linenumber" name="L388" href="EmpiricalDistribution.html#L388">388</a>         upperBounds[binCount-1] = 1.0d;
+<a class="jxr_linenumber" name="L389" href="EmpiricalDistribution.html#L389">389</a>     }
+<a class="jxr_linenumber" name="L390" href="EmpiricalDistribution.html#L390">390</a> 
+<a class="jxr_linenumber" name="L391" href="EmpiricalDistribution.html#L391">391</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L392" href="EmpiricalDistribution.html#L392">392</a> <em class="jxr_javadoccomment">     * Returns the index of the bin to which the given value belongs</em>
+<a class="jxr_linenumber" name="L393" href="EmpiricalDistribution.html#L393">393</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L394" href="EmpiricalDistribution.html#L394">394</a> <em class="jxr_javadoccomment">     * @param value  the value whose bin we are trying to find</em>
+<a class="jxr_linenumber" name="L395" href="EmpiricalDistribution.html#L395">395</a> <em class="jxr_javadoccomment">     * @return the index of the bin containing the value</em>
+<a class="jxr_linenumber" name="L396" href="EmpiricalDistribution.html#L396">396</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L397" href="EmpiricalDistribution.html#L397">397</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> findBin(<strong class="jxr_keyword">double</strong> value) {
+<a class="jxr_linenumber" name="L398" href="EmpiricalDistribution.html#L398">398</a>         <strong class="jxr_keyword">return</strong> FastMath.min(
+<a class="jxr_linenumber" name="L399" href="EmpiricalDistribution.html#L399">399</a>                 FastMath.max((<strong class="jxr_keyword">int</strong>) FastMath.ceil((value - min) / delta) - 1, 0),
+<a class="jxr_linenumber" name="L400" href="EmpiricalDistribution.html#L400">400</a>                 binCount - 1);
+<a class="jxr_linenumber" name="L401" href="EmpiricalDistribution.html#L401">401</a>     }
+<a class="jxr_linenumber" name="L402" href="EmpiricalDistribution.html#L402">402</a> 
+<a class="jxr_linenumber" name="L403" href="EmpiricalDistribution.html#L403">403</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L404" href="EmpiricalDistribution.html#L404">404</a> <em class="jxr_javadoccomment">     * Returns a {@link StatisticalSummary} describing this distribution.</em>
+<a class="jxr_linenumber" name="L405" href="EmpiricalDistribution.html#L405">405</a> <em class="jxr_javadoccomment">     * &lt;strong&gt;Preconditions:&lt;/strong&gt;&lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L406" href="EmpiricalDistribution.html#L406">406</a> <em class="jxr_javadoccomment">     * &lt;li&gt;the distribution must be loaded before invoking this method&lt;/li&gt;&lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L407" href="EmpiricalDistribution.html#L407">407</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L408" href="EmpiricalDistribution.html#L408">408</a> <em class="jxr_javadoccomment">     * @return the sample statistics</em>
+<a class="jxr_linenumber" name="L409" href="EmpiricalDistribution.html#L409">409</a> <em class="jxr_javadoccomment">     * @throws IllegalStateException if the distribution has not been loaded</em>
+<a class="jxr_linenumber" name="L410" href="EmpiricalDistribution.html#L410">410</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L411" href="EmpiricalDistribution.html#L411">411</a>     <strong class="jxr_keyword">public</strong> <a href="../stat/descriptive/StatisticalSummary.html">StatisticalSummary</a> getSampleStats() {
+<a class="jxr_linenumber" name="L412" href="EmpiricalDistribution.html#L412">412</a>         <strong class="jxr_keyword">return</strong> sampleStats;
+<a class="jxr_linenumber" name="L413" href="EmpiricalDistribution.html#L413">413</a>     }
+<a class="jxr_linenumber" name="L414" href="EmpiricalDistribution.html#L414">414</a> 
+<a class="jxr_linenumber" name="L415" href="EmpiricalDistribution.html#L415">415</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L416" href="EmpiricalDistribution.html#L416">416</a> <em class="jxr_javadoccomment">     * Returns the number of bins.</em>
+<a class="jxr_linenumber" name="L417" href="EmpiricalDistribution.html#L417">417</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L418" href="EmpiricalDistribution.html#L418">418</a> <em class="jxr_javadoccomment">     * @return the number of bins.</em>
+<a class="jxr_linenumber" name="L419" href="EmpiricalDistribution.html#L419">419</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L420" href="EmpiricalDistribution.html#L420">420</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getBinCount() {
+<a class="jxr_linenumber" name="L421" href="EmpiricalDistribution.html#L421">421</a>         <strong class="jxr_keyword">return</strong> binCount;
+<a class="jxr_linenumber" name="L422" href="EmpiricalDistribution.html#L422">422</a>     }
+<a class="jxr_linenumber" name="L423" href="EmpiricalDistribution.html#L423">423</a> 
+<a class="jxr_linenumber" name="L424" href="EmpiricalDistribution.html#L424">424</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L425" href="EmpiricalDistribution.html#L425">425</a> <em class="jxr_javadoccomment">     * Returns a List of {@link SummaryStatistics} instances containing</em>
+<a class="jxr_linenumber" name="L426" href="EmpiricalDistribution.html#L426">426</a> <em class="jxr_javadoccomment">     * statistics describing the values in each of the bins.  The list is</em>
+<a class="jxr_linenumber" name="L427" href="EmpiricalDistribution.html#L427">427</a> <em class="jxr_javadoccomment">     * indexed on the bin number.</em>
+<a class="jxr_linenumber" name="L428" href="EmpiricalDistribution.html#L428">428</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L429" href="EmpiricalDistribution.html#L429">429</a> <em class="jxr_javadoccomment">     * @return List of bin statistics.</em>
+<a class="jxr_linenumber" name="L430" href="EmpiricalDistribution.html#L430">430</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L431" href="EmpiricalDistribution.html#L431">431</a>     <strong class="jxr_keyword">public</strong> List&lt;SummaryStatistics&gt; getBinStats() {
+<a class="jxr_linenumber" name="L432" href="EmpiricalDistribution.html#L432">432</a>         <strong class="jxr_keyword">return</strong> binStats;
+<a class="jxr_linenumber" name="L433" href="EmpiricalDistribution.html#L433">433</a>     }
+<a class="jxr_linenumber" name="L434" href="EmpiricalDistribution.html#L434">434</a> 
+<a class="jxr_linenumber" name="L435" href="EmpiricalDistribution.html#L435">435</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L436" href="EmpiricalDistribution.html#L436">436</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Returns a fresh copy of the array of upper bounds for the bins.</em>
+<a class="jxr_linenumber" name="L437" href="EmpiricalDistribution.html#L437">437</a> <em class="jxr_javadoccomment">     * Bins are: &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L438" href="EmpiricalDistribution.html#L438">438</a> <em class="jxr_javadoccomment">     * [min,upperBounds[0]],(upperBounds[0],upperBounds[1]],...,</em>
+<a class="jxr_linenumber" name="L439" href="EmpiricalDistribution.html#L439">439</a> <em class="jxr_javadoccomment">     *  (upperBounds[binCount-2], upperBounds[binCount-1] = max].&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L440" href="EmpiricalDistribution.html#L440">440</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L441" href="EmpiricalDistribution.html#L441">441</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Note: In versions 1.0-2.0 of commons-math, this method</em>
+<a class="jxr_linenumber" name="L442" href="EmpiricalDistribution.html#L442">442</a> <em class="jxr_javadoccomment">     * incorrectly returned the array of probability generator upper</em>
+<a class="jxr_linenumber" name="L443" href="EmpiricalDistribution.html#L443">443</a> <em class="jxr_javadoccomment">     * bounds now returned by {@link #getGeneratorUpperBounds()}.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L444" href="EmpiricalDistribution.html#L444">444</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L445" href="EmpiricalDistribution.html#L445">445</a> <em class="jxr_javadoccomment">     * @return array of bin upper bounds</em>
+<a class="jxr_linenumber" name="L446" href="EmpiricalDistribution.html#L446">446</a> <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L447" href="EmpiricalDistribution.html#L447">447</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L448" href="EmpiricalDistribution.html#L448">448</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getUpperBounds() {
+<a class="jxr_linenumber" name="L449" href="EmpiricalDistribution.html#L449">449</a>         <strong class="jxr_keyword">double</strong>[] binUpperBounds = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[binCount];
+<a class="jxr_linenumber" name="L450" href="EmpiricalDistribution.html#L450">450</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; binCount - 1; i++) {
+<a class="jxr_linenumber" name="L451" href="EmpiricalDistribution.html#L451">451</a>             binUpperBounds[i] = min + delta * (i + 1);
+<a class="jxr_linenumber" name="L452" href="EmpiricalDistribution.html#L452">452</a>         }
+<a class="jxr_linenumber" name="L453" href="EmpiricalDistribution.html#L453">453</a>         binUpperBounds[binCount - 1] = max;
+<a class="jxr_linenumber" name="L454" href="EmpiricalDistribution.html#L454">454</a>         <strong class="jxr_keyword">return</strong> binUpperBounds;
+<a class="jxr_linenumber" name="L455" href="EmpiricalDistribution.html#L455">455</a>     }
+<a class="jxr_linenumber" name="L456" href="EmpiricalDistribution.html#L456">456</a> 
+<a class="jxr_linenumber" name="L457" href="EmpiricalDistribution.html#L457">457</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L458" href="EmpiricalDistribution.html#L458">458</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Returns a fresh copy of the array of upper bounds of the subintervals</em>
+<a class="jxr_linenumber" name="L459" href="EmpiricalDistribution.html#L459">459</a> <em class="jxr_javadoccomment">     * of [0,1] used in generating data from the empirical distribution.</em>
+<a class="jxr_linenumber" name="L460" href="EmpiricalDistribution.html#L460">460</a> <em class="jxr_javadoccomment">     * Subintervals correspond to bins with lengths proportional to bin counts.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L461" href="EmpiricalDistribution.html#L461">461</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L462" href="EmpiricalDistribution.html#L462">462</a> <em class="jxr_javadoccomment">     * &lt;strong&gt;Preconditions:&lt;/strong&gt;&lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L463" href="EmpiricalDistribution.html#L463">463</a> <em class="jxr_javadoccomment">     * &lt;li&gt;the distribution must be loaded before invoking this method&lt;/li&gt;&lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L464" href="EmpiricalDistribution.html#L464">464</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L465" href="EmpiricalDistribution.html#L465">465</a> <em class="jxr_javadoccomment">     * &lt;p&gt;In versions 1.0-2.0 of commons-math, this array was (incorrectly) returned</em>
+<a class="jxr_linenumber" name="L466" href="EmpiricalDistribution.html#L466">466</a> <em class="jxr_javadoccomment">     * by {@link #getUpperBounds()}.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L467" href="EmpiricalDistribution.html#L467">467</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L468" href="EmpiricalDistribution.html#L468">468</a> <em class="jxr_javadoccomment">     * @since 2.1</em>
+<a class="jxr_linenumber" name="L469" href="EmpiricalDistribution.html#L469">469</a> <em class="jxr_javadoccomment">     * @return array of upper bounds of subintervals used in data generation</em>
+<a class="jxr_linenumber" name="L470" href="EmpiricalDistribution.html#L470">470</a> <em class="jxr_javadoccomment">     * @throws NullPointerException unless a {@code load} method has been</em>
+<a class="jxr_linenumber" name="L471" href="EmpiricalDistribution.html#L471">471</a> <em class="jxr_javadoccomment">     * called beforehand.</em>
+<a class="jxr_linenumber" name="L472" href="EmpiricalDistribution.html#L472">472</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L473" href="EmpiricalDistribution.html#L473">473</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getGeneratorUpperBounds() {
+<a class="jxr_linenumber" name="L474" href="EmpiricalDistribution.html#L474">474</a>         <strong class="jxr_keyword">int</strong> len = upperBounds.length;
+<a class="jxr_linenumber" name="L475" href="EmpiricalDistribution.html#L475">475</a>         <strong class="jxr_keyword">double</strong>[] out = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[len];
+<a class="jxr_linenumber" name="L476" href="EmpiricalDistribution.html#L476">476</a>         System.arraycopy(upperBounds, 0, out, 0, len);
+<a class="jxr_linenumber" name="L477" href="EmpiricalDistribution.html#L477">477</a>         <strong class="jxr_keyword">return</strong> out;
+<a class="jxr_linenumber" name="L478" href="EmpiricalDistribution.html#L478">478</a>     }
+<a class="jxr_linenumber" name="L479" href="EmpiricalDistribution.html#L479">479</a> 
+<a class="jxr_linenumber" name="L480" href="EmpiricalDistribution.html#L480">480</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L481" href="EmpiricalDistribution.html#L481">481</a> <em class="jxr_javadoccomment">     * Property indicating whether or not the distribution has been loaded.</em>
+<a class="jxr_linenumber" name="L482" href="EmpiricalDistribution.html#L482">482</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L483" href="EmpiricalDistribution.html#L483">483</a> <em class="jxr_javadoccomment">     * @return true if the distribution has been loaded</em>
+<a class="jxr_linenumber" name="L484" href="EmpiricalDistribution.html#L484">484</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L485" href="EmpiricalDistribution.html#L485">485</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isLoaded() {
+<a class="jxr_linenumber" name="L486" href="EmpiricalDistribution.html#L486">486</a>         <strong class="jxr_keyword">return</strong> loaded;
+<a class="jxr_linenumber" name="L487" href="EmpiricalDistribution.html#L487">487</a>     }
+<a class="jxr_linenumber" name="L488" href="EmpiricalDistribution.html#L488">488</a> 
+<a class="jxr_linenumber" name="L489" href="EmpiricalDistribution.html#L489">489</a>     <em class="jxr_comment">// Distribution methods ---------------------------</em>
+<a class="jxr_linenumber" name="L490" href="EmpiricalDistribution.html#L490">490</a> 
+<a class="jxr_linenumber" name="L491" href="EmpiricalDistribution.html#L491">491</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L492" href="EmpiricalDistribution.html#L492">492</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L493" href="EmpiricalDistribution.html#L493">493</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L494" href="EmpiricalDistribution.html#L494">494</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L495" href="EmpiricalDistribution.html#L495">495</a>     @Override
+<a class="jxr_linenumber" name="L496" href="EmpiricalDistribution.html#L496">496</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> probability(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L497" href="EmpiricalDistribution.html#L497">497</a>         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L498" href="EmpiricalDistribution.html#L498">498</a>     }
+<a class="jxr_linenumber" name="L499" href="EmpiricalDistribution.html#L499">499</a> 
+<a class="jxr_linenumber" name="L500" href="EmpiricalDistribution.html#L500">500</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L501" href="EmpiricalDistribution.html#L501">501</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L502" href="EmpiricalDistribution.html#L502">502</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L503" href="EmpiricalDistribution.html#L503">503</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Returns the kernel density normalized so that its integral over each bin</em>
+<a class="jxr_linenumber" name="L504" href="EmpiricalDistribution.html#L504">504</a> <em class="jxr_javadoccomment">     * equals the bin mass.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L505" href="EmpiricalDistribution.html#L505">505</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L506" href="EmpiricalDistribution.html#L506">506</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Algorithm description: &lt;ol&gt;</em>
+<a class="jxr_linenumber" name="L507" href="EmpiricalDistribution.html#L507">507</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Find the bin B that x belongs to.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L508" href="EmpiricalDistribution.html#L508">508</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Compute K(B) = the mass of B with respect to the within-bin kernel (i.e., the</em>
+<a class="jxr_linenumber" name="L509" href="EmpiricalDistribution.html#L509">509</a> <em class="jxr_javadoccomment">     * integral of the kernel density over B).&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L510" href="EmpiricalDistribution.html#L510">510</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Return k(x) * P(B) / K(B), where k is the within-bin kernel density</em>
+<a class="jxr_linenumber" name="L511" href="EmpiricalDistribution.html#L511">511</a> <em class="jxr_javadoccomment">     * and P(B) is the mass of B.&lt;/li&gt;&lt;/ol&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L512" href="EmpiricalDistribution.html#L512">512</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L513" href="EmpiricalDistribution.html#L513">513</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L514" href="EmpiricalDistribution.html#L514">514</a>     @Override
+<a class="jxr_linenumber" name="L515" href="EmpiricalDistribution.html#L515">515</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> density(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L516" href="EmpiricalDistribution.html#L516">516</a>         <strong class="jxr_keyword">if</strong> (x &lt; min || x &gt; max) {
+<a class="jxr_linenumber" name="L517" href="EmpiricalDistribution.html#L517">517</a>             <strong class="jxr_keyword">return</strong> 0d;
+<a class="jxr_linenumber" name="L518" href="EmpiricalDistribution.html#L518">518</a>         }
+<a class="jxr_linenumber" name="L519" href="EmpiricalDistribution.html#L519">519</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> binIndex = findBin(x);
+<a class="jxr_linenumber" name="L520" href="EmpiricalDistribution.html#L520">520</a>         <strong class="jxr_keyword">final</strong> <a href="RealDistribution.html">RealDistribution</a> kernel = getKernel(binStats.get(binIndex));
+<a class="jxr_linenumber" name="L521" href="EmpiricalDistribution.html#L521">521</a>         <strong class="jxr_keyword">return</strong> kernel.density(x) * pB(binIndex) / kB(binIndex);
+<a class="jxr_linenumber" name="L522" href="EmpiricalDistribution.html#L522">522</a>     }
+<a class="jxr_linenumber" name="L523" href="EmpiricalDistribution.html#L523">523</a> 
+<a class="jxr_linenumber" name="L524" href="EmpiricalDistribution.html#L524">524</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L525" href="EmpiricalDistribution.html#L525">525</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L526" href="EmpiricalDistribution.html#L526">526</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L527" href="EmpiricalDistribution.html#L527">527</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Algorithm description:&lt;ol&gt;</em>
+<a class="jxr_linenumber" name="L528" href="EmpiricalDistribution.html#L528">528</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Find the bin B that x belongs to.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L529" href="EmpiricalDistribution.html#L529">529</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Compute P(B) = the mass of B and P(B-) = the combined mass of the bins below B.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L530" href="EmpiricalDistribution.html#L530">530</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Compute K(B) = the probability mass of B with respect to the within-bin kernel</em>
+<a class="jxr_linenumber" name="L531" href="EmpiricalDistribution.html#L531">531</a> <em class="jxr_javadoccomment">     * and K(B-) = the kernel distribution evaluated at the lower endpoint of B&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L532" href="EmpiricalDistribution.html#L532">532</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Return P(B-) + P(B) * [K(x) - K(B-)] / K(B) where</em>
+<a class="jxr_linenumber" name="L533" href="EmpiricalDistribution.html#L533">533</a> <em class="jxr_javadoccomment">     * K(x) is the within-bin kernel distribution function evaluated at x.&lt;/li&gt;&lt;/ol&gt;</em>
+<a class="jxr_linenumber" name="L534" href="EmpiricalDistribution.html#L534">534</a> <em class="jxr_javadoccomment">     * If K is a constant distribution, we return P(B-) + P(B) (counting the full</em>
+<a class="jxr_linenumber" name="L535" href="EmpiricalDistribution.html#L535">535</a> <em class="jxr_javadoccomment">     * mass of B).&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L536" href="EmpiricalDistribution.html#L536">536</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L537" href="EmpiricalDistribution.html#L537">537</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L538" href="EmpiricalDistribution.html#L538">538</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L539" href="EmpiricalDistribution.html#L539">539</a>     @Override
+<a class="jxr_linenumber" name="L540" href="EmpiricalDistribution.html#L540">540</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> cumulativeProbability(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L541" href="EmpiricalDistribution.html#L541">541</a>         <strong class="jxr_keyword">if</strong> (x &lt; min) {
+<a class="jxr_linenumber" name="L542" href="EmpiricalDistribution.html#L542">542</a>             <strong class="jxr_keyword">return</strong> 0d;
+<a class="jxr_linenumber" name="L543" href="EmpiricalDistribution.html#L543">543</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (x &gt;= max) {
+<a class="jxr_linenumber" name="L544" href="EmpiricalDistribution.html#L544">544</a>             <strong class="jxr_keyword">return</strong> 1d;
+<a class="jxr_linenumber" name="L545" href="EmpiricalDistribution.html#L545">545</a>         }
+<a class="jxr_linenumber" name="L546" href="EmpiricalDistribution.html#L546">546</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> binIndex = findBin(x);
+<a class="jxr_linenumber" name="L547" href="EmpiricalDistribution.html#L547">547</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> pBminus = pBminus(binIndex);
+<a class="jxr_linenumber" name="L548" href="EmpiricalDistribution.html#L548">548</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> pB = pB(binIndex);
+<a class="jxr_linenumber" name="L549" href="EmpiricalDistribution.html#L549">549</a>         <strong class="jxr_keyword">final</strong> <a href="RealDistribution.html">RealDistribution</a> kernel = k(x);
+<a class="jxr_linenumber" name="L550" href="EmpiricalDistribution.html#L550">550</a>         <strong class="jxr_keyword">if</strong> (kernel instanceof ConstantRealDistribution) {
+<a class="jxr_linenumber" name="L551" href="EmpiricalDistribution.html#L551">551</a>             <strong class="jxr_keyword">if</strong> (x &lt; kernel.getNumericalMean()) {
+<a class="jxr_linenumber" name="L552" href="EmpiricalDistribution.html#L552">552</a>                 <strong class="jxr_keyword">return</strong> pBminus;
+<a class="jxr_linenumber" name="L553" href="EmpiricalDistribution.html#L553">553</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L554" href="EmpiricalDistribution.html#L554">554</a>                 <strong class="jxr_keyword">return</strong> pBminus + pB;
+<a class="jxr_linenumber" name="L555" href="EmpiricalDistribution.html#L555">555</a>             }
+<a class="jxr_linenumber" name="L556" href="EmpiricalDistribution.html#L556">556</a>         }
+<a class="jxr_linenumber" name="L557" href="EmpiricalDistribution.html#L557">557</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] binBounds = getUpperBounds();
+<a class="jxr_linenumber" name="L558" href="EmpiricalDistribution.html#L558">558</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> kB = kB(binIndex);
+<a class="jxr_linenumber" name="L559" href="EmpiricalDistribution.html#L559">559</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lower = binIndex == 0 ? min : binBounds[binIndex - 1];
+<a class="jxr_linenumber" name="L560" href="EmpiricalDistribution.html#L560">560</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> withinBinCum =
+<a class="jxr_linenumber" name="L561" href="EmpiricalDistribution.html#L561">561</a>             (kernel.cumulativeProbability(x) -  kernel.cumulativeProbability(lower)) / kB;
+<a class="jxr_linenumber" name="L562" href="EmpiricalDistribution.html#L562">562</a>         <strong class="jxr_keyword">return</strong> pBminus + pB * withinBinCum;
+<a class="jxr_linenumber" name="L563" href="EmpiricalDistribution.html#L563">563</a>     }
+<a class="jxr_linenumber" name="L564" href="EmpiricalDistribution.html#L564">564</a> 
+<a class="jxr_linenumber" name="L565" href="EmpiricalDistribution.html#L565">565</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L566" href="EmpiricalDistribution.html#L566">566</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L567" href="EmpiricalDistribution.html#L567">567</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L568" href="EmpiricalDistribution.html#L568">568</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Algorithm description:&lt;ol&gt;</em>
+<a class="jxr_linenumber" name="L569" href="EmpiricalDistribution.html#L569">569</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Find the smallest i such that the sum of the masses of the bins</em>
+<a class="jxr_linenumber" name="L570" href="EmpiricalDistribution.html#L570">570</a> <em class="jxr_javadoccomment">     *  through i is at least p.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L571" href="EmpiricalDistribution.html#L571">571</a> <em class="jxr_javadoccomment">     * &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L572" href="EmpiricalDistribution.html#L572">572</a> <em class="jxr_javadoccomment">     *   Let K be the within-bin kernel distribution for bin i.&lt;/br&gt;</em>
+<a class="jxr_linenumber" name="L573" href="EmpiricalDistribution.html#L573">573</a> <em class="jxr_javadoccomment">     *   Let K(B) be the mass of B under K. &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L574" href="EmpiricalDistribution.html#L574">574</a> <em class="jxr_javadoccomment">     *   Let K(B-) be K evaluated at the lower endpoint of B (the combined</em>
+<a class="jxr_linenumber" name="L575" href="EmpiricalDistribution.html#L575">575</a> <em class="jxr_javadoccomment">     *   mass of the bins below B under K).&lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L576" href="EmpiricalDistribution.html#L576">576</a> <em class="jxr_javadoccomment">     *   Let P(B) be the probability of bin i.&lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L577" href="EmpiricalDistribution.html#L577">577</a> <em class="jxr_javadoccomment">     *   Let P(B-) be the sum of the bin masses below bin i. &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L578" href="EmpiricalDistribution.html#L578">578</a> <em class="jxr_javadoccomment">     *   Let pCrit = p - P(B-)&lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L579" href="EmpiricalDistribution.html#L579">579</a> <em class="jxr_javadoccomment">     * &lt;li&gt;Return the inverse of K evaluated at &lt;br/&gt;</em>
+<a class="jxr_linenumber" name="L580" href="EmpiricalDistribution.html#L580">580</a> <em class="jxr_javadoccomment">     *    K(B-) + pCrit * K(B) / P(B) &lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L581" href="EmpiricalDistribution.html#L581">581</a> <em class="jxr_javadoccomment">     *  &lt;/ol&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L582" href="EmpiricalDistribution.html#L582">582</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L583" href="EmpiricalDistribution.html#L583">583</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L584" href="EmpiricalDistribution.html#L584">584</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L585" href="EmpiricalDistribution.html#L585">585</a>     @Override
+<a class="jxr_linenumber" name="L586" href="EmpiricalDistribution.html#L586">586</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> inverseCumulativeProbability(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p) <strong class="jxr_keyword">throws</strong> OutOfRangeException {
+<a class="jxr_linenumber" name="L587" href="EmpiricalDistribution.html#L587">587</a>         <strong class="jxr_keyword">if</strong> (p &lt; 0.0 || p &gt; 1.0) {
+<a class="jxr_linenumber" name="L588" href="EmpiricalDistribution.html#L588">588</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/OutOfRangeException.html">OutOfRangeException</a>(p, 0, 1);
+<a class="jxr_linenumber" name="L589" href="EmpiricalDistribution.html#L589">589</a>         }
+<a class="jxr_linenumber" name="L590" href="EmpiricalDistribution.html#L590">590</a> 
+<a class="jxr_linenumber" name="L591" href="EmpiricalDistribution.html#L591">591</a>         <strong class="jxr_keyword">if</strong> (p == 0.0) {
+<a class="jxr_linenumber" name="L592" href="EmpiricalDistribution.html#L592">592</a>             <strong class="jxr_keyword">return</strong> getSupportLowerBound();
+<a class="jxr_linenumber" name="L593" href="EmpiricalDistribution.html#L593">593</a>         }
+<a class="jxr_linenumber" name="L594" href="EmpiricalDistribution.html#L594">594</a> 
+<a class="jxr_linenumber" name="L595" href="EmpiricalDistribution.html#L595">595</a>         <strong class="jxr_keyword">if</strong> (p == 1.0) {
+<a class="jxr_linenumber" name="L596" href="EmpiricalDistribution.html#L596">596</a>             <strong class="jxr_keyword">return</strong> getSupportUpperBound();
+<a class="jxr_linenumber" name="L597" href="EmpiricalDistribution.html#L597">597</a>         }
+<a class="jxr_linenumber" name="L598" href="EmpiricalDistribution.html#L598">598</a> 
+<a class="jxr_linenumber" name="L599" href="EmpiricalDistribution.html#L599">599</a>         <strong class="jxr_keyword">int</strong> i = 0;
+<a class="jxr_linenumber" name="L600" href="EmpiricalDistribution.html#L600">600</a>         <strong class="jxr_keyword">while</strong> (cumBinP(i) &lt; p) {
+<a class="jxr_linenumber" name="L601" href="EmpiricalDistribution.html#L601">601</a>             i++;
+<a class="jxr_linenumber" name="L602" href="EmpiricalDistribution.html#L602">602</a>         }
+<a class="jxr_linenumber" name="L603" href="EmpiricalDistribution.html#L603">603</a> 
+<a class="jxr_linenumber" name="L604" href="EmpiricalDistribution.html#L604">604</a>         <strong class="jxr_keyword">final</strong> <a href="RealDistribution.html">RealDistribution</a> kernel = getKernel(binStats.get(i));
+<a class="jxr_linenumber" name="L605" href="EmpiricalDistribution.html#L605">605</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> kB = kB(i);
+<a class="jxr_linenumber" name="L606" href="EmpiricalDistribution.html#L606">606</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] binBounds = getUpperBounds();
+<a class="jxr_linenumber" name="L607" href="EmpiricalDistribution.html#L607">607</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> lower = i == 0 ? min : binBounds[i - 1];
+<a class="jxr_linenumber" name="L608" href="EmpiricalDistribution.html#L608">608</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> kBminus = kernel.cumulativeProbability(lower);
+<a class="jxr_linenumber" name="L609" href="EmpiricalDistribution.html#L609">609</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> pB = pB(i);
+<a class="jxr_linenumber" name="L610" href="EmpiricalDistribution.html#L610">610</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> pBminus = pBminus(i);
+<a class="jxr_linenumber" name="L611" href="EmpiricalDistribution.html#L611">611</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> pCrit = p - pBminus;
+<a class="jxr_linenumber" name="L612" href="EmpiricalDistribution.html#L612">612</a>         <strong class="jxr_keyword">if</strong> (pCrit &lt;= 0) {
+<a class="jxr_linenumber" name="L613" href="EmpiricalDistribution.html#L613">613</a>             <strong class="jxr_keyword">return</strong> lower;
+<a class="jxr_linenumber" name="L614" href="EmpiricalDistribution.html#L614">614</a>         }
+<a class="jxr_linenumber" name="L615" href="EmpiricalDistribution.html#L615">615</a>         <strong class="jxr_keyword">return</strong> kernel.inverseCumulativeProbability(kBminus + pCrit * kB / pB);
+<a class="jxr_linenumber" name="L616" href="EmpiricalDistribution.html#L616">616</a>     }
+<a class="jxr_linenumber" name="L617" href="EmpiricalDistribution.html#L617">617</a> 
+<a class="jxr_linenumber" name="L618" href="EmpiricalDistribution.html#L618">618</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L619" href="EmpiricalDistribution.html#L619">619</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L620" href="EmpiricalDistribution.html#L620">620</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L621" href="EmpiricalDistribution.html#L621">621</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L622" href="EmpiricalDistribution.html#L622">622</a>     @Override
+<a class="jxr_linenumber" name="L623" href="EmpiricalDistribution.html#L623">623</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalMean() {
+<a class="jxr_linenumber" name="L624" href="EmpiricalDistribution.html#L624">624</a>        <strong class="jxr_keyword">return</strong> sampleStats.getMean();
+<a class="jxr_linenumber" name="L625" href="EmpiricalDistribution.html#L625">625</a>     }
+<a class="jxr_linenumber" name="L626" href="EmpiricalDistribution.html#L626">626</a> 
+<a class="jxr_linenumber" name="L627" href="EmpiricalDistribution.html#L627">627</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L628" href="EmpiricalDistribution.html#L628">628</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L629" href="EmpiricalDistribution.html#L629">629</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L630" href="EmpiricalDistribution.html#L630">630</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L631" href="EmpiricalDistribution.html#L631">631</a>     @Override
+<a class="jxr_linenumber" name="L632" href="EmpiricalDistribution.html#L632">632</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getNumericalVariance() {
+<a class="jxr_linenumber" name="L633" href="EmpiricalDistribution.html#L633">633</a>         <strong class="jxr_keyword">return</strong> sampleStats.getVariance();
+<a class="jxr_linenumber" name="L634" href="EmpiricalDistribution.html#L634">634</a>     }
+<a class="jxr_linenumber" name="L635" href="EmpiricalDistribution.html#L635">635</a> 
+<a class="jxr_linenumber" name="L636" href="EmpiricalDistribution.html#L636">636</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L637" href="EmpiricalDistribution.html#L637">637</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L638" href="EmpiricalDistribution.html#L638">638</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L639" href="EmpiricalDistribution.html#L639">639</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L640" href="EmpiricalDistribution.html#L640">640</a>     @Override
+<a class="jxr_linenumber" name="L641" href="EmpiricalDistribution.html#L641">641</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSupportLowerBound() {
+<a class="jxr_linenumber" name="L642" href="EmpiricalDistribution.html#L642">642</a>        <strong class="jxr_keyword">return</strong> min;
+<a class="jxr_linenumber" name="L643" href="EmpiricalDistribution.html#L643">643</a>     }
+<a class="jxr_linenumber" name="L644" href="EmpiricalDistribution.html#L644">644</a> 
+<a class="jxr_linenumber" name="L645" href="EmpiricalDistribution.html#L645">645</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L646" href="EmpiricalDistribution.html#L646">646</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L647" href="EmpiricalDistribution.html#L647">647</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L648" href="EmpiricalDistribution.html#L648">648</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L649" href="EmpiricalDistribution.html#L649">649</a>     @Override
+<a class="jxr_linenumber" name="L650" href="EmpiricalDistribution.html#L650">650</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSupportUpperBound() {
+<a class="jxr_linenumber" name="L651" href="EmpiricalDistribution.html#L651">651</a>         <strong class="jxr_keyword">return</strong> max;
+<a class="jxr_linenumber" name="L652" href="EmpiricalDistribution.html#L652">652</a>     }
+<a class="jxr_linenumber" name="L653" href="EmpiricalDistribution.html#L653">653</a> 
+<a class="jxr_linenumber" name="L654" href="EmpiricalDistribution.html#L654">654</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L655" href="EmpiricalDistribution.html#L655">655</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L656" href="EmpiricalDistribution.html#L656">656</a> <em class="jxr_javadoccomment">     * @since 3.1</em>
+<a class="jxr_linenumber" name="L657" href="EmpiricalDistribution.html#L657">657</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L658" href="EmpiricalDistribution.html#L658">658</a>     @Override
+<a class="jxr_linenumber" name="L659" href="EmpiricalDistribution.html#L659">659</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isSupportConnected() {
+<a class="jxr_linenumber" name="L660" href="EmpiricalDistribution.html#L660">660</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L661" href="EmpiricalDistribution.html#L661">661</a>     }
+<a class="jxr_linenumber" name="L662" href="EmpiricalDistribution.html#L662">662</a> 
+<a class="jxr_linenumber" name="L663" href="EmpiricalDistribution.html#L663">663</a>     <em class="jxr_javadoccomment">/**{@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L664" href="EmpiricalDistribution.html#L664">664</a>     @Override
+<a class="jxr_linenumber" name="L665" href="EmpiricalDistribution.html#L665">665</a>     <strong class="jxr_keyword">public</strong> RealDistribution.Sampler createSampler(<strong class="jxr_keyword">final</strong> UniformRandomProvider rng) {
+<a class="jxr_linenumber" name="L666" href="EmpiricalDistribution.html#L666">666</a>         <strong class="jxr_keyword">if</strong> (!loaded) {
+<a class="jxr_linenumber" name="L667" href="EmpiricalDistribution.html#L667">667</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/MathIllegalStateException.html">MathIllegalStateException</a>(LocalizedFormats.DISTRIBUTION_NOT_LOADED);
+<a class="jxr_linenumber" name="L668" href="EmpiricalDistribution.html#L668">668</a>         }
+<a class="jxr_linenumber" name="L669" href="EmpiricalDistribution.html#L669">669</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.createSampler(rng);
+<a class="jxr_linenumber" name="L670" href="EmpiricalDistribution.html#L670">670</a>     }
+<a class="jxr_linenumber" name="L671" href="EmpiricalDistribution.html#L671">671</a> 
+<a class="jxr_linenumber" name="L672" href="EmpiricalDistribution.html#L672">672</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L673" href="EmpiricalDistribution.html#L673">673</a> <em class="jxr_javadoccomment">     * The probability of bin i.</em>
+<a class="jxr_linenumber" name="L674" href="EmpiricalDistribution.html#L674">674</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L675" href="EmpiricalDistribution.html#L675">675</a> <em class="jxr_javadoccomment">     * @param i the index of the bin</em>
+<a class="jxr_linenumber" name="L676" href="EmpiricalDistribution.html#L676">676</a> <em class="jxr_javadoccomment">     * @return the probability that selection begins in bin i</em>
+<a class="jxr_linenumber" name="L677" href="EmpiricalDistribution.html#L677">677</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L678" href="EmpiricalDistribution.html#L678">678</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> pB(<strong class="jxr_keyword">int</strong> i) {
+<a class="jxr_linenumber" name="L679" href="EmpiricalDistribution.html#L679">679</a>         <strong class="jxr_keyword">return</strong> i == 0 ? upperBounds[0] :
+<a class="jxr_linenumber" name="L680" href="EmpiricalDistribution.html#L680">680</a>             upperBounds[i] - upperBounds[i - 1];
+<a class="jxr_linenumber" name="L681" href="EmpiricalDistribution.html#L681">681</a>     }
+<a class="jxr_linenumber" name="L682" href="EmpiricalDistribution.html#L682">682</a> 
+<a class="jxr_linenumber" name="L683" href="EmpiricalDistribution.html#L683">683</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L684" href="EmpiricalDistribution.html#L684">684</a> <em class="jxr_javadoccomment">     * The combined probability of the bins up to but not including bin i.</em>
+<a class="jxr_linenumber" name="L685" href="EmpiricalDistribution.html#L685">685</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L686" href="EmpiricalDistribution.html#L686">686</a> <em class="jxr_javadoccomment">     * @param i the index of the bin</em>
+<a class="jxr_linenumber" name="L687" href="EmpiricalDistribution.html#L687">687</a> <em class="jxr_javadoccomment">     * @return the probability that selection begins in a bin below bin i.</em>
+<a class="jxr_linenumber" name="L688" href="EmpiricalDistribution.html#L688">688</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L689" href="EmpiricalDistribution.html#L689">689</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> pBminus(<strong class="jxr_keyword">int</strong> i) {
+<a class="jxr_linenumber" name="L690" href="EmpiricalDistribution.html#L690">690</a>         <strong class="jxr_keyword">return</strong> i == 0 ? 0 : upperBounds[i - 1];
+<a class="jxr_linenumber" name="L691" href="EmpiricalDistribution.html#L691">691</a>     }
+<a class="jxr_linenumber" name="L692" href="EmpiricalDistribution.html#L692">692</a> 
+<a class="jxr_linenumber" name="L693" href="EmpiricalDistribution.html#L693">693</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L694" href="EmpiricalDistribution.html#L694">694</a> <em class="jxr_javadoccomment">     * Mass of bin i under the within-bin kernel of the bin.</em>
+<a class="jxr_linenumber" name="L695" href="EmpiricalDistribution.html#L695">695</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L696" href="EmpiricalDistribution.html#L696">696</a> <em class="jxr_javadoccomment">     * @param i index of the bin</em>
+<a class="jxr_linenumber" name="L697" href="EmpiricalDistribution.html#L697">697</a> <em class="jxr_javadoccomment">     * @return the difference in the within-bin kernel cdf between the</em>
+<a class="jxr_linenumber" name="L698" href="EmpiricalDistribution.html#L698">698</a> <em class="jxr_javadoccomment">     * upper and lower endpoints of bin i</em>
+<a class="jxr_linenumber" name="L699" href="EmpiricalDistribution.html#L699">699</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L700" href="EmpiricalDistribution.html#L700">700</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> kB(<strong class="jxr_keyword">int</strong> i) {
+<a class="jxr_linenumber" name="L701" href="EmpiricalDistribution.html#L701">701</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] binBounds = getUpperBounds();
+<a class="jxr_linenumber" name="L702" href="EmpiricalDistribution.html#L702">702</a>         <strong class="jxr_keyword">final</strong> <a href="RealDistribution.html">RealDistribution</a> kernel = getKernel(binStats.get(i));
+<a class="jxr_linenumber" name="L703" href="EmpiricalDistribution.html#L703">703</a>         <strong class="jxr_keyword">return</strong> i == 0 ? kernel.probability(min, binBounds[0]) :
+<a class="jxr_linenumber" name="L704" href="EmpiricalDistribution.html#L704">704</a>             kernel.probability(binBounds[i - 1], binBounds[i]);
+<a class="jxr_linenumber" name="L705" href="EmpiricalDistribution.html#L705">705</a>     }
+<a class="jxr_linenumber" name="L706" href="EmpiricalDistribution.html#L706">706</a> 
+<a class="jxr_linenumber" name="L707" href="EmpiricalDistribution.html#L707">707</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L708" href="EmpiricalDistribution.html#L708">708</a> <em class="jxr_javadoccomment">     * The within-bin kernel of the bin that x belongs to.</em>
+<a class="jxr_linenumber" name="L709" href="EmpiricalDistribution.html#L709">709</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L710" href="EmpiricalDistribution.html#L710">710</a> <em class="jxr_javadoccomment">     * @param x the value to locate within a bin</em>
+<a class="jxr_linenumber" name="L711" href="EmpiricalDistribution.html#L711">711</a> <em class="jxr_javadoccomment">     * @return the within-bin kernel of the bin containing x</em>
+<a class="jxr_linenumber" name="L712" href="EmpiricalDistribution.html#L712">712</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L713" href="EmpiricalDistribution.html#L713">713</a>     <strong class="jxr_keyword">private</strong> <a href="RealDistribution.html">RealDistribution</a> k(<strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L714" href="EmpiricalDistribution.html#L714">714</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> binIndex = findBin(x);
+<a class="jxr_linenumber" name="L715" href="EmpiricalDistribution.html#L715">715</a>         <strong class="jxr_keyword">return</strong> getKernel(binStats.get(binIndex));
+<a class="jxr_linenumber" name="L716" href="EmpiricalDistribution.html#L716">716</a>     }
+<a class="jxr_linenumber" name="L717" href="EmpiricalDistribution.html#L717">717</a> 
+<a class="jxr_linenumber" name="L718" href="EmpiricalDistribution.html#L718">718</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L719" href="EmpiricalDistribution.html#L719">719</a> <em class="jxr_javadoccomment">     * The combined probability of the bins up to and including binIndex.</em>
+<a class="jxr_linenumber" name="L720" href="EmpiricalDistribution.html#L720">720</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L721" href="EmpiricalDistribution.html#L721">721</a> <em class="jxr_javadoccomment">     * @param binIndex maximum bin index</em>
+<a class="jxr_linenumber" name="L722" href="EmpiricalDistribution.html#L722">722</a> <em class="jxr_javadoccomment">     * @return sum of the probabilities of bins through binIndex</em>
+<a class="jxr_linenumber" name="L723" href="EmpiricalDistribution.html#L723">723</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L724" href="EmpiricalDistribution.html#L724">724</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> cumBinP(<strong class="jxr_keyword">int</strong> binIndex) {
+<a class="jxr_linenumber" name="L725" href="EmpiricalDistribution.html#L725">725</a>         <strong class="jxr_keyword">return</strong> upperBounds[binIndex];
+<a class="jxr_linenumber" name="L726" href="EmpiricalDistribution.html#L726">726</a>     }
+<a class="jxr_linenumber" name="L727" href="EmpiricalDistribution.html#L727">727</a> 
+<a class="jxr_linenumber" name="L728" href="EmpiricalDistribution.html#L728">728</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L729" href="EmpiricalDistribution.html#L729">729</a> <em class="jxr_javadoccomment">     * The within-bin smoothing kernel. Returns a Gaussian distribution</em>
+<a class="jxr_linenumber" name="L730" href="EmpiricalDistribution.html#L730">730</a> <em class="jxr_javadoccomment">     * parameterized by {@code bStats}, unless the bin contains only one</em>
+<a class="jxr_linenumber" name="L731" href="EmpiricalDistribution.html#L731">731</a> <em class="jxr_javadoccomment">     * observation, in which case a constant distribution is returned.</em>
+<a class="jxr_linenumber" name="L732" href="EmpiricalDistribution.html#L732">732</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L733" href="EmpiricalDistribution.html#L733">733</a> <em class="jxr_javadoccomment">     * @param bStats summary statistics for the bin</em>
+<a class="jxr_linenumber" name="L734" href="EmpiricalDistribution.html#L734">734</a> <em class="jxr_javadoccomment">     * @return within-bin kernel parameterized by bStats</em>
+<a class="jxr_linenumber" name="L735" href="EmpiricalDistribution.html#L735">735</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L736" href="EmpiricalDistribution.html#L736">736</a>     <strong class="jxr_keyword">protected</strong> <a href="RealDistribution.html">RealDistribution</a> getKernel(<a href="../stat/descriptive/SummaryStatistics.html">SummaryStatistics</a> bStats) {
+<a class="jxr_linenumber" name="L737" href="EmpiricalDistribution.html#L737">737</a>         <strong class="jxr_keyword">if</strong> (bStats.getN() == 1 || bStats.getVariance() == 0) {
+<a class="jxr_linenumber" name="L738" href="EmpiricalDistribution.html#L738">738</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="ConstantRealDistribution.html">ConstantRealDistribution</a>(bStats.getMean());
+<a class="jxr_linenumber" name="L739" href="EmpiricalDistribution.html#L739">739</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L740" href="EmpiricalDistribution.html#L740">740</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="NormalDistribution.html">NormalDistribution</a>(bStats.getMean(), bStats.getStandardDeviation(),
+<a class="jxr_linenumber" name="L741" href="EmpiricalDistribution.html#L741">741</a>                                           NormalDistribution.DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
+<a class="jxr_linenumber" name="L742" href="EmpiricalDistribution.html#L742">742</a>         }
+<a class="jxr_linenumber" name="L743" href="EmpiricalDistribution.html#L743">743</a>     }
+<a class="jxr_linenumber" name="L744" href="EmpiricalDistribution.html#L744">744</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

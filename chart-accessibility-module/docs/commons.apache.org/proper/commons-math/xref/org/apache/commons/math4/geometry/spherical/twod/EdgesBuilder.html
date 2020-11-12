@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>EdgesBuilder xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math4/geometry/spherical/twod/EdgesBuilder.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="EdgesBuilder.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="EdgesBuilder.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="EdgesBuilder.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="EdgesBuilder.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="EdgesBuilder.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="EdgesBuilder.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="EdgesBuilder.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="EdgesBuilder.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="EdgesBuilder.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="EdgesBuilder.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="EdgesBuilder.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="EdgesBuilder.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="EdgesBuilder.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="EdgesBuilder.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="EdgesBuilder.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="EdgesBuilder.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="EdgesBuilder.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.geometry.spherical.twod;
+<a class="jxr_linenumber" name="L18" href="EdgesBuilder.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="EdgesBuilder.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L20" href="EdgesBuilder.html#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.IdentityHashMap;
+<a class="jxr_linenumber" name="L21" href="EdgesBuilder.html#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L22" href="EdgesBuilder.html#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L23" href="EdgesBuilder.html#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="EdgesBuilder.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalStateException;
+<a class="jxr_linenumber" name="L25" href="EdgesBuilder.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L26" href="EdgesBuilder.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.euclidean.threed.Vector3D;
+<a class="jxr_linenumber" name="L27" href="EdgesBuilder.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.partitioning.BSPTree;
+<a class="jxr_linenumber" name="L28" href="EdgesBuilder.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.partitioning.BSPTreeVisitor;
+<a class="jxr_linenumber" name="L29" href="EdgesBuilder.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.partitioning.BoundaryAttribute;
+<a class="jxr_linenumber" name="L30" href="EdgesBuilder.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.spherical.oned.Arc;
+<a class="jxr_linenumber" name="L31" href="EdgesBuilder.html#L31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.spherical.oned.ArcsSet;
+<a class="jxr_linenumber" name="L32" href="EdgesBuilder.html#L32">32</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.geometry.spherical.oned.S1Point;
+<a class="jxr_linenumber" name="L33" href="EdgesBuilder.html#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="EdgesBuilder.html#L34">34</a>  <em class="jxr_javadoccomment">/** Visitor building edges.</em>
+<a class="jxr_linenumber" name="L35" href="EdgesBuilder.html#L35">35</a>  <em class="jxr_javadoccomment"> * @since 3.3</em>
+<a class="jxr_linenumber" name="L36" href="EdgesBuilder.html#L36">36</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L37" href="EdgesBuilder.html#L37">37</a>  <strong class="jxr_keyword">class</strong> <a href="EdgesBuilder.html">EdgesBuilder</a> <strong class="jxr_keyword">implements</strong> BSPTreeVisitor&lt;Sphere2D&gt; {
+<a class="jxr_linenumber" name="L38" href="EdgesBuilder.html#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="EdgesBuilder.html#L39">39</a>      <em class="jxr_javadoccomment">/** Root of the tree. */</em>
+<a class="jxr_linenumber" name="L40" href="EdgesBuilder.html#L40">40</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> BSPTree&lt;Sphere2D&gt; root;
+<a class="jxr_linenumber" name="L41" href="EdgesBuilder.html#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="EdgesBuilder.html#L42">42</a>      <em class="jxr_javadoccomment">/** Tolerance below which points are consider to be identical. */</em>
+<a class="jxr_linenumber" name="L43" href="EdgesBuilder.html#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tolerance;
+<a class="jxr_linenumber" name="L44" href="EdgesBuilder.html#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="EdgesBuilder.html#L45">45</a>      <em class="jxr_javadoccomment">/** Built edges and their associated nodes. */</em>
+<a class="jxr_linenumber" name="L46" href="EdgesBuilder.html#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;Edge, BSPTree&lt;Sphere2D&gt;&gt; edgeToNode;
+<a class="jxr_linenumber" name="L47" href="EdgesBuilder.html#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="EdgesBuilder.html#L48">48</a>      <em class="jxr_javadoccomment">/** Reversed map. */</em>
+<a class="jxr_linenumber" name="L49" href="EdgesBuilder.html#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;BSPTree&lt;Sphere2D&gt;, List&lt;Edge&gt;&gt; nodeToEdgesList;
+<a class="jxr_linenumber" name="L50" href="EdgesBuilder.html#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="EdgesBuilder.html#L51">51</a>      <em class="jxr_javadoccomment">/** Simple constructor.</em>
+<a class="jxr_linenumber" name="L52" href="EdgesBuilder.html#L52">52</a>  <em class="jxr_javadoccomment">     * @param root tree root</em>
+<a class="jxr_linenumber" name="L53" href="EdgesBuilder.html#L53">53</a>  <em class="jxr_javadoccomment">     * @param tolerance below which points are consider to be identical</em>
+<a class="jxr_linenumber" name="L54" href="EdgesBuilder.html#L54">54</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L55" href="EdgesBuilder.html#L55">55</a>      <a href="EdgesBuilder.html">EdgesBuilder</a>(<strong class="jxr_keyword">final</strong> BSPTree&lt;Sphere2D&gt; root, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tolerance) {
+<a class="jxr_linenumber" name="L56" href="EdgesBuilder.html#L56">56</a>          <strong class="jxr_keyword">this</strong>.root            = root;
+<a class="jxr_linenumber" name="L57" href="EdgesBuilder.html#L57">57</a>          <strong class="jxr_keyword">this</strong>.tolerance       = tolerance;
+<a class="jxr_linenumber" name="L58" href="EdgesBuilder.html#L58">58</a>          <strong class="jxr_keyword">this</strong>.edgeToNode      = <strong class="jxr_keyword">new</strong> IdentityHashMap&lt;Edge, BSPTree&lt;Sphere2D&gt;&gt;();
+<a class="jxr_linenumber" name="L59" href="EdgesBuilder.html#L59">59</a>          <strong class="jxr_keyword">this</strong>.nodeToEdgesList = <strong class="jxr_keyword">new</strong> IdentityHashMap&lt;BSPTree&lt;Sphere2D&gt;, List&lt;Edge&gt;&gt;();
+<a class="jxr_linenumber" name="L60" href="EdgesBuilder.html#L60">60</a>      }
+<a class="jxr_linenumber" name="L61" href="EdgesBuilder.html#L61">61</a>  
+<a class="jxr_linenumber" name="L62" href="EdgesBuilder.html#L62">62</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L63" href="EdgesBuilder.html#L63">63</a>      @Override
+<a class="jxr_linenumber" name="L64" href="EdgesBuilder.html#L64">64</a>      <strong class="jxr_keyword">public</strong> <a href="../../partitioning/BSPTreeVisitor.html">Order</a> visitOrder(<strong class="jxr_keyword">final</strong> BSPTree&lt;Sphere2D&gt; node) {
+<a class="jxr_linenumber" name="L65" href="EdgesBuilder.html#L65">65</a>          <strong class="jxr_keyword">return</strong> Order.MINUS_SUB_PLUS;
+<a class="jxr_linenumber" name="L66" href="EdgesBuilder.html#L66">66</a>      }
+<a class="jxr_linenumber" name="L67" href="EdgesBuilder.html#L67">67</a>  
+<a class="jxr_linenumber" name="L68" href="EdgesBuilder.html#L68">68</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L69" href="EdgesBuilder.html#L69">69</a>      @Override
+<a class="jxr_linenumber" name="L70" href="EdgesBuilder.html#L70">70</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> visitInternalNode(<strong class="jxr_keyword">final</strong> BSPTree&lt;Sphere2D&gt; node) {
+<a class="jxr_linenumber" name="L71" href="EdgesBuilder.html#L71">71</a>          nodeToEdgesList.put(node, <strong class="jxr_keyword">new</strong> ArrayList&lt;Edge&gt;());
+<a class="jxr_linenumber" name="L72" href="EdgesBuilder.html#L72">72</a>          @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L73" href="EdgesBuilder.html#L73">73</a>          <strong class="jxr_keyword">final</strong> BoundaryAttribute&lt;Sphere2D&gt; attribute = (BoundaryAttribute&lt;Sphere2D&gt;) node.getAttribute();
+<a class="jxr_linenumber" name="L74" href="EdgesBuilder.html#L74">74</a>          <strong class="jxr_keyword">if</strong> (attribute.getPlusOutside() != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L75" href="EdgesBuilder.html#L75">75</a>              addContribution((SubCircle) attribute.getPlusOutside(), false, node);
+<a class="jxr_linenumber" name="L76" href="EdgesBuilder.html#L76">76</a>          }
+<a class="jxr_linenumber" name="L77" href="EdgesBuilder.html#L77">77</a>          <strong class="jxr_keyword">if</strong> (attribute.getPlusInside() != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L78" href="EdgesBuilder.html#L78">78</a>              addContribution((SubCircle) attribute.getPlusInside(), <strong class="jxr_keyword">true</strong>, node);
+<a class="jxr_linenumber" name="L79" href="EdgesBuilder.html#L79">79</a>          }
+<a class="jxr_linenumber" name="L80" href="EdgesBuilder.html#L80">80</a>      }
+<a class="jxr_linenumber" name="L81" href="EdgesBuilder.html#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="EdgesBuilder.html#L82">82</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L83" href="EdgesBuilder.html#L83">83</a>      @Override
+<a class="jxr_linenumber" name="L84" href="EdgesBuilder.html#L84">84</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> visitLeafNode(<strong class="jxr_keyword">final</strong> BSPTree&lt;Sphere2D&gt; node) {
+<a class="jxr_linenumber" name="L85" href="EdgesBuilder.html#L85">85</a>      }
+<a class="jxr_linenumber" name="L86" href="EdgesBuilder.html#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="EdgesBuilder.html#L87">87</a>      <em class="jxr_javadoccomment">/** Add the contribution of a boundary edge.</em>
+<a class="jxr_linenumber" name="L88" href="EdgesBuilder.html#L88">88</a>  <em class="jxr_javadoccomment">     * @param sub boundary facet</em>
+<a class="jxr_linenumber" name="L89" href="EdgesBuilder.html#L89">89</a>  <em class="jxr_javadoccomment">     * @param reversed if true, the facet has the inside on its plus side</em>
+<a class="jxr_linenumber" name="L90" href="EdgesBuilder.html#L90">90</a>  <em class="jxr_javadoccomment">     * @param node node to which the edge belongs</em>
+<a class="jxr_linenumber" name="L91" href="EdgesBuilder.html#L91">91</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L92" href="EdgesBuilder.html#L92">92</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> addContribution(<strong class="jxr_keyword">final</strong> <a href="SubCircle.html">SubCircle</a> sub, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> reversed,
+<a class="jxr_linenumber" name="L93" href="EdgesBuilder.html#L93">93</a>                                   <strong class="jxr_keyword">final</strong> BSPTree&lt;Sphere2D&gt; node) {
+<a class="jxr_linenumber" name="L94" href="EdgesBuilder.html#L94">94</a>          <strong class="jxr_keyword">final</strong> <a href="Circle.html">Circle</a> circle  = (Circle) sub.getHyperplane();
+<a class="jxr_linenumber" name="L95" href="EdgesBuilder.html#L95">95</a>          <strong class="jxr_keyword">final</strong> List&lt;Arc&gt; arcs = ((ArcsSet) sub.getRemainingRegion()).asList();
+<a class="jxr_linenumber" name="L96" href="EdgesBuilder.html#L96">96</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> Arc a : arcs) {
+<a class="jxr_linenumber" name="L97" href="EdgesBuilder.html#L97">97</a>              <strong class="jxr_keyword">final</strong> <a href="Vertex.html">Vertex</a> start = <strong class="jxr_keyword">new</strong> <a href="Vertex.html">Vertex</a>((S2Point) circle.toSpace(<strong class="jxr_keyword">new</strong> S1Point(a.getInf())));
+<a class="jxr_linenumber" name="L98" href="EdgesBuilder.html#L98">98</a>              <strong class="jxr_keyword">final</strong> <a href="Vertex.html">Vertex</a> end   = <strong class="jxr_keyword">new</strong> Vertex((S2Point) circle.toSpace(<strong class="jxr_keyword">new</strong> S1Point(a.getSup())));
+<a class="jxr_linenumber" name="L99" href="EdgesBuilder.html#L99">99</a>              start.bindWith(circle);
+<a class="jxr_linenumber" name="L100" href="EdgesBuilder.html#L100">100</a>             end.bindWith(circle);
+<a class="jxr_linenumber" name="L101" href="EdgesBuilder.html#L101">101</a>             <strong class="jxr_keyword">final</strong> <a href="Edge.html">Edge</a> edge;
+<a class="jxr_linenumber" name="L102" href="EdgesBuilder.html#L102">102</a>             <strong class="jxr_keyword">if</strong> (reversed) {
+<a class="jxr_linenumber" name="L103" href="EdgesBuilder.html#L103">103</a>                 edge = <strong class="jxr_keyword">new</strong> <a href="Edge.html">Edge</a>(end, start, a.getSize(), circle.getReverse());
+<a class="jxr_linenumber" name="L104" href="EdgesBuilder.html#L104">104</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L105" href="EdgesBuilder.html#L105">105</a>                 edge = <strong class="jxr_keyword">new</strong> <a href="Edge.html">Edge</a>(start, end, a.getSize(), circle);
+<a class="jxr_linenumber" name="L106" href="EdgesBuilder.html#L106">106</a>             }
+<a class="jxr_linenumber" name="L107" href="EdgesBuilder.html#L107">107</a>             edgeToNode.put(edge, node);
+<a class="jxr_linenumber" name="L108" href="EdgesBuilder.html#L108">108</a>             nodeToEdgesList.get(node).add(edge);
+<a class="jxr_linenumber" name="L109" href="EdgesBuilder.html#L109">109</a>         }
+<a class="jxr_linenumber" name="L110" href="EdgesBuilder.html#L110">110</a>     }
+<a class="jxr_linenumber" name="L111" href="EdgesBuilder.html#L111">111</a> 
+<a class="jxr_linenumber" name="L112" href="EdgesBuilder.html#L112">112</a>     <em class="jxr_javadoccomment">/** Get the edge that should naturally follow another one.</em>
+<a class="jxr_linenumber" name="L113" href="EdgesBuilder.html#L113">113</a> <em class="jxr_javadoccomment">     * @param previous edge to be continued</em>
+<a class="jxr_linenumber" name="L114" href="EdgesBuilder.html#L114">114</a> <em class="jxr_javadoccomment">     * @return other edge, starting where the previous one ends (they</em>
+<a class="jxr_linenumber" name="L115" href="EdgesBuilder.html#L115">115</a> <em class="jxr_javadoccomment">     * have not been connected yet)</em>
+<a class="jxr_linenumber" name="L116" href="EdgesBuilder.html#L116">116</a> <em class="jxr_javadoccomment">     * @exception MathIllegalStateException if there is not a single other edge</em>
+<a class="jxr_linenumber" name="L117" href="EdgesBuilder.html#L117">117</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L118" href="EdgesBuilder.html#L118">118</a>     <strong class="jxr_keyword">private</strong> <a href="Edge.html">Edge</a> getFollowingEdge(<strong class="jxr_keyword">final</strong> <a href="Edge.html">Edge</a> previous)
+<a class="jxr_linenumber" name="L119" href="EdgesBuilder.html#L119">119</a>         <strong class="jxr_keyword">throws</strong> <a href="../../../exception/MathIllegalStateException.html">MathIllegalStateException</a> {
+<a class="jxr_linenumber" name="L120" href="EdgesBuilder.html#L120">120</a> 
+<a class="jxr_linenumber" name="L121" href="EdgesBuilder.html#L121">121</a>         <em class="jxr_comment">// get the candidate nodes</em>
+<a class="jxr_linenumber" name="L122" href="EdgesBuilder.html#L122">122</a>         <strong class="jxr_keyword">final</strong> <a href="S2Point.html">S2Point</a> point = previous.getEnd().getLocation();
+<a class="jxr_linenumber" name="L123" href="EdgesBuilder.html#L123">123</a>         <strong class="jxr_keyword">final</strong> List&lt;BSPTree&lt;Sphere2D&gt;&gt; candidates = root.getCloseCuts(point, tolerance);
+<a class="jxr_linenumber" name="L124" href="EdgesBuilder.html#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="EdgesBuilder.html#L125">125</a>         <em class="jxr_comment">// the following edge we are looking for must start from one of the candidates nodes</em>
+<a class="jxr_linenumber" name="L126" href="EdgesBuilder.html#L126">126</a>         <strong class="jxr_keyword">double</strong> closest = tolerance;
+<a class="jxr_linenumber" name="L127" href="EdgesBuilder.html#L127">127</a>         <a href="Edge.html">Edge</a> following = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L128" href="EdgesBuilder.html#L128">128</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> BSPTree&lt;Sphere2D&gt; node : candidates) {
+<a class="jxr_linenumber" name="L129" href="EdgesBuilder.html#L129">129</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> Edge edge : nodeToEdgesList.get(node)) {
+<a class="jxr_linenumber" name="L130" href="EdgesBuilder.html#L130">130</a>                 <strong class="jxr_keyword">if</strong> (edge != previous &amp;&amp; edge.getStart().getIncoming() == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L131" href="EdgesBuilder.html#L131">131</a>                     <strong class="jxr_keyword">final</strong> <a href="../../euclidean/threed/Vector3D.html">Vector3D</a> edgeStart = edge.getStart().getLocation().getVector();
+<a class="jxr_linenumber" name="L132" href="EdgesBuilder.html#L132">132</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> gap         = Vector3D.angle(point.getVector(), edgeStart);
+<a class="jxr_linenumber" name="L133" href="EdgesBuilder.html#L133">133</a>                     <strong class="jxr_keyword">if</strong> (gap &lt;= closest) {
+<a class="jxr_linenumber" name="L134" href="EdgesBuilder.html#L134">134</a>                         closest   = gap;
+<a class="jxr_linenumber" name="L135" href="EdgesBuilder.html#L135">135</a>                         following = edge;
+<a class="jxr_linenumber" name="L136" href="EdgesBuilder.html#L136">136</a>                     }
+<a class="jxr_linenumber" name="L137" href="EdgesBuilder.html#L137">137</a>                 }
+<a class="jxr_linenumber" name="L138" href="EdgesBuilder.html#L138">138</a>             }
+<a class="jxr_linenumber" name="L139" href="EdgesBuilder.html#L139">139</a>         }
+<a class="jxr_linenumber" name="L140" href="EdgesBuilder.html#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="EdgesBuilder.html#L141">141</a>         <strong class="jxr_keyword">if</strong> (following == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L142" href="EdgesBuilder.html#L142">142</a>             <strong class="jxr_keyword">final</strong> <a href="../../euclidean/threed/Vector3D.html">Vector3D</a> previousStart = previous.getStart().getLocation().getVector();
+<a class="jxr_linenumber" name="L143" href="EdgesBuilder.html#L143">143</a>             <strong class="jxr_keyword">if</strong> (Vector3D.angle(point.getVector(), previousStart) &lt;= tolerance) {
+<a class="jxr_linenumber" name="L144" href="EdgesBuilder.html#L144">144</a>                 <em class="jxr_comment">// the edge connects back to itself</em>
+<a class="jxr_linenumber" name="L145" href="EdgesBuilder.html#L145">145</a>                 <strong class="jxr_keyword">return</strong> previous;
+<a class="jxr_linenumber" name="L146" href="EdgesBuilder.html#L146">146</a>             }
+<a class="jxr_linenumber" name="L147" href="EdgesBuilder.html#L147">147</a> 
+<a class="jxr_linenumber" name="L148" href="EdgesBuilder.html#L148">148</a>             <em class="jxr_comment">// this should never happen</em>
+<a class="jxr_linenumber" name="L149" href="EdgesBuilder.html#L149">149</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../exception/MathIllegalStateException.html">MathIllegalStateException</a>(LocalizedFormats.OUTLINE_BOUNDARY_LOOP_OPEN);
+<a class="jxr_linenumber" name="L150" href="EdgesBuilder.html#L150">150</a> 
+<a class="jxr_linenumber" name="L151" href="EdgesBuilder.html#L151">151</a>         }
+<a class="jxr_linenumber" name="L152" href="EdgesBuilder.html#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="EdgesBuilder.html#L153">153</a>         <strong class="jxr_keyword">return</strong> following;
+<a class="jxr_linenumber" name="L154" href="EdgesBuilder.html#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="EdgesBuilder.html#L155">155</a>     }
+<a class="jxr_linenumber" name="L156" href="EdgesBuilder.html#L156">156</a> 
+<a class="jxr_linenumber" name="L157" href="EdgesBuilder.html#L157">157</a>     <em class="jxr_javadoccomment">/** Get the boundary edges.</em>
+<a class="jxr_linenumber" name="L158" href="EdgesBuilder.html#L158">158</a> <em class="jxr_javadoccomment">     * @return boundary edges</em>
+<a class="jxr_linenumber" name="L159" href="EdgesBuilder.html#L159">159</a> <em class="jxr_javadoccomment">     * @exception MathIllegalStateException if there is not a single other edge</em>
+<a class="jxr_linenumber" name="L160" href="EdgesBuilder.html#L160">160</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L161" href="EdgesBuilder.html#L161">161</a>     <strong class="jxr_keyword">public</strong> List&lt;Edge&gt; getEdges() <strong class="jxr_keyword">throws</strong> MathIllegalStateException {
+<a class="jxr_linenumber" name="L162" href="EdgesBuilder.html#L162">162</a> 
+<a class="jxr_linenumber" name="L163" href="EdgesBuilder.html#L163">163</a>         <em class="jxr_comment">// connect the edges</em>
+<a class="jxr_linenumber" name="L164" href="EdgesBuilder.html#L164">164</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> Edge previous : edgeToNode.keySet()) {
+<a class="jxr_linenumber" name="L165" href="EdgesBuilder.html#L165">165</a>             previous.setNextEdge(getFollowingEdge(previous));
+<a class="jxr_linenumber" name="L166" href="EdgesBuilder.html#L166">166</a>         }
+<a class="jxr_linenumber" name="L167" href="EdgesBuilder.html#L167">167</a> 
+<a class="jxr_linenumber" name="L168" href="EdgesBuilder.html#L168">168</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ArrayList&lt;Edge&gt;(edgeToNode.keySet());
+<a class="jxr_linenumber" name="L169" href="EdgesBuilder.html#L169">169</a> 
+<a class="jxr_linenumber" name="L170" href="EdgesBuilder.html#L170">170</a>     }
+<a class="jxr_linenumber" name="L171" href="EdgesBuilder.html#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="EdgesBuilder.html#L172">172</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

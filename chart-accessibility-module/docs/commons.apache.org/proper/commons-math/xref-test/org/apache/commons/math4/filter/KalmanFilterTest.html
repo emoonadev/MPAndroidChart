@@ -1,0 +1,460 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>KalmanFilterTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="http://commons.apache.org/proper/commons-math/testapidocs/org/apache/commons/math4/filter/KalmanFilterTest.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="KalmanFilterTest.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="KalmanFilterTest.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="KalmanFilterTest.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements. See the NOTICE file distributed with this</em>
+<a class="jxr_linenumber" name="L4" href="KalmanFilterTest.html#L4">4</a>   <em class="jxr_comment"> * work for additional information regarding copyright ownership. The ASF</em>
+<a class="jxr_linenumber" name="L5" href="KalmanFilterTest.html#L5">5</a>   <em class="jxr_comment"> * licenses this file to You under the Apache License, Version 2.0 (the</em>
+<a class="jxr_linenumber" name="L6" href="KalmanFilterTest.html#L6">6</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance with the License.</em>
+<a class="jxr_linenumber" name="L7" href="KalmanFilterTest.html#L7">7</a>   <em class="jxr_comment"> * You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="KalmanFilterTest.html#L8">8</a>   <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a> Unless required by applicable law</em>
+<a class="jxr_linenumber" name="L9" href="KalmanFilterTest.html#L9">9</a>   <em class="jxr_comment"> * or agreed to in writing, software distributed under the License is</em>
+<a class="jxr_linenumber" name="L10" href="KalmanFilterTest.html#L10">10</a>  <em class="jxr_comment"> * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</em>
+<a class="jxr_linenumber" name="L11" href="KalmanFilterTest.html#L11">11</a>  <em class="jxr_comment"> * KIND, either express or implied. See the License for the specific language</em>
+<a class="jxr_linenumber" name="L12" href="KalmanFilterTest.html#L12">12</a>  <em class="jxr_comment"> * governing permissions and limitations under the License.</em>
+<a class="jxr_linenumber" name="L13" href="KalmanFilterTest.html#L13">13</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L14" href="KalmanFilterTest.html#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="KalmanFilterTest.html#L15">15</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.filter;
+<a class="jxr_linenumber" name="L16" href="KalmanFilterTest.html#L16">16</a>  
+<a class="jxr_linenumber" name="L17" href="KalmanFilterTest.html#L17">17</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.distribution.RealDistribution;
+<a class="jxr_linenumber" name="L18" href="KalmanFilterTest.html#L18">18</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.distribution.NormalDistribution;
+<a class="jxr_linenumber" name="L19" href="KalmanFilterTest.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.filter.DefaultMeasurementModel;
+<a class="jxr_linenumber" name="L20" href="KalmanFilterTest.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.filter.DefaultProcessModel;
+<a class="jxr_linenumber" name="L21" href="KalmanFilterTest.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.filter.KalmanFilter;
+<a class="jxr_linenumber" name="L22" href="KalmanFilterTest.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.filter.MeasurementModel;
+<a class="jxr_linenumber" name="L23" href="KalmanFilterTest.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.filter.ProcessModel;
+<a class="jxr_linenumber" name="L24" href="KalmanFilterTest.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.Array2DRowRealMatrix;
+<a class="jxr_linenumber" name="L25" href="KalmanFilterTest.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.ArrayRealVector;
+<a class="jxr_linenumber" name="L26" href="KalmanFilterTest.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.MatrixDimensionMismatchException;
+<a class="jxr_linenumber" name="L27" href="KalmanFilterTest.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.MatrixUtils;
+<a class="jxr_linenumber" name="L28" href="KalmanFilterTest.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.RealMatrix;
+<a class="jxr_linenumber" name="L29" href="KalmanFilterTest.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.linear.RealVector;
+<a class="jxr_linenumber" name="L30" href="KalmanFilterTest.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.RandomSource;
+<a class="jxr_linenumber" name="L31" href="KalmanFilterTest.html#L31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L32" href="KalmanFilterTest.html#L32">32</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.Precision;
+<a class="jxr_linenumber" name="L33" href="KalmanFilterTest.html#L33">33</a>  <strong class="jxr_keyword">import</strong> org.junit.Assert;
+<a class="jxr_linenumber" name="L34" href="KalmanFilterTest.html#L34">34</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
+<a class="jxr_linenumber" name="L35" href="KalmanFilterTest.html#L35">35</a>  
+<a class="jxr_linenumber" name="L36" href="KalmanFilterTest.html#L36">36</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L37" href="KalmanFilterTest.html#L37">37</a>  <em class="jxr_javadoccomment"> * Tests for {@link KalmanFilter}.</em>
+<a class="jxr_linenumber" name="L38" href="KalmanFilterTest.html#L38">38</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L39" href="KalmanFilterTest.html#L39">39</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L40" href="KalmanFilterTest.html#L40">40</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="KalmanFilterTest.html">KalmanFilterTest</a> {
+<a class="jxr_linenumber" name="L41" href="KalmanFilterTest.html#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="KalmanFilterTest.html#L42">42</a>      @Test(expected=MatrixDimensionMismatchException.<strong class="jxr_keyword">class</strong>)
+<a class="jxr_linenumber" name="L43" href="KalmanFilterTest.html#L43">43</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testTransitionMeasurementMatrixMismatch() {
+<a class="jxr_linenumber" name="L44" href="KalmanFilterTest.html#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="KalmanFilterTest.html#L45">45</a>          <em class="jxr_comment">// A and H matrix do not match in dimensions</em>
+<a class="jxr_linenumber" name="L46" href="KalmanFilterTest.html#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="KalmanFilterTest.html#L47">47</a>          <em class="jxr_comment">// A = [ 1 ]</em>
+<a class="jxr_linenumber" name="L48" href="KalmanFilterTest.html#L48">48</a>          RealMatrix A = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 1d });
+<a class="jxr_linenumber" name="L49" href="KalmanFilterTest.html#L49">49</a>          <em class="jxr_comment">// no control input</em>
+<a class="jxr_linenumber" name="L50" href="KalmanFilterTest.html#L50">50</a>          RealMatrix B = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L51" href="KalmanFilterTest.html#L51">51</a>          <em class="jxr_comment">// H = [ 1 1 ]</em>
+<a class="jxr_linenumber" name="L52" href="KalmanFilterTest.html#L52">52</a>          RealMatrix H = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 1d, 1d });
+<a class="jxr_linenumber" name="L53" href="KalmanFilterTest.html#L53">53</a>          <em class="jxr_comment">// Q = [ 0 ]</em>
+<a class="jxr_linenumber" name="L54" href="KalmanFilterTest.html#L54">54</a>          RealMatrix Q = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 0 });
+<a class="jxr_linenumber" name="L55" href="KalmanFilterTest.html#L55">55</a>          <em class="jxr_comment">// R = [ 0 ]</em>
+<a class="jxr_linenumber" name="L56" href="KalmanFilterTest.html#L56">56</a>          RealMatrix R = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 0 });
+<a class="jxr_linenumber" name="L57" href="KalmanFilterTest.html#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="KalmanFilterTest.html#L58">58</a>          ProcessModel pm
+<a class="jxr_linenumber" name="L59" href="KalmanFilterTest.html#L59">59</a>              = <strong class="jxr_keyword">new</strong> DefaultProcessModel(A, B, Q,
+<a class="jxr_linenumber" name="L60" href="KalmanFilterTest.html#L60">60</a>                                        <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 0 }), <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L61" href="KalmanFilterTest.html#L61">61</a>          MeasurementModel mm = <strong class="jxr_keyword">new</strong> DefaultMeasurementModel(H, R);
+<a class="jxr_linenumber" name="L62" href="KalmanFilterTest.html#L62">62</a>          <strong class="jxr_keyword">new</strong> KalmanFilter(pm, mm);
+<a class="jxr_linenumber" name="L63" href="KalmanFilterTest.html#L63">63</a>          Assert.fail(<span class="jxr_string">"transition and measurement matrix should not be compatible"</span>);
+<a class="jxr_linenumber" name="L64" href="KalmanFilterTest.html#L64">64</a>      }
+<a class="jxr_linenumber" name="L65" href="KalmanFilterTest.html#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="KalmanFilterTest.html#L66">66</a>      @Test(expected=MatrixDimensionMismatchException.<strong class="jxr_keyword">class</strong>)
+<a class="jxr_linenumber" name="L67" href="KalmanFilterTest.html#L67">67</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testTransitionControlMatrixMismatch() {
+<a class="jxr_linenumber" name="L68" href="KalmanFilterTest.html#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="KalmanFilterTest.html#L69">69</a>          <em class="jxr_comment">// A and B matrix do not match in dimensions</em>
+<a class="jxr_linenumber" name="L70" href="KalmanFilterTest.html#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="KalmanFilterTest.html#L71">71</a>          <em class="jxr_comment">// A = [ 1 ]</em>
+<a class="jxr_linenumber" name="L72" href="KalmanFilterTest.html#L72">72</a>          RealMatrix A = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 1d });
+<a class="jxr_linenumber" name="L73" href="KalmanFilterTest.html#L73">73</a>          <em class="jxr_comment">// B = [ 1 1 ]</em>
+<a class="jxr_linenumber" name="L74" href="KalmanFilterTest.html#L74">74</a>          RealMatrix B = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 1d, 1d });
+<a class="jxr_linenumber" name="L75" href="KalmanFilterTest.html#L75">75</a>          <em class="jxr_comment">// H = [ 1 ]</em>
+<a class="jxr_linenumber" name="L76" href="KalmanFilterTest.html#L76">76</a>          RealMatrix H = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 1d });
+<a class="jxr_linenumber" name="L77" href="KalmanFilterTest.html#L77">77</a>          <em class="jxr_comment">// Q = [ 0 ]</em>
+<a class="jxr_linenumber" name="L78" href="KalmanFilterTest.html#L78">78</a>          RealMatrix Q = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 0 });
+<a class="jxr_linenumber" name="L79" href="KalmanFilterTest.html#L79">79</a>          <em class="jxr_comment">// R = [ 0 ]</em>
+<a class="jxr_linenumber" name="L80" href="KalmanFilterTest.html#L80">80</a>          RealMatrix R = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 0 });
+<a class="jxr_linenumber" name="L81" href="KalmanFilterTest.html#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="KalmanFilterTest.html#L82">82</a>          ProcessModel pm
+<a class="jxr_linenumber" name="L83" href="KalmanFilterTest.html#L83">83</a>              = <strong class="jxr_keyword">new</strong> DefaultProcessModel(A, B, Q,
+<a class="jxr_linenumber" name="L84" href="KalmanFilterTest.html#L84">84</a>                                        <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 0 }), <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L85" href="KalmanFilterTest.html#L85">85</a>          MeasurementModel mm = <strong class="jxr_keyword">new</strong> DefaultMeasurementModel(H, R);
+<a class="jxr_linenumber" name="L86" href="KalmanFilterTest.html#L86">86</a>          <strong class="jxr_keyword">new</strong> KalmanFilter(pm, mm);
+<a class="jxr_linenumber" name="L87" href="KalmanFilterTest.html#L87">87</a>          Assert.fail(<span class="jxr_string">"transition and control matrix should not be compatible"</span>);
+<a class="jxr_linenumber" name="L88" href="KalmanFilterTest.html#L88">88</a>      }
+<a class="jxr_linenumber" name="L89" href="KalmanFilterTest.html#L89">89</a>  
+<a class="jxr_linenumber" name="L90" href="KalmanFilterTest.html#L90">90</a>      @Test
+<a class="jxr_linenumber" name="L91" href="KalmanFilterTest.html#L91">91</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testConstant() {
+<a class="jxr_linenumber" name="L92" href="KalmanFilterTest.html#L92">92</a>          <em class="jxr_comment">// simulates a simple process with a constant state and no control input</em>
+<a class="jxr_linenumber" name="L93" href="KalmanFilterTest.html#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="KalmanFilterTest.html#L94">94</a>          <strong class="jxr_keyword">double</strong> constantValue = 10d;
+<a class="jxr_linenumber" name="L95" href="KalmanFilterTest.html#L95">95</a>          <strong class="jxr_keyword">double</strong> measurementNoise = 0.1d;
+<a class="jxr_linenumber" name="L96" href="KalmanFilterTest.html#L96">96</a>          <strong class="jxr_keyword">double</strong> processNoise = 1e-5d;
+<a class="jxr_linenumber" name="L97" href="KalmanFilterTest.html#L97">97</a>  
+<a class="jxr_linenumber" name="L98" href="KalmanFilterTest.html#L98">98</a>          <em class="jxr_comment">// A = [ 1 ]</em>
+<a class="jxr_linenumber" name="L99" href="KalmanFilterTest.html#L99">99</a>          RealMatrix A = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 1d });
+<a class="jxr_linenumber" name="L100" href="KalmanFilterTest.html#L100">100</a>         <em class="jxr_comment">// no control input</em>
+<a class="jxr_linenumber" name="L101" href="KalmanFilterTest.html#L101">101</a>         RealMatrix B = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L102" href="KalmanFilterTest.html#L102">102</a>         <em class="jxr_comment">// H = [ 1 ]</em>
+<a class="jxr_linenumber" name="L103" href="KalmanFilterTest.html#L103">103</a>         RealMatrix H = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 1d });
+<a class="jxr_linenumber" name="L104" href="KalmanFilterTest.html#L104">104</a>         <em class="jxr_comment">// x = [ 10 ]</em>
+<a class="jxr_linenumber" name="L105" href="KalmanFilterTest.html#L105">105</a>         RealVector x = <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { constantValue });
+<a class="jxr_linenumber" name="L106" href="KalmanFilterTest.html#L106">106</a>         <em class="jxr_comment">// Q = [ 1e-5 ]</em>
+<a class="jxr_linenumber" name="L107" href="KalmanFilterTest.html#L107">107</a>         RealMatrix Q = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { processNoise });
+<a class="jxr_linenumber" name="L108" href="KalmanFilterTest.html#L108">108</a>         <em class="jxr_comment">// R = [ 0.1 ]</em>
+<a class="jxr_linenumber" name="L109" href="KalmanFilterTest.html#L109">109</a>         RealMatrix R = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { measurementNoise });
+<a class="jxr_linenumber" name="L110" href="KalmanFilterTest.html#L110">110</a> 
+<a class="jxr_linenumber" name="L111" href="KalmanFilterTest.html#L111">111</a>         ProcessModel pm
+<a class="jxr_linenumber" name="L112" href="KalmanFilterTest.html#L112">112</a>             = <strong class="jxr_keyword">new</strong> DefaultProcessModel(A, B, Q,
+<a class="jxr_linenumber" name="L113" href="KalmanFilterTest.html#L113">113</a>                                       <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { constantValue }), <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L114" href="KalmanFilterTest.html#L114">114</a>         MeasurementModel mm = <strong class="jxr_keyword">new</strong> DefaultMeasurementModel(H, R);
+<a class="jxr_linenumber" name="L115" href="KalmanFilterTest.html#L115">115</a>         KalmanFilter filter = <strong class="jxr_keyword">new</strong> KalmanFilter(pm, mm);
+<a class="jxr_linenumber" name="L116" href="KalmanFilterTest.html#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="KalmanFilterTest.html#L117">117</a>         Assert.assertEquals(1, filter.getMeasurementDimension());
+<a class="jxr_linenumber" name="L118" href="KalmanFilterTest.html#L118">118</a>         Assert.assertEquals(1, filter.getStateDimension());
+<a class="jxr_linenumber" name="L119" href="KalmanFilterTest.html#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="KalmanFilterTest.html#L120">120</a>         assertMatrixEquals(Q.getData(), filter.getErrorCovariance());
+<a class="jxr_linenumber" name="L121" href="KalmanFilterTest.html#L121">121</a> 
+<a class="jxr_linenumber" name="L122" href="KalmanFilterTest.html#L122">122</a>         <em class="jxr_comment">// check the initial state</em>
+<a class="jxr_linenumber" name="L123" href="KalmanFilterTest.html#L123">123</a>         <strong class="jxr_keyword">double</strong>[] expectedInitialState = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { constantValue };
+<a class="jxr_linenumber" name="L124" href="KalmanFilterTest.html#L124">124</a>         assertVectorEquals(expectedInitialState, filter.getStateEstimation());
+<a class="jxr_linenumber" name="L125" href="KalmanFilterTest.html#L125">125</a> 
+<a class="jxr_linenumber" name="L126" href="KalmanFilterTest.html#L126">126</a>         RealVector pNoise = <strong class="jxr_keyword">new</strong> ArrayRealVector(1);
+<a class="jxr_linenumber" name="L127" href="KalmanFilterTest.html#L127">127</a>         RealVector mNoise = <strong class="jxr_keyword">new</strong> ArrayRealVector(1);
+<a class="jxr_linenumber" name="L128" href="KalmanFilterTest.html#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="KalmanFilterTest.html#L129">129</a>         <strong class="jxr_keyword">final</strong> RealDistribution.Sampler rand = <strong class="jxr_keyword">new</strong> NormalDistribution().createSampler(RandomSource.create(RandomSource.WELL_19937_C));
+<a class="jxr_linenumber" name="L130" href="KalmanFilterTest.html#L130">130</a> 
+<a class="jxr_linenumber" name="L131" href="KalmanFilterTest.html#L131">131</a>         <em class="jxr_comment">// iterate 60 steps</em>
+<a class="jxr_linenumber" name="L132" href="KalmanFilterTest.html#L132">132</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; 60; i++) {
+<a class="jxr_linenumber" name="L133" href="KalmanFilterTest.html#L133">133</a>             filter.predict();
+<a class="jxr_linenumber" name="L134" href="KalmanFilterTest.html#L134">134</a> 
+<a class="jxr_linenumber" name="L135" href="KalmanFilterTest.html#L135">135</a>             <em class="jxr_comment">// Simulate the process</em>
+<a class="jxr_linenumber" name="L136" href="KalmanFilterTest.html#L136">136</a>             pNoise.setEntry(0, processNoise * rand.sample());
+<a class="jxr_linenumber" name="L137" href="KalmanFilterTest.html#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="KalmanFilterTest.html#L138">138</a>             <em class="jxr_comment">// x = A * x + p_noise</em>
+<a class="jxr_linenumber" name="L139" href="KalmanFilterTest.html#L139">139</a>             x = A.operate(x).add(pNoise);
+<a class="jxr_linenumber" name="L140" href="KalmanFilterTest.html#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="KalmanFilterTest.html#L141">141</a>             <em class="jxr_comment">// Simulate the measurement</em>
+<a class="jxr_linenumber" name="L142" href="KalmanFilterTest.html#L142">142</a>             mNoise.setEntry(0, measurementNoise * rand.sample());
+<a class="jxr_linenumber" name="L143" href="KalmanFilterTest.html#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="KalmanFilterTest.html#L144">144</a>             <em class="jxr_comment">// z = H * x + m_noise</em>
+<a class="jxr_linenumber" name="L145" href="KalmanFilterTest.html#L145">145</a>             RealVector z = H.operate(x).add(mNoise);
+<a class="jxr_linenumber" name="L146" href="KalmanFilterTest.html#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="KalmanFilterTest.html#L147">147</a>             filter.correct(z);
+<a class="jxr_linenumber" name="L148" href="KalmanFilterTest.html#L148">148</a> 
+<a class="jxr_linenumber" name="L149" href="KalmanFilterTest.html#L149">149</a>             <em class="jxr_comment">// state estimate shouldn't be larger than measurement noise</em>
+<a class="jxr_linenumber" name="L150" href="KalmanFilterTest.html#L150">150</a>             <strong class="jxr_keyword">double</strong> diff = FastMath.abs(constantValue - filter.getStateEstimation()[0]);
+<a class="jxr_linenumber" name="L151" href="KalmanFilterTest.html#L151">151</a>             <em class="jxr_comment">// System.out.println(diff);</em>
+<a class="jxr_linenumber" name="L152" href="KalmanFilterTest.html#L152">152</a>             Assert.assertTrue(Precision.compareTo(diff, measurementNoise, 1e-6) &lt; 0);
+<a class="jxr_linenumber" name="L153" href="KalmanFilterTest.html#L153">153</a>         }
+<a class="jxr_linenumber" name="L154" href="KalmanFilterTest.html#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="KalmanFilterTest.html#L155">155</a>         <em class="jxr_comment">// error covariance should be already very low (&lt; 0.02)</em>
+<a class="jxr_linenumber" name="L156" href="KalmanFilterTest.html#L156">156</a>         Assert.assertTrue(Precision.compareTo(filter.getErrorCovariance()[0][0],
+<a class="jxr_linenumber" name="L157" href="KalmanFilterTest.html#L157">157</a>                                               0.02d, 1e-6) &lt; 0);
+<a class="jxr_linenumber" name="L158" href="KalmanFilterTest.html#L158">158</a>     }
+<a class="jxr_linenumber" name="L159" href="KalmanFilterTest.html#L159">159</a> 
+<a class="jxr_linenumber" name="L160" href="KalmanFilterTest.html#L160">160</a>     @Test
+<a class="jxr_linenumber" name="L161" href="KalmanFilterTest.html#L161">161</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testConstantAcceleration() {
+<a class="jxr_linenumber" name="L162" href="KalmanFilterTest.html#L162">162</a>         <em class="jxr_comment">// simulates a vehicle, accelerating at a constant rate (0.1 m/s)</em>
+<a class="jxr_linenumber" name="L163" href="KalmanFilterTest.html#L163">163</a> 
+<a class="jxr_linenumber" name="L164" href="KalmanFilterTest.html#L164">164</a>         <em class="jxr_comment">// discrete time interval</em>
+<a class="jxr_linenumber" name="L165" href="KalmanFilterTest.html#L165">165</a>         <strong class="jxr_keyword">double</strong> dt = 0.1d;
+<a class="jxr_linenumber" name="L166" href="KalmanFilterTest.html#L166">166</a>         <em class="jxr_comment">// position measurement noise (meter)</em>
+<a class="jxr_linenumber" name="L167" href="KalmanFilterTest.html#L167">167</a>         <strong class="jxr_keyword">double</strong> measurementNoise = 10d;
+<a class="jxr_linenumber" name="L168" href="KalmanFilterTest.html#L168">168</a>         <em class="jxr_comment">// acceleration noise (meter/sec^2)</em>
+<a class="jxr_linenumber" name="L169" href="KalmanFilterTest.html#L169">169</a>         <strong class="jxr_keyword">double</strong> accelNoise = 0.2d;
+<a class="jxr_linenumber" name="L170" href="KalmanFilterTest.html#L170">170</a> 
+<a class="jxr_linenumber" name="L171" href="KalmanFilterTest.html#L171">171</a>         <em class="jxr_comment">// A = [ 1 dt ]</em>
+<a class="jxr_linenumber" name="L172" href="KalmanFilterTest.html#L172">172</a>         <em class="jxr_comment">//     [ 0  1 ]</em>
+<a class="jxr_linenumber" name="L173" href="KalmanFilterTest.html#L173">173</a>         RealMatrix A = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] { { 1, dt }, { 0, 1 } });
+<a class="jxr_linenumber" name="L174" href="KalmanFilterTest.html#L174">174</a> 
+<a class="jxr_linenumber" name="L175" href="KalmanFilterTest.html#L175">175</a>         <em class="jxr_comment">// B = [ dt^2/2 ]</em>
+<a class="jxr_linenumber" name="L176" href="KalmanFilterTest.html#L176">176</a>         <em class="jxr_comment">//     [ dt     ]</em>
+<a class="jxr_linenumber" name="L177" href="KalmanFilterTest.html#L177">177</a>         RealMatrix B = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(
+<a class="jxr_linenumber" name="L178" href="KalmanFilterTest.html#L178">178</a>                 <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] { { FastMath.pow(dt, 2d) / 2d }, { dt } });
+<a class="jxr_linenumber" name="L179" href="KalmanFilterTest.html#L179">179</a> 
+<a class="jxr_linenumber" name="L180" href="KalmanFilterTest.html#L180">180</a>         <em class="jxr_comment">// H = [ 1 0 ]</em>
+<a class="jxr_linenumber" name="L181" href="KalmanFilterTest.html#L181">181</a>         RealMatrix H = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] { { 1d, 0d } });
+<a class="jxr_linenumber" name="L182" href="KalmanFilterTest.html#L182">182</a> 
+<a class="jxr_linenumber" name="L183" href="KalmanFilterTest.html#L183">183</a>         <em class="jxr_comment">// x = [ 0 0 ]</em>
+<a class="jxr_linenumber" name="L184" href="KalmanFilterTest.html#L184">184</a>         RealVector x = <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 0, 0 });
+<a class="jxr_linenumber" name="L185" href="KalmanFilterTest.html#L185">185</a> 
+<a class="jxr_linenumber" name="L186" href="KalmanFilterTest.html#L186">186</a>         RealMatrix tmp = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(
+<a class="jxr_linenumber" name="L187" href="KalmanFilterTest.html#L187">187</a>                 <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] { { FastMath.pow(dt, 4d) / 4d, FastMath.pow(dt, 3d) / 2d },
+<a class="jxr_linenumber" name="L188" href="KalmanFilterTest.html#L188">188</a>                                  { FastMath.pow(dt, 3d) / 2d, FastMath.pow(dt, 2d) } });
+<a class="jxr_linenumber" name="L189" href="KalmanFilterTest.html#L189">189</a> 
+<a class="jxr_linenumber" name="L190" href="KalmanFilterTest.html#L190">190</a>         <em class="jxr_comment">// Q = [ dt^4/4 dt^3/2 ]</em>
+<a class="jxr_linenumber" name="L191" href="KalmanFilterTest.html#L191">191</a>         <em class="jxr_comment">//     [ dt^3/2 dt^2   ]</em>
+<a class="jxr_linenumber" name="L192" href="KalmanFilterTest.html#L192">192</a>         RealMatrix Q = tmp.scalarMultiply(FastMath.pow(accelNoise, 2));
+<a class="jxr_linenumber" name="L193" href="KalmanFilterTest.html#L193">193</a> 
+<a class="jxr_linenumber" name="L194" href="KalmanFilterTest.html#L194">194</a>         <em class="jxr_comment">// P0 = [ 1 1 ]</em>
+<a class="jxr_linenumber" name="L195" href="KalmanFilterTest.html#L195">195</a>         <em class="jxr_comment">//      [ 1 1 ]</em>
+<a class="jxr_linenumber" name="L196" href="KalmanFilterTest.html#L196">196</a>         RealMatrix P0 = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] { { 1, 1 }, { 1, 1 } });
+<a class="jxr_linenumber" name="L197" href="KalmanFilterTest.html#L197">197</a> 
+<a class="jxr_linenumber" name="L198" href="KalmanFilterTest.html#L198">198</a>         <em class="jxr_comment">// R = [ measurementNoise^2 ]</em>
+<a class="jxr_linenumber" name="L199" href="KalmanFilterTest.html#L199">199</a>         RealMatrix R = <strong class="jxr_keyword">new</strong> Array2DRowRealMatrix(
+<a class="jxr_linenumber" name="L200" href="KalmanFilterTest.html#L200">200</a>                 <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { FastMath.pow(measurementNoise, 2) });
+<a class="jxr_linenumber" name="L201" href="KalmanFilterTest.html#L201">201</a> 
+<a class="jxr_linenumber" name="L202" href="KalmanFilterTest.html#L202">202</a>         <em class="jxr_comment">// constant control input, increase velocity by 0.1 m/s per cycle</em>
+<a class="jxr_linenumber" name="L203" href="KalmanFilterTest.html#L203">203</a>         RealVector u = <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 0.1d });
+<a class="jxr_linenumber" name="L204" href="KalmanFilterTest.html#L204">204</a> 
+<a class="jxr_linenumber" name="L205" href="KalmanFilterTest.html#L205">205</a>         ProcessModel pm = <strong class="jxr_keyword">new</strong> DefaultProcessModel(A, B, Q, x, P0);
+<a class="jxr_linenumber" name="L206" href="KalmanFilterTest.html#L206">206</a>         MeasurementModel mm = <strong class="jxr_keyword">new</strong> DefaultMeasurementModel(H, R);
+<a class="jxr_linenumber" name="L207" href="KalmanFilterTest.html#L207">207</a>         KalmanFilter filter = <strong class="jxr_keyword">new</strong> KalmanFilter(pm, mm);
+<a class="jxr_linenumber" name="L208" href="KalmanFilterTest.html#L208">208</a> 
+<a class="jxr_linenumber" name="L209" href="KalmanFilterTest.html#L209">209</a>         Assert.assertEquals(1, filter.getMeasurementDimension());
+<a class="jxr_linenumber" name="L210" href="KalmanFilterTest.html#L210">210</a>         Assert.assertEquals(2, filter.getStateDimension());
+<a class="jxr_linenumber" name="L211" href="KalmanFilterTest.html#L211">211</a> 
+<a class="jxr_linenumber" name="L212" href="KalmanFilterTest.html#L212">212</a>         assertMatrixEquals(P0.getData(), filter.getErrorCovariance());
+<a class="jxr_linenumber" name="L213" href="KalmanFilterTest.html#L213">213</a> 
+<a class="jxr_linenumber" name="L214" href="KalmanFilterTest.html#L214">214</a>         <em class="jxr_comment">// check the initial state</em>
+<a class="jxr_linenumber" name="L215" href="KalmanFilterTest.html#L215">215</a>         <strong class="jxr_keyword">double</strong>[] expectedInitialState = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 0.0, 0.0 };
+<a class="jxr_linenumber" name="L216" href="KalmanFilterTest.html#L216">216</a>         assertVectorEquals(expectedInitialState, filter.getStateEstimation());
+<a class="jxr_linenumber" name="L217" href="KalmanFilterTest.html#L217">217</a> 
+<a class="jxr_linenumber" name="L218" href="KalmanFilterTest.html#L218">218</a>         <strong class="jxr_keyword">final</strong> RealDistribution.Sampler rand = <strong class="jxr_keyword">new</strong> NormalDistribution().createSampler(RandomSource.create(RandomSource.WELL_19937_C));
+<a class="jxr_linenumber" name="L219" href="KalmanFilterTest.html#L219">219</a> 
+<a class="jxr_linenumber" name="L220" href="KalmanFilterTest.html#L220">220</a>         RealVector tmpPNoise = <strong class="jxr_keyword">new</strong> ArrayRealVector(
+<a class="jxr_linenumber" name="L221" href="KalmanFilterTest.html#L221">221</a>                 <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { FastMath.pow(dt, 2d) / 2d, dt });
+<a class="jxr_linenumber" name="L222" href="KalmanFilterTest.html#L222">222</a> 
+<a class="jxr_linenumber" name="L223" href="KalmanFilterTest.html#L223">223</a>         <em class="jxr_comment">// iterate 60 steps</em>
+<a class="jxr_linenumber" name="L224" href="KalmanFilterTest.html#L224">224</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; 60; i++) {
+<a class="jxr_linenumber" name="L225" href="KalmanFilterTest.html#L225">225</a>             filter.predict(u);
+<a class="jxr_linenumber" name="L226" href="KalmanFilterTest.html#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="KalmanFilterTest.html#L227">227</a>             <em class="jxr_comment">// Simulate the process</em>
+<a class="jxr_linenumber" name="L228" href="KalmanFilterTest.html#L228">228</a>             RealVector pNoise = tmpPNoise.mapMultiply(accelNoise * rand.sample());
+<a class="jxr_linenumber" name="L229" href="KalmanFilterTest.html#L229">229</a> 
+<a class="jxr_linenumber" name="L230" href="KalmanFilterTest.html#L230">230</a>             <em class="jxr_comment">// x = A * x + B * u + pNoise</em>
+<a class="jxr_linenumber" name="L231" href="KalmanFilterTest.html#L231">231</a>             x = A.operate(x).add(B.operate(u)).add(pNoise);
+<a class="jxr_linenumber" name="L232" href="KalmanFilterTest.html#L232">232</a> 
+<a class="jxr_linenumber" name="L233" href="KalmanFilterTest.html#L233">233</a>             <em class="jxr_comment">// Simulate the measurement</em>
+<a class="jxr_linenumber" name="L234" href="KalmanFilterTest.html#L234">234</a>             <strong class="jxr_keyword">double</strong> mNoise = measurementNoise * rand.sample();
+<a class="jxr_linenumber" name="L235" href="KalmanFilterTest.html#L235">235</a> 
+<a class="jxr_linenumber" name="L236" href="KalmanFilterTest.html#L236">236</a>             <em class="jxr_comment">// z = H * x + m_noise</em>
+<a class="jxr_linenumber" name="L237" href="KalmanFilterTest.html#L237">237</a>             RealVector z = H.operate(x).mapAdd(mNoise);
+<a class="jxr_linenumber" name="L238" href="KalmanFilterTest.html#L238">238</a> 
+<a class="jxr_linenumber" name="L239" href="KalmanFilterTest.html#L239">239</a>             filter.correct(z);
+<a class="jxr_linenumber" name="L240" href="KalmanFilterTest.html#L240">240</a> 
+<a class="jxr_linenumber" name="L241" href="KalmanFilterTest.html#L241">241</a>             <em class="jxr_comment">// state estimate shouldn't be larger than the measurement noise</em>
+<a class="jxr_linenumber" name="L242" href="KalmanFilterTest.html#L242">242</a>             <strong class="jxr_keyword">double</strong> diff = FastMath.abs(x.getEntry(0) - filter.getStateEstimation()[0]);
+<a class="jxr_linenumber" name="L243" href="KalmanFilterTest.html#L243">243</a>             Assert.assertTrue(Precision.compareTo(diff, measurementNoise, 1e-6) &lt; 0);
+<a class="jxr_linenumber" name="L244" href="KalmanFilterTest.html#L244">244</a>         }
+<a class="jxr_linenumber" name="L245" href="KalmanFilterTest.html#L245">245</a> 
+<a class="jxr_linenumber" name="L246" href="KalmanFilterTest.html#L246">246</a>         <em class="jxr_comment">// error covariance of the velocity should be already very low (&lt; 0.1)</em>
+<a class="jxr_linenumber" name="L247" href="KalmanFilterTest.html#L247">247</a>         Assert.assertTrue(Precision.compareTo(filter.getErrorCovariance()[1][1],
+<a class="jxr_linenumber" name="L248" href="KalmanFilterTest.html#L248">248</a>                                               0.1d, 1e-6) &lt; 0);
+<a class="jxr_linenumber" name="L249" href="KalmanFilterTest.html#L249">249</a>     }
+<a class="jxr_linenumber" name="L250" href="KalmanFilterTest.html#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="KalmanFilterTest.html#L251">251</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L252" href="KalmanFilterTest.html#L252">252</a> <em class="jxr_javadoccomment">     * Represents an idealized Cannonball only taking into account gravity.</em>
+<a class="jxr_linenumber" name="L253" href="KalmanFilterTest.html#L253">253</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L254" href="KalmanFilterTest.html#L254">254</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="KalmanFilterTest.html">Cannonball</a> {
+<a class="jxr_linenumber" name="L255" href="KalmanFilterTest.html#L255">255</a> 
+<a class="jxr_linenumber" name="L256" href="KalmanFilterTest.html#L256">256</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] gravity = { 0, -9.81 };
+<a class="jxr_linenumber" name="L257" href="KalmanFilterTest.html#L257">257</a> 
+<a class="jxr_linenumber" name="L258" href="KalmanFilterTest.html#L258">258</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] velocity;
+<a class="jxr_linenumber" name="L259" href="KalmanFilterTest.html#L259">259</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] location;
+<a class="jxr_linenumber" name="L260" href="KalmanFilterTest.html#L260">260</a> 
+<a class="jxr_linenumber" name="L261" href="KalmanFilterTest.html#L261">261</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> timeslice;
+<a class="jxr_linenumber" name="L262" href="KalmanFilterTest.html#L262">262</a> 
+<a class="jxr_linenumber" name="L263" href="KalmanFilterTest.html#L263">263</a>         <strong class="jxr_keyword">public</strong> <a href="KalmanFilterTest.html">Cannonball</a>(<strong class="jxr_keyword">double</strong> timeslice, <strong class="jxr_keyword">double</strong> angle, <strong class="jxr_keyword">double</strong> initialVelocity) {
+<a class="jxr_linenumber" name="L264" href="KalmanFilterTest.html#L264">264</a>             <strong class="jxr_keyword">this</strong>.timeslice = timeslice;
+<a class="jxr_linenumber" name="L265" href="KalmanFilterTest.html#L265">265</a> 
+<a class="jxr_linenumber" name="L266" href="KalmanFilterTest.html#L266">266</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> angleInRadians = FastMath.toRadians(angle);
+<a class="jxr_linenumber" name="L267" href="KalmanFilterTest.html#L267">267</a>             <strong class="jxr_keyword">this</strong>.velocity = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {
+<a class="jxr_linenumber" name="L268" href="KalmanFilterTest.html#L268">268</a>                     initialVelocity * FastMath.cos(angleInRadians),
+<a class="jxr_linenumber" name="L269" href="KalmanFilterTest.html#L269">269</a>                     initialVelocity * FastMath.sin(angleInRadians)
+<a class="jxr_linenumber" name="L270" href="KalmanFilterTest.html#L270">270</a>             };
+<a class="jxr_linenumber" name="L271" href="KalmanFilterTest.html#L271">271</a> 
+<a class="jxr_linenumber" name="L272" href="KalmanFilterTest.html#L272">272</a>             <strong class="jxr_keyword">this</strong>.location = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 0, 0 };
+<a class="jxr_linenumber" name="L273" href="KalmanFilterTest.html#L273">273</a>         }
+<a class="jxr_linenumber" name="L274" href="KalmanFilterTest.html#L274">274</a> 
+<a class="jxr_linenumber" name="L275" href="KalmanFilterTest.html#L275">275</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getX() {
+<a class="jxr_linenumber" name="L276" href="KalmanFilterTest.html#L276">276</a>             <strong class="jxr_keyword">return</strong> location[0];
+<a class="jxr_linenumber" name="L277" href="KalmanFilterTest.html#L277">277</a>         }
+<a class="jxr_linenumber" name="L278" href="KalmanFilterTest.html#L278">278</a> 
+<a class="jxr_linenumber" name="L279" href="KalmanFilterTest.html#L279">279</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getY() {
+<a class="jxr_linenumber" name="L280" href="KalmanFilterTest.html#L280">280</a>             <strong class="jxr_keyword">return</strong> location[1];
+<a class="jxr_linenumber" name="L281" href="KalmanFilterTest.html#L281">281</a>         }
+<a class="jxr_linenumber" name="L282" href="KalmanFilterTest.html#L282">282</a> 
+<a class="jxr_linenumber" name="L283" href="KalmanFilterTest.html#L283">283</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getXVelocity() {
+<a class="jxr_linenumber" name="L284" href="KalmanFilterTest.html#L284">284</a>             <strong class="jxr_keyword">return</strong> velocity[0];
+<a class="jxr_linenumber" name="L285" href="KalmanFilterTest.html#L285">285</a>         }
+<a class="jxr_linenumber" name="L286" href="KalmanFilterTest.html#L286">286</a> 
+<a class="jxr_linenumber" name="L287" href="KalmanFilterTest.html#L287">287</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getYVelocity() {
+<a class="jxr_linenumber" name="L288" href="KalmanFilterTest.html#L288">288</a>             <strong class="jxr_keyword">return</strong> velocity[1];
+<a class="jxr_linenumber" name="L289" href="KalmanFilterTest.html#L289">289</a>         }
+<a class="jxr_linenumber" name="L290" href="KalmanFilterTest.html#L290">290</a> 
+<a class="jxr_linenumber" name="L291" href="KalmanFilterTest.html#L291">291</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> step() {
+<a class="jxr_linenumber" name="L292" href="KalmanFilterTest.html#L292">292</a>             <em class="jxr_comment">// break gravitational force into a smaller time slice.</em>
+<a class="jxr_linenumber" name="L293" href="KalmanFilterTest.html#L293">293</a>             <strong class="jxr_keyword">double</strong>[] slicedGravity = gravity.clone();
+<a class="jxr_linenumber" name="L294" href="KalmanFilterTest.html#L294">294</a>             <strong class="jxr_keyword">for</strong> ( <strong class="jxr_keyword">int</strong> i = 0; i &lt; slicedGravity.length; i++ ) {
+<a class="jxr_linenumber" name="L295" href="KalmanFilterTest.html#L295">295</a>                 slicedGravity[i] *= timeslice;
+<a class="jxr_linenumber" name="L296" href="KalmanFilterTest.html#L296">296</a>             }
+<a class="jxr_linenumber" name="L297" href="KalmanFilterTest.html#L297">297</a> 
+<a class="jxr_linenumber" name="L298" href="KalmanFilterTest.html#L298">298</a>             <em class="jxr_comment">// apply the acceleration to velocity.</em>
+<a class="jxr_linenumber" name="L299" href="KalmanFilterTest.html#L299">299</a>             <strong class="jxr_keyword">double</strong>[] slicedVelocity = velocity.clone();
+<a class="jxr_linenumber" name="L300" href="KalmanFilterTest.html#L300">300</a>             <strong class="jxr_keyword">for</strong> ( <strong class="jxr_keyword">int</strong> i = 0; i &lt; velocity.length; i++ ) {
+<a class="jxr_linenumber" name="L301" href="KalmanFilterTest.html#L301">301</a>                 velocity[i] += slicedGravity[i];
+<a class="jxr_linenumber" name="L302" href="KalmanFilterTest.html#L302">302</a>                 slicedVelocity[i] = velocity[i] * timeslice;
+<a class="jxr_linenumber" name="L303" href="KalmanFilterTest.html#L303">303</a>                 location[i] += slicedVelocity[i];
+<a class="jxr_linenumber" name="L304" href="KalmanFilterTest.html#L304">304</a>             }
+<a class="jxr_linenumber" name="L305" href="KalmanFilterTest.html#L305">305</a> 
+<a class="jxr_linenumber" name="L306" href="KalmanFilterTest.html#L306">306</a>             <em class="jxr_comment">// cannonballs shouldn't go into the ground.</em>
+<a class="jxr_linenumber" name="L307" href="KalmanFilterTest.html#L307">307</a>             <strong class="jxr_keyword">if</strong> ( location[1] &lt; 0 ) {
+<a class="jxr_linenumber" name="L308" href="KalmanFilterTest.html#L308">308</a>                 location[1] = 0;
+<a class="jxr_linenumber" name="L309" href="KalmanFilterTest.html#L309">309</a>             }
+<a class="jxr_linenumber" name="L310" href="KalmanFilterTest.html#L310">310</a>         }
+<a class="jxr_linenumber" name="L311" href="KalmanFilterTest.html#L311">311</a>     }
+<a class="jxr_linenumber" name="L312" href="KalmanFilterTest.html#L312">312</a> 
+<a class="jxr_linenumber" name="L313" href="KalmanFilterTest.html#L313">313</a>     @Test
+<a class="jxr_linenumber" name="L314" href="KalmanFilterTest.html#L314">314</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testCannonball() {
+<a class="jxr_linenumber" name="L315" href="KalmanFilterTest.html#L315">315</a>         <em class="jxr_comment">// simulates the flight of a cannonball (only taking gravity and initial thrust into account)</em>
+<a class="jxr_linenumber" name="L316" href="KalmanFilterTest.html#L316">316</a> 
+<a class="jxr_linenumber" name="L317" href="KalmanFilterTest.html#L317">317</a>         <em class="jxr_comment">// number of iterations</em>
+<a class="jxr_linenumber" name="L318" href="KalmanFilterTest.html#L318">318</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> iterations = 144;
+<a class="jxr_linenumber" name="L319" href="KalmanFilterTest.html#L319">319</a>         <em class="jxr_comment">// discrete time interval</em>
+<a class="jxr_linenumber" name="L320" href="KalmanFilterTest.html#L320">320</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> dt = 0.1d;
+<a class="jxr_linenumber" name="L321" href="KalmanFilterTest.html#L321">321</a>         <em class="jxr_comment">// position measurement noise (meter)</em>
+<a class="jxr_linenumber" name="L322" href="KalmanFilterTest.html#L322">322</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> measurementNoise = 30d;
+<a class="jxr_linenumber" name="L323" href="KalmanFilterTest.html#L323">323</a>         <em class="jxr_comment">// the initial velocity of the cannonball</em>
+<a class="jxr_linenumber" name="L324" href="KalmanFilterTest.html#L324">324</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> initialVelocity = 100;
+<a class="jxr_linenumber" name="L325" href="KalmanFilterTest.html#L325">325</a>         <em class="jxr_comment">// shooting angle</em>
+<a class="jxr_linenumber" name="L326" href="KalmanFilterTest.html#L326">326</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> angle = 45;
+<a class="jxr_linenumber" name="L327" href="KalmanFilterTest.html#L327">327</a> 
+<a class="jxr_linenumber" name="L328" href="KalmanFilterTest.html#L328">328</a>         <strong class="jxr_keyword">final</strong> <a href="KalmanFilterTest.html">Cannonball</a> cannonball = <strong class="jxr_keyword">new</strong> <a href="KalmanFilterTest.html">Cannonball</a>(dt, angle, initialVelocity);
+<a class="jxr_linenumber" name="L329" href="KalmanFilterTest.html#L329">329</a> 
+<a class="jxr_linenumber" name="L330" href="KalmanFilterTest.html#L330">330</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> speedX = cannonball.getXVelocity();
+<a class="jxr_linenumber" name="L331" href="KalmanFilterTest.html#L331">331</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> speedY = cannonball.getYVelocity();
+<a class="jxr_linenumber" name="L332" href="KalmanFilterTest.html#L332">332</a> 
+<a class="jxr_linenumber" name="L333" href="KalmanFilterTest.html#L333">333</a>         <em class="jxr_comment">// A = [ 1, dt, 0,  0 ]  =&gt;  x(n+1) = x(n) + vx(n)</em>
+<a class="jxr_linenumber" name="L334" href="KalmanFilterTest.html#L334">334</a>         <em class="jxr_comment">//     [ 0,  1, 0,  0 ]  =&gt; vx(n+1) =        vx(n)</em>
+<a class="jxr_linenumber" name="L335" href="KalmanFilterTest.html#L335">335</a>         <em class="jxr_comment">//     [ 0,  0, 1, dt ]  =&gt;  y(n+1) =              y(n) + vy(n)</em>
+<a class="jxr_linenumber" name="L336" href="KalmanFilterTest.html#L336">336</a>         <em class="jxr_comment">//     [ 0,  0, 0,  1 ]  =&gt; vy(n+1) =                     vy(n)</em>
+<a class="jxr_linenumber" name="L337" href="KalmanFilterTest.html#L337">337</a>         <strong class="jxr_keyword">final</strong> RealMatrix A = MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L338" href="KalmanFilterTest.html#L338">338</a>                 { 1, dt, 0,  0 },
+<a class="jxr_linenumber" name="L339" href="KalmanFilterTest.html#L339">339</a>                 { 0,  1, 0,  0 },
+<a class="jxr_linenumber" name="L340" href="KalmanFilterTest.html#L340">340</a>                 { 0,  0, 1, dt },
+<a class="jxr_linenumber" name="L341" href="KalmanFilterTest.html#L341">341</a>                 { 0,  0, 0,  1 }
+<a class="jxr_linenumber" name="L342" href="KalmanFilterTest.html#L342">342</a>         });
+<a class="jxr_linenumber" name="L343" href="KalmanFilterTest.html#L343">343</a> 
+<a class="jxr_linenumber" name="L344" href="KalmanFilterTest.html#L344">344</a>         <em class="jxr_comment">// The control vector, which adds acceleration to the kinematic equations.</em>
+<a class="jxr_linenumber" name="L345" href="KalmanFilterTest.html#L345">345</a>         <em class="jxr_comment">// 0          =&gt;  x(n+1) =  x(n+1)</em>
+<a class="jxr_linenumber" name="L346" href="KalmanFilterTest.html#L346">346</a>         <em class="jxr_comment">// 0          =&gt; vx(n+1) = vx(n+1)</em>
+<a class="jxr_linenumber" name="L347" href="KalmanFilterTest.html#L347">347</a>         <em class="jxr_comment">// -9.81*dt^2 =&gt;  y(n+1) =  y(n+1) - 1/2 * 9.81 * dt^2</em>
+<a class="jxr_linenumber" name="L348" href="KalmanFilterTest.html#L348">348</a>         <em class="jxr_comment">// -9.81*dt   =&gt; vy(n+1) = vy(n+1) - 9.81 * dt</em>
+<a class="jxr_linenumber" name="L349" href="KalmanFilterTest.html#L349">349</a>         <strong class="jxr_keyword">final</strong> RealVector controlVector =
+<a class="jxr_linenumber" name="L350" href="KalmanFilterTest.html#L350">350</a>                 MatrixUtils.createRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 0, 0, 0.5 * -9.81 * dt * dt, -9.81 * dt } );
+<a class="jxr_linenumber" name="L351" href="KalmanFilterTest.html#L351">351</a> 
+<a class="jxr_linenumber" name="L352" href="KalmanFilterTest.html#L352">352</a>         <em class="jxr_comment">// The control matrix B only expects y and vy, see control vector</em>
+<a class="jxr_linenumber" name="L353" href="KalmanFilterTest.html#L353">353</a>         <strong class="jxr_keyword">final</strong> RealMatrix B = MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L354" href="KalmanFilterTest.html#L354">354</a>                 { 0, 0, 0, 0 },
+<a class="jxr_linenumber" name="L355" href="KalmanFilterTest.html#L355">355</a>                 { 0, 0, 0, 0 },
+<a class="jxr_linenumber" name="L356" href="KalmanFilterTest.html#L356">356</a>                 { 0, 0, 1, 0 },
+<a class="jxr_linenumber" name="L357" href="KalmanFilterTest.html#L357">357</a>                 { 0, 0, 0, 1 }
+<a class="jxr_linenumber" name="L358" href="KalmanFilterTest.html#L358">358</a>         });
+<a class="jxr_linenumber" name="L359" href="KalmanFilterTest.html#L359">359</a> 
+<a class="jxr_linenumber" name="L360" href="KalmanFilterTest.html#L360">360</a>         <em class="jxr_comment">// We only observe the x/y position of the cannonball</em>
+<a class="jxr_linenumber" name="L361" href="KalmanFilterTest.html#L361">361</a>         <strong class="jxr_keyword">final</strong> RealMatrix H = MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L362" href="KalmanFilterTest.html#L362">362</a>                 { 1, 0, 0, 0 },
+<a class="jxr_linenumber" name="L363" href="KalmanFilterTest.html#L363">363</a>                 { 0, 0, 0, 0 },
+<a class="jxr_linenumber" name="L364" href="KalmanFilterTest.html#L364">364</a>                 { 0, 0, 1, 0 },
+<a class="jxr_linenumber" name="L365" href="KalmanFilterTest.html#L365">365</a>                 { 0, 0, 0, 0 }
+<a class="jxr_linenumber" name="L366" href="KalmanFilterTest.html#L366">366</a>         });
+<a class="jxr_linenumber" name="L367" href="KalmanFilterTest.html#L367">367</a> 
+<a class="jxr_linenumber" name="L368" href="KalmanFilterTest.html#L368">368</a>         <em class="jxr_comment">// our guess of the initial state.</em>
+<a class="jxr_linenumber" name="L369" href="KalmanFilterTest.html#L369">369</a>         <strong class="jxr_keyword">final</strong> RealVector initialState = MatrixUtils.createRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 0, speedX, 0, speedY } );
+<a class="jxr_linenumber" name="L370" href="KalmanFilterTest.html#L370">370</a> 
+<a class="jxr_linenumber" name="L371" href="KalmanFilterTest.html#L371">371</a>         <em class="jxr_comment">// the initial error covariance matrix, the variance = noise^2</em>
+<a class="jxr_linenumber" name="L372" href="KalmanFilterTest.html#L372">372</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> <strong class="jxr_keyword">var</strong> = measurementNoise * measurementNoise;
+<a class="jxr_linenumber" name="L373" href="KalmanFilterTest.html#L373">373</a>         <strong class="jxr_keyword">final</strong> RealMatrix initialErrorCovariance = MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L374" href="KalmanFilterTest.html#L374">374</a>                 { <strong class="jxr_keyword">var</strong>,    0,   0,    0 },
+<a class="jxr_linenumber" name="L375" href="KalmanFilterTest.html#L375">375</a>                 {   0, 1e-3,   0,    0 },
+<a class="jxr_linenumber" name="L376" href="KalmanFilterTest.html#L376">376</a>                 {   0,    0, <strong class="jxr_keyword">var</strong>,    0 },
+<a class="jxr_linenumber" name="L377" href="KalmanFilterTest.html#L377">377</a>                 {   0,    0,   0, 1e-3 }
+<a class="jxr_linenumber" name="L378" href="KalmanFilterTest.html#L378">378</a>         });
+<a class="jxr_linenumber" name="L379" href="KalmanFilterTest.html#L379">379</a> 
+<a class="jxr_linenumber" name="L380" href="KalmanFilterTest.html#L380">380</a>         <em class="jxr_comment">// we assume no process noise -&gt; zero matrix</em>
+<a class="jxr_linenumber" name="L381" href="KalmanFilterTest.html#L381">381</a>         <strong class="jxr_keyword">final</strong> RealMatrix Q = MatrixUtils.createRealMatrix(4, 4);
+<a class="jxr_linenumber" name="L382" href="KalmanFilterTest.html#L382">382</a> 
+<a class="jxr_linenumber" name="L383" href="KalmanFilterTest.html#L383">383</a>         <em class="jxr_comment">// the measurement covariance matrix</em>
+<a class="jxr_linenumber" name="L384" href="KalmanFilterTest.html#L384">384</a>         <strong class="jxr_keyword">final</strong> RealMatrix R = MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L385" href="KalmanFilterTest.html#L385">385</a>                 { <strong class="jxr_keyword">var</strong>,    0,   0,    0 },
+<a class="jxr_linenumber" name="L386" href="KalmanFilterTest.html#L386">386</a>                 {   0, 1e-3,   0,    0 },
+<a class="jxr_linenumber" name="L387" href="KalmanFilterTest.html#L387">387</a>                 {   0,    0, <strong class="jxr_keyword">var</strong>,    0 },
+<a class="jxr_linenumber" name="L388" href="KalmanFilterTest.html#L388">388</a>                 {   0,    0,   0, 1e-3 }
+<a class="jxr_linenumber" name="L389" href="KalmanFilterTest.html#L389">389</a>         });
+<a class="jxr_linenumber" name="L390" href="KalmanFilterTest.html#L390">390</a> 
+<a class="jxr_linenumber" name="L391" href="KalmanFilterTest.html#L391">391</a>         <strong class="jxr_keyword">final</strong> ProcessModel pm = <strong class="jxr_keyword">new</strong> DefaultProcessModel(A, B, Q, initialState, initialErrorCovariance);
+<a class="jxr_linenumber" name="L392" href="KalmanFilterTest.html#L392">392</a>         <strong class="jxr_keyword">final</strong> MeasurementModel mm = <strong class="jxr_keyword">new</strong> DefaultMeasurementModel(H, R);
+<a class="jxr_linenumber" name="L393" href="KalmanFilterTest.html#L393">393</a>         <strong class="jxr_keyword">final</strong> KalmanFilter filter = <strong class="jxr_keyword">new</strong> KalmanFilter(pm, mm);
+<a class="jxr_linenumber" name="L394" href="KalmanFilterTest.html#L394">394</a> 
+<a class="jxr_linenumber" name="L395" href="KalmanFilterTest.html#L395">395</a>         <strong class="jxr_keyword">final</strong> RealDistribution.Sampler dist = <strong class="jxr_keyword">new</strong> NormalDistribution(0, measurementNoise).createSampler(RandomSource.create(RandomSource.WELL_19937_C, 1000));
+<a class="jxr_linenumber" name="L396" href="KalmanFilterTest.html#L396">396</a> 
+<a class="jxr_linenumber" name="L397" href="KalmanFilterTest.html#L397">397</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; iterations; i++) {
+<a class="jxr_linenumber" name="L398" href="KalmanFilterTest.html#L398">398</a>             <em class="jxr_comment">// get the "real" cannonball position</em>
+<a class="jxr_linenumber" name="L399" href="KalmanFilterTest.html#L399">399</a>             <strong class="jxr_keyword">double</strong> x = cannonball.getX();
+<a class="jxr_linenumber" name="L400" href="KalmanFilterTest.html#L400">400</a>             <strong class="jxr_keyword">double</strong> y = cannonball.getY();
+<a class="jxr_linenumber" name="L401" href="KalmanFilterTest.html#L401">401</a> 
+<a class="jxr_linenumber" name="L402" href="KalmanFilterTest.html#L402">402</a>             <em class="jxr_comment">// apply measurement noise to current cannonball position</em>
+<a class="jxr_linenumber" name="L403" href="KalmanFilterTest.html#L403">403</a>             <strong class="jxr_keyword">double</strong> nx = x + dist.sample();
+<a class="jxr_linenumber" name="L404" href="KalmanFilterTest.html#L404">404</a>             <strong class="jxr_keyword">double</strong> ny = y + dist.sample();
+<a class="jxr_linenumber" name="L405" href="KalmanFilterTest.html#L405">405</a> 
+<a class="jxr_linenumber" name="L406" href="KalmanFilterTest.html#L406">406</a>             cannonball.step();
+<a class="jxr_linenumber" name="L407" href="KalmanFilterTest.html#L407">407</a> 
+<a class="jxr_linenumber" name="L408" href="KalmanFilterTest.html#L408">408</a>             filter.predict(controlVector);
+<a class="jxr_linenumber" name="L409" href="KalmanFilterTest.html#L409">409</a>             <em class="jxr_comment">// correct the filter with our measurements</em>
+<a class="jxr_linenumber" name="L410" href="KalmanFilterTest.html#L410">410</a>             filter.correct(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { nx, 0, ny, 0 } );
+<a class="jxr_linenumber" name="L411" href="KalmanFilterTest.html#L411">411</a> 
+<a class="jxr_linenumber" name="L412" href="KalmanFilterTest.html#L412">412</a>             <em class="jxr_comment">// state estimate shouldn't be larger than the measurement noise</em>
+<a class="jxr_linenumber" name="L413" href="KalmanFilterTest.html#L413">413</a>             <strong class="jxr_keyword">double</strong> diff = FastMath.abs(cannonball.getY() - filter.getStateEstimation()[2]);
+<a class="jxr_linenumber" name="L414" href="KalmanFilterTest.html#L414">414</a>             Assert.assertTrue(Precision.compareTo(diff, measurementNoise, 1e-6) &lt; 0);
+<a class="jxr_linenumber" name="L415" href="KalmanFilterTest.html#L415">415</a>         }
+<a class="jxr_linenumber" name="L416" href="KalmanFilterTest.html#L416">416</a> 
+<a class="jxr_linenumber" name="L417" href="KalmanFilterTest.html#L417">417</a>         <em class="jxr_comment">// error covariance of the x/y-position should be already very low (&lt; 3m std dev = 9 variance)</em>
+<a class="jxr_linenumber" name="L418" href="KalmanFilterTest.html#L418">418</a> 
+<a class="jxr_linenumber" name="L419" href="KalmanFilterTest.html#L419">419</a>         Assert.assertTrue(Precision.compareTo(filter.getErrorCovariance()[0][0],
+<a class="jxr_linenumber" name="L420" href="KalmanFilterTest.html#L420">420</a>                                               9, 1e-6) &lt; 0);
+<a class="jxr_linenumber" name="L421" href="KalmanFilterTest.html#L421">421</a> 
+<a class="jxr_linenumber" name="L422" href="KalmanFilterTest.html#L422">422</a>         Assert.assertTrue(Precision.compareTo(filter.getErrorCovariance()[2][2],
+<a class="jxr_linenumber" name="L423" href="KalmanFilterTest.html#L423">423</a>                                               9, 1e-6) &lt; 0);
+<a class="jxr_linenumber" name="L424" href="KalmanFilterTest.html#L424">424</a>     }
+<a class="jxr_linenumber" name="L425" href="KalmanFilterTest.html#L425">425</a> 
+<a class="jxr_linenumber" name="L426" href="KalmanFilterTest.html#L426">426</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> assertVectorEquals(<strong class="jxr_keyword">double</strong>[] expected, <strong class="jxr_keyword">double</strong>[] result) {
+<a class="jxr_linenumber" name="L427" href="KalmanFilterTest.html#L427">427</a>         Assert.assertEquals(<span class="jxr_string">"Wrong number of rows."</span>, expected.length,
+<a class="jxr_linenumber" name="L428" href="KalmanFilterTest.html#L428">428</a>                             result.length);
+<a class="jxr_linenumber" name="L429" href="KalmanFilterTest.html#L429">429</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; expected.length; i++) {
+<a class="jxr_linenumber" name="L430" href="KalmanFilterTest.html#L430">430</a>             Assert.assertEquals(<span class="jxr_string">"Wrong value at position ["</span> + i + <span class="jxr_string">"]"</span>,
+<a class="jxr_linenumber" name="L431" href="KalmanFilterTest.html#L431">431</a>                                 expected[i], result[i], 1.0e-6);
+<a class="jxr_linenumber" name="L432" href="KalmanFilterTest.html#L432">432</a>         }
+<a class="jxr_linenumber" name="L433" href="KalmanFilterTest.html#L433">433</a>     }
+<a class="jxr_linenumber" name="L434" href="KalmanFilterTest.html#L434">434</a> 
+<a class="jxr_linenumber" name="L435" href="KalmanFilterTest.html#L435">435</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> assertMatrixEquals(<strong class="jxr_keyword">double</strong>[][] expected, <strong class="jxr_keyword">double</strong>[][] result) {
+<a class="jxr_linenumber" name="L436" href="KalmanFilterTest.html#L436">436</a>         Assert.assertEquals(<span class="jxr_string">"Wrong number of rows."</span>, expected.length,
+<a class="jxr_linenumber" name="L437" href="KalmanFilterTest.html#L437">437</a>                             result.length);
+<a class="jxr_linenumber" name="L438" href="KalmanFilterTest.html#L438">438</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; expected.length; i++) {
+<a class="jxr_linenumber" name="L439" href="KalmanFilterTest.html#L439">439</a>             Assert.assertEquals(<span class="jxr_string">"Wrong number of columns."</span>, expected[i].length,
+<a class="jxr_linenumber" name="L440" href="KalmanFilterTest.html#L440">440</a>                                 result[i].length);
+<a class="jxr_linenumber" name="L441" href="KalmanFilterTest.html#L441">441</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; expected[i].length; j++) {
+<a class="jxr_linenumber" name="L442" href="KalmanFilterTest.html#L442">442</a>                 Assert.assertEquals(<span class="jxr_string">"Wrong value at position ["</span> + i + <span class="jxr_string">","</span> + j
+<a class="jxr_linenumber" name="L443" href="KalmanFilterTest.html#L443">443</a>                                     + <span class="jxr_string">"]"</span>, expected[i][j], result[i][j], 1.0e-6);
+<a class="jxr_linenumber" name="L444" href="KalmanFilterTest.html#L444">444</a>             }
+<a class="jxr_linenumber" name="L445" href="KalmanFilterTest.html#L445">445</a>         }
+<a class="jxr_linenumber" name="L446" href="KalmanFilterTest.html#L446">446</a>     }
+<a class="jxr_linenumber" name="L447" href="KalmanFilterTest.html#L447">447</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

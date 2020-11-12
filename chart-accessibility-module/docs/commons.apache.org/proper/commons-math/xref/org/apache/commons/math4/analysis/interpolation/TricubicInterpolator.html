@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>TricubicInterpolator xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/org/apache/commons/math4/analysis/interpolation/TricubicInterpolator.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="TricubicInterpolator.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="TricubicInterpolator.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="TricubicInterpolator.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="TricubicInterpolator.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="TricubicInterpolator.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="TricubicInterpolator.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="TricubicInterpolator.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="TricubicInterpolator.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="TricubicInterpolator.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="TricubicInterpolator.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="TricubicInterpolator.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="TricubicInterpolator.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="TricubicInterpolator.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="TricubicInterpolator.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="TricubicInterpolator.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="TricubicInterpolator.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="TricubicInterpolator.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.analysis.interpolation;
+<a class="jxr_linenumber" name="L18" href="TricubicInterpolator.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="TricubicInterpolator.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L20" href="TricubicInterpolator.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NoDataException;
+<a class="jxr_linenumber" name="L21" href="TricubicInterpolator.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NonMonotonicSequenceException;
+<a class="jxr_linenumber" name="L22" href="TricubicInterpolator.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L23" href="TricubicInterpolator.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.MathArrays;
+<a class="jxr_linenumber" name="L24" href="TricubicInterpolator.html#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="TricubicInterpolator.html#L25">25</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L26" href="TricubicInterpolator.html#L26">26</a>  <em class="jxr_javadoccomment"> * Generates a tricubic interpolating function.</em>
+<a class="jxr_linenumber" name="L27" href="TricubicInterpolator.html#L27">27</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L28" href="TricubicInterpolator.html#L28">28</a>  <em class="jxr_javadoccomment"> * @since 3.4</em>
+<a class="jxr_linenumber" name="L29" href="TricubicInterpolator.html#L29">29</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L30" href="TricubicInterpolator.html#L30">30</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="TricubicInterpolator.html">TricubicInterpolator</a>
+<a class="jxr_linenumber" name="L31" href="TricubicInterpolator.html#L31">31</a>      <strong class="jxr_keyword">implements</strong> <a href="TrivariateGridInterpolator.html">TrivariateGridInterpolator</a> {
+<a class="jxr_linenumber" name="L32" href="TricubicInterpolator.html#L32">32</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L33" href="TricubicInterpolator.html#L33">33</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L34" href="TricubicInterpolator.html#L34">34</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L35" href="TricubicInterpolator.html#L35">35</a>      @Override
+<a class="jxr_linenumber" name="L36" href="TricubicInterpolator.html#L36">36</a>      <strong class="jxr_keyword">public</strong> <a href="TricubicInterpolatingFunction.html">TricubicInterpolatingFunction</a> interpolate(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] xval,
+<a class="jxr_linenumber" name="L37" href="TricubicInterpolator.html#L37">37</a>                                                       <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] yval,
+<a class="jxr_linenumber" name="L38" href="TricubicInterpolator.html#L38">38</a>                                                       <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] zval,
+<a class="jxr_linenumber" name="L39" href="TricubicInterpolator.html#L39">39</a>                                                       <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] fval)
+<a class="jxr_linenumber" name="L40" href="TricubicInterpolator.html#L40">40</a>          <strong class="jxr_keyword">throws</strong> NoDataException, NumberIsTooSmallException,
+<a class="jxr_linenumber" name="L41" href="TricubicInterpolator.html#L41">41</a>                 DimensionMismatchException, <a href="../../exception/NonMonotonicSequenceException.html">NonMonotonicSequenceException</a> {
+<a class="jxr_linenumber" name="L42" href="TricubicInterpolator.html#L42">42</a>          <strong class="jxr_keyword">if</strong> (xval.length == 0 || yval.length == 0 || zval.length == 0 || fval.length == 0) {
+<a class="jxr_linenumber" name="L43" href="TricubicInterpolator.html#L43">43</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/NoDataException.html">NoDataException</a>();
+<a class="jxr_linenumber" name="L44" href="TricubicInterpolator.html#L44">44</a>          }
+<a class="jxr_linenumber" name="L45" href="TricubicInterpolator.html#L45">45</a>          <strong class="jxr_keyword">if</strong> (xval.length != fval.length) {
+<a class="jxr_linenumber" name="L46" href="TricubicInterpolator.html#L46">46</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(xval.length, fval.length);
+<a class="jxr_linenumber" name="L47" href="TricubicInterpolator.html#L47">47</a>          }
+<a class="jxr_linenumber" name="L48" href="TricubicInterpolator.html#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="TricubicInterpolator.html#L49">49</a>          MathArrays.checkOrder(xval);
+<a class="jxr_linenumber" name="L50" href="TricubicInterpolator.html#L50">50</a>          MathArrays.checkOrder(yval);
+<a class="jxr_linenumber" name="L51" href="TricubicInterpolator.html#L51">51</a>          MathArrays.checkOrder(zval);
+<a class="jxr_linenumber" name="L52" href="TricubicInterpolator.html#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="TricubicInterpolator.html#L53">53</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> xLen = xval.length;
+<a class="jxr_linenumber" name="L54" href="TricubicInterpolator.html#L54">54</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> yLen = yval.length;
+<a class="jxr_linenumber" name="L55" href="TricubicInterpolator.html#L55">55</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> zLen = zval.length;
+<a class="jxr_linenumber" name="L56" href="TricubicInterpolator.html#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="TricubicInterpolator.html#L57">57</a>          <em class="jxr_comment">// Approximation to the partial derivatives using finite differences.</em>
+<a class="jxr_linenumber" name="L58" href="TricubicInterpolator.html#L58">58</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] dFdX = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[xLen][yLen][zLen];
+<a class="jxr_linenumber" name="L59" href="TricubicInterpolator.html#L59">59</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] dFdY = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[xLen][yLen][zLen];
+<a class="jxr_linenumber" name="L60" href="TricubicInterpolator.html#L60">60</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] dFdZ = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[xLen][yLen][zLen];
+<a class="jxr_linenumber" name="L61" href="TricubicInterpolator.html#L61">61</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] d2FdXdY = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[xLen][yLen][zLen];
+<a class="jxr_linenumber" name="L62" href="TricubicInterpolator.html#L62">62</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] d2FdXdZ = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[xLen][yLen][zLen];
+<a class="jxr_linenumber" name="L63" href="TricubicInterpolator.html#L63">63</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] d2FdYdZ = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[xLen][yLen][zLen];
+<a class="jxr_linenumber" name="L64" href="TricubicInterpolator.html#L64">64</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] d3FdXdYdZ = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[xLen][yLen][zLen];
+<a class="jxr_linenumber" name="L65" href="TricubicInterpolator.html#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="TricubicInterpolator.html#L66">66</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; xLen - 1; i++) {
+<a class="jxr_linenumber" name="L67" href="TricubicInterpolator.html#L67">67</a>              <strong class="jxr_keyword">if</strong> (yval.length != fval[i].length) {
+<a class="jxr_linenumber" name="L68" href="TricubicInterpolator.html#L68">68</a>                  <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(yval.length, fval[i].length);
+<a class="jxr_linenumber" name="L69" href="TricubicInterpolator.html#L69">69</a>              }
+<a class="jxr_linenumber" name="L70" href="TricubicInterpolator.html#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="TricubicInterpolator.html#L71">71</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nI = i + 1;
+<a class="jxr_linenumber" name="L72" href="TricubicInterpolator.html#L72">72</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> pI = i - 1;
+<a class="jxr_linenumber" name="L73" href="TricubicInterpolator.html#L73">73</a>  
+<a class="jxr_linenumber" name="L74" href="TricubicInterpolator.html#L74">74</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> nX = xval[nI];
+<a class="jxr_linenumber" name="L75" href="TricubicInterpolator.html#L75">75</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> pX = xval[pI];
+<a class="jxr_linenumber" name="L76" href="TricubicInterpolator.html#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="TricubicInterpolator.html#L77">77</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> deltaX = nX - pX;
+<a class="jxr_linenumber" name="L78" href="TricubicInterpolator.html#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="TricubicInterpolator.html#L79">79</a>              <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 1; j &lt; yLen - 1; j++) {
+<a class="jxr_linenumber" name="L80" href="TricubicInterpolator.html#L80">80</a>                  <strong class="jxr_keyword">if</strong> (zval.length != fval[i][j].length) {
+<a class="jxr_linenumber" name="L81" href="TricubicInterpolator.html#L81">81</a>                      <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../exception/DimensionMismatchException.html">DimensionMismatchException</a>(zval.length, fval[i][j].length);
+<a class="jxr_linenumber" name="L82" href="TricubicInterpolator.html#L82">82</a>                  }
+<a class="jxr_linenumber" name="L83" href="TricubicInterpolator.html#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="TricubicInterpolator.html#L84">84</a>                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nJ = j + 1;
+<a class="jxr_linenumber" name="L85" href="TricubicInterpolator.html#L85">85</a>                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> pJ = j - 1;
+<a class="jxr_linenumber" name="L86" href="TricubicInterpolator.html#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="TricubicInterpolator.html#L87">87</a>                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> nY = yval[nJ];
+<a class="jxr_linenumber" name="L88" href="TricubicInterpolator.html#L88">88</a>                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> pY = yval[pJ];
+<a class="jxr_linenumber" name="L89" href="TricubicInterpolator.html#L89">89</a>  
+<a class="jxr_linenumber" name="L90" href="TricubicInterpolator.html#L90">90</a>                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> deltaY = nY - pY;
+<a class="jxr_linenumber" name="L91" href="TricubicInterpolator.html#L91">91</a>                  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> deltaXY = deltaX * deltaY;
+<a class="jxr_linenumber" name="L92" href="TricubicInterpolator.html#L92">92</a>  
+<a class="jxr_linenumber" name="L93" href="TricubicInterpolator.html#L93">93</a>                  <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 1; k &lt; zLen - 1; k++) {
+<a class="jxr_linenumber" name="L94" href="TricubicInterpolator.html#L94">94</a>                      <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nK = k + 1;
+<a class="jxr_linenumber" name="L95" href="TricubicInterpolator.html#L95">95</a>                      <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> pK = k - 1;
+<a class="jxr_linenumber" name="L96" href="TricubicInterpolator.html#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="TricubicInterpolator.html#L97">97</a>                      <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> nZ = zval[nK];
+<a class="jxr_linenumber" name="L98" href="TricubicInterpolator.html#L98">98</a>                      <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> pZ = zval[pK];
+<a class="jxr_linenumber" name="L99" href="TricubicInterpolator.html#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="TricubicInterpolator.html#L100">100</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> deltaZ = nZ - pZ;
+<a class="jxr_linenumber" name="L101" href="TricubicInterpolator.html#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="TricubicInterpolator.html#L102">102</a>                     dFdX[i][j][k] = (fval[nI][j][k] - fval[pI][j][k]) / deltaX;
+<a class="jxr_linenumber" name="L103" href="TricubicInterpolator.html#L103">103</a>                     dFdY[i][j][k] = (fval[i][nJ][k] - fval[i][pJ][k]) / deltaY;
+<a class="jxr_linenumber" name="L104" href="TricubicInterpolator.html#L104">104</a>                     dFdZ[i][j][k] = (fval[i][j][nK] - fval[i][j][pK]) / deltaZ;
+<a class="jxr_linenumber" name="L105" href="TricubicInterpolator.html#L105">105</a> 
+<a class="jxr_linenumber" name="L106" href="TricubicInterpolator.html#L106">106</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> deltaXZ = deltaX * deltaZ;
+<a class="jxr_linenumber" name="L107" href="TricubicInterpolator.html#L107">107</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> deltaYZ = deltaY * deltaZ;
+<a class="jxr_linenumber" name="L108" href="TricubicInterpolator.html#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="TricubicInterpolator.html#L109">109</a>                     d2FdXdY[i][j][k] = (fval[nI][nJ][k] - fval[nI][pJ][k] - fval[pI][nJ][k] + fval[pI][pJ][k]) / deltaXY;
+<a class="jxr_linenumber" name="L110" href="TricubicInterpolator.html#L110">110</a>                     d2FdXdZ[i][j][k] = (fval[nI][j][nK] - fval[nI][j][pK] - fval[pI][j][nK] + fval[pI][j][pK]) / deltaXZ;
+<a class="jxr_linenumber" name="L111" href="TricubicInterpolator.html#L111">111</a>                     d2FdYdZ[i][j][k] = (fval[i][nJ][nK] - fval[i][nJ][pK] - fval[i][pJ][nK] + fval[i][pJ][pK]) / deltaYZ;
+<a class="jxr_linenumber" name="L112" href="TricubicInterpolator.html#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="TricubicInterpolator.html#L113">113</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> deltaXYZ = deltaXY * deltaZ;
+<a class="jxr_linenumber" name="L114" href="TricubicInterpolator.html#L114">114</a> 
+<a class="jxr_linenumber" name="L115" href="TricubicInterpolator.html#L115">115</a>                     d3FdXdYdZ[i][j][k] = (fval[nI][nJ][nK] - fval[nI][pJ][nK] -
+<a class="jxr_linenumber" name="L116" href="TricubicInterpolator.html#L116">116</a>                                           fval[pI][nJ][nK] + fval[pI][pJ][nK] -
+<a class="jxr_linenumber" name="L117" href="TricubicInterpolator.html#L117">117</a>                                           fval[nI][nJ][pK] + fval[nI][pJ][pK] +
+<a class="jxr_linenumber" name="L118" href="TricubicInterpolator.html#L118">118</a>                                           fval[pI][nJ][pK] - fval[pI][pJ][pK]) / deltaXYZ;
+<a class="jxr_linenumber" name="L119" href="TricubicInterpolator.html#L119">119</a>                 }
+<a class="jxr_linenumber" name="L120" href="TricubicInterpolator.html#L120">120</a>             }
+<a class="jxr_linenumber" name="L121" href="TricubicInterpolator.html#L121">121</a>         }
+<a class="jxr_linenumber" name="L122" href="TricubicInterpolator.html#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="TricubicInterpolator.html#L123">123</a>         <em class="jxr_comment">// Create the interpolating function.</em>
+<a class="jxr_linenumber" name="L124" href="TricubicInterpolator.html#L124">124</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="TricubicInterpolatingFunction.html">TricubicInterpolatingFunction</a>(xval, yval, zval, fval,
+<a class="jxr_linenumber" name="L125" href="TricubicInterpolator.html#L125">125</a>                                                  dFdX, dFdY, dFdZ,
+<a class="jxr_linenumber" name="L126" href="TricubicInterpolator.html#L126">126</a>                                                  d2FdXdY, d2FdXdZ, d2FdYdZ,
+<a class="jxr_linenumber" name="L127" href="TricubicInterpolator.html#L127">127</a>                                                  d3FdXdYdZ) {
+<a class="jxr_linenumber" name="L128" href="TricubicInterpolator.html#L128">128</a>             <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L129" href="TricubicInterpolator.html#L129">129</a>             @Override
+<a class="jxr_linenumber" name="L130" href="TricubicInterpolator.html#L130">130</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isValidPoint(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> y, <strong class="jxr_keyword">double</strong> z) {
+<a class="jxr_linenumber" name="L131" href="TricubicInterpolator.html#L131">131</a>                 <strong class="jxr_keyword">if</strong> (x &lt; xval[1] ||
+<a class="jxr_linenumber" name="L132" href="TricubicInterpolator.html#L132">132</a>                     x &gt; xval[xval.length - 2] ||
+<a class="jxr_linenumber" name="L133" href="TricubicInterpolator.html#L133">133</a>                     y &lt; yval[1] ||
+<a class="jxr_linenumber" name="L134" href="TricubicInterpolator.html#L134">134</a>                     y &gt; yval[yval.length - 2] ||
+<a class="jxr_linenumber" name="L135" href="TricubicInterpolator.html#L135">135</a>                     z &lt; zval[1] ||
+<a class="jxr_linenumber" name="L136" href="TricubicInterpolator.html#L136">136</a>                     z &gt; zval[zval.length - 2]) {
+<a class="jxr_linenumber" name="L137" href="TricubicInterpolator.html#L137">137</a>                     <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L138" href="TricubicInterpolator.html#L138">138</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L139" href="TricubicInterpolator.html#L139">139</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L140" href="TricubicInterpolator.html#L140">140</a>                 }
+<a class="jxr_linenumber" name="L141" href="TricubicInterpolator.html#L141">141</a>             }
+<a class="jxr_linenumber" name="L142" href="TricubicInterpolator.html#L142">142</a>         };
+<a class="jxr_linenumber" name="L143" href="TricubicInterpolator.html#L143">143</a>     }
+<a class="jxr_linenumber" name="L144" href="TricubicInterpolator.html#L144">144</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

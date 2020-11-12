@@ -1,0 +1,496 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Beta xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math4/special/Beta.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="Beta.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="Beta.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="Beta.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="Beta.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="Beta.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="Beta.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="Beta.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="Beta.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="Beta.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="Beta.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="Beta.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="Beta.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="Beta.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="Beta.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="Beta.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="Beta.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="Beta.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.special;
+<a class="jxr_linenumber" name="L18" href="Beta.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="Beta.html#L19">19</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L20" href="Beta.html#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L21" href="Beta.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.ContinuedFraction;
+<a class="jxr_linenumber" name="L22" href="Beta.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L23" href="Beta.html#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="Beta.html#L24">24</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L25" href="Beta.html#L25">25</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L26" href="Beta.html#L26">26</a>  <em class="jxr_javadoccomment"> * This is a utility class that provides computation methods related to the</em>
+<a class="jxr_linenumber" name="L27" href="Beta.html#L27">27</a>  <em class="jxr_javadoccomment"> * Beta family of functions.</em>
+<a class="jxr_linenumber" name="L28" href="Beta.html#L28">28</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L29" href="Beta.html#L29">29</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L30" href="Beta.html#L30">30</a>  <em class="jxr_javadoccomment"> * Implementation of {@link #logBeta(double, double)} is based on the</em>
+<a class="jxr_linenumber" name="L31" href="Beta.html#L31">31</a>  <em class="jxr_javadoccomment"> * algorithms described in</em>
+<a class="jxr_linenumber" name="L32" href="Beta.html#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L33" href="Beta.html#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;&lt;a href="<a href="http://dx.doi.org/10.1145/22721.23109" target="alexandria_uri">http://dx.doi.org/10.1145/22721.23109</a>"&gt;Didonato and Morris</em>
+<a class="jxr_linenumber" name="L34" href="Beta.html#L34">34</a>  <em class="jxr_javadoccomment"> *     (1986)&lt;/a&gt;, &lt;em&gt;Computation of the Incomplete Gamma Function Ratios</em>
+<a class="jxr_linenumber" name="L35" href="Beta.html#L35">35</a>  <em class="jxr_javadoccomment"> *     and their Inverse&lt;/em&gt;, TOMS 12(4), 377-393,&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L36" href="Beta.html#L36">36</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;&lt;a href="<a href="http://dx.doi.org/10.1145/131766.131776" target="alexandria_uri">http://dx.doi.org/10.1145/131766.131776</a>"&gt;Didonato and Morris</em>
+<a class="jxr_linenumber" name="L37" href="Beta.html#L37">37</a>  <em class="jxr_javadoccomment"> *     (1992)&lt;/a&gt;, &lt;em&gt;Algorithm 708: Significant Digit Computation of the</em>
+<a class="jxr_linenumber" name="L38" href="Beta.html#L38">38</a>  <em class="jxr_javadoccomment"> *     Incomplete Beta Function Ratios&lt;/em&gt;, TOMS 18(3), 360-373,&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L39" href="Beta.html#L39">39</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L40" href="Beta.html#L40">40</a>  <em class="jxr_javadoccomment"> * and implemented in the</em>
+<a class="jxr_linenumber" name="L41" href="Beta.html#L41">41</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://www.dtic.mil/docs/citations/ADA476840" target="alexandria_uri">http://www.dtic.mil/docs/citations/ADA476840</a>"&gt;NSWC Library of Mathematical Functions&lt;/a&gt;,</em>
+<a class="jxr_linenumber" name="L42" href="Beta.html#L42">42</a>  <em class="jxr_javadoccomment"> * available</em>
+<a class="jxr_linenumber" name="L43" href="Beta.html#L43">43</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://www.ualberta.ca/CNS/RESEARCH/Software/NumericalNSWC/site.html" target="alexandria_uri">http://www.ualberta.ca/CNS/RESEARCH/Software/NumericalNSWC/site.html</a>"&gt;here&lt;/a&gt;.</em>
+<a class="jxr_linenumber" name="L44" href="Beta.html#L44">44</a>  <em class="jxr_javadoccomment"> * This library is "approved for public release", and the</em>
+<a class="jxr_linenumber" name="L45" href="Beta.html#L45">45</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://www.dtic.mil/dtic/pdf/announcements/CopyrightGuidance.pdf" target="alexandria_uri">http://www.dtic.mil/dtic/pdf/announcements/CopyrightGuidance.pdf</a>"&gt;Copyright guidance&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L46" href="Beta.html#L46">46</a>  <em class="jxr_javadoccomment"> * indicates that unless otherwise stated in the code, all FORTRAN functions in</em>
+<a class="jxr_linenumber" name="L47" href="Beta.html#L47">47</a>  <em class="jxr_javadoccomment"> * this library are license free. Since no such notice appears in the code these</em>
+<a class="jxr_linenumber" name="L48" href="Beta.html#L48">48</a>  <em class="jxr_javadoccomment"> * functions can safely be ported to Commons-Math.</em>
+<a class="jxr_linenumber" name="L49" href="Beta.html#L49">49</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L50" href="Beta.html#L50">50</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L51" href="Beta.html#L51">51</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="Beta.html">Beta</a> {
+<a class="jxr_linenumber" name="L52" href="Beta.html#L52">52</a>      <em class="jxr_javadoccomment">/** Maximum allowed numerical error. */</em>
+<a class="jxr_linenumber" name="L53" href="Beta.html#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> DEFAULT_EPSILON = 1E-14;
+<a class="jxr_linenumber" name="L54" href="Beta.html#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="Beta.html#L55">55</a>      <em class="jxr_javadoccomment">/** The constant value of ½log 2π. */</em>
+<a class="jxr_linenumber" name="L56" href="Beta.html#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> HALF_LOG_TWO_PI = .9189385332046727;
+<a class="jxr_linenumber" name="L57" href="Beta.html#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="Beta.html#L58">58</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L59" href="Beta.html#L59">59</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L60" href="Beta.html#L60">60</a>  <em class="jxr_javadoccomment">     * The coefficients of the series expansion of the Δ function. This function</em>
+<a class="jxr_linenumber" name="L61" href="Beta.html#L61">61</a>  <em class="jxr_javadoccomment">     * is defined as follows</em>
+<a class="jxr_linenumber" name="L62" href="Beta.html#L62">62</a>  <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L63" href="Beta.html#L63">63</a>  <em class="jxr_javadoccomment">     * &lt;center&gt;Δ(x) = log Γ(x) - (x - 0.5) log a + a - 0.5 log 2π,&lt;/center&gt;</em>
+<a class="jxr_linenumber" name="L64" href="Beta.html#L64">64</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L65" href="Beta.html#L65">65</a>  <em class="jxr_javadoccomment">     * see equation (23) in Didonato and Morris (1992). The series expansion,</em>
+<a class="jxr_linenumber" name="L66" href="Beta.html#L66">66</a>  <em class="jxr_javadoccomment">     * which applies for x ≥ 10, reads</em>
+<a class="jxr_linenumber" name="L67" href="Beta.html#L67">67</a>  <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L68" href="Beta.html#L68">68</a>  <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L69" href="Beta.html#L69">69</a>  <em class="jxr_javadoccomment">     *                 14</em>
+<a class="jxr_linenumber" name="L70" href="Beta.html#L70">70</a>  <em class="jxr_javadoccomment">     *                ====</em>
+<a class="jxr_linenumber" name="L71" href="Beta.html#L71">71</a>  <em class="jxr_javadoccomment">     *             1  \                2 n</em>
+<a class="jxr_linenumber" name="L72" href="Beta.html#L72">72</a>  <em class="jxr_javadoccomment">     *     Δ(x) = ---  &gt;    d  (10 / x)</em>
+<a class="jxr_linenumber" name="L73" href="Beta.html#L73">73</a>  <em class="jxr_javadoccomment">     *             x  /      n</em>
+<a class="jxr_linenumber" name="L74" href="Beta.html#L74">74</a>  <em class="jxr_javadoccomment">     *                ====</em>
+<a class="jxr_linenumber" name="L75" href="Beta.html#L75">75</a>  <em class="jxr_javadoccomment">     *                n = 0</em>
+<a class="jxr_linenumber" name="L76" href="Beta.html#L76">76</a>  <em class="jxr_javadoccomment">     * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L77" href="Beta.html#L77">77</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L78" href="Beta.html#L78">78</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] DELTA = {
+<a class="jxr_linenumber" name="L79" href="Beta.html#L79">79</a>          .833333333333333333333333333333E-01,
+<a class="jxr_linenumber" name="L80" href="Beta.html#L80">80</a>          -.277777777777777777777777752282E-04,
+<a class="jxr_linenumber" name="L81" href="Beta.html#L81">81</a>          .793650793650793650791732130419E-07,
+<a class="jxr_linenumber" name="L82" href="Beta.html#L82">82</a>          -.595238095238095232389839236182E-09,
+<a class="jxr_linenumber" name="L83" href="Beta.html#L83">83</a>          .841750841750832853294451671990E-11,
+<a class="jxr_linenumber" name="L84" href="Beta.html#L84">84</a>          -.191752691751854612334149171243E-12,
+<a class="jxr_linenumber" name="L85" href="Beta.html#L85">85</a>          .641025640510325475730918472625E-14,
+<a class="jxr_linenumber" name="L86" href="Beta.html#L86">86</a>          -.295506514125338232839867823991E-15,
+<a class="jxr_linenumber" name="L87" href="Beta.html#L87">87</a>          .179643716359402238723287696452E-16,
+<a class="jxr_linenumber" name="L88" href="Beta.html#L88">88</a>          -.139228964661627791231203060395E-17,
+<a class="jxr_linenumber" name="L89" href="Beta.html#L89">89</a>          .133802855014020915603275339093E-18,
+<a class="jxr_linenumber" name="L90" href="Beta.html#L90">90</a>          -.154246009867966094273710216533E-19,
+<a class="jxr_linenumber" name="L91" href="Beta.html#L91">91</a>          .197701992980957427278370133333E-20,
+<a class="jxr_linenumber" name="L92" href="Beta.html#L92">92</a>          -.234065664793997056856992426667E-21,
+<a class="jxr_linenumber" name="L93" href="Beta.html#L93">93</a>          .171348014966398575409015466667E-22
+<a class="jxr_linenumber" name="L94" href="Beta.html#L94">94</a>      };
+<a class="jxr_linenumber" name="L95" href="Beta.html#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="Beta.html#L96">96</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L97" href="Beta.html#L97">97</a>  <em class="jxr_javadoccomment">     * Default constructor.  Prohibit instantiation.</em>
+<a class="jxr_linenumber" name="L98" href="Beta.html#L98">98</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L99" href="Beta.html#L99">99</a>      <strong class="jxr_keyword">private</strong> <a href="Beta.html">Beta</a>() {}
+<a class="jxr_linenumber" name="L100" href="Beta.html#L100">100</a> 
+<a class="jxr_linenumber" name="L101" href="Beta.html#L101">101</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L102" href="Beta.html#L102">102</a> <em class="jxr_javadoccomment">     * Returns the</em>
+<a class="jxr_linenumber" name="L103" href="Beta.html#L103">103</a> <em class="jxr_javadoccomment">     * &lt;a href="<a href="http://mathworld.wolfram.com/RegularizedBetaFunction.html" target="alexandria_uri">http://mathworld.wolfram.com/RegularizedBetaFunction.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L104" href="Beta.html#L104">104</a> <em class="jxr_javadoccomment">     * regularized beta function&lt;/a&gt; I(x, a, b).</em>
+<a class="jxr_linenumber" name="L105" href="Beta.html#L105">105</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L106" href="Beta.html#L106">106</a> <em class="jxr_javadoccomment">     * @param x Value.</em>
+<a class="jxr_linenumber" name="L107" href="Beta.html#L107">107</a> <em class="jxr_javadoccomment">     * @param a Parameter {@code a}.</em>
+<a class="jxr_linenumber" name="L108" href="Beta.html#L108">108</a> <em class="jxr_javadoccomment">     * @param b Parameter {@code b}.</em>
+<a class="jxr_linenumber" name="L109" href="Beta.html#L109">109</a> <em class="jxr_javadoccomment">     * @return the regularized beta function I(x, a, b).</em>
+<a class="jxr_linenumber" name="L110" href="Beta.html#L110">110</a> <em class="jxr_javadoccomment">     * @throws org.apache.commons.math4.exception.MaxCountExceededException</em>
+<a class="jxr_linenumber" name="L111" href="Beta.html#L111">111</a> <em class="jxr_javadoccomment">     * if the algorithm fails to converge.</em>
+<a class="jxr_linenumber" name="L112" href="Beta.html#L112">112</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L113" href="Beta.html#L113">113</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> regularizedBeta(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> a, <strong class="jxr_keyword">double</strong> b) {
+<a class="jxr_linenumber" name="L114" href="Beta.html#L114">114</a>         <strong class="jxr_keyword">return</strong> regularizedBeta(x, a, b, DEFAULT_EPSILON, Integer.MAX_VALUE);
+<a class="jxr_linenumber" name="L115" href="Beta.html#L115">115</a>     }
+<a class="jxr_linenumber" name="L116" href="Beta.html#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="Beta.html#L117">117</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L118" href="Beta.html#L118">118</a> <em class="jxr_javadoccomment">     * Returns the</em>
+<a class="jxr_linenumber" name="L119" href="Beta.html#L119">119</a> <em class="jxr_javadoccomment">     * &lt;a href="<a href="http://mathworld.wolfram.com/RegularizedBetaFunction.html" target="alexandria_uri">http://mathworld.wolfram.com/RegularizedBetaFunction.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L120" href="Beta.html#L120">120</a> <em class="jxr_javadoccomment">     * regularized beta function&lt;/a&gt; I(x, a, b).</em>
+<a class="jxr_linenumber" name="L121" href="Beta.html#L121">121</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L122" href="Beta.html#L122">122</a> <em class="jxr_javadoccomment">     * @param x Value.</em>
+<a class="jxr_linenumber" name="L123" href="Beta.html#L123">123</a> <em class="jxr_javadoccomment">     * @param a Parameter {@code a}.</em>
+<a class="jxr_linenumber" name="L124" href="Beta.html#L124">124</a> <em class="jxr_javadoccomment">     * @param b Parameter {@code b}.</em>
+<a class="jxr_linenumber" name="L125" href="Beta.html#L125">125</a> <em class="jxr_javadoccomment">     * @param epsilon When the absolute value of the nth item in the</em>
+<a class="jxr_linenumber" name="L126" href="Beta.html#L126">126</a> <em class="jxr_javadoccomment">     * series is less than epsilon the approximation ceases to calculate</em>
+<a class="jxr_linenumber" name="L127" href="Beta.html#L127">127</a> <em class="jxr_javadoccomment">     * further elements in the series.</em>
+<a class="jxr_linenumber" name="L128" href="Beta.html#L128">128</a> <em class="jxr_javadoccomment">     * @return the regularized beta function I(x, a, b)</em>
+<a class="jxr_linenumber" name="L129" href="Beta.html#L129">129</a> <em class="jxr_javadoccomment">     * @throws org.apache.commons.math4.exception.MaxCountExceededException</em>
+<a class="jxr_linenumber" name="L130" href="Beta.html#L130">130</a> <em class="jxr_javadoccomment">     * if the algorithm fails to converge.</em>
+<a class="jxr_linenumber" name="L131" href="Beta.html#L131">131</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L132" href="Beta.html#L132">132</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> regularizedBeta(<strong class="jxr_keyword">double</strong> x,
+<a class="jxr_linenumber" name="L133" href="Beta.html#L133">133</a>                                          <strong class="jxr_keyword">double</strong> a, <strong class="jxr_keyword">double</strong> b,
+<a class="jxr_linenumber" name="L134" href="Beta.html#L134">134</a>                                          <strong class="jxr_keyword">double</strong> epsilon) {
+<a class="jxr_linenumber" name="L135" href="Beta.html#L135">135</a>         <strong class="jxr_keyword">return</strong> regularizedBeta(x, a, b, epsilon, Integer.MAX_VALUE);
+<a class="jxr_linenumber" name="L136" href="Beta.html#L136">136</a>     }
+<a class="jxr_linenumber" name="L137" href="Beta.html#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="Beta.html#L138">138</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L139" href="Beta.html#L139">139</a> <em class="jxr_javadoccomment">     * Returns the regularized beta function I(x, a, b).</em>
+<a class="jxr_linenumber" name="L140" href="Beta.html#L140">140</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L141" href="Beta.html#L141">141</a> <em class="jxr_javadoccomment">     * @param x the value.</em>
+<a class="jxr_linenumber" name="L142" href="Beta.html#L142">142</a> <em class="jxr_javadoccomment">     * @param a Parameter {@code a}.</em>
+<a class="jxr_linenumber" name="L143" href="Beta.html#L143">143</a> <em class="jxr_javadoccomment">     * @param b Parameter {@code b}.</em>
+<a class="jxr_linenumber" name="L144" href="Beta.html#L144">144</a> <em class="jxr_javadoccomment">     * @param maxIterations Maximum number of "iterations" to complete.</em>
+<a class="jxr_linenumber" name="L145" href="Beta.html#L145">145</a> <em class="jxr_javadoccomment">     * @return the regularized beta function I(x, a, b)</em>
+<a class="jxr_linenumber" name="L146" href="Beta.html#L146">146</a> <em class="jxr_javadoccomment">     * @throws org.apache.commons.math4.exception.MaxCountExceededException</em>
+<a class="jxr_linenumber" name="L147" href="Beta.html#L147">147</a> <em class="jxr_javadoccomment">     * if the algorithm fails to converge.</em>
+<a class="jxr_linenumber" name="L148" href="Beta.html#L148">148</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L149" href="Beta.html#L149">149</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> regularizedBeta(<strong class="jxr_keyword">double</strong> x,
+<a class="jxr_linenumber" name="L150" href="Beta.html#L150">150</a>                                          <strong class="jxr_keyword">double</strong> a, <strong class="jxr_keyword">double</strong> b,
+<a class="jxr_linenumber" name="L151" href="Beta.html#L151">151</a>                                          <strong class="jxr_keyword">int</strong> maxIterations) {
+<a class="jxr_linenumber" name="L152" href="Beta.html#L152">152</a>         <strong class="jxr_keyword">return</strong> regularizedBeta(x, a, b, DEFAULT_EPSILON, maxIterations);
+<a class="jxr_linenumber" name="L153" href="Beta.html#L153">153</a>     }
+<a class="jxr_linenumber" name="L154" href="Beta.html#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="Beta.html#L155">155</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L156" href="Beta.html#L156">156</a> <em class="jxr_javadoccomment">     * Returns the regularized beta function I(x, a, b).</em>
+<a class="jxr_linenumber" name="L157" href="Beta.html#L157">157</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L158" href="Beta.html#L158">158</a> <em class="jxr_javadoccomment">     * The implementation of this method is based on:</em>
+<a class="jxr_linenumber" name="L159" href="Beta.html#L159">159</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L160" href="Beta.html#L160">160</a> <em class="jxr_javadoccomment">     * &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L161" href="Beta.html#L161">161</a> <em class="jxr_javadoccomment">     * &lt;a href="<a href="http://mathworld.wolfram.com/RegularizedBetaFunction.html" target="alexandria_uri">http://mathworld.wolfram.com/RegularizedBetaFunction.html</a>"&gt;</em>
+<a class="jxr_linenumber" name="L162" href="Beta.html#L162">162</a> <em class="jxr_javadoccomment">     * Regularized Beta Function&lt;/a&gt;.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L163" href="Beta.html#L163">163</a> <em class="jxr_javadoccomment">     * &lt;li&gt;</em>
+<a class="jxr_linenumber" name="L164" href="Beta.html#L164">164</a> <em class="jxr_javadoccomment">     * &lt;a href="<a href="http://functions.wolfram.com/06.21.10.0001.01" target="alexandria_uri">http://functions.wolfram.com/06.21.10.0001.01</a>"&gt;</em>
+<a class="jxr_linenumber" name="L165" href="Beta.html#L165">165</a> <em class="jxr_javadoccomment">     * Regularized Beta Function&lt;/a&gt;.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L166" href="Beta.html#L166">166</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L167" href="Beta.html#L167">167</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L168" href="Beta.html#L168">168</a> <em class="jxr_javadoccomment">     * @param x the value.</em>
+<a class="jxr_linenumber" name="L169" href="Beta.html#L169">169</a> <em class="jxr_javadoccomment">     * @param a Parameter {@code a}.</em>
+<a class="jxr_linenumber" name="L170" href="Beta.html#L170">170</a> <em class="jxr_javadoccomment">     * @param b Parameter {@code b}.</em>
+<a class="jxr_linenumber" name="L171" href="Beta.html#L171">171</a> <em class="jxr_javadoccomment">     * @param epsilon When the absolute value of the nth item in the</em>
+<a class="jxr_linenumber" name="L172" href="Beta.html#L172">172</a> <em class="jxr_javadoccomment">     * series is less than epsilon the approximation ceases to calculate</em>
+<a class="jxr_linenumber" name="L173" href="Beta.html#L173">173</a> <em class="jxr_javadoccomment">     * further elements in the series.</em>
+<a class="jxr_linenumber" name="L174" href="Beta.html#L174">174</a> <em class="jxr_javadoccomment">     * @param maxIterations Maximum number of "iterations" to complete.</em>
+<a class="jxr_linenumber" name="L175" href="Beta.html#L175">175</a> <em class="jxr_javadoccomment">     * @return the regularized beta function I(x, a, b)</em>
+<a class="jxr_linenumber" name="L176" href="Beta.html#L176">176</a> <em class="jxr_javadoccomment">     * @throws org.apache.commons.math4.exception.MaxCountExceededException</em>
+<a class="jxr_linenumber" name="L177" href="Beta.html#L177">177</a> <em class="jxr_javadoccomment">     * if the algorithm fails to converge.</em>
+<a class="jxr_linenumber" name="L178" href="Beta.html#L178">178</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L179" href="Beta.html#L179">179</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> regularizedBeta(<strong class="jxr_keyword">double</strong> x,
+<a class="jxr_linenumber" name="L180" href="Beta.html#L180">180</a>                                          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> a, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> b,
+<a class="jxr_linenumber" name="L181" href="Beta.html#L181">181</a>                                          <strong class="jxr_keyword">double</strong> epsilon, <strong class="jxr_keyword">int</strong> maxIterations) {
+<a class="jxr_linenumber" name="L182" href="Beta.html#L182">182</a>         <strong class="jxr_keyword">double</strong> ret;
+<a class="jxr_linenumber" name="L183" href="Beta.html#L183">183</a> 
+<a class="jxr_linenumber" name="L184" href="Beta.html#L184">184</a>         <strong class="jxr_keyword">if</strong> (Double.isNaN(x) ||
+<a class="jxr_linenumber" name="L185" href="Beta.html#L185">185</a>             Double.isNaN(a) ||
+<a class="jxr_linenumber" name="L186" href="Beta.html#L186">186</a>             Double.isNaN(b) ||
+<a class="jxr_linenumber" name="L187" href="Beta.html#L187">187</a>             x &lt; 0 ||
+<a class="jxr_linenumber" name="L188" href="Beta.html#L188">188</a>             x &gt; 1 ||
+<a class="jxr_linenumber" name="L189" href="Beta.html#L189">189</a>             a &lt;= 0 ||
+<a class="jxr_linenumber" name="L190" href="Beta.html#L190">190</a>             b &lt;= 0) {
+<a class="jxr_linenumber" name="L191" href="Beta.html#L191">191</a>             ret = Double.NaN;
+<a class="jxr_linenumber" name="L192" href="Beta.html#L192">192</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (x &gt; (a + 1) / (2 + b + a) &amp;&amp;
+<a class="jxr_linenumber" name="L193" href="Beta.html#L193">193</a>                    1 - x &lt;= (b + 1) / (2 + b + a)) {
+<a class="jxr_linenumber" name="L194" href="Beta.html#L194">194</a>             ret = 1 - regularizedBeta(1 - x, b, a, epsilon, maxIterations);
+<a class="jxr_linenumber" name="L195" href="Beta.html#L195">195</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L196" href="Beta.html#L196">196</a>             <a href="../util/ContinuedFraction.html">ContinuedFraction</a> fraction = <strong class="jxr_keyword">new</strong> <a href="../util/ContinuedFraction.html">ContinuedFraction</a>() {
+<a class="jxr_linenumber" name="L197" href="Beta.html#L197">197</a> 
+<a class="jxr_linenumber" name="L198" href="Beta.html#L198">198</a>                 <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L199" href="Beta.html#L199">199</a>                 @Override
+<a class="jxr_linenumber" name="L200" href="Beta.html#L200">200</a>                 <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> getB(<strong class="jxr_keyword">int</strong> n, <strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L201" href="Beta.html#L201">201</a>                     <strong class="jxr_keyword">double</strong> ret;
+<a class="jxr_linenumber" name="L202" href="Beta.html#L202">202</a>                     <strong class="jxr_keyword">double</strong> m;
+<a class="jxr_linenumber" name="L203" href="Beta.html#L203">203</a>                     <strong class="jxr_keyword">if</strong> (n % 2 == 0) { <em class="jxr_comment">// even</em>
+<a class="jxr_linenumber" name="L204" href="Beta.html#L204">204</a>                         m = n / 2.0;
+<a class="jxr_linenumber" name="L205" href="Beta.html#L205">205</a>                         ret = (m * (b - m) * x) /
+<a class="jxr_linenumber" name="L206" href="Beta.html#L206">206</a>                             ((a + (2 * m) - 1) * (a + (2 * m)));
+<a class="jxr_linenumber" name="L207" href="Beta.html#L207">207</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L208" href="Beta.html#L208">208</a>                         m = (n - 1.0) / 2.0;
+<a class="jxr_linenumber" name="L209" href="Beta.html#L209">209</a>                         ret = -((a + m) * (a + b + m) * x) /
+<a class="jxr_linenumber" name="L210" href="Beta.html#L210">210</a>                                 ((a + (2 * m)) * (a + (2 * m) + 1.0));
+<a class="jxr_linenumber" name="L211" href="Beta.html#L211">211</a>                     }
+<a class="jxr_linenumber" name="L212" href="Beta.html#L212">212</a>                     <strong class="jxr_keyword">return</strong> ret;
+<a class="jxr_linenumber" name="L213" href="Beta.html#L213">213</a>                 }
+<a class="jxr_linenumber" name="L214" href="Beta.html#L214">214</a> 
+<a class="jxr_linenumber" name="L215" href="Beta.html#L215">215</a>                 <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L216" href="Beta.html#L216">216</a>                 @Override
+<a class="jxr_linenumber" name="L217" href="Beta.html#L217">217</a>                 <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> getA(<strong class="jxr_keyword">int</strong> n, <strong class="jxr_keyword">double</strong> x) {
+<a class="jxr_linenumber" name="L218" href="Beta.html#L218">218</a>                     <strong class="jxr_keyword">return</strong> 1.0;
+<a class="jxr_linenumber" name="L219" href="Beta.html#L219">219</a>                 }
+<a class="jxr_linenumber" name="L220" href="Beta.html#L220">220</a>             };
+<a class="jxr_linenumber" name="L221" href="Beta.html#L221">221</a>             ret = FastMath.exp((a * FastMath.log(x)) + (b * FastMath.log1p(-x)) -
+<a class="jxr_linenumber" name="L222" href="Beta.html#L222">222</a>                 FastMath.log(a) - logBeta(a, b)) *
+<a class="jxr_linenumber" name="L223" href="Beta.html#L223">223</a>                 1.0 / fraction.evaluate(x, epsilon, maxIterations);
+<a class="jxr_linenumber" name="L224" href="Beta.html#L224">224</a>         }
+<a class="jxr_linenumber" name="L225" href="Beta.html#L225">225</a> 
+<a class="jxr_linenumber" name="L226" href="Beta.html#L226">226</a>         <strong class="jxr_keyword">return</strong> ret;
+<a class="jxr_linenumber" name="L227" href="Beta.html#L227">227</a>     }
+<a class="jxr_linenumber" name="L228" href="Beta.html#L228">228</a> 
+<a class="jxr_linenumber" name="L229" href="Beta.html#L229">229</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L230" href="Beta.html#L230">230</a> <em class="jxr_javadoccomment">     * Returns the value of log Γ(a + b) for 1 ≤ a, b ≤ 2. Based on the</em>
+<a class="jxr_linenumber" name="L231" href="Beta.html#L231">231</a> <em class="jxr_javadoccomment">     * &lt;em&gt;NSWC Library of Mathematics Subroutines&lt;/em&gt; double precision</em>
+<a class="jxr_linenumber" name="L232" href="Beta.html#L232">232</a> <em class="jxr_javadoccomment">     * implementation, {@code DGSMLN}. In {@code BetaTest.testLogGammaSum()},</em>
+<a class="jxr_linenumber" name="L233" href="Beta.html#L233">233</a> <em class="jxr_javadoccomment">     * this private method is accessed through reflection.</em>
+<a class="jxr_linenumber" name="L234" href="Beta.html#L234">234</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L235" href="Beta.html#L235">235</a> <em class="jxr_javadoccomment">     * @param a First argument.</em>
+<a class="jxr_linenumber" name="L236" href="Beta.html#L236">236</a> <em class="jxr_javadoccomment">     * @param b Second argument.</em>
+<a class="jxr_linenumber" name="L237" href="Beta.html#L237">237</a> <em class="jxr_javadoccomment">     * @return the value of {@code log(Gamma(a + b))}.</em>
+<a class="jxr_linenumber" name="L238" href="Beta.html#L238">238</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if {@code a} or {@code b} is lower than</em>
+<a class="jxr_linenumber" name="L239" href="Beta.html#L239">239</a> <em class="jxr_javadoccomment">     * {@code 1.0} or greater than {@code 2.0}.</em>
+<a class="jxr_linenumber" name="L240" href="Beta.html#L240">240</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L241" href="Beta.html#L241">241</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> logGammaSum(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> a, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> b)
+<a class="jxr_linenumber" name="L242" href="Beta.html#L242">242</a>         <strong class="jxr_keyword">throws</strong> <a href="../exception/OutOfRangeException.html">OutOfRangeException</a> {
+<a class="jxr_linenumber" name="L243" href="Beta.html#L243">243</a> 
+<a class="jxr_linenumber" name="L244" href="Beta.html#L244">244</a>         <strong class="jxr_keyword">if</strong> ((a &lt; 1.0) || (a &gt; 2.0)) {
+<a class="jxr_linenumber" name="L245" href="Beta.html#L245">245</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/OutOfRangeException.html">OutOfRangeException</a>(a, 1.0, 2.0);
+<a class="jxr_linenumber" name="L246" href="Beta.html#L246">246</a>         }
+<a class="jxr_linenumber" name="L247" href="Beta.html#L247">247</a>         <strong class="jxr_keyword">if</strong> ((b &lt; 1.0) || (b &gt; 2.0)) {
+<a class="jxr_linenumber" name="L248" href="Beta.html#L248">248</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/OutOfRangeException.html">OutOfRangeException</a>(b, 1.0, 2.0);
+<a class="jxr_linenumber" name="L249" href="Beta.html#L249">249</a>         }
+<a class="jxr_linenumber" name="L250" href="Beta.html#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="Beta.html#L251">251</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x = (a - 1.0) + (b - 1.0);
+<a class="jxr_linenumber" name="L252" href="Beta.html#L252">252</a>         <strong class="jxr_keyword">if</strong> (x &lt;= 0.5) {
+<a class="jxr_linenumber" name="L253" href="Beta.html#L253">253</a>             <strong class="jxr_keyword">return</strong> Gamma.logGamma1p(1.0 + x);
+<a class="jxr_linenumber" name="L254" href="Beta.html#L254">254</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (x &lt;= 1.5) {
+<a class="jxr_linenumber" name="L255" href="Beta.html#L255">255</a>             <strong class="jxr_keyword">return</strong> Gamma.logGamma1p(x) + FastMath.log1p(x);
+<a class="jxr_linenumber" name="L256" href="Beta.html#L256">256</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L257" href="Beta.html#L257">257</a>             <strong class="jxr_keyword">return</strong> Gamma.logGamma1p(x - 1.0) + FastMath.log(x * (1.0 + x));
+<a class="jxr_linenumber" name="L258" href="Beta.html#L258">258</a>         }
+<a class="jxr_linenumber" name="L259" href="Beta.html#L259">259</a>     }
+<a class="jxr_linenumber" name="L260" href="Beta.html#L260">260</a> 
+<a class="jxr_linenumber" name="L261" href="Beta.html#L261">261</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L262" href="Beta.html#L262">262</a> <em class="jxr_javadoccomment">     * Returns the value of log[Γ(b) / Γ(a + b)] for a ≥ 0 and b ≥ 10. Based on</em>
+<a class="jxr_linenumber" name="L263" href="Beta.html#L263">263</a> <em class="jxr_javadoccomment">     * the &lt;em&gt;NSWC Library of Mathematics Subroutines&lt;/em&gt; double precision</em>
+<a class="jxr_linenumber" name="L264" href="Beta.html#L264">264</a> <em class="jxr_javadoccomment">     * implementation, {@code DLGDIV}. In</em>
+<a class="jxr_linenumber" name="L265" href="Beta.html#L265">265</a> <em class="jxr_javadoccomment">     * {@code BetaTest.testLogGammaMinusLogGammaSum()}, this private method is</em>
+<a class="jxr_linenumber" name="L266" href="Beta.html#L266">266</a> <em class="jxr_javadoccomment">     * accessed through reflection.</em>
+<a class="jxr_linenumber" name="L267" href="Beta.html#L267">267</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L268" href="Beta.html#L268">268</a> <em class="jxr_javadoccomment">     * @param a First argument.</em>
+<a class="jxr_linenumber" name="L269" href="Beta.html#L269">269</a> <em class="jxr_javadoccomment">     * @param b Second argument.</em>
+<a class="jxr_linenumber" name="L270" href="Beta.html#L270">270</a> <em class="jxr_javadoccomment">     * @return the value of {@code log(Gamma(b) / Gamma(a + b))}.</em>
+<a class="jxr_linenumber" name="L271" href="Beta.html#L271">271</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code a &lt; 0.0} or {@code b &lt; 10.0}.</em>
+<a class="jxr_linenumber" name="L272" href="Beta.html#L272">272</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L273" href="Beta.html#L273">273</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> logGammaMinusLogGammaSum(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> a,
+<a class="jxr_linenumber" name="L274" href="Beta.html#L274">274</a>                                                    <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> b)
+<a class="jxr_linenumber" name="L275" href="Beta.html#L275">275</a>         <strong class="jxr_keyword">throws</strong> <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a> {
+<a class="jxr_linenumber" name="L276" href="Beta.html#L276">276</a> 
+<a class="jxr_linenumber" name="L277" href="Beta.html#L277">277</a>         <strong class="jxr_keyword">if</strong> (a &lt; 0.0) {
+<a class="jxr_linenumber" name="L278" href="Beta.html#L278">278</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(a, 0.0, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L279" href="Beta.html#L279">279</a>         }
+<a class="jxr_linenumber" name="L280" href="Beta.html#L280">280</a>         <strong class="jxr_keyword">if</strong> (b &lt; 10.0) {
+<a class="jxr_linenumber" name="L281" href="Beta.html#L281">281</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(b, 10.0, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L282" href="Beta.html#L282">282</a>         }
+<a class="jxr_linenumber" name="L283" href="Beta.html#L283">283</a> 
+<a class="jxr_linenumber" name="L284" href="Beta.html#L284">284</a>         <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L285" href="Beta.html#L285">285</a> <em class="jxr_comment">         * d = a + b - 0.5</em>
+<a class="jxr_linenumber" name="L286" href="Beta.html#L286">286</a> <em class="jxr_comment">         */</em>
+<a class="jxr_linenumber" name="L287" href="Beta.html#L287">287</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> d;
+<a class="jxr_linenumber" name="L288" href="Beta.html#L288">288</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> w;
+<a class="jxr_linenumber" name="L289" href="Beta.html#L289">289</a>         <strong class="jxr_keyword">if</strong> (a &lt;= b) {
+<a class="jxr_linenumber" name="L290" href="Beta.html#L290">290</a>             d = b + (a - 0.5);
+<a class="jxr_linenumber" name="L291" href="Beta.html#L291">291</a>             w = deltaMinusDeltaSum(a, b);
+<a class="jxr_linenumber" name="L292" href="Beta.html#L292">292</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L293" href="Beta.html#L293">293</a>             d = a + (b - 0.5);
+<a class="jxr_linenumber" name="L294" href="Beta.html#L294">294</a>             w = deltaMinusDeltaSum(b, a);
+<a class="jxr_linenumber" name="L295" href="Beta.html#L295">295</a>         }
+<a class="jxr_linenumber" name="L296" href="Beta.html#L296">296</a> 
+<a class="jxr_linenumber" name="L297" href="Beta.html#L297">297</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> u = d * FastMath.log1p(a / b);
+<a class="jxr_linenumber" name="L298" href="Beta.html#L298">298</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> v = a * (FastMath.log(b) - 1.0);
+<a class="jxr_linenumber" name="L299" href="Beta.html#L299">299</a> 
+<a class="jxr_linenumber" name="L300" href="Beta.html#L300">300</a>         <strong class="jxr_keyword">return</strong> u &lt;= v ? (w - u) - v : (w - v) - u;
+<a class="jxr_linenumber" name="L301" href="Beta.html#L301">301</a>     }
+<a class="jxr_linenumber" name="L302" href="Beta.html#L302">302</a> 
+<a class="jxr_linenumber" name="L303" href="Beta.html#L303">303</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L304" href="Beta.html#L304">304</a> <em class="jxr_javadoccomment">     * Returns the value of Δ(b) - Δ(a + b), with 0 ≤ a ≤ b and b ≥ 10. Based</em>
+<a class="jxr_linenumber" name="L305" href="Beta.html#L305">305</a> <em class="jxr_javadoccomment">     * on equations (26), (27) and (28) in Didonato and Morris (1992).</em>
+<a class="jxr_linenumber" name="L306" href="Beta.html#L306">306</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L307" href="Beta.html#L307">307</a> <em class="jxr_javadoccomment">     * @param a First argument.</em>
+<a class="jxr_linenumber" name="L308" href="Beta.html#L308">308</a> <em class="jxr_javadoccomment">     * @param b Second argument.</em>
+<a class="jxr_linenumber" name="L309" href="Beta.html#L309">309</a> <em class="jxr_javadoccomment">     * @return the value of {@code Delta(b) - Delta(a + b)}</em>
+<a class="jxr_linenumber" name="L310" href="Beta.html#L310">310</a> <em class="jxr_javadoccomment">     * @throws OutOfRangeException if {@code a &lt; 0} or {@code a &gt; b}</em>
+<a class="jxr_linenumber" name="L311" href="Beta.html#L311">311</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code b &lt; 10}</em>
+<a class="jxr_linenumber" name="L312" href="Beta.html#L312">312</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L313" href="Beta.html#L313">313</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> deltaMinusDeltaSum(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> a,
+<a class="jxr_linenumber" name="L314" href="Beta.html#L314">314</a>                                              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> b)
+<a class="jxr_linenumber" name="L315" href="Beta.html#L315">315</a>         <strong class="jxr_keyword">throws</strong> OutOfRangeException, <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a> {
+<a class="jxr_linenumber" name="L316" href="Beta.html#L316">316</a> 
+<a class="jxr_linenumber" name="L317" href="Beta.html#L317">317</a>         <strong class="jxr_keyword">if</strong> ((a &lt; 0) || (a &gt; b)) {
+<a class="jxr_linenumber" name="L318" href="Beta.html#L318">318</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/OutOfRangeException.html">OutOfRangeException</a>(a, 0, b);
+<a class="jxr_linenumber" name="L319" href="Beta.html#L319">319</a>         }
+<a class="jxr_linenumber" name="L320" href="Beta.html#L320">320</a>         <strong class="jxr_keyword">if</strong> (b &lt; 10) {
+<a class="jxr_linenumber" name="L321" href="Beta.html#L321">321</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(b, 10, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L322" href="Beta.html#L322">322</a>         }
+<a class="jxr_linenumber" name="L323" href="Beta.html#L323">323</a> 
+<a class="jxr_linenumber" name="L324" href="Beta.html#L324">324</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> h = a / b;
+<a class="jxr_linenumber" name="L325" href="Beta.html#L325">325</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p = h / (1.0 + h);
+<a class="jxr_linenumber" name="L326" href="Beta.html#L326">326</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> q = 1.0 / (1.0 + h);
+<a class="jxr_linenumber" name="L327" href="Beta.html#L327">327</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> q2 = q * q;
+<a class="jxr_linenumber" name="L328" href="Beta.html#L328">328</a>         <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L329" href="Beta.html#L329">329</a> <em class="jxr_comment">         * s[i] = 1 + q + ... - q**(2 * i)</em>
+<a class="jxr_linenumber" name="L330" href="Beta.html#L330">330</a> <em class="jxr_comment">         */</em>
+<a class="jxr_linenumber" name="L331" href="Beta.html#L331">331</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] s = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[DELTA.length];
+<a class="jxr_linenumber" name="L332" href="Beta.html#L332">332</a>         s[0] = 1.0;
+<a class="jxr_linenumber" name="L333" href="Beta.html#L333">333</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; s.length; i++) {
+<a class="jxr_linenumber" name="L334" href="Beta.html#L334">334</a>             s[i] = 1.0 + (q + q2 * s[i - 1]);
+<a class="jxr_linenumber" name="L335" href="Beta.html#L335">335</a>         }
+<a class="jxr_linenumber" name="L336" href="Beta.html#L336">336</a>         <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L337" href="Beta.html#L337">337</a> <em class="jxr_comment">         * w = Delta(b) - Delta(a + b)</em>
+<a class="jxr_linenumber" name="L338" href="Beta.html#L338">338</a> <em class="jxr_comment">         */</em>
+<a class="jxr_linenumber" name="L339" href="Beta.html#L339">339</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> sqrtT = 10.0 / b;
+<a class="jxr_linenumber" name="L340" href="Beta.html#L340">340</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> t = sqrtT * sqrtT;
+<a class="jxr_linenumber" name="L341" href="Beta.html#L341">341</a>         <strong class="jxr_keyword">double</strong> w = DELTA[DELTA.length - 1] * s[s.length - 1];
+<a class="jxr_linenumber" name="L342" href="Beta.html#L342">342</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = DELTA.length - 2; i &gt;= 0; i--) {
+<a class="jxr_linenumber" name="L343" href="Beta.html#L343">343</a>             w = t * w + DELTA[i] * s[i];
+<a class="jxr_linenumber" name="L344" href="Beta.html#L344">344</a>         }
+<a class="jxr_linenumber" name="L345" href="Beta.html#L345">345</a>         <strong class="jxr_keyword">return</strong> w * p / b;
+<a class="jxr_linenumber" name="L346" href="Beta.html#L346">346</a>     }
+<a class="jxr_linenumber" name="L347" href="Beta.html#L347">347</a> 
+<a class="jxr_linenumber" name="L348" href="Beta.html#L348">348</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L349" href="Beta.html#L349">349</a> <em class="jxr_javadoccomment">     * Returns the value of Δ(p) + Δ(q) - Δ(p + q), with p, q ≥ 10. Based on</em>
+<a class="jxr_linenumber" name="L350" href="Beta.html#L350">350</a> <em class="jxr_javadoccomment">     * the &lt;em&gt;NSWC Library of Mathematics Subroutines&lt;/em&gt; double precision</em>
+<a class="jxr_linenumber" name="L351" href="Beta.html#L351">351</a> <em class="jxr_javadoccomment">     * implementation, {@code DBCORR}. In</em>
+<a class="jxr_linenumber" name="L352" href="Beta.html#L352">352</a> <em class="jxr_javadoccomment">     * {@code BetaTest.testSumDeltaMinusDeltaSum()}, this private method is</em>
+<a class="jxr_linenumber" name="L353" href="Beta.html#L353">353</a> <em class="jxr_javadoccomment">     * accessed through reflection.</em>
+<a class="jxr_linenumber" name="L354" href="Beta.html#L354">354</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L355" href="Beta.html#L355">355</a> <em class="jxr_javadoccomment">     * @param p First argument.</em>
+<a class="jxr_linenumber" name="L356" href="Beta.html#L356">356</a> <em class="jxr_javadoccomment">     * @param q Second argument.</em>
+<a class="jxr_linenumber" name="L357" href="Beta.html#L357">357</a> <em class="jxr_javadoccomment">     * @return the value of {@code Delta(p) + Delta(q) - Delta(p + q)}.</em>
+<a class="jxr_linenumber" name="L358" href="Beta.html#L358">358</a> <em class="jxr_javadoccomment">     * @throws NumberIsTooSmallException if {@code p &lt; 10.0} or {@code q &lt; 10.0}.</em>
+<a class="jxr_linenumber" name="L359" href="Beta.html#L359">359</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L360" href="Beta.html#L360">360</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> sumDeltaMinusDeltaSum(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p,
+<a class="jxr_linenumber" name="L361" href="Beta.html#L361">361</a>                                                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> q) {
+<a class="jxr_linenumber" name="L362" href="Beta.html#L362">362</a> 
+<a class="jxr_linenumber" name="L363" href="Beta.html#L363">363</a>         <strong class="jxr_keyword">if</strong> (p &lt; 10.0) {
+<a class="jxr_linenumber" name="L364" href="Beta.html#L364">364</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(p, 10.0, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L365" href="Beta.html#L365">365</a>         }
+<a class="jxr_linenumber" name="L366" href="Beta.html#L366">366</a>         <strong class="jxr_keyword">if</strong> (q &lt; 10.0) {
+<a class="jxr_linenumber" name="L367" href="Beta.html#L367">367</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../exception/NumberIsTooSmallException.html">NumberIsTooSmallException</a>(q, 10.0, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L368" href="Beta.html#L368">368</a>         }
+<a class="jxr_linenumber" name="L369" href="Beta.html#L369">369</a> 
+<a class="jxr_linenumber" name="L370" href="Beta.html#L370">370</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> a = FastMath.min(p, q);
+<a class="jxr_linenumber" name="L371" href="Beta.html#L371">371</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> b = FastMath.max(p, q);
+<a class="jxr_linenumber" name="L372" href="Beta.html#L372">372</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> sqrtT = 10.0 / a;
+<a class="jxr_linenumber" name="L373" href="Beta.html#L373">373</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> t = sqrtT * sqrtT;
+<a class="jxr_linenumber" name="L374" href="Beta.html#L374">374</a>         <strong class="jxr_keyword">double</strong> z = DELTA[DELTA.length - 1];
+<a class="jxr_linenumber" name="L375" href="Beta.html#L375">375</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = DELTA.length - 2; i &gt;= 0; i--) {
+<a class="jxr_linenumber" name="L376" href="Beta.html#L376">376</a>             z = t * z + DELTA[i];
+<a class="jxr_linenumber" name="L377" href="Beta.html#L377">377</a>         }
+<a class="jxr_linenumber" name="L378" href="Beta.html#L378">378</a>         <strong class="jxr_keyword">return</strong> z / a + deltaMinusDeltaSum(a, b);
+<a class="jxr_linenumber" name="L379" href="Beta.html#L379">379</a>     }
+<a class="jxr_linenumber" name="L380" href="Beta.html#L380">380</a> 
+<a class="jxr_linenumber" name="L381" href="Beta.html#L381">381</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L382" href="Beta.html#L382">382</a> <em class="jxr_javadoccomment">     * Returns the value of log B(p, q) for 0 ≤ x ≤ 1 and p, q &gt; 0. Based on the</em>
+<a class="jxr_linenumber" name="L383" href="Beta.html#L383">383</a> <em class="jxr_javadoccomment">     * &lt;em&gt;NSWC Library of Mathematics Subroutines&lt;/em&gt; implementation,</em>
+<a class="jxr_linenumber" name="L384" href="Beta.html#L384">384</a> <em class="jxr_javadoccomment">     * {@code DBETLN}.</em>
+<a class="jxr_linenumber" name="L385" href="Beta.html#L385">385</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L386" href="Beta.html#L386">386</a> <em class="jxr_javadoccomment">     * @param p First argument.</em>
+<a class="jxr_linenumber" name="L387" href="Beta.html#L387">387</a> <em class="jxr_javadoccomment">     * @param q Second argument.</em>
+<a class="jxr_linenumber" name="L388" href="Beta.html#L388">388</a> <em class="jxr_javadoccomment">     * @return the value of {@code log(Beta(p, q))}, {@code NaN} if</em>
+<a class="jxr_linenumber" name="L389" href="Beta.html#L389">389</a> <em class="jxr_javadoccomment">     * {@code p &lt;= 0} or {@code q &lt;= 0}.</em>
+<a class="jxr_linenumber" name="L390" href="Beta.html#L390">390</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L391" href="Beta.html#L391">391</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> logBeta(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> p, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> q) {
+<a class="jxr_linenumber" name="L392" href="Beta.html#L392">392</a>         <strong class="jxr_keyword">if</strong> (Double.isNaN(p) || Double.isNaN(q) || (p &lt;= 0.0) || (q &lt;= 0.0)) {
+<a class="jxr_linenumber" name="L393" href="Beta.html#L393">393</a>             <strong class="jxr_keyword">return</strong> Double.NaN;
+<a class="jxr_linenumber" name="L394" href="Beta.html#L394">394</a>         }
+<a class="jxr_linenumber" name="L395" href="Beta.html#L395">395</a> 
+<a class="jxr_linenumber" name="L396" href="Beta.html#L396">396</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> a = FastMath.min(p, q);
+<a class="jxr_linenumber" name="L397" href="Beta.html#L397">397</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> b = FastMath.max(p, q);
+<a class="jxr_linenumber" name="L398" href="Beta.html#L398">398</a>         <strong class="jxr_keyword">if</strong> (a &gt;= 10.0) {
+<a class="jxr_linenumber" name="L399" href="Beta.html#L399">399</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> w = sumDeltaMinusDeltaSum(a, b);
+<a class="jxr_linenumber" name="L400" href="Beta.html#L400">400</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> h = a / b;
+<a class="jxr_linenumber" name="L401" href="Beta.html#L401">401</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> c = h / (1.0 + h);
+<a class="jxr_linenumber" name="L402" href="Beta.html#L402">402</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> u = -(a - 0.5) * FastMath.log(c);
+<a class="jxr_linenumber" name="L403" href="Beta.html#L403">403</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> v = b * FastMath.log1p(h);
+<a class="jxr_linenumber" name="L404" href="Beta.html#L404">404</a>             <strong class="jxr_keyword">if</strong> (u &lt;= v) {
+<a class="jxr_linenumber" name="L405" href="Beta.html#L405">405</a>                 <strong class="jxr_keyword">return</strong> (((-0.5 * FastMath.log(b) + HALF_LOG_TWO_PI) + w) - u) - v;
+<a class="jxr_linenumber" name="L406" href="Beta.html#L406">406</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L407" href="Beta.html#L407">407</a>                 <strong class="jxr_keyword">return</strong> (((-0.5 * FastMath.log(b) + HALF_LOG_TWO_PI) + w) - v) - u;
+<a class="jxr_linenumber" name="L408" href="Beta.html#L408">408</a>             }
+<a class="jxr_linenumber" name="L409" href="Beta.html#L409">409</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (a &gt; 2.0) {
+<a class="jxr_linenumber" name="L410" href="Beta.html#L410">410</a>             <strong class="jxr_keyword">if</strong> (b &gt; 1000.0) {
+<a class="jxr_linenumber" name="L411" href="Beta.html#L411">411</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = (<strong class="jxr_keyword">int</strong>) FastMath.floor(a - 1.0);
+<a class="jxr_linenumber" name="L412" href="Beta.html#L412">412</a>                 <strong class="jxr_keyword">double</strong> prod = 1.0;
+<a class="jxr_linenumber" name="L413" href="Beta.html#L413">413</a>                 <strong class="jxr_keyword">double</strong> ared = a;
+<a class="jxr_linenumber" name="L414" href="Beta.html#L414">414</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L415" href="Beta.html#L415">415</a>                     ared -= 1.0;
+<a class="jxr_linenumber" name="L416" href="Beta.html#L416">416</a>                     prod *= ared / (1.0 + ared / b);
+<a class="jxr_linenumber" name="L417" href="Beta.html#L417">417</a>                 }
+<a class="jxr_linenumber" name="L418" href="Beta.html#L418">418</a>                 <strong class="jxr_keyword">return</strong> (FastMath.log(prod) - n * FastMath.log(b)) +
+<a class="jxr_linenumber" name="L419" href="Beta.html#L419">419</a>                         (Gamma.logGamma(ared) +
+<a class="jxr_linenumber" name="L420" href="Beta.html#L420">420</a>                          logGammaMinusLogGammaSum(ared, b));
+<a class="jxr_linenumber" name="L421" href="Beta.html#L421">421</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L422" href="Beta.html#L422">422</a>                 <strong class="jxr_keyword">double</strong> prod1 = 1.0;
+<a class="jxr_linenumber" name="L423" href="Beta.html#L423">423</a>                 <strong class="jxr_keyword">double</strong> ared = a;
+<a class="jxr_linenumber" name="L424" href="Beta.html#L424">424</a>                 <strong class="jxr_keyword">while</strong> (ared &gt; 2.0) {
+<a class="jxr_linenumber" name="L425" href="Beta.html#L425">425</a>                     ared -= 1.0;
+<a class="jxr_linenumber" name="L426" href="Beta.html#L426">426</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> h = ared / b;
+<a class="jxr_linenumber" name="L427" href="Beta.html#L427">427</a>                     prod1 *= h / (1.0 + h);
+<a class="jxr_linenumber" name="L428" href="Beta.html#L428">428</a>                 }
+<a class="jxr_linenumber" name="L429" href="Beta.html#L429">429</a>                 <strong class="jxr_keyword">if</strong> (b &lt; 10.0) {
+<a class="jxr_linenumber" name="L430" href="Beta.html#L430">430</a>                     <strong class="jxr_keyword">double</strong> prod2 = 1.0;
+<a class="jxr_linenumber" name="L431" href="Beta.html#L431">431</a>                     <strong class="jxr_keyword">double</strong> bred = b;
+<a class="jxr_linenumber" name="L432" href="Beta.html#L432">432</a>                     <strong class="jxr_keyword">while</strong> (bred &gt; 2.0) {
+<a class="jxr_linenumber" name="L433" href="Beta.html#L433">433</a>                         bred -= 1.0;
+<a class="jxr_linenumber" name="L434" href="Beta.html#L434">434</a>                         prod2 *= bred / (ared + bred);
+<a class="jxr_linenumber" name="L435" href="Beta.html#L435">435</a>                     }
+<a class="jxr_linenumber" name="L436" href="Beta.html#L436">436</a>                     <strong class="jxr_keyword">return</strong> FastMath.log(prod1) +
+<a class="jxr_linenumber" name="L437" href="Beta.html#L437">437</a>                            FastMath.log(prod2) +
+<a class="jxr_linenumber" name="L438" href="Beta.html#L438">438</a>                            (Gamma.logGamma(ared) +
+<a class="jxr_linenumber" name="L439" href="Beta.html#L439">439</a>                            (Gamma.logGamma(bred) -
+<a class="jxr_linenumber" name="L440" href="Beta.html#L440">440</a>                             logGammaSum(ared, bred)));
+<a class="jxr_linenumber" name="L441" href="Beta.html#L441">441</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L442" href="Beta.html#L442">442</a>                     <strong class="jxr_keyword">return</strong> FastMath.log(prod1) +
+<a class="jxr_linenumber" name="L443" href="Beta.html#L443">443</a>                            Gamma.logGamma(ared) +
+<a class="jxr_linenumber" name="L444" href="Beta.html#L444">444</a>                            logGammaMinusLogGammaSum(ared, b);
+<a class="jxr_linenumber" name="L445" href="Beta.html#L445">445</a>                 }
+<a class="jxr_linenumber" name="L446" href="Beta.html#L446">446</a>             }
+<a class="jxr_linenumber" name="L447" href="Beta.html#L447">447</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (a &gt;= 1.0) {
+<a class="jxr_linenumber" name="L448" href="Beta.html#L448">448</a>             <strong class="jxr_keyword">if</strong> (b &gt; 2.0) {
+<a class="jxr_linenumber" name="L449" href="Beta.html#L449">449</a>                 <strong class="jxr_keyword">if</strong> (b &lt; 10.0) {
+<a class="jxr_linenumber" name="L450" href="Beta.html#L450">450</a>                     <strong class="jxr_keyword">double</strong> prod = 1.0;
+<a class="jxr_linenumber" name="L451" href="Beta.html#L451">451</a>                     <strong class="jxr_keyword">double</strong> bred = b;
+<a class="jxr_linenumber" name="L452" href="Beta.html#L452">452</a>                     <strong class="jxr_keyword">while</strong> (bred &gt; 2.0) {
+<a class="jxr_linenumber" name="L453" href="Beta.html#L453">453</a>                         bred -= 1.0;
+<a class="jxr_linenumber" name="L454" href="Beta.html#L454">454</a>                         prod *= bred / (a + bred);
+<a class="jxr_linenumber" name="L455" href="Beta.html#L455">455</a>                     }
+<a class="jxr_linenumber" name="L456" href="Beta.html#L456">456</a>                     <strong class="jxr_keyword">return</strong> FastMath.log(prod) +
+<a class="jxr_linenumber" name="L457" href="Beta.html#L457">457</a>                            (Gamma.logGamma(a) +
+<a class="jxr_linenumber" name="L458" href="Beta.html#L458">458</a>                             (Gamma.logGamma(bred) -
+<a class="jxr_linenumber" name="L459" href="Beta.html#L459">459</a>                              logGammaSum(a, bred)));
+<a class="jxr_linenumber" name="L460" href="Beta.html#L460">460</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L461" href="Beta.html#L461">461</a>                     <strong class="jxr_keyword">return</strong> Gamma.logGamma(a) +
+<a class="jxr_linenumber" name="L462" href="Beta.html#L462">462</a>                            logGammaMinusLogGammaSum(a, b);
+<a class="jxr_linenumber" name="L463" href="Beta.html#L463">463</a>                 }
+<a class="jxr_linenumber" name="L464" href="Beta.html#L464">464</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L465" href="Beta.html#L465">465</a>                 <strong class="jxr_keyword">return</strong> Gamma.logGamma(a) +
+<a class="jxr_linenumber" name="L466" href="Beta.html#L466">466</a>                        Gamma.logGamma(b) -
+<a class="jxr_linenumber" name="L467" href="Beta.html#L467">467</a>                        logGammaSum(a, b);
+<a class="jxr_linenumber" name="L468" href="Beta.html#L468">468</a>             }
+<a class="jxr_linenumber" name="L469" href="Beta.html#L469">469</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L470" href="Beta.html#L470">470</a>             <strong class="jxr_keyword">if</strong> (b &gt;= 10.0) {
+<a class="jxr_linenumber" name="L471" href="Beta.html#L471">471</a>                 <strong class="jxr_keyword">return</strong> Gamma.logGamma(a) +
+<a class="jxr_linenumber" name="L472" href="Beta.html#L472">472</a>                        logGammaMinusLogGammaSum(a, b);
+<a class="jxr_linenumber" name="L473" href="Beta.html#L473">473</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L474" href="Beta.html#L474">474</a>                 <em class="jxr_comment">// The following command is the original NSWC implementation.</em>
+<a class="jxr_linenumber" name="L475" href="Beta.html#L475">475</a>                 <em class="jxr_comment">// return Gamma.logGamma(a) +</em>
+<a class="jxr_linenumber" name="L476" href="Beta.html#L476">476</a>                 <em class="jxr_comment">// (Gamma.logGamma(b) - Gamma.logGamma(a + b));</em>
+<a class="jxr_linenumber" name="L477" href="Beta.html#L477">477</a>                 <em class="jxr_comment">// The following command turns out to be more accurate.</em>
+<a class="jxr_linenumber" name="L478" href="Beta.html#L478">478</a>                 <strong class="jxr_keyword">return</strong> FastMath.log(Gamma.gamma(a) * Gamma.gamma(b) /
+<a class="jxr_linenumber" name="L479" href="Beta.html#L479">479</a>                                     Gamma.gamma(a + b));
+<a class="jxr_linenumber" name="L480" href="Beta.html#L480">480</a>             }
+<a class="jxr_linenumber" name="L481" href="Beta.html#L481">481</a>         }
+<a class="jxr_linenumber" name="L482" href="Beta.html#L482">482</a>     }
+<a class="jxr_linenumber" name="L483" href="Beta.html#L483">483</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

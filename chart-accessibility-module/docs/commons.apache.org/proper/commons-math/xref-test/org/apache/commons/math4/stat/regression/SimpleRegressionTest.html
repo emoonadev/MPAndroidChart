@@ -1,0 +1,710 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>SimpleRegressionTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="http://commons.apache.org/proper/commons-math/testapidocs/org/apache/commons/math4/stat/regression/SimpleRegressionTest.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="SimpleRegressionTest.html#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="SimpleRegressionTest.html#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="SimpleRegressionTest.html#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="SimpleRegressionTest.html#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="SimpleRegressionTest.html#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="SimpleRegressionTest.html#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="SimpleRegressionTest.html#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="SimpleRegressionTest.html#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="SimpleRegressionTest.html#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="SimpleRegressionTest.html#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="SimpleRegressionTest.html#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="SimpleRegressionTest.html#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="SimpleRegressionTest.html#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="SimpleRegressionTest.html#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="SimpleRegressionTest.html#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="SimpleRegressionTest.html#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="SimpleRegressionTest.html#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math4.stat.regression;
+<a class="jxr_linenumber" name="L18" href="SimpleRegressionTest.html#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="SimpleRegressionTest.html#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.Random;
+<a class="jxr_linenumber" name="L20" href="SimpleRegressionTest.html#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="SimpleRegressionTest.html#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L22" href="SimpleRegressionTest.html#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L23" href="SimpleRegressionTest.html#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.UniformRandomProvider;
+<a class="jxr_linenumber" name="L24" href="SimpleRegressionTest.html#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.rng.RandomSource;
+<a class="jxr_linenumber" name="L25" href="SimpleRegressionTest.html#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.regression.ModelSpecificationException;
+<a class="jxr_linenumber" name="L26" href="SimpleRegressionTest.html#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.regression.RegressionResults;
+<a class="jxr_linenumber" name="L27" href="SimpleRegressionTest.html#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.regression.SimpleRegression;
+<a class="jxr_linenumber" name="L28" href="SimpleRegressionTest.html#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.stat.regression.UpdatingMultipleLinearRegression;
+<a class="jxr_linenumber" name="L29" href="SimpleRegressionTest.html#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math4.util.FastMath;
+<a class="jxr_linenumber" name="L30" href="SimpleRegressionTest.html#L30">30</a>  <strong class="jxr_keyword">import</strong> org.junit.Assert;
+<a class="jxr_linenumber" name="L31" href="SimpleRegressionTest.html#L31">31</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
+<a class="jxr_linenumber" name="L32" href="SimpleRegressionTest.html#L32">32</a>  
+<a class="jxr_linenumber" name="L33" href="SimpleRegressionTest.html#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="SimpleRegressionTest.html#L34">34</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L35" href="SimpleRegressionTest.html#L35">35</a>  <em class="jxr_javadoccomment"> * Test cases for the TestStatistic class.</em>
+<a class="jxr_linenumber" name="L36" href="SimpleRegressionTest.html#L36">36</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L37" href="SimpleRegressionTest.html#L37">37</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L38" href="SimpleRegressionTest.html#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="SimpleRegressionTest.html#L39">39</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="SimpleRegressionTest.html">SimpleRegressionTest</a> {
+<a class="jxr_linenumber" name="L40" href="SimpleRegressionTest.html#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="SimpleRegressionTest.html#L41">41</a>      <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L42" href="SimpleRegressionTest.html#L42">42</a>  <em class="jxr_comment">     * NIST "Norris" refernce data set from</em>
+<a class="jxr_linenumber" name="L43" href="SimpleRegressionTest.html#L43">43</a>  <em class="jxr_comment">     * <a href="http://www.itl.nist.gov/div898/strd/lls/data/LINKS/DATA/Norris.da" target="alexandria_uri">http://www.itl.nist.gov/div898/strd/lls/data/LINKS/DATA/Norris.da</a>t</em>
+<a class="jxr_linenumber" name="L44" href="SimpleRegressionTest.html#L44">44</a>  <em class="jxr_comment">     * Strangely, order is {y,x}</em>
+<a class="jxr_linenumber" name="L45" href="SimpleRegressionTest.html#L45">45</a>  <em class="jxr_comment">     */</em>
+<a class="jxr_linenumber" name="L46" href="SimpleRegressionTest.html#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[][] data = { { 0.1, 0.2 }, {338.8, 337.4 }, {118.1, 118.2 },
+<a class="jxr_linenumber" name="L47" href="SimpleRegressionTest.html#L47">47</a>              {888.0, 884.6 }, {9.2, 10.1 }, {228.1, 226.5 }, {668.5, 666.3 }, {998.5, 996.3 },
+<a class="jxr_linenumber" name="L48" href="SimpleRegressionTest.html#L48">48</a>              {449.1, 448.6 }, {778.9, 777.0 }, {559.2, 558.2 }, {0.3, 0.4 }, {0.1, 0.6 }, {778.1, 775.5 },
+<a class="jxr_linenumber" name="L49" href="SimpleRegressionTest.html#L49">49</a>              {668.8, 666.9 }, {339.3, 338.0 }, {448.9, 447.5 }, {10.8, 11.6 }, {557.7, 556.0 },
+<a class="jxr_linenumber" name="L50" href="SimpleRegressionTest.html#L50">50</a>              {228.3, 228.1 }, {998.0, 995.8 }, {888.8, 887.6 }, {119.6, 120.2 }, {0.3, 0.3 },
+<a class="jxr_linenumber" name="L51" href="SimpleRegressionTest.html#L51">51</a>              {0.6, 0.3 }, {557.6, 556.8 }, {339.3, 339.1 }, {888.0, 887.2 }, {998.5, 999.0 },
+<a class="jxr_linenumber" name="L52" href="SimpleRegressionTest.html#L52">52</a>              {778.9, 779.0 }, {10.2, 11.1 }, {117.6, 118.3 }, {228.9, 229.2 }, {668.4, 669.1 },
+<a class="jxr_linenumber" name="L53" href="SimpleRegressionTest.html#L53">53</a>              {449.2, 448.9 }, {0.2, 0.5 }
+<a class="jxr_linenumber" name="L54" href="SimpleRegressionTest.html#L54">54</a>      };
+<a class="jxr_linenumber" name="L55" href="SimpleRegressionTest.html#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="SimpleRegressionTest.html#L56">56</a>      <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L57" href="SimpleRegressionTest.html#L57">57</a>  <em class="jxr_comment">     * Correlation example from</em>
+<a class="jxr_linenumber" name="L58" href="SimpleRegressionTest.html#L58">58</a>  <em class="jxr_comment">     * <a href="http://www.xycoon.com/correlation.ht" target="alexandria_uri">http://www.xycoon.com/correlation.ht</a>m</em>
+<a class="jxr_linenumber" name="L59" href="SimpleRegressionTest.html#L59">59</a>  <em class="jxr_comment">     */</em>
+<a class="jxr_linenumber" name="L60" href="SimpleRegressionTest.html#L60">60</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[][] corrData = { { 101.0, 99.2 }, {100.1, 99.0 }, {100.0, 100.0 },
+<a class="jxr_linenumber" name="L61" href="SimpleRegressionTest.html#L61">61</a>              {90.6, 111.6 }, {86.5, 122.2 }, {89.7, 117.6 }, {90.6, 121.1 }, {82.8, 136.0 },
+<a class="jxr_linenumber" name="L62" href="SimpleRegressionTest.html#L62">62</a>              {70.1, 154.2 }, {65.4, 153.6 }, {61.3, 158.5 }, {62.5, 140.6 }, {63.6, 136.2 },
+<a class="jxr_linenumber" name="L63" href="SimpleRegressionTest.html#L63">63</a>              {52.6, 168.0 }, {59.7, 154.3 }, {59.5, 149.0 }, {61.3, 165.5 }
+<a class="jxr_linenumber" name="L64" href="SimpleRegressionTest.html#L64">64</a>      };
+<a class="jxr_linenumber" name="L65" href="SimpleRegressionTest.html#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="SimpleRegressionTest.html#L66">66</a>      <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L67" href="SimpleRegressionTest.html#L67">67</a>  <em class="jxr_comment">     * From Moore and Mcabe, "Introduction to the Practice of Statistics"</em>
+<a class="jxr_linenumber" name="L68" href="SimpleRegressionTest.html#L68">68</a>  <em class="jxr_comment">     * Example 10.3</em>
+<a class="jxr_linenumber" name="L69" href="SimpleRegressionTest.html#L69">69</a>  <em class="jxr_comment">     */</em>
+<a class="jxr_linenumber" name="L70" href="SimpleRegressionTest.html#L70">70</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[][] infData = { { 15.6, 5.2 }, {26.8, 6.1 }, {37.8, 8.7 }, {36.4, 8.5 },
+<a class="jxr_linenumber" name="L71" href="SimpleRegressionTest.html#L71">71</a>              {35.5, 8.8 }, {18.6, 4.9 }, {15.3, 4.5 }, {7.9, 2.5 }, {0.0, 1.1 }
+<a class="jxr_linenumber" name="L72" href="SimpleRegressionTest.html#L72">72</a>      };
+<a class="jxr_linenumber" name="L73" href="SimpleRegressionTest.html#L73">73</a>  
+<a class="jxr_linenumber" name="L74" href="SimpleRegressionTest.html#L74">74</a>      <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L75" href="SimpleRegressionTest.html#L75">75</a>  <em class="jxr_comment">     * Points to remove in the remove tests</em>
+<a class="jxr_linenumber" name="L76" href="SimpleRegressionTest.html#L76">76</a>  <em class="jxr_comment">     */</em>
+<a class="jxr_linenumber" name="L77" href="SimpleRegressionTest.html#L77">77</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[][] removeSingle = {infData[1]};
+<a class="jxr_linenumber" name="L78" href="SimpleRegressionTest.html#L78">78</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[][] removeMultiple = { infData[1], infData[2] };
+<a class="jxr_linenumber" name="L79" href="SimpleRegressionTest.html#L79">79</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> removeX = infData[0][0];
+<a class="jxr_linenumber" name="L80" href="SimpleRegressionTest.html#L80">80</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> removeY = infData[0][1];
+<a class="jxr_linenumber" name="L81" href="SimpleRegressionTest.html#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="SimpleRegressionTest.html#L82">82</a>  
+<a class="jxr_linenumber" name="L83" href="SimpleRegressionTest.html#L83">83</a>      <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L84" href="SimpleRegressionTest.html#L84">84</a>  <em class="jxr_comment">     * Data with bad linear fit</em>
+<a class="jxr_linenumber" name="L85" href="SimpleRegressionTest.html#L85">85</a>  <em class="jxr_comment">     */</em>
+<a class="jxr_linenumber" name="L86" href="SimpleRegressionTest.html#L86">86</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[][] infData2 = { { 1, 1 }, {2, 0 }, {3, 5 }, {4, 2 },
+<a class="jxr_linenumber" name="L87" href="SimpleRegressionTest.html#L87">87</a>              {5, -1 }, {6, 12 }
+<a class="jxr_linenumber" name="L88" href="SimpleRegressionTest.html#L88">88</a>      };
+<a class="jxr_linenumber" name="L89" href="SimpleRegressionTest.html#L89">89</a>  
+<a class="jxr_linenumber" name="L90" href="SimpleRegressionTest.html#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="SimpleRegressionTest.html#L91">91</a>      <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L92" href="SimpleRegressionTest.html#L92">92</a>  <em class="jxr_comment">     * Data from NIST NOINT1</em>
+<a class="jxr_linenumber" name="L93" href="SimpleRegressionTest.html#L93">93</a>  <em class="jxr_comment">     */</em>
+<a class="jxr_linenumber" name="L94" href="SimpleRegressionTest.html#L94">94</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[][] noint1 = {
+<a class="jxr_linenumber" name="L95" href="SimpleRegressionTest.html#L95">95</a>          {130.0,60.0},
+<a class="jxr_linenumber" name="L96" href="SimpleRegressionTest.html#L96">96</a>          {131.0,61.0},
+<a class="jxr_linenumber" name="L97" href="SimpleRegressionTest.html#L97">97</a>          {132.0,62.0},
+<a class="jxr_linenumber" name="L98" href="SimpleRegressionTest.html#L98">98</a>          {133.0,63.0},
+<a class="jxr_linenumber" name="L99" href="SimpleRegressionTest.html#L99">99</a>          {134.0,64.0},
+<a class="jxr_linenumber" name="L100" href="SimpleRegressionTest.html#L100">100</a>         {135.0,65.0},
+<a class="jxr_linenumber" name="L101" href="SimpleRegressionTest.html#L101">101</a>         {136.0,66.0},
+<a class="jxr_linenumber" name="L102" href="SimpleRegressionTest.html#L102">102</a>         {137.0,67.0},
+<a class="jxr_linenumber" name="L103" href="SimpleRegressionTest.html#L103">103</a>         {138.0,68.0},
+<a class="jxr_linenumber" name="L104" href="SimpleRegressionTest.html#L104">104</a>         {139.0,69.0},
+<a class="jxr_linenumber" name="L105" href="SimpleRegressionTest.html#L105">105</a>         {140.0,70.0}
+<a class="jxr_linenumber" name="L106" href="SimpleRegressionTest.html#L106">106</a>     };
+<a class="jxr_linenumber" name="L107" href="SimpleRegressionTest.html#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="SimpleRegressionTest.html#L108">108</a>     <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L109" href="SimpleRegressionTest.html#L109">109</a> <em class="jxr_comment">     * Data from NIST NOINT2</em>
+<a class="jxr_linenumber" name="L110" href="SimpleRegressionTest.html#L110">110</a> <em class="jxr_comment">     *</em>
+<a class="jxr_linenumber" name="L111" href="SimpleRegressionTest.html#L111">111</a> <em class="jxr_comment">     */</em>
+<a class="jxr_linenumber" name="L112" href="SimpleRegressionTest.html#L112">112</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[][] noint2 = {
+<a class="jxr_linenumber" name="L113" href="SimpleRegressionTest.html#L113">113</a>         {3.0,4},
+<a class="jxr_linenumber" name="L114" href="SimpleRegressionTest.html#L114">114</a>         {4,5},
+<a class="jxr_linenumber" name="L115" href="SimpleRegressionTest.html#L115">115</a>         {4,6}
+<a class="jxr_linenumber" name="L116" href="SimpleRegressionTest.html#L116">116</a>     };
+<a class="jxr_linenumber" name="L117" href="SimpleRegressionTest.html#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="SimpleRegressionTest.html#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="SimpleRegressionTest.html#L119">119</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L120" href="SimpleRegressionTest.html#L120">120</a> <em class="jxr_javadoccomment">     * Test that the SimpleRegression objects generated from combining two</em>
+<a class="jxr_linenumber" name="L121" href="SimpleRegressionTest.html#L121">121</a> <em class="jxr_javadoccomment">     * SimpleRegression objects created from subsets of data are identical to</em>
+<a class="jxr_linenumber" name="L122" href="SimpleRegressionTest.html#L122">122</a> <em class="jxr_javadoccomment">     * SimpleRegression objects created from the combined data.</em>
+<a class="jxr_linenumber" name="L123" href="SimpleRegressionTest.html#L123">123</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L124" href="SimpleRegressionTest.html#L124">124</a>     @Test
+<a class="jxr_linenumber" name="L125" href="SimpleRegressionTest.html#L125">125</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testAppend() {
+<a class="jxr_linenumber" name="L126" href="SimpleRegressionTest.html#L126">126</a>         check(false);
+<a class="jxr_linenumber" name="L127" href="SimpleRegressionTest.html#L127">127</a>         check(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L128" href="SimpleRegressionTest.html#L128">128</a>     }
+<a class="jxr_linenumber" name="L129" href="SimpleRegressionTest.html#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="SimpleRegressionTest.html#L130">130</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L131" href="SimpleRegressionTest.html#L131">131</a> <em class="jxr_javadoccomment">     * Checks that adding data to a single model gives the same result</em>
+<a class="jxr_linenumber" name="L132" href="SimpleRegressionTest.html#L132">132</a> <em class="jxr_javadoccomment">     * as adding "parts" of the dataset to smaller models and using append</em>
+<a class="jxr_linenumber" name="L133" href="SimpleRegressionTest.html#L133">133</a> <em class="jxr_javadoccomment">     * to aggregate the smaller models.</em>
+<a class="jxr_linenumber" name="L134" href="SimpleRegressionTest.html#L134">134</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L135" href="SimpleRegressionTest.html#L135">135</a> <em class="jxr_javadoccomment">     * @param includeIntercept</em>
+<a class="jxr_linenumber" name="L136" href="SimpleRegressionTest.html#L136">136</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L137" href="SimpleRegressionTest.html#L137">137</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> check(<strong class="jxr_keyword">boolean</strong> includeIntercept) {
+<a class="jxr_linenumber" name="L138" href="SimpleRegressionTest.html#L138">138</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> sets = 2;
+<a class="jxr_linenumber" name="L139" href="SimpleRegressionTest.html#L139">139</a>         <strong class="jxr_keyword">final</strong> UniformRandomProvider rand = RandomSource.create(RandomSource.ISAAC, 10L);<em class="jxr_comment">// Seed can be changed</em>
+<a class="jxr_linenumber" name="L140" href="SimpleRegressionTest.html#L140">140</a>         <strong class="jxr_keyword">final</strong> SimpleRegression whole = <strong class="jxr_keyword">new</strong> SimpleRegression(includeIntercept);<em class="jxr_comment">// regression of the whole set</em>
+<a class="jxr_linenumber" name="L141" href="SimpleRegressionTest.html#L141">141</a>         <strong class="jxr_keyword">final</strong> SimpleRegression parts = <strong class="jxr_keyword">new</strong> SimpleRegression(includeIntercept);<em class="jxr_comment">// regression with parts.</em>
+<a class="jxr_linenumber" name="L142" href="SimpleRegressionTest.html#L142">142</a> 
+<a class="jxr_linenumber" name="L143" href="SimpleRegressionTest.html#L143">143</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> s = 0; s &lt; sets; s++) {<em class="jxr_comment">// loop through each subset of data.</em>
+<a class="jxr_linenumber" name="L144" href="SimpleRegressionTest.html#L144">144</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> coef = rand.nextDouble();
+<a class="jxr_linenumber" name="L145" href="SimpleRegressionTest.html#L145">145</a>             <strong class="jxr_keyword">final</strong> SimpleRegression sub = <strong class="jxr_keyword">new</strong> SimpleRegression(includeIntercept);<em class="jxr_comment">// sub regression</em>
+<a class="jxr_linenumber" name="L146" href="SimpleRegressionTest.html#L146">146</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; 5; i++) { <em class="jxr_comment">// loop through individual samlpes.</em>
+<a class="jxr_linenumber" name="L147" href="SimpleRegressionTest.html#L147">147</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> x = rand.nextDouble();
+<a class="jxr_linenumber" name="L148" href="SimpleRegressionTest.html#L148">148</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> y = x * coef + rand.nextDouble();<em class="jxr_comment">// some noise</em>
+<a class="jxr_linenumber" name="L149" href="SimpleRegressionTest.html#L149">149</a>                 sub.addData(x, y);
+<a class="jxr_linenumber" name="L150" href="SimpleRegressionTest.html#L150">150</a>                 whole.addData(x, y);
+<a class="jxr_linenumber" name="L151" href="SimpleRegressionTest.html#L151">151</a>             }
+<a class="jxr_linenumber" name="L152" href="SimpleRegressionTest.html#L152">152</a>             parts.append(sub);
+<a class="jxr_linenumber" name="L153" href="SimpleRegressionTest.html#L153">153</a>             Assert.assertTrue(equals(parts, whole, 1E-6));
+<a class="jxr_linenumber" name="L154" href="SimpleRegressionTest.html#L154">154</a>         }
+<a class="jxr_linenumber" name="L155" href="SimpleRegressionTest.html#L155">155</a>     }
+<a class="jxr_linenumber" name="L156" href="SimpleRegressionTest.html#L156">156</a> 
+<a class="jxr_linenumber" name="L157" href="SimpleRegressionTest.html#L157">157</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L158" href="SimpleRegressionTest.html#L158">158</a> <em class="jxr_javadoccomment">     * Returns true iff the statistics reported by model1 are all within tol of</em>
+<a class="jxr_linenumber" name="L159" href="SimpleRegressionTest.html#L159">159</a> <em class="jxr_javadoccomment">     * those reported by model2.</em>
+<a class="jxr_linenumber" name="L160" href="SimpleRegressionTest.html#L160">160</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L161" href="SimpleRegressionTest.html#L161">161</a> <em class="jxr_javadoccomment">     * @param model1 first model</em>
+<a class="jxr_linenumber" name="L162" href="SimpleRegressionTest.html#L162">162</a> <em class="jxr_javadoccomment">     * @param model2 second model</em>
+<a class="jxr_linenumber" name="L163" href="SimpleRegressionTest.html#L163">163</a> <em class="jxr_javadoccomment">     * @param tol tolerance</em>
+<a class="jxr_linenumber" name="L164" href="SimpleRegressionTest.html#L164">164</a> <em class="jxr_javadoccomment">     * @return true if the two models report the same regression stats</em>
+<a class="jxr_linenumber" name="L165" href="SimpleRegressionTest.html#L165">165</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L166" href="SimpleRegressionTest.html#L166">166</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> equals(SimpleRegression model1, SimpleRegression model2, <strong class="jxr_keyword">double</strong> tol) {
+<a class="jxr_linenumber" name="L167" href="SimpleRegressionTest.html#L167">167</a>         <strong class="jxr_keyword">if</strong> (model1.getN() != model2.getN()) {
+<a class="jxr_linenumber" name="L168" href="SimpleRegressionTest.html#L168">168</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L169" href="SimpleRegressionTest.html#L169">169</a>         }
+<a class="jxr_linenumber" name="L170" href="SimpleRegressionTest.html#L170">170</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(model1.getIntercept() - model2.getIntercept()) &gt; tol) {
+<a class="jxr_linenumber" name="L171" href="SimpleRegressionTest.html#L171">171</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L172" href="SimpleRegressionTest.html#L172">172</a>         }
+<a class="jxr_linenumber" name="L173" href="SimpleRegressionTest.html#L173">173</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(model1.getInterceptStdErr() - model2.getInterceptStdErr()) &gt; tol) {
+<a class="jxr_linenumber" name="L174" href="SimpleRegressionTest.html#L174">174</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L175" href="SimpleRegressionTest.html#L175">175</a>         }
+<a class="jxr_linenumber" name="L176" href="SimpleRegressionTest.html#L176">176</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(model1.getMeanSquareError() - model2.getMeanSquareError()) &gt; tol) {
+<a class="jxr_linenumber" name="L177" href="SimpleRegressionTest.html#L177">177</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L178" href="SimpleRegressionTest.html#L178">178</a>         }
+<a class="jxr_linenumber" name="L179" href="SimpleRegressionTest.html#L179">179</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(model1.getR() - model2.getR()) &gt; tol) {
+<a class="jxr_linenumber" name="L180" href="SimpleRegressionTest.html#L180">180</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L181" href="SimpleRegressionTest.html#L181">181</a>         }
+<a class="jxr_linenumber" name="L182" href="SimpleRegressionTest.html#L182">182</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(model1.getRegressionSumSquares() - model2.getRegressionSumSquares()) &gt; tol) {
+<a class="jxr_linenumber" name="L183" href="SimpleRegressionTest.html#L183">183</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L184" href="SimpleRegressionTest.html#L184">184</a>         }
+<a class="jxr_linenumber" name="L185" href="SimpleRegressionTest.html#L185">185</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(model1.getRSquare() - model2.getRSquare()) &gt; tol) {
+<a class="jxr_linenumber" name="L186" href="SimpleRegressionTest.html#L186">186</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L187" href="SimpleRegressionTest.html#L187">187</a>         }
+<a class="jxr_linenumber" name="L188" href="SimpleRegressionTest.html#L188">188</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(model1.getSignificance() - model2.getSignificance()) &gt; tol) {
+<a class="jxr_linenumber" name="L189" href="SimpleRegressionTest.html#L189">189</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L190" href="SimpleRegressionTest.html#L190">190</a>         }
+<a class="jxr_linenumber" name="L191" href="SimpleRegressionTest.html#L191">191</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(model1.getSlope() - model2.getSlope()) &gt; tol) {
+<a class="jxr_linenumber" name="L192" href="SimpleRegressionTest.html#L192">192</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L193" href="SimpleRegressionTest.html#L193">193</a>         }
+<a class="jxr_linenumber" name="L194" href="SimpleRegressionTest.html#L194">194</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(model1.getSlopeConfidenceInterval() - model2.getSlopeConfidenceInterval()) &gt; tol) {
+<a class="jxr_linenumber" name="L195" href="SimpleRegressionTest.html#L195">195</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L196" href="SimpleRegressionTest.html#L196">196</a>         }
+<a class="jxr_linenumber" name="L197" href="SimpleRegressionTest.html#L197">197</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(model1.getSlopeStdErr() - model2.getSlopeStdErr()) &gt; tol) {
+<a class="jxr_linenumber" name="L198" href="SimpleRegressionTest.html#L198">198</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L199" href="SimpleRegressionTest.html#L199">199</a>         }
+<a class="jxr_linenumber" name="L200" href="SimpleRegressionTest.html#L200">200</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(model1.getSumOfCrossProducts() - model2.getSumOfCrossProducts()) &gt; tol) {
+<a class="jxr_linenumber" name="L201" href="SimpleRegressionTest.html#L201">201</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L202" href="SimpleRegressionTest.html#L202">202</a>         }
+<a class="jxr_linenumber" name="L203" href="SimpleRegressionTest.html#L203">203</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(model1.getSumSquaredErrors() - model2.getSumSquaredErrors()) &gt; tol) {
+<a class="jxr_linenumber" name="L204" href="SimpleRegressionTest.html#L204">204</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L205" href="SimpleRegressionTest.html#L205">205</a>         }
+<a class="jxr_linenumber" name="L206" href="SimpleRegressionTest.html#L206">206</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(model1.getTotalSumSquares() - model2.getTotalSumSquares()) &gt; tol) {
+<a class="jxr_linenumber" name="L207" href="SimpleRegressionTest.html#L207">207</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L208" href="SimpleRegressionTest.html#L208">208</a>         }
+<a class="jxr_linenumber" name="L209" href="SimpleRegressionTest.html#L209">209</a>         <strong class="jxr_keyword">if</strong> (FastMath.abs(model1.getXSumSquares() - model2.getXSumSquares()) &gt; tol) {
+<a class="jxr_linenumber" name="L210" href="SimpleRegressionTest.html#L210">210</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L211" href="SimpleRegressionTest.html#L211">211</a>         }
+<a class="jxr_linenumber" name="L212" href="SimpleRegressionTest.html#L212">212</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L213" href="SimpleRegressionTest.html#L213">213</a>     }
+<a class="jxr_linenumber" name="L214" href="SimpleRegressionTest.html#L214">214</a> 
+<a class="jxr_linenumber" name="L215" href="SimpleRegressionTest.html#L215">215</a>     @Test
+<a class="jxr_linenumber" name="L216" href="SimpleRegressionTest.html#L216">216</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRegressIfaceMethod(){
+<a class="jxr_linenumber" name="L217" href="SimpleRegressionTest.html#L217">217</a>         <strong class="jxr_keyword">final</strong> SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L218" href="SimpleRegressionTest.html#L218">218</a>         <strong class="jxr_keyword">final</strong> UpdatingMultipleLinearRegression iface = regression;
+<a class="jxr_linenumber" name="L219" href="SimpleRegressionTest.html#L219">219</a>         <strong class="jxr_keyword">final</strong> SimpleRegression regressionNoint = <strong class="jxr_keyword">new</strong> SimpleRegression( false );
+<a class="jxr_linenumber" name="L220" href="SimpleRegressionTest.html#L220">220</a>         <strong class="jxr_keyword">final</strong> SimpleRegression regressionIntOnly= <strong class="jxr_keyword">new</strong> SimpleRegression( false );
+<a class="jxr_linenumber" name="L221" href="SimpleRegressionTest.html#L221">221</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; data.length; i++) {
+<a class="jxr_linenumber" name="L222" href="SimpleRegressionTest.html#L222">222</a>             iface.addObservation( <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[]{data[i][1]}, data[i][0]);
+<a class="jxr_linenumber" name="L223" href="SimpleRegressionTest.html#L223">223</a>             regressionNoint.addData(data[i][1], data[i][0]);
+<a class="jxr_linenumber" name="L224" href="SimpleRegressionTest.html#L224">224</a>             regressionIntOnly.addData(1.0, data[i][0]);
+<a class="jxr_linenumber" name="L225" href="SimpleRegressionTest.html#L225">225</a>         }
+<a class="jxr_linenumber" name="L226" href="SimpleRegressionTest.html#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="SimpleRegressionTest.html#L227">227</a>         <em class="jxr_comment">//should not be null</em>
+<a class="jxr_linenumber" name="L228" href="SimpleRegressionTest.html#L228">228</a>         <strong class="jxr_keyword">final</strong> RegressionResults fullReg = iface.regress( );
+<a class="jxr_linenumber" name="L229" href="SimpleRegressionTest.html#L229">229</a>         Assert.assertNotNull(fullReg);
+<a class="jxr_linenumber" name="L230" href="SimpleRegressionTest.html#L230">230</a>         Assert.assertEquals(<span class="jxr_string">"intercept"</span>, regression.getIntercept(), fullReg.getParameterEstimate(0), 1.0e-16);
+<a class="jxr_linenumber" name="L231" href="SimpleRegressionTest.html#L231">231</a>         Assert.assertEquals(<span class="jxr_string">"intercept std err"</span>,regression.getInterceptStdErr(), fullReg.getStdErrorOfEstimate(0),1.0E-16);
+<a class="jxr_linenumber" name="L232" href="SimpleRegressionTest.html#L232">232</a>         Assert.assertEquals(<span class="jxr_string">"slope"</span>, regression.getSlope(), fullReg.getParameterEstimate(1), 1.0e-16);
+<a class="jxr_linenumber" name="L233" href="SimpleRegressionTest.html#L233">233</a>         Assert.assertEquals(<span class="jxr_string">"slope std err"</span>,regression.getSlopeStdErr(), fullReg.getStdErrorOfEstimate(1),1.0E-16);
+<a class="jxr_linenumber" name="L234" href="SimpleRegressionTest.html#L234">234</a>         Assert.assertEquals(<span class="jxr_string">"number of observations"</span>,regression.getN(), fullReg.getN());
+<a class="jxr_linenumber" name="L235" href="SimpleRegressionTest.html#L235">235</a>         Assert.assertEquals(<span class="jxr_string">"r-square"</span>,regression.getRSquare(), fullReg.getRSquared(), 1.0E-16);
+<a class="jxr_linenumber" name="L236" href="SimpleRegressionTest.html#L236">236</a>         Assert.assertEquals(<span class="jxr_string">"SSR"</span>, regression.getRegressionSumSquares(), fullReg.getRegressionSumSquares() ,1.0E-16);
+<a class="jxr_linenumber" name="L237" href="SimpleRegressionTest.html#L237">237</a>         Assert.assertEquals(<span class="jxr_string">"MSE"</span>, regression.getMeanSquareError(), fullReg.getMeanSquareError() ,1.0E-16);
+<a class="jxr_linenumber" name="L238" href="SimpleRegressionTest.html#L238">238</a>         Assert.assertEquals(<span class="jxr_string">"SSE"</span>, regression.getSumSquaredErrors(), fullReg.getErrorSumSquares() ,1.0E-16);
+<a class="jxr_linenumber" name="L239" href="SimpleRegressionTest.html#L239">239</a> 
+<a class="jxr_linenumber" name="L240" href="SimpleRegressionTest.html#L240">240</a> 
+<a class="jxr_linenumber" name="L241" href="SimpleRegressionTest.html#L241">241</a>         <strong class="jxr_keyword">final</strong> RegressionResults noInt   = iface.regress( <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[]{1} );
+<a class="jxr_linenumber" name="L242" href="SimpleRegressionTest.html#L242">242</a>         Assert.assertNotNull(noInt);
+<a class="jxr_linenumber" name="L243" href="SimpleRegressionTest.html#L243">243</a>         Assert.assertEquals(<span class="jxr_string">"slope"</span>, regressionNoint.getSlope(), noInt.getParameterEstimate(0), 1.0e-12);
+<a class="jxr_linenumber" name="L244" href="SimpleRegressionTest.html#L244">244</a>         Assert.assertEquals(<span class="jxr_string">"slope std err"</span>,regressionNoint.getSlopeStdErr(), noInt.getStdErrorOfEstimate(0),1.0E-16);
+<a class="jxr_linenumber" name="L245" href="SimpleRegressionTest.html#L245">245</a>         Assert.assertEquals(<span class="jxr_string">"number of observations"</span>,regressionNoint.getN(), noInt.getN());
+<a class="jxr_linenumber" name="L246" href="SimpleRegressionTest.html#L246">246</a>         Assert.assertEquals(<span class="jxr_string">"r-square"</span>,regressionNoint.getRSquare(), noInt.getRSquared(), 1.0E-16);
+<a class="jxr_linenumber" name="L247" href="SimpleRegressionTest.html#L247">247</a>         Assert.assertEquals(<span class="jxr_string">"SSR"</span>, regressionNoint.getRegressionSumSquares(), noInt.getRegressionSumSquares() ,1.0E-8);
+<a class="jxr_linenumber" name="L248" href="SimpleRegressionTest.html#L248">248</a>         Assert.assertEquals(<span class="jxr_string">"MSE"</span>, regressionNoint.getMeanSquareError(), noInt.getMeanSquareError() ,1.0E-16);
+<a class="jxr_linenumber" name="L249" href="SimpleRegressionTest.html#L249">249</a>         Assert.assertEquals(<span class="jxr_string">"SSE"</span>, regressionNoint.getSumSquaredErrors(), noInt.getErrorSumSquares() ,1.0E-16);
+<a class="jxr_linenumber" name="L250" href="SimpleRegressionTest.html#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="SimpleRegressionTest.html#L251">251</a>         <strong class="jxr_keyword">final</strong> RegressionResults onlyInt = iface.regress( <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[]{0} );
+<a class="jxr_linenumber" name="L252" href="SimpleRegressionTest.html#L252">252</a>         Assert.assertNotNull(onlyInt);
+<a class="jxr_linenumber" name="L253" href="SimpleRegressionTest.html#L253">253</a>         Assert.assertEquals(<span class="jxr_string">"slope"</span>, regressionIntOnly.getSlope(), onlyInt.getParameterEstimate(0), 1.0e-12);
+<a class="jxr_linenumber" name="L254" href="SimpleRegressionTest.html#L254">254</a>         Assert.assertEquals(<span class="jxr_string">"slope std err"</span>,regressionIntOnly.getSlopeStdErr(), onlyInt.getStdErrorOfEstimate(0),1.0E-12);
+<a class="jxr_linenumber" name="L255" href="SimpleRegressionTest.html#L255">255</a>         Assert.assertEquals(<span class="jxr_string">"number of observations"</span>,regressionIntOnly.getN(), onlyInt.getN());
+<a class="jxr_linenumber" name="L256" href="SimpleRegressionTest.html#L256">256</a>         Assert.assertEquals(<span class="jxr_string">"r-square"</span>,regressionIntOnly.getRSquare(), onlyInt.getRSquared(), 1.0E-14);
+<a class="jxr_linenumber" name="L257" href="SimpleRegressionTest.html#L257">257</a>         Assert.assertEquals(<span class="jxr_string">"SSE"</span>, regressionIntOnly.getSumSquaredErrors(), onlyInt.getErrorSumSquares() ,1.0E-8);
+<a class="jxr_linenumber" name="L258" href="SimpleRegressionTest.html#L258">258</a>         Assert.assertEquals(<span class="jxr_string">"SSR"</span>, regressionIntOnly.getRegressionSumSquares(), onlyInt.getRegressionSumSquares() ,1.0E-8);
+<a class="jxr_linenumber" name="L259" href="SimpleRegressionTest.html#L259">259</a>         Assert.assertEquals(<span class="jxr_string">"MSE"</span>, regressionIntOnly.getMeanSquareError(), onlyInt.getMeanSquareError() ,1.0E-8);
+<a class="jxr_linenumber" name="L260" href="SimpleRegressionTest.html#L260">260</a> 
+<a class="jxr_linenumber" name="L261" href="SimpleRegressionTest.html#L261">261</a>     }
+<a class="jxr_linenumber" name="L262" href="SimpleRegressionTest.html#L262">262</a> 
+<a class="jxr_linenumber" name="L263" href="SimpleRegressionTest.html#L263">263</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L264" href="SimpleRegressionTest.html#L264">264</a> <em class="jxr_javadoccomment">     * Verify that regress generates exceptions as advertised for bad model specifications.</em>
+<a class="jxr_linenumber" name="L265" href="SimpleRegressionTest.html#L265">265</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L266" href="SimpleRegressionTest.html#L266">266</a>     @Test
+<a class="jxr_linenumber" name="L267" href="SimpleRegressionTest.html#L267">267</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRegressExceptions() {
+<a class="jxr_linenumber" name="L268" href="SimpleRegressionTest.html#L268">268</a>         <em class="jxr_comment">// No intercept</em>
+<a class="jxr_linenumber" name="L269" href="SimpleRegressionTest.html#L269">269</a>         <strong class="jxr_keyword">final</strong> SimpleRegression noIntRegression = <strong class="jxr_keyword">new</strong> SimpleRegression(false);
+<a class="jxr_linenumber" name="L270" href="SimpleRegressionTest.html#L270">270</a>         noIntRegression.addData(noint2[0][1], noint2[0][0]);
+<a class="jxr_linenumber" name="L271" href="SimpleRegressionTest.html#L271">271</a>         noIntRegression.addData(noint2[1][1], noint2[1][0]);
+<a class="jxr_linenumber" name="L272" href="SimpleRegressionTest.html#L272">272</a>         noIntRegression.addData(noint2[2][1], noint2[2][0]);
+<a class="jxr_linenumber" name="L273" href="SimpleRegressionTest.html#L273">273</a>         <strong class="jxr_keyword">try</strong> { <em class="jxr_comment">// null array</em>
+<a class="jxr_linenumber" name="L274" href="SimpleRegressionTest.html#L274">274</a>             noIntRegression.regress(<strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L275" href="SimpleRegressionTest.html#L275">275</a>             Assert.fail(<span class="jxr_string">"Expecting MathIllegalArgumentException for null array"</span>);
+<a class="jxr_linenumber" name="L276" href="SimpleRegressionTest.html#L276">276</a>         } <strong class="jxr_keyword">catch</strong> (MathIllegalArgumentException ex) {
+<a class="jxr_linenumber" name="L277" href="SimpleRegressionTest.html#L277">277</a>             <em class="jxr_comment">// Expected</em>
+<a class="jxr_linenumber" name="L278" href="SimpleRegressionTest.html#L278">278</a>         }
+<a class="jxr_linenumber" name="L279" href="SimpleRegressionTest.html#L279">279</a>         <strong class="jxr_keyword">try</strong> { <em class="jxr_comment">// empty array</em>
+<a class="jxr_linenumber" name="L280" href="SimpleRegressionTest.html#L280">280</a>             noIntRegression.regress(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[] {});
+<a class="jxr_linenumber" name="L281" href="SimpleRegressionTest.html#L281">281</a>             Assert.fail(<span class="jxr_string">"Expecting MathIllegalArgumentException for empty array"</span>);
+<a class="jxr_linenumber" name="L282" href="SimpleRegressionTest.html#L282">282</a>         } <strong class="jxr_keyword">catch</strong> (MathIllegalArgumentException ex) {
+<a class="jxr_linenumber" name="L283" href="SimpleRegressionTest.html#L283">283</a>             <em class="jxr_comment">// Expected</em>
+<a class="jxr_linenumber" name="L284" href="SimpleRegressionTest.html#L284">284</a>         }
+<a class="jxr_linenumber" name="L285" href="SimpleRegressionTest.html#L285">285</a>         <strong class="jxr_keyword">try</strong> { <em class="jxr_comment">// more than 1 regressor</em>
+<a class="jxr_linenumber" name="L286" href="SimpleRegressionTest.html#L286">286</a>             noIntRegression.regress(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[] {0, 1});
+<a class="jxr_linenumber" name="L287" href="SimpleRegressionTest.html#L287">287</a>             Assert.fail(<span class="jxr_string">"Expecting ModelSpecificationException - too many regressors"</span>);
+<a class="jxr_linenumber" name="L288" href="SimpleRegressionTest.html#L288">288</a>         } <strong class="jxr_keyword">catch</strong> (ModelSpecificationException ex) {
+<a class="jxr_linenumber" name="L289" href="SimpleRegressionTest.html#L289">289</a>             <em class="jxr_comment">// Expected</em>
+<a class="jxr_linenumber" name="L290" href="SimpleRegressionTest.html#L290">290</a>         }
+<a class="jxr_linenumber" name="L291" href="SimpleRegressionTest.html#L291">291</a>         <strong class="jxr_keyword">try</strong> { <em class="jxr_comment">// invalid regressor</em>
+<a class="jxr_linenumber" name="L292" href="SimpleRegressionTest.html#L292">292</a>             noIntRegression.regress(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[] {1});
+<a class="jxr_linenumber" name="L293" href="SimpleRegressionTest.html#L293">293</a>             Assert.fail(<span class="jxr_string">"Expecting OutOfRangeException - invalid regression"</span>);
+<a class="jxr_linenumber" name="L294" href="SimpleRegressionTest.html#L294">294</a>         } <strong class="jxr_keyword">catch</strong> (OutOfRangeException ex) {
+<a class="jxr_linenumber" name="L295" href="SimpleRegressionTest.html#L295">295</a>             <em class="jxr_comment">// Expected</em>
+<a class="jxr_linenumber" name="L296" href="SimpleRegressionTest.html#L296">296</a>         }
+<a class="jxr_linenumber" name="L297" href="SimpleRegressionTest.html#L297">297</a> 
+<a class="jxr_linenumber" name="L298" href="SimpleRegressionTest.html#L298">298</a>         <em class="jxr_comment">// With intercept</em>
+<a class="jxr_linenumber" name="L299" href="SimpleRegressionTest.html#L299">299</a>         <strong class="jxr_keyword">final</strong> SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L300" href="SimpleRegressionTest.html#L300">300</a>         regression.addData(noint2[0][1], noint2[0][0]);
+<a class="jxr_linenumber" name="L301" href="SimpleRegressionTest.html#L301">301</a>         regression.addData(noint2[1][1], noint2[1][0]);
+<a class="jxr_linenumber" name="L302" href="SimpleRegressionTest.html#L302">302</a>         regression.addData(noint2[2][1], noint2[2][0]);
+<a class="jxr_linenumber" name="L303" href="SimpleRegressionTest.html#L303">303</a>         <strong class="jxr_keyword">try</strong> { <em class="jxr_comment">// null array</em>
+<a class="jxr_linenumber" name="L304" href="SimpleRegressionTest.html#L304">304</a>             regression.regress(<strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L305" href="SimpleRegressionTest.html#L305">305</a>             Assert.fail(<span class="jxr_string">"Expecting MathIllegalArgumentException for null array"</span>);
+<a class="jxr_linenumber" name="L306" href="SimpleRegressionTest.html#L306">306</a>         } <strong class="jxr_keyword">catch</strong> (MathIllegalArgumentException ex) {
+<a class="jxr_linenumber" name="L307" href="SimpleRegressionTest.html#L307">307</a>             <em class="jxr_comment">// Expected</em>
+<a class="jxr_linenumber" name="L308" href="SimpleRegressionTest.html#L308">308</a>         }
+<a class="jxr_linenumber" name="L309" href="SimpleRegressionTest.html#L309">309</a>         <strong class="jxr_keyword">try</strong> { <em class="jxr_comment">// empty array</em>
+<a class="jxr_linenumber" name="L310" href="SimpleRegressionTest.html#L310">310</a>             regression.regress(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[] {});
+<a class="jxr_linenumber" name="L311" href="SimpleRegressionTest.html#L311">311</a>             Assert.fail(<span class="jxr_string">"Expecting MathIllegalArgumentException for empty array"</span>);
+<a class="jxr_linenumber" name="L312" href="SimpleRegressionTest.html#L312">312</a>         } <strong class="jxr_keyword">catch</strong> (MathIllegalArgumentException ex) {
+<a class="jxr_linenumber" name="L313" href="SimpleRegressionTest.html#L313">313</a>             <em class="jxr_comment">// Expected</em>
+<a class="jxr_linenumber" name="L314" href="SimpleRegressionTest.html#L314">314</a>         }
+<a class="jxr_linenumber" name="L315" href="SimpleRegressionTest.html#L315">315</a>         <strong class="jxr_keyword">try</strong> { <em class="jxr_comment">// more than 2 regressors</em>
+<a class="jxr_linenumber" name="L316" href="SimpleRegressionTest.html#L316">316</a>             regression.regress(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[] {0, 1, 2});
+<a class="jxr_linenumber" name="L317" href="SimpleRegressionTest.html#L317">317</a>             Assert.fail(<span class="jxr_string">"Expecting ModelSpecificationException - too many regressors"</span>);
+<a class="jxr_linenumber" name="L318" href="SimpleRegressionTest.html#L318">318</a>         } <strong class="jxr_keyword">catch</strong> (ModelSpecificationException ex) {
+<a class="jxr_linenumber" name="L319" href="SimpleRegressionTest.html#L319">319</a>             <em class="jxr_comment">// Expected</em>
+<a class="jxr_linenumber" name="L320" href="SimpleRegressionTest.html#L320">320</a>         }
+<a class="jxr_linenumber" name="L321" href="SimpleRegressionTest.html#L321">321</a>         <strong class="jxr_keyword">try</strong> { <em class="jxr_comment">// wrong order</em>
+<a class="jxr_linenumber" name="L322" href="SimpleRegressionTest.html#L322">322</a>             regression.regress(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[] {1,0});
+<a class="jxr_linenumber" name="L323" href="SimpleRegressionTest.html#L323">323</a>             Assert.fail(<span class="jxr_string">"Expecting ModelSpecificationException - invalid regression"</span>);
+<a class="jxr_linenumber" name="L324" href="SimpleRegressionTest.html#L324">324</a>         } <strong class="jxr_keyword">catch</strong> (ModelSpecificationException ex) {
+<a class="jxr_linenumber" name="L325" href="SimpleRegressionTest.html#L325">325</a>             <em class="jxr_comment">// Expected</em>
+<a class="jxr_linenumber" name="L326" href="SimpleRegressionTest.html#L326">326</a>         }
+<a class="jxr_linenumber" name="L327" href="SimpleRegressionTest.html#L327">327</a>         <strong class="jxr_keyword">try</strong> { <em class="jxr_comment">// out of range</em>
+<a class="jxr_linenumber" name="L328" href="SimpleRegressionTest.html#L328">328</a>             regression.regress(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[] {3,4});
+<a class="jxr_linenumber" name="L329" href="SimpleRegressionTest.html#L329">329</a>             Assert.fail(<span class="jxr_string">"Expecting OutOfRangeException"</span>);
+<a class="jxr_linenumber" name="L330" href="SimpleRegressionTest.html#L330">330</a>         } <strong class="jxr_keyword">catch</strong> (OutOfRangeException ex) {
+<a class="jxr_linenumber" name="L331" href="SimpleRegressionTest.html#L331">331</a>             <em class="jxr_comment">// Expected</em>
+<a class="jxr_linenumber" name="L332" href="SimpleRegressionTest.html#L332">332</a>         }
+<a class="jxr_linenumber" name="L333" href="SimpleRegressionTest.html#L333">333</a>         <strong class="jxr_keyword">try</strong> { <em class="jxr_comment">// out of range</em>
+<a class="jxr_linenumber" name="L334" href="SimpleRegressionTest.html#L334">334</a>             regression.regress(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[] {0,2});
+<a class="jxr_linenumber" name="L335" href="SimpleRegressionTest.html#L335">335</a>             Assert.fail(<span class="jxr_string">"Expecting OutOfRangeException"</span>);
+<a class="jxr_linenumber" name="L336" href="SimpleRegressionTest.html#L336">336</a>         } <strong class="jxr_keyword">catch</strong> (OutOfRangeException ex) {
+<a class="jxr_linenumber" name="L337" href="SimpleRegressionTest.html#L337">337</a>             <em class="jxr_comment">// Expected</em>
+<a class="jxr_linenumber" name="L338" href="SimpleRegressionTest.html#L338">338</a>         }
+<a class="jxr_linenumber" name="L339" href="SimpleRegressionTest.html#L339">339</a>         <strong class="jxr_keyword">try</strong> { <em class="jxr_comment">// out of range</em>
+<a class="jxr_linenumber" name="L340" href="SimpleRegressionTest.html#L340">340</a>             regression.regress(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[] {2});
+<a class="jxr_linenumber" name="L341" href="SimpleRegressionTest.html#L341">341</a>             Assert.fail(<span class="jxr_string">"Expecting OutOfRangeException"</span>);
+<a class="jxr_linenumber" name="L342" href="SimpleRegressionTest.html#L342">342</a>         } <strong class="jxr_keyword">catch</strong> (OutOfRangeException ex) {
+<a class="jxr_linenumber" name="L343" href="SimpleRegressionTest.html#L343">343</a>             <em class="jxr_comment">// Expected</em>
+<a class="jxr_linenumber" name="L344" href="SimpleRegressionTest.html#L344">344</a>         }
+<a class="jxr_linenumber" name="L345" href="SimpleRegressionTest.html#L345">345</a>     }
+<a class="jxr_linenumber" name="L346" href="SimpleRegressionTest.html#L346">346</a> 
+<a class="jxr_linenumber" name="L347" href="SimpleRegressionTest.html#L347">347</a>     @Test
+<a class="jxr_linenumber" name="L348" href="SimpleRegressionTest.html#L348">348</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testNoInterceot_noint2(){
+<a class="jxr_linenumber" name="L349" href="SimpleRegressionTest.html#L349">349</a>          SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression(false);
+<a class="jxr_linenumber" name="L350" href="SimpleRegressionTest.html#L350">350</a>          regression.addData(noint2[0][1], noint2[0][0]);
+<a class="jxr_linenumber" name="L351" href="SimpleRegressionTest.html#L351">351</a>          regression.addData(noint2[1][1], noint2[1][0]);
+<a class="jxr_linenumber" name="L352" href="SimpleRegressionTest.html#L352">352</a>          regression.addData(noint2[2][1], noint2[2][0]);
+<a class="jxr_linenumber" name="L353" href="SimpleRegressionTest.html#L353">353</a>          Assert.assertEquals(<span class="jxr_string">"intercept"</span>, 0, regression.getIntercept(), 0);
+<a class="jxr_linenumber" name="L354" href="SimpleRegressionTest.html#L354">354</a>          Assert.assertEquals(<span class="jxr_string">"slope"</span>, 0.727272727272727,
+<a class="jxr_linenumber" name="L355" href="SimpleRegressionTest.html#L355">355</a>                  regression.getSlope(), 10E-12);
+<a class="jxr_linenumber" name="L356" href="SimpleRegressionTest.html#L356">356</a>          Assert.assertEquals(<span class="jxr_string">"slope std err"</span>, 0.420827318078432E-01,
+<a class="jxr_linenumber" name="L357" href="SimpleRegressionTest.html#L357">357</a>                 regression.getSlopeStdErr(),10E-12);
+<a class="jxr_linenumber" name="L358" href="SimpleRegressionTest.html#L358">358</a>         Assert.assertEquals(<span class="jxr_string">"number of observations"</span>, 3, regression.getN());
+<a class="jxr_linenumber" name="L359" href="SimpleRegressionTest.html#L359">359</a>         Assert.assertEquals(<span class="jxr_string">"r-square"</span>, 0.993348115299335,
+<a class="jxr_linenumber" name="L360" href="SimpleRegressionTest.html#L360">360</a>             regression.getRSquare(), 10E-12);
+<a class="jxr_linenumber" name="L361" href="SimpleRegressionTest.html#L361">361</a>         Assert.assertEquals(<span class="jxr_string">"SSR"</span>, 40.7272727272727,
+<a class="jxr_linenumber" name="L362" href="SimpleRegressionTest.html#L362">362</a>             regression.getRegressionSumSquares(), 10E-9);
+<a class="jxr_linenumber" name="L363" href="SimpleRegressionTest.html#L363">363</a>         Assert.assertEquals(<span class="jxr_string">"MSE"</span>, 0.136363636363636,
+<a class="jxr_linenumber" name="L364" href="SimpleRegressionTest.html#L364">364</a>             regression.getMeanSquareError(), 10E-10);
+<a class="jxr_linenumber" name="L365" href="SimpleRegressionTest.html#L365">365</a>         Assert.assertEquals(<span class="jxr_string">"SSE"</span>, 0.272727272727273,
+<a class="jxr_linenumber" name="L366" href="SimpleRegressionTest.html#L366">366</a>             regression.getSumSquaredErrors(),10E-9);
+<a class="jxr_linenumber" name="L367" href="SimpleRegressionTest.html#L367">367</a>     }
+<a class="jxr_linenumber" name="L368" href="SimpleRegressionTest.html#L368">368</a> 
+<a class="jxr_linenumber" name="L369" href="SimpleRegressionTest.html#L369">369</a>     @Test
+<a class="jxr_linenumber" name="L370" href="SimpleRegressionTest.html#L370">370</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testNoIntercept_noint1(){
+<a class="jxr_linenumber" name="L371" href="SimpleRegressionTest.html#L371">371</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression(false);
+<a class="jxr_linenumber" name="L372" href="SimpleRegressionTest.html#L372">372</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; noint1.length; i++) {
+<a class="jxr_linenumber" name="L373" href="SimpleRegressionTest.html#L373">373</a>             regression.addData(noint1[i][1], noint1[i][0]);
+<a class="jxr_linenumber" name="L374" href="SimpleRegressionTest.html#L374">374</a>         }
+<a class="jxr_linenumber" name="L375" href="SimpleRegressionTest.html#L375">375</a>         Assert.assertEquals(<span class="jxr_string">"intercept"</span>, 0, regression.getIntercept(), 0);
+<a class="jxr_linenumber" name="L376" href="SimpleRegressionTest.html#L376">376</a>         Assert.assertEquals(<span class="jxr_string">"slope"</span>, 2.07438016528926, regression.getSlope(), 10E-12);
+<a class="jxr_linenumber" name="L377" href="SimpleRegressionTest.html#L377">377</a>         Assert.assertEquals(<span class="jxr_string">"slope std err"</span>, 0.165289256198347E-01,
+<a class="jxr_linenumber" name="L378" href="SimpleRegressionTest.html#L378">378</a>                 regression.getSlopeStdErr(),10E-12);
+<a class="jxr_linenumber" name="L379" href="SimpleRegressionTest.html#L379">379</a>         Assert.assertEquals(<span class="jxr_string">"number of observations"</span>, 11, regression.getN());
+<a class="jxr_linenumber" name="L380" href="SimpleRegressionTest.html#L380">380</a>         Assert.assertEquals(<span class="jxr_string">"r-square"</span>, 0.999365492298663,
+<a class="jxr_linenumber" name="L381" href="SimpleRegressionTest.html#L381">381</a>             regression.getRSquare(), 10E-12);
+<a class="jxr_linenumber" name="L382" href="SimpleRegressionTest.html#L382">382</a>         Assert.assertEquals(<span class="jxr_string">"SSR"</span>, 200457.727272727,
+<a class="jxr_linenumber" name="L383" href="SimpleRegressionTest.html#L383">383</a>             regression.getRegressionSumSquares(), 10E-9);
+<a class="jxr_linenumber" name="L384" href="SimpleRegressionTest.html#L384">384</a>         Assert.assertEquals(<span class="jxr_string">"MSE"</span>, 12.7272727272727,
+<a class="jxr_linenumber" name="L385" href="SimpleRegressionTest.html#L385">385</a>             regression.getMeanSquareError(), 10E-10);
+<a class="jxr_linenumber" name="L386" href="SimpleRegressionTest.html#L386">386</a>         Assert.assertEquals(<span class="jxr_string">"SSE"</span>, 127.272727272727,
+<a class="jxr_linenumber" name="L387" href="SimpleRegressionTest.html#L387">387</a>             regression.getSumSquaredErrors(),10E-9);
+<a class="jxr_linenumber" name="L388" href="SimpleRegressionTest.html#L388">388</a> 
+<a class="jxr_linenumber" name="L389" href="SimpleRegressionTest.html#L389">389</a>     }
+<a class="jxr_linenumber" name="L390" href="SimpleRegressionTest.html#L390">390</a> 
+<a class="jxr_linenumber" name="L391" href="SimpleRegressionTest.html#L391">391</a>     @Test
+<a class="jxr_linenumber" name="L392" href="SimpleRegressionTest.html#L392">392</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testNorris() {
+<a class="jxr_linenumber" name="L393" href="SimpleRegressionTest.html#L393">393</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L394" href="SimpleRegressionTest.html#L394">394</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; data.length; i++) {
+<a class="jxr_linenumber" name="L395" href="SimpleRegressionTest.html#L395">395</a>             regression.addData(data[i][1], data[i][0]);
+<a class="jxr_linenumber" name="L396" href="SimpleRegressionTest.html#L396">396</a>         }
+<a class="jxr_linenumber" name="L397" href="SimpleRegressionTest.html#L397">397</a>         <em class="jxr_comment">// Tests against certified values from</em>
+<a class="jxr_linenumber" name="L398" href="SimpleRegressionTest.html#L398">398</a>         <em class="jxr_comment">// http://www.itl.nist.gov/div898/strd/lls/data/LINKS/DATA/Norris.dat</em>
+<a class="jxr_linenumber" name="L399" href="SimpleRegressionTest.html#L399">399</a>         Assert.assertEquals(<span class="jxr_string">"slope"</span>, 1.00211681802045, regression.getSlope(), 10E-12);
+<a class="jxr_linenumber" name="L400" href="SimpleRegressionTest.html#L400">400</a>         Assert.assertEquals(<span class="jxr_string">"slope std err"</span>, 0.429796848199937E-03,
+<a class="jxr_linenumber" name="L401" href="SimpleRegressionTest.html#L401">401</a>                 regression.getSlopeStdErr(),10E-12);
+<a class="jxr_linenumber" name="L402" href="SimpleRegressionTest.html#L402">402</a>         Assert.assertEquals(<span class="jxr_string">"number of observations"</span>, 36, regression.getN());
+<a class="jxr_linenumber" name="L403" href="SimpleRegressionTest.html#L403">403</a>         Assert.assertEquals( <span class="jxr_string">"intercept"</span>, -0.262323073774029,
+<a class="jxr_linenumber" name="L404" href="SimpleRegressionTest.html#L404">404</a>             regression.getIntercept(),10E-12);
+<a class="jxr_linenumber" name="L405" href="SimpleRegressionTest.html#L405">405</a>         Assert.assertEquals(<span class="jxr_string">"std err intercept"</span>, 0.232818234301152,
+<a class="jxr_linenumber" name="L406" href="SimpleRegressionTest.html#L406">406</a>             regression.getInterceptStdErr(),10E-12);
+<a class="jxr_linenumber" name="L407" href="SimpleRegressionTest.html#L407">407</a>         Assert.assertEquals(<span class="jxr_string">"r-square"</span>, 0.999993745883712,
+<a class="jxr_linenumber" name="L408" href="SimpleRegressionTest.html#L408">408</a>             regression.getRSquare(), 10E-12);
+<a class="jxr_linenumber" name="L409" href="SimpleRegressionTest.html#L409">409</a>         Assert.assertEquals(<span class="jxr_string">"SSR"</span>, 4255954.13232369,
+<a class="jxr_linenumber" name="L410" href="SimpleRegressionTest.html#L410">410</a>             regression.getRegressionSumSquares(), 10E-9);
+<a class="jxr_linenumber" name="L411" href="SimpleRegressionTest.html#L411">411</a>         Assert.assertEquals(<span class="jxr_string">"MSE"</span>, 0.782864662630069,
+<a class="jxr_linenumber" name="L412" href="SimpleRegressionTest.html#L412">412</a>             regression.getMeanSquareError(), 10E-10);
+<a class="jxr_linenumber" name="L413" href="SimpleRegressionTest.html#L413">413</a>         Assert.assertEquals(<span class="jxr_string">"SSE"</span>, 26.6173985294224,
+<a class="jxr_linenumber" name="L414" href="SimpleRegressionTest.html#L414">414</a>             regression.getSumSquaredErrors(),10E-9);
+<a class="jxr_linenumber" name="L415" href="SimpleRegressionTest.html#L415">415</a>         <em class="jxr_comment">// ------------  End certified data tests</em>
+<a class="jxr_linenumber" name="L416" href="SimpleRegressionTest.html#L416">416</a> 
+<a class="jxr_linenumber" name="L417" href="SimpleRegressionTest.html#L417">417</a>         Assert.assertEquals( <span class="jxr_string">"predict(0)"</span>,  -0.262323073774029,
+<a class="jxr_linenumber" name="L418" href="SimpleRegressionTest.html#L418">418</a>             regression.predict(0), 10E-12);
+<a class="jxr_linenumber" name="L419" href="SimpleRegressionTest.html#L419">419</a>         Assert.assertEquals(<span class="jxr_string">"predict(1)"</span>, 1.00211681802045 - 0.262323073774029,
+<a class="jxr_linenumber" name="L420" href="SimpleRegressionTest.html#L420">420</a>             regression.predict(1), 10E-12);
+<a class="jxr_linenumber" name="L421" href="SimpleRegressionTest.html#L421">421</a>     }
+<a class="jxr_linenumber" name="L422" href="SimpleRegressionTest.html#L422">422</a> 
+<a class="jxr_linenumber" name="L423" href="SimpleRegressionTest.html#L423">423</a>     @Test
+<a class="jxr_linenumber" name="L424" href="SimpleRegressionTest.html#L424">424</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testCorr() {
+<a class="jxr_linenumber" name="L425" href="SimpleRegressionTest.html#L425">425</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L426" href="SimpleRegressionTest.html#L426">426</a>         regression.addData(corrData);
+<a class="jxr_linenumber" name="L427" href="SimpleRegressionTest.html#L427">427</a>         Assert.assertEquals(<span class="jxr_string">"number of observations"</span>, 17, regression.getN());
+<a class="jxr_linenumber" name="L428" href="SimpleRegressionTest.html#L428">428</a>         Assert.assertEquals(<span class="jxr_string">"r-square"</span>, .896123, regression.getRSquare(), 10E-6);
+<a class="jxr_linenumber" name="L429" href="SimpleRegressionTest.html#L429">429</a>         Assert.assertEquals(<span class="jxr_string">"r"</span>, -0.94663767742, regression.getR(), 1E-10);
+<a class="jxr_linenumber" name="L430" href="SimpleRegressionTest.html#L430">430</a>     }
+<a class="jxr_linenumber" name="L431" href="SimpleRegressionTest.html#L431">431</a> 
+<a class="jxr_linenumber" name="L432" href="SimpleRegressionTest.html#L432">432</a>     @Test
+<a class="jxr_linenumber" name="L433" href="SimpleRegressionTest.html#L433">433</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testNaNs() {
+<a class="jxr_linenumber" name="L434" href="SimpleRegressionTest.html#L434">434</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L435" href="SimpleRegressionTest.html#L435">435</a>         Assert.assertTrue(<span class="jxr_string">"intercept not NaN"</span>, Double.isNaN(regression.getIntercept()));
+<a class="jxr_linenumber" name="L436" href="SimpleRegressionTest.html#L436">436</a>         Assert.assertTrue(<span class="jxr_string">"slope not NaN"</span>, Double.isNaN(regression.getSlope()));
+<a class="jxr_linenumber" name="L437" href="SimpleRegressionTest.html#L437">437</a>         Assert.assertTrue(<span class="jxr_string">"slope std err not NaN"</span>, Double.isNaN(regression.getSlopeStdErr()));
+<a class="jxr_linenumber" name="L438" href="SimpleRegressionTest.html#L438">438</a>         Assert.assertTrue(<span class="jxr_string">"intercept std err not NaN"</span>, Double.isNaN(regression.getInterceptStdErr()));
+<a class="jxr_linenumber" name="L439" href="SimpleRegressionTest.html#L439">439</a>         Assert.assertTrue(<span class="jxr_string">"MSE not NaN"</span>, Double.isNaN(regression.getMeanSquareError()));
+<a class="jxr_linenumber" name="L440" href="SimpleRegressionTest.html#L440">440</a>         Assert.assertTrue(<span class="jxr_string">"e not NaN"</span>, Double.isNaN(regression.getR()));
+<a class="jxr_linenumber" name="L441" href="SimpleRegressionTest.html#L441">441</a>         Assert.assertTrue(<span class="jxr_string">"r-square not NaN"</span>, Double.isNaN(regression.getRSquare()));
+<a class="jxr_linenumber" name="L442" href="SimpleRegressionTest.html#L442">442</a>         Assert.assertTrue( <span class="jxr_string">"RSS not NaN"</span>, Double.isNaN(regression.getRegressionSumSquares()));
+<a class="jxr_linenumber" name="L443" href="SimpleRegressionTest.html#L443">443</a>         Assert.assertTrue(<span class="jxr_string">"SSE not NaN"</span>,Double.isNaN(regression.getSumSquaredErrors()));
+<a class="jxr_linenumber" name="L444" href="SimpleRegressionTest.html#L444">444</a>         Assert.assertTrue(<span class="jxr_string">"SSTO not NaN"</span>, Double.isNaN(regression.getTotalSumSquares()));
+<a class="jxr_linenumber" name="L445" href="SimpleRegressionTest.html#L445">445</a>         Assert.assertTrue(<span class="jxr_string">"predict not NaN"</span>, Double.isNaN(regression.predict(0)));
+<a class="jxr_linenumber" name="L446" href="SimpleRegressionTest.html#L446">446</a> 
+<a class="jxr_linenumber" name="L447" href="SimpleRegressionTest.html#L447">447</a>         regression.addData(1, 2);
+<a class="jxr_linenumber" name="L448" href="SimpleRegressionTest.html#L448">448</a>         regression.addData(1, 3);
+<a class="jxr_linenumber" name="L449" href="SimpleRegressionTest.html#L449">449</a> 
+<a class="jxr_linenumber" name="L450" href="SimpleRegressionTest.html#L450">450</a>         <em class="jxr_comment">// No x variation, so these should still blow...</em>
+<a class="jxr_linenumber" name="L451" href="SimpleRegressionTest.html#L451">451</a>         Assert.assertTrue(<span class="jxr_string">"intercept not NaN"</span>, Double.isNaN(regression.getIntercept()));
+<a class="jxr_linenumber" name="L452" href="SimpleRegressionTest.html#L452">452</a>         Assert.assertTrue(<span class="jxr_string">"slope not NaN"</span>, Double.isNaN(regression.getSlope()));
+<a class="jxr_linenumber" name="L453" href="SimpleRegressionTest.html#L453">453</a>         Assert.assertTrue(<span class="jxr_string">"slope std err not NaN"</span>, Double.isNaN(regression.getSlopeStdErr()));
+<a class="jxr_linenumber" name="L454" href="SimpleRegressionTest.html#L454">454</a>         Assert.assertTrue(<span class="jxr_string">"intercept std err not NaN"</span>, Double.isNaN(regression.getInterceptStdErr()));
+<a class="jxr_linenumber" name="L455" href="SimpleRegressionTest.html#L455">455</a>         Assert.assertTrue(<span class="jxr_string">"MSE not NaN"</span>, Double.isNaN(regression.getMeanSquareError()));
+<a class="jxr_linenumber" name="L456" href="SimpleRegressionTest.html#L456">456</a>         Assert.assertTrue(<span class="jxr_string">"e not NaN"</span>, Double.isNaN(regression.getR()));
+<a class="jxr_linenumber" name="L457" href="SimpleRegressionTest.html#L457">457</a>         Assert.assertTrue(<span class="jxr_string">"r-square not NaN"</span>, Double.isNaN(regression.getRSquare()));
+<a class="jxr_linenumber" name="L458" href="SimpleRegressionTest.html#L458">458</a>         Assert.assertTrue(<span class="jxr_string">"RSS not NaN"</span>, Double.isNaN(regression.getRegressionSumSquares()));
+<a class="jxr_linenumber" name="L459" href="SimpleRegressionTest.html#L459">459</a>         Assert.assertTrue(<span class="jxr_string">"SSE not NaN"</span>, Double.isNaN(regression.getSumSquaredErrors()));
+<a class="jxr_linenumber" name="L460" href="SimpleRegressionTest.html#L460">460</a>         Assert.assertTrue(<span class="jxr_string">"predict not NaN"</span>, Double.isNaN(regression.predict(0)));
+<a class="jxr_linenumber" name="L461" href="SimpleRegressionTest.html#L461">461</a> 
+<a class="jxr_linenumber" name="L462" href="SimpleRegressionTest.html#L462">462</a>         <em class="jxr_comment">// but SSTO should be OK</em>
+<a class="jxr_linenumber" name="L463" href="SimpleRegressionTest.html#L463">463</a>         Assert.assertTrue(<span class="jxr_string">"SSTO NaN"</span>, !Double.isNaN(regression.getTotalSumSquares()));
+<a class="jxr_linenumber" name="L464" href="SimpleRegressionTest.html#L464">464</a> 
+<a class="jxr_linenumber" name="L465" href="SimpleRegressionTest.html#L465">465</a>         regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L466" href="SimpleRegressionTest.html#L466">466</a> 
+<a class="jxr_linenumber" name="L467" href="SimpleRegressionTest.html#L467">467</a>         regression.addData(1, 2);
+<a class="jxr_linenumber" name="L468" href="SimpleRegressionTest.html#L468">468</a>         regression.addData(3, 3);
+<a class="jxr_linenumber" name="L469" href="SimpleRegressionTest.html#L469">469</a> 
+<a class="jxr_linenumber" name="L470" href="SimpleRegressionTest.html#L470">470</a>         <em class="jxr_comment">// All should be OK except MSE, s(b0), s(b1) which need one more df</em>
+<a class="jxr_linenumber" name="L471" href="SimpleRegressionTest.html#L471">471</a>         Assert.assertTrue(<span class="jxr_string">"interceptNaN"</span>, !Double.isNaN(regression.getIntercept()));
+<a class="jxr_linenumber" name="L472" href="SimpleRegressionTest.html#L472">472</a>         Assert.assertTrue(<span class="jxr_string">"slope NaN"</span>, !Double.isNaN(regression.getSlope()));
+<a class="jxr_linenumber" name="L473" href="SimpleRegressionTest.html#L473">473</a>         Assert.assertTrue(<span class="jxr_string">"slope std err not NaN"</span>, Double.isNaN(regression.getSlopeStdErr()));
+<a class="jxr_linenumber" name="L474" href="SimpleRegressionTest.html#L474">474</a>         Assert.assertTrue(<span class="jxr_string">"intercept std err not NaN"</span>, Double.isNaN(regression.getInterceptStdErr()));
+<a class="jxr_linenumber" name="L475" href="SimpleRegressionTest.html#L475">475</a>         Assert.assertTrue(<span class="jxr_string">"MSE not NaN"</span>, Double.isNaN(regression.getMeanSquareError()));
+<a class="jxr_linenumber" name="L476" href="SimpleRegressionTest.html#L476">476</a>         Assert.assertTrue(<span class="jxr_string">"r NaN"</span>, !Double.isNaN(regression.getR()));
+<a class="jxr_linenumber" name="L477" href="SimpleRegressionTest.html#L477">477</a>         Assert.assertTrue(<span class="jxr_string">"r-square NaN"</span>, !Double.isNaN(regression.getRSquare()));
+<a class="jxr_linenumber" name="L478" href="SimpleRegressionTest.html#L478">478</a>         Assert.assertTrue(<span class="jxr_string">"RSS NaN"</span>, !Double.isNaN(regression.getRegressionSumSquares()));
+<a class="jxr_linenumber" name="L479" href="SimpleRegressionTest.html#L479">479</a>         Assert.assertTrue(<span class="jxr_string">"SSE NaN"</span>, !Double.isNaN(regression.getSumSquaredErrors()));
+<a class="jxr_linenumber" name="L480" href="SimpleRegressionTest.html#L480">480</a>         Assert.assertTrue(<span class="jxr_string">"SSTO NaN"</span>, !Double.isNaN(regression.getTotalSumSquares()));
+<a class="jxr_linenumber" name="L481" href="SimpleRegressionTest.html#L481">481</a>         Assert.assertTrue(<span class="jxr_string">"predict NaN"</span>, !Double.isNaN(regression.predict(0)));
+<a class="jxr_linenumber" name="L482" href="SimpleRegressionTest.html#L482">482</a> 
+<a class="jxr_linenumber" name="L483" href="SimpleRegressionTest.html#L483">483</a>         regression.addData(1, 4);
+<a class="jxr_linenumber" name="L484" href="SimpleRegressionTest.html#L484">484</a> 
+<a class="jxr_linenumber" name="L485" href="SimpleRegressionTest.html#L485">485</a>         <em class="jxr_comment">// MSE, MSE, s(b0), s(b1) should all be OK now</em>
+<a class="jxr_linenumber" name="L486" href="SimpleRegressionTest.html#L486">486</a>         Assert.assertTrue(<span class="jxr_string">"MSE NaN"</span>, !Double.isNaN(regression.getMeanSquareError()));
+<a class="jxr_linenumber" name="L487" href="SimpleRegressionTest.html#L487">487</a>         Assert.assertTrue(<span class="jxr_string">"slope std err NaN"</span>, !Double.isNaN(regression.getSlopeStdErr()));
+<a class="jxr_linenumber" name="L488" href="SimpleRegressionTest.html#L488">488</a>         Assert.assertTrue(<span class="jxr_string">"intercept std err NaN"</span>, !Double.isNaN(regression.getInterceptStdErr()));
+<a class="jxr_linenumber" name="L489" href="SimpleRegressionTest.html#L489">489</a>     }
+<a class="jxr_linenumber" name="L490" href="SimpleRegressionTest.html#L490">490</a> 
+<a class="jxr_linenumber" name="L491" href="SimpleRegressionTest.html#L491">491</a>     @Test
+<a class="jxr_linenumber" name="L492" href="SimpleRegressionTest.html#L492">492</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testClear() {
+<a class="jxr_linenumber" name="L493" href="SimpleRegressionTest.html#L493">493</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L494" href="SimpleRegressionTest.html#L494">494</a>         regression.addData(corrData);
+<a class="jxr_linenumber" name="L495" href="SimpleRegressionTest.html#L495">495</a>         Assert.assertEquals(<span class="jxr_string">"number of observations"</span>, 17, regression.getN());
+<a class="jxr_linenumber" name="L496" href="SimpleRegressionTest.html#L496">496</a>         regression.clear();
+<a class="jxr_linenumber" name="L497" href="SimpleRegressionTest.html#L497">497</a>         Assert.assertEquals(<span class="jxr_string">"number of observations"</span>, 0, regression.getN());
+<a class="jxr_linenumber" name="L498" href="SimpleRegressionTest.html#L498">498</a>         regression.addData(corrData);
+<a class="jxr_linenumber" name="L499" href="SimpleRegressionTest.html#L499">499</a>         Assert.assertEquals(<span class="jxr_string">"r-square"</span>, .896123, regression.getRSquare(), 10E-6);
+<a class="jxr_linenumber" name="L500" href="SimpleRegressionTest.html#L500">500</a>         regression.addData(data);
+<a class="jxr_linenumber" name="L501" href="SimpleRegressionTest.html#L501">501</a>         Assert.assertEquals(<span class="jxr_string">"number of observations"</span>, 53, regression.getN());
+<a class="jxr_linenumber" name="L502" href="SimpleRegressionTest.html#L502">502</a>     }
+<a class="jxr_linenumber" name="L503" href="SimpleRegressionTest.html#L503">503</a> 
+<a class="jxr_linenumber" name="L504" href="SimpleRegressionTest.html#L504">504</a>     @Test
+<a class="jxr_linenumber" name="L505" href="SimpleRegressionTest.html#L505">505</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testInference() {
+<a class="jxr_linenumber" name="L506" href="SimpleRegressionTest.html#L506">506</a>         <em class="jxr_comment">//----------  verified against R, version 1.8.1 -----</em>
+<a class="jxr_linenumber" name="L507" href="SimpleRegressionTest.html#L507">507</a>         <em class="jxr_comment">// infData</em>
+<a class="jxr_linenumber" name="L508" href="SimpleRegressionTest.html#L508">508</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L509" href="SimpleRegressionTest.html#L509">509</a>         regression.addData(infData);
+<a class="jxr_linenumber" name="L510" href="SimpleRegressionTest.html#L510">510</a>         Assert.assertEquals(<span class="jxr_string">"slope std err"</span>, 0.011448491,
+<a class="jxr_linenumber" name="L511" href="SimpleRegressionTest.html#L511">511</a>                 regression.getSlopeStdErr(), 1E-10);
+<a class="jxr_linenumber" name="L512" href="SimpleRegressionTest.html#L512">512</a>         Assert.assertEquals(<span class="jxr_string">"std err intercept"</span>, 0.286036932,
+<a class="jxr_linenumber" name="L513" href="SimpleRegressionTest.html#L513">513</a>                 regression.getInterceptStdErr(),1E-8);
+<a class="jxr_linenumber" name="L514" href="SimpleRegressionTest.html#L514">514</a>         Assert.assertEquals(<span class="jxr_string">"significance"</span>, 4.596e-07,
+<a class="jxr_linenumber" name="L515" href="SimpleRegressionTest.html#L515">515</a>                 regression.getSignificance(),1E-8);
+<a class="jxr_linenumber" name="L516" href="SimpleRegressionTest.html#L516">516</a>         Assert.assertEquals(<span class="jxr_string">"slope conf interval half-width"</span>, 0.0270713794287,
+<a class="jxr_linenumber" name="L517" href="SimpleRegressionTest.html#L517">517</a>                 regression.getSlopeConfidenceInterval(),1E-8);
+<a class="jxr_linenumber" name="L518" href="SimpleRegressionTest.html#L518">518</a>         <em class="jxr_comment">// infData2</em>
+<a class="jxr_linenumber" name="L519" href="SimpleRegressionTest.html#L519">519</a>         regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L520" href="SimpleRegressionTest.html#L520">520</a>         regression.addData(infData2);
+<a class="jxr_linenumber" name="L521" href="SimpleRegressionTest.html#L521">521</a>         Assert.assertEquals(<span class="jxr_string">"slope std err"</span>, 1.07260253,
+<a class="jxr_linenumber" name="L522" href="SimpleRegressionTest.html#L522">522</a>                 regression.getSlopeStdErr(), 1E-8);
+<a class="jxr_linenumber" name="L523" href="SimpleRegressionTest.html#L523">523</a>         Assert.assertEquals(<span class="jxr_string">"std err intercept"</span>,4.17718672,
+<a class="jxr_linenumber" name="L524" href="SimpleRegressionTest.html#L524">524</a>                 regression.getInterceptStdErr(),1E-8);
+<a class="jxr_linenumber" name="L525" href="SimpleRegressionTest.html#L525">525</a>         Assert.assertEquals(<span class="jxr_string">"significance"</span>, 0.261829133982,
+<a class="jxr_linenumber" name="L526" href="SimpleRegressionTest.html#L526">526</a>                 regression.getSignificance(),1E-11);
+<a class="jxr_linenumber" name="L527" href="SimpleRegressionTest.html#L527">527</a>         Assert.assertEquals(<span class="jxr_string">"slope conf interval half-width"</span>, 2.97802204827,
+<a class="jxr_linenumber" name="L528" href="SimpleRegressionTest.html#L528">528</a>                 regression.getSlopeConfidenceInterval(),1E-8);
+<a class="jxr_linenumber" name="L529" href="SimpleRegressionTest.html#L529">529</a>         <em class="jxr_comment">//------------- End R-verified tests -------------------------------</em>
+<a class="jxr_linenumber" name="L530" href="SimpleRegressionTest.html#L530">530</a> 
+<a class="jxr_linenumber" name="L531" href="SimpleRegressionTest.html#L531">531</a>         <em class="jxr_comment">//FIXME: get a real example to test against with alpha = .01</em>
+<a class="jxr_linenumber" name="L532" href="SimpleRegressionTest.html#L532">532</a>         Assert.assertTrue(<span class="jxr_string">"tighter means wider"</span>,
+<a class="jxr_linenumber" name="L533" href="SimpleRegressionTest.html#L533">533</a>                 regression.getSlopeConfidenceInterval() &lt; regression.getSlopeConfidenceInterval(0.01));
+<a class="jxr_linenumber" name="L534" href="SimpleRegressionTest.html#L534">534</a> 
+<a class="jxr_linenumber" name="L535" href="SimpleRegressionTest.html#L535">535</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L536" href="SimpleRegressionTest.html#L536">536</a>             regression.getSlopeConfidenceInterval(1);
+<a class="jxr_linenumber" name="L537" href="SimpleRegressionTest.html#L537">537</a>             Assert.fail(<span class="jxr_string">"expecting MathIllegalArgumentException for alpha = 1"</span>);
+<a class="jxr_linenumber" name="L538" href="SimpleRegressionTest.html#L538">538</a>         } <strong class="jxr_keyword">catch</strong> (MathIllegalArgumentException ex) {
+<a class="jxr_linenumber" name="L539" href="SimpleRegressionTest.html#L539">539</a>             <em class="jxr_comment">// ignored</em>
+<a class="jxr_linenumber" name="L540" href="SimpleRegressionTest.html#L540">540</a>         }
+<a class="jxr_linenumber" name="L541" href="SimpleRegressionTest.html#L541">541</a> 
+<a class="jxr_linenumber" name="L542" href="SimpleRegressionTest.html#L542">542</a>     }
+<a class="jxr_linenumber" name="L543" href="SimpleRegressionTest.html#L543">543</a> 
+<a class="jxr_linenumber" name="L544" href="SimpleRegressionTest.html#L544">544</a>     @Test
+<a class="jxr_linenumber" name="L545" href="SimpleRegressionTest.html#L545">545</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testPerfect() {
+<a class="jxr_linenumber" name="L546" href="SimpleRegressionTest.html#L546">546</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L547" href="SimpleRegressionTest.html#L547">547</a>         <strong class="jxr_keyword">int</strong> n = 100;
+<a class="jxr_linenumber" name="L548" href="SimpleRegressionTest.html#L548">548</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L549" href="SimpleRegressionTest.html#L549">549</a>             regression.addData(((<strong class="jxr_keyword">double</strong>) i) / (n - 1), i);
+<a class="jxr_linenumber" name="L550" href="SimpleRegressionTest.html#L550">550</a>         }
+<a class="jxr_linenumber" name="L551" href="SimpleRegressionTest.html#L551">551</a>         Assert.assertEquals(0.0, regression.getSignificance(), 1.0e-5);
+<a class="jxr_linenumber" name="L552" href="SimpleRegressionTest.html#L552">552</a>         Assert.assertTrue(regression.getSlope() &gt; 0.0);
+<a class="jxr_linenumber" name="L553" href="SimpleRegressionTest.html#L553">553</a>         Assert.assertTrue(regression.getSumSquaredErrors() &gt;= 0.0);
+<a class="jxr_linenumber" name="L554" href="SimpleRegressionTest.html#L554">554</a>     }
+<a class="jxr_linenumber" name="L555" href="SimpleRegressionTest.html#L555">555</a> 
+<a class="jxr_linenumber" name="L556" href="SimpleRegressionTest.html#L556">556</a>     @Test
+<a class="jxr_linenumber" name="L557" href="SimpleRegressionTest.html#L557">557</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testPerfect2() {
+<a class="jxr_linenumber" name="L558" href="SimpleRegressionTest.html#L558">558</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L559" href="SimpleRegressionTest.html#L559">559</a>         regression.addData(0, 0);
+<a class="jxr_linenumber" name="L560" href="SimpleRegressionTest.html#L560">560</a>         regression.addData(1, 1);
+<a class="jxr_linenumber" name="L561" href="SimpleRegressionTest.html#L561">561</a>         regression.addData(2, 2);
+<a class="jxr_linenumber" name="L562" href="SimpleRegressionTest.html#L562">562</a>         Assert.assertEquals(0.0, regression.getSlopeStdErr(), 0.0);
+<a class="jxr_linenumber" name="L563" href="SimpleRegressionTest.html#L563">563</a>         Assert.assertEquals(0.0, regression.getSignificance(), Double.MIN_VALUE);
+<a class="jxr_linenumber" name="L564" href="SimpleRegressionTest.html#L564">564</a>         Assert.assertEquals(1, regression.getRSquare(), Double.MIN_VALUE);
+<a class="jxr_linenumber" name="L565" href="SimpleRegressionTest.html#L565">565</a>     }
+<a class="jxr_linenumber" name="L566" href="SimpleRegressionTest.html#L566">566</a> 
+<a class="jxr_linenumber" name="L567" href="SimpleRegressionTest.html#L567">567</a>     @Test
+<a class="jxr_linenumber" name="L568" href="SimpleRegressionTest.html#L568">568</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testPerfectNegative() {
+<a class="jxr_linenumber" name="L569" href="SimpleRegressionTest.html#L569">569</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L570" href="SimpleRegressionTest.html#L570">570</a>         <strong class="jxr_keyword">int</strong> n = 100;
+<a class="jxr_linenumber" name="L571" href="SimpleRegressionTest.html#L571">571</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L572" href="SimpleRegressionTest.html#L572">572</a>             regression.addData(- ((<strong class="jxr_keyword">double</strong>) i) / (n - 1), i);
+<a class="jxr_linenumber" name="L573" href="SimpleRegressionTest.html#L573">573</a>         }
+<a class="jxr_linenumber" name="L574" href="SimpleRegressionTest.html#L574">574</a> 
+<a class="jxr_linenumber" name="L575" href="SimpleRegressionTest.html#L575">575</a>         Assert.assertEquals(0.0, regression.getSignificance(), 1.0e-5);
+<a class="jxr_linenumber" name="L576" href="SimpleRegressionTest.html#L576">576</a>         Assert.assertTrue(regression.getSlope() &lt; 0.0);
+<a class="jxr_linenumber" name="L577" href="SimpleRegressionTest.html#L577">577</a>     }
+<a class="jxr_linenumber" name="L578" href="SimpleRegressionTest.html#L578">578</a> 
+<a class="jxr_linenumber" name="L579" href="SimpleRegressionTest.html#L579">579</a>     @Test
+<a class="jxr_linenumber" name="L580" href="SimpleRegressionTest.html#L580">580</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRandom() {
+<a class="jxr_linenumber" name="L581" href="SimpleRegressionTest.html#L581">581</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L582" href="SimpleRegressionTest.html#L582">582</a>         Random random = <strong class="jxr_keyword">new</strong> Random(1);
+<a class="jxr_linenumber" name="L583" href="SimpleRegressionTest.html#L583">583</a>         <strong class="jxr_keyword">int</strong> n = 100;
+<a class="jxr_linenumber" name="L584" href="SimpleRegressionTest.html#L584">584</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L585" href="SimpleRegressionTest.html#L585">585</a>             regression.addData(((<strong class="jxr_keyword">double</strong>) i) / (n - 1), random.nextDouble());
+<a class="jxr_linenumber" name="L586" href="SimpleRegressionTest.html#L586">586</a>         }
+<a class="jxr_linenumber" name="L587" href="SimpleRegressionTest.html#L587">587</a> 
+<a class="jxr_linenumber" name="L588" href="SimpleRegressionTest.html#L588">588</a>         Assert.assertTrue( 0.0 &lt; regression.getSignificance()
+<a class="jxr_linenumber" name="L589" href="SimpleRegressionTest.html#L589">589</a>                     &amp;&amp; regression.getSignificance() &lt; 1.0);
+<a class="jxr_linenumber" name="L590" href="SimpleRegressionTest.html#L590">590</a>     }
+<a class="jxr_linenumber" name="L591" href="SimpleRegressionTest.html#L591">591</a> 
+<a class="jxr_linenumber" name="L592" href="SimpleRegressionTest.html#L592">592</a> 
+<a class="jxr_linenumber" name="L593" href="SimpleRegressionTest.html#L593">593</a>     <em class="jxr_comment">// Jira MATH-85 = Bugzilla 39432</em>
+<a class="jxr_linenumber" name="L594" href="SimpleRegressionTest.html#L594">594</a>     @Test
+<a class="jxr_linenumber" name="L595" href="SimpleRegressionTest.html#L595">595</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testSSENonNegative() {
+<a class="jxr_linenumber" name="L596" href="SimpleRegressionTest.html#L596">596</a>         <strong class="jxr_keyword">double</strong>[] y = { 8915.102, 8919.302, 8923.502 };
+<a class="jxr_linenumber" name="L597" href="SimpleRegressionTest.html#L597">597</a>         <strong class="jxr_keyword">double</strong>[] x = { 1.107178495E2, 1.107264895E2, 1.107351295E2 };
+<a class="jxr_linenumber" name="L598" href="SimpleRegressionTest.html#L598">598</a>         SimpleRegression reg = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L599" href="SimpleRegressionTest.html#L599">599</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; x.length; i++) {
+<a class="jxr_linenumber" name="L600" href="SimpleRegressionTest.html#L600">600</a>             reg.addData(x[i], y[i]);
+<a class="jxr_linenumber" name="L601" href="SimpleRegressionTest.html#L601">601</a>         }
+<a class="jxr_linenumber" name="L602" href="SimpleRegressionTest.html#L602">602</a>         Assert.assertTrue(reg.getSumSquaredErrors() &gt;= 0.0);
+<a class="jxr_linenumber" name="L603" href="SimpleRegressionTest.html#L603">603</a>     }
+<a class="jxr_linenumber" name="L604" href="SimpleRegressionTest.html#L604">604</a> 
+<a class="jxr_linenumber" name="L605" href="SimpleRegressionTest.html#L605">605</a>     <em class="jxr_comment">// Test remove X,Y (single observation)</em>
+<a class="jxr_linenumber" name="L606" href="SimpleRegressionTest.html#L606">606</a>     @Test
+<a class="jxr_linenumber" name="L607" href="SimpleRegressionTest.html#L607">607</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRemoveXY() {
+<a class="jxr_linenumber" name="L608" href="SimpleRegressionTest.html#L608">608</a>         <em class="jxr_comment">// Create regression with inference data then remove to test</em>
+<a class="jxr_linenumber" name="L609" href="SimpleRegressionTest.html#L609">609</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L610" href="SimpleRegressionTest.html#L610">610</a>         regression.addData(infData);
+<a class="jxr_linenumber" name="L611" href="SimpleRegressionTest.html#L611">611</a>         regression.removeData(removeX, removeY);
+<a class="jxr_linenumber" name="L612" href="SimpleRegressionTest.html#L612">612</a>         regression.addData(removeX, removeY);
+<a class="jxr_linenumber" name="L613" href="SimpleRegressionTest.html#L613">613</a>         <em class="jxr_comment">// Use the inference assertions to make sure that everything worked</em>
+<a class="jxr_linenumber" name="L614" href="SimpleRegressionTest.html#L614">614</a>         Assert.assertEquals(<span class="jxr_string">"slope std err"</span>, 0.011448491,
+<a class="jxr_linenumber" name="L615" href="SimpleRegressionTest.html#L615">615</a>                 regression.getSlopeStdErr(), 1E-10);
+<a class="jxr_linenumber" name="L616" href="SimpleRegressionTest.html#L616">616</a>         Assert.assertEquals(<span class="jxr_string">"std err intercept"</span>, 0.286036932,
+<a class="jxr_linenumber" name="L617" href="SimpleRegressionTest.html#L617">617</a>                 regression.getInterceptStdErr(),1E-8);
+<a class="jxr_linenumber" name="L618" href="SimpleRegressionTest.html#L618">618</a>         Assert.assertEquals(<span class="jxr_string">"significance"</span>, 4.596e-07,
+<a class="jxr_linenumber" name="L619" href="SimpleRegressionTest.html#L619">619</a>                 regression.getSignificance(),1E-8);
+<a class="jxr_linenumber" name="L620" href="SimpleRegressionTest.html#L620">620</a>         Assert.assertEquals(<span class="jxr_string">"slope conf interval half-width"</span>, 0.0270713794287,
+<a class="jxr_linenumber" name="L621" href="SimpleRegressionTest.html#L621">621</a>                 regression.getSlopeConfidenceInterval(),1E-8);
+<a class="jxr_linenumber" name="L622" href="SimpleRegressionTest.html#L622">622</a>      }
+<a class="jxr_linenumber" name="L623" href="SimpleRegressionTest.html#L623">623</a> 
+<a class="jxr_linenumber" name="L624" href="SimpleRegressionTest.html#L624">624</a> 
+<a class="jxr_linenumber" name="L625" href="SimpleRegressionTest.html#L625">625</a>     <em class="jxr_comment">// Test remove single observation in array</em>
+<a class="jxr_linenumber" name="L626" href="SimpleRegressionTest.html#L626">626</a>     @Test
+<a class="jxr_linenumber" name="L627" href="SimpleRegressionTest.html#L627">627</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRemoveSingle() {
+<a class="jxr_linenumber" name="L628" href="SimpleRegressionTest.html#L628">628</a>         <em class="jxr_comment">// Create regression with inference data then remove to test</em>
+<a class="jxr_linenumber" name="L629" href="SimpleRegressionTest.html#L629">629</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L630" href="SimpleRegressionTest.html#L630">630</a>         regression.addData(infData);
+<a class="jxr_linenumber" name="L631" href="SimpleRegressionTest.html#L631">631</a>         regression.removeData(removeSingle);
+<a class="jxr_linenumber" name="L632" href="SimpleRegressionTest.html#L632">632</a>         regression.addData(removeSingle);
+<a class="jxr_linenumber" name="L633" href="SimpleRegressionTest.html#L633">633</a>         <em class="jxr_comment">// Use the inference assertions to make sure that everything worked</em>
+<a class="jxr_linenumber" name="L634" href="SimpleRegressionTest.html#L634">634</a>         Assert.assertEquals(<span class="jxr_string">"slope std err"</span>, 0.011448491,
+<a class="jxr_linenumber" name="L635" href="SimpleRegressionTest.html#L635">635</a>                 regression.getSlopeStdErr(), 1E-10);
+<a class="jxr_linenumber" name="L636" href="SimpleRegressionTest.html#L636">636</a>         Assert.assertEquals(<span class="jxr_string">"std err intercept"</span>, 0.286036932,
+<a class="jxr_linenumber" name="L637" href="SimpleRegressionTest.html#L637">637</a>                 regression.getInterceptStdErr(),1E-8);
+<a class="jxr_linenumber" name="L638" href="SimpleRegressionTest.html#L638">638</a>         Assert.assertEquals(<span class="jxr_string">"significance"</span>, 4.596e-07,
+<a class="jxr_linenumber" name="L639" href="SimpleRegressionTest.html#L639">639</a>                 regression.getSignificance(),1E-8);
+<a class="jxr_linenumber" name="L640" href="SimpleRegressionTest.html#L640">640</a>         Assert.assertEquals(<span class="jxr_string">"slope conf interval half-width"</span>, 0.0270713794287,
+<a class="jxr_linenumber" name="L641" href="SimpleRegressionTest.html#L641">641</a>                 regression.getSlopeConfidenceInterval(),1E-8);
+<a class="jxr_linenumber" name="L642" href="SimpleRegressionTest.html#L642">642</a>      }
+<a class="jxr_linenumber" name="L643" href="SimpleRegressionTest.html#L643">643</a> 
+<a class="jxr_linenumber" name="L644" href="SimpleRegressionTest.html#L644">644</a>     <em class="jxr_comment">// Test remove multiple observations</em>
+<a class="jxr_linenumber" name="L645" href="SimpleRegressionTest.html#L645">645</a>     @Test
+<a class="jxr_linenumber" name="L646" href="SimpleRegressionTest.html#L646">646</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRemoveMultiple() {
+<a class="jxr_linenumber" name="L647" href="SimpleRegressionTest.html#L647">647</a>         <em class="jxr_comment">// Create regression with inference data then remove to test</em>
+<a class="jxr_linenumber" name="L648" href="SimpleRegressionTest.html#L648">648</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L649" href="SimpleRegressionTest.html#L649">649</a>         regression.addData(infData);
+<a class="jxr_linenumber" name="L650" href="SimpleRegressionTest.html#L650">650</a>         regression.removeData(removeMultiple);
+<a class="jxr_linenumber" name="L651" href="SimpleRegressionTest.html#L651">651</a>         regression.addData(removeMultiple);
+<a class="jxr_linenumber" name="L652" href="SimpleRegressionTest.html#L652">652</a>         <em class="jxr_comment">// Use the inference assertions to make sure that everything worked</em>
+<a class="jxr_linenumber" name="L653" href="SimpleRegressionTest.html#L653">653</a>         Assert.assertEquals(<span class="jxr_string">"slope std err"</span>, 0.011448491,
+<a class="jxr_linenumber" name="L654" href="SimpleRegressionTest.html#L654">654</a>                 regression.getSlopeStdErr(), 1E-10);
+<a class="jxr_linenumber" name="L655" href="SimpleRegressionTest.html#L655">655</a>         Assert.assertEquals(<span class="jxr_string">"std err intercept"</span>, 0.286036932,
+<a class="jxr_linenumber" name="L656" href="SimpleRegressionTest.html#L656">656</a>                 regression.getInterceptStdErr(),1E-8);
+<a class="jxr_linenumber" name="L657" href="SimpleRegressionTest.html#L657">657</a>         Assert.assertEquals(<span class="jxr_string">"significance"</span>, 4.596e-07,
+<a class="jxr_linenumber" name="L658" href="SimpleRegressionTest.html#L658">658</a>                 regression.getSignificance(),1E-8);
+<a class="jxr_linenumber" name="L659" href="SimpleRegressionTest.html#L659">659</a>         Assert.assertEquals(<span class="jxr_string">"slope conf interval half-width"</span>, 0.0270713794287,
+<a class="jxr_linenumber" name="L660" href="SimpleRegressionTest.html#L660">660</a>                 regression.getSlopeConfidenceInterval(),1E-8);
+<a class="jxr_linenumber" name="L661" href="SimpleRegressionTest.html#L661">661</a>      }
+<a class="jxr_linenumber" name="L662" href="SimpleRegressionTest.html#L662">662</a> 
+<a class="jxr_linenumber" name="L663" href="SimpleRegressionTest.html#L663">663</a>     <em class="jxr_comment">// Remove observation when empty</em>
+<a class="jxr_linenumber" name="L664" href="SimpleRegressionTest.html#L664">664</a>     @Test
+<a class="jxr_linenumber" name="L665" href="SimpleRegressionTest.html#L665">665</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRemoveObsFromEmpty() {
+<a class="jxr_linenumber" name="L666" href="SimpleRegressionTest.html#L666">666</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L667" href="SimpleRegressionTest.html#L667">667</a>         regression.removeData(removeX, removeY);
+<a class="jxr_linenumber" name="L668" href="SimpleRegressionTest.html#L668">668</a>         Assert.assertEquals(regression.getN(), 0);
+<a class="jxr_linenumber" name="L669" href="SimpleRegressionTest.html#L669">669</a>     }
+<a class="jxr_linenumber" name="L670" href="SimpleRegressionTest.html#L670">670</a> 
+<a class="jxr_linenumber" name="L671" href="SimpleRegressionTest.html#L671">671</a>     <em class="jxr_comment">// Remove single observation to empty</em>
+<a class="jxr_linenumber" name="L672" href="SimpleRegressionTest.html#L672">672</a>     @Test
+<a class="jxr_linenumber" name="L673" href="SimpleRegressionTest.html#L673">673</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRemoveObsFromSingle() {
+<a class="jxr_linenumber" name="L674" href="SimpleRegressionTest.html#L674">674</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L675" href="SimpleRegressionTest.html#L675">675</a>         regression.addData(removeX, removeY);
+<a class="jxr_linenumber" name="L676" href="SimpleRegressionTest.html#L676">676</a>         regression.removeData(removeX, removeY);
+<a class="jxr_linenumber" name="L677" href="SimpleRegressionTest.html#L677">677</a>         Assert.assertEquals(regression.getN(), 0);
+<a class="jxr_linenumber" name="L678" href="SimpleRegressionTest.html#L678">678</a>     }
+<a class="jxr_linenumber" name="L679" href="SimpleRegressionTest.html#L679">679</a> 
+<a class="jxr_linenumber" name="L680" href="SimpleRegressionTest.html#L680">680</a>     <em class="jxr_comment">// Remove multiple observations to empty</em>
+<a class="jxr_linenumber" name="L681" href="SimpleRegressionTest.html#L681">681</a>     @Test
+<a class="jxr_linenumber" name="L682" href="SimpleRegressionTest.html#L682">682</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRemoveMultipleToEmpty() {
+<a class="jxr_linenumber" name="L683" href="SimpleRegressionTest.html#L683">683</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L684" href="SimpleRegressionTest.html#L684">684</a>         regression.addData(removeMultiple);
+<a class="jxr_linenumber" name="L685" href="SimpleRegressionTest.html#L685">685</a>         regression.removeData(removeMultiple);
+<a class="jxr_linenumber" name="L686" href="SimpleRegressionTest.html#L686">686</a>         Assert.assertEquals(regression.getN(), 0);
+<a class="jxr_linenumber" name="L687" href="SimpleRegressionTest.html#L687">687</a>     }
+<a class="jxr_linenumber" name="L688" href="SimpleRegressionTest.html#L688">688</a> 
+<a class="jxr_linenumber" name="L689" href="SimpleRegressionTest.html#L689">689</a>     <em class="jxr_comment">// Remove multiple observations past empty (i.e. size of array &gt; n)</em>
+<a class="jxr_linenumber" name="L690" href="SimpleRegressionTest.html#L690">690</a>     @Test
+<a class="jxr_linenumber" name="L691" href="SimpleRegressionTest.html#L691">691</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRemoveMultiplePastEmpty() {
+<a class="jxr_linenumber" name="L692" href="SimpleRegressionTest.html#L692">692</a>         SimpleRegression regression = <strong class="jxr_keyword">new</strong> SimpleRegression();
+<a class="jxr_linenumber" name="L693" href="SimpleRegressionTest.html#L693">693</a>         regression.addData(removeX, removeY);
+<a class="jxr_linenumber" name="L694" href="SimpleRegressionTest.html#L694">694</a>         regression.removeData(removeMultiple);
+<a class="jxr_linenumber" name="L695" href="SimpleRegressionTest.html#L695">695</a>         Assert.assertEquals(regression.getN(), 0);
+<a class="jxr_linenumber" name="L696" href="SimpleRegressionTest.html#L696">696</a>     }
+<a class="jxr_linenumber" name="L697" href="SimpleRegressionTest.html#L697">697</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>
