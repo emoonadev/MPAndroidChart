@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.highlight.BarHighlighter;
@@ -15,6 +16,8 @@ import com.github.mikephil.charting.interfaces.dataprovider.BarDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.renderer.BarChartRenderer;
 
+import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.Locale;
 
 /**
@@ -278,13 +281,24 @@ public class BarChart extends BarLineChartBase<BarData> implements BarDataProvid
 
         String entries = entryCount == 1 ? "entry" : "entries";
 
-        // Format the values of min and max; to recite them back
+        StringBuilder description = new StringBuilder(String.format(Locale.getDefault(), "The bar chart has %d %s. ", entryCount, entries));
 
-        String description = String.format(Locale.getDefault(), "The bar chart has %d %s. " +
-                        "The minimum value is %s and maximum value is %s." +
-                        "Data ranges from %s to %s.",
-                entryCount, entries, minVal, maxVal, minRange, maxRange);
+        NumberFormat nf = NumberFormat.getInstance(); // get instance
+        nf.setMaximumFractionDigits(2);
 
-        return description;
+        for (IBarDataSet el : barData.getDataSets()) {
+            BarDataSet set = (BarDataSet) el;
+            for (BarEntry ba : set.getEntries()) {
+                String xLabel = xAxisValueFormatter.getFormattedValue(ba.getX());
+
+                if (!xLabel.isEmpty()) {
+                    description.append("The value for " + xAxisValueFormatter.getFormattedValue(ba.getX()) + " is " + nf.format(ba.getY()));
+                } else {
+                    description.append("The value is " + nf.format(ba.getY()));
+                }
+            }
+        }
+
+        return description.toString();
     }
 }
